@@ -94,7 +94,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         createEmailMessage(DATASET_CODE));
         
-        task.createExecutor(DATASET_CODE).execute();
+        task.createExecutor(DATASET_CODE, false).execute();
         
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();

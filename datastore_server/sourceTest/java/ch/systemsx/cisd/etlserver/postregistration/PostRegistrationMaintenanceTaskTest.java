@@ -103,9 +103,9 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
             return task.requiresDataStoreLock();
         }
 
-        public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
+        public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
         {
-            return task.createExecutor(dataSetCode);
+            return task.createExecutor(dataSetCode, container);
         }
 
     }
@@ -283,7 +283,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
 
-                    one(task1).createExecutor("ds-1");
+                    one(task1).createExecutor("ds-1", false);
                     will(returnValue(executor1));
                     inSequence(sequence);
                     one(executor1).createCleanupTask();
@@ -291,7 +291,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     inSequence(sequence);
                     one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createExecutor("ds-1");
+                    one(task2).createExecutor("ds-1", false);
                     will(returnValue(executor2));
                     inSequence(sequence);
                     one(executor2).createCleanupTask();
@@ -300,7 +300,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     one(executor2).execute();
                     inSequence(sequence);
 
-                    one(task1).createExecutor("ds-2");
+                    one(task1).createExecutor("ds-2", false);
                     will(returnValue(executor1));
                     inSequence(sequence);
                     one(executor1).createCleanupTask();
@@ -308,7 +308,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     inSequence(sequence);
                     one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createExecutor("ds-2");
+                    one(task2).createExecutor("ds-2", false);
                     will(returnValue(executor2));
                     inSequence(sequence);
                     one(executor2).createCleanupTask();
@@ -364,7 +364,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                 DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(42));
                 will(returnValue(Arrays.asList(ds2.getDataSet(), ds1.getDataSet())));
                 
-                one(task1).createExecutor("ds-1");
+                one(task1).createExecutor("ds-1", false);
                 will(returnValue(executor1));
                 inSequence(sequence);
                 one(executor1).createCleanupTask();
@@ -372,7 +372,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                 inSequence(sequence);
                 one(executor1).execute();
                 inSequence(sequence);
-                one(task2).createExecutor("ds-1");
+                one(task2).createExecutor("ds-1", false);
                 will(returnValue(executor2));
                 inSequence(sequence);
                 one(executor2).createCleanupTask();
@@ -420,7 +420,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
                     will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
 
-                    one(task1).createExecutor("ds-1");
+                    one(task1).createExecutor("ds-1", false);
                     will(returnValue(executor1));
                     inSequence(sequence);
                     one(executor1).createCleanupTask();
@@ -428,7 +428,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     inSequence(sequence);
                     one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createExecutor("ds-1");
+                    one(task2).createExecutor("ds-1", false);
                     will(returnValue(executor2));
                     inSequence(sequence);
                     one(executor2).createCleanupTask();
@@ -437,7 +437,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     one(executor2).execute();
                     inSequence(sequence);
 
-                    one(task1).createExecutor("ds-2");
+                    one(task1).createExecutor("ds-2", false);
                     will(returnValue(executor1));
                     inSequence(sequence);
                     one(executor1).createCleanupTask();
@@ -445,7 +445,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                     inSequence(sequence);
                     one(executor1).execute();
                     inSequence(sequence);
-                    one(task2).createExecutor("ds-2");
+                    one(task2).createExecutor("ds-2", false);
                     will(returnValue(executor2));
                     inSequence(sequence);
                     one(executor2).createCleanupTask();

@@ -127,7 +127,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                 SimpleDataSetInformationDTO dataSet = dataSets.get(i);
                 try
                 {
-                    taskExecutor.execute(shufflingTask, "shuffling", dataSet.getDataSetCode());
+                    taskExecutor.execute(shufflingTask, "shuffling", dataSet.getDataSetCode(), false);
                 } catch (Throwable ex)
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);

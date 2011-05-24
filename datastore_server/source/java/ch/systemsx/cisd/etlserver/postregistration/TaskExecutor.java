@@ -74,14 +74,14 @@ public class TaskExecutor
         cleanupTasksFolder.mkdirs();
     }
 
-    public void execute(IPostRegistrationTask task, String taskName, String dataSetCode)
-            throws Throwable
+    public void execute(IPostRegistrationTask task, String taskName, String dataSetCode,
+            boolean container) throws Throwable
     {
         ICleanupTask cleanupTask = null;
         File savedCleanupTask = null;
         try
         {
-            IPostRegistrationTaskExecutor executor = task.createExecutor(dataSetCode);
+            IPostRegistrationTaskExecutor executor = task.createExecutor(dataSetCode, container);
             cleanupTask = executor.createCleanupTask();
             savedCleanupTask = saveCleanupTask(dataSetCode, taskName, cleanupTask);
             executor.execute();

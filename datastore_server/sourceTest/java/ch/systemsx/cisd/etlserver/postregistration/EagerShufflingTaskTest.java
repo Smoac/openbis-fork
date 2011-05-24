@@ -129,7 +129,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                 }
             });
         
-        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1);
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1, false);
         executor.createCleanupTask();
         executor.execute();
         
@@ -157,7 +157,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                 }
             });
 
-        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1);
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1, false);
         executor.createCleanupTask();
         executor.execute();
 
@@ -180,7 +180,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         RecordingMatcher<String> logMessageMatcher = prepareLogging(LogLevel.WARN);
         
-        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1);
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1, false);
         executor.createCleanupTask();
         executor.execute();
         

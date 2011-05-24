@@ -136,7 +136,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(dataSet);
 
-        task.createExecutor(DATA_SET_CODE).execute();
+        task.createExecutor(DATA_SET_CODE, false).execute();
     }
 
     @Test
@@ -153,7 +153,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareFailing(dataSet);
 
-        task.createExecutor(DATA_SET_CODE).execute();
+        task.createExecutor(DATA_SET_CODE, false).execute();
     }
     
     @Test
@@ -176,7 +176,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 }
             });
         
-        task.createExecutor(DATA_SET_CODE).execute();
+        task.createExecutor(DATA_SET_CODE, false).execute();
     }
     
     @Test
@@ -202,7 +202,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 }
             });
 
-        task.createExecutor(DATA_SET_CODE).execute();
+        task.createExecutor(DATA_SET_CODE, false).execute();
     }
     
     private void prepareHappyCase(final IDatasetLocation dataSet)

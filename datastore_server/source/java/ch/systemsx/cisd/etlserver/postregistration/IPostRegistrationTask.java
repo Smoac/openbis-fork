@@ -36,8 +36,9 @@ public interface IPostRegistrationTask
     
     /**
      * Creates a task executor for the specified data set.
+     * @param container If <code>true</code> the data set is a container data set.
      */
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode);
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container);
     
     
 }

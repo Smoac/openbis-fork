@@ -129,8 +129,12 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         return true;
     }
 
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
+        if (container)
+        {
+            return DummyPostRegistrationTaskExecutor.INSTANCE;
+        }
         return new Executor(dataSetCode);
     }
     

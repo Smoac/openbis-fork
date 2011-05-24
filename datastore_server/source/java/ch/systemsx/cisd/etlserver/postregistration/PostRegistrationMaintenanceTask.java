@@ -145,7 +145,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                 {
                     IPostRegistrationTask task = entry.getValue();
                     String taskName = entry.getKey();
-                    executor.execute(task, taskName, code);
+                    executor.execute(task, taskName, code, dataSet.isContainer());
                 }
                 saveLastSeenDataSetId(dataSet.getId());
             } catch (Throwable ex)

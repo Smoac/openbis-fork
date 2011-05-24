@@ -65,7 +65,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         return false;
     }
 
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)

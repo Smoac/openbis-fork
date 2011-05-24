@@ -85,7 +85,7 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
                 }
             });
         NotifyingTask notifyingTask = new NotifyingTask(properties, service);
-        IPostRegistrationTaskExecutor executor = notifyingTask.createExecutor(DATA_SET_CODE);
+        IPostRegistrationTaskExecutor executor = notifyingTask.createExecutor(DATA_SET_CODE, false);
         ICleanupTask cleanupTask = executor.createCleanupTask();
         executor.execute();
         

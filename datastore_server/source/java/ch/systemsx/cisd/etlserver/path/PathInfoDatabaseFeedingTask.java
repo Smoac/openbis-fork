@@ -118,7 +118,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         }
     }
 
-    public IPostRegistrationTaskExecutor createExecutor(final String dataSetCode)
+    public IPostRegistrationTaskExecutor createExecutor(final String dataSetCode, boolean container)
     {
         return new IPostRegistrationTaskExecutor()
             {
