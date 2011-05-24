@@ -52,5 +52,8 @@ public interface IGenericImageBundle extends ClientBundle
      */
     @Source("home.png")
     public ImageResource getHomeIcon();
+    
+    @Source("editable.gif")
+    public ImageResource getEditableIcon();
 
 }
