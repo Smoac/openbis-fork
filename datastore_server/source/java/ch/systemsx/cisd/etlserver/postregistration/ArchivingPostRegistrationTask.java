@@ -109,12 +109,6 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                         + "' is no longer available in openBIS."
                         + "Archiving post-registration task will be skipped...");
                 return;
-            } else if (dataSet.isContainer())
-            {
-                operationLog.warn("Data set '" + dataSetCode + "' is a container data set."
-                        + " Archiving post-registration task will be skipped...");
-                return;
-
             }
 
             boolean statusUpdated =
