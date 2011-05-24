@@ -223,7 +223,7 @@ body,div,td {
 }
 
 .x-form-trigger-add {
-    background-image: url(../images/generate-trigger.gif) !important;
+    background-image: url(../images/trigger-plus.png) !important;
     cursor: pointer;
 }
 
