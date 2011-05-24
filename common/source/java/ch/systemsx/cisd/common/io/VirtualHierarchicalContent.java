@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.io;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 
 /**
  * Simple {@link IHierarchicalContent} implementation for virtual data sets with dynamic behavior
@@ -145,7 +145,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     public String toString()
     {
         return "VirtualHierarchicalContent [components="
-                + CollectionUtils.abbreviate(components, 10) + "]";
+                + Arrays.toString(components.toArray(new IHierarchicalContent[0])) + "]";
     }
 
     @Override
