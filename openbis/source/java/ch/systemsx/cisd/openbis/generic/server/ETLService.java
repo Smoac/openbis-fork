@@ -1219,21 +1219,43 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         ArrayList<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
+
+        ArrayList<NewContainerDataSet> containerRegistrations =
+                new ArrayList<NewContainerDataSet>();
+        // In the first pass, skip container data sets
         for (NewExternalData dataSet : dataSetRegistrations)
         {
-            SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
-            IDataBO dataBO;
-            if (sampleIdentifier != null)
+            if (dataSet instanceof NewContainerDataSet)
             {
-                dataBO = registerDataSetInternal(session, sampleIdentifier, dataSet);
+                containerRegistrations.add((NewContainerDataSet) dataSet);
             } else
             {
-                ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
-                dataBO = registerDataSetInternal(session, experimentIdentifier, dataSet);
+                registerDatasetInternal(session, dataSetsCreated, dataSet);
             }
-            dataSetsCreated.add(dataBO.getData());
+        }
+
+        // Now do the containers
+        for (NewContainerDataSet dataSet : containerRegistrations)
+        {
+            registerDatasetInternal(session, dataSetsCreated, dataSet);
         }
         return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
+    }
+
+    private void registerDatasetInternal(final Session session, ArrayList<DataPE> dataSetsCreated,
+            NewExternalData dataSet)
+    {
+        SampleIdentifier sampleIdentifier = dataSet.getSampleIdentifierOrNull();
+        IDataBO dataBO;
+        if (sampleIdentifier != null)
+        {
+            dataBO = registerDataSetInternal(session, sampleIdentifier, dataSet);
+        } else
+        {
+            ExperimentIdentifier experimentIdentifier = dataSet.getExperimentIdentifierOrNull();
+            dataBO = registerDataSetInternal(session, experimentIdentifier, dataSet);
+        }
+        dataSetsCreated.add(dataBO.getData());
     }
 
     private ArrayList<Experiment> createExperiments(String sessionToken,

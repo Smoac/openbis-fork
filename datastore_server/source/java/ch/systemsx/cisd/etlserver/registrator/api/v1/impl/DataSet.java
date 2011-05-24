@@ -222,7 +222,9 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
 
     public void setContainedDataSetCodes(List<String> containedDataSetCodes)
     {
-        ArrayList<String> newContainedDataSetCodes = new ArrayList<String>(containedDataSetCodes);
+        ArrayList<String> newContainedDataSetCodes =
+                (null == containedDataSetCodes) ? new ArrayList<String>() : new ArrayList<String>(
+                        containedDataSetCodes);
         registrationDetails.getDataSetInformation().setContainedDataSetCodes(
                 newContainedDataSetCodes);
 
