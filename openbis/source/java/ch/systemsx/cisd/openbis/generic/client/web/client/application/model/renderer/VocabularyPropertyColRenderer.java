@@ -71,6 +71,7 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
             result = MultilineHTML.wrapUpInDivWithTooltip(result, description);
         } else
         {
+            result += " (" + term.getRegistrator() + ")";
             result =
                     MultilineHTML.wrapUpInDivWithTooltip(result, description,
                             "color: grey; font-style:italic");
@@ -85,7 +86,8 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         final String label = term.getLabel();
         final String description = term.getDescription();
         String result = "";
-        String unofficialOrEmpty = term.isOfficial() ? "" : "(unofficial term)";
+        String unofficialOrEmpty =
+                term.isOfficial() ? "" : "(ad hoc term created by " + term.getRegistrator() + ")";
         if (label == null)
         {
             result += "<b>" + code + " " + unofficialOrEmpty + "</b>";
