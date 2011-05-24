@@ -1708,7 +1708,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     M model = event.getModel();
                     String columnID = event.getProperty();
-                    event.setCancelled(isEditable(model, columnID) == false);
+                    boolean editable = isEditable(model, columnID);
+                    if (editable == false)
+                    {
+                        MessageBox.info("Not Editable", "Sorry, this table cell isn't editable", null);
+                    }
+                    event.setCancelled(editable == false);
                 }
             });
         editorGrid.addListener(Events.AfterEdit, new Listener<GridEvent<M>>()
