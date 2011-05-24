@@ -150,7 +150,7 @@
       <executable targetfile="$INSTALL_BIN_PATH/restore-config-from-backup.sh" 
         stage="postinstall" condition="isUpdateInstallation" keep="true">
         <args>
-          <arg value="$BACKUP_FOLDER" />
+          <arg value="$BACKUP_FOLDER/config-backup" />
         </args>
       </executable>
     </pack>
