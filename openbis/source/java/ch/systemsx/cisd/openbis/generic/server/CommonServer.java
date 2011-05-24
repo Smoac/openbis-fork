@@ -2487,56 +2487,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataStores.get(0).getDownloadUrl();
     }
 
-    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
-            String propertyTypeCode, String value)
+    public void updateDataSetProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
     {
         checkSession(sessionToken);
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put(CodeConverter.getPropertyTypeCode(propertyTypeCode), value);
-        switch (kind)
-        {
-            case MATERIAL:
-                updateMaterialProperties(sessionToken, entityId, properties);
-                break;
-            case EXPERIMENT:
-                updateExperimentProperties(sessionToken, entityId, properties);
-                break;
-            case SAMPLE:
-                EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
-                break;
-            case DATA_SET:
-                updateDataSetProperties(sessionToken, entityId, properties);
-                break;
-        }
-    }
-
-    private void updateMaterialProperties(String sessionToken, TechId entityId,
-            Map<String, String> properties)
-    {
-        Date modificationDate = getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
-        updateMaterial(sessionToken, entityId, EntityHelper.translatePropertiesMapToList(properties), modificationDate);
-    }
-
-    private void updateExperimentProperties(String sessionToken, TechId entityId,
-            Map<String, String> properties)
-    {
-        Experiment experiment = getExperimentInfo(sessionToken, entityId);
-        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
-        updates.setVersion(experiment.getModificationDate());
-        updates.setExperimentId(entityId);
-        updates.setAttachments(Collections.<NewAttachment>emptySet());
-        updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject().getIdentifier()).createIdentifier());
-        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
-        updateExperiment(sessionToken, updates);
-    }
-
-    private void updateDataSetProperties(String sessionToken, TechId dataSetID,
-            Map<String, String> properties)
-    {
-        ExternalData dataSet = getDataSetInfo(sessionToken, dataSetID);
+        ExternalData dataSet = getDataSetInfo(sessionToken, entityId);
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
-        updates.setDatasetId(dataSetID);
+        updates.setDatasetId(entityId);
         updates.setVersion(dataSet.getModificationDate());
+        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
         updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
         Experiment exp = dataSet.getExperiment();
         if (exp != null)
@@ -2553,6 +2512,48 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
         }
         updateDataSet(sessionToken, updates);
+    }
+
+    public void updateExperimentProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        checkSession(sessionToken);
+        Experiment experiment = getExperimentInfo(sessionToken, entityId);
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setVersion(experiment.getModificationDate());
+        updates.setExperimentId(entityId);
+        updates.setAttachments(Collections.<NewAttachment> emptySet());
+        updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
+                .getIdentifier()).createIdentifier());
+        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
+        updateExperiment(sessionToken, updates);
+    }
+
+    public void updateSampleProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        checkSession(sessionToken);
+        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+    }
+
+    public void updateMaterialProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        checkSession(sessionToken);
+        Date modificationDate =
+                getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
+        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        updateMaterial(sessionToken, entityId,
+                EntityHelper.translatePropertiesMapToList(properties), modificationDate);
+    }
+
+    private Map<String, String> createPropertiesMap(String propertyColumnName, String value)
+    {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(CodeConverter.getPropertyTypeCode(propertyColumnName), value);
+        return properties;
     }
     
 }

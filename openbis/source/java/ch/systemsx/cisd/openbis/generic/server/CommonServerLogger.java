@@ -1067,11 +1067,31 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
-            String propertyTypeCode, String value)
+    public void updateDataSetProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
     {
-        logTracking(sessionToken, "updateProperty",
-                "ENTITY_KIND(%s) ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", kind, entityId,
-                propertyTypeCode, value);
+        logTracking(sessionToken, "updateDataSetProperty",
+                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+    }
+
+    public void updateExperimentProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        logTracking(sessionToken, "updateExperimentProperty",
+                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+    }
+
+    public void updateSampleProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        logTracking(sessionToken, "updateSampleProperty",
+                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+    }
+
+    public void updateMaterialProperty(String sessionToken, TechId entityId,
+            String propertyColumnName, String value)
+    {
+        logTracking(sessionToken, "updateMaterialProperty",
+                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
     }
 }

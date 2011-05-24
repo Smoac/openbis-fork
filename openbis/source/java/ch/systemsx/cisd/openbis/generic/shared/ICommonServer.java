@@ -1344,7 +1344,25 @@ public interface ICommonServer extends IServer
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateProperty(String sessionToken, EntityKind kind, TechId entityId,
+    public void updateDataSetProperty(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId,
+            String propertyColumnName, String value);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void updateExperimentProperty(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId,
+            String propertyColumnName, String value);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void updateSampleProperty(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId,
+            String propertyColumnName, String value);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void updateMaterialProperty(String sessionToken, TechId entityId,
             String propertyColumnName, String value);
 
 }

@@ -2775,7 +2775,21 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.updateProperty(sessionToken, kind, entityId, propertyColumnName, value);
+            switch (kind)
+            {
+                case DATA_SET:
+                    commonServer.updateDataSetProperty(sessionToken, entityId, propertyColumnName, value);
+                    break;
+                case EXPERIMENT:
+                    commonServer.updateExperimentProperty(sessionToken, entityId, propertyColumnName, value);
+                    break;
+                case MATERIAL:
+                    commonServer.updateMaterialProperty(sessionToken, entityId, propertyColumnName, value);
+                    break;
+                case SAMPLE:
+                    commonServer.updateSampleProperty(sessionToken, entityId, propertyColumnName, value);
+                    break;
+            }
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
