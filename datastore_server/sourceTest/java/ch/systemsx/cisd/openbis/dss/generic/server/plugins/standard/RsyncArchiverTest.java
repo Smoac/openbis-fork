@@ -218,8 +218,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);
-                    one(statusUpdater).update(Arrays.<String> asList(),
-                            DataSetArchivingStatus.AVAILABLE, false);
                 }
             });
 
@@ -255,8 +253,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);
-                    one(statusUpdater).update(Arrays.<String> asList(),
-                            DataSetArchivingStatus.AVAILABLE, false);
                 }
             });
 
@@ -308,8 +304,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);
-                    one(statusUpdater).update(Arrays.<String> asList(),
-                            DataSetArchivingStatus.ARCHIVED, true);
                 }
             });
 
@@ -365,8 +359,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     one(shareIdManager).getShareId("ds1");
                     will(returnValue("2"));
 
-                    one(statusUpdater).update(Arrays.<String>asList(),
-                            DataSetArchivingStatus.AVAILABLE, true);
                     one(statusUpdater).update(Arrays.asList("ds1", "ds2"), DataSetArchivingStatus.ARCHIVED,
                             true);
                 }

@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
@@ -28,7 +33,17 @@ import org.springframework.beans.factory.BeanFactory;
 public class ServiceProviderTestWrapper
 {
 
+    private static BeanFactory mockApplicationContext;
     private static BeanFactory cachedApplicationContext;
+
+    private final static Map<String /* classname */, String /* bean name */> classNameToBeanName;
+    static
+    {
+        classNameToBeanName = new HashMap<String, String>();
+        classNameToBeanName.put(IEncapsulatedOpenBISService.class.getName(), "openBIS-service");
+        classNameToBeanName.put(IShareIdManager.class.getName(), "share-id-manager");
+        classNameToBeanName.put(IConfigProvider.class.getName(), "config-provider");
+    }
 
     /**
      * caches the existing application context and replaces it temporarily with another one for test
@@ -41,6 +56,7 @@ public class ServiceProviderTestWrapper
         {
             cachedApplicationContext = ServiceProvider.tryGetApplicationContext(false);
         }
+        mockApplicationContext = applicationContext;
         ServiceProvider.setBeanFactory(applicationContext);
     }
 
@@ -53,6 +69,26 @@ public class ServiceProviderTestWrapper
     {
         ServiceProvider.setBeanFactory(cachedApplicationContext);
         cachedApplicationContext = null;
+        mockApplicationContext = null;
+    }
+
+    /**
+     * A helper method for test cases that creates a mock instance and sets it up within the mocked
+     * application context of ServiceProvider.
+     */
+    public static <T> T mock(Mockery mockery, final Class<T> clazz)
+    {
+        final T mock = mockery.mock(clazz);
+        mockery.checking(new Expectations()
+            {
+                {
+                    String beanName = classNameToBeanName.get(clazz.getName());
+                    allowing(mockApplicationContext).getBean(beanName);
+                    will(returnValue(mock));
+                }
+            });
+
+        return mock;
     }
 
 }

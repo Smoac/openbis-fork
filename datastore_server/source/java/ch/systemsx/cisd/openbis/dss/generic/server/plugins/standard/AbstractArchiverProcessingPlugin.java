@@ -462,6 +462,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     private void asyncUpdateStatuses(List<String> dataSetCodes, DataSetArchivingStatus newStatus,
             boolean presentInArchive)
     {
+        if (dataSetCodes.isEmpty())
+        {
+            return;
+        }
+
         if (statusUpdater == null)
         {
             statusUpdater = new IDataSetStatusUpdater()
@@ -570,6 +575,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             service = ServiceProvider.getOpenBISService();
         }
         return service;
+    }
+
+    @Private
+    void setStatusUpdater(IDataSetStatusUpdater statusUpdater)
+    {
+        this.statusUpdater = statusUpdater;
     }
 
     /**
