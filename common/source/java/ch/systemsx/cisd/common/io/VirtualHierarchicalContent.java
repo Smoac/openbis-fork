@@ -26,6 +26,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 
 /**
  * Simple {@link IHierarchicalContent} implementation for virtual data sets with dynamic behavior
@@ -36,17 +37,40 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 class VirtualHierarchicalContent implements IHierarchicalContent
 {
 
+    final static IVirtualNodeMergerFactory DEFAULT_MERGER_FACTORY = new IVirtualNodeMergerFactory()
+        {
+            public IVirtualNodeMerger createNodeMerger()
+            {
+                return new VirtualNodeMerger(this);
+            }
+
+            public IVirtualNodeListMerger createNodeListMerger()
+            {
+                return new VirtualNodeListMerger(this);
+            }
+        };
+
+    private final IVirtualNodeMergerFactory mergerFactory;
+
     private final List<IHierarchicalContent> components;
 
     private IHierarchicalContentNode rootNode; // cached
 
-    public VirtualHierarchicalContent(List<IHierarchicalContent> components)
+    // for tests
+    VirtualHierarchicalContent(IVirtualNodeMergerFactory mergerFactory,
+            List<IHierarchicalContent> components)
     {
         if (components == null || components.isEmpty())
         {
             throw new IllegalArgumentException("Undefined contents");
         }
         this.components = components;
+        this.mergerFactory = mergerFactory;
+    }
+
+    public VirtualHierarchicalContent(List<IHierarchicalContent> components)
+    {
+        this(DEFAULT_MERGER_FACTORY, components);
     }
 
     public IHierarchicalContentNode getRootNode()
@@ -113,9 +137,51 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         }
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        return "VirtualHierarchicalContent [components="
+                + CollectionUtils.abbreviate(components, 10) + "]";
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        for (IHierarchicalContent component : components)
+        {
+            result = prime * result + component.hashCode();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (!(obj instanceof VirtualHierarchicalContent))
+        {
+            return false;
+        }
+        VirtualHierarchicalContent other = (VirtualHierarchicalContent) obj;
+        return components.equals(other.components);
+    }
+
     private IHierarchicalContentNode mergeNodes(INodeProvider provider)
     {
-        IVirtualNodeMerger merger = createNodeMerger();
+        IVirtualNodeMerger merger = mergerFactory.createNodeMerger();
         for (IHierarchicalContent component : components)
         {
             IHierarchicalContentNode componentNode = provider.tryGetNode(component);
@@ -129,7 +195,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
 
     private List<IHierarchicalContentNode> mergeNodeLists(INodeListProvider listProvider)
     {
-        IVirtualNodeListMerger listMerger = createNodeListMerger();
+        IVirtualNodeListMerger listMerger = mergerFactory.createNodeListMerger();
         for (IHierarchicalContent component : components)
         {
             List<IHierarchicalContentNode> componentNodes = listProvider.getNodeList(component);
@@ -138,24 +204,25 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         return listMerger.createMergedNodeList();
     }
 
-    private static IVirtualNodeMerger createNodeMerger()
-    {
-        return new VirtualNodeMerger();
-    }
-
-    private static IVirtualNodeListMerger createNodeListMerger()
-    {
-        return new VirtualNodeListMerger();
-    }
-
-    interface INodeProvider
+    private interface INodeProvider
     {
         IHierarchicalContentNode tryGetNode(IHierarchicalContent content);
     }
 
-    interface INodeListProvider
+    private interface INodeListProvider
     {
         List<IHierarchicalContentNode> getNodeList(IHierarchicalContent content);
+    }
+
+    //
+    // NOTE: following interfaces and classes are exposed (package protected) only for testing
+    //
+
+    interface IVirtualNodeMergerFactory
+    {
+        IVirtualNodeMerger createNodeMerger();
+
+        IVirtualNodeListMerger createNodeListMerger();
     }
 
     interface IVirtualNodeMerger
@@ -181,10 +248,17 @@ class VirtualHierarchicalContent implements IHierarchicalContent
      */
     static class VirtualNodeMerger implements IVirtualNodeMerger
     {
+        private final IVirtualNodeMergerFactory factory;
+
         // For convenience in iteration the order of these nodes is reversed.
         // It is the first node, not the last one, which is overriding all files of other nodes.
-        private LinkedList<IHierarchicalContentNode> nodes =
+        private final LinkedList<IHierarchicalContentNode> nodes =
                 new LinkedList<IHierarchicalContentNode>();
+
+        public VirtualNodeMerger(IVirtualNodeMergerFactory factory)
+        {
+            this.factory = factory;
+        }
 
         public void addNode(IHierarchicalContentNode node)
         {
@@ -193,7 +267,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
 
         public IHierarchicalContentNode createMergedNode()
         {
-            return new VirtualNode(nodes);
+            return new VirtualNode(factory, nodes);
         }
     }
 
@@ -202,8 +276,16 @@ class VirtualHierarchicalContent implements IHierarchicalContent
      */
     static class VirtualNodeListMerger implements IVirtualNodeListMerger
     {
+        private final IVirtualNodeMergerFactory nodeMergerFactory;
+
         // relative path -> merger (with preserved order)
-        Map<String, IVirtualNodeMerger> mergers = new LinkedHashMap<String, IVirtualNodeMerger>();
+        private final Map<String, IVirtualNodeMerger> mergers =
+                new LinkedHashMap<String, IVirtualNodeMerger>();
+
+        public VirtualNodeListMerger(IVirtualNodeMergerFactory nodeMergerFactory)
+        {
+            this.nodeMergerFactory = nodeMergerFactory;
+        }
 
         public void addNodes(List<IHierarchicalContentNode> nodes)
         {
@@ -213,7 +295,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
                 IVirtualNodeMerger merger = mergers.get(relativePath);
                 if (merger == null)
                 {
-                    merger = createNodeMerger();
+                    merger = nodeMergerFactory.createNodeMerger();
                     mergers.put(relativePath, merger);
                 }
                 merger.addNode(node);
@@ -231,6 +313,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         }
     }
 
+    // NOTE: exposed for tests
     /**
      * {@link IHierarchicalContentNode} implementation merging nodes with the same relative paths:
      * <ul>
@@ -241,14 +324,18 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     static class VirtualNode implements IHierarchicalContentNode
     {
 
+        private final IVirtualNodeMergerFactory nodeMergerFactory;
+
         private final List<IHierarchicalContentNode> nodes;
 
-        public VirtualNode(List<IHierarchicalContentNode> nodes)
+        public VirtualNode(IVirtualNodeMergerFactory factory, List<IHierarchicalContentNode> nodes)
         {
+            assert nodes != null : "Undefined nodes.";
             if (nodes.isEmpty())
             {
                 throw new IllegalArgumentException("Resource doesn't exist.");
             }
+            this.nodeMergerFactory = factory;
             this.nodes = nodes;
         }
 
@@ -305,7 +392,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
 
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
-            IVirtualNodeListMerger listMerger = createNodeListMerger();
+            IVirtualNodeListMerger listMerger = nodeMergerFactory.createNodeListMerger();
             for (IHierarchicalContentNode node : nodes)
             {
                 listMerger.addNodes(node.getChildNodes());
