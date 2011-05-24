@@ -385,39 +385,12 @@ public class MaterialReplicaSummaryComponent
             final Material material)
     {
         String headingText =
-                getMaterialType(material) + " " + getMaterialName(material) + " in assay "
+                MaterialComponentUtils.getMaterialTypeAsTitle(material) + " "
+                        + MaterialComponentUtils.getMaterialName(material) + " in assay "
                         + experiment.getCode();
         return PropertiesUtil.createHeaderTitle(headingText);
     }
 
-    private static String getMaterialType(Material material)
-    {
-        String materialTypeCode = material.getMaterialType().getCode();
-
-        return formatAsTitle(materialTypeCode);
-    }
-
-    // chnages CODE to Code
-    private static String formatAsTitle(String text)
-    {
-        return ("" + text.charAt(0)).toUpperCase() + text.substring(1).toLowerCase();
-    }
-
-    /** @return the best short description of the material. */
-    public static String getMaterialName(Material material)
-    {
-        if (material.getEntityType().getCode()
-                .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
-        {
-            String geneSymbol =
-                    PropertiesUtil.tryFindProperty(material, ScreeningConstants.GENE_SYMBOLS);
-            if (geneSymbol != null)
-            {
-                return geneSymbol;
-            }
-        }
-        return material.getCode();
-    }
 
     private static Widget createAssayAnalysisSummaryLink(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
