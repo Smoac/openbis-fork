@@ -24,12 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.csvreader.CsvReader;
 
@@ -40,7 +35,7 @@ import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ExcelFileReaderHelper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ExcelFileReader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -110,12 +105,13 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
 
-        if (isExcelFile(file))
+        if (ExcelFileReader.isExcelFile(file))
         {
             try
             {
-                Sheet sheet = getExcelSheet(file);
-                return load(dataset, sheet, file);
+                Workbook workbook = ExcelFileReader.getExcelWorkbook(file);
+                ExcelFileReader reader = new ExcelFileReader(workbook, ignoreComments);
+                return load(dataset, reader, file);
             } catch (final IOException ex)
             {
                 throw new IOExceptionUnchecked(ex);
@@ -140,47 +136,24 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
         }
     }
 
-    private static boolean isExcelFile(File file)
+    /**
+     * Loads data from the specified reader.
+     */
+    private DatasetFileLines load(DatasetDescription dataset, ExcelFileReader reader,
+            File file) throws IOException
     {
-        return FilenameUtils.isExtension(file.getName().toLowerCase(), new String[]
-            { "xls", "xlsx" });
-    }
+        assert reader != null : "Unspecified reader";
 
-    private Sheet getExcelSheet(File file) throws IOException
-    {
-        Workbook wb = getExcelWorkbook(file);
+        List<String[]> lines = null;
         try
         {
             int index = Integer.parseInt(excelSheet);
-            return wb.getSheetAt(index); // will throw exception if index is out of range
+            lines = reader.readLines(index); // will throw exception if index is out of range
         } catch (NumberFormatException ex)
         {
-            Sheet sheet = wb.getSheet(excelSheet);
-            if (sheet == null)
-            {
-                throw new UserFailureException(file.getName() + " doesn't contain sheet named "
-                        + excelSheet);
-            }
-            return sheet;
+            lines = reader.readLines(excelSheet);
         }
-    }
-
-    private Workbook getExcelWorkbook(File file) throws IOException
-    {
-        final String extension = FilenameUtils.getExtension(file.getName()).toLowerCase();
-        final FileInputStream stream = new FileInputStream(file);
-        if ("xls".equals(extension))
-        {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            return new HSSFWorkbook(poifsFileSystem);
-        } else if ("xlsx".equals(extension))
-        {
-            return new XSSFWorkbook(stream);
-        } else
-        {
-            throw new IllegalArgumentException(
-                    "Expected an Excel file with 'xls' or 'xlsx' extension, got " + file.getName());
-        }
+        return new DatasetFileLines(file, dataset.getDataSetCode(), lines, ignoreTrailingEmptyCells);
     }
 
     private static CsvReader readFile(File file, boolean ignoreComments, char separator)
@@ -201,20 +174,6 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractTableMode
             csvReader.setComment(COMMENT);
         }
         return csvReader;
-    }
-
-    /**
-     * Loads data from the specified sheet.
-     * 
-     * @throws IOException
-     */
-    private DatasetFileLines load(DatasetDescription dataset, Sheet sheet, File file)
-            throws IOException
-    {
-        assert sheet != null : "Unspecified sheet";
-
-        List<String[]> lines = ExcelFileReaderHelper.loadLines(sheet, ignoreComments);
-        return new DatasetFileLines(file, dataset.getDataSetCode(), lines, ignoreTrailingEmptyCells);
     }
 
     /**

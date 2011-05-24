@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.extractor.ExcelExtractor;
+import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,85 +32,102 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
+ * Reader of tabular data from excel files.
+ * 
  * @author Piotr Buczek
  */
-public class ExcelFileReaderHelper
+public class ExcelFileReader
 {
 
-    public static void main(String[] args) throws Exception
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ExcelFileReader.class);
+
+    private final boolean ignoreComments;
+
+    private final Workbook workbook;
+
+    public ExcelFileReader(Workbook workbook, boolean ignoreComments)
     {
-        String filename = args[0];
-        File file = new File(filename);
-        List<String[]> lines = loadExcelFile(file, true);
-        for (String[] line : lines)
-        {
-            System.err.println(Arrays.toString(line));
-        }
+        this.ignoreComments = ignoreComments;
+        this.workbook = workbook;
     }
 
-    public static List<String[]> loadExcelFile(File file, boolean ignoreComments)
-            throws IOException
+    public List<String[]> readLines() throws IOException
     {
-        final String extension = FilenameUtils.getExtension(file.getName()).toLowerCase();
-        final FileInputStream stream = new FileInputStream(file);
-        Workbook wb = null;
-        if ("xls".equals(extension))
+        Sheet sheet = workbook.getSheetAt(0);
+        return loadLines(sheet, ignoreComments);
+    }
+
+    public List<String[]> readLines(int sheetIndex) throws IOException
+    {
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
+        return loadLines(sheet, ignoreComments);
+    }
+
+    public List<String[]> readLines(String sheetName) throws IOException
+    {
+        Sheet sheet = workbook.getSheet(sheetName);
+        if (sheet == null)
         {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            HSSFWorkbook hssfWorkbook = new HSSFWorkbook(poifsFileSystem);
-            wb = hssfWorkbook;
-            // HSSFWorkbook wb = new HSSFWorkbook(poifsFileSystem);
-
-            ExcelExtractor extractor = new ExcelExtractor(hssfWorkbook);
-            // HSSFFormulaEvaluator.evaluateAllFormulaCells(hssfWorkbook);
-            //
-            extractor.setIncludeBlankCells(true);
-            extractor.setIncludeSheetNames(false);
-            String text = extractor.getText();
-            System.out.println(text);// returns TSV file
-
-        } else if ("xlsx".equals(extension))
-        {
-            // spaces are not ignored
-            XSSFWorkbook xssfWorkbook = new XSSFWorkbook(stream);
-            wb = xssfWorkbook;
-
-            // ExcelExtractor extractor = new ExcelExtractor(xssfWorkbook);
-            //
-            XSSFExcelExtractor extractor = new XSSFExcelExtractor(xssfWorkbook);
-            // XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(xssfWorkbook);
-            // XSSFFormulaEvaluator.evaluateAllFormulaCells(xssfWorkbook);
-
-            extractor.setIncludeSheetNames(false);
-            String text = extractor.getText();
-            System.out.println(text);// returns TSV file
-        } else
-        {
-            System.err.println(extension);
-            throw new IllegalArgumentException(
-                    "Expected an Excel file with 'xls' or 'xlsx' extension, got " + file.getName());
+            throw new UserFailureException("Couldn't find sheet named " + sheetName);
         }
-
-        final Sheet sheet = wb.getSheetAt(0);
-
         return loadLines(sheet, ignoreComments);
     }
 
     // if the line starts with this character and comments should be ignored, the line is ignored
     private static final String COMMENT = "#";
 
-    public static List<String[]> loadLines(Sheet sheet, boolean ignoreComments) throws IOException
+    /**
+     * Uses file extension to figure out if given <var>file</var> is supported Excel file.
+     * 
+     * @return <code>true</code> if the <var>file</var> is an XSL or XLSX Excel file
+     */
+    public static boolean isExcelFile(File file)
+    {
+        return FilenameUtils.isExtension(file.getName().toLowerCase(), new String[]
+            { "xls", "xlsx" });
+    }
+
+    /**
+     * @return {@link Workbook} of an Excel <var>file</var>
+     * @throws IOException if an I/O problem occurs
+     * @throws IllegalArgumentException if the <var>file</var> is a format that is not supported
+     */
+    public static Workbook getExcelWorkbook(File file) throws IOException, IllegalArgumentException
+    {
+        final String extension = FilenameUtils.getExtension(file.getName()).toLowerCase();
+        final FileInputStream stream = new FileInputStream(file);
+        if ("xls".equals(extension))
+        {
+            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
+            return new HSSFWorkbook(poifsFileSystem);
+        } else if ("xlsx".equals(extension))
+        {
+            return new XSSFWorkbook(stream);
+        } else
+        {
+            throw new IllegalArgumentException(
+                    "Expected an Excel file with 'xls' or 'xlsx' extension, got " + file.getName());
+        }
+    }
+
+    //
+    // helper methods
+    //
+
+    private static List<String[]> loadLines(Sheet sheet, boolean ignoreComments) throws IOException
     {
         final List<String[]> lines = new ArrayList<String[]>();
 
         boolean firstLine = true;
-        // NOTE: the following code is pretty ugly - it is because poi API is very limited
+        // NOTE: the following code is pretty ugly because poi API is very limited
         int headerSize = 0;
         for (Row row : sheet)
         {
@@ -126,7 +143,10 @@ public class ExcelFileReaderHelper
                 for (Cell cell : row)
                 {
                     String value = extractCellValue(cell);
-                    System.out.println("cell " + extractCellPosition(cell) + ":" + value);
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(extractCellPosition(cell) + ": " + value);
+                    }
                     header[cell.getColumnIndex()] = value;
                 }
                 lines.add(header);
@@ -137,7 +157,10 @@ public class ExcelFileReaderHelper
                 for (Cell cell : row)
                 {
                     String value = extractCellValue(cell);
-                    System.out.println("cell " + extractCellPosition(cell) + ":" + value);
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(extractCellPosition(cell) + ": " + value);
+                    }
                     if (cell.getColumnIndex() >= line.length)
                     {
                         continue; // ignore for now
@@ -148,10 +171,14 @@ public class ExcelFileReaderHelper
             }
         }
 
-        for (String[] line : lines)
+        if (operationLog.isDebugEnabled())
         {
-            System.err.println(Arrays.toString(line));
+            for (String[] line : lines)
+            {
+                operationLog.debug(Arrays.toString(line));
+            }
         }
+
         return lines;
     }
 
@@ -196,5 +223,22 @@ public class ExcelFileReaderHelper
         String col = CellReference.convertNumToColString(cell.getColumnIndex());
         String row = "" + (cell.getRowIndex() + 1);
         return col + row;
+    }
+
+    //
+    // for testing
+    //
+
+    public static void main(String[] args) throws Exception
+    {
+        String filename = args[0];
+        File file = new File(filename);
+        Workbook wb = getExcelWorkbook(file);
+        ExcelFileReader helper = new ExcelFileReader(wb, true);
+        List<String[]> lines = helper.readLines();
+        for (String[] line : lines)
+        {
+            System.err.println(Arrays.toString(line));
+        }
     }
 }
