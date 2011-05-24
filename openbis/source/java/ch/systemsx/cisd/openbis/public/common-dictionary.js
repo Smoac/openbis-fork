@@ -533,6 +533,8 @@ var common = {
   //
   parents: "Parents",
   parents_empty: "List of parent data set codes separated by commas (\",\") or one code per line.",
+  contained_data_sets: "Contained Data Sets",
+  contained_data_sets_empty: "List of contained data set codes separated by commas (\",\") or one code per line.", 
   
  //
  // Vocabulary Browser
