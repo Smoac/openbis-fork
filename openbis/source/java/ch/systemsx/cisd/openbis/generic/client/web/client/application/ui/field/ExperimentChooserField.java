@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Di
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A field for selecting an experiment in a fixed group from a list or by specifying code and
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentChooserField extends ChosenEntitySetter<Experiment>
+public class ExperimentChooserField extends ChosenEntitySetter<TableModelRowWithObject<Experiment>>
 {
 
     public interface ExperimentChooserFieldAdaptor
@@ -104,12 +105,13 @@ public class ExperimentChooserField extends ChosenEntitySetter<Experiment>
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Experiment> chosenEntityField)
+            final ChosenEntitySetter<TableModelRowWithObject<Experiment>> chosenEntityField)
     {
-        DisposableEntityChooser<Experiment> browser =
+        DisposableEntityChooser<TableModelRowWithObject<Experiment>> browser =
                 ExperimentBrowserGrid.createChooser(viewContext);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_EXPERIMENT);
-        new EntityChooserDialog<Experiment>(browser, chosenEntityField, title, viewContext).show();
+        new EntityChooserDialog<TableModelRowWithObject<Experiment>>(browser, chosenEntityField,
+                title, viewContext).show();
     }
 
     // ------------------
@@ -127,9 +129,9 @@ public class ExperimentChooserField extends ChosenEntitySetter<Experiment>
                     + EXPERIMENT_IDENTIFIER_WITHOUT_GROUP_PATTERN + ")";
 
     @Override
-    public String renderEntity(Experiment entity)
+    public String renderEntity(TableModelRowWithObject<Experiment> entity)
     {
-        return print(ExperimentIdentifier.createIdentifier(entity));
+        return print(ExperimentIdentifier.createIdentifier(entity.getObjectOrNull()));
     }
 
     private ExperimentIdentifier tryGetIdentifier()

@@ -258,7 +258,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of experiments.
      */
-    public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
+    public TypedTableResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -271,7 +271,8 @@ public interface ICommonClientService extends IClientService
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for experiments.
      */
 
-    public String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
+    public String prepareExportExperiments(
+            final TableExportCriteria<TableModelRowWithObject<Experiment>> criteria)
             throws UserFailureException;
 
     /**
@@ -654,7 +655,8 @@ public interface ICommonClientService extends IClientService
     public void deleteSample(TechId sampleId, String reason) throws UserFailureException;
 
     /** Deletes the specified experiments. */
-    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+    public void deleteExperiments(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
             String reason) throws UserFailureException;
 
     /** Deletes the specified experiment. */
@@ -856,14 +858,14 @@ public interface ICommonClientService extends IClientService
      * Schedules archiving of the datasets connected to the specified experiments.
      */
     public ArchivingResult archiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws UserFailureException;
 
     /**
      * Schedules unarchiving of the datasets connected to the specified experiments.
      */
     public ArchivingResult unarchiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws UserFailureException;
 
     /**
@@ -1010,14 +1012,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Locks the datasets connected to the specified experiments.
      */
-    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+    public ArchivingResult lockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws UserFailureException;
 
     /**
      * Unlocks the datasets connected to the specified experiments.
      */
     public ArchivingResult unlockDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws UserFailureException;
 
     /**

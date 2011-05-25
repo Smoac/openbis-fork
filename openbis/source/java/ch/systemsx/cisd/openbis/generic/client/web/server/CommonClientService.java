@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.Authorizatio
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -432,7 +433,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public final String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
+    public final String prepareExportExperiments(
+            final TableExportCriteria<TableModelRowWithObject<Experiment>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -582,11 +584,12 @@ public final class CommonClientService extends AbstractClientService implements
         return new DataSetRelatedEntities(entities);
     }
 
-    public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
+    public final TypedTableResultSet<Experiment> listExperiments(
+            final ListExperimentsCriteria listCriteria)
     {
         final String sessionToken = getSessionToken();
-        return listEntities(listCriteria, new ListExperimentsOriginalDataProvider(commonServer,
-                listCriteria, sessionToken));
+        return listEntities(new ExperimentProvider(commonServer, sessionToken, listCriteria),
+                listCriteria);
     }
 
     public ResultSet<PropertyType> listPropertyTypes(
@@ -1626,7 +1629,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+    public void deleteExperiments(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
             String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2150,7 +2154,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     private List<String> extractDatasetCodes(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> experimentCriteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> experimentCriteria)
     {
         // Get the referenced experiments
         List<Experiment> experiments = getReferencedExperiments(experimentCriteria);
@@ -2167,20 +2171,26 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     private List<Experiment> getReferencedExperiments(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> experimentCriteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> experimentCriteria)
     {
+        List<TableModelRowWithObject<Experiment>> rows;
         if (experimentCriteria.hasSelectedItems())
         {
-            return experimentCriteria.tryGetSelectedItems();
+            rows = experimentCriteria.tryGetSelectedItems();
         } else
         {
-            TableExportCriteria<Experiment> displayedItemsCriteria =
+            TableExportCriteria<TableModelRowWithObject<Experiment>> displayedItemsCriteria =
                     experimentCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            List<Experiment> experiments =
+            rows =
                     fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
-            return experiments;
         }
+        List<Experiment> experiments = new ArrayList<Experiment>();
+        for (TableModelRowWithObject<Experiment> row : rows)
+        {
+            experiments.add(row.getObjectOrNull());
+        }
+        return experiments;
     }
 
     private List<String> extractDatasetCodes(
@@ -2708,7 +2718,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ArchivingResult archiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
         try
         {
@@ -2723,7 +2733,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ArchivingResult unarchiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
         try
         {
@@ -2737,7 +2747,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -2753,7 +2763,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ArchivingResult unlockDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

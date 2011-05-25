@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class ExperimentListDeletionConfirmationDialog extends
         AbstractDataListDeletionConfirmationDialog<Experiment>
@@ -48,7 +49,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback, true);
+        super(viewContext, selectedAndDisplayedItems.getExperiments(), callback, true);
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
@@ -69,7 +70,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
-            final DisplayedOrSelectedIdHolderCriteria<Experiment> uploadCriteria =
+            final DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteExperiments(uploadCriteria, reason.getValue(),
                     deletionCallback);

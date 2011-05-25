@@ -234,12 +234,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listExperiments(
             final ListExperimentsCriteria criteria,
-            AsyncCallback<ResultSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment>> asyncCallback);
+            AsyncCallback<TypedTableResultSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportExperiments(TableExportCriteria)
      */
-    public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
+    public void prepareExportExperiments(
+            TableExportCriteria<TableModelRowWithObject<Experiment>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -557,7 +558,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteSample(TechId sampleIs, String value, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String) */
-    public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,
+    public void deleteExperiments(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
             String value, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiment(TechId, String) */
@@ -751,13 +753,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+    public void archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+    public void unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**
@@ -897,13 +899,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#lockDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+    public void lockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#unlockDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void unlockDatasets(DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria,
+    public void unlockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**

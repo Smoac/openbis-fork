@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchivingServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * 'Archiving' menu for data sets connected to experiments. Here, experiments are the central
@@ -174,7 +176,13 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
 
         public List<Experiment> getSelectedExperiments()
         {
-            return selectedAndDisplayedItems.getSelectedItems();
+            List<TableModelRowWithObject<Experiment>> items = selectedAndDisplayedItems.getSelectedItems();
+            List<Experiment> experiments = new ArrayList<Experiment>();
+            for (TableModelRowWithObject<Experiment> row : items)
+            {
+                experiments.add(row.getObjectOrNull());
+            }
+            return experiments;
         }
     }
 
@@ -186,7 +194,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             {
                 public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
-                    DisplayedCriteriaOrSelectedEntityHolder<Experiment> criteria =
+                        DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria =
                             selectedAndDisplayedItems.createCriteria(computeOnSelected);
                     switch (taskKind)
                     {
@@ -356,22 +364,27 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
     public final static class SelectedAndDisplayedItems
     {
         // describes all items which are displayed in the grid (including all grid pages)
-        private final TableExportCriteria<Experiment> displayedItemsConfig;
+        private final TableExportCriteria<TableModelRowWithObject<Experiment>> displayedItemsConfig;
 
         // currently selected items
-        private final List<Experiment> selectedItems;
+        private final List<TableModelRowWithObject<Experiment>> selectedItems;
 
         private final int displayedItemsCount;
 
-        public SelectedAndDisplayedItems(List<Experiment> selectedItems,
-                TableExportCriteria<Experiment> displayedItemsConfig, int displayedItemsCount)
+        public SelectedAndDisplayedItems(List<TableModelRowWithObject<Experiment>> selectedItems,
+                TableExportCriteria<TableModelRowWithObject<Experiment>> displayedItemsConfig, int displayedItemsCount)
         {
             this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
+//            this.selectedItems = new ArrayList<Experiment>();
+//            for (TableModelRowWithObject<Experiment> row : selectedItems)
+//            {
+//                this.selectedItems.add(row.getObjectOrNull());
+//            }
             this.displayedItemsCount = displayedItemsCount;
         }
 
-        public TableExportCriteria<Experiment> getDisplayedItemsConfig()
+        public TableExportCriteria<TableModelRowWithObject<Experiment>> getDisplayedItemsConfig()
         {
             return displayedItemsConfig;
         }
@@ -381,17 +394,16 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
             return displayedItemsCount;
         }
 
-        public List<Experiment> getSelectedItems()
+        public List<TableModelRowWithObject<Experiment>> getSelectedItems()
         {
             return selectedItems;
         }
 
-        public DisplayedCriteriaOrSelectedEntityHolder<Experiment> createCriteria(boolean selected)
+        public DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> createCriteria(boolean selected)
         {
             if (selected)
             {
-                List<Experiment> items = getSelectedItems();
-                return DisplayedCriteriaOrSelectedEntityHolder.createSelectedItems(items);
+                return DisplayedCriteriaOrSelectedEntityHolder.createSelectedItems(getSelectedItems());
             } else
             {
                 return DisplayedCriteriaOrSelectedEntityHolder

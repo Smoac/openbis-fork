@@ -21,13 +21,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing <i>experiments</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListExperimentsCriteria extends DefaultResultSetConfig<String, Experiment>
+public final class ListExperimentsCriteria extends DefaultResultSetConfig<String, TableModelRowWithObject<Experiment>>
         implements IsSerializable
 {
     private ExperimentType experimentType;

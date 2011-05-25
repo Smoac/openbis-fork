@@ -528,13 +528,13 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         ExperimentChooserFieldAdaptor experimentChooser =
                 ExperimentChooserField.create("", true, null, viewContext.getCommonViewContext());
         final ExperimentChooserField chooserField = experimentChooser.getChooserField();
-        chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
+        chooserField.addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
             {
-                public void entityChosen(Experiment experiment)
+                public void entityChosen(TableModelRowWithObject<Experiment> row)
                 {
-                    if (experiment != null)
+                    if (row != null)
                     {
-                        chooseSingleExperiment(chooserField, experiment);
+                        chooseSingleExperiment(chooserField, row.getObjectOrNull());
                     }
                 }
             });

@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -52,14 +53,14 @@ public class ExperimentBrowsingTest extends SystemTestCase
         project.setSpace(space);
         project.setCode("NEMO");
         criteria.setProject(project);
-        ResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
+        TypedTableResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
         Experiment e1 = getOriginalObjectByCode(resultSet, "EXP-TEST-1");
         assertProperty(e1, "COMMENT", "cmnt");
         Experiment e2 = getOriginalObjectByCode(resultSet, "EXP-TEST-2");
         assertProperty(e2, "GENDER", "FEMALE");
-        assertEquals(false, resultSet.isPartial());
-        assertEquals(5, resultSet.getTotalLength());
-        assertEquals(5, resultSet.getList().size());
+        assertEquals(false, resultSet.getResultSet().isPartial());
+        assertEquals(5, resultSet.getResultSet().getTotalLength());
+        assertEquals(5, resultSet.getResultSet().getList().size());
     }
     
     @Test
@@ -76,14 +77,14 @@ public class ExperimentBrowsingTest extends SystemTestCase
         project.setSpace(space);
         project.setCode("DEFAULT");
         criteria.setProject(project);
-        ResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
+        TypedTableResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
         Experiment e1 = getOriginalObjectByCode(resultSet, "EXP-REUSE");
         assertEquals(null, e1.getInvalidation());
         Experiment e2 = getOriginalObjectByCode(resultSet, "EXP-X");
         assertEquals(null, e2.getInvalidation().getReason());
-        assertEquals(false, resultSet.isPartial());
-        assertEquals(3, resultSet.getTotalLength());
-        assertEquals(3, resultSet.getList().size());
+        assertEquals(false, resultSet.getResultSet().isPartial());
+        assertEquals(3, resultSet.getResultSet().getTotalLength());
+        assertEquals(3, resultSet.getResultSet().getList().size());
     }
     
     @Test
@@ -102,17 +103,17 @@ public class ExperimentBrowsingTest extends SystemTestCase
         criteria.setProject(project);
         criteria.setLimit(2);
         criteria.setCacheConfig(ResultSetFetchConfig.<String>createComputeAndCache());
-        ResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
-        String key = resultSet.getResultSetKey();
-        assertEquals(true, resultSet.isPartial());
-        assertEquals(2, resultSet.getTotalLength());
-        assertEquals(2, resultSet.getList().size());
+        TypedTableResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
+        String key = resultSet.getResultSet().getResultSetKey();
+        assertEquals(true, resultSet.getResultSet().isPartial());
+        assertEquals(2, resultSet.getResultSet().getTotalLength());
+        assertEquals(2, resultSet.getResultSet().getList().size());
         
         criteria.setCacheConfig(ResultSetFetchConfig.createFetchFromCacheAndRecompute(key));
         resultSet = commonClientService.listExperiments(criteria);
-        assertEquals(key, resultSet.getResultSetKey());
-        assertEquals(false, resultSet.isPartial());
-        assertEquals(5, resultSet.getTotalLength());
-        assertEquals(2, resultSet.getList().size());
+        assertEquals(key, resultSet.getResultSet().getResultSetKey());
+        assertEquals(false, resultSet.getResultSet().isPartial());
+        assertEquals(5, resultSet.getResultSet().getTotalLength());
+        assertEquals(2, resultSet.getResultSet().getList().size());
     }
 }

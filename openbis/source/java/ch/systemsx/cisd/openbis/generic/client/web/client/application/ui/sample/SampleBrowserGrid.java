@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -63,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -597,30 +593,8 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        List<DatabaseModificationKind> relevantModifications =
-                new ArrayList<DatabaseModificationKind>();
-        SetUtils.addAll(relevantModifications, getCriteriaProvider().getRelevantModifications());
-        relevantModifications.addAll(getGridRelevantModifications());
-        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
-    }
-
-    protected Set<DatabaseModificationKind> getGridRelevantModifications()
-    {
-        Set<DatabaseModificationKind> result = getGridRelevantModifications(ObjectKind.SAMPLE);
-        result.add(edit(ObjectKind.PROJECT));
-        return result;
-    }
-
-    protected final static Set<DatabaseModificationKind> getGridRelevantModifications(
-            ObjectKind entity)
-    {
-        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
-        result.add(createOrDelete(entity));
-        result.add(edit(entity));
-        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
-        result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
-        result.add(edit(ObjectKind.VOCABULARY_TERM));
-        return result;
+        ICriteriaProvider<?> criteriaProvider = getCriteriaProvider();
+        return GridUtils.getRelevantModifications(ObjectKind.SAMPLE, criteriaProvider);
     }
 
     @Override

@@ -37,16 +37,17 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -168,13 +169,13 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         session.setAttribute(SESSION_KEY, bean);
     }
 
-    protected <T extends ICodeHolder> T getOriginalObjectByCode(ResultSet<T> resultSet, String code)
+    protected <T extends CodeWithRegistration<?>> T getOriginalObjectByCode(TypedTableResultSet<T> resultSet, String code)
     {
-        GridRowModels<T> list = resultSet.getList();
+        GridRowModels<TableModelRowWithObject<T>> list = resultSet.getResultSet().getList();
         List<String> codes = new ArrayList<String>();
-        for (GridRowModel<T> gridRowModel : list)
+        for (GridRowModel<TableModelRowWithObject<T>> gridRowModel : list)
         {
-            T originalObject = gridRowModel.getOriginalObject();
+            T originalObject = gridRowModel.getOriginalObject().getObjectOrNull();
             String objectCode = originalObject.getCode();
             if (objectCode.equals(code))
             {
