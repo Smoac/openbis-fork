@@ -305,7 +305,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             return asFileContentProvider(node);
         }
         throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
-                + "' is currently not available. It might be in an archive.");
+                + "' is currently unavailable. It might be in an archive.");
     }
 
     private interface IFileContentProvider

@@ -353,7 +353,8 @@ class VirtualHierarchicalContent implements IHierarchicalContent
                     return node;
                 }
             }
-            throw new IllegalStateException("Resource is unavailable.");
+            throw new IllegalStateException(
+                    "Resource is currently unavailable. It might be in an archive.");
         }
 
         public String getName()
@@ -434,6 +435,48 @@ class VirtualHierarchicalContent implements IHierarchicalContent
                 IOExceptionUnchecked
         {
             return lastExistingNode().getInputStream();
+        }
+
+        //
+        // Object
+        //
+
+        @Override
+        public String toString()
+        {
+            return "VirtualNode [nodes="
+                    + Arrays.toString(nodes.toArray(new IHierarchicalContentNode[0])) + "]";
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (!(obj instanceof VirtualNode))
+            {
+                return false;
+            }
+            VirtualNode other = (VirtualNode) obj;
+            return nodes.equals(other.nodes);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            for (IHierarchicalContentNode node : nodes)
+            {
+                result = prime * result + node.hashCode();
+            }
+            return result;
         }
 
     }

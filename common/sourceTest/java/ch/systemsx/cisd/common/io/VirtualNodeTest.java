@@ -16,27 +16,34 @@
 
 package ch.systemsx.cisd.common.io;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.IVirtualNodeListMerger;
 import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.IVirtualNodeMergerFactory;
 import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.VirtualNode;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * Unit tests for {@link VirtualNode}
  * 
  * @author Piotr Buczek
  */
-public class VirtualNodeTest extends AssertJUnit
+public class VirtualNodeTest extends AbstractFileSystemTestCase
 {
 
     private List<IHierarchicalContentNode> nodes; // real nodes
@@ -47,7 +54,6 @@ public class VirtualNodeTest extends AssertJUnit
 
     private IVirtualNodeMergerFactory mergerFactory;
 
-    @SuppressWarnings("unused")
     private IVirtualNodeListMerger nodeListMerger;
 
     private IHierarchicalContentNode node1;
@@ -56,8 +62,9 @@ public class VirtualNodeTest extends AssertJUnit
 
     private IHierarchicalContentNode node3;
 
-    @SuppressWarnings("unused")
     private IHierarchicalContentNode mergedNode;
+
+    private File dummyFile;
 
     @BeforeMethod
     public void beforeMethod() throws Exception
@@ -73,6 +80,9 @@ public class VirtualNodeTest extends AssertJUnit
         mergedNode = context.mock(IHierarchicalContentNode.class, "mergedNode");
 
         nodes = Arrays.asList(node1, node2, node3);
+
+        dummyFile = new File(workingDirectory, "mergedFile");
+        dummyFile.createNewFile();
     }
 
     @AfterMethod
@@ -87,9 +97,14 @@ public class VirtualNodeTest extends AssertJUnit
     // tests mocking IVirtualNodeMergerFactory
     //
 
+    private IHierarchicalContentNode createVirtualNode(List<IHierarchicalContentNode> nodeList)
+    {
+        return new VirtualNode(mergerFactory, nodeList);
+    }
+
     private IHierarchicalContentNode createVirtualNode()
     {
-        return new VirtualNode(mergerFactory, nodes);
+        return createVirtualNode(nodes);
     }
 
     @Test
@@ -97,7 +112,7 @@ public class VirtualNodeTest extends AssertJUnit
     {
         try
         {
-            new VirtualNode(mergerFactory, null);
+            createVirtualNode(null);
             fail("Expected AssertionError");
         } catch (AssertionError ex)
         {
@@ -106,7 +121,7 @@ public class VirtualNodeTest extends AssertJUnit
 
         try
         {
-            new VirtualNode(mergerFactory, new ArrayList<IHierarchicalContentNode>());
+            createVirtualNode(new ArrayList<IHierarchicalContentNode>());
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException ex)
         {
@@ -116,28 +131,30 @@ public class VirtualNodeTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    // @Test
-    // public void testEqualsAndHashCode()
-    // {
-    // IHierarchicalContent virtualContent = createContent(components);
-    // IHierarchicalContent virtualContentSameComponents = createContent(components.clone());
-    // assertEquals(virtualContent, virtualContentSameComponents);
-    // assertEquals(virtualContent.hashCode(), virtualContentSameComponents.hashCode());
-    //
-    // IHierarchicalContent[] subComponents =
-    // { component1, component2 };
-    // IHierarchicalContent virtualContentSubComponents = createContent(subComponents);
-    // assertFalse(virtualContent.equals(virtualContentSubComponents));
-    // assertFalse(virtualContent.hashCode() == virtualContentSubComponents.hashCode());
-    //
-    // IHierarchicalContent[] reorderedComponents = new IHierarchicalContent[]
-    // { component1, component3, component2 };
-    // IHierarchicalContent virtualContentReorderedComponents = createContent(reorderedComponents);
-    // assertFalse(virtualContent.equals(virtualContentReorderedComponents));
-    // assertFalse(virtualContent.hashCode() == virtualContentReorderedComponents.hashCode());
-    //
-    // context.assertIsSatisfied();
-    // }
+    @Test
+    public void testEqualsAndHashCode()
+    {
+        IHierarchicalContentNode virtualNode = createVirtualNode();
+        IHierarchicalContentNode virtualNodeWithSameComponents = createVirtualNode();
+        IHierarchicalContentNode virtualNodeWithSameComponents2 =
+                createVirtualNode(new ArrayList<IHierarchicalContentNode>(nodes));
+        assertEquals(virtualNode, virtualNodeWithSameComponents);
+        assertEquals(virtualNode, virtualNodeWithSameComponents2);
+        assertEquals(virtualNode.hashCode(), virtualNodeWithSameComponents.hashCode());
+        assertEquals(virtualNode.hashCode(), virtualNodeWithSameComponents2.hashCode());
+
+        List<IHierarchicalContentNode> subNodes = Arrays.asList(node1, node2);
+        IHierarchicalContentNode virtualNodeSubComponents = createVirtualNode(subNodes);
+        assertFalse(virtualNode.equals(virtualNodeSubComponents));
+        assertFalse(virtualNode.hashCode() == virtualNodeSubComponents.hashCode());
+
+        List<IHierarchicalContentNode> reorderedNodes = Arrays.asList(node1, node3, node2);
+        IHierarchicalContentNode virtualNodeReorderedComponents = createVirtualNode(reorderedNodes);
+        assertFalse(virtualNode.equals(virtualNodeReorderedComponents));
+        assertFalse(virtualNode.hashCode() == virtualNodeReorderedComponents.hashCode());
+
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testGetName()
@@ -225,17 +242,7 @@ public class VirtualNodeTest extends AssertJUnit
             });
         assertTrue(virtualNode.exists());
 
-        // 2st case: all nodes don't exist
-        context.checking(new Expectations()
-            {
-                {
-                    for (IHierarchicalContentNode node : nodes)
-                    {
-                        one(node).exists();
-                        will(returnValue(false));
-                    }
-                }
-            });
+        prepareAllNodesNotExist();
         assertFalse(virtualNode.exists());
 
         context.assertIsSatisfied();
@@ -265,5 +272,282 @@ public class VirtualNodeTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    // TODO 2011-05-24, Piotr Buczek: write remaining tests
+    @Test
+    public void testGetChildNodes()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        // contents of these lists is not significant in the test
+        final List<IHierarchicalContentNode> children1 = Arrays.asList(node1, node2);
+        final List<IHierarchicalContentNode> children2 = Arrays.asList(node3);
+        final List<IHierarchicalContentNode> children3 = Arrays.asList();
+        final List<IHierarchicalContentNode> mergedChildren = Arrays.asList(mergedNode);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(mergerFactory).createNodeListMerger();
+                    will(returnValue(nodeListMerger));
+
+                    one(node1).getChildNodes();
+                    will(returnValue(children1));
+                    one(node2).getChildNodes();
+                    will(returnValue(children2));
+                    one(node3).getChildNodes();
+                    will(returnValue(children3));
+
+                    one(nodeListMerger).addNodes(children1);
+                    one(nodeListMerger).addNodes(children2);
+                    one(nodeListMerger).addNodes(children3);
+                    one(nodeListMerger).createMergedNodeList();
+                    will(returnValue(mergedChildren));
+
+                }
+            });
+
+        List<IHierarchicalContentNode> virtualChildren = virtualNode.getChildNodes();
+        assertEquals(mergedChildren, virtualChildren);
+
+        context.assertIsSatisfied();
+    }
+
+    //
+    // contract: file (and its content) from last non-virtual child that exists is taken
+    // NOTE: the order of nodes in VirtualNode is reversed (first becomes last)
+    //
+
+    @Test
+    public void testGetFile()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        // case: 2nd out of 3 nodes exist, 3rd node is not asked at all
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).exists();
+                    will(returnValue(false));
+
+                    one(node2).exists();
+                    will(returnValue(true));
+
+                    one(node2).getFile();
+                    will(returnValue(dummyFile));
+                }
+            });
+
+        File virtualFile = virtualNode.getFile();
+        assertSame(dummyFile, virtualFile);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetNormalFileLength()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        final long mergedFileSize = 100;
+
+        // case: 2nd out of 3 nodes exist, 3rd node is not asked at all
+        // take lenght of the 2nd file
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).isDirectory();
+                    will(returnValue(false)); // normal file
+
+                    one(node1).exists();
+                    will(returnValue(false));
+
+                    one(node2).exists();
+                    will(returnValue(true));
+
+                    one(node2).getFileLength();
+                    will(returnValue(mergedFileSize));
+                }
+            });
+
+        long virtualLength = virtualNode.getFileLength();
+        assertSame(mergedFileSize, virtualLength);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetDirectoryFileLength()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        final long nodeLength1 = 11;
+        final long nodeLength2 = 22;
+        final long nodeLength3 = 33;
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).isDirectory();
+                    will(returnValue(true)); // directory file
+
+                    one(node1).getFileLength();
+                    will(returnValue(nodeLength1));
+
+                    one(node2).getFileLength();
+                    will(returnValue(nodeLength2));
+
+                    one(node3).getFileLength();
+                    will(returnValue(nodeLength3));
+                }
+            });
+
+        long virtualLength = virtualNode.getFileLength();
+        // contract: for directories return estimated length == sum of all node lengths
+        assertSame(nodeLength1 + nodeLength2 + nodeLength3, virtualLength);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetInputStream() throws IOException
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        final InputStream dummyInputStream = new FileInputStream(dummyFile);
+
+        // case: 2nd out of 3 nodes exist, 3rd node is not asked at all
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).exists();
+                    will(returnValue(false));
+
+                    one(node2).exists();
+                    will(returnValue(true));
+
+                    one(node2).getInputStream();
+                    will(returnValue(dummyInputStream));
+                }
+            });
+
+        InputStream virtualInputStream = virtualNode.getInputStream();
+        assertSame(dummyInputStream, virtualInputStream);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetFileContent() throws IOException
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        final IRandomAccessFile dummyRandomAccessFile = new RandomAccessFileImpl(dummyFile, "r");
+
+        // case: 2nd out of 3 nodes exist, 3rd node is not asked at all
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).exists();
+                    will(returnValue(false));
+
+                    one(node2).exists();
+                    will(returnValue(true));
+
+                    one(node2).getFileContent();
+                    will(returnValue(dummyRandomAccessFile));
+                }
+            });
+
+        IRandomAccessFile virtualRandomAccessFile = virtualNode.getFileContent();
+        assertSame(dummyRandomAccessFile, virtualRandomAccessFile);
+
+        context.assertIsSatisfied();
+    }
+
+    //
+    // contract: if all nodes don't exist an exception should be thrown when one tries to access
+    // file or its content
+    //
+
+    @Test
+    public void testGetFileFailsWithResourceUnavailable()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        prepareAllNodesNotExist();
+        expectResouceUnavailableException(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    virtualNode.getFile();
+                }
+            });
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetFileContentFailsWithResourceUnavailable()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        prepareAllNodesNotExist();
+        expectResouceUnavailableException(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    virtualNode.getFileContent();
+                }
+            });
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetInputStreamFailsWithResourceUnavailable()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+
+        prepareAllNodesNotExist();
+        expectResouceUnavailableException(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    virtualNode.getInputStream();
+                }
+            });
+
+        context.assertIsSatisfied();
+    }
+
+    //
+    // helper functions
+    //
+
+    private void prepareAllNodesNotExist()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (IHierarchicalContentNode node : nodes)
+                    {
+                        one(node).exists();
+                        will(returnValue(false));
+                    }
+                }
+            });
+    }
+
+    private static void expectResouceUnavailableException(final IDelegatedAction action)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected IllegalStateException");
+        } catch (IllegalStateException ex)
+        {
+            assertEquals("Resource is currently unavailable. It might be in an archive.",
+                    ex.getMessage());
+        }
+    }
+
 }

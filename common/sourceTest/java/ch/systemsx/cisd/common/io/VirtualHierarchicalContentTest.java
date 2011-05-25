@@ -244,7 +244,7 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         final IHierarchicalContent virtualContent = createContent(components);
         final String pattern = "rel.*path.?pattern";
 
-        // contents of these lists is not significang in the test
+        // contents of these lists is not significant in the test
         final List<IHierarchicalContentNode> list1 = Arrays.asList(node1, node2);
         final List<IHierarchicalContentNode> list2 = Arrays.asList(node3);
         final List<IHierarchicalContentNode> list3 = Arrays.asList();
