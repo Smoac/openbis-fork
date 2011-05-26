@@ -5,7 +5,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;

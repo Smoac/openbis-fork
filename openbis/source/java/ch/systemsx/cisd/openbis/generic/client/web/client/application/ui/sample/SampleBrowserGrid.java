@@ -43,14 +43,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
@@ -68,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -77,7 +76,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -91,7 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Franz-Josef Elmer
  */
-public class SampleBrowserGrid extends TypedTableGrid<Sample>
+public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
@@ -513,25 +511,6 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
                 .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
     }
 
-    @Override
-    protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<Sample>> model,
-            String columnID)
-    {
-        String propertyName = columnID.substring(SampleGridColumnIDs.PROPERTIES_PREFIX.length());
-        Sample sample = model.getBaseObject().getObjectOrNull();
-        EntityType entityType = sample.getEntityType();
-        IEntityProperty propertyOrNull = tryGetProperty(sample, propertyName);
-        if (propertyOrNull != null && propertyOrNull.isScriptable())
-        {
-            return false;
-        }
-        List<IColumnDefinition<TableModelRowWithObject<Sample>>> columnDefinitions =
-                getColumnDefinitions(Arrays.asList(columnID));
-        IColumnDefinition<TableModelRowWithObject<Sample>> columnDefinition =
-                columnDefinitions.get(0);
-        return columnDefinition.tryToGetProperty(entityType.getCode()) != null;
-    }
-    
     protected boolean isPropertyEditable(EntityType entityType, String propertyColumnNameWithoutPrefix)
     {
         String propertyTypeCode = CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
@@ -547,14 +526,9 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
     }
 
     @Override
-    protected void handleEditingEvent(BaseEntityModel<TableModelRowWithObject<Sample>> model,
-            String columnID, String newValueOrNull)
+    protected EntityKind getEntityKind()
     {
-        Sample sample = model.getBaseObject().getObjectOrNull();
-        TechId sampleID = new TechId(sample.getId());
-        String propertyName = columnID.substring(SampleGridColumnIDs.PROPERTIES_PREFIX.length());
-        viewContext.getService().updateProperty(EntityKind.SAMPLE, sampleID, propertyName,
-                newValueOrNull, createPostEditingRefreshCallback());
+        return EntityKind.SAMPLE;
     }
 
     @Override
@@ -763,13 +737,6 @@ public class SampleBrowserGrid extends TypedTableGrid<Sample>
             DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
                     .getCommonViewContext()).getSampleRegistration(experimentContext));
         }
-    }
-
-    @Override
-    protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode,
-            boolean inBackground)
-    {
-        showEntityInformationHolderViewer(row.getObjectOrNull(), editMode, inBackground);
     }
 
     protected final IDelegatedAction createGridRefreshDelegatedAction()

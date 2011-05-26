@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;

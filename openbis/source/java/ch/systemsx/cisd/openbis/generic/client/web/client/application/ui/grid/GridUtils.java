@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;

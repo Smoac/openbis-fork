@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;

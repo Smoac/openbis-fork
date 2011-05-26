@@ -81,21 +81,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     // criteria used in the previous refresh operation or null if it has not occurred yet
     protected K criteria;
 
-    public interface ICriteriaProvider<K>
-    {
-        /** @return criteria used as the main grid filter */
-        K tryGetCriteria();
-
-        /**
-         * calls the refresh callback only after appropriate criteria are updated. But if there is
-         * nothing to update in the criteria provider the callback is called immediately.
-         */
-        void update(Set<DatabaseModificationKind> observedModifications,
-                final IDataRefreshCallback dataRefreshCallback);
-
-        DatabaseModificationKind[] getRelevantModifications();
-    }
-
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, DisplayTypeIDGenerator displayTypeIDGenerator)
     {

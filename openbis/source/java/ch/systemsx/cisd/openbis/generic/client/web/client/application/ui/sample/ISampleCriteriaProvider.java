@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 
 public interface ISampleCriteriaProvider extends

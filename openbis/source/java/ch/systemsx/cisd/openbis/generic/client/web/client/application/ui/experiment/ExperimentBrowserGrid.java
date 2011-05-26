@@ -45,12 +45,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTa
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentDataSetArchivingMenu.SelectedAndDisplayedItems;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -74,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentBrowserGrid extends TypedTableGrid<Experiment>
+public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
 {
 
     private static final String PREFIX = "experiment-browser";
@@ -331,12 +333,6 @@ public class ExperimentBrowserGrid extends TypedTableGrid<Experiment>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<Experiment> experiment, boolean editMode, boolean inBackground)
-    {
-        showEntityInformationHolderViewer(experiment.getObjectOrNull(), editMode, inBackground);
-    }
-
-    @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Experiment>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<Experiment>> schema = super.createColumnsDefinition();
@@ -393,6 +389,12 @@ public class ExperimentBrowserGrid extends TypedTableGrid<Experiment>
             }
             return experiments;
         }
+    }
+
+    @Override
+    protected EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
     }
 
     protected final IDelegatedActionWithResult<DisplayedAndSelectedExperiments> getDisplayedAndSelectedItemsAction()
