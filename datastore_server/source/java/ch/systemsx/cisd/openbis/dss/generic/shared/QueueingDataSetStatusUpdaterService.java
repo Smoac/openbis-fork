@@ -271,9 +271,9 @@ public class QueueingDataSetStatusUpdaterService
         private static final long MAX_SLEEP_TIME = 86400 * SECOND_IN_MILIS;
 
         /** after each sleep increase the sleep time using this factor */
-        private static final int FACTOR = 10;
+        private static final int FACTOR = 2;
 
-        /** current sleep time in miliseconds */
+        /** current sleep time in milliseconds */
         private static long sleepTime = INITIAL_SLEEP_TIME;
 
         public static String getCurrentSleepTime()
