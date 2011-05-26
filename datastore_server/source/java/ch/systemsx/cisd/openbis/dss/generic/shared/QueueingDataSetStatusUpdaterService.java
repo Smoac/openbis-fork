@@ -51,11 +51,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 public class QueueingDataSetStatusUpdaterService
 {
 
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, QueueingDataSetStatusUpdaterService.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            QueueingDataSetStatusUpdaterService.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, QueueingDataSetStatusUpdaterService.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            QueueingDataSetStatusUpdaterService.class);
 
     private static final int INITIAL_RECORD_SIZE = 128;
 
@@ -115,7 +115,7 @@ public class QueueingDataSetStatusUpdaterService
                                 Sleeper.resetSleepTime();
                             } catch (RemoteAccessException ex)
                             {
-                                // If connection with openBIS fails it is not possible
+                                // If connection with openBIS fails it is possible that
                                 // the same problem will occur for other updates in the queue,
                                 // so we just retry after increasing time.
                                 notifyUpdateFailure(dataSets, ex);
@@ -142,11 +142,12 @@ public class QueueingDataSetStatusUpdaterService
 
                 private void notifyUpdateFailure(final DataSetCodesWithStatus dataSets, Exception ex)
                 {
-                    notificationLog.error("Update of data sets "
-                            + CollectionUtils.abbreviate(dataSets.getDataSetCodes(), 10)
-                            + " status to '" + dataSets.getStatus()
-                            + "' has failed.\nRetry will occur not sooner than "
-                            + Sleeper.getCurrentSleepTime() + ".", ex);
+                    notificationLog.error(
+                            "Update of data sets "
+                                    + CollectionUtils.abbreviate(dataSets.getDataSetCodes(), 10)
+                                    + " status to '" + dataSets.getStatus()
+                                    + "' has failed.\nRetry will occur not sooner than "
+                                    + Sleeper.getCurrentSleepTime() + ".", ex);
                 }
             }, "Updater Queue");
         thread.setDaemon(true);
