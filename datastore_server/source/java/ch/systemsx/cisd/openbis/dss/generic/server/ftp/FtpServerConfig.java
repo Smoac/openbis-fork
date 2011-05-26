@@ -208,6 +208,11 @@ public class FtpServerConfig
         operationLog.info("Ftp Server port: " + port);
         operationLog.info("Ftp Server using SSL: " + useSSL);
         operationLog.info("Ftp Server data set display template : " + dataSetDisplayTemplate);
+        operationLog.info("Ftp Server enable active mode: " + activeModeEnabled);
+        if (activeModeEnabled)
+        {
+            operationLog.info("Ftp Server active mode port: " + activePort);
+        }
 
         for (Entry<String, String> subpathEntry : fileListSubPaths.entrySet())
         {
