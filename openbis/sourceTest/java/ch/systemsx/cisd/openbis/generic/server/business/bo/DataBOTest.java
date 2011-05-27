@@ -404,10 +404,11 @@ public class DataBOTest extends AbstractBOTest
     public void testDefineWithExistingContainerDataSet()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
-        ExperimentPE experimentPE = new ExperimentPE();
+        ExperimentPE experimentPE = createExperiment("EXP1");
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataPE data = new DataPE();
+        data.setExperiment(experimentPE);
         context.checking(new Expectations()
             {
                 {
@@ -435,14 +436,14 @@ public class DataBOTest extends AbstractBOTest
     public void testDefineWithNonExistingContainerDataSet()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
-        final ExperimentPE experiment = new ExperimentPE();
+        final ExperimentPE experiment = createExperiment("EXP1");
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
         final DataPE containerData = new DataPE();
         containerData.setCode(PARENT_CODE);
         containerData.setDataSetType(dataSetTypeUnknown);
-        containerData.setExperiment(createExperiment("EXP1"));
+        containerData.setExperiment(experiment);
         containerData.setPlaceholder(true);
         context.checking(new Expectations()
             {

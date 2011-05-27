@@ -486,7 +486,11 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // remove connection with sample
             data.setSample(null);
         }
-        checkSameSpace(data, data.getContainer()); // space could be changed by change of experiment
+        if (data.getContainer() != null)
+        {
+            // space could be changed by change of experiment
+            checkSameSpace(data.getContainer(), data);
+        }
         updateParents(updates.getModifiedParentDatasetCodesOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
@@ -500,6 +504,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     private void checkSameSpace(DataPE container, DataPE component)
     {
         // see LMS-2282
+        if (container.getSpace().equals(component.getSpace()))
+        {
+            return;
+        }
         throw UserFailureException.fromTemplate("Data set's '%s' space ('%s') needs to be the same"
                 + " as its container's '%s' space ('%s').", component.getCode(), component
                 .getSpace().getCode(), container.getCode(), container.getSpace().getCode());
@@ -751,10 +759,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     private void updateExperiment(ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null;
-        if (data.getExperiment().getIdentifier().equals(experimentIdentifier.toString()))
-        {
-            return; // nothing to change
-        }
         ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
         data.setExperiment(experiment);
     }
