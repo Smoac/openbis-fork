@@ -80,6 +80,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * <i>Note: using this login your password will end up in the Matlab command history. An alternative
  * that avoids this is to call the {@link ch.systemsx.cisd.openbis.generic.client.cli.Login} class.
  * Logging in on the console will grant this class access to the openBIS server.</i>
+ * <p>
+ * To learn the API one needs to understand three basic notions: code, augmented code and perm id.
+ * Space, project, experiment, plate and well have their own <b>code</b>, which is unique only in
+ * the context of the parent.<br>
+ * That's why one needs <b>augmented code</b> to point e.g. to one experiment, because two different
+ * projects can have experiments with the same code.<br>
+ * Such an augmented code for experiment has a form of "/space-code/project-code/experiment-code".<br>
+ * For plate it has a form of "/space-code/plate-code" (note that plate code is unique on the space
+ * level). <br>
+ * The drawback of an augmented code is that it's not persistent. If someone e.g. moves the
+ * experiment from one space to the other augmented code of the experiment becomes invalid. That is
+ * why experiments, plates and datasets have <b>perm id</b> (permament identifier) which never
+ * change and allow to refer to them with one "magic" identifier, e.g. 20110516124520378-737166.
+ * </p>
  * 
  * @author Bernd Rinn
  */
@@ -318,7 +332,7 @@ public class OpenBISScreeningML
      * permids = exps(:,2)
      * </pre>
      * 
-     * @return Each row contains information about one plate:
+     * @return Each row contains information about one experiment:
      *         <p>
      *         <code>{ experiment augmented code, experiment perm id, experiment space code, 
      *         experiment project code, experiment code }</code>
