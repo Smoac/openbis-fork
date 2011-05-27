@@ -94,9 +94,9 @@ public class DataBOTest extends AbstractBOTest
 
     private static final String DATA_STORE_CODE = "dss1";
 
-    private static final String PARENT_CODE = "parent";
+    private static final String PARENT_CODE = "parent1";
 
-    private static final String COMPONENT_CODE = "component";
+    private static final String COMPONENT_CODE = "component1";
 
     private static final Date PRODUCTION_DATE = new Date(1001);
 
@@ -401,24 +401,24 @@ public class DataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineWithExistingContainerDataSet()
+    public void testDefineContainerWithExistingComponent()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
         ExperimentPE experimentPE = createExperiment("EXP1");
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
-        final DataPE data = new DataPE();
-        data.setExperiment(experimentPE);
+        final DataPE component = new DataPE();
+        component.setExperiment(createExperiment("EXP2")); // different experiment, same space
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
-                    will(returnValue(data));
+                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
+                    will(returnValue(component));
                 }
             });
 
         IDataBO dataBO = createDataBO();
-        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
+        NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experimentPE, SourceType.MEASUREMENT);
         dataBO.setContainedDataSets(experimentPE, newData);
         DataPE loadedData = dataBO.getData();
@@ -428,38 +428,38 @@ public class DataBOTest extends AbstractBOTest
         assertSame(true, loadedData.isMeasured());
         assertSame(dataStore, loadedData.getDataStore());
         assertEquals(1, loadedData.getContainedDataSets().size());
-        assertSame(data, loadedData.getContainedDataSets().iterator().next());
+        assertSame(component, loadedData.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testDefineWithNonExistingContainerDataSet()
+    public void testDefineContainerWithNonExistingComponent()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
         final ExperimentPE experiment = createExperiment("EXP1");
         final DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
-        final DataPE containerData = new DataPE();
-        containerData.setCode(PARENT_CODE);
-        containerData.setDataSetType(dataSetTypeUnknown);
-        containerData.setExperiment(experiment);
-        containerData.setPlaceholder(true);
+        final DataPE component = new DataPE();
+        component.setCode(COMPONENT_CODE);
+        component.setDataSetType(dataSetTypeUnknown);
+        component.setExperiment(experiment);
+        component.setPlaceholder(true);
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
+                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
                     will(returnValue(null));
 
                     one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
                     will(returnValue(dataSetTypeUnknown));
 
-                    one(dataDAO).createDataSet(containerData);
+                    one(dataDAO).createDataSet(component);
                 }
             });
 
         IDataBO dataBO = createDataBO();
-        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
+        NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experiment, SourceType.MEASUREMENT);
         dataBO.setContainedDataSets(experiment, newData);
         DataPE data = dataBO.getData();
@@ -469,48 +469,56 @@ public class DataBOTest extends AbstractBOTest
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
         assertEquals(1, data.getContainedDataSets().size());
-        assertEquals(containerData, data.getContainedDataSets().iterator().next());
+        assertEquals(component, data.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testDefineWithNonExistingContainerDataSetAndNonExistingExperiment()
+    public void testDefineContainerWithComponentFromDifferentSpaceFails()
     {
-        final DataSetTypePE dataSetType = createDataSetType();
-        final DataStorePE dataStore = new DataStorePE();
+        final DataSetTypePE dataSetType = new DataSetTypePE();
+        ExperimentPE experiment1 = createExperiment("EXP1", "S1");
+        ExperimentPE experiment2 = createExperiment("EXP2", "S2");
+        DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
-        final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
-        final DataPE containerData = new DataPE();
-        containerData.setCode(PARENT_CODE);
-        containerData.setDataSetType(dataSetTypeUnknown);
-        ExperimentPE experiment = createExperiment("EXP1");
-        containerData.setExperiment(experiment);
-        containerData.setPlaceholder(true);
+        final DataPE data = new DataPE();
+        data.setCode(COMPONENT_CODE);
+        data.setExperiment(createExperiment("EXP1", "S2"));
+
+        IDataBO dataBO = createDataBO();
+        NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
+        dataBO.define(newData, experiment1, SourceType.MEASUREMENT);
+
+        // sanity check
+        try
+        {
+            dataBO.setContainedDataSets(experiment2, newData);
+            fail("Expected UserFailureException");
+        } catch (UserFailureException ex)
+        {
+            assertEquals(
+                    "Contained data sets need to be in the same space ('S1') as the container.",
+                    ex.getMessage());
+        }
+
+        // existing data set from different space
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
-                    will(returnValue(null));
-
-                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode(
-                            DataSetTypeCode.UNKNOWN.getCode());
-                    will(returnValue(dataSetTypeUnknown));
-
-                    one(dataDAO).createDataSet(containerData);
+                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
+                    will(returnValue(data));
                 }
             });
+        try
+        {
+            dataBO.setContainedDataSets(experiment1, newData);
+            fail("Expected UserFailureException");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Data set's '" + COMPONENT_CODE + "' space ('S2') needs to be the same"
+                    + " as its container's 'DS1' space ('S1').", ex.getMessage());
+        }
 
-        IDataBO dataBO = createDataBO();
-        NewContainerDataSet newData = createContainerDataSet(PARENT_CODE);
-        dataBO.define(newData, experiment, SourceType.MEASUREMENT);
-        dataBO.setContainedDataSets(experiment, newData);
-        DataPE data = dataBO.getData();
-
-        assertSame(null, data.tryGetSample());
-        assertSame(true, data.isMeasured());
-        assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getContainedDataSets().size());
-        assertEquals(containerData, data.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
@@ -903,16 +911,21 @@ public class DataBOTest extends AbstractBOTest
 
     private ExperimentPE createExperiment(String experimentCode)
     {
+        return createExperiment(experimentCode, "S");
+    }
+
+    private ExperimentPE createExperiment(String experimentCode, String spaceCode)
+    {
         ExperimentPE experiment = new ExperimentPE();
         experiment.setCode(experimentCode);
         ProjectPE project = new ProjectPE();
         project.setCode("P");
-        SpacePE group = new SpacePE();
-        group.setCode("G");
+        SpacePE space = new SpacePE();
+        space.setCode(spaceCode);
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("DB");
-        group.setDatabaseInstance(databaseInstance);
-        project.setSpace(group);
+        space.setDatabaseInstance(databaseInstance);
+        project.setSpace(space);
         experiment.setProject(project);
         return experiment;
     }
@@ -976,14 +989,11 @@ public class DataBOTest extends AbstractBOTest
         return data;
     }
 
-    private NewContainerDataSet createContainerDataSet(String containedDataSetCodeOrNull)
+    private NewContainerDataSet createContainerDataSetWithComponents(String... components)
     {
         NewContainerDataSet data = new NewContainerDataSet();
         data.setCode(DATA_SET_CODE);
-        if (containedDataSetCodeOrNull != null)
-        {
-            data.setContainedDataSetCodes(Collections.singletonList(containedDataSetCodeOrNull));
-        }
+        data.setContainedDataSetCodes(Arrays.asList(components));
         data.setDataProducerCode(DATA_PRODUCER_CODE);
         data.setProductionDate(PRODUCTION_DATE);
         data.setComplete(BooleanOrUnknown.U);

@@ -218,7 +218,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             throw UserFailureException.fromTemplate(
                     "Contained data sets need to be in the same space ('%s') as the container.",
-                    containerSpace);
+                    containerSpace.getCode());
         } else
         {
             if (experiment.equals(data.getExperiment()))
