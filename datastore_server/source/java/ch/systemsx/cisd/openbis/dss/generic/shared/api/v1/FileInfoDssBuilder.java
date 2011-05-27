@@ -29,9 +29,9 @@ import java.util.ArrayList;
 public class FileInfoDssBuilder
 {
 
-    private final String dataSetRoot;
+    private final File dataSetRootFile;
 
-    private final String listingRoot;
+    private final File listingRootFile;
 
     /**
      * Constructor for FileInfoDssFactory
@@ -41,8 +41,8 @@ public class FileInfoDssBuilder
      */
     public FileInfoDssBuilder(String dataSetRoot, String relativeRoot)
     {
-        this.dataSetRoot = dataSetRoot;
-        this.listingRoot = relativeRoot;
+        this.dataSetRootFile = new File(dataSetRoot);
+        this.listingRootFile = new File(relativeRoot);
     }
 
     /**
@@ -100,11 +100,10 @@ public class FileInfoDssBuilder
      */
     private String pathRelativeToDataSetRoot(File file) throws IOException
     {
-        String path;
-        path = file.getCanonicalPath();
-        path = path.substring(dataSetRoot.length());
-        return (path.length() > 0) ? path : "/";
-
+        String result = dataSetRootFile.toURI().relativize(file.toURI()).toString();
+        // remove trailing slashes
+        result = result.replaceAll("/+$", "");
+        return "/" + result;
     }
 
     /**
@@ -112,14 +111,6 @@ public class FileInfoDssBuilder
      */
     private String pathRelativeToListingRoot(File file) throws IOException
     {
-        String path;
-        path = file.getCanonicalPath();
-        path = path.substring(listingRoot.length());
-        if (path.startsWith("/"))
-        {
-            path = path.substring(1);
-        }
-        return (path.length() > 0) ? path : "";
-
+        return listingRootFile.toURI().relativize(file.toURI()).toString();
     }
 }
