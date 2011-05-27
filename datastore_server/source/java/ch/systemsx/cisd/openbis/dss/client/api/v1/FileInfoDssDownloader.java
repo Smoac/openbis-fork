@@ -114,14 +114,20 @@ public final class FileInfoDssDownloader
 
     private void downloadFile(FileInfoDssDTO fileInfo, File file)
     {
+        FileOutputStream fos = null;
+        InputStream is = null;
         try
         {
-            FileOutputStream fos = new FileOutputStream(file);
-            InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet());
+            fos = new FileOutputStream(file);
+            is = dataSetDss.getFile(fileInfo.getPathInDataSet());
             IOUtils.copyLarge(is, fos);
         } catch (IOException e)
         {
             throw new IOExceptionUnchecked(e);
+        } finally
+        {
+            IOUtils.closeQuietly(fos);
+            IOUtils.closeQuietly(is);
         }
     }
 }
