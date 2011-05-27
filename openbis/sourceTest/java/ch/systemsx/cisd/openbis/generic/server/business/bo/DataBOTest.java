@@ -515,8 +515,8 @@ public class DataBOTest extends AbstractBOTest
             fail("Expected UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("Data set's '" + COMPONENT_CODE + "' space ('S2') needs to be the same"
-                    + " as its container's 'DS1' space ('S1').", ex.getMessage());
+            assertEquals("Data set '" + COMPONENT_CODE
+                    + "' must be in the same space ('S1') as its container.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -644,7 +644,7 @@ public class DataBOTest extends AbstractBOTest
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
             { COMPONENT_CODE };
-        dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(componentCodes);
+        dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
             {

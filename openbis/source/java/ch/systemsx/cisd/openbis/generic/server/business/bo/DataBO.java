@@ -230,7 +230,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                     {
                         final DataPE contained = getOrCreateData(containedCode, experiment);
                         data.addComponent(contained);
-                        checkSameSpace(data, contained); // needed for already existing data sets
+                        checkSameSpace(data, contained);
                     }
                 }
             }
@@ -508,9 +508,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             return;
         }
-        throw UserFailureException.fromTemplate("Data set's '%s' space ('%s') needs to be the same"
-                + " as its container's '%s' space ('%s').", component.getCode(), component
-                .getSpace().getCode(), container.getCode(), container.getSpace().getCode());
+        throw UserFailureException.fromTemplate(
+                "Data set '%s' must be in the same space ('%s') as its container.",
+                component.getCode(), container.getSpace().getCode());
     }
 
     private void checkSameSpace(DataPE container, List<DataPE> components)
