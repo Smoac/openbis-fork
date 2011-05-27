@@ -1708,8 +1708,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private Grid<M> createGrid(
-            PagingLoader<PagingLoadResult<M>> dataLoader, String gridId)
+    private Grid<M> createGrid(PagingLoader<PagingLoadResult<M>> dataLoader, String gridId)
     {
 
         ListStore<M> listStore = new ListStore<M>(dataLoader);
@@ -1732,7 +1731,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     boolean editable = isEditable(model, columnID);
                     if (editable == false)
                     {
-                        MessageBox.info("Not Editable", "Sorry, this table cell isn't editable", null);
+                        MessageBox.info("Not Editable", "Sorry, this table cell isn't editable",
+                                null);
                     }
                     event.setCancelled(editable == false);
                 }
@@ -1744,7 +1744,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     M model = event.getModel();
                     String columnID = event.getProperty();
                     Object value = event.getValue();
-                    handleEditingEvent(model, columnID, value == null ? null : value.toString());
+                    if (value != null && value.equals(event.getStartValue())
+                            || value == event.getStartValue())
+                    {
+                        event.setCancelled(true);
+                    } else
+                    {
+                        handleEditingEvent(model, columnID, value == null ? null : value.toString());
+                    }
                 }
             });
         return editorGrid;
@@ -1758,16 +1765,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         return false;
     }
-    
+
     /**
-     * Tries to return the property of specified properties holder which is specified by
-     * the property column name without a prefix like <code>property-</code> but with 
-     * prefix which distinguishes internal from externally name space.
+     * Tries to return the property of specified properties holder which is specified by the
+     * property column name without a prefix like <code>property-</code> but with prefix which
+     * distinguishes internal from externally name space.
      */
     protected IEntityProperty tryGetProperty(IEntityPropertiesHolder propertiesHolder,
             String propertyColumnNameWithoutPrefix)
     {
-        String propertyTypeCode = CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
+        String propertyTypeCode =
+                CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
         List<IEntityProperty> properties = propertiesHolder.getProperties();
         for (IEntityProperty property : properties)
         {
