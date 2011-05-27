@@ -46,7 +46,7 @@ public interface IDataSetDss
             throws IllegalArgumentException, InvalidSessionException;
 
     /**
-     * Get a file contained in this data set.
+     * Get an {@link InputStream} with contents of a file contained in this data set.
      * 
      * @param path The path of the file to retrieve. The path must be absolute with respect to the
      *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
