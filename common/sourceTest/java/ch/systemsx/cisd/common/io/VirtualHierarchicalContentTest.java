@@ -95,10 +95,6 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    //
-    // tests mocking IVirtualNodeMergerFactory
-    //
-
     private IHierarchicalContent createContent(IHierarchicalContent... contents)
     {
         return new VirtualHierarchicalContent(mergerFactory, Arrays.asList(contents));
@@ -169,6 +165,10 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
+
+    //
+    // tests mocking IVirtualNodeMergerFactory
+    //
 
     @Test
     public void testGetRootNode()
