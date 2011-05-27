@@ -139,22 +139,11 @@ public class VocabularyTermSelectionWidget extends
 
         private VocabularyTermSelectionWidget createTermSelectionWidget()
         {
-            List<VocabularyTerm> allTerms = getAllTerms();
-            String previousTermCodeOrNull = null;
-            long maxOrdinal = Long.MIN_VALUE;
-            for (VocabularyTerm term : allTerms)
-            {
-                if (term.getOrdinal() >= maxOrdinal)
-                {
-                    previousTermCodeOrNull = term.getCode();
-                    maxOrdinal = term.getOrdinal();
-                }
-            }
             boolean mandatory = false;
             VocabularyTermSelectionWidget result =
                     new VocabularyTermSelectionWidget(getId() + "_edit_pos", "Position after",
-                            mandatory, allTerms, previousTermCodeOrNull);
-            result.setEmptyText("empty value == beginning");
+                            mandatory, vocabularyOrNull, viewContext, null, null, false);
+            result.setEmptyText(result.emptyText = result.chooseMsg = "empty value == beginning");
             return result;
         }
 
@@ -245,10 +234,19 @@ public class VocabularyTermSelectionWidget extends
             Vocabulary vocabularyOrNull, final IViewContext<?> viewContextOrNull,
             List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull)
     {
+        this(idSuffix, label, mandatory, vocabularyOrNull, viewContextOrNull, termsOrNull,
+                initialTermCodeOrNull, allowAddingUnofficialTerms(viewContextOrNull));
+    }
+
+    protected VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
+            Vocabulary vocabularyOrNull, final IViewContext<?> viewContextOrNull,
+            List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull,
+            boolean allowAddigUnofficialTerms)
+    {
         super(idSuffix, ModelDataPropertyNames.CODE_WITH_LABEL, label,
-                allowAddingUnofficialTerms(viewContextOrNull) ? CHOOSE_OR_ADD_MSG : CHOOSE_MSG,
-                EMPTY_MSG, VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull,
-                termsOrNull == null, allowAddingUnofficialTerms(viewContextOrNull));
+                allowAddigUnofficialTerms ? CHOOSE_OR_ADD_MSG : CHOOSE_MSG, EMPTY_MSG,
+                VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, termsOrNull == null,
+                allowAddigUnofficialTerms);
         this.viewContextOrNull = viewContextOrNull;
         this.vocabularyOrNull = vocabularyOrNull;
         this.initialTermCodeOrNull = initialTermCodeOrNull;
@@ -297,18 +295,6 @@ public class VocabularyTermSelectionWidget extends
     {
         vocabularyOrNull = vocabulary;
         refreshStore();
-    }
-
-    private List<VocabularyTerm> getAllTerms()
-    {
-        List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-
-        for (VocabularyTermModel model : store.getModels())
-        {
-            terms.add(model.getTerm());
-        }
-
-        return terms;
     }
 
     private void setTerms(List<VocabularyTerm> terms)

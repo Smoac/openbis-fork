@@ -68,10 +68,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private final String valueNotInListMsg;
 
-    private final String chooseMsg;
-
-    private final String emptyMsg;
-
     private final boolean mandatory;
 
     private final boolean reloadWhenRendering;
@@ -81,6 +77,10 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     private final IViewContext<?> viewContextOrNull;
 
     protected boolean allowValueNotFromList = false;
+
+    protected String chooseMsg;
+
+    protected String emptyMsg;
 
     public String callbackIdOrNull;
 
