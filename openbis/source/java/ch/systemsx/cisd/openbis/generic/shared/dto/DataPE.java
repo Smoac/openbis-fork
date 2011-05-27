@@ -661,4 +661,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         return true;
     }
+
+    // convenience method useful when checking authorization rules
+    @Transient
+    public SpacePE getSpace()
+    {
+        return getExperiment().getProject().getSpace();
+    }
 }

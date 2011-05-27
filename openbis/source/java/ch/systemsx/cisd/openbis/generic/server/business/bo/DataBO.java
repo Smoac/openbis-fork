@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -210,13 +211,28 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
     {
-        final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
-        if (containedDataSetCodes != null)
+        SpacePE containerSpace = data.getSpace();
+        // sanity check
+        SpacePE newComponentsSpace = experiment.getProject().getSpace();
+        if (containerSpace.equals(newComponentsSpace) == false)
         {
-            for (String containedCode : containedDataSetCodes)
+            throw UserFailureException.fromTemplate(
+                    "Contained data sets need to be in the same space ('%s') as the container.",
+                    containerSpace);
+        } else
+        {
+            if (experiment.equals(data.getExperiment()))
             {
-                final DataPE contained = getOrCreateData(containedCode, experiment);
-                data.addComponent(contained);
+                final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
+                if (containedDataSetCodes != null)
+                {
+                    for (String containedCode : containedDataSetCodes)
+                    {
+                        final DataPE contained = getOrCreateData(containedCode, experiment);
+                        data.addComponent(contained);
+                        checkSameSpace(data, contained); // needed for already existing data sets
+                    }
+                }
             }
         }
     }
@@ -352,19 +368,19 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert dataSetCode != null : "Unspecified parent data set code.";
 
         final IDataDAO dataDAO = getDataDAO();
-        DataPE parent = dataDAO.tryToFindDataSetByCode(dataSetCode);
-        if (parent == null)
+        DataPE result = dataDAO.tryToFindDataSetByCode(dataSetCode);
+        if (result == null)
         {
-            parent = new DataPE();
-            parent.setDataStore(dataStore);
-            parent.setCode(dataSetCode);
+            result = new DataPE();
+            result.setDataStore(dataStore);
+            result.setCode(dataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
-            parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
-            parent.setExperiment(experiment);
-            parent.setPlaceholder(true);
-            dataDAO.createDataSet(parent);
+            result.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
+            result.setExperiment(experiment);
+            result.setPlaceholder(true);
+            dataDAO.createDataSet(result);
         }
-        return parent;
+        return result;
     }
 
     public void save() throws UserFailureException
@@ -470,13 +486,31 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // remove connection with sample
             data.setSample(null);
         }
+        checkSameSpace(data, data.getContainer()); // space could be changed by change of experiment
         updateParents(updates.getModifiedParentDatasetCodesOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
+        checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
         updateFileFormatType(updates.getFileFormatTypeCode());
         updateProperties(data, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
         validateAndSave();
+    }
+
+    private void checkSameSpace(DataPE container, DataPE component)
+    {
+        // see LMS-2282
+        throw UserFailureException.fromTemplate("Data set's '%s' space ('%s') needs to be the same"
+                + " as its container's '%s' space ('%s').", component.getCode(), component
+                .getSpace().getCode(), container.getCode(), container.getSpace().getCode());
+    }
+
+    private void checkSameSpace(DataPE container, List<DataPE> components)
+    {
+        for (DataPE component : components)
+        {
+            checkSameSpace(container, component);
+        }
     }
 
     private void validateAndSave()
@@ -714,10 +748,14 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         data.setSample(newSample);
     }
 
-    private void updateExperiment(ExperimentIdentifier experimentIdentifierOrNull)
+    private void updateExperiment(ExperimentIdentifier experimentIdentifier)
     {
-        assert experimentIdentifierOrNull != null;
-        ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifierOrNull);
+        assert experimentIdentifier != null;
+        if (data.getExperiment().getIdentifier().equals(experimentIdentifier.toString()))
+        {
+            return; // nothing to change
+        }
+        ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifier);
         data.setExperiment(experiment);
     }
 

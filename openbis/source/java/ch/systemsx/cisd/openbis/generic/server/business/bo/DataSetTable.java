@@ -890,6 +890,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     public void update(List<NewDataSet> updates)
     {
+        // NOTE: Only data set properties are currently updatable in batch. If we add possiblity to
+        // batch update assignment to sample/experiment same business rule checks will need to be
+        // performed here as those that are performed when a data set is registered/updated
+        // (see DataBO).
         assert updates != null : "Unspecified updates.";
         setBatchUpdateMode(true);
 

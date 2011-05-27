@@ -46,7 +46,7 @@ class DataSetGroupLoader implements IGroupLoader
         List<DataPE> data = dao.listByCode(keys);
         for (DataPE d : data)
         {
-            map.put(d.getCode(), d.getExperiment().getProject().getSpace());
+            map.put(d.getCode(), d.getSpace());
         }
         return map;
     }

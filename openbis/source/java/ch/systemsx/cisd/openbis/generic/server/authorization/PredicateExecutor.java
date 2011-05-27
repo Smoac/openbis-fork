@@ -379,7 +379,7 @@ public final class PredicateExecutor
             {
                 case DATASET:
                     DataPE dataset = daoFactory.getDataDAO().getByTechId(techId);
-                    return dataset.getExperiment().getProject().getSpace();
+                    return dataset.getSpace();
                 case EXPERIMENT:
                     ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
                     return experiment.getProject().getSpace();
