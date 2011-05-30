@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,8 +149,15 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                     IHierarchicalContent content = getHierarchicalContentMock(dataSetCode);
                     IHierarchicalContentNode rootNode = getHierarchicalRootNodeMock(dataSetCode);
 
-                    allowing(content).getNode(StringUtils.EMPTY);
+                    one(content).getNode(StringUtils.EMPTY);
                     will(returnValue(rootNode));
+
+                    exactly(2).of(rootNode).isDirectory();
+                    will(returnValue(true));
+
+                    one(rootNode).getFile();
+                    will(throwException(new UnsupportedOperationException()));
+
                 }
             });
 
@@ -186,8 +196,17 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                     allowing(content).getNode(subPath);
                     will(returnValue(mockNode));
 
-                    one(mockNode).isDirectory();
+                    one(mockNode).getRelativePath();
+                    will(returnValue(subPath));
+
+                    exactly(2).of(mockNode).isDirectory();
                     will(returnValue(false));
+
+                    one(mockNode).getFileLength();
+                    will(returnValue(2L));
+
+                    one(mockNode).getFile();
+                    will(returnValue(null));
                 }
             });
 
@@ -196,6 +215,69 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
         assertNotNull(ftpFile);
         assertEquals("fileName.txt", ftpFile.getName());
         assertTrue(ftpFile.isFile());
+    }
+
+    @Test
+    public void testHierarchicalContentClosed() throws IOException
+    {
+        FtpServerConfig config =
+                new FtpServerConfigBuilder().withTemplate(SIMPLE_TEMPLATE).getConfig();
+        resolver = new TemplateBasedDataSetResourceResolver(config);
+
+        final String dataSetCode = "dataSetCode";
+        final String subPath = "fileName.txt";
+
+        String path =
+                EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetCode + FtpConstants.FILE_SEPARATOR
+                        + subPath;
+
+        List<ExternalData> dataSets = Arrays.asList(createDataSet(dataSetCode, DS_TYPE1));
+
+        prepareExperimentListExpectations(dataSets);
+
+        context.checking(new Expectations()
+            {
+                {
+                    IHierarchicalContent content = getHierarchicalContentMock(dataSetCode);
+
+                    one(hierarchicalContentProvider).asContent(dataSetCode);
+                    will(returnValue(content));
+                    one(content).close();
+
+                    IHierarchicalContentNode mockNode =
+                            context.mock(IHierarchicalContentNode.class);
+
+                    ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
+
+                    allowing(content).getNode(subPath);
+                    will(returnValue(mockNode));
+
+                    one(mockNode).getRelativePath();
+                    will(returnValue(subPath));
+
+                    exactly(2).of(mockNode).isDirectory();
+                    will(returnValue(false));
+
+                    one(mockNode).getFileLength();
+                    will(returnValue(2L));
+
+                    one(mockNode).getFile();
+                    will(returnValue(null));
+
+                    one(mockNode).getInputStream();
+                    will(returnValue(is));
+
+                }
+            });
+
+        FtpFile ftpFile = resolver.resolve(path, resolverContext);
+
+        assertNotNull(ftpFile);
+        assertEquals("fileName.txt", ftpFile.getName());
+        assertTrue(ftpFile.isFile());
+        InputStream fileContent = ftpFile.createInputStream(0);
+        // this call will also close the IHierarchicalContent
+        fileContent.close();
     }
 
     @Test
@@ -269,8 +351,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                         String mockName = getHierarchicalContentMockName(dataSet.getCode());
                         IHierarchicalContent content =
                                 context.mock(IHierarchicalContent.class, mockName);
-                        allowing(hierarchicalContentProvider).asContent(dataSet.getCode());
+                        one(hierarchicalContentProvider).asContent(dataSet.getCode());
                         will(returnValue(content));
+                        one(content).close();
 
                         String rootMockName = getRootNodeMockName(dataSet.getCode());
                         IHierarchicalContentNode rootNode =
@@ -337,6 +420,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                         IHierarchicalContentNode mockNode =
                                 context.mock(IHierarchicalContentNode.class, fileName);
                         result.add(mockNode);
+
+                        allowing(mockNode).getFileLength();
+                        will(returnValue(10L));
+
+                        allowing(mockNode).getFile();
+                        will(throwException(new UnsupportedOperationException()));
 
                         allowing(mockNode).getName();
                         will(returnValue(fileName));
