@@ -20,7 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.GROUP;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.SPACE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_INVALID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
@@ -72,7 +72,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(EXPERIMENT_TYPE).hideByDefault();
         builder.addColumn(EXPERIMENT_IDENTIFIER).hideByDefault().withDefaultWidth(150);
         builder.addColumn(DATABASE_INSTANCE).hideByDefault();
-        builder.addColumn(GROUP).hideByDefault();
+        builder.addColumn(SPACE).hideByDefault();
         builder.addColumn(PROJECT).hideByDefault();
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
@@ -87,7 +87,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
             builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
             builder.column(EXPERIMENT_IDENTIFIER).addString(experiment.getIdentifier());
             builder.column(DATABASE_INSTANCE).addString(experiment.getProject().getSpace().getInstance().getCode());
-            builder.column(GROUP).addString(experiment.getProject().getSpace().getCode());
+            builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
             builder.column(PROJECT).addString(experiment.getProject().getCode());
             builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());

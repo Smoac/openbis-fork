@@ -27,7 +27,7 @@ public class ExperimentBrowserGridColumnIDs
     public static final String EXPERIMENT_TYPE  = "EXPERIMENT_TYPE";
     public static final String EXPERIMENT_IDENTIFIER  = "EXPERIMENT_IDENTIFIER";
     public static final String DATABASE_INSTANCE  = "DATABASE_INSTANCE";
-    public static final String GROUP  = "GROUP";
+    public static final String SPACE  = "SPACE";
     public static final String PROJECT  = "PROJECT";
     public static final String REGISTRATOR  = "REGISTRATOR";
     public static final String REGISTRATION_DATE  = "REGISTRATION_DATE";

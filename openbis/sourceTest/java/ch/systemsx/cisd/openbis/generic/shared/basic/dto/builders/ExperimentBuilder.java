@@ -103,6 +103,12 @@ public class ExperimentBuilder
         return this;
     }
     
+    public ExperimentBuilder registrator(Person registrator)
+    {
+        experiment.setRegistrator(registrator);
+        return this;
+    }
+    
     public ExperimentBuilder date(Date date)
     {
         experiment.setRegistrationDate(date);
