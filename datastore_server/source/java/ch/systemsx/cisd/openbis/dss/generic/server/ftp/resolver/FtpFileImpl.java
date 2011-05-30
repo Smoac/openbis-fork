@@ -23,34 +23,58 @@ import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.ftp.HierarchicalContentClosingInputStream;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
- * An {@link FtpFile} implementation adapting an underlying {@link IHierarchicalContentNode}.
+ * An {@link FtpFile} implementation which lazily creates and uses {@link IHierarchicalContent} when
+ * needed.
  * <p>
- * The resources represented by {@link HierarchicalContentToFtpFileAdapter} exist in the data store.
+ * The resources represented by {@link FtpFileImpl} exist in the data store.
  * 
  * @author Kaloyan Enimanev
  */
-public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
+public class FtpFileImpl extends AbstractFtpFile
 {
-    private final IHierarchicalContentNode contentNode;
+    private final String dataSetCode;
+
+    private final String pathInDataSet;
+
+    private final boolean isDirectory;
+
+    private final long size;
+
+    private final long lastModified;
 
     private final IHierarchicalContentNodeFilter childrenFilter;
 
-    public HierarchicalContentToFtpFileAdapter(String path, IHierarchicalContentNode contentNode,
+    public FtpFileImpl(String dataSetCode, String path, String pathInDataSet, boolean isDirectory,
+            long size,
+            long lastModified,
             IHierarchicalContentNodeFilter childrenFilter)
     {
         super(path);
-        this.contentNode = contentNode;
+        this.dataSetCode = dataSetCode;
+        this.pathInDataSet = pathInDataSet;
+        this.isDirectory = isDirectory;
+        this.size = size;
+        this.lastModified = lastModified;
         this.childrenFilter = childrenFilter;
     }
 
     public InputStream createInputStream(long offset) throws IOException
     {
-        InputStream result = contentNode.getInputStream();
+        IHierarchicalContent content = createHierarchicalContent();
+        IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
+
+        InputStream result =
+                new HierarchicalContentClosingInputStream(contentNode.getInputStream(), content);
+
         if (offset > 0)
         {
             result.skip(offset);
@@ -60,13 +84,7 @@ public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
 
     public long getLastModified()
     {
-        try
-        {
-            return contentNode.getFile().lastModified();
-        } catch (UnsupportedOperationException uoe)
-        {
-            return 0;
-        }
+        return lastModified;
     }
 
 
@@ -74,14 +92,14 @@ public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
     {
         if (isFile())
         {
-            return contentNode.getFileLength();
+            return size;
         }
         return 0;
     }
 
     public boolean isDirectory()
     {
-        return contentNode.isDirectory();
+        return isDirectory;
     }
 
     public boolean isFile()
@@ -92,30 +110,45 @@ public class HierarchicalContentToFtpFileAdapter extends AbstractFtpFile
     @Override
     public List<org.apache.ftpserver.ftplet.FtpFile> unsafeListFiles()
     {
-        if (isDirectory())
+        if (isFile())
         {
+            throw new UnsupportedOperationException();
+        }
+
+        IHierarchicalContent content = createHierarchicalContent();
+        try
+        {
+            IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
             List<IHierarchicalContentNode> children = contentNode.getChildNodes();
             List<org.apache.ftpserver.ftplet.FtpFile> result =
                     new ArrayList<org.apache.ftpserver.ftplet.FtpFile>();
 
             for (IHierarchicalContentNode childNode : children)
-            {
+                {
                 if (childrenFilter.accept(childNode))
                 {
                     String childPath =
                             absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
-                    HierarchicalContentToFtpFileAdapter childFile =
-                            new HierarchicalContentToFtpFileAdapter(childPath, childNode,
+                    FtpFile childFile =
+                            FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode,
                                     childrenFilter);
                     result.add(childFile);
                 }
-            }
+                }
             return result;
-
-        } else
+        } finally
         {
-            throw new UnsupportedOperationException();
+            content.close();
         }
     }
 
+    private IHierarchicalContent createHierarchicalContent()
+    {
+        return ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
+    }
+
+    private IHierarchicalContentNode getContentNodeForThisFile(IHierarchicalContent content)
+    {
+        return content.getNode(pathInDataSet);
+    }
 }

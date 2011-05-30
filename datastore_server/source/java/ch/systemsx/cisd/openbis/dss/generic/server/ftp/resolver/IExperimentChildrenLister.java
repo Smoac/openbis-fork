@@ -24,10 +24,17 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
+ * An interface decoupling the resolver implementations for experiments and data sets.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IExperimentChildrenLister
 {
+    /**
+     * Lists the children {@link FtpFile} objects in an experiment.
+     * 
+     * @param parentPath the FTP path representing the experiment.
+     */
     List<FtpFile> listExperimentChildrenPaths(Experiment experiment, String parentPath,
             FtpPathResolverContext context);
 
