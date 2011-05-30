@@ -62,14 +62,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -84,6 +88,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
 
     private static final String DATA_SET_CODE = "data-set-code";
+
+    private static final String CONTAINER_DATA_SET_CODE = "container-data-set-code";
 
     private static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
@@ -524,6 +530,88 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"), incomingDir);
+        context.assertIsSatisfied();
+    }
+
+    // TODO KE: make me work !
+    @Test
+    public void testTransactionWithDataSetUpdate()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties =
+                createThreadProperties(SCRIPTS_FOLDER + "transaction-with-dataset-update.py");
+        final File stagingDir = new File(workingDirectory, "staging");
+        properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
+        createHandler(properties, false, true);
+        createData();
+
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
+        final Experiment experiment = builder.getExperiment();
+
+        final ContainerDataSet containerDataSet = new ContainerDataSet();
+        containerDataSet.setId(1L);
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
+
+                    exactly(2).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment.getIdentifier())
+                                    .createIdentifier());
+                    will(returnValue(experiment));
+
+                    one(openBisService).tryGetDataSet(CONTAINER_DATA_SET_CODE);
+                    will(returnValue(containerDataSet));
+
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(new File(stagingDir, DATA_SET_CODE), "data_set"));
+
+                    one(openBisService).performEntityOperations(with(atomicOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
+                atomicOperationDetails.recordedObject();
+
+        assertEquals(1, operations.getDataSetRegistrations().size());
+        assertEquals(0, operations.getExperimentUpdates().size());
+        assertEquals(0, operations.getSampleUpdates().size());
+        assertEquals(0, operations.getSampleRegistrations().size());
+        assertEquals(0, operations.getExperimentRegistrations().size());
+        assertEquals(1, operations.getDataSetUpdates().size());
+
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
+        assertEquals(DATA_SET_CODE, dataSet.getCode());
+        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
+        DataSetUpdatesDTO dataSetUpdate = operations.getDataSetUpdates().get(0);
+        assertEquals(Arrays.asList(DATA_SET_CODE),
+                Arrays.asList(dataSetUpdate.getModifiedContainedDatasetCodesOrNull()));
+
+        EntityProperty propertyChanged =
+                new PropertyBuilder("newProp").value("newValue").getProperty();
+        assertEquals(Arrays.asList(propertyChanged).toString(), dataSetUpdate.getProperties()
+                .toString());
+
+        File datasetLocation =
+                DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                        DATABASE_INSTANCE_UUID);
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
+                ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
+                datasetLocation),
+
+        dataSet.getLocation());
+        assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         context.assertIsSatisfied();
     }
 

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -37,6 +38,10 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     public DataSetUpdatable(ExternalData dataSet)
     {
         super(dataSet);
+        if (dataSet.getProperties() == null)
+        {
+            dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
+        }
     }
 
     public void setExperiment(IExperimentImmutable experiment)
