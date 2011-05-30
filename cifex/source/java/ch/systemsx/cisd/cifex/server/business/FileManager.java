@@ -584,7 +584,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final FileDTO fileDTO = new FileDTO(user);
         fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
         fileDTO.setContentType(contentType);
-        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
+        fileDTO.setPath(FileUtilities.getRelativeFilePath(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
         fileDTO.setExpirationDate(calculateNewExpirationDate(fileDTO, user));
         fileDTO.setSize(byteCount);
@@ -656,7 +656,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final FileDTO fileDTO = new FileDTO(user);
         fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
         fileDTO.setContentType(contentType);
-        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
+        fileDTO.setPath(FileUtilities.getRelativeFilePath(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
         fileDTO.setExpirationDate(calculateNewExpirationDate(fileDTO, user));
         fileDTO.setSize(0L);
