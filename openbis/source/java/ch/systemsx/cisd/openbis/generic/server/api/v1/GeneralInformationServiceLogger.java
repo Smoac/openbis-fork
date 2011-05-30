@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -130,6 +132,15 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap(String sessionToken)
     {
         logAccess(sessionToken, "get-vocabulary-terms-map");
+        return null;
+    }
+
+    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connectionsToGet)
+    {
+        logAccess(sessionToken, "list-data-sets", "SAMPLES(%s) CONNECTIONS(%s)", samples,
+                connectionsToGet);
+
         return null;
     }
 

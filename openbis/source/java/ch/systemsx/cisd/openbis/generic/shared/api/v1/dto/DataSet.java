@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -33,6 +35,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public final class DataSet implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    public static enum Connections
+    {
+        PARENTS
+    }
 
     /**
      * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
@@ -51,6 +58,10 @@ public final class DataSet implements Serializable
         private String dataSetTypeCode;
 
         private Date registrationDate;
+
+        private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
+
+        private ArrayList<String> parentCodes = new ArrayList<String>();
 
         private HashMap<String, String> properties = new HashMap<String, String>();
 
@@ -113,6 +124,28 @@ public final class DataSet implements Serializable
         {
             properties.put(propCode, value);
         }
+
+        public void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+        {
+            this.retrievedConnections =
+                    (null == retrievedConnections) ? EnumSet.noneOf(Connections.class)
+                            : retrievedConnections;
+        }
+
+        public EnumSet<Connections> getRetrievedConnections()
+        {
+            return retrievedConnections;
+        }
+
+        public void setParentCodes(ArrayList<String> parentCodes)
+        {
+            this.parentCodes = (null == parentCodes) ? new ArrayList<String>() : parentCodes;
+        }
+
+        public ArrayList<String> getParentCodes()
+        {
+            return parentCodes;
+        }
     }
 
     private final String code;
@@ -126,6 +159,11 @@ public final class DataSet implements Serializable
     private final Date registrationDate;
 
     private final HashMap<String, String> properties;
+
+    // For handling connections to entities
+    private final EnumSet<Connections> retrievedConnections;
+
+    private final ArrayList<String> parentCodes;
 
     /**
      * Creates a new instance with the provided initializer
@@ -151,6 +189,9 @@ public final class DataSet implements Serializable
         this.registrationDate = initializer.getRegistrationDate();
 
         this.properties = initializer.getProperties();
+
+        this.retrievedConnections = initializer.getRetrievedConnections();
+        this.parentCodes = initializer.getParentCodes();
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
@@ -194,6 +235,16 @@ public final class DataSet implements Serializable
         return properties;
     }
 
+    public EnumSet<Connections> getRetrievedConnections()
+    {
+        return retrievedConnections;
+    }
+
+    public ArrayList<String> getParentCodes()
+    {
+        return parentCodes;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -229,6 +280,10 @@ public final class DataSet implements Serializable
         builder.append(getSampleIdentifierOrNull());
         builder.append(getDataSetTypeCode());
         builder.append(getProperties());
+        if (retrievedConnections.contains(Connections.PARENTS))
+        {
+            builder.append(getParentCodes());
+        }
         return builder.toString();
     }
 }

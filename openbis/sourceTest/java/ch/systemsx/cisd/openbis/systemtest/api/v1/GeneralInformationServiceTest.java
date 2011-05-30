@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
@@ -242,6 +244,30 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
         List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
         assertEquals(true, result.size() > 0);
+    }
+
+    @Test
+    public void testListDataSetsWithParentsForAllSamples()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        List<DataSet> result =
+                generalInformationService.listDataSets(sessionToken, samples,
+                        EnumSet.of(Connections.PARENTS));
+        assertEquals(true, result.size() > 0);
+        // See if some sample has parents
+        boolean parentCodesFound = false;
+        for (DataSet dataSet : result)
+        {
+            if (false == dataSet.getParentCodes().isEmpty())
+            {
+                parentCodesFound = true;
+                break;
+            }
+        }
+
+        assertTrue("No parent codes should have been found", (false == parentCodesFound));
     }
 
     @Test

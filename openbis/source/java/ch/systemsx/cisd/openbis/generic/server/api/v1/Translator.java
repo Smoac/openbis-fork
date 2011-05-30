@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
@@ -205,7 +207,8 @@ public class Translator
         return terms;
     }
 
-    public static DataSet translate(ExternalData externalDatum)
+    public static DataSet translate(ExternalData externalDatum,
+            EnumSet<Connections> connectionsToGet)
     {
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(externalDatum.getCode());
@@ -217,6 +220,22 @@ public class Translator
         for (IEntityProperty prop : properties)
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
+        }
+
+        initializer.setRetrievedConnections(connectionsToGet);
+        for (Connections connection : connectionsToGet)
+        {
+            switch (connection)
+            {
+                case PARENTS:
+                    ArrayList<String> parentCodes = new ArrayList<String>();
+                    for (ExternalData parentDatum : externalDatum.getParents())
+                    {
+                        parentCodes.add(parentDatum.getCode());
+                    }
+                    initializer.setParentCodes(parentCodes);
+                    break;
+            }
         }
 
         return new DataSet(initializer);

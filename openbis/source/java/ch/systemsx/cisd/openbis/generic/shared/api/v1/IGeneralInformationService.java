@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -183,5 +185,17 @@ public interface IGeneralInformationService extends IRpcService
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
             String sessionToken);
+
+    /**
+     * Return all data sets attached to the given samples with connections. Available since minor
+     * version 7.
+     * 
+     * @param samples The samples for which we return attached data sets.
+     * @since 1.7
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connectionsToGet);
 
 }

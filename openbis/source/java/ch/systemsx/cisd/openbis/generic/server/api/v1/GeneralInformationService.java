@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -159,7 +161,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 5;
+        return 7;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -271,19 +273,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
-        checkSession(sessionToken);
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
-                commonServer.listSampleTypes(sessionToken);
-        SampleToDataSetRelatedEntitiesTranslator translator =
-                new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
-        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> externalData = commonServer.listRelatedDataSets(sessionToken, dsre);
-        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
-        for (ExternalData externalDatum : externalData)
-        {
-            dataSets.add(Translator.translate(externalDatum));
-        }
-        return dataSets;
+        return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
     }
 
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
@@ -334,7 +324,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
         for (ExternalData externalDatum : externalData)
         {
-            dataSets.add(Translator.translate(externalDatum));
+            dataSets.add(Translator.translate(externalDatum, EnumSet.noneOf(Connections.class)));
         }
         return dataSets;
     }
@@ -389,5 +379,23 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             vocabTerms.put(privateVocabulary, Translator.translate(privateTerms));
         }
         return vocabTerms;
+    }
+
+    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connectionsToGet)
+    {
+        checkSession(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
+                commonServer.listSampleTypes(sessionToken);
+        SampleToDataSetRelatedEntitiesTranslator translator =
+                new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
+        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
+        List<ExternalData> externalData = commonServer.listRelatedDataSets(sessionToken, dsre);
+        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
+        for (ExternalData externalDatum : externalData)
+        {
+            dataSets.add(Translator.translate(externalDatum, connectionsToGet));
+        }
+        return dataSets;
     }
 }
