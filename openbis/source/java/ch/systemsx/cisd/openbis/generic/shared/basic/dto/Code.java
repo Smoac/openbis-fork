@@ -104,16 +104,20 @@ public class Code<T extends Code<T>> implements ISerializable, ICodeHolder, Comp
     public final static List<String> extractCodes(Collection<? extends ICodeHolder> codeProviders)
     {
         List<String> codes = new ArrayList<String>();
-        for (ICodeHolder codeProvider : codeProviders)
+        if (codeProviders != null)
         {
-            codes.add(codeProvider.getCode());
+            for (ICodeHolder codeProvider : codeProviders)
+            {
+                codes.add(codeProvider.getCode());
+            }
         }
         return codes;
     }
 
     public final static String[] extractCodesToArray(Collection<? extends ICodeHolder> codeProviders)
     {
-        return extractCodes(codeProviders).toArray(new String[codeProviders.size()]);
+        int size = (codeProviders == null) ? 0 : codeProviders.size();
+        return extractCodes(codeProviders).toArray(new String[size]);
     }
 
     private final static class CodeProviderComparator implements Comparator<ICodeHolder>,

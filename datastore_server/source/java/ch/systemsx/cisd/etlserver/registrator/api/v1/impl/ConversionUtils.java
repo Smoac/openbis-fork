@@ -23,6 +23,9 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -36,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
@@ -181,8 +186,40 @@ public class ConversionUtils
 
     public static DataSetUpdatesDTO convertToDataSetUpdatesDTO(DataSetUpdatable dataSet)
     {
-        // TODO KE: implement
-        return null;
+        ExternalData externalData = dataSet.getExternalData();
+
+        DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        dataSetUpdate.setDatasetId(new TechId(externalData));
+        dataSetUpdate.setVersion(externalData.getModificationDate());
+        dataSetUpdate.setFileFormatTypeCode(dataSet.getFileFormatType());
+        dataSetUpdate.setProperties(externalData.getProperties());
+
+        if (externalData.getExperiment() != null)
+        {
+            String identifierString = externalData.getExperiment().getIdentifier();
+            ExperimentIdentifier experimentIdentifier =
+                    ExperimentIdentifierFactory.parse(identifierString);
+            dataSetUpdate.setExperimentIdentifierOrNull(experimentIdentifier);
+        }
+
+        if (externalData.getSample() != null)
+        {
+            String identifierString = externalData.getSampleIdentifier();
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(identifierString);
+            dataSetUpdate.setSampleIdentifierOrNull(sampleIdentifier);
+        }
+
+        if (externalData.isContainer())
+        {
+            ContainerDataSet container = externalData.tryGetAsContainerDataSet();
+            String[] containedCodes = Code.extractCodesToArray(container.getContainedDataSets());
+            dataSetUpdate.setModifiedContainedDatasetCodesOrNull(containedCodes);
+        }
+
+        String[] parentCodes = Code.extractCodesToArray(externalData.getParents());
+        dataSetUpdate.setModifiedParentDatasetCodesOrNull(parentCodes);
+
+        return dataSetUpdate;
     }
 
 }
