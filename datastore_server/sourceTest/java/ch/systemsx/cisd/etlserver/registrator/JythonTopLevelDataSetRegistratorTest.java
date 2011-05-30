@@ -533,7 +533,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         context.assertIsSatisfied();
     }
 
-    // TODO KE: make me work !
     @Test
     public void testTransactionWithDataSetUpdate()
     {
@@ -599,6 +598,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         EntityProperty propertyChanged =
                 new PropertyBuilder("newProp").value("newValue").getProperty();
         assertEquals(Arrays.asList(propertyChanged).toString(), dataSetUpdate.getProperties()
+                .toString());
+        assertEquals(EXPERIMENT_IDENTIFIER, dataSetUpdate.getExperimentIdentifierOrNull()
                 .toString());
 
         File datasetLocation =

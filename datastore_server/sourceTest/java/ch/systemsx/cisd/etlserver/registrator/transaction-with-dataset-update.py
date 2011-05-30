@@ -12,4 +12,5 @@ newContents = list(container.containedDataSetCodes)
 newContents.append(dataSet.dataSetCode)
 container.setContainedDataSetCodes(newContents)
 container.setPropertyValue("newProp", "newValue")
+container.setExperiment(experiment)
 
