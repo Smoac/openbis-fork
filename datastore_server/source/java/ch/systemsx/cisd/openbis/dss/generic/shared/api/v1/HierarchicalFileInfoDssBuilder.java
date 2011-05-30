@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
 /**
- * Helper Class for creating FileInfoDss objects
+ * Helper Class for creating FileInfoDss objects based on file system abstraction.
  * 
  * @author Piotr Buczek
  */

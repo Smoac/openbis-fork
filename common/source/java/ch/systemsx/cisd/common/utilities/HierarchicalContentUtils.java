@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
 /**
@@ -54,6 +58,45 @@ public class HierarchicalContentUtils
     public static void sortNodes(List<IHierarchicalContentNode> nodes)
     {
         Collections.sort(nodes, HierarchicalContentUtils.DEFAULT_NODE_COMPARATOR);
+    }
+
+    /**
+     * An {@link InputStream} implementation which closes an associated {@link IHierarchicalContent}
+     * together with an underlying target {@link InputStream}.
+     * 
+     * @author Kaloyan Enimanev
+     */
+    static class HierarchicalContentClosingInputStream extends FilterInputStream
+    {
+        private final IHierarchicalContent hierarchicalContent;
+
+        public HierarchicalContentClosingInputStream(InputStream target,
+                IHierarchicalContent hierarchicalContent)
+        {
+            super(target);
+            this.hierarchicalContent = hierarchicalContent;
+        }
+
+        @Override
+        public void close() throws IOException
+        {
+            // no error can be thrown here
+            hierarchicalContent.close();
+
+            // can throw IOException
+            super.close();
+        }
+
+    }
+
+    /**
+     * Returns an {@link InputStream} implementation for given node which closes an associated
+     * {@link IHierarchicalContent} together when closing the {@link InputStream} itself.
+     */
+    public static InputStream getInputStreamAutoClosingContent(IHierarchicalContentNode node,
+            IHierarchicalContent content) throws IOException
+    {
+        return new HierarchicalContentClosingInputStream(node.getInputStream(), content);
     }
 
 }

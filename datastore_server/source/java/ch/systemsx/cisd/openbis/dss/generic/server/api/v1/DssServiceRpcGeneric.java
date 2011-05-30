@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -99,9 +99,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                     (startPathNode.isDirectory()) ? startPathNode : content.getNode(startPathNode
                             .getParentRelativePath());
 
-            System.err.println(listingRootNode.getRelativePath());
-            // Make sure the listing node is under the root of the data set
-
             ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
             appendFileInfosForFile(listingRootNode, list, isRecursive);
             FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
@@ -122,13 +119,29 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
+        IHierarchicalContent content = null;
         try
         {
-            File requestedFile = getDatasetFile(dataSetCode, path);
-            return new FileInputStream(requestedFile);
+            content = getHierarchicalContent(dataSetCode);
+            IHierarchicalContentNode contentNode = content.getNode(path);
+            return HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
         } catch (IOException ex)
         {
+            operationLog.info("getFile: " + path + " caused an exception", ex);
+            if (content != null)
+            {
+                content.close();
+            }
             throw new IOExceptionUnchecked(ex);
+        } catch (RuntimeException ex)
+        {
+            operationLog.info("getFile: " + path + " caused an exception", ex);
+            if (content != null)
+            {
+                // close content only on exception, otherwise stream close should close the content
+                content.close();
+            }
+            throw ex;
         }
     }
 

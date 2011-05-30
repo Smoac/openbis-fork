@@ -105,6 +105,8 @@ public final class FileInfoDssDownloader
                 // Make sure the parent exists
                 file.getParentFile().mkdirs();
 
+                // TODO 2011-05-30, Piotr Buczek: performance of this is quite poor
+                // we should have a method that handles a collection of inputStreams
                 downloadFile(fileInfo, file);
             }
         }

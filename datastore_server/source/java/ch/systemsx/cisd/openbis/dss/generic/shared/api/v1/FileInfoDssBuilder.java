@@ -21,12 +21,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Helper Class for creating FileInfoDss objects
+ * Helper Class for creating FileInfoDss objects based on file system.
+ * <p>
+ * NOTE: This implementation is not using file system abstraction and therefore doesn't support
+ * special handling for HDF5 containers or data set containers. In cases when such a support would
+ * be required use {@link HierarchicalFileInfoDssBuilder}.
  * 
  * @author Chandrasekhar Ramakrishnan
- * @deprecated use {@link HierarchicalFileInfoDssBuilder} instead; kept for backward compatibility
  */
-@Deprecated
 public class FileInfoDssBuilder
 {
 

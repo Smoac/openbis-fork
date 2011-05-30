@@ -26,9 +26,9 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.ftp.HierarchicalContentClosingInputStream;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
@@ -54,9 +54,7 @@ public class FtpFileImpl extends AbstractFtpFile
     private final IHierarchicalContentNodeFilter childrenFilter;
 
     public FtpFileImpl(String dataSetCode, String path, String pathInDataSet, boolean isDirectory,
-            long size,
-            long lastModified,
-            IHierarchicalContentNodeFilter childrenFilter)
+            long size, long lastModified, IHierarchicalContentNodeFilter childrenFilter)
     {
         super(path);
         this.dataSetCode = dataSetCode;
@@ -73,20 +71,20 @@ public class FtpFileImpl extends AbstractFtpFile
         IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
 
         InputStream result =
-                new HierarchicalContentClosingInputStream(contentNode.getInputStream(), content);
+                HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
 
         if (offset > 0)
         {
             result.skip(offset);
         }
         return result;
+        // FIXME content is not closed if exception occurs
     }
 
     public long getLastModified()
     {
         return lastModified;
     }
-
 
     public long getSize()
     {
@@ -124,7 +122,7 @@ public class FtpFileImpl extends AbstractFtpFile
                     new ArrayList<org.apache.ftpserver.ftplet.FtpFile>();
 
             for (IHierarchicalContentNode childNode : children)
-                {
+            {
                 if (childrenFilter.accept(childNode))
                 {
                     String childPath =
@@ -134,7 +132,7 @@ public class FtpFileImpl extends AbstractFtpFile
                                     childrenFilter);
                     result.add(childFile);
                 }
-                }
+            }
             return result;
         } finally
         {

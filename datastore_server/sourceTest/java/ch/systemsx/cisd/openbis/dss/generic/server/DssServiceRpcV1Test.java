@@ -88,7 +88,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-@SuppressWarnings("deprecation")
 public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 {
     private static final String SHARE_ID = "share-1";
@@ -469,7 +468,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
         assertEquals(1, fileInfos.length);
 
-        prepareGetShareId();
+        prepareGetDataSet();
+        prepareLockDataSet();
         InputStream is =
                 rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
                         fileInfos[0].getPathInDataSet());
@@ -483,6 +483,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             assertEquals(97, readChar);
             ++charCount;
         }
+        prepareUnlockDataSet();
+        reader.close(); // releases the lock
 
         assertEquals(fileInfos[0].getFileSize(), charCount);
 
@@ -646,6 +648,13 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private void prepareGetAndLockDataSet()
     {
+        prepareGetDataSet();
+        prepareLockDataSet();
+        prepareUnlockDataSet();
+    }
+
+    private void prepareGetDataSet()
+    {
         final DataSet dataSet = new DataSet();
         dataSet.setCode(DATA_SET_CODE);
         dataSet.setLocation(DatasetLocationUtil.getDatasetLocationPath(DATA_SET_CODE,
@@ -655,7 +664,25 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     one(openBisService).tryGetDataSet(DATA_SET_CODE);
                     will(returnValue(dataSet));
+                }
+            });
+    }
+
+    private void prepareLockDataSet()
+    {
+        context.checking(new Expectations()
+            {
+                {
                     one(shareIdManager).lock(DATA_SET_CODE);
+                }
+            });
+    }
+
+    private void prepareUnlockDataSet()
+    {
+        context.checking(new Expectations()
+            {
+                {
                     one(shareIdManager).releaseLock(DATA_SET_CODE);
                 }
             });

@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-@SuppressWarnings("deprecation")
 public class FileInfoDssBuilderTest extends AssertJUnit
 {
     @Test
