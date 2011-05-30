@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+
 /**
  * Points to a set of experiments.
  * 
  * @author Tomasz Pylak
  */
 // TODO 2011-05-30, Tomasz Pylak: this is a skeleton which has to be implemented and used!
-public class ExperimentSetCriteria
+public class ExperimentSetCriteria implements ISerializable
 {
     /** Creates criteria which point to all accessible experiments in the database. */
     public static final ExperimentSetCriteria createAll()
@@ -37,5 +40,7 @@ public class ExperimentSetCriteria
         // TODO 2011-05-30, Tomasz Pylak: implement me!
         return null;
     }
+
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
 }
