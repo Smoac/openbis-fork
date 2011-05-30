@@ -34,7 +34,9 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.Erro
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
@@ -202,6 +204,17 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(registrationDetails);
     }
 
+    public IDataSetImmutable getDataSet(String dataSetCode)
+    {
+        return getStateAsLiveState().getDataSet(dataSetCode);
+    }
+
+    public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
+    {
+        return getStateAsLiveState().getDataSetForUpdate(dataSetCode);
+    }
+
+    
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
         SampleIdentifier sampleIdentifier =

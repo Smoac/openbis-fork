@@ -70,9 +70,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -368,4 +371,17 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         newExperiment.setSamples(samples);
         return newExperiment;
     }
+
+    protected ExternalDataPE createDataSet(String code, String type)
+    {
+        ExternalDataPE externalData = new ExternalDataPE();
+        externalData.setCode(code);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode(type);
+        dataSetType.setDatabaseInstance(homeDatabaseInstance);
+        externalData.setDataSetType(dataSetType);
+        externalData.setDataStore(new DataStorePE());
+        return externalData;
+    }
+
 }

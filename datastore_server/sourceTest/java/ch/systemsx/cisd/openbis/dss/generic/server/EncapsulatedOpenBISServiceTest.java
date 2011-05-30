@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -160,7 +161,7 @@ public class EncapsulatedOpenBISServiceTest
                 new AtomicEntityOperationDetails(null, Arrays.<NewSpace> asList(),
                         Arrays.<NewProject> asList(), Arrays.<NewExperiment> asList(),
                         Arrays.<SampleUpdatesDTO> asList(), Arrays.<NewSample> asList(),
-                        Arrays.asList(data));
+                        Arrays.asList(data), Arrays.<DataSetUpdatesDTO> asList());
         context.checking(new Expectations()
         {
             {

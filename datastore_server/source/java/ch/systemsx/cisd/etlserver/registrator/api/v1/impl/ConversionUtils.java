@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -176,6 +177,12 @@ public class ConversionUtils
     public static NewProject convertToNewProject(Project apiProject)
     {
         return new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription());
+    }
+
+    public static DataSetUpdatesDTO convertToDataSetUpdatesDTO(DataSetUpdatable dataSet)
+    {
+        // TODO KE: implement
+        return null;
     }
 
 }

@@ -1373,17 +1373,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    private ExternalDataPE createDataSet(String code, String type)
-    {
-        ExternalDataPE externalData = new ExternalDataPE();
-        externalData.setCode(code);
-        DataSetTypePE dataSetType = new DataSetTypePE();
-        dataSetType.setCode(type);
-        dataSetType.setDatabaseInstance(homeDatabaseInstance);
-        externalData.setDataSetType(dataSetType);
-        return externalData;
-    }
-
     @Test
     public void testUploadDataSets()
     {

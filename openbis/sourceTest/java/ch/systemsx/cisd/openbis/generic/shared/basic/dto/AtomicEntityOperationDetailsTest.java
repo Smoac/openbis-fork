@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -62,10 +65,15 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                 .createIdentifier());
         dataSetRegistrations.add(newExternalData);
 
+        List<DataSetUpdatesDTO> dataSetUpdates = new ArrayList<DataSetUpdatesDTO>();
+        DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        dataSetUpdate.setDatasetId(new TechId(1L));
+        dataSetUpdates.add(dataSetUpdate);
+
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, spaceRegistrations, projectRegistrations,
                         experimentRegistrations, sampleUpdates, sampleRegistrations,
-                        dataSetRegistrations);
+                        dataSetRegistrations, dataSetUpdates);
 
         assertEquals(
                 "AtomicEntityOperationDetails[userIdOrNull=<null>"
@@ -75,7 +83,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",experimentRegistrations=[/SPACE/PROJECT/EXP-ID1, /SPACE/PROJECT/EXP-ID2]"
                         + ",sampleUpdates=[]"
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"
-                        + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]]",
+                        + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
+                        + ",dataSetUpdates=[1]]",
                 details.toString());
 
     }

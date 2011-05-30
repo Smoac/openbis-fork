@@ -64,7 +64,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuild
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -912,6 +914,13 @@ public class ETLServiceTest extends AbstractServerTestCase
         externalData.setMeasured(true);
         externalData.setSampleIdentifierOrNull(newSampleIdentifier);
 
+        final String updatedDataSetCode = "updateDataSetCode";
+        final DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
+        dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
+        dataSetUpdate.setFileFormatTypeCode("new-file-format");
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
+            { "c1", "c2" });
+
         context.checking(new Expectations()
             {
                 {
@@ -961,12 +970,26 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(1).of(boFactory).createDataBO(SESSION);
+                    will(returnValue(dataBO));
+
+                    one(dataBO).update(dataSetUpdate);
+                    one(dataBO).getData();
+                    final DataPE updatedDataSet = createDataSet(updatedDataSetCode, "type");
+                    will(returnValue(updatedDataSet));
+                }
+            });
+
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, new ArrayList<NewSpace>(),
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample),
-                        Collections.singletonList(externalData));
+                        Collections.singletonList(externalData),
+                        Collections.singletonList(dataSetUpdate));
 
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
@@ -979,6 +1002,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(newSample.getIdentifier(), result.getSamplesCreated().get(0).getIdentifier());
         assertEquals(experiment.getIdentifier(), result.getSamplesCreated().get(0).getExperiment()
                 .getIdentifier());
+        assertEquals(updatedDataSetCode, result.getDataSetsUpdated().get(0).getCode());
 
         context.assertIsSatisfied();
     }

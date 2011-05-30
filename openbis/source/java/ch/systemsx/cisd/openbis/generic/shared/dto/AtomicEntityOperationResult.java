@@ -50,17 +50,20 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final ArrayList<ExternalData> dataSetsCreated;
 
+    private final ArrayList<ExternalData> dataSetsUpdated;
+
     public AtomicEntityOperationResult()
     {
         this(Collections.<Space> emptyList(), Collections.<Project> emptyList(),
                 Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
-                .<Sample> emptyList(), Collections.<ExternalData> emptyList());
+                .<Sample> emptyList(), Collections.<ExternalData> emptyList(), Collections
+                .<ExternalData> emptyList());
     }
 
     public AtomicEntityOperationResult(List<Space> spacesCreated, List<Project> projectsCreated,
-            List<Experiment> experimentsCreated,
-            List<Sample> samplesUpdated, List<Sample> samplesCreated,
-            List<ExternalData> dataSetsCreated)
+            List<Experiment> experimentsCreated, List<Sample> samplesUpdated,
+            List<Sample> samplesCreated, List<ExternalData> dataSetsCreated,
+            List<ExternalData> dataSetsUpdated)
     {
         this.spacesCreated = new ArrayList<Space>(spacesCreated);
         this.projectsCreated = new ArrayList<Project>(projectsCreated);
@@ -69,6 +72,7 @@ public class AtomicEntityOperationResult implements Serializable
         this.samplesUpdated = new ArrayList<Sample>(samplesUpdated);
         this.samplesCreated = new ArrayList<Sample>(samplesCreated);
         this.dataSetsCreated = new ArrayList<ExternalData>(dataSetsCreated);
+        this.dataSetsUpdated = new ArrayList<ExternalData>(dataSetsUpdated);
     }
 
     public ArrayList<Experiment> getExperimentsUpdated()
@@ -94,6 +98,11 @@ public class AtomicEntityOperationResult implements Serializable
     public ArrayList<ExternalData> getDataSetsCreated()
     {
         return dataSetsCreated;
+    }
+
+    public ArrayList<ExternalData> getDataSetsUpdated()
+    {
+        return dataSetsUpdated;
     }
 
     public ArrayList<Space> getSpacesCreated()

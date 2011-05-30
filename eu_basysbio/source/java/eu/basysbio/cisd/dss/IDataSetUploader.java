@@ -21,8 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * TODO KE : How is this different from ch.systemsx.cisd.etlserver.IDataSetUploader ?
- * 
  * @author Franz-Josef Elmer
  */
 interface IDataSetUploader

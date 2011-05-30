@@ -52,4 +52,9 @@ public class DataSetUpdatesDTO extends BasicDataSetUpdates
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
+    @Override
+    public String toString()
+    {
+        return getDatasetId().toString();
+    }
 }

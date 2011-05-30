@@ -93,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -632,7 +633,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
 
-        SamplePE samplePE = registerSampleInternal(sessionToken, newSample, userIDOrNull);
+        final Session session = getSession(sessionToken);
+        SamplePE samplePE = registerSampleInternal(session, newSample, userIDOrNull);
         return samplePE.getId();
     }
 
@@ -963,12 +965,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert newSample != null : "Unspecified new sample.";
 
         // Register the Sample
-        SamplePE samplePE = registerSampleInternal(sessionToken, newSample, userIdOrNull);
+        final Session session = getSession(sessionToken);
+        SamplePE samplePE = registerSampleInternal(session, newSample, userIdOrNull);
 
         // Register the data set
         registerDataSetInternal(sessionToken, externalData, samplePE);
-
-        final Session session = getSession(sessionToken);
         Sample result =
                 SampleTranslator.translate(Collections.singletonList(samplePE),
                         session.getBaseIndexURL()).get(0);
@@ -1030,15 +1031,15 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert dataSetCode != null : "Data set code not specified.";
     }
 
-    private SamplePE registerSampleInternal(String sessionToken, NewSample newSample,
+    private SamplePE registerSampleInternal(Session session, NewSample newSample,
             String userIdOrNull)
     {
-        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         if (userIdOrNull != null)
         {
-            sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIdOrNull));
+            sampleBO.getSample().setRegistrator(
+                    getOrCreatePerson(session.getSessionToken(), userIdOrNull));
         }
         sampleBO.save();
         SamplePE samplePE = sampleBO.getSample();
@@ -1084,24 +1085,27 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
+        final Session session = getSession(sessionToken);
 
-        List<Space> spacesCreated = createSpaces(sessionToken, operationDetails);
+        List<Space> spacesCreated = createSpaces(session, operationDetails);
 
-        List<Project> projectsCreated = createProjects(sessionToken, operationDetails);
+        List<Project> projectsCreated = createProjects(session, operationDetails);
 
-        List<Experiment> experimentsCreated = createExperiments(sessionToken, operationDetails);
+        List<Experiment> experimentsCreated = createExperiments(session, operationDetails);
 
-        List<Sample> samplesCreated = createSamples(sessionToken, operationDetails);
+        List<Sample> samplesCreated = createSamples(session, operationDetails);
 
-        List<Sample> samplesUpdated = updateSamples(sessionToken, operationDetails);
+        List<Sample> samplesUpdated = updateSamples(session, operationDetails);
 
-        List<ExternalData> dataSetsCreated = createDataSets(sessionToken, operationDetails);
+        List<ExternalData> dataSetsCreated = createDataSets(session, operationDetails);
+
+        List<ExternalData> dataSetsUpdated = updateDataSets(session, operationDetails);
 
         return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
-                samplesUpdated, samplesCreated, dataSetsCreated);
+                samplesUpdated, samplesCreated, dataSetsCreated, dataSetsUpdated);
     }
 
-    private List<Space> createSpaces(String sessionToken,
+    private List<Space> createSpaces(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
@@ -1109,24 +1113,23 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         for (NewSpace newSpace : newSpaces)
         {
             SpacePE spacePE =
-                    registerSpaceInternal(sessionToken, newSpace,
+                    registerSpaceInternal(session, newSpace,
                             operationDetails.tryUserIdOrNull());
             spacePEsCreated.add(spacePE);
         }
         return GroupTranslator.translate(spacePEsCreated);
     }
 
-    private SpacePE registerSpaceInternal(String sessionToken, NewSpace newSpace,
+    private SpacePE registerSpaceInternal(Session session, NewSpace newSpace,
             String registratorUserIdOrNull)
     {
         // create space
-        Session session = getSession(sessionToken);
         IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
         groupBO.define(newSpace.getCode(), newSpace.getDescription());
         if (registratorUserIdOrNull != null)
         {
             groupBO.getGroup().setRegistrator(
-                    getOrCreatePerson(sessionToken, registratorUserIdOrNull));
+                    getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
         }
         groupBO.save();
 
@@ -1149,7 +1152,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     }
 
-    private List<Project> createProjects(String sessionToken,
+    private List<Project> createProjects(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
@@ -1157,17 +1160,16 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         for (NewProject newProject : newProjects)
         {
             ProjectPE projectPE =
-                    registerProjectInternal(sessionToken, newProject,
+                    registerProjectInternal(session, newProject,
                             operationDetails.tryUserIdOrNull());
             projectPEsCreated.add(projectPE);
         }
         return ProjectTranslator.translate(projectPEsCreated);
     }
 
-    private ProjectPE registerProjectInternal(String sessionToken, NewProject newProject,
+    private ProjectPE registerProjectInternal(Session session, NewProject newProject,
             String registratorUserIdOrNull)
     {
-        Session session = getSession(sessionToken);
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         ProjectIdentifier identifier =
                 new ProjectIdentifierFactory(newProject.getIdentifier()).createIdentifier();
@@ -1175,14 +1177,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         if (registratorUserIdOrNull != null)
         {
             projectBO.getProject().setRegistrator(
-                    getOrCreatePerson(sessionToken, registratorUserIdOrNull));
+                    getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
         }
         projectBO.save();
 
         return projectBO.getProject();
     }
 
-    private List<Sample> createSamples(String sessionToken,
+    private List<Sample> createSamples(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
         ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
@@ -1190,18 +1192,16 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         for (NewSample newSample : newSamples)
         {
             SamplePE samplePE =
-                    registerSampleInternal(sessionToken, newSample,
+                    registerSampleInternal(session, newSample,
                             operationDetails.tryUserIdOrNull());
             samplePEsCreated.add(samplePE);
         }
-        final Session session = getSession(sessionToken);
         return SampleTranslator.translate(samplePEsCreated, session.getBaseIndexURL());
     }
 
-    private List<Sample> updateSamples(String sessionToken,
+    private List<Sample> updateSamples(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
-        final Session session = getSession(sessionToken);
         ArrayList<SamplePE> samplePEsUpdated = new ArrayList<SamplePE>();
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
         for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
@@ -1212,12 +1212,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return SampleTranslator.translate(samplePEsUpdated, session.getBaseIndexURL());
     }
 
-    private List<ExternalData> createDataSets(String sessionToken,
+    private List<ExternalData> createDataSets(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
-        final Session session = getSession(sessionToken);
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
-        ArrayList<? extends NewExternalData> dataSetRegistrations =
+        List<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
 
         ArrayList<NewContainerDataSet> containerRegistrations =
@@ -1242,6 +1241,25 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return DataSetTranslator.translate(dataSetsCreated, "", session.getBaseIndexURL());
     }
 
+    private List<ExternalData> updateDataSets(Session session,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        List<DataPE> dataSetsUpdated = new ArrayList<DataPE>();
+        for (DataSetUpdatesDTO dataSet : operationDetails.getDataSetUpdates())
+        {
+            DataPE updatedDataSet = updateDataSetInternal(session, dataSet);
+            dataSetsUpdated.add(updatedDataSet);
+        }
+        return DataSetTranslator.translate(dataSetsUpdated, "", session.getBaseIndexURL());
+    }
+
+    private DataPE updateDataSetInternal(Session session, DataSetUpdatesDTO dataSet)
+    {
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.update(dataSet);
+        return dataBO.getData();
+    }
+
     private void registerDatasetInternal(final Session session, ArrayList<DataPE> dataSetsCreated,
             NewExternalData dataSet)
     {
@@ -1258,17 +1276,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         dataSetsCreated.add(dataBO.getData());
     }
 
-    private ArrayList<Experiment> createExperiments(String sessionToken,
+    private ArrayList<Experiment> createExperiments(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
         ArrayList<Experiment> experimentsCreated = new ArrayList<Experiment>();
         List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();
         for (NewExperiment experiment : experimentRegistrations)
         {
-            registerExperiment(sessionToken, experiment);
+            registerExperiment(session.getSessionToken(), experiment);
             ExperimentIdentifier experimentIdentifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
-            experimentsCreated.add(tryToGetExperiment(sessionToken, experimentIdentifier));
+            experimentsCreated.add(tryToGetExperiment(session.getSessionToken(),
+                    experimentIdentifier));
         }
         return experimentsCreated;
     }

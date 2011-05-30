@@ -28,6 +28,8 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
@@ -38,10 +40,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -92,7 +96,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
 
-        private final ArrayList<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
+        private final List<DataSet<T>> registeredDataSets =
+                new ArrayList<DataSet<T>>();
+
+        private final List<DataSetUpdatable> dataSetsToBeUpdated =
+                new ArrayList<DataSetUpdatable>();
 
         private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
 
@@ -210,6 +218,32 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             registeredDataSets.add(dataSet);
             return dataSet;
+        }
+
+        public IDataSetImmutable getDataSet(String dataSetCode)
+        {
+            ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
+            if (dataSet == null)
+            {
+                return null;
+            } else
+            {
+                return new DataSetImmutable(dataSet);
+            }
+        }
+
+        public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
+        {
+            ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
+            if (dataSet == null)
+            {
+                return null;
+            } else
+            {
+                DataSetUpdatable result = new DataSetUpdatable(dataSet);
+                dataSetsToBeUpdated.add(result);
+                return result;
+            }
         }
 
         public ISample getSampleForUpdate(String sampleIdentifierString)
@@ -402,6 +436,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
+            List<DataSetUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
 
             // experiment updates not yet supported
             List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
@@ -409,7 +444,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(getUserId(), spaceRegistrations,
                             projectRegistrations, experimentUpdates, experimentRegistrations,
-                            sampleUpdates, sampleRegistrations, dataSetRegistrations);
+                            sampleUpdates, sampleRegistrations, dataSetRegistrations,
+                            dataSetUpdates);
             return registrationDetails;
         }
 
@@ -463,6 +499,16 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
+        private List<DataSetUpdatesDTO> convertDataSetsToBeUpdated()
+        {
+            List<DataSetUpdatesDTO> result = new ArrayList<DataSetUpdatesDTO>();
+            for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
+            {
+                result.add(ConversionUtils.convertToDataSetUpdatesDTO(dataSet));
+            }
+            return result;
+        }
+
         @Override
         public boolean isCommitted()
         {
@@ -474,6 +520,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             return false;
         }
+
     }
 
     private static abstract class TerminalTransactionState<T extends DataSetInformation> extends

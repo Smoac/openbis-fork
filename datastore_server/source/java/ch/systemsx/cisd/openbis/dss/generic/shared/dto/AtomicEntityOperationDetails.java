@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
@@ -40,26 +41,29 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     // The userid on whose behalf the operations are done.
     private final String userIdOrNull;
 
-    private final ArrayList<NewSpace> spaceRegistrations;
+    private final List<NewSpace> spaceRegistrations;
 
-    private final ArrayList<NewProject> projectRegistrations;
+    private final List<NewProject> projectRegistrations;
 
-    private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
+    private final List<ExperimentUpdatesDTO> experimentUpdates;
 
-    private final ArrayList<NewExperiment> experimentRegistrations;
+    private final List<NewExperiment> experimentRegistrations;
 
-    private final ArrayList<SampleUpdatesDTO> sampleUpdates;
+    private final List<SampleUpdatesDTO> sampleUpdates;
 
-    private final ArrayList<NewSample> sampleRegistrations;
+    private final List<NewSample> sampleRegistrations;
 
-    private final ArrayList<DataSetRegistrationInformation<T>> dataSetRegistrations;
+    private final List<DataSetRegistrationInformation<T>> dataSetRegistrations;
+
+    private final List<DataSetUpdatesDTO> dataSetUpdates;
 
     public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
             List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
-            List<DataSetRegistrationInformation<T>> dataSetRegistrations)
+            List<DataSetRegistrationInformation<T>> dataSetRegistrations,
+            List<DataSetUpdatesDTO> dataSetUpdates)
     {
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
@@ -70,6 +74,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
+        this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
     }
 
     public String tryUserIdOrNull()
@@ -77,37 +82,42 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         return userIdOrNull;
     }
 
-    public ArrayList<ExperimentUpdatesDTO> getExperimentUpdates()
+    public List<ExperimentUpdatesDTO> getExperimentUpdates()
     {
         return experimentUpdates;
     }
 
-    public ArrayList<NewExperiment> getExperimentRegistrations()
+    public List<NewExperiment> getExperimentRegistrations()
     {
         return experimentRegistrations;
     }
 
-    public ArrayList<SampleUpdatesDTO> getSampleUpdates()
+    public List<SampleUpdatesDTO> getSampleUpdates()
     {
         return sampleUpdates;
     }
 
-    public ArrayList<NewSample> getSampleRegistrations()
+    public List<NewSample> getSampleRegistrations()
     {
         return sampleRegistrations;
     }
 
-    public ArrayList<DataSetRegistrationInformation<T>> getDataSetRegistrations()
+    public List<DataSetRegistrationInformation<T>> getDataSetRegistrations()
     {
         return dataSetRegistrations;
     }
 
-    public ArrayList<NewSpace> getSpaceRegistrations()
+    public List<DataSetUpdatesDTO> getDataSetUpdates()
+    {
+        return dataSetUpdates;
+    }
+
+    public List<NewSpace> getSpaceRegistrations()
     {
         return spaceRegistrations;
     }
 
-    public ArrayList<NewProject> getProjectRegistrations()
+    public List<NewProject> getProjectRegistrations()
     {
         return projectRegistrations;
     }

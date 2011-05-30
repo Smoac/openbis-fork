@@ -43,24 +43,27 @@ public class AtomicEntityOperationDetails implements Serializable
 
     // This is always an empty list, since it is not currently possible to update experiments from
     // the DSS
-    private final ArrayList<ExperimentUpdatesDTO> experimentUpdates;
+    private final List<ExperimentUpdatesDTO> experimentUpdates;
 
-    private final ArrayList<NewSpace> spaceRegistrations;
+    private final List<NewSpace> spaceRegistrations;
 
-    private final ArrayList<NewProject> projectRegistrations;
+    private final List<NewProject> projectRegistrations;
 
-    private final ArrayList<NewExperiment> experimentRegistrations;
+    private final List<NewExperiment> experimentRegistrations;
 
-    private final ArrayList<SampleUpdatesDTO> sampleUpdates;
+    private final List<SampleUpdatesDTO> sampleUpdates;
 
-    private final ArrayList<NewSample> sampleRegistrations;
+    private final List<NewSample> sampleRegistrations;
 
-    private final ArrayList<? extends NewExternalData> dataSetRegistrations;
+    private final List<? extends NewExternalData> dataSetRegistrations;
 
+    private final List<DataSetUpdatesDTO> dataSetUpdates;
+    
     public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
             List<NewProject> projectRegistrations, List<NewExperiment> experimentRegistrations,
             List<SampleUpdatesDTO> sampleUpdates, List<NewSample> sampleRegistrations,
-            List<? extends NewExternalData> dataSetRegistrations)
+            List<? extends NewExternalData> dataSetRegistrations,
+            List<DataSetUpdatesDTO> dataSetUpdates)
     {
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
@@ -70,6 +73,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
+        this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
     }
 
     public String tryUserIdOrNull()
@@ -77,37 +81,42 @@ public class AtomicEntityOperationDetails implements Serializable
         return userIdOrNull;
     }
 
-    public ArrayList<ExperimentUpdatesDTO> getExperimentUpdates()
+    public List<ExperimentUpdatesDTO> getExperimentUpdates()
     {
         return experimentUpdates;
     }
 
-    public ArrayList<NewExperiment> getExperimentRegistrations()
+    public List<NewExperiment> getExperimentRegistrations()
     {
         return experimentRegistrations;
     }
 
-    public ArrayList<SampleUpdatesDTO> getSampleUpdates()
+    public List<SampleUpdatesDTO> getSampleUpdates()
     {
         return sampleUpdates;
     }
 
-    public ArrayList<NewSample> getSampleRegistrations()
+    public List<NewSample> getSampleRegistrations()
     {
         return sampleRegistrations;
     }
 
-    public ArrayList<? extends NewExternalData> getDataSetRegistrations()
+    public List<? extends NewExternalData> getDataSetRegistrations()
     {
         return dataSetRegistrations;
     }
 
-    public ArrayList<NewSpace> getSpaceRegistrations()
+    public List<DataSetUpdatesDTO> getDataSetUpdates()
+    {
+        return dataSetUpdates;
+    }
+    
+    public List<NewSpace> getSpaceRegistrations()
     {
         return spaceRegistrations;
     }
 
-    public ArrayList<NewProject> getProjectRegistrations()
+    public List<NewProject> getProjectRegistrations()
     {
         return projectRegistrations;
     }
@@ -124,7 +133,7 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("sampleUpdates", sampleUpdates);
         sb.append("sampleRegistrations", sampleRegistrations);
         sb.append("dataSetRegistrations", dataSetRegistrations);
+        sb.append("dataSetUpdates", dataSetUpdates);
         return sb.toString();
     }
-
 }
