@@ -69,7 +69,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 {
     private static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP-CODE";
 
-    private static final String DATA_SET_CODE = "data-set-code";
+    private static final String DATA_SET_CODE = "data-set-code".toUpperCase();
 
     private static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
@@ -136,6 +136,42 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createTransaction();
 
         IDataSet newDataSet = tr.createNewDataSet();
+        String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
+        IExperimentImmutable experiment = tr.getExperiment(EXPERIMENT_IDENTIFIER);
+        newDataSet.setExperiment(experiment);
+        newDataSet.setDataSetType(DATA_SET_TYPE.getCode());
+
+        checkContentsOfFile(new File(dst));
+
+        File[] rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(2, rollbackQueueFiles.length);
+
+        tr.commit();
+
+        System.out.println(logAppender.getLogContent());
+
+        assertTrue(logAppender.getLogContent().length() > 0);
+        // Skip this for the moment
+        // new LogMatcher(logAppender,
+        // "Identified that database knows experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Start storing data set for experiment '/SPACE/PROJECT/EXP-CODE'.*",
+        // "Finished storing data set for experiment '/SPACE/PROJECT/EXP-CODE', took .*",
+        // "Successfully registered data set: .+").assertMatches();
+
+        rollbackQueueFiles = listRollbackQueueFiles();
+        assertEquals(0, rollbackQueueFiles.length);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCommitSpecifyingDataSetCode()
+    {
+        setUpOpenBisExpectations(true, false);
+        setUpDataSetValidatorExpectations("my-data-set-code");
+        createTransaction();
+
+        IDataSet newDataSet = tr.createNewDataSet("UNKNOWN", "my-data-set-code");
         String dst = tr.moveFile(srcFile.getAbsolutePath(), newDataSet);
         IExperimentImmutable experiment = tr.getExperiment(EXPERIMENT_IDENTIFIER);
         newDataSet.setExperiment(experiment);
@@ -405,12 +441,21 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
     private void setUpOpenBisExpectations(final boolean willRegister)
     {
+        setUpOpenBisExpectations(willRegister, true);
+    }
+
+    private void setUpOpenBisExpectations(final boolean willRegister,
+            final boolean createDataSetCode)
+    {
         setUpHomeDataBaseExpectations();
         context.checking(new Expectations()
             {
                 {
-                    oneOf(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE + 1));
+                    if (createDataSetCode)
+                    {
+                        oneOf(openBisService).createDataSetCode();
+                        will(returnValue(DATA_SET_CODE + 1));
+                    }
 
                     if (willRegister)
                     {
@@ -446,7 +491,13 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
 
     private void setUpDataSetValidatorExpectations()
     {
-        File dataSetDir = new File(stagingDirectory, DATA_SET_CODE + "1");
+        setUpDataSetValidatorExpectations(DATA_SET_CODE + "1");
+
+    }
+
+    private void setUpDataSetValidatorExpectations(String dataSetCode)
+    {
+        File dataSetDir = new File(stagingDirectory, dataSetCode.toUpperCase());
         final File dataSetFile = new File(dataSetDir, srcFile.getName());
         context.checking(new Expectations()
             {

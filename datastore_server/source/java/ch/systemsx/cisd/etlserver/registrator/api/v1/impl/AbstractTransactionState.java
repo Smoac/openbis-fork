@@ -151,15 +151,36 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return createNewDataSet(registrationDetails);
         }
 
+        public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
+        {
+            // Create registration details for the new data set
+            DataSetRegistrationDetails<T> registrationDetails =
+                    registrationDetailsFactory.createDataSetRegistrationDetails();
+            registrationDetails.setDataSetType(dataSetType);
+
+            return createNewDataSet(registrationDetails, dataSetCode);
+        }
+
         public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
         {
             // Request a code, so we can keep the staging file name and the data set code in sync
-            String dataSetCode = registrationDetails.getDataSetInformation().getDataSetCode();
-            if (null == dataSetCode)
+            return createNewDataSet(registrationDetails, registrationDetails
+                    .getDataSetInformation().getDataSetCode());
+        }
+
+        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails,
+                String specifiedCode)
+        {
+            final String dataSetCode;
+            if (null == specifiedCode)
             {
                 dataSetCode = generateDataSetCode(registrationDetails);
                 registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
+            } else
+            {
+                dataSetCode = specifiedCode.toUpperCase();
             }
+            registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
 
             // Create a directory for the data set
             File stagingFolder = new File(stagingDirectory, dataSetCode);

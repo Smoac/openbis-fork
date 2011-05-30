@@ -192,6 +192,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(dataSetType);
     }
 
+    public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
+    {
+        return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode);
+    }
+
     public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
     {
         return getStateAsLiveState().createNewDataSet(registrationDetails);

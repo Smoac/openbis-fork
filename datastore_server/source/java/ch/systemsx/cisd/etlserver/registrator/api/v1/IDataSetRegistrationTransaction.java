@@ -39,9 +39,14 @@ public interface IDataSetRegistrationTransaction
     IDataSet createNewDataSet();
 
     /**
-     * Create a new data set with the specified code.
+     * Create a new data set with the specified type.
      */
     IDataSet createNewDataSet(String dataSetType);
+
+    /**
+     * Create a new data set with the specified type and code.
+     */
+    IDataSet createNewDataSet(String dataSetType, String dataSetCode);
 
     /**
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
