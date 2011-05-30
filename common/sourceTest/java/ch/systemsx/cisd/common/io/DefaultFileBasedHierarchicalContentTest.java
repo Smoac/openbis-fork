@@ -238,7 +238,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
             });
         for (File existingFile : existingFiles)
         {
-            String relativePath = FileUtilities.getRelativeFile(rootDir, existingFile);
+            String relativePath = FileUtilities.getRelativeFilePath(rootDir, existingFile);
             IHierarchicalContentNode fileNode = rootContent.getNode(relativePath);
             assertEquals(relativePath, fileNode.getRelativePath());
             checkNodeMatchesFile(fileNode, existingFile);
@@ -264,7 +264,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         for (File subDirFile : subDirFiles)
         {
             // get node of subDirFile counterpart from container
-            final String relativePath = FileUtilities.getRelativeFile(rootDir, subDirFile);
+            final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subDirFile);
             final String containerRelativePath =
                     relativePath.replace(subDir.getName(), subContainerDir.getName());
             final IHierarchicalContentNode fileNode = rootContent.getNode(containerRelativePath);
@@ -289,7 +289,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
 
         for (File nonExistingFile : nonExistingFiles)
         {
-            String relativePath = FileUtilities.getRelativeFile(rootDir, nonExistingFile);
+            String relativePath = FileUtilities.getRelativeFilePath(rootDir, nonExistingFile);
             try
             {
                 rootContent.getNode(relativePath);
@@ -382,7 +382,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
 
-        final String relativePath = FileUtilities.getRelativeFile(rootDir, subSubDir);
+        final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subSubDir);
         final String containerRelativePath =
                 relativePath.replace(subDir.getName(), subContainerDir.getName());
         final List<IHierarchicalContentNode> matchingNodes =
@@ -506,7 +506,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
 
                 public String getRelativePath()
                 {
-                    return FileUtilities.getRelativeFile(root, file);
+                    return FileUtilities.getRelativeFilePath(root, file);
                 }
 
                 public String getParentRelativePath()

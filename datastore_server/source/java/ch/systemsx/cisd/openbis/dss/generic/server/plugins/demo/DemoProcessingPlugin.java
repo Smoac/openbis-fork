@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
@@ -75,11 +74,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
                 public void visit(IHierarchicalContentNode node)
                 {
                     String relativePath = node.getRelativePath();
-                    String fullPath = datasetCode + "/";
-                    if (false == StringUtils.isBlank(relativePath))
-                    {
-                        fullPath += relativePath;
-                    }
+                    String fullPath = datasetCode + "/" + relativePath;
                     operationLog.info("Processing " + fullPath);
                 }
             };

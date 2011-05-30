@@ -20,12 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 /**
  * Helper Class for creating FileInfoDss objects
  * 
  * @author Chandrasekhar Ramakrishnan
+ * @deprecated use {@link HierarchicalFileInfoDssBuilder} instead; kept for backward compatibility
  */
+@Deprecated
 public class FileInfoDssBuilder
 {
 

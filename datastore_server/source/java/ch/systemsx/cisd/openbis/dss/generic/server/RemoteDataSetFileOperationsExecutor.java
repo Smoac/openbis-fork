@@ -239,7 +239,7 @@ public final class RemoteDataSetFileOperationsExecutor implements IDataSetFileOp
                         "Unexpected output from find in line: '%s'. "
                                 + "Got %d tokens instead of 2.", line, split.length)));
             }
-            String filePath = FileUtilities.getRelativeFile(destination, new File(split[0]));
+            String filePath = FileUtilities.getRelativeFilePath(destination, new File(split[0]));
             String fileSizeAsString = split[1];
             try
             {

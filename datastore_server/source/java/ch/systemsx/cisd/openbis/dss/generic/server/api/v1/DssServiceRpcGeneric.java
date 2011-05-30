@@ -23,15 +23,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
@@ -51,14 +54,14 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
-        this(openBISService, null);
+        this(openBISService, null, null);
     }
 
-    DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager)
+    DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
-        super(openBISService, shareIdManager);
-        putService = new PutDataSetService(openBISService, operationLog);
-        operationLog.info("[rpc] Started DSS API V1 service.");
+        this(openBISService, shareIdManager, contentProvider, new PutDataSetService(openBISService,
+                operationLog));
     }
 
     /**
@@ -68,9 +71,10 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * @param service
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IShareIdManager shareIdManager, PutDataSetService service)
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
+            PutDataSetService service)
     {
-        super(openBISService, shareIdManager);
+        super(openBISService, shareIdManager, contentProvider);
         putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
@@ -83,30 +87,35 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String startPath, boolean isRecursive) throws IllegalArgumentException
     {
-        File dataSetRootDirectory = getRootDirectory(dataSetCode);
-
+        IHierarchicalContent content = null;
         try
         {
-            String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
-            File requestedFile = new File(dataSetRootDirectory, startPath);
-            // Make sure the requested file is under the root of the data set
-            if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
-            {
-                throw new IllegalArgumentException("Path does not exist.");
-            }
+            content = getHierarchicalContent(dataSetCode);
+            // TODO exception logging?
+            IHierarchicalContentNode startPathNode =
+                    content.getNode("/".equals(startPath) ? "" : startPath);
 
-            String listingRoot =
-                    (requestedFile.isDirectory()) ? requestedFile.getCanonicalPath()
-                            : requestedFile.getParentFile().getCanonicalPath();
+            IHierarchicalContentNode listingRootNode =
+                    (startPathNode.isDirectory()) ? startPathNode : content.getNode(startPathNode
+                            .getParentRelativePath());
+
+            System.err.println(listingRootNode.getRelativePath());
+            // Make sure the listing node is under the root of the data set
+
             ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
-            appendFileInfosForFile(requestedFile, dataSetRootPath, listingRoot, list, isRecursive);
+            appendFileInfosForFile(listingRootNode, list, isRecursive);
             FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
             return list.toArray(fileInfos);
-
         } catch (IOException ex)
         {
             operationLog.info("listFiles: " + startPath + " caused an exception", ex);
             throw new IOExceptionUnchecked(ex);
+        } finally
+        {
+            if (content != null)
+            {
+                content.close();
+            }
         }
     }
 
@@ -140,22 +149,23 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     /**
-     * Append file info for the requested file or file hierarchy. Assumes that the parameters have
-     * been verified already.
+     * Append file info for the requested node of a file or file hierarchy. Assumes that the
+     * parameters have been verified already.
      * 
      * @param requestedFile A file known to be accessible by the user
      * @param dataSetRoot The root of the file hierarchy; used to determine the absolute path of the
      *            file
-     * @param listingRoot The root of the list hierarchy; used to determine the relative path of the
-     *            file
+     * @param listingRootNode The node which is a root of the list hierarchy; used to determine the
+     *            relative path of the file
      * @param list The list the files infos are appended to
      * @param isRecursive If true, directories will be recursively appended to the list
      */
-    private void appendFileInfosForFile(File requestedFile, String dataSetRoot, String listingRoot,
+    private void appendFileInfosForFile(IHierarchicalContentNode listingRootNode,
             ArrayList<FileInfoDssDTO> list, boolean isRecursive) throws IOException
     {
-        FileInfoDssBuilder factory = new FileInfoDssBuilder(dataSetRoot, listingRoot);
-        factory.appendFileInfosForFile(requestedFile, list, isRecursive);
+        HierarchicalFileInfoDssBuilder factory =
+                new HierarchicalFileInfoDssBuilder(listingRootNode);
+        factory.appendFileInfos(list, isRecursive);
     }
 
     public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)

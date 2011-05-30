@@ -96,10 +96,10 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         {
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
-            String relativePath = FileUtilities.getRelativeFile(existingFile, file);
+            String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
             return containerNode.getChildNode(relativePath);
         }
-        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
+        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFilePath(root, file)
                 + "' does not exist.");
     }
 

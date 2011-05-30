@@ -26,7 +26,7 @@ final class RenderingContext
 
     private final IHierarchicalContent rootContent;
 
-    private final String relativePathOrNull;
+    private final String relativePath;
 
     private final IHierarchicalContentNode fileNode;
 
@@ -36,16 +36,16 @@ final class RenderingContext
 
     private final String sessionIdOrNull;
 
-    RenderingContext(IHierarchicalContent rootContent, String urlPrefix, String relativePathOrNull,
+    RenderingContext(IHierarchicalContent rootContent, String urlPrefix, String relativePath,
             String sessionIdOrNull)
     {
         this.rootContent = rootContent;
-        this.relativePathOrNull = relativePathOrNull;
+        this.relativePath = relativePath;
         this.urlPrefix = urlPrefix;
         this.sessionIdOrNull = sessionIdOrNull;
-        if (relativePathOrNull.length() > 0)
+        if (relativePath.length() > 0)
         {
-            fileNode = rootContent.getNode(relativePathOrNull);
+            fileNode = rootContent.getNode(relativePath);
             relativeParentPath = fileNode.getParentRelativePath();
             if (relativeParentPath == null)
             {
@@ -78,9 +78,9 @@ final class RenderingContext
         return fileNode;
     }
 
-    public final String getRelativePathOrNull()
+    public final String getRelativePath()
     {
-        return relativePathOrNull;
+        return relativePath;
     }
 
     public final String getUrlPrefix()

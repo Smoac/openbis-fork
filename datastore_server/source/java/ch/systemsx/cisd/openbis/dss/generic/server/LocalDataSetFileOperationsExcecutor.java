@@ -257,7 +257,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
             Map<String, Long> result = new LinkedHashMap<String, Long>();
             for (File file : files)
             {
-                String relativePath = FileUtilities.getRelativeFile(root, file);
+                String relativePath = FileUtilities.getRelativeFilePath(root, file);
                 result.put(relativePath, file.length());
             }
             return result;

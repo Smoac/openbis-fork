@@ -421,7 +421,7 @@ public class DataSetRegistrationAlgorithm
             }
             File dataFolder = state.transaction.getStoredDataDirectory();
             assert dataFolder != null : "The folder that contains the stored data should not be null.";
-            final String relativePath = FileUtilities.getRelativeFile(state.storeRoot, dataFolder);
+            final String relativePath = FileUtilities.getRelativeFilePath(state.storeRoot, dataFolder);
             String absolutePath = dataFolder.getAbsolutePath();
             assert relativePath != null : String.format(
                     TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,

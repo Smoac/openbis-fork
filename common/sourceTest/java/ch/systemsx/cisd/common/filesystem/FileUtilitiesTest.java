@@ -98,8 +98,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(47110000, sourceFile.lastModified());
         File destinationFile = new File(workingDirectory, "destination.txt");
         FileUtilities.copyFileTo(sourceFile, destinationFile, true);
-        assertEquals(FileUtilities.loadToString(sourceFile), FileUtilities
-                .loadToString(destinationFile));
+        assertEquals(FileUtilities.loadToString(sourceFile),
+                FileUtilities.loadToString(destinationFile));
         assertEquals(47110000, destinationFile.lastModified());
     }
 
@@ -256,11 +256,12 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         }
         assertTrue("Given file can not be null.", exceptionThrown);
         assertEquals(file, FileUtilities.removePrefixFromFileName(file, null));
-        assertEquals(file, FileUtilities.removePrefixFromFileName(file,
-                Constants.IS_FINISHED_PREFIX));
+        assertEquals(file,
+                FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX));
         file = new File("/tmp/dir/" + Constants.IS_FINISHED_PREFIX + "x.txt");
-        assertEquals("/tmp/dir/x.txt", FileUtilities.removePrefixFromFileName(file,
-                Constants.IS_FINISHED_PREFIX).getPath());
+        assertEquals("/tmp/dir/x.txt",
+                FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX)
+                        .getPath());
     }
 
     @Test
@@ -339,32 +340,33 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public final void testGetRelativeFile()
+    public final void testGetRelativeFilePath()
     {
         boolean exceptionThrown = false;
         try
         {
-            FileUtilities.getRelativeFile(null, null);
-
+            FileUtilities.getRelativeFilePath(null, null);
         } catch (AssertionError e)
         {
             exceptionThrown = true;
         }
         assertTrue("Given root and file can not be null.", exceptionThrown);
         File file = new File(workingDirectory, "hello");
-        assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello", file
-                .getAbsolutePath());
+        assertEquals(workingDirectory.getAbsolutePath() + File.separator + "hello",
+                file.getAbsolutePath());
         // If the given string is the empty string, then the result is the empty abstract pathname.
         final File rootFile = new File("");
         assertEquals(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY
                 + File.separator + workingDirectory.getName() + File.separator + "hello",
-                FileUtilities.getRelativeFile(rootFile, file));
+                FileUtilities.getRelativeFilePath(rootFile, file));
         String root = "/temp";
-        String relativeFile = FileUtilities.getRelativeFile(new File(root), file);
+        String relativeFile = FileUtilities.getRelativeFilePath(new File(root), file);
         assertNull(relativeFile);
         root = workingDirectory.getAbsolutePath();
-        relativeFile = FileUtilities.getRelativeFile(new File(root), file);
+        relativeFile = FileUtilities.getRelativeFilePath(new File(root), file);
         assertEquals("hello", relativeFile);
+        relativeFile = FileUtilities.getRelativeFilePath(new File(root), new File(root));
+        assertEquals("", relativeFile);
     }
 
     private class CountingActivityObserver implements IActivityObserver
@@ -409,7 +411,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals(4, list1.size());
         assertEquals(new HashSet<File>(Arrays.asList(f1, f2, f3, f4)), new HashSet<File>(list1));
 
-        final List<File> list2 = FileUtilities.listFiles(dir, (FileFilter) null, true, observer, null);
+        final List<File> list2 =
+                FileUtilities.listFiles(dir, (FileFilter) null, true, observer, null);
         assertEquals(list1, list2);
         assertTrue("" + observer.count, observer.count >= list2.size());
 

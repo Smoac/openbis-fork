@@ -52,8 +52,8 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
             new Template(
                     "<tr><td class='td_file'><a href='${path}?mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td></tr>");
 
-    private static final Template HEADER_TEMPLATE =
-            new Template("<html><head>" + CSS + "</head><body>" + "<table> " + "${folder}" + "");
+    private static final Template HEADER_TEMPLATE = new Template("<html><head>" + CSS
+            + "</head><body>" + "<table> " + "${folder}" + "");
 
     private static final Template FOOTER_TEMPLATE = new Template("</table> </div> </body></html>");
 
@@ -61,13 +61,13 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private final String urlPrefix;
 
-    private final String relativePathOrNull;
+    private final String relativePath;
 
     private final String sessionIdOrNull;
 
     SimpleHTMLDirectoryRenderer(final RenderingContext context)
     {
-        this.relativePathOrNull = context.getRelativePathOrNull();
+        this.relativePath = context.getRelativePath();
         sessionIdOrNull = context.getSessionIdOrNull();
         final String prefix = context.getUrlPrefix();
         this.urlPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
@@ -81,9 +81,9 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     public void printHeader()
     {
         final Template template = HEADER_TEMPLATE.createFreshCopy();
-        if (StringUtils.isNotBlank(relativePathOrNull))
+        if (StringUtils.isNotBlank(relativePath))
         {
-            template.bind("folder", "<tr><td class='td_hd'>Folder:</td><td>" + relativePathOrNull
+            template.bind("folder", "<tr><td class='td_hd'>Folder:</td><td>" + relativePath
                     + "</td></tr>");
         } else
         {
@@ -92,25 +92,25 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         writer.println(template.createText());
     }
 
-    public void printLinkToParentDirectory(final String relativePath)
+    public void printLinkToParentDirectory(final String aRelativePath)
     {
-        printRow("..", relativePath, "");
+        printRow("..", aRelativePath, "");
     }
 
-    public void printDirectory(final String name, final String relativePath)
+    public void printDirectory(final String name, final String aRelativePath)
     {
-        printRow(name, relativePath, "");
+        printRow(name, aRelativePath, "");
     }
 
-    public void printFile(final String name, final String relativePath, final long size)
+    public void printFile(final String name, final String aRelativePath, final long size)
     {
-        printRow(name, relativePath, renderFileSize(size));
+        printRow(name, aRelativePath, renderFileSize(size));
     }
 
-    private void printRow(final String name, final String relativePath, final String fileSize)
+    private void printRow(final String name, final String aRelativePath, final String fileSize)
     {
         final Template template = ROW_TEMPLATE.createFreshCopy();
-        template.bind("path", urlPrefix + encodeURL(relativePath));
+        template.bind("path", urlPrefix + encodeURL(aRelativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
         template.bind("sessionId", Utils.createUrlParameterForSessionId("&", sessionIdOrNull));

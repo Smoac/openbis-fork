@@ -206,7 +206,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
                     for (File existingFile : existingFiles)
                     {
                         final String relativePath =
-                                FileUtilities.getRelativeFile(rootDir, existingFile);
+                                FileUtilities.getRelativeFilePath(rootDir, existingFile);
                         one(pathInfoProvider).tryGetPathInfoByRelativePath(relativePath);
                         will(returnValue(createDummyFileBasedPath(rootDir, existingFile)));
                     }
@@ -214,7 +214,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
             });
         for (File existingFile : existingFiles)
         {
-            String relativePath = FileUtilities.getRelativeFile(rootDir, existingFile);
+            String relativePath = FileUtilities.getRelativeFilePath(rootDir, existingFile);
             IHierarchicalContentNode fileNode = rootContent.getNode(relativePath);
             assertEquals(relativePath, fileNode.getRelativePath());
             checkNodeMatchesFile(fileNode, existingFile);
@@ -237,7 +237,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
 
         for (final File nonExistingFile : nonExistingFiles)
         {
-            final String relativePath = FileUtilities.getRelativeFile(rootDir, nonExistingFile);
+            final String relativePath = FileUtilities.getRelativeFilePath(rootDir, nonExistingFile);
             try
             {
                 context.checking(new Expectations()
@@ -356,7 +356,7 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         DataSetPathInfo result = new DataSetPathInfo();
         result.setFileName(file.getName());
         result.setDirectory(file.isDirectory());
-        result.setRelativePath(FileUtilities.getRelativeFile(root, file));
+        result.setRelativePath(FileUtilities.getRelativeFilePath(root, file));
         result.setSizeInBytes(file.length());
         return result;
     }

@@ -233,7 +233,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     public NewExternalData createExternalData()
     {
         File dataFile = ((StoredState<T>) state).getStoredDirectory();
-        String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
+        String relativePath = FileUtilities.getRelativeFilePath(storeRoot, dataFile);
         String absolutePath = dataFile.getAbsolutePath();
         assert relativePath != null : String.format(
                 TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,

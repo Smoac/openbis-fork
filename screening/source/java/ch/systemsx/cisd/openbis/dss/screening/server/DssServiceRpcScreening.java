@@ -127,7 +127,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImagingTransformerDAO transformerDAO, IEncapsulatedOpenBISService service,
             IShareIdManager shareIdManager, boolean registerAtNameService)
     {
-        super(service, shareIdManager);
+        super(service, shareIdManager, null); // FIXME
         this.dao = dao;
         this.transformerDAO = transformerDAO;
         setStoreDirectory(new File(storeRootDir));

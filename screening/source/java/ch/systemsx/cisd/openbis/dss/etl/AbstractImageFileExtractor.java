@@ -338,7 +338,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             final File imageFile)
     {
         String imageRelativePath =
-                FileUtilities.getRelativeFile(incomingDataSetDirectory,
+                FileUtilities.getRelativeFilePath(incomingDataSetDirectory,
                         new File(imageFile.getPath()));
         assert imageRelativePath != null : "Image relative path should not be null.";
         return imageRelativePath;

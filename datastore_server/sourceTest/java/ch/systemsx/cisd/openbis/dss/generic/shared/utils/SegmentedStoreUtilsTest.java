@@ -303,7 +303,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
         dataSet.setDataSetCode(dataSetFile.getName());
         dataSet.setDataStoreCode(dataStoreCode);
-        String path = FileUtilities.getRelativeFile(store, dataSetFile);
+        String path = FileUtilities.getRelativeFilePath(store, dataSetFile);
         int indexOfFirstSeparator = path.indexOf(File.separatorChar);
         dataSet.setDataSetShareId(path.substring(0, indexOfFirstSeparator));
         dataSet.setDataSetLocation(path.substring(indexOfFirstSeparator + 1));

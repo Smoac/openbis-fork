@@ -398,9 +398,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             assert dirNode.getChildNodes().size() == 1;
             String childName = dirNode.getChildNodes().get(0).getName();
-            String oldRelativePathOrNull = renderingContext.getRelativePathOrNull();
-            String pathPrefix =
-                    StringUtils.isBlank(oldRelativePathOrNull) ? "" : (oldRelativePathOrNull + "/");
+            String oldRelativePath = renderingContext.getRelativePath();
+            String pathPrefix = StringUtils.isBlank(oldRelativePath) ? "" : (oldRelativePath + "/");
             String newRelativePath = pathPrefix + childName;
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext, newRelativePath);
@@ -415,10 +414,10 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             RenderingContext newContext) throws IOException
     {
         String urlPrefix = newContext.getUrlPrefix();
-        String relativePathOrNull = newContext.getRelativePathOrNull();
+        String relativePath = newContext.getRelativePath();
         String sessionIdOrNull = newContext.getSessionIdOrNull();
         final String newLocation =
-                DOWNLOAD_URL + urlPrefix + "/" + relativePathOrNull
+                DOWNLOAD_URL + urlPrefix + "/" + relativePath
                         + Utils.createUrlParameterForSessionId("?", sessionIdOrNull);
         if (operationLog.isInfoEnabled())
         {

@@ -24,10 +24,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
@@ -48,11 +50,13 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     private final IEncapsulatedOpenBISService openBISService;
 
+    private IHierarchicalContentProvider contentProvider;
+
+    private IShareIdManager shareIdManager;
+
     private File storeDirectory;
 
     private DatabaseInstance homeDatabaseInstance;
-
-    private IShareIdManager shareIdManager;
 
     /**
      * Configuration method to set the path to the DSS store. Should only be called by the object
@@ -78,10 +82,20 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * @param openBISService
      */
     protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService,
-            IShareIdManager shareIdManager)
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
         this.openBISService = openBISService;
         this.shareIdManager = shareIdManager;
+        this.contentProvider = contentProvider;
+    }
+
+    protected IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (contentProvider == null)
+        {
+            contentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return contentProvider;
     }
 
     protected IShareIdManager getShareIdManager()
@@ -119,6 +133,12 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return homeDatabaseInstance;
     }
 
+    protected IHierarchicalContent getHierarchicalContent(String dataSetCode)
+    {
+        return getHierarchicalContentProvider().asContent(dataSetCode);
+    }
+
+    @Deprecated
     protected File getRootDirectory(String datasetCode)
     {
         return getRootDirectoryForDataSet(datasetCode, getShareIdManager().getShareId(datasetCode));
@@ -127,6 +147,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     /**
      * Get the top level of the folder for the data set.
      */
+    @Deprecated
     private File getRootDirectoryForDataSet(String code, String shareId)
     {
         File dataSetRootDirectory =

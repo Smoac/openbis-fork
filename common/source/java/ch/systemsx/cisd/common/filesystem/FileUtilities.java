@@ -1138,14 +1138,19 @@ public final class FileUtilities
      * then returns <code>null</code> (as the relative file could not be determined).
      * </p>
      * 
-     * @return a relative file with no starting separator.
+     * @return a relative file path with no starting separator.
      */
-    public final static String getRelativeFile(final File root, final File file)
+    public final static String getRelativeFilePath(final File root, final File file)
     {
         assert root != null : "Given root can not be null.";
         assert file != null : "Given file can not be null.";
-        final String rootPath = root.getAbsolutePath() + File.separator;
         final String filePath = file.getAbsolutePath();
+        String rootPath = root.getAbsolutePath();
+        if (filePath.equals(rootPath))
+        {
+            return "";
+        }
+        rootPath += File.separator;
         if (filePath.startsWith(rootPath))
         {
             return filePath.substring(rootPath.length());
@@ -1501,9 +1506,8 @@ public final class FileUtilities
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        entryInternalListFiles(directory, result,
-                (filterOrNull == null) ? new TrueFilter(observerOrNull) : filterOrNull,
-                observerOrNull, recursive, FType.FILE, loggerOrNull);
+        entryInternalListFiles(directory, result, (filterOrNull == null) ? new TrueFilter(
+                observerOrNull) : filterOrNull, observerOrNull, recursive, FType.FILE, loggerOrNull);
         return result;
     }
 
@@ -1574,8 +1578,8 @@ public final class FileUtilities
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        entryInternalListFiles(directory, result, new ExtensionFileFilter(extensionsOrNull, recursive,
-                observerOrNull), observerOrNull, recursive, FType.FILE, loggerOrNull);
+        entryInternalListFiles(directory, result, new ExtensionFileFilter(extensionsOrNull,
+                recursive, observerOrNull), observerOrNull, recursive, FType.FILE, loggerOrNull);
         return result;
     }
 
@@ -1637,8 +1641,8 @@ public final class FileUtilities
         assert directory != null;
 
         final List<File> result = new LinkedList<File>();
-        entryInternalListFiles(directory, result, new DirectoryFilter(observerOrNull), observerOrNull,
-                recursive, FType.DIRECTORY, loggerOrNull);
+        entryInternalListFiles(directory, result, new DirectoryFilter(observerOrNull),
+                observerOrNull, recursive, FType.DIRECTORY, loggerOrNull);
         return result;
     }
 

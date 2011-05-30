@@ -122,7 +122,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                 final Location tileLocation, final IFile imageFile)
         {
             final String imageRelativePath =
-                    FileUtilities.getRelativeFile(imageFileRootDirectory,
+                    FileUtilities.getRelativeFilePath(imageFileRootDirectory,
                             new File(imageFile.getPath()));
             assert imageRelativePath != null : "Image relative path should not be null.";
             String channelCode = getChannelCodeOrLabel(channelCodes, channel);

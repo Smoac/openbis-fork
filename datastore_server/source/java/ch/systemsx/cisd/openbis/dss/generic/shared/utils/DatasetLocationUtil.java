@@ -51,17 +51,10 @@ public class DatasetLocationUtil
     public static File getDatasetLocationPath(final File baseDir, String dataSetCode,
             String shareId, final String instanceUUID)
     {
-        return new File(baseDir, getDatasetRelativeLocationPath(dataSetCode, shareId, instanceUUID));
-    }
-
-    /** returns path relative to the store */
-    public static String getDatasetRelativeLocationPath(String dataSetCode, String shareId,
-            final String instanceUUID)
-    {
         final File instanceDir = new File(new File(shareId), instanceUUID);
         final File shardingDir = createShardingDir(instanceDir, dataSetCode);
         final File datasetDir = new File(shardingDir, dataSetCode);
-        return datasetDir.getPath();
+        return new File(baseDir, datasetDir.getPath());
     }
 
     /** returns location (path relative to the share) */

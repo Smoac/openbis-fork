@@ -114,7 +114,7 @@ public class SimpleImageDataSetRegistrator
         for (File imageFile : imageFiles)
         {
             String imageRelativePath =
-                    FileUtilities.getRelativeFile(incomingDirectory, new File(imageFile.getPath()));
+                    FileUtilities.getRelativeFilePath(incomingDirectory, new File(imageFile.getPath()));
             ImageMetadata imageTokens = simpleImageConfig.extractImageMetadata(imageRelativePath);
             imageTokens.ensureValid();
             imageTokensList.add(new ImageTokensWithPath(imageTokens, imageRelativePath));

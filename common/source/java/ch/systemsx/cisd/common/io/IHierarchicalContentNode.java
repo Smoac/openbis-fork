@@ -35,7 +35,7 @@ public interface IHierarchicalContentNode
     /** Returns name of this node/file. */
     String getName();
 
-    /** Returns relative path of this node or <code>null</code> for root node. */
+    /** Returns relative path of this node or empty string for root node. */
     String getRelativePath();
 
     /** Returns relative path of this node's parent or <code>null</code> for root node. */

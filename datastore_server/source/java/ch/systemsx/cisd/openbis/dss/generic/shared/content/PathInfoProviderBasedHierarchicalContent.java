@@ -300,11 +300,11 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         {
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
-            String relativePath = FileUtilities.getRelativeFile(existingFile, file);
+            String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
             IHierarchicalContentNode node = containerNode.getChildNode(relativePath);
             return asFileContentProvider(node);
         }
-        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFile(root, file)
+        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFilePath(root, file)
                 + "' is currently unavailable. It might be in an archive.");
     }
 

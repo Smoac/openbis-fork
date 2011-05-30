@@ -16,48 +16,49 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
-import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
+public class DssServiceRpcGenericTest extends AssertJUnit
 {
-    private static final String DB_UUID = "db-uuid";
 
     private static final String SESSION_TOKEN = "SESSION";
-    
+
     private IEncapsulatedOpenBISService service;
+
     private Mockery context;
+
     private IDssServiceRpcGeneric dssService;
-    private File store;
 
     private IShareIdManager shareIdManager;
+
+    private IHierarchicalContentProvider contentProvider;
+
+    private IHierarchicalContent content;
 
     @BeforeMethod
     public void beforeMethod()
@@ -68,28 +69,19 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
+        contentProvider = context.mock(IHierarchicalContentProvider.class);
+        content = context.mock(IHierarchicalContent.class);
         applicationContext.addBean("openBIS-service", service);
         ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
-        proxyFactoryBean.setInterfaces(new Class[] {IDssServiceRpcGeneric.class});
-        DssServiceRpcGeneric nakedDssService = new DssServiceRpcGeneric(service, shareIdManager);
+        proxyFactoryBean.setInterfaces(new Class[]
+            { IDssServiceRpcGeneric.class });
+        DssServiceRpcGeneric nakedDssService =
+                new DssServiceRpcGeneric(service, shareIdManager, contentProvider);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(service).getHomeDatabaseInstance();
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setCode("db-code");
-                    databaseInstance.setUuid(DB_UUID);
-                    will(returnValue(databaseInstance));
-                }
-            });
-        store = new File(workingDirectory, "store");
-        store.mkdirs();
-        nakedDssService.setStoreDirectory(store);
     }
-    
+
     @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
@@ -98,27 +90,84 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testFilesForData() 
+    public void testFilesForData()
     {
         final String dataSetCode = "ds-1";
+        final String path = "abc/de";
         prepareLockDataSet(dataSetCode);
         prepareAuthorizationCheck(dataSetCode);
-        prepareGetShareId(dataSetCode);
-        File location =
-                DatasetLocationUtil.getDatasetLocationPath(store, dataSetCode,
-                        Constants.DEFAULT_SHARE_ID, DB_UUID);
-        location.mkdirs();
+        prepareGetContent(dataSetCode);
+        context.checking(new Expectations()
+            {
+                {
+                    IHierarchicalContentNode mainNode = createNodeMock("mainNode");
+                    one(content).getNode(path);
+                    will(returnValue(mainNode));
+
+                    IHierarchicalContentNode childNode1 = createNodeMock("childNode1");
+                    IHierarchicalContentNode childNode1Child1 = createNodeMock("childNode1Child1");
+                    IHierarchicalContentNode childNode1Child2 = createNodeMock("childNode1Child2");
+                    IHierarchicalContentNode childNode2 = createNodeMock("childNode2");
+                    IHierarchicalContentNode childNode2Child1 = createNodeMock("childNode2Child1");
+                    IHierarchicalContentNode childNode3 = createNodeMock("childNode3");
+
+                    prepareDirectoryNode(mainNode, path, childNode1, childNode2, childNode3);
+                    // child1
+                    prepareDirectoryNode(childNode1, path + "/child1", childNode1Child1,
+                            childNode1Child2);
+                    prepareFileNode(childNode1Child1, path + "/child1/child1", 11);
+                    prepareFileNode(childNode1Child2, path + "/child1/child2", 12);
+                    // child2
+                    prepareDirectoryNode(childNode2, path + "/child2", childNode2Child1);
+                    prepareFileNode(childNode2Child1, path + "/child2/child1", 21);
+                    // child3
+                    prepareFileNode(childNode3, path + "/child3", 3);
+                }
+
+                private IHierarchicalContentNode createNodeMock(String mockName)
+                {
+                    return context.mock(IHierarchicalContentNode.class, mockName);
+                }
+
+                private void prepareFileNode(IHierarchicalContentNode node,
+                        final String relativePath, long length)
+                {
+                    allowing(node).isDirectory();
+                    will(returnValue(false));
+                    allowing(node).getRelativePath();
+                    will(returnValue(relativePath));
+                    one(node).getFileLength();
+                    will(returnValue(length));
+                }
+
+                private void prepareDirectoryNode(IHierarchicalContentNode node,
+                        final String relativePath, IHierarchicalContentNode... childNodes)
+                {
+                    allowing(node).isDirectory();
+                    will(returnValue(true));
+                    allowing(node).getRelativePath();
+                    will(returnValue(relativePath));
+                    one(node).getChildNodes();
+                    will(returnValue(Arrays.asList(childNodes)));
+                }
+            });
 
         FileInfoDssDTO[] dataSets =
                 dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, "abc/de", true);
 
-        assertEquals("FileInfoDssDTO[/abc/de,0]", dataSets[0].toString());
-        assertEquals(1, dataSets.length);
+        assertEquals(6, dataSets.length);
+        assertEquals("FileInfoDssDTO[/abc/de/child1,-1]", dataSets[0].toString());
+        assertEquals("FileInfoDssDTO[/abc/de/child1/child1,11]", dataSets[1].toString());
+        assertEquals("FileInfoDssDTO[/abc/de/child1/child2,12]", dataSets[2].toString());
+        assertEquals("FileInfoDssDTO[/abc/de/child2,-1]", dataSets[3].toString());
+        assertEquals("FileInfoDssDTO[/abc/de/child2/child1,21]", dataSets[4].toString());
+        assertEquals("FileInfoDssDTO[/abc/de/child3,3]", dataSets[5].toString());
         context.assertIsSatisfied();
     }
 
     private void prepareLockDataSet(final String dataSetCode)
     {
+        // NOTE: this is done by the DssServiceRpcAuthorizationAdvisor
         context.checking(new Expectations()
             {
                 {
@@ -140,13 +189,15 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
 
     }
 
-    private void prepareGetShareId(final String dataSetCode)
+    private void prepareGetContent(final String dataSetCode)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).getShareId(dataSetCode);
-                    will(returnValue(Constants.DEFAULT_SHARE_ID));
+                    one(contentProvider).asContent(dataSetCode);
+                    will(returnValue(content));
+
+                    one(content).close(); // content should be always closed
                 }
             });
     }

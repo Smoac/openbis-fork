@@ -55,7 +55,7 @@ public class HierarchicalNodeBasedContent implements IContent
 
     public boolean exists()
     {
-        return true; // always true
+        return fileNode.exists();
     }
 
     public InputStream getInputStream()

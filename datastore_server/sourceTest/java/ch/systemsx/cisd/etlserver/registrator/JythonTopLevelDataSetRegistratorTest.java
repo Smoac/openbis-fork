@@ -193,7 +193,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation), dataSet.getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
@@ -367,7 +367,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 1,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation1), dataSet1.getLocation());
         assertEquals(datasetLocation1, MockStorageProcessor.instance.rootDirs.get(0));
@@ -384,7 +384,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE + 2,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation2), dataSet2.getLocation());
         assertEquals(datasetLocation2, MockStorageProcessor.instance.rootDirs.get(1));
@@ -442,7 +442,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation),
 
@@ -515,7 +515,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 DatasetLocationUtil.getDatasetLocationPath(workingDirectory, DATA_SET_CODE,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         DATABASE_INSTANCE_UUID);
-        assertEquals(FileUtilities.getRelativeFile(new File(workingDirectory,
+        assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation),
 

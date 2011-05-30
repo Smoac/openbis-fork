@@ -241,7 +241,7 @@ public class DatasetDownloadServletTest
 
         String normalizedLogContent = getNormalizedLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory '/'", normalizedLogContent);
+                + "For data set '1234-1' show directory ''", normalizedLogContent);
 
         context.assertIsSatisfied();
     }
