@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentSetCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
@@ -50,6 +51,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
  */
 public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContentLoader
 {
+    public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
+            Session session, IScreeningBusinessObjectFactory businessObjectFactory,
+            IDAOFactory daoFactory, TechId materialId, ExperimentSetCriteria experiments,
+            MaterialSummarySettings settings)
+    {
+        // FIXME 2011-05-30, Tomasz Pylak: implement restriction to a set of experiments
+        return loadMaterialFeatureVectorsFromAllAssays(session, businessObjectFactory, daoFactory,
+                materialId, settings);
+    }
+
     public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             Session session, IScreeningBusinessObjectFactory businessObjectFactory,
             IDAOFactory daoFactory, TechId materialId, MaterialSummarySettings settings)
