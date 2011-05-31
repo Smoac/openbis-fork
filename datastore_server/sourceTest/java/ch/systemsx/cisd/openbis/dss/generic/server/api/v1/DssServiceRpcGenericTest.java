@@ -153,16 +153,22 @@ public class DssServiceRpcGenericTest extends AssertJUnit
             });
 
         FileInfoDssDTO[] dataSets =
-                dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, "abc/de", true);
+                dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, path, true);
 
         assertEquals(6, dataSets.length);
-        assertEquals("FileInfoDssDTO[/abc/de/child1,-1]", dataSets[0].toString());
-        assertEquals("FileInfoDssDTO[/abc/de/child1/child1,11]", dataSets[1].toString());
-        assertEquals("FileInfoDssDTO[/abc/de/child1/child2,12]", dataSets[2].toString());
-        assertEquals("FileInfoDssDTO[/abc/de/child2,-1]", dataSets[3].toString());
-        assertEquals("FileInfoDssDTO[/abc/de/child2/child1,21]", dataSets[4].toString());
-        assertEquals("FileInfoDssDTO[/abc/de/child3,3]", dataSets[5].toString());
+        assertEquals(fileInfoString(path, "child1", -1), dataSets[0].toString());
+        assertEquals(fileInfoString(path, "child1/child1", 11), dataSets[1].toString());
+        assertEquals(fileInfoString(path, "child1/child2", 12), dataSets[2].toString());
+        assertEquals(fileInfoString(path, "child2", -1), dataSets[3].toString());
+        assertEquals(fileInfoString(path, "child2/child1", 21), dataSets[4].toString());
+        assertEquals(fileInfoString(path, "child3", 3), dataSets[5].toString());
         context.assertIsSatisfied();
+    }
+
+    private String fileInfoString(String startPath, String pathInListing, long length)
+    {
+        return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
+                pathInListing, length);
     }
 
     private void prepareLockDataSet(final String dataSetCode)

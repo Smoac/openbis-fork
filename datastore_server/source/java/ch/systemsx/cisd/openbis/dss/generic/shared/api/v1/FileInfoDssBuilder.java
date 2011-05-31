@@ -106,7 +106,7 @@ public class FileInfoDssBuilder
         String result = dataSetRootFile.toURI().relativize(file.toURI()).toString();
         // remove trailing slashes
         result = result.replaceAll("/+$", "");
-        return "/" + result;
+        return result;
     }
 
     /**

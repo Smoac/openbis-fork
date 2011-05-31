@@ -302,7 +302,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         prepareGetAndLockDataSet();
 
         FileInfoDssDTO[] fileInfos =
-                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false); // TODO ""
+                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
         assertEquals(2, fileInfos.length);
         int dirCount = 0;
         int fileIndex = 0;
@@ -321,8 +321,27 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         assertEquals(1, dirCount);
         FileInfoDssDTO fileInfo = fileInfos[fileIndex];
         assertEquals("foo.txt", fileInfo.getPathInListing());
-        assertEquals("/foo.txt", fileInfo.getPathInDataSet());
+        assertEquals("foo.txt", fileInfo.getPathInDataSet());
         assertEquals(100, fileInfo.getFileSize());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDataSetListingFromRoot()
+    {
+        // root can be expressed as "/" or ""
+        prepareGetAndLockDataSet();
+        FileInfoDssDTO[] fileInfos =
+                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
+        prepareGetAndLockDataSet();
+        FileInfoDssDTO[] fileInfos2 =
+                rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "", true);
+        assertEquals(fileInfos.length, fileInfos2.length);
+        for (int i = 0; i < fileInfos.length; i++)
+        {
+            assertEquals(fileInfos[i].toString(), fileInfos2[i].toString());
+        }
 
         context.assertIsSatisfied();
     }
@@ -331,10 +350,10 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     public void testDataSetListingRecursive()
     {
         prepareGetAndLockDataSet();
-
         FileInfoDssDTO[] fileInfos =
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", true);
         assertEquals(3, fileInfos.length);
+
         int dirCount = 0;
         int fileCount = 0;
         int[] fileIndices = new int[2];
@@ -354,11 +373,11 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         for (i = 0; i < 2; ++i)
         {
             FileInfoDssDTO fileInfo = fileInfos[fileIndices[i]];
-            if ("/foo.txt".equals(fileInfo.getPathInDataSet()))
+            if ("foo.txt".equals(fileInfo.getPathInDataSet()))
             {
                 assertEquals("foo.txt", fileInfo.getPathInListing());
                 assertEquals(100, fileInfo.getFileSize());
-            } else if ("/stuff/bar.txt".equals(fileInfo.getPathInDataSet()))
+            } else if ("stuff/bar.txt".equals(fileInfo.getPathInDataSet()))
             {
                 assertEquals("stuff/bar.txt", fileInfo.getPathInListing());
                 assertEquals(110, fileInfo.getFileSize());
@@ -395,7 +414,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         }
         assertEquals(0, dirCount);
         FileInfoDssDTO fileInfo = fileInfos[fileIndex];
-        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("stuff/bar.txt", fileInfo.getPathInDataSet());
         assertEquals("bar.txt", fileInfo.getPathInListing());
         assertEquals(110, fileInfo.getFileSize());
 
@@ -411,7 +430,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/", false);
         assertEquals(1, fileInfos.length);
         FileInfoDssDTO fileInfo = fileInfos[0];
-        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("stuff/bar.txt", fileInfo.getPathInDataSet());
         assertEquals("bar.txt", fileInfo.getPathInListing());
 
         context.assertIsSatisfied();
@@ -427,7 +446,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         .listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/bar.txt", false);
         assertEquals(1, fileInfos.length);
         FileInfoDssDTO fileInfo = fileInfos[0];
-        assertEquals("/stuff/bar.txt", fileInfo.getPathInDataSet());
+        assertEquals("stuff/bar.txt", fileInfo.getPathInDataSet());
         assertEquals("bar.txt", fileInfo.getPathInListing());
 
         context.assertIsSatisfied();

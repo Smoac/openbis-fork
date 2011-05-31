@@ -86,7 +86,7 @@ public class HierarchicalFileInfoDssBuilder
     private FileInfoDssDTO fileInfoForNode(IHierarchicalContentNode node) throws IOException
     {
         FileInfoDssDTO fileInfo =
-                new FileInfoDssDTO("/" + node.getRelativePath(), pathRelativeToListingRoot(node),
+                new FileInfoDssDTO(node.getRelativePath(), pathRelativeToListingRoot(node),
                         node.isDirectory(), (node.isDirectory()) ? -1 : node.getFileLength());
         return fileInfo;
     }

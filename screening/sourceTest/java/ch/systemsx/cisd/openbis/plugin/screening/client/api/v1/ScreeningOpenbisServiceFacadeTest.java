@@ -612,7 +612,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             paths.add(fileInfo.getPathInDataSet());
         }
         Collections.sort(paths);
-        assertEquals("[/dir, /dir/hello.txt, /readme]", paths.toString());
+        assertEquals("[dir, dir/hello.txt, readme]", paths.toString());
         context.assertIsSatisfied();
     }
 
@@ -662,7 +662,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             paths.add(fileInfo.getPathInDataSet());
         }
         Collections.sort(paths);
-        assertEquals("[/dir, /dir/hello.txt, /readme]", paths.toString());
+        assertEquals("[dir, dir/hello.txt, readme]", paths.toString());
         context.assertIsSatisfied();
     }
 

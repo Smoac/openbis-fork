@@ -48,7 +48,7 @@ public class FileInfoDssDTO implements Serializable
     }
 
     /**
-     * The the path of this file in the data set (i.e., the root of the data set has a path of "/").
+     * The the path of this file in the data set (i.e., the root of the data set has a path of "").
      */
     public String getPathInDataSet()
     {
@@ -85,6 +85,7 @@ public class FileInfoDssDTO implements Serializable
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         sb.append(getPathInDataSet());
+        sb.append(getPathInListing());
         sb.append(getFileSize());
         return sb.toString();
     }

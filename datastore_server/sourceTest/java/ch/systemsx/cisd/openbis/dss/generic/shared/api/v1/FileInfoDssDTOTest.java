@@ -29,9 +29,9 @@ public class FileInfoDssDTOTest extends AssertJUnit
     public void testToString()
     {
         FileInfoDssDTO fi = new FileInfoDssDTO("path/in/data/set", "path/in/listing", false, 800);
-        assertEquals("FileInfoDssDTO[path/in/data/set,800]", fi.toString());
+        assertEquals("FileInfoDssDTO[path/in/data/set,path/in/listing,800]", fi.toString());
 
         fi = new FileInfoDssDTO("path/in/data/set", "path/in/listing", true, -1);
-        assertEquals("FileInfoDssDTO[path/in/data/set,-1]", fi.toString());
+        assertEquals("FileInfoDssDTO[path/in/data/set,path/in/listing,-1]", fi.toString());
     }
 }

@@ -86,7 +86,7 @@ public class CommandPutTest extends AbstractFileSystemTestCase
             {
                 {
                     DataSetOwner owner = new DataSetOwner(DataSetOwnerType.EXPERIMENT, "/s/p/e");
-                    FileInfoDssDTO info = new FileInfoDssDTO("/data.txt", "/data.txt", false, 5);
+                    FileInfoDssDTO info = new FileInfoDssDTO("data.txt", "data.txt", false, 5);
                     final NewDataSetDTO newDataSetDTO =
                             new NewDataSetDTO("MY_TYPE", owner, dataSetExample.getName(), Arrays
                                     .asList(info));

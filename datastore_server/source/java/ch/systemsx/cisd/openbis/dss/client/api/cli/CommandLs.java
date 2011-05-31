@@ -49,7 +49,7 @@ class CommandLs extends AbstractDssCommand<DataSetArguments>
                     sb.append(fileInfo.getFileSize());
                     sb.append("\t");
                 }
-                sb.append(fileInfo.getPathInDataSet());
+                sb.append(fileInfo.getPathInListing());
                 System.out.println(sb.toString());
             }
         }
