@@ -128,4 +128,12 @@ public class ImageReaderFactory
     {
         libraries = newLibraries;
     }
+    
+    /**
+     * used only for testing purposes.
+     */
+    static List<IImageReaderLibrary> getLibraries()
+    {
+        return libraries;
+    }
 }

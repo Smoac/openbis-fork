@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.imagereaders;
 
 import java.io.File;
+import java.util.List;
 
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * Common super class for unit test using example image files.
@@ -34,6 +37,19 @@ public abstract class ImageReaderTestCase extends AssertJUnit
 
     protected static final String INVALID_SUBDIR = "invalid";
 
+    private List<IImageReaderLibrary> libraries;
+    
+    @BeforeMethod
+    public void setUp()
+    {
+        libraries = ImageReaderFactory.getLibraries();
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        ImageReaderFactory.setLibraries(libraries);
+    }
 
     protected File getImageFileForLibrary(String libraryName, String fileName)
     {

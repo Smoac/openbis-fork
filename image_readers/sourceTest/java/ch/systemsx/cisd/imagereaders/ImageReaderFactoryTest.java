@@ -90,11 +90,12 @@ public class ImageReaderFactoryTest extends ImageReaderTestCase
     }
 
     @Test(expectedExceptions = IOExceptionUnchecked.class)
-    public void testReadNonExistingFile()
+    public void testReadNonExistingFile() throws Exception
     {
         final String invalidName = "invalid_file_path.jpg";
         final File invalidFile = new File(invalidName);
 
+        ImageReadersTestHelper.setUpLibraries(ImageReaderConstants.BIOFORMATS_LIBRARY);
         IImageReader reader =
                 ImageReaderFactory.tryGetReaderForFile(BIOFORMATS_LIBRARY, invalidName);
         reader.readImage(invalidFile, ImageID.NULL, null);
