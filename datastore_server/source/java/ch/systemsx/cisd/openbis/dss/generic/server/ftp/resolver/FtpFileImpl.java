@@ -68,17 +68,22 @@ public class FtpFileImpl extends AbstractFtpFile
     public InputStream createInputStream(long offset) throws IOException
     {
         IHierarchicalContent content = createHierarchicalContent();
-        IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
-
-        InputStream result =
-                HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
-
-        if (offset > 0)
+        try
         {
-            result.skip(offset);
+            IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
+            InputStream result =
+                    HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
+
+            if (offset > 0)
+            {
+                result.skip(offset);
+            }
+            return result;
+        } catch (IOException ioex)
+        {
+            content.close();
+            return null;
         }
-        return result;
-        // FIXME content is not closed if exception occurs
     }
 
     public long getLastModified()
