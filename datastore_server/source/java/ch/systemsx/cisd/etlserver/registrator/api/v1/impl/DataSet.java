@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -228,5 +229,11 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         registrationDetails.getDataSetInformation().setContainedDataSetCodes(
                 newContainedDataSetCodes);
 
+    }
+
+    public List<IDataSetImmutable> getChildrenDataSets()
+    {
+        throw new UnsupportedOperationException("The operation is not supported for data "
+                + "sets not existing prior the transaction start.");
     }
 }

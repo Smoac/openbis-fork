@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -118,5 +119,19 @@ public class DataSetImmutable implements IDataSetImmutable
         {
             return Collections.emptyList();
         }
+    }
+
+    public List<IDataSetImmutable> getChildrenDataSets()
+    {
+        List<IDataSetImmutable> result = new ArrayList<IDataSetImmutable>();
+        List<ExternalData> children = dataSet.getChildren();
+        if (children != null)
+        {
+            for (ExternalData child : children)
+            {
+                result.add(new DataSetImmutable(child));
+            }
+        }
+        return result;
     }
 }

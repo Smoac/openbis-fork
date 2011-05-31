@@ -87,6 +87,12 @@ public interface IDataSetImmutable
     /** Gets the parents of the dataset. */
     public List<String> getParentDatasets();
 
+    /**
+     * Gets the children data sets. Only available for data sets existing prior the transaction
+     * start.
+     */
+    public List<IDataSetImmutable> getChildrenDataSets();
+
     /** Return true if this data set contains other data sets. */
     public boolean isContainerDataSet();
 
