@@ -61,29 +61,22 @@ public class ImageUtil
 
     private static interface ImageLoader
     {
-        public BufferedImage load(IRandomAccessFile raf);
-
-        public BufferedImage load(IRandomAccessFile raf, int page);
+        public BufferedImage load(IRandomAccessFile raf, ImageID imageID);
     }
 
     private static final class TiffImageLoader implements ImageLoader
     {
-        public BufferedImage load(IRandomAccessFile handle)
-        {
-            return load(handle, 0);
-        }
-
         private final static int MAX_READ_AHEAD = 30000000;
 
-        public BufferedImage load(IRandomAccessFile handle, int page)
+        public BufferedImage load(IRandomAccessFile handle, ImageID imageID)
         {
             handle.mark(MAX_READ_AHEAD);
             try
             {
-                return loadJavaAdvancedImagingTiff(handle, page, false);
+                return loadJavaAdvancedImagingTiff(handle, imageID, false);
             } catch (RuntimeException ex)
             {
-                if (page == 0)
+                if (imageID.equals(ImageID.NULL))
                 {
                     handle.reset();
                     // There are some TIFF files which cannot be opened by JAI, try ImageJ
@@ -113,7 +106,7 @@ public class ImageUtil
      *            converted to 24 bits RGB. Useful if access to original pixel values is needed.
      */
     public static BufferedImage loadJavaAdvancedImagingTiff(IRandomAccessFile handle,
-            Integer pageOrNull, boolean allow16BitGrayscaleModel)
+            ImageID imageID, boolean allow16BitGrayscaleModel)
             throws EnvironmentFailureException
     {
         IImageReader imageReader =
@@ -124,12 +117,11 @@ public class ImageUtil
                     .fromTemplate("Cannot find JAI image decoder for TIFF files.");
         }
 
-        int page = getPageNumber(pageOrNull);
         ReadParams readParams = new ReadParams();
         readParams.setAllow16BitGrayscaleModel(allow16BitGrayscaleModel);
         try
         {
-            return imageReader.readImage(handle, new ImageID(0, page, 0, 0), readParams);
+            return imageReader.readImage(handle, imageID, readParams);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
@@ -145,14 +137,9 @@ public class ImageUtil
             this.fileType = fileType;
         }
 
-        public BufferedImage load(IRandomAccessFile handle)
+        public BufferedImage load(IRandomAccessFile handle, ImageID imageID)
         {
-            return load(handle, 0);
-        }
-
-        public BufferedImage load(IRandomAccessFile handle, int page)
-        {
-            if (page == 0)
+            if (imageID.equals(ImageID.NULL))
             {
                 IImageReader imageReader =
                         ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEIO_LIBRARY,
@@ -195,19 +182,19 @@ public class ImageUtil
     }
 
     /**
-     * Loads the specified <var>page</var> from the image from the tiven </var>inputStream</var>.
+     * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
-     * loading. Note that only for TIFF files a <var>page</var> other than 0 (or null which is
-     * equivalent) may be specified.
+     * loading. 
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(IContent content, Integer pageOrNull,
+    public static BufferedImage loadImage(IContent content, String imageIdOrNull,
             String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull, IReadParams params)
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
+        ImageID imageID = parseImageID(imageIdOrNull);
         if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
         {
             IImageReader reader =
@@ -215,36 +202,38 @@ public class ImageUtil
                             imageLibraryReaderNameOrNull);
             if (reader != null)
             {
-                ImageID imageID = pageOrNull == null ? ImageID.NULL : new ImageID(0, pageOrNull, 0, 0);
                 return reader.readImage(content.getReadOnlyRandomAccessFile(), imageID, params);
             }
         }
-        return loadImageGuessingLibrary(content, pageOrNull);
-    }
-
-    private static BufferedImage loadImageGuessingLibrary(IContent content, Integer pageOrNull)
-    {
-        int page = getPageNumber(pageOrNull);
-        IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
-        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
-        return loadImageGuessingLibrary(handle, fileType, page);
-    }
-
-    private static int getPageNumber(Integer pageOrNull)
-    {
-        return pageOrNull == null ? 0 : pageOrNull.intValue();
+        return loadImageGuessingLibrary(content, imageID);
     }
 
     /**
-     * Loads the specified <var>page</var> from the image from the given </var>handle</var>.
-     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
-     * loading. Note that only for TIFF files a <var>page</var> other than 0 may be specified.
+     * Parses specified string representation of an {@link ImageID}. If the argument is
+     * <code>null</code> {@link ImageID#NULL} will be returned.
+     */
+    public static ImageID parseImageID(String imageIdOrNull)
+    {
+        return imageIdOrNull == null ? ImageID.NULL : ImageID.parse(imageIdOrNull);
+    }
+
+    private static BufferedImage loadImageGuessingLibrary(IContent content, ImageID imageID)
+    {
+        IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
+        String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
+        return loadImageGuessingLibrary(handle, fileType, imageID);
+    }
+
+    /**
+     * Loads the image specified by <var>imageID</var> from the image from the given
+     * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
+     * will be closed after loading.
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
     private static BufferedImage loadImageGuessingLibrary(IRandomAccessFile handle,
-            String fileType, int page)
+            String fileType, ImageID imageID)
     {
         try
         {
@@ -252,9 +241,6 @@ public class ImageUtil
             {
                 throw new IllegalArgumentException(
                         "File type of an image input stream couldn't be determined.");
-            } else if (DataTypeUtil.isTiff(fileType) == false && page > 0)
-            {
-                throw new IllegalArgumentException("File type has to be 'tiff'.");
             }
             ImageLoader imageLoader = imageLoaders.get(fileType);
             if (imageLoader == null)
@@ -262,7 +248,7 @@ public class ImageUtil
                 throw new IllegalArgumentException("Unable to load image of file type '" + fileType
                         + "'.");
             }
-            return imageLoader.load(handle, page);
+            return imageLoader.load(handle, imageID);
         } finally
         {
             closeQuietly(handle);
@@ -288,7 +274,7 @@ public class ImageUtil
     @Private
     static BufferedImage loadImage(IContent content)
     {
-        return loadImage(content, 0, null, null, null);
+        return loadImage(content, null, null, null, null);
     }
 
     /**

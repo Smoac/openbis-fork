@@ -38,10 +38,10 @@ public class ImgImageEnrichedDTO extends ImgImageDTO
         super();
     }
 
-    public ImgImageEnrichedDTO(long id, String filePath, Integer pageOrNull,
+    public ImgImageEnrichedDTO(long id, String filePath, String imageIdOrNull,
             ColorComponent colorComponentOrNull)
     {
-        super(id, filePath, pageOrNull, colorComponentOrNull);
+        super(id, filePath, imageIdOrNull, colorComponentOrNull);
     }
 
     public long getSpotId()

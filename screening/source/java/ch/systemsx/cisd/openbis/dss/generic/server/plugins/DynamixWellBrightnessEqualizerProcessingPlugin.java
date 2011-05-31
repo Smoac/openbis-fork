@@ -91,7 +91,7 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
     {
         IContent content = contentRepository.getContent(image.getFilePath());
         return ImageUtil.loadJavaAdvancedImagingTiff(content.getReadOnlyRandomAccessFile(),
-                image.getPage(), true);
+                ImageUtil.parseImageID(image.getImageID()), true);
     }
 
     private static IImageTransformerFactoryProvider createImageTransformerFactoryProvider(

@@ -102,7 +102,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             String path =
                     relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
             plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, imageReference
-                    .tryGetPage(), imageReference.tryGetColorComponent()));
+                    .tryGetImageID(), imageReference.tryGetColorComponent()));
 
             if (operationLog.isDebugEnabled())
             {
@@ -173,8 +173,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     private BufferedImage loadImage(File imageFile)
     {
         // NOTE 2011-04-20, Tomasz Pylak: support paged tiffs when generating thumbnails
-        Integer page = null;
-        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), page,
+        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), null,
                 imageLibraryOrNull);
     }
 

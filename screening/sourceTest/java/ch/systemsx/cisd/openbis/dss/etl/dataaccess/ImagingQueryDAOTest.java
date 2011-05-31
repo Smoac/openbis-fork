@@ -57,7 +57,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
     private static final ImageChannelColor CHANNEL_COLOR = ImageChannelColor.RED;
 
-    private static final int PAGE = 1;
+    private static final String PAGE = "1-2-3-4";
 
     private static final int Y_TILE_ROW = 2;
 

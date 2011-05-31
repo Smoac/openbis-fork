@@ -26,8 +26,8 @@ public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
     @ResultColumn("PATH")
     private String filePath;
 
-    @ResultColumn("PAGE")
-    private Integer pageOrNull;
+    @ResultColumn("IMAGE_ID")
+    private String imageIdOrNull;
 
     @ResultColumn("COLOR")
     private String colorComponentOrNull;
@@ -37,12 +37,12 @@ public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgImageDTO(long id, String filePath, Integer pageOrNull,
+    public ImgImageDTO(long id, String filePath, String imageIdOrNull,
             ColorComponent colorComponentOrNull)
     {
         super.setId(id);
         this.filePath = filePath;
-        this.pageOrNull = pageOrNull;
+        this.imageIdOrNull = imageIdOrNull;
         this.colorComponentOrNull =
                 colorComponentOrNull == null ? null : colorComponentOrNull.name();
     }
@@ -57,14 +57,14 @@ public class ImgImageDTO extends AbstractImageTransformerFactoryHolder
         this.filePath = filePath;
     }
 
-    public Integer getPage()
+    public String getImageID()
     {
-        return pageOrNull;
+        return imageIdOrNull;
     }
 
-    public void setPage(Integer page)
+    public void setImageID(String imageIdOrNull)
     {
-        this.pageOrNull = page;
+        this.imageIdOrNull = imageIdOrNull;
     }
 
     public ColorComponent getColorComponent()

@@ -261,7 +261,7 @@ abstract class AbstractImageDatasetUploader
 
         ImgImageDTO dto =
                 new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getRelativeImagePath(),
-                        imageReferenceOrNull.tryGetPage(),
+                        imageReferenceOrNull.tryGetImageID(),
                         imageReferenceOrNull.tryGetColorComponent());
         return dto;
     }

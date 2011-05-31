@@ -133,7 +133,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                 createImageTransfomationFactories(imageDTO, channel);
         ImageChannelColor channelColor = ImageChannelColor.valueOf(channel.getDbChannelColor());
         ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
-        return new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
+        return new AbsoluteImageReference(content, path, imageDTO.getImageID(), colorComponent,
                 imageSize, channelColor, imageTransfomationFactories, imageLibrary);
     }
 

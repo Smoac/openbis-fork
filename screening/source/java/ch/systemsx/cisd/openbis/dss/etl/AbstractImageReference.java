@@ -26,19 +26,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class AbstractImageReference extends AbstractHashable
 {
-    private final Integer pageOrNull;
+    private final String imageIdOrNull;
 
     private final ColorComponent colorComponentOrNull;
 
-    public AbstractImageReference(Integer pageOrNull, ColorComponent colorComponentOrNull)
+    public AbstractImageReference(String imageIdOrNull, ColorComponent colorComponentOrNull)
     {
-        this.pageOrNull = pageOrNull;
+        this.imageIdOrNull = imageIdOrNull;
         this.colorComponentOrNull = colorComponentOrNull;
     }
 
-    public Integer tryGetPage()
+    public String tryGetImageID()
     {
-        return pageOrNull;
+        return imageIdOrNull;
     }
 
     public ColorComponent tryGetColorComponent()

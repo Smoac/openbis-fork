@@ -580,7 +580,7 @@ public class ImageChannelsUtils
                 lastFound = image;
             } else
             {
-                if (equals(image.tryGetPage(), lastFound.tryGetPage()) == false
+                if (equals(image.tryGetImageID(), lastFound.tryGetImageID()) == false
                         || image.getUniqueId().equals(lastFound.getUniqueId()) == false)
                 {
                     return null;
@@ -596,7 +596,7 @@ public class ImageChannelsUtils
         }
     }
 
-    private static boolean equals(Integer i1OrNull, Integer i2OrNull)
+    private static boolean equals(String i1OrNull, String i2OrNull)
     {
         return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
     }

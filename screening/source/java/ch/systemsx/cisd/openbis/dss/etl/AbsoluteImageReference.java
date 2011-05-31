@@ -49,15 +49,15 @@ public class AbsoluteImageReference extends AbstractImageReference
     private ImageChannelColor channelColor;
 
     /**
-     * @param content is the original content before choosing the color component and the page
+     * @param content is the original content before choosing the color component and the image ID
      */
-    public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
+    public AbsoluteImageReference(IContent content, String uniqueId, String imageIdOrNull,
             ColorComponent colorComponentOrNull, RequestedImageSize imageSize,
             ImageChannelColor channelColor,
             ImageTransfomationFactories imageTransfomationFactories,
             ImageLibraryInfo imageLibraryOrNull)
     {
-        super(pageOrNull, colorComponentOrNull);
+        super(imageIdOrNull, colorComponentOrNull);
         assert imageSize != null : "image size is null";
         assert imageTransfomationFactories != null : "imageTransfomationFactories is null";
 
@@ -85,7 +85,7 @@ public class AbsoluteImageReference extends AbstractImageReference
      */
     public IContent tryGetRawContent()
     {
-        if (tryGetColorComponent() == null && tryGetPage() == null
+        if (tryGetColorComponent() == null && tryGetImageID() == null
                 && getRequestedSize().isThumbnailRequired() == false)
         {
             return content;
@@ -99,12 +99,12 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         if (image == null)
         {
-            image = loadImage(content, tryGetPage(), imageLibraryOrNull);
+            image = loadImage(content, tryGetImageID(), imageLibraryOrNull);
         }
         return image;
     }
 
-    static BufferedImage loadImage(IContent content, Integer pageOrNull,
+    static BufferedImage loadImage(IContent content, String imageIdOrNull,
             ImageLibraryInfo imageLibraryOrNull)
     {
         String imageLibraryNameOrNull = null;
@@ -114,7 +114,7 @@ public class AbsoluteImageReference extends AbstractImageReference
             imageLibraryNameOrNull = imageLibraryOrNull.getName();
             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
         }
-        return ImageUtil.loadImage(content, pageOrNull, imageLibraryNameOrNull,
+        return ImageUtil.loadImage(content, imageIdOrNull, imageLibraryNameOrNull,
                 imageLibraryReaderNameOrNull, null);
     }
 
@@ -136,7 +136,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
-        return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
+        return new AbsoluteImageReference(content, uniqueId, tryGetImageID(), colorComponent,
                 imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull);
 
     }

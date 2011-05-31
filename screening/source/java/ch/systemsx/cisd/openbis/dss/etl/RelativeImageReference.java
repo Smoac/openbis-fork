@@ -27,10 +27,10 @@ public class RelativeImageReference extends AbstractImageReference
 {
     private String imageRelativePath;
 
-    public RelativeImageReference(String relativePath, Integer pageOrNull,
+    public RelativeImageReference(String relativePath, String imageIdOrNull,
             ColorComponent colorComponentOrNull)
     {
-        super(pageOrNull, colorComponentOrNull);
+        super(imageIdOrNull, colorComponentOrNull);
         this.imageRelativePath = relativePath;
     }
 

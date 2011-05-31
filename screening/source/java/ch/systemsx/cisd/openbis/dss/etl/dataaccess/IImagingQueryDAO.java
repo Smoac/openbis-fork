@@ -56,8 +56,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.seriesNumber}, ?{1.isRepresentative}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
     public void addChannelStacks(List<ImgChannelStackDTO> channelStacks);
 
-    @Update(sql = "insert into IMAGES (ID, PATH, PAGE, COLOR) values "
-            + "(?{1.id}, ?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString})", batchUpdate = true)
+    @Update(sql = "insert into IMAGES (ID, PATH, IMAGE_ID, COLOR) values "
+            + "(?{1.id}, ?{1.filePath}, ?{1.imageID}, ?{1.colorComponentAsString})", batchUpdate = true)
     public void addImages(List<ImgImageDTO> images);
 
     @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID, IMAGE_TRANSFORMER_FACTORY) values "
