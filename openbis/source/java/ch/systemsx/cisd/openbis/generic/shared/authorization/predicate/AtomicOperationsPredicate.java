@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -134,7 +135,11 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             }
             if (result.equals(Status.OK))
             {
-                result = evaluateDataSetsPredicate();
+                result = evaluateDataSetRegistrationsPredicate();
+            }
+            if (result.equals(Status.OK))
+            {
+                result = evaluateDataSetUpdatesPredicate();
             }
 
             return result;
@@ -203,31 +208,52 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             return Status.OK;
         }
 
-        private Status evaluateDataSetsPredicate()
+        private Status evaluateDataSetRegistrationsPredicate()
         {
             for (NewExternalData newExternalData : value.getDataSetRegistrations())
             {
-                Status status;
-                SampleIdentifier sampleIdentifier = newExternalData.getSampleIdentifierOrNull();
-                if (null != sampleIdentifier)
-                {
-                    status =
-                            predicate.sampleOwnerIdentifierPredicate.doEvaluation(person,
-                                    allowedRoles, sampleIdentifier);
-                } else
-                {
-                    ExperimentIdentifier experimentIdentifier =
-                            newExternalData.getExperimentIdentifierOrNull();
-                    status =
-                            predicate.experimentOwnerIdentifierPredicate.doEvaluation(person,
-                                    allowedRoles, experimentIdentifier);
-                }
+                Status status =
+                        evaluateDataSetPredicate(newExternalData.getSampleIdentifierOrNull(),
+                                newExternalData.getExperimentIdentifierOrNull());
                 if (status.equals(Status.OK) == false)
                 {
                     return status;
                 }
             }
             return Status.OK;
+        }
+
+        private Status evaluateDataSetUpdatesPredicate()
+        {
+            for (DataSetUpdatesDTO dataSetUpdate : value.getDataSetUpdates())
+            {
+                Status status =
+                        evaluateDataSetPredicate(dataSetUpdate.getSampleIdentifierOrNull(),
+                                dataSetUpdate.getExperimentIdentifierOrNull());
+                if (status.equals(Status.OK) == false)
+                {
+                    return status;
+                }
+            }
+            return Status.OK;
+        }
+
+        private Status evaluateDataSetPredicate(SampleIdentifier sampleIdentifier,
+                ExperimentIdentifier experimentIdentifier)
+        {
+            Status status;
+            if (null != sampleIdentifier)
+            {
+                status =
+                        predicate.sampleOwnerIdentifierPredicate.doEvaluation(person,
+                                allowedRoles, sampleIdentifier);
+            } else
+            {
+                status =
+                        predicate.experimentOwnerIdentifierPredicate.doEvaluation(person,
+                                allowedRoles, experimentIdentifier);
+            }
+            return status;
         }
     }
 }
