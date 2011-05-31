@@ -20,9 +20,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
+import com.sun.media.jai.codecimpl.GIFImageDecoder;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.imagereaders.AbstractImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IReadParams;
 import ch.systemsx.cisd.imagereaders.ImageConvertionUtils;
+import ch.systemsx.cisd.imagereaders.ImageID;
 
 /**
  * Default implementation of JAI {@link IImageReader}.
@@ -46,19 +50,46 @@ class DefaultImageReader extends AbstractImageReader
         super(libraryName, readerName);
     }
 
-    public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
+    @Override
+    public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked
+    {
+        try
+        {
+            InputStream input = new AdapterIInputStreamToInputStream(handle);
+            List<ImageID> ids = new ArrayList<ImageID>();
+            ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
+            int numPages;
+            if (decoder instanceof GIFImageDecoder)
+            {
+                numPages = 1;
+            } else
+            {
+                numPages = decoder.getNumPages();
+            }
+            for (int i = 0; i < numPages; i++)
+            {
+                ids.add(new ImageID(0, i, 0, 0));
+            }
+            return ids;
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
         try
         {
             InputStream input = new AdapterIInputStreamToInputStream(handle);
             ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
-            RenderedImage renderedImage = decoder.decodeAsRenderedImage(0);
+            RenderedImage renderedImage =
+                    decoder.decodeAsRenderedImage(imageID.getTimeSeriesIndex());
             return ImageConvertionUtils.convertToBufferedImage(renderedImage);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
 }

@@ -17,14 +17,13 @@
 package ch.systemsx.cisd.imagereaders.bioformats;
 
 
-import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.IFormatReader;
 
-import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 
 /**
  * {@link IImageReaderLibrary} implementation for BioFormats.
@@ -33,9 +32,6 @@ import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
  */
 public class BioFormatsReaderLibrary implements IImageReaderLibrary
 {
-
-    private static final List<String> TIFF_FORMAT_SUBSTRINGS = Arrays.asList("tiff",
-            "metamorph stk", "tagged image file format", "deltavision", "leica", "nikon", "zeiss");
 
     public String getName()
     {
@@ -72,26 +68,7 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
     {
         final String libraryName = getName();
         final String readerName = BioFormatsImageUtils.getReaderName(formatReader);
-
-        if (isTiffReader(formatReader))
-        {
-            return new TiffBioformatsImageReader(libraryName, readerName, formatReader);
-        } else
-        {
-            return new DefaultBioformatsImageReader(libraryName, readerName, formatReader);
-        }
+        return new DefaultBioformatsImageReader(libraryName, readerName, formatReader);
     }
 
-    private boolean isTiffReader(IFormatReader reader)
-    {
-        String readerFormat = reader.getFormat().toLowerCase();
-        for (String tiffSubstring : TIFF_FORMAT_SUBSTRINGS)
-        {
-            if (readerFormat.contains(tiffSubstring))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }

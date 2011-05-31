@@ -28,17 +28,17 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.imagereaders.AbstractImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IReadParams;
-import ch.systemsx.cisd.imagereaders.TiffReadParams;
+import ch.systemsx.cisd.imagereaders.ImageID;
+import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * JAI {@link IImageReader} for TIFF files.
  * 
  * @author Kaloyan Enimanev
  */
-class TiffImageReader extends AbstractImageReader
+class TiffImageReader extends DefaultImageReader
 {
 
     public TiffImageReader(String libraryName, String readerName)
@@ -47,15 +47,14 @@ class TiffImageReader extends AbstractImageReader
     }
 
 
-    public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
+    @Override
+    public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
-        int page = 0;
         boolean allow16BitGrayscaleModel = false;
-        TiffReadParams readParams = (TiffReadParams) params;
+        ReadParams readParams = (ReadParams) params;
         if (readParams != null)
         {
-            page = readParams.getPage();
             allow16BitGrayscaleModel = readParams.isAllow16BitGrayscaleModel();
         }
 
@@ -63,7 +62,7 @@ class TiffImageReader extends AbstractImageReader
         {
             InputStream input = new AdapterIInputStreamToInputStream(handle);
             ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
-            Raster raster = decoder.decodeAsRaster(page);
+            Raster raster = decoder.decodeAsRaster(imageID.getTimeSeriesIndex());
             int bufferType = findBestImageBufferType(raster, allow16BitGrayscaleModel);
             BufferedImage image =
                     new BufferedImage(raster.getWidth(), raster.getHeight(), bufferType);

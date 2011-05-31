@@ -32,12 +32,13 @@ import ch.systemsx.cisd.imagereaders.AbstractImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
 import ch.systemsx.cisd.imagereaders.IReadParams;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 
 /**
  * Implementation of {@link IImageReader} using ImageJ under the hood.
  * <p>
- * Currently, only the only supported image format for this library is TIFF. In the future we can
+ * Currently, only the only supported image format for this library is single-page TIFF. In the future we can
  * add support for other image types.
  * 
  * @author Kaloyan Enimanev
@@ -51,7 +52,7 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
 
     private final IImageReader TIFF_IMAGE_READER = new AbstractImageReader(getName(), TIFF_READER)
         {
-            public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
+            public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
                     throws IOExceptionUnchecked
             {
                 AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);

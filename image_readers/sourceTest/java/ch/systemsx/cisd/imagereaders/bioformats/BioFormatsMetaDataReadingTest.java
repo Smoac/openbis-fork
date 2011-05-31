@@ -24,8 +24,9 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.imagereaders.AbstractImageReaderFactoryTest;
+import ch.systemsx.cisd.imagereaders.ImageReaderTestCase;
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
  * 
  * @author Kaloyan Enimanev
  */
-public class BioFormatsMetaDataReadingTest extends AbstractImageReaderFactoryTest
+public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
 {
 
     @Test
@@ -46,7 +47,7 @@ public class BioFormatsMetaDataReadingTest extends AbstractImageReaderFactoryTes
 
         assertTrue("BioFormat readers shoud be meta-data aware", reader.isMetaDataAware());
 
-        Map<String, Object> metaData = reader.readMetaData(imageFile, null);
+        Map<String, Object> metaData = reader.readMetaData(imageFile, ImageID.NULL, null);
         String metaDataAsString = getMetaDataAsString(metaData);
 
         assertEquals(getExpectedMetaData(), metaDataAsString);

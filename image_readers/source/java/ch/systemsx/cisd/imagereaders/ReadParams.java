@@ -17,22 +17,15 @@
 package ch.systemsx.cisd.imagereaders;
 
 /**
- * Encapsulates various parameters for reading of TIFF images.
+ * Encapsulates various parameters for reading.
  * <p>
  * NOTE : Readers are not obliged to support all enumerated parameter fields. Consult the javadoc of
  * the field of interest to find out if your reader supports it.
  * 
  * @author Kaloyan Enimanev
  */
-public class TiffReadParams implements IReadParams
+public class ReadParams implements IReadParams
 {
-
-    /**
-     * specifies which page from the TIFF file should be read.
-     * <p>
-     * Supported by all known image libraries.
-     */
-    private final int page;
 
     /**
      * When non-null value specified, the image reader will try to perform intensity rescaling for
@@ -48,16 +41,6 @@ public class TiffReadParams implements IReadParams
     private boolean allow16BitGrayscaleModel;
 
 
-    public TiffReadParams()
-    {
-        this(0);
-    }
-
-    public TiffReadParams(int page)
-    {
-        this.page = page;
-    }
-
     public boolean isAllow16BitGrayscaleModel()
     {
         return allow16BitGrayscaleModel;
@@ -66,11 +49,6 @@ public class TiffReadParams implements IReadParams
     public void setAllow16BitGrayscaleModel(boolean allow16BitGrayscaleModel)
     {
         this.allow16BitGrayscaleModel = allow16BitGrayscaleModel;
-    }
-
-    public int getPage()
-    {
-        return page;
     }
 
     public Integer getIntensityRescalingChannel()

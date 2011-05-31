@@ -18,6 +18,7 @@ package ch.systemsx.cisd.imagereaders;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -40,30 +41,48 @@ public interface IImageReader
      * Return the name of the reader.
      */
     public String getName();
+    
+    /**
+     * Returns a list of IDs uniquely identifying all images in the specified file.
+     */
+    public List<ImageID> getImageIDs(File file) throws IOExceptionUnchecked;
+    
+    /**
+     * Returns a list of IDs uniquely identifying all images in the specified byte array.
+     */
+    public List<ImageID> getImageIDs(byte[] bytes);
 
+    /**
+     * Returns a list of IDs uniquely identifying all images in the specified handle.
+     */
+    public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked;
+    
     /**
      * Reads a {@link BufferedImage} from a {@link File}.
      * 
      * @param file the image file
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public BufferedImage readImage(File file, IReadParams params) throws IOExceptionUnchecked;
+    public BufferedImage readImage(File file, ImageID imageID, IReadParams params) throws IOExceptionUnchecked;
 
     /**
      * Reads a {@link BufferedImage} from a byte array.
      * 
      * @param bytes the image file as a byte array
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public BufferedImage readImage(byte[] bytes, IReadParams params);
+    public BufferedImage readImage(byte[] bytes, ImageID imageID, IReadParams params);
 
     /**
      * Reads a {@link BufferedImage} from a handle.
      * 
      * @param handle the image file as {@link IRandomAccessFile}
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public BufferedImage readImage(IRandomAccessFile handle, IReadParams params)
+    public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked;
 
     /**
@@ -76,9 +95,10 @@ public interface IImageReader
      * reading metadata.
      * 
      * @param file the image file
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public Map<String, Object> readMetaData(File file, IReadParams params)
+    public Map<String, Object> readMetaData(File file, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked;
 
     /**
@@ -86,18 +106,20 @@ public interface IImageReader
      * reading metadata.
      * 
      * @param bytes the image file as a byte array
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params);
+    public Map<String, Object> readMetaData(byte[] bytes, ImageID imageID, IReadParams params);
 
     /**
      * Reads image metadata from handle. Returns an empty map if the reader is not capable of
      * reading metadata.
      * 
      * @param handle the image file as {@link IRandomAccessFile}
+     * @param imageID the ID of the image to be read
      * @param params read parameters
      */
-    public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked;
 
 }

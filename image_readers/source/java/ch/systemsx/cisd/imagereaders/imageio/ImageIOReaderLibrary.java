@@ -39,10 +39,11 @@ import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.imagereaders.AbstractImageReader;
-import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IImageReaderLibrary;
 import ch.systemsx.cisd.imagereaders.IReadParams;
+import ch.systemsx.cisd.imagereaders.ImageID;
+import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 
 /**
  * @author Kaloyan Enimanev
@@ -98,8 +99,8 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
         final String readerName = getReaderName(ioReader);
         return new AbstractImageReader(libraryName, readerName)
             {
-                public BufferedImage readImage(IRandomAccessFile handle, IReadParams ignored)
-                        throws IOExceptionUnchecked
+                public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID,
+                        IReadParams ignored) throws IOExceptionUnchecked
                 {
                     try
                     {

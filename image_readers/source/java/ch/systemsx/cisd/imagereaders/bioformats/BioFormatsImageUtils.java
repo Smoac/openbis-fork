@@ -43,6 +43,7 @@ import loci.formats.in.MetadataOptions;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.imagereaders.ImageID;
 
 /**
  * A utility class to use bio-formats to read images.
@@ -117,15 +118,8 @@ final class BioFormatsImageUtils
     {
         return reader.getClass().getSimpleName();
     }
-
-    /**
-     * Returns the image <var>page</var> of the image file represented by <var>handle</var> as
-     * {@link BufferedImage}.
-     * 
-     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
-     */
-    static BufferedImage readImage(IFormatReader reader,
-            IRandomAccess handle, int page) throws IOExceptionUnchecked, IllegalArgumentException
+    
+    static List<ImageID> listImageIDs(IFormatReader reader, IRandomAccess handle)
     {
         String handleId = generateHandleId(reader);
         // Add to static map.
@@ -134,9 +128,58 @@ final class BioFormatsImageUtils
         {
             // This does the actual parsing.
             reader.setId(handleId);
+            List<ImageID> ids = new ArrayList<ImageID>();
+            int seriesCount = reader.getSeriesCount();
+            for (int s = 0; s < seriesCount; s++)
+            {
+                reader.setSeries(s);
+                int effectiveSizeC = reader.getEffectiveSizeC();
+                int sizeT = reader.getSizeT();
+                int sizeZ = reader.getSizeZ();
+                for (int t = 0; t < sizeT; t++)
+                {
+                    for (int z = 0; z < sizeZ; z++)
+                    {
+                        for (int c = 0; c < effectiveSizeC; c++)
+                        {
+                            ids.add(new ImageID(s, t, z, c));
+                        }
+                    }
+                }
+            }
+            reader.close();
+            return ids;
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            // Remove from static map.
+            Location.mapFile(handleId, null);
+        }
+    }
+
+    /**
+     * Returns the image <var>page</var> of the image file represented by <var>handle</var> as
+     * {@link BufferedImage}.
+     * 
+     * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
+     */
+    static BufferedImage readImage(IFormatReader reader,
+            IRandomAccess handle, ImageID imageID) throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        String handleId = generateHandleId(reader);
+        // Add to static map.
+        Location.mapFile(handleId, handle);
+        try
+        {
+            // This does the actual parsing.
+            reader.setId(handleId);
+            reader.setSeries(imageID.getSeriesIndex());
             final BufferedImageReader biReader =
                     BufferedImageReader.makeBufferedImageReader(reader);
-            final BufferedImage image = biReader.openImage(page);
+            int index = calculateImageIndex(reader, imageID);
+            final BufferedImage image = biReader.openImage(index);
             reader.close();
             return image;
         } catch (FormatException ex)
@@ -152,12 +195,20 @@ final class BioFormatsImageUtils
         }
     }
 
+    private static int calculateImageIndex(IFormatReader reader, ImageID imageID)
+    {
+        return reader.getIndex(imageID.getFocalPlaneIndex(), imageID.getColorChannelIndex(),
+                imageID.getTimeSeriesIndex());
+    }
+
     /**
      * Returns the metadata of the image file represented by <var>handle</var>.
      * 
+     * @param imageID 
      * @throws IOExceptionUnchecked If access to <var>handle</var> fails.
      */
-    public static Map<String, Object> readMetadata(IFormatReader reader, IRandomAccess handle)
+    public static Map<String, Object> readMetadata(IFormatReader reader, IRandomAccess handle,
+            ImageID imageID)
     {
         // Add to static map.
         String handleId = generateHandleId(reader);
@@ -170,6 +221,7 @@ final class BioFormatsImageUtils
             reader.setMetadataOptions(metaOptions);
 
             reader.setId(handleId);
+            reader.setSeries(imageID.getSeriesIndex());
             nullSafeAddAll(result, reader.getGlobalMetadata());
             nullSafeAddAll(result, reader.getSeriesMetadata());
             reader.close();
@@ -197,7 +249,7 @@ final class BioFormatsImageUtils
      * @throws IllegalArgumentException If no suitable reader can be found.
      */
     static BufferedImage readImageWithIntensityRescaling(IFormatReader reader,
-            IRandomAccess handle, int page, int channel) throws IOExceptionUnchecked,
+            IRandomAccess handle, ImageID imageID, int channel) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
         // Add to static map.
@@ -207,10 +259,12 @@ final class BioFormatsImageUtils
         {
             // This does the actual parsing.
             reader.setId(handleId);
+            reader.setSeries(imageID.getSeriesIndex());
             int width = reader.getSizeX();
             int height = reader.getSizeY();
             final ImageStack stack = new ImageStack(width, height);
-            final ImageProcessor ip = BioFormatsImageProcessor.openProcessor(reader, page, channel);
+            int imageIndex = calculateImageIndex(reader, imageID);
+            final ImageProcessor ip = BioFormatsImageProcessor.openProcessor(reader, imageIndex, channel);
             stack.addSlice("", ip);
             final ImagePlus imp = new ImagePlus(handleId, stack);
 

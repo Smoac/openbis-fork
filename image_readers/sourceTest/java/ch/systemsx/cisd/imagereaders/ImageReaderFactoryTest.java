@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
  * 
  * @author Kaloyan Enimanev
  */
-public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
+public class ImageReaderFactoryTest extends ImageReaderTestCase
 {
     private static final FileFilter IGNORE_SVN = new FileFilter()
         {
@@ -97,7 +97,7 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
 
         IImageReader reader =
                 ImageReaderFactory.tryGetReaderForFile(BIOFORMATS_LIBRARY, invalidName);
-        reader.readImage(invalidFile, null);
+        reader.readImage(invalidFile, ImageID.NULL, null);
     }
 
     private File[] listValidImages(String library)
@@ -121,7 +121,7 @@ public class ImageReaderFactoryTest extends AbstractImageReaderFactoryTest
         assertNotNull("Reader should not have NULL name", reader.getName());
         assertEquals(libraryName.toLowerCase(), reader.getLibraryName().toLowerCase());
 
-        BufferedImage image = reader.readImage(file, null);
+        BufferedImage image = reader.readImage(file, ImageID.NULL, null);
         assertNotNull("Read image should not be null", image);
         assertTrue("Image should have non-negative height", image.getHeight() > 0);
         assertTrue("Image should have non-negative width", image.getWidth() > 0);

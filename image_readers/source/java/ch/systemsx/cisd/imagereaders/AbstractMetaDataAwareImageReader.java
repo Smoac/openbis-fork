@@ -37,18 +37,18 @@ public abstract class AbstractMetaDataAwareImageReader extends AbstractImageRead
     }
 
     @Override
-    public Map<String, Object> readMetaData(File file, IReadParams params)
+    public Map<String, Object> readMetaData(File file, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
         IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
-        return readMetaData(raf, params);
+        return readMetaData(raf, imageID, params);
     }
 
     @Override
-    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params)
+    public Map<String, Object> readMetaData(byte[] bytes, ImageID imageID, IReadParams params)
     {
         IRandomAccessFile raf = new ByteBufferRandomAccessFile(bytes);
-        return readMetaData(raf, params);
+        return readMetaData(raf, imageID, params);
     }
 
     @Override

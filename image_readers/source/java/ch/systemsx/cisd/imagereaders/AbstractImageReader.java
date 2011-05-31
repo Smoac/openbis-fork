@@ -18,7 +18,9 @@ package ch.systemsx.cisd.imagereaders;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -53,16 +55,31 @@ public abstract class AbstractImageReader implements IImageReader
         return readerName;
     }
 
-    public BufferedImage readImage(File file, IReadParams params) throws IOExceptionUnchecked
+    public final List<ImageID> getImageIDs(File file) throws IOExceptionUnchecked
     {
-        IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
-        return readImage(raf, params);
+        return getImageIDs(new RandomAccessFileImpl(file, "r"));
     }
 
-    public BufferedImage readImage(byte[] bytes, IReadParams params)
+    public final List<ImageID> getImageIDs(byte[] bytes)
+    {
+        return getImageIDs(new ByteBufferRandomAccessFile(bytes));
+    }
+
+    public List<ImageID> getImageIDs(IRandomAccessFile handle) throws IOExceptionUnchecked
+    {
+        return Arrays.asList(ImageID.NULL);
+    }
+
+    public BufferedImage readImage(File file, ImageID imageID, IReadParams params) throws IOExceptionUnchecked
+    {
+        IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
+        return readImage(raf, imageID, params);
+    }
+
+    public BufferedImage readImage(byte[] bytes, ImageID imageID, IReadParams params)
     {
         IRandomAccessFile raf = new ByteBufferRandomAccessFile(bytes);
-        return readImage(raf, params);
+        return readImage(raf, imageID, params);
     }
 
     public boolean isMetaDataAware()
@@ -70,18 +87,18 @@ public abstract class AbstractImageReader implements IImageReader
         return false;
     }
 
-    public Map<String, Object> readMetaData(File file, IReadParams params)
+    public Map<String, Object> readMetaData(File file, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
         return Collections.emptyMap();
     }
 
-    public Map<String, Object> readMetaData(byte[] bytes, IReadParams params)
+    public Map<String, Object> readMetaData(byte[] bytes, ImageID imageID, IReadParams params)
     {
         return Collections.emptyMap();
     }
 
-    public Map<String, Object> readMetaData(IRandomAccessFile handle, IReadParams params)
+    public Map<String, Object> readMetaData(IRandomAccessFile handle, ImageID imageID, IReadParams params)
     {
         return Collections.emptyMap();
     }

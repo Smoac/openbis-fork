@@ -25,10 +25,11 @@ import javax.media.jai.widget.ScrollingImagePanel;
 
 import org.apache.log4j.BasicConfigurator;
 
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
-import ch.systemsx.cisd.imagereaders.TiffReadParams;
+import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * An image viewer that uses BioFormats for reading and ImageJ for intensity rescaling.
@@ -66,9 +67,9 @@ public class BioFormatsImageJImageViewer
                         fileName);
 
         File file = new File(fileName);
-        TiffReadParams readParams = new TiffReadParams();
+        ReadParams readParams = new ReadParams();
         readParams.setIntensityRescalingChannel(0);
-        final BufferedImage image = imageReader.readImage(file, readParams);
+        final BufferedImage image = imageReader.readImage(file, ImageID.NULL, readParams);
         showImage(image);
     }
 }

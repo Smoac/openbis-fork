@@ -21,11 +21,11 @@ import java.io.File;
 import org.testng.AssertJUnit;
 
 /**
- * Unit test for {@link ImageReaderFactory}.
+ * Common super class for unit test using example image files.
  * 
  * @author Kaloyan Enimanev
  */
-public abstract class AbstractImageReaderFactoryTest extends AssertJUnit
+public abstract class ImageReaderTestCase extends AssertJUnit
 {
 
     protected static final String IMAGES_DIR = "./sourceTest/resources/images/";

@@ -25,7 +25,8 @@ import java.io.File;
 import javax.media.jai.widget.ScrollingImagePanel;
 
 import ch.systemsx.cisd.imagereaders.IImageReader;
-import ch.systemsx.cisd.imagereaders.TiffReadParams;
+import ch.systemsx.cisd.imagereaders.ImageID;
+import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * @author Franz-Josef Elmer
@@ -52,9 +53,9 @@ public class BioFormatsImageViewer
             System.out.println("=========== File: " + fileName);
             System.out.println("Reader: " + reader);
             File file = new File(fileName);
-            TiffReadParams readParams = new TiffReadParams(0);
+            ReadParams readParams = new ReadParams();
             readParams.setIntensityRescalingChannel(0);
-            final BufferedImage image = reader.readImage(file, readParams);
+            final BufferedImage image = reader.readImage(file, ImageID.NULL, readParams);
             showImage(image, fileName);
 
         }
