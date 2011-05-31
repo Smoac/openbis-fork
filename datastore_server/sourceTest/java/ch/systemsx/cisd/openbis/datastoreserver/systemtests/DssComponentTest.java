@@ -102,20 +102,35 @@ public class DssComponentTest extends SystemTestCase
 
         assertEquals(code, ds.getCode());
         checkDataSet(ds);
-        FileInfoDssDTO[] files = ds.listFiles("/original/my-data/data", false);
+        String path = "original/my-data/data";
+        FileInfoDssDTO[] files = ds.listFiles(path, false);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
-        assertEquals("[FileInfoDssDTO[/original/my-data/data/1.data,5], "
-                + "FileInfoDssDTO[/original/my-data/data/2.data,7]]", Arrays.asList(files)
-                .toString());
+        assertEquals(2, files.length);
+        assertEquals(fileInfoString(path, "1.data", 5), files[0].toString());
+        assertEquals(fileInfoString(path, "2.data", 7), files[1].toString());
+
         files = ds.listFiles("/", true);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
-        assertEquals("[FileInfoDssDTO[/original,-1], FileInfoDssDTO[/original/my-data,-1], "
-                + "FileInfoDssDTO[/original/my-data/data,-1], "
-                + "FileInfoDssDTO[/original/my-data/data-set.properties,28], "
-                + "FileInfoDssDTO[/original/my-data/data.log,11], "
-                + "FileInfoDssDTO[/original/my-data/data/1.data,5], "
-                + "FileInfoDssDTO[/original/my-data/data/2.data,7]]", Arrays.asList(files)
-                .toString());
+        assertEquals(7, files.length);
+        assertEquals(fileInfoString("original", -1), files[0].toString());
+        assertEquals(fileInfoString("original/my-data", -1), files[1].toString());
+        assertEquals(fileInfoString("original/my-data/data", -1), files[2].toString());
+        assertEquals(fileInfoString("original/my-data/data-set.properties", 28),
+                files[3].toString());
+        assertEquals(fileInfoString("original/my-data/data.log", 11), files[4].toString());
+        assertEquals(fileInfoString("original/my-data/data/1.data", 5), files[5].toString());
+        assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
+    }
+
+    private static String fileInfoString(String startPath, String pathInListing, long length)
+    {
+        return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
+                pathInListing, length);
+    }
+
+    private static String fileInfoString(String pathInListing, long length)
+    {
+        return String.format("FileInfoDssDTO[%s,%s,%d]", pathInListing, pathInListing, length);
     }
 
     @Test(dependsOnMethods = "testPutDataSet")

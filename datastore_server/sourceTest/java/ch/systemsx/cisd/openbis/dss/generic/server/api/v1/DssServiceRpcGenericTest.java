@@ -165,7 +165,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private String fileInfoString(String startPath, String pathInListing, long length)
+    private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
                 pathInListing, length);
