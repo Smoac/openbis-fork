@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -84,6 +85,11 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 }
 
                 public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+                {
+                    return null;
+                }
+
+                public IHierarchicalContent asContent(ExternalData dataSet)
                 {
                     return null;
                 }

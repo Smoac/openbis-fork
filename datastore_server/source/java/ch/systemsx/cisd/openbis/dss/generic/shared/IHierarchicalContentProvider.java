@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.io.File;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -35,13 +36,23 @@ public interface IHierarchicalContentProvider
 {
 
     /**
-     * This is the only method that supports abstraction for virtual data sets. It needs to access
-     * openBIS DB to retrieve information first.
+     * This is method needs to access openBIS DB to retrieve information first.
      * 
      * @return {@link IHierarchicalContent} for the specified data set
      * @throws IllegalArgumentException if data set doesn't exist in openBIS DB
      */
     IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException;
+
+    /**
+     * A faster alternative of {@link #asContent(String)} for the case when an {@link ExternalData}
+     * object has already been fetched from the openBIS AS.
+     * <p>
+     * 
+     * @param dataSet a fully populated {@link ExternalData} instance. For container data sets all
+     *            physical (contained) data sets must be present.
+     * @return {@link IHierarchicalContent} for the specified data set
+     */
+    IHierarchicalContent asContent(ExternalData dataSet);
 
     /**
      * @return {@link IHierarchicalContent} for the specified data set

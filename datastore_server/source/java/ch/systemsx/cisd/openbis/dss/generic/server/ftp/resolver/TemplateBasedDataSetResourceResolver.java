@@ -153,7 +153,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
         ExternalData dataSet = matchingElement.dataSet;
         IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
-        IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet.getCode());
+        IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet);
         IHierarchicalContentNode contentNode = content.getNode(hierarchicalNodePath);
         if (fileFilter.accept(contentNode))
         {
@@ -311,7 +311,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             try
             {
                 IHierarchicalContent hierarchicalContent =
-                        evalContext.getHierarchicalContent(dataSet.getCode());
+                        evalContext.getHierarchicalContent(dataSet);
                 IHierarchicalContentNode rootNode =
                         getDataSetFileListRoot(dataSet, hierarchicalContent);
                 List<EvaluatedElement> paths =

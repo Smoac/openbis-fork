@@ -92,24 +92,21 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
 
         context = new TrackingMockery();
         service = context.mock(IETLLIMSService.class);
-        hierarchicalContentProvider = context.mock(IHierarchicalContentProvider.class);
-
-        resolverContext = new FtpPathResolverContext(SESSION_TOKEN, service, null);
 
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
+        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
+        hierarchicalContentProvider = ServiceProviderTestWrapper.mock(context, IHierarchicalContentProvider.class);
+
+        resolverContext = new FtpPathResolverContext(SESSION_TOKEN, service, null);
         context.checking(new Expectations()
             {
                 {
-                    allowing(beanFactory).getBean("hierarchical-content-provider");
-                    will(returnValue(hierarchicalContentProvider));
-
                     ExperimentIdentifier experimentIdentifier =
                             new ExperimentIdentifierFactory(EXP_ID).createIdentifier();
                     allowing(service).tryToGetExperiment(SESSION_TOKEN, experimentIdentifier);
                     will(returnValue(experiment));
                 }
             });
-        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -351,7 +348,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AssertJUnit
                         String mockName = getHierarchicalContentMockName(dataSet.getCode());
                         IHierarchicalContent content =
                                 context.mock(IHierarchicalContent.class, mockName);
-                        one(hierarchicalContentProvider).asContent(dataSet.getCode());
+                        one(hierarchicalContentProvider).asContent(dataSet);
                         will(returnValue(content));
                         one(content).close();
 

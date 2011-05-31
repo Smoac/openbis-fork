@@ -36,13 +36,15 @@ public class ServiceProviderTestWrapper
     private static BeanFactory mockApplicationContext;
     private static BeanFactory cachedApplicationContext;
 
-    private final static Map<String /* classname */, String /* bean name */> classNameToBeanName;
+    private final static Map<Class<?>, String /* bean name */> classNameToBeanName;
     static
     {
-        classNameToBeanName = new HashMap<String, String>();
-        classNameToBeanName.put(IEncapsulatedOpenBISService.class.getName(), "openBIS-service");
-        classNameToBeanName.put(IShareIdManager.class.getName(), "share-id-manager");
-        classNameToBeanName.put(IConfigProvider.class.getName(), "config-provider");
+        classNameToBeanName = new HashMap<Class<?>, String>();
+        classNameToBeanName.put(IEncapsulatedOpenBISService.class, "openBIS-service");
+        classNameToBeanName.put(IShareIdManager.class, "share-id-manager");
+        classNameToBeanName.put(IConfigProvider.class, "config-provider");
+        classNameToBeanName
+                .put(IHierarchicalContentProvider.class, "hierarchical-content-provider");
     }
 
     /**
@@ -82,7 +84,7 @@ public class ServiceProviderTestWrapper
         mockery.checking(new Expectations()
             {
                 {
-                    String beanName = classNameToBeanName.get(clazz.getName());
+                    String beanName = classNameToBeanName.get(clazz);
                     allowing(mockApplicationContext).getBean(beanName);
                     will(returnValue(mock));
                 }

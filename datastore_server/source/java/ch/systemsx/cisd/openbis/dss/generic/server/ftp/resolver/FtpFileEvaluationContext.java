@@ -74,12 +74,13 @@ public class FtpFileEvaluationContext
         evaluatedPaths.addAll(evaluatedPath);
     }
 
-    public IHierarchicalContent getHierarchicalContent(String dataSetCode)
+    public IHierarchicalContent getHierarchicalContent(ExternalData dataSet)
     {
+        String dataSetCode = dataSet.getCode();
         IHierarchicalContent result = contents.get(dataSetCode);
         if (result == null)
         {
-            result = createHierarchicalContent(dataSetCode);
+            result = createHierarchicalContent(dataSet);
             contents.put(dataSetCode, result);
         }
         return result;
@@ -97,10 +98,10 @@ public class FtpFileEvaluationContext
         contents.clear();
     }
 
-    private IHierarchicalContent createHierarchicalContent(String code)
+    private IHierarchicalContent createHierarchicalContent(ExternalData dataSet)
     {
         IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
-        return provider.asContent(code);
+        return provider.asContent(dataSet);
     }
 
 }

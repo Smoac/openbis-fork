@@ -83,6 +83,11 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     dataSetCode));
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
+        return asContent(externalData);
+    }
+
+    public IHierarchicalContent asContent(ExternalData externalData)
+    {
         if (externalData.isContainer())
         {
             ContainerDataSet container = externalData.tryGetAsContainerDataSet();
@@ -98,9 +103,10 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
         } else
         {
-            return asContent(asDataSet(externalData));
+            return asContent(asDataSetLocation(externalData));
         }
     }
+
 
     private IHierarchicalContent tryCreateComponentContent(ExternalData component)
     {
@@ -111,7 +117,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 return asContent(component.getCode());
             } else
             {
-                return asContent(asDataSet(component));
+                return asContent(asDataSetLocation(component));
             }
         } catch (IllegalArgumentException ex)
         {
@@ -166,7 +172,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return hierarchicalContentFactory;
     }
 
-    private static DataSet asDataSet(ExternalData externalData)
+    private static IDatasetLocation asDataSetLocation(ExternalData externalData)
     {
         DataSet dataSet = externalData.tryGetAsDataSet();
         if (dataSet == null)
