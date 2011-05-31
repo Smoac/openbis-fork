@@ -433,7 +433,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testDataSetListingWithSneakyPath()
     {
         prepareGetAndLockDataSet();
@@ -449,7 +449,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         prepareGetAndLockDataSet();
         try
         {
-            rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/../../", true);
+            rpcService.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "stuff/../../", true);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e)
         {

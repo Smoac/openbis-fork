@@ -34,6 +34,7 @@ public interface IHierarchicalContent
      * <code>null<code> or an empty string then the root node is returned.
      * 
      * @throws IllegalArgumentException if resource with given <var>relativePath</var> doesn't exist
+     *             under the root of this content.
      */
     IHierarchicalContentNode getNode(String relativePath) throws IllegalArgumentException;
 

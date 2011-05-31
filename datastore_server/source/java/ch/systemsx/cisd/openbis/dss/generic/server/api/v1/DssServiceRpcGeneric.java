@@ -121,12 +121,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         IHierarchicalContent content = null;
         try
         {
-            // TODO 2011-31-05, Piotr Buczek: add this kind of check to file system abstraction
-            // // Make sure the requested file is under the root of the data set
-            // if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
-            // {
-            // throw new IllegalArgumentException("Path does not exist.");
-            // }
             content = getHierarchicalContent(dataSetCode);
             IHierarchicalContentNode contentNode = content.getNode(path);
             return HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);

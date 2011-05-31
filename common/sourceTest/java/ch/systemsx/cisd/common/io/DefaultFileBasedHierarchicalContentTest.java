@@ -304,6 +304,32 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     @Test
+    public void testGetNodeAboveRootNodeFails()
+    {
+        final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+
+        File otherDir = new File(workingDirectory, "otherDir");
+        otherDir.mkdir();
+        String[] incorrectPaths =
+            { "../", "../../", "../fakeDir", "../otherDir", "subDir/../../otherDir" };
+        for (String incorrectPath : incorrectPaths)
+        {
+            try
+            {
+                rootContent.getNode(incorrectPath);
+                fail("expected IllegalArgumentException for resource above the root directory: "
+                        + incorrectPath);
+            } catch (IllegalArgumentException ex)
+            {
+                assertEquals("Can't access resource '" + incorrectPath
+                        + "' which is above the root directory.", ex.getMessage());
+            }
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testListMatchingNodesWithRelativePathPattern()
     {
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);

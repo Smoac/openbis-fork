@@ -73,6 +73,10 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
         if (StringUtils.isBlank(relativePath))
         {
             return getRootNode();
+        } else if (relativePath.startsWith("../") || relativePath.contains("/../"))
+        {
+            throw new IllegalArgumentException("Can't access resource '" + relativePath
+                    + "' which is above the root directory.");
         } else
         {
             return asNode(new File(root, relativePath));
@@ -99,8 +103,8 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
             return containerNode.getChildNode(relativePath);
         }
-        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFilePath(root, file)
-                + "' does not exist.");
+        throw new IllegalArgumentException("Resource '"
+                + FileUtilities.getRelativeFilePath(root, file) + "' does not exist.");
     }
 
     private IHierarchicalContentNode createFileNode(File file)

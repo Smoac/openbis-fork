@@ -46,7 +46,6 @@ public interface IHierarchicalContentProvider
     /**
      * A faster alternative of {@link #asContent(String)} for the case when an {@link ExternalData}
      * object has already been fetched from the openBIS AS.
-     * <p>
      * 
      * @param dataSet a fully populated {@link ExternalData} instance. For container data sets all
      *            physical (contained) data sets must be present.
