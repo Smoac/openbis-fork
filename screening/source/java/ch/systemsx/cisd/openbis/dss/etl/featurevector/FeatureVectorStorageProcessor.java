@@ -103,23 +103,15 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
                     incomingDataSetDirectory, rootDirectory);
 
+            dataAccessObject = createDAO();
+            File parent = new File(nestedTransaction.getStoredDataDirectory(), ORIGINAL_DIR);
+            File dataSet = new File(parent, incomingDataSetDirectory.getName());
             try
             {
-                dataAccessObject = createDAO();
-                File parent = new File(nestedTransaction.getStoredDataDirectory(), ORIGINAL_DIR);
-                File dataSet = new File(parent, incomingDataSetDirectory.getName());
-                try
-                {
-                    loadDataSetIntoDatabase(dataAccessObject, dataSet, dataSetInformation);
-                } catch (IOException ex)
-                {
-                    throw new IOExceptionUnchecked(ex);
-                }
-            } catch (RuntimeException ex)
+                loadDataSetIntoDatabase(dataAccessObject, dataSet, dataSetInformation);
+            } catch (IOException ex)
             {
-                // NOTE: the framework will not call the rollback by itself
-                executeRollback(ex);
-                throw ex;
+                throw new IOExceptionUnchecked(ex);
             }
             return nestedTransaction.getStoredDataDirectory();
         }
