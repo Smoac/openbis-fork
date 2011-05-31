@@ -82,7 +82,11 @@ public class FtpFileImpl extends AbstractFtpFile
         } catch (IOException ioex)
         {
             content.close();
-            return null;
+            throw ioex;
+        } catch (RuntimeException re)
+        {
+            content.close();
+            throw re;
         }
     }
 
