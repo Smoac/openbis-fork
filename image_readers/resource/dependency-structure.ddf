@@ -1,0 +1,16 @@
+#show allResults
+
+{root} = ch.systemsx.cisd.imagereaders
+
+[bioformats] = ${root}.bioformats.*
+[ij] = ${root}.ij.*
+[imageio] = ${root}.imageio.*
+[jai] = ${root}.jai.*
+[generic] = ${root}.* excluding *TestHelper *TestCase *Test [bioformats] [ij] [imageio] [jai]
+
+check sets [generic] [bioformats] [ij] [imageio] [jai] 
+
+layer generic = [generic]
+layer libs = [bioformats] [ij] [imageio] [jai] 
+check layeringOf generic libs
+

@@ -22,10 +22,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
  * A factory for image readers.
@@ -52,8 +53,16 @@ public class ImageReaderFactory
         {
             operationLog.warn("Image reader plugins not available (JRE < 1.6), "
                     + "fallback to built-in readers.", ex);
-            librariesIterator =
-                    Arrays.asList((IImageReaderLibrary) new ImageIOReaderLibrary()).iterator();
+            Class<?> clazz;
+            try
+            {
+                clazz = Class.forName("ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
+                librariesIterator =
+                    Arrays.asList(ClassUtils.create(IImageReaderLibrary.class, clazz)).iterator();
+            } catch (ClassNotFoundException ex1)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex1);
+            }
         }
         libraries = CollectionUtils.asList(librariesIterator);
     }
