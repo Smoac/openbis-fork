@@ -72,6 +72,10 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
                 throw new EnvironmentFailureException(String.format(NO_RENAME,
                         incomingDataSetDirectory, targetFile));
             }
+
+            // Set the stored data directory in case unzip throws an exception.
+            this.storedDataDirectory = rootDirectory;
+
             unzipIfMatching(targetFile, originalDir);
 
             throw new RuntimeException("Here is your exception");

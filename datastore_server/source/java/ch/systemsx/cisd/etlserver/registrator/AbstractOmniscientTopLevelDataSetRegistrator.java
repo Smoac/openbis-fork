@@ -340,6 +340,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         } catch (Throwable ex)
         {
             operationLog.error("Could not process file " + incomingDataSetFile, ex);
+            rollback(service, ex);
 
             // If we are here, it is because there was an error thrown in Java before trying to
             // register the data set. This is considered a script error
@@ -352,7 +353,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
 
-            rollback(service, ex);
         }
 
         return service;
