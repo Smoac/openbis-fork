@@ -590,19 +590,7 @@ public class OpenBISScreeningML
         {
             return new Object[0][];
         }
-        final List<ImageDatasetMetadata> meta =
-                openbis.listImageMetadata(Arrays.asList(imageDatasets.get(0)));
-        if (meta.isEmpty())
-        {
-            return new Object[0][];
-        }
-        final List<String> channels = getChannelCodes(meta);
-        Object[][] result = new Object[channels.size()][1];
-        for (int i = 0; i < result.length; ++i)
-        {
-            result[i][0] = channels.get(i);
-        }
-        return result;
+        return extractChannels(imageDatasets.get(0));
     }
 
     private static List<String> getChannelCodes(final List<ImageDatasetMetadata> meta)
@@ -890,7 +878,22 @@ public class OpenBISScreeningML
      */
     public static Object[][][] loadImages(String plate, int row, int col, String[] channels)
     {
-        return loadImages(plate, row, col, channels, new ITileNumberIterable()
+        return loadRawImages(plate, row, col, channels, createAllTilesIterator());
+    }
+
+    /**
+     * Has the same effect as {@link #loadImages(String, int, int, String[])}, but instead of
+     * loading raw images loads their segmentation results if available.
+     */
+    public static Object[][][] loadSegmentationImages(String plate, int row, int col,
+            String[] objectNames)
+    {
+        return loadSegmentationImages(plate, row, col, objectNames, createAllTilesIterator());
+    }
+
+    private static ITileNumberIterable createAllTilesIterator()
+    {
+        return new ITileNumberIterable()
             {
                 private int maximumNumberOfTiles;
 
@@ -926,7 +929,7 @@ public class OpenBISScreeningML
                             }
                         };
                 }
-            });
+            };
     }
 
     /**
@@ -964,7 +967,22 @@ public class OpenBISScreeningML
     public static Object[][][] loadImages(String plate, int row, int col, final int tile,
             String[] channels)
     {
-        return loadImages(plate, row, col, channels, new ITileNumberIterable()
+        return loadRawImages(plate, row, col, channels, createSingleTileIterator(tile));
+    }
+
+    /**
+     * Has the same effect as {@link #loadImages(String, int, int, int, String[])}, but instead of
+     * loading raw images loads their segmentation results if available.
+     */
+    public static Object[][][] loadSegmentationImages(String plate, int row, int col,
+            final int tile, String[] objectNames)
+    {
+        return loadSegmentationImages(plate, row, col, objectNames, createSingleTileIterator(tile));
+    }
+
+    private static ITileNumberIterable createSingleTileIterator(final int tile)
+    {
+        return new ITileNumberIterable()
             {
                 public void setMaximumNumberOfTiles(int numberOfTiles)
                 {
@@ -1003,15 +1021,77 @@ public class OpenBISScreeningML
                             }
                         };
                 }
-            });
+            };
     }
 
-    private static Object[][][] loadImages(String plate, int row, int col, String[] channels,
+    /**
+     * Lists all segmentation objects for the <var>plate</var>.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get the segmentation objects of plate P005 in space SPACE.
+     * segmentationObjects = OpenBISScreeningML.listSegmentationObjects('/SPACE/P005');
+     * % How many segmentation objects do we have?
+     * length(segmentationObjects)
+     * % What is the name of segmentation objects 1?
+     * segmentationObjects(1)
+     * </pre>
+     * 
+     * @param plate augmented code of the plate
+     * @return Each row contains information about one segmentation object. Currently the only
+     *         information available is the segmentation object name.
+     */
+    public static Object[][] listSegmentationObjects(String plate)
+    {
+        checkLoggedIn();
+        Plate plateId = getPlate(plate);
+        final List<ImageDatasetReference> imageDatasets = listSegmentationImageDatasets(plateId);
+        if (imageDatasets.isEmpty())
+        {
+            return new Object[0][];
+        }
+        return extractChannels(imageDatasets.get(0));
+    }
+
+    private static Object[][] extractChannels(ImageDatasetReference imageDatasetReference)
+    {
+        final List<ImageDatasetMetadata> meta =
+                openbis.listImageMetadata(Arrays.asList(imageDatasetReference));
+        if (meta.isEmpty())
+        {
+            return new Object[0][];
+        }
+        final List<String> channels = getChannelCodes(meta);
+        Object[][] result = new Object[channels.size()][1];
+        for (int i = 0; i < result.length; ++i)
+        {
+            result[i][0] = channels.get(i);
+        }
+        return result;
+    }
+
+    private static Object[][][] loadRawImages(String plate, int row, int col, String[] channels,
             ITileNumberIterable tileNumberIterable)
     {
         checkLoggedIn();
         final Plate plateId = getPlate(plate);
         final List<ImageDatasetReference> imageDatasets = listRawImageDatasets(plateId);
+        return loadImages(plateId, imageDatasets, row, col, channels, tileNumberIterable);
+    }
+
+    private static Object[][][] loadSegmentationImages(String plate, int row, int col,
+            String[] channels, ITileNumberIterable tileNumberIterable)
+    {
+        checkLoggedIn();
+        final Plate plateId = getPlate(plate);
+        final List<ImageDatasetReference> imageDatasets = listSegmentationImageDatasets(plateId);
+        return loadImages(plateId, imageDatasets, row, col, channels, tileNumberIterable);
+    }
+
+    private static Object[][][] loadImages(Plate plate, List<ImageDatasetReference> imageDatasets,
+            int row, int col, String[] channels, ITileNumberIterable tileNumberIterable)
+    {
         final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
         if (meta.isEmpty())
         {
@@ -1043,7 +1123,7 @@ public class OpenBISScreeningML
                 {
                     final PlateImageReference ref =
                             new PlateImageReference(row, col, tile, channel, ds);
-                    final File imageFile = createImageFileName(plateId, ref);
+                    final File imageFile = createImageFileName(plate, ref);
                     imageReferencesAndFiles.add(new ImageReferenceAndFile(ref, imageFile));
                     result[0][resultIdx][0] = imageFile.getPath();
                     PlateIdentifier plateIdentifier = ds.getPlate();
@@ -1079,6 +1159,11 @@ public class OpenBISScreeningML
     private static List<ImageDatasetReference> listRawImageDatasets(final Plate plateId)
     {
         return openbis.listRawImageDatasets(Arrays.asList(plateId));
+    }
+
+    private static List<ImageDatasetReference> listSegmentationImageDatasets(final Plate plateId)
+    {
+        return openbis.listSegmentationImageDatasets(Arrays.asList(plateId));
     }
 
     /**
@@ -1167,7 +1252,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param experiment The augmented experiment code
-     * @param gene The gene name as stored as material code in openBIS
+     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
      *         <p>
@@ -1206,7 +1291,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param experiment The augmented experiment code
-     * @param gene The gene name as stored as material code
+     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @param features The names of the features to contain the feature matrix
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
@@ -1300,7 +1385,7 @@ public class OpenBISScreeningML
      * locationDescriptions = fmatrix(2,:,1)
      * </pre>
      * 
-     * @param gene The gene name as stored as material code in openBIS
+     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
      *         <p>
@@ -1337,7 +1422,7 @@ public class OpenBISScreeningML
      * locationDescriptions = fmatrix(2,:,1)
      * </pre>
      * 
-     * @param gene The gene name as stored as material code
+     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @param features The names of the features to contain the feature matrix
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
@@ -1421,7 +1506,7 @@ public class OpenBISScreeningML
      * locationDescriptions = fmatrix(2,:,1)
      * </pre>
      * 
-     * @param plate The gene name as stored as material code
+     * @param plate augmented code of the plate for which features should be loaded
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
      *         <p>
@@ -1458,7 +1543,7 @@ public class OpenBISScreeningML
      * locationDescriptions = fmatrix(2,:,1)
      * </pre>
      * 
-     * @param plate The gene name as stored as material code
+     * @param plate augmented code of the plate for which features should be loaded
      * @param features The names of the features to contain the feature matrix
      * @return <code>{ feature matrix, annotations per location, feature names }</code> where
      *         <code>annotations per location</code> contain:
