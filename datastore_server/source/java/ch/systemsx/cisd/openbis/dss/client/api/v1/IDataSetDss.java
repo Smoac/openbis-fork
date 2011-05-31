@@ -62,8 +62,8 @@ public interface IDataSetDss
      * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
      *            the DSS' store root. If null, paths are returned in the context of the DSS' file
      *            system mounts.
-     * @return Returns null if the operation is not possible, a File that references the contents of
-     *         the data set otherwise.
+     * @return Returns null if the operation is not possible (e.g. when the data set is a
+     *         container), a File that references the contents of the data set otherwise.
      * @since 1.1
      */
     public File tryLinkToContents(String overrideStoreRootPathOrNull)

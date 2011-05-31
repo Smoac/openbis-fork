@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -138,6 +137,10 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return getHierarchicalContentProvider().asContent(dataSetCode);
     }
 
+    /**
+     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
+     *             container traversal)
+     */
     @Deprecated
     protected File getRootDirectory(String datasetCode)
     {
@@ -146,6 +149,9 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     /**
      * Get the top level of the folder for the data set.
+     * 
+     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
+     *             container traversal)
      */
     @Deprecated
     private File getRootDirectoryForDataSet(String code, String shareId)
@@ -158,7 +164,11 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     /**
      * Return a map keyed by data set code with value root directory for that data set.
+     * 
+     * @deprecated doesn't use file system abstraction (no support for container data sets or HDF5
+     *             container traversal)
      */
+    @Deprecated
     protected Map<String, File> getRootDirectories(String sessionToken, Set<String> dataSetCodes)
             throws IllegalArgumentException
     {
@@ -175,19 +185,6 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
             rootDirectories.put(datasetCode, rootDirectory);
         }
         return rootDirectories;
-    }
-
-    protected File getDatasetFile(String dataSetCode, String path) throws IOException
-    {
-        File dataSetRootDirectory = getRootDirectory(dataSetCode);
-        String dataSetRootPath = dataSetRootDirectory.getCanonicalPath();
-        File requestedFile = new File(dataSetRootDirectory, path);
-        // Make sure the requested file is under the root of the data set
-        if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
-        {
-            throw new IllegalArgumentException("Path does not exist.");
-        }
-        return requestedFile;
     }
 
     protected ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

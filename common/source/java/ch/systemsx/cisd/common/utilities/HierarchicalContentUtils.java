@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 
@@ -94,7 +95,7 @@ public class HierarchicalContentUtils
      * {@link IHierarchicalContent} together when closing the {@link InputStream} itself.
      */
     public static InputStream getInputStreamAutoClosingContent(IHierarchicalContentNode node,
-            IHierarchicalContent content) throws IOException
+            IHierarchicalContent content) throws IOExceptionUnchecked
     {
         return new HierarchicalContentClosingInputStream(node.getInputStream(), content);
     }

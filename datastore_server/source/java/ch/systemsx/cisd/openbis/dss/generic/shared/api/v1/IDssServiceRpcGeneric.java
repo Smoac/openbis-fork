@@ -110,6 +110,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Get a path to the data set. This can be used by clients that run on the same machine as the
      * DSS for more efficient access to a data set.
+     * <p>
+     * NOTE: This method shouldn't be called for a container data set. No file would exist with the
+     * returned path.
      * 
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
@@ -118,14 +121,12 @@ public interface IDssServiceRpcGeneric extends IRpcService
      *         replaces the DSS's notion of the store path. Otherwise the return value will begin
      *         with the DSS's storeRootPath.
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
-     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      * @since 1.1
      */
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
-            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
-            IllegalArgumentException;
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked;
 
     /**
      * Get the validation script for the specified data set type.

@@ -635,17 +635,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         return fileInfos;
     }
 
-    private void prepareGetShareId()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(shareIdManager).getShareId(DATA_SET_CODE);
-                    will(returnValue(SHARE_ID));
-                }
-            });
-    }
-
     private void prepareGetAndLockDataSet()
     {
         prepareGetDataSet();

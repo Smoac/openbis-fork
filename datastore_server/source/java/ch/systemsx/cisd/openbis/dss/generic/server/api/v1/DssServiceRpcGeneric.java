@@ -49,11 +49,10 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     /**
      * The designated constructor.
-     * 
-     * @param openBISService
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
+        // NOTE: IShareIdManager and IHierarchicalContentProvider will be lazily created by spring
         this(openBISService, null, null);
     }
 
@@ -66,9 +65,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     /**
      * A constructor for testing.
-     * 
-     * @param openBISService
-     * @param service
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
@@ -91,7 +87,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         try
         {
             content = getHierarchicalContent(dataSetCode);
-            // TODO exception logging?
             IHierarchicalContentNode startPathNode =
                     content.getNode("/".equals(startPath) ? "" : startPath);
 
@@ -107,6 +102,10 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         {
             operationLog.info("listFiles: " + startPath + " caused an exception", ex);
             throw new IOExceptionUnchecked(ex);
+        } catch (RuntimeException ex)
+        {
+            operationLog.info("listFiles: " + startPath + " caused an exception", ex);
+            throw ex;
         } finally
         {
             if (content != null)
@@ -122,17 +121,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         IHierarchicalContent content = null;
         try
         {
+            // TODO 2011-31-05, Piotr Buczek: add this kind of check to file system abstraction
+            // // Make sure the requested file is under the root of the data set
+            // if (requestedFile.getCanonicalPath().startsWith(dataSetRootPath) == false)
+            // {
+            // throw new IllegalArgumentException("Path does not exist.");
+            // }
             content = getHierarchicalContent(dataSetCode);
             IHierarchicalContentNode contentNode = content.getNode(path);
             return HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
-        } catch (IOException ex)
-        {
-            operationLog.info("getFile: " + path + " caused an exception", ex);
-            if (content != null)
-            {
-                content.close();
-            }
-            throw new IOExceptionUnchecked(ex);
         } catch (RuntimeException ex)
         {
             operationLog.info("getFile: " + path + " caused an exception", ex);
@@ -195,11 +192,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                 fileOrFolder.getPath(), fileOrFolder.isRecursive());
     }
 
-    public void setDirectories(File store, File incoming)
-    {
-        // TODO Auto-generated method stub
-    }
-
     @Override
     public void setStoreDirectory(File aFile)
     {
@@ -217,6 +209,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
+        // see NOTE in interface documentation
+        @SuppressWarnings("deprecation")
         File rootDir = getRootDirectory(dataSetCode);
         return convertPath(getStoreDirectory(), rootDir, overrideStoreRootPathOrNull);
     }

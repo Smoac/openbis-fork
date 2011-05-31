@@ -539,7 +539,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
                 FileInputStream fileInputStream)
         {
-            super(openBISService, shareIdManager, null); // FIXME
+            super(openBISService, shareIdManager, null);
             this.fileInfos = fileInfos;
             this.fileInputStream = fileInputStream;
         }

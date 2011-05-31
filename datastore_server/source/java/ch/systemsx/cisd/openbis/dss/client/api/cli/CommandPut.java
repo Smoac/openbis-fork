@@ -180,6 +180,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             return ResultCode.OK;
         }
 
+        // TODO 2011-31-05, Piotr Buczek: support for creating new data set attached to a container
         private NewDataSetDTO getNewDataSet() throws IOException
         {
             // Get the owner
@@ -191,14 +192,14 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             File file = arguments.getFile();
             ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(file);
 
-            // Get the parent
-            String parentNameOrNull = null;
+            // Get the folder
+            String folderNameOrNull = null;
             if (file.isDirectory())
             {
-                parentNameOrNull = file.getName();
+                folderNameOrNull = file.getName();
             }
 
-            NewDataSetDTO dataSet = new NewDataSetDTO(owner, parentNameOrNull, fileInfos);
+            NewDataSetDTO dataSet = new NewDataSetDTO(owner, folderNameOrNull, fileInfos);
             // Set the data set type (may be null)
             dataSet.setDataSetTypeOrNull(arguments.getDataSetType());
 

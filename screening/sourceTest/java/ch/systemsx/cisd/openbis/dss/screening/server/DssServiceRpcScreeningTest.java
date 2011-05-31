@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
@@ -149,6 +150,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IShareIdManager shareIdManager;
 
+    private IHierarchicalContentProvider contentProvider;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -162,6 +165,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         transformerDAO = context.mock(IImagingTransformerDAO.class);
         imageLoader = context.mock(IImagingDatasetLoader.class);
         shareIdManager = context.mock(IShareIdManager.class);
+        contentProvider = context.mock(IHierarchicalContentProvider.class);
         transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create(DATASET_CODE);
         featureVectorDatasetIdentifier2 = create("ds2");
@@ -183,7 +187,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
         DssServiceRpcScreening rawScreeningService =
                 new DssServiceRpcScreening("targets", dao, transformerDAO, service, shareIdManager,
-                        false)
+                        contentProvider, false)
                     {
                         @Override
                         IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)

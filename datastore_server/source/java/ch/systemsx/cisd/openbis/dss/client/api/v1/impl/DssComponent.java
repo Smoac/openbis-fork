@@ -139,8 +139,7 @@ public class DssComponent implements IDssComponent
     private DssComponent(String openBISURL, String sessionTokenOrNull, long timeoutInMillis)
     {
         this(createGeneralInformationService(openBISURL, timeoutInMillis),
-                new DssServiceRpcFactory(timeoutInMillis),
-                sessionTokenOrNull);
+                new DssServiceRpcFactory(timeoutInMillis), sessionTokenOrNull);
     }
 
     /**
@@ -365,15 +364,13 @@ class AuthenticatedState extends AbstractDssComponentState
             EnvironmentFailureException, RemoteAccessException
     {
         // Contact openBIS to find out which DSS server manages the data set
-        String dataStoreBaseURL = service.tryGetDataStoreBaseURL(getSessionToken(),
-                dataSetCode);
+        String dataStoreBaseURL = service.tryGetDataStoreBaseURL(getSessionToken(), dataSetCode);
         if (null == dataStoreBaseURL)
         {
             throw new IllegalArgumentException("Could not retrieve data set with code "
                     + dataSetCode);
         }
-        String url =
-            getDataStoreUrlFromDataStore(dataStoreBaseURL);
+        String url = getDataStoreUrlFromDataStore(dataStoreBaseURL);
 
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
@@ -448,6 +445,8 @@ class AuthenticatedState extends AbstractDssComponentState
 
     /**
      * Package visible method to communicate with the server and get a link to the file in the DSS.
+     * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
+     * container).
      */
     File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
@@ -463,7 +462,8 @@ class AuthenticatedState extends AbstractDssComponentState
                 dataSetDss.getService().getPathToDataSet(getSessionToken(), dataSetDss.getCode(),
                         overrideStoreRootPathOrNull);
 
-        // Check if the file referenced by the path exists, if so return it
+        // Check if the file referenced by the path exists, if so return it.
+        // NOTE: the path will never exist if the data set is a container.
         File contents = new File(path);
         if (contents.exists())
         {
@@ -629,9 +629,10 @@ class AuthenticatedState extends AbstractDssComponentState
             return createValidationError("Script execution error", ex);
         }
     }
-    
+
     private List<ValidationError> createValidationError(String messagePrefix, Throwable throwable)
     {
-        return Arrays.asList(ValidationError.createFileValidationError(messagePrefix + ": " + throwable));
+        return Arrays.asList(ValidationError.createFileValidationError(messagePrefix + ": "
+                + throwable));
     }
 }
