@@ -24,9 +24,10 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
-import ch.systemsx.cisd.imagereaders.TiffReadParams;
+import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * Helper methods and standalone program to calculate the range of brightness of a collection of
@@ -151,9 +152,9 @@ public class ColorRangeCalculator
             throw new IOException("File does not exist: " + file.getPath());
         }
 
-        TiffReadParams params = new TiffReadParams();
+        ReadParams params = new ReadParams();
         params.setAllow16BitGrayscaleModel(true);
-        return reader.readImage(file, params);
+        return reader.readImage(file, ImageID.NULL, params);
     }
 
     private static IImageReader tryFindReader(File file) throws IOException
@@ -170,7 +171,7 @@ public class ColorRangeCalculator
         for (String libraryName : libraries)
         {
             IImageReader reader =
-                    ImageReaderFactory.tryGetImageReaderForFile(libraryName, file.getPath());
+                    ImageReaderFactory.tryGetReaderForFile(libraryName, file.getPath());
             if (reader != null)
             {
                 // System.err

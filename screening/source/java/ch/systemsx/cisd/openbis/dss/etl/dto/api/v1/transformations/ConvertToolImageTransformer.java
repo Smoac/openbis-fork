@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 
@@ -107,7 +108,7 @@ public class ConvertToolImageTransformer implements IImageTransformer
         {
             throw new ConfigurationFailureException("No ImageIO image readers available");
         }
-        return imageReader.readImage(output, null);
+        return imageReader.readImage(output, ImageID.NULL, null);
     }
 
     private byte[] transform(final byte[] input) throws IOException

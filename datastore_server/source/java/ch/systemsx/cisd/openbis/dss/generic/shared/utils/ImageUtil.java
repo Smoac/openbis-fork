@@ -44,9 +44,10 @@ import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IReadParams;
+import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
-import ch.systemsx.cisd.imagereaders.TiffReadParams;
+import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * Utility function on images.
@@ -99,7 +100,7 @@ public class ImageUtil
         {
             IImageReader imageReader =
                     ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
-            return imageReader.readImage(handle, null);
+            return imageReader.readImage(handle, ImageID.NULL, null);
 
         }
     }
@@ -124,11 +125,11 @@ public class ImageUtil
         }
 
         int page = getPageNumber(pageOrNull);
-        TiffReadParams readParams = new TiffReadParams(page);
+        ReadParams readParams = new ReadParams();
         readParams.setAllow16BitGrayscaleModel(allow16BitGrayscaleModel);
         try
         {
-            return imageReader.readImage(handle, readParams);
+            return imageReader.readImage(handle, new ImageID(0, page, 0, 0), readParams);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
@@ -161,7 +162,7 @@ public class ImageUtil
                     throw EnvironmentFailureException.fromTemplate(
                             "Cannot find ImageIO reader for file type '%s'", fileType);
                 }
-                return imageReader.readImage(handle, null);
+                return imageReader.readImage(handle, ImageID.NULL, null);
             } else
             {
                 throw new UnsupportedOperationException();
@@ -214,7 +215,8 @@ public class ImageUtil
                             imageLibraryReaderNameOrNull);
             if (reader != null)
             {
-                return reader.readImage(content.getReadOnlyRandomAccessFile(), params);
+                ImageID imageID = pageOrNull == null ? ImageID.NULL : new ImageID(0, pageOrNull, 0, 0);
+                return reader.readImage(content.getReadOnlyRandomAccessFile(), imageID, params);
             }
         }
         return loadImageGuessingLibrary(content, pageOrNull);
