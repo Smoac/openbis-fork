@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * "/<space-code>/<project-code>/<experiment-code>/<dataset-template>[/<sub-path>]*" to
  * {@link FtpFile} objects.
  * <p>
- * Subpaths are resolved as relative paths starting from the root of a dataset..
+ * Subpaths are resolved as relative paths starting from the root of a dataset.
  * <p>
  * 
  * @author Kaloyan Enimanev
