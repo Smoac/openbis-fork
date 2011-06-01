@@ -172,7 +172,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
                     one(dao).tryToGetDataSetId("ds-1");
                     will(returnValue(DATA_SET_ID));
 
-                    one(dao).listDataSetFilesByRelativePathRegex(DATA_SET_ID, "^" + regex + "$");
+                    one(dao).listDataSetFilesByRelativePathLikeExpression(DATA_SET_ID, "blabla");
                     will(returnValue(Arrays.asList(r1, r2)));
                 }
             });
@@ -298,7 +298,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDataSetFilesByRelativePathRegex(DATA_SET_ID, "^" + regex + "$");
+                    one(dao).listDataSetFilesByRelativePathLikeExpression(DATA_SET_ID, "dir/child%");
                     will(returnValue(Arrays.asList(rc1, rc2)));
                 }
             });

@@ -79,6 +79,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetFileRecord> listDataSetFilesByRelativePathRegex(long dataSetId,
                 String relativePathRegex);
 
+        @Select(SELECT_DATA_SET_FILES + "WHERE dase_id = ?{1} AND relative_path LIKE ?{2}")
+        public List<DataSetFileRecord> listDataSetFilesByRelativePathLikeExpression(long dataSetId,
+                String relativePathLikeExpression);
+
         @Select(SELECT_DATA_SET_FILES
                 + "WHERE dase_id = ?{1} AND relative_path like '?{2}' AND file_name ~ ?{3}")
         public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(long dataSetId,
@@ -109,8 +113,17 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             {
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
-                    return getDao().listDataSetFilesByRelativePathRegex(dataSetId,
-                            "^" + regularExpression + "$");
+                    String likeExpression = translateToLikeForm("^" + regularExpression + "$");
+
+                    if (likeExpression == null)
+                    {
+                        return getDao().listDataSetFilesByRelativePathRegex(dataSetId,
+                                "^" + regularExpression + "$");
+                    } else
+                    {
+                        return getDao().listDataSetFilesByRelativePathLikeExpression(dataSetId,
+                                likeExpression);
+                    }
                 }
             }).getInfos();
     }
@@ -180,9 +193,18 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
         {
-            List<DataSetFileRecord> records =
-                    dao.listDataSetFilesByRelativePathRegex(dataSetId,
-                            prepareDBStyleRegex(relativePathPattern));
+            String likeExpression = translateToLikeForm(prepareDBStyleRegex(relativePathPattern));
+            List<DataSetFileRecord> records;
+            if (likeExpression == null)
+            {
+                records =
+                        dao.listDataSetFilesByRelativePathRegex(dataSetId,
+                                prepareDBStyleRegex(relativePathPattern));
+            } else
+            {
+                records =
+                        dao.listDataSetFilesByRelativePathLikeExpression(dataSetId, likeExpression);
+            }
             return asPathInfos(records);
         }
 
@@ -306,4 +328,102 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         return "^" + pattern + "$";
     }
 
+    private static String translateToLikeForm(String pattern)
+    {
+        StringBuilder result = new StringBuilder();
+
+        int startPosition = 0;
+        if (pattern.startsWith("^"))
+        {
+            startPosition++;
+        } else
+        {
+            result.append('%');
+        }
+
+        while (startPosition < pattern.length())
+        {
+            char ch = pattern.charAt(startPosition);
+            if (Character.isLetter(ch) || Character.isDigit(ch) || Character.isWhitespace(ch))
+            {
+                result.append(ch);
+                startPosition++;
+            } else
+            {
+                switch (ch)
+                {
+                    case '/':
+                    case ',':
+                        result.append(ch);
+                        startPosition++;
+                        break;
+                    case '%':
+                    case '_':
+                        result.append('\\').append(ch);
+                        startPosition++;
+                        break;
+                    case '.':
+                        startPosition++;
+                        if (startPosition < pattern.length()
+                                && pattern.charAt(startPosition) == '*')
+                        {
+                            result.append('%');
+                            startPosition++;
+                        } else
+                        {
+                            result.append('_');
+                        }
+                        break;
+                    case '$':
+                        startPosition++;
+                        if (startPosition < pattern.length())
+                        {
+                            result.append(ch);
+                        }
+                        break;
+                    case '\\':
+                        startPosition++;
+                        if (startPosition < pattern.length())
+                        {
+                            char escaped = pattern.charAt(startPosition);
+                            switch (escaped)
+                            {
+                                case '\\':
+                                    startPosition++;
+                                    result.append('\\').append('\\');
+                                    break;
+                                case '.':
+                                case '$':
+                                case '(':
+                                case ')':
+                                case '[':
+                                case ']':
+                                case '?':
+                                case '*':
+                                case '{':
+                                case '}':
+                                case '|':
+                                    startPosition++;
+                                    result.append(escaped);
+                                    break;
+                                default:
+                                    return null;
+                            }
+                        } else
+                        {
+                            return null;
+                        }
+                        break;
+                    default:
+                        return null;
+                }
+            }
+        }
+
+        if (false == pattern.endsWith("$"))
+        {
+            result.append('%');
+        }
+        return result.toString();
+    }
 }
