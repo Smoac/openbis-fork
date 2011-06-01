@@ -750,7 +750,7 @@ public class WellContentLoader extends AbstractContentLoader
             operationLog.info(String.format(
                     "[%d msec] Finding %d materials for criteria '%s'. Result: %s",
                     (System.currentTimeMillis() - start), materialIds.length, codesCriteria,
-                    Arrays.toString(materialIds)));
+                    abbreviate(materialIds, 100)));
             start = System.currentTimeMillis();
 
             if (expId == null)
@@ -782,6 +782,28 @@ public class WellContentLoader extends AbstractContentLoader
                     + materialSearchCriteria);
         }
         return locations;
+    }
+
+    private static String abbreviate(long[] values, int limit)
+    {
+        int realLimit;
+        if (limit == -1)
+        {
+            realLimit = values.length;
+        } else
+        {
+            realLimit = Math.min(limit, values.length);
+        }
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < realLimit; i++)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(", ");
+            }
+            sb.append(i);
+        }
+        return sb.toString();
     }
 
     // NOET: this ignores material types, it has to be filtered later
