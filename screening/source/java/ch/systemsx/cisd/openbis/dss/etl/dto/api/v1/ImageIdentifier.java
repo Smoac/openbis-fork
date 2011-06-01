@@ -23,7 +23,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  * 
  * @author Franz-Josef Elmer
  */
-public class ImageIdentifier
+public class ImageIdentifier implements Comparable<ImageIdentifier>
 {
     public static final ImageIdentifier NULL = new ImageIdentifier(0, 0, 0, 0);
     
@@ -66,6 +66,26 @@ public class ImageIdentifier
     public int getColorChannelIndex()
     {
         return colorChannelIndex;
+    }
+
+    public int compareTo(ImageIdentifier that)
+    {
+        int diff = seriesIndex - that.seriesIndex;
+        if (diff != 0)
+        {
+            return diff;
+        }
+        diff = timeSeriesIndex - that.timeSeriesIndex;
+        if (diff != 0)
+        {
+            return diff;
+        }
+        diff = focalPlaneIndex - that.focalPlaneIndex;
+        if (diff != 0)
+        {
+            return diff;
+        }
+        return colorChannelIndex - that.colorChannelIndex;
     }
 
     @Override
