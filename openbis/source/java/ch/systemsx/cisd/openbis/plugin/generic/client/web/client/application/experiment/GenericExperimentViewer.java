@@ -24,6 +24,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
@@ -105,6 +106,17 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         viewContext.logStop(logID);
     }
 
+    @Override
+    protected void fillBreadcrumbWidgets(List<Widget> widgets)
+    {
+        Widget spaceBreadcrumb = createSpaceLink(originalData.getProject().getSpace());
+        Widget projectBreadcrumb = createProjectLink(originalData.getProject());
+        widgets.add(spaceBreadcrumb);
+        widgets.add(projectBreadcrumb);
+
+        super.fillBreadcrumbWidgets(widgets);
+    }
+
     private void extendToolBar()
     {
         if (viewContext.isSimpleOrEmbeddedMode())
@@ -176,7 +188,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                 }
             });
     }
-    
+
     /**
      * Returns the component to be shown below experiment properties.
      * 

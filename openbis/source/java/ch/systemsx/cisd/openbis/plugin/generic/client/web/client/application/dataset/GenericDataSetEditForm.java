@@ -317,8 +317,9 @@ public final class GenericDataSetEditForm extends
     {
         this.originalDataSet = data;
         this.builder =
-                data.isContainer() ? new ContainerDataSetEditFormBuilder((ContainerDataSet) data)
-                        : new ExternalDataEditFormBuilder((DataSet) data);
+                data.isContainer() ? new ContainerDataSetEditFormBuilder(
+                        data.tryGetAsContainerDataSet()) : new ExternalDataEditFormBuilder(
+                        data.tryGetAsDataSet());
     }
 
     @Override

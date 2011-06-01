@@ -26,11 +26,18 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Layout;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -40,17 +47,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
@@ -69,6 +83,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     private final List<Button> toolBarButtons = new ArrayList<Button>();
 
     private LabelToolItem titleLabel;
+
+    private BreadcrumbContainer breadcrumbContainer;
 
     protected final IViewContext<?> viewContext;
 
@@ -98,7 +114,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             toolBar = new ToolBar();
             setTopComponent(toolBar);
             titleLabel = new LabelToolItem(title);
-            toolBar.add(titleLabel);
+            toolBar.add(breadcrumbContainer = new BreadcrumbContainer());
             toolBar.add(new FillToolItem());
             if (viewContext.isSimpleOrEmbeddedMode() == false)
             {
@@ -188,14 +204,39 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         if (newData instanceof IEntityInformationHolderWithIdentifier)
         {
-            IEntityInformationHolderWithIdentifier entity = (IEntityInformationHolderWithIdentifier) newData;
+            IEntityInformationHolderWithIdentifier entity =
+                    (IEntityInformationHolderWithIdentifier) newData;
             EntityVisit entityVisit = new EntityVisit(entity);
             viewContext.getDisplaySettingsManager().rememberVisit(entityVisit);
         }
         this.originalData = newData;
         this.displayIdSuffix = newData.getEntityType().getCode();
-        updateTitle(getOriginalDataDescription());
+        updateBreadcrumbs();
         setToolBarButtonsEnabled(true);
+    }
+
+    /**
+     * Fills the specified list of widgets with widgets to show in breadcrumbs. Subclasses should
+     * add to the list and invoke the method from superclass to add the last breadcrumb widget which
+     * is generic and contains updateable title of the view.
+     */
+    protected void fillBreadcrumbWidgets(List<Widget> widgets)
+    {
+        widgets.add(titleLabel);
+    }
+
+    private void updateBreadcrumbs()
+    {
+        updateTitle(getOriginalDataDescription());
+        breadcrumbContainer.removeAll();
+        List<Widget> widgets = new ArrayList<Widget>();
+        fillBreadcrumbWidgets(widgets);
+        for (Widget widget : widgets)
+        {
+            breadcrumbContainer.addBreadcrumb(widget);
+        }
+        breadcrumbContainer.layout();
+        titleLabel.removeStyleName("xtb-text"); // WORKAROUND for consistent style of text
     }
 
     /** Updates data displayed in the browser when shown data has been removed from DB. */
@@ -286,6 +327,80 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             };
         return new ManagedPropertySection(header, viewContext, entity, managedProperty,
                 refreshAction);
+    }
+
+    protected Widget createLabel(final String label)
+    {
+        Widget result = new Html(label);
+        return result;
+    }
+
+    protected Widget createSpaceLink(final Space space)
+    {
+        // TODO change to link opening experiment browser with space selected
+        Widget link = new Html(space.getCode());
+        link.setTitle(viewContext.getMessage(Dict.SPACE) + " " + space.getCode());
+        return link;
+    }
+
+    protected Widget createProjectLink(final Project project)
+    {
+        // TODO change to link opening experiment browser with project selected
+        final String href = LinkExtractor.tryExtract(project);
+        ClickHandler listener = new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    OpenEntityDetailsTabHelper.open(viewContext, project,
+                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()), href);
+                }
+            };
+        Widget link = LinkRenderer.getLinkWidget(project.getCode(), listener, href);
+        link.setTitle(viewContext.getMessage(Dict.PROJECT) + " " + project.getCode());
+        return link;
+    }
+
+    protected Widget createEntityLink(final IEntityInformationHolderWithPermId entity)
+    {
+        String href = LinkExtractor.tryExtract(entity);
+        ClickHandler listener = new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    OpenEntityDetailsTabHelper.open(viewContext, entity.getEntityKind(),
+                            entity.getPermId(),
+                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
+                }
+            };
+        Widget link = LinkRenderer.getLinkWidget(entity.getCode(), listener, href);
+        link.setTitle(entity.getEntityKind().getDescription() + " " + entity.getCode());
+        return link;
+    }
+
+    private static class BreadcrumbContainer extends LayoutContainer
+    {
+        private final static String SEPARATOR = "/";
+
+        public BreadcrumbContainer()
+        {
+            setLayout(createLayout());
+        }
+
+        private static Layout createLayout()
+        {
+            final TableRowLayout tableRowLayout = new TableRowLayout();
+            tableRowLayout.setBorder(0);
+            tableRowLayout.setCellPadding(0);
+            tableRowLayout.setCellSpacing(2);
+            return tableRowLayout;
+        }
+
+        public void addBreadcrumb(Widget widget)
+        {
+            add(new Html(SEPARATOR));
+            add(widget);
+        }
+
     }
 
 }

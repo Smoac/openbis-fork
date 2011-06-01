@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -112,6 +113,25 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
     {
         return new ArrayList<TabContent>();
+    }
+
+    @Override
+    protected void fillBreadcrumbWidgets(List<Widget> widgets)
+    {
+        Widget spaceBreadcrumb = createSpaceLink(originalData.getExperiment().getProject().getSpace());
+        Widget projectBreadcrumb = createProjectLink(originalData.getExperiment().getProject());
+        Widget experimentBreadcrumb = createEntityLink(originalData.getExperiment());
+        widgets.add(spaceBreadcrumb);
+        widgets.add(projectBreadcrumb);
+        widgets.add(experimentBreadcrumb);
+
+        if (originalData.getSample() != null)
+        {
+            Widget sampleBreadcrumb = createEntityLink(originalData.getSample());
+            widgets.add(sampleBreadcrumb);
+        }
+
+        super.fillBreadcrumbWidgets(widgets);
     }
 
     private void extendToolBar()

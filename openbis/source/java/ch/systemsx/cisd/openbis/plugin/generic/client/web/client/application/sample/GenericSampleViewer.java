@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
@@ -139,6 +140,23 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         this.sampleId = TechId.create(identifiable);
         this.viewContext = viewContext;
         extendToolBar();
+    }
+
+    @Override
+    protected void fillBreadcrumbWidgets(List<Widget> widgets)
+    {
+        if (originalData.getSpace() != null)
+        {
+            Widget spaceBreadcrumb = createSpaceLink(originalData.getSpace());
+            widgets.add(spaceBreadcrumb);
+        }
+        if (originalData.getExperiment() != null)
+        {
+            Widget experimentBreadcrumb = createEntityLink(originalData.getExperiment());
+            widgets.add(experimentBreadcrumb);
+        }
+
+        super.fillBreadcrumbWidgets(widgets);
     }
 
     private void extendToolBar()
