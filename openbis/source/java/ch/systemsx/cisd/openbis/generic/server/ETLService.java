@@ -754,6 +754,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         IDataBO dataBO = businessObjectFactory.createDataBO(session);
         dataBO.loadByCode(dataSetCode);
         dataBO.enrichWithParentsAndExperiment();
+        dataBO.enrichWithChildren();
         dataBO.enrichWithProperties();
         dataBO.enrichWithContainedDataSets();
         DataPE dataPE = dataBO.tryGetData();
