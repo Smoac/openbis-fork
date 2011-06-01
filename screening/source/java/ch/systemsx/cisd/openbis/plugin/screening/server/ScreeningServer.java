@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -309,7 +310,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
-            String sessionToken, TechId materialId)
+            String sessionToken, TechId materialId,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future

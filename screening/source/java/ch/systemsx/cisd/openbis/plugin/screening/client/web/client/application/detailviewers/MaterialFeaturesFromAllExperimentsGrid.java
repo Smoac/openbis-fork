@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * A grid showing feature vector summaries for a material from all corresponding experiments.
@@ -50,21 +51,24 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
 
     private final TechId materialId;
 
+    private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+
     public static IDisposableComponent create(
-            IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId)
+            IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFeaturesFromAllExperimentsGrid(viewContext, materialId)
-                .asDisposableWithoutToolbar();
+        return new MaterialFeaturesFromAllExperimentsGrid(viewContext, materialId,
+                experimentSearchCriteria).asDisposableWithoutToolbar();
     }
 
     MaterialFeaturesFromAllExperimentsGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId materialId)
+            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.MATERIAL_REPLICA_FEATURE_SUMMARY_SECTION);
         this.specificViewContext = viewContext;
         this.materialId = materialId;
-
+        this.experimentSearchCriteria = experimentSearchCriteria;
         setBorders(true);
     }
 
@@ -74,7 +78,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback)
     {
         specificViewContext.getService().listMaterialFeaturesFromAllExperiments(resultSetConfig,
-                materialId, callback);
+                materialId, experimentSearchCriteria, callback);
     }
 
     @Override

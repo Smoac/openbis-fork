@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * The <i>screening</i> server. Used internally.
@@ -237,6 +238,7 @@ public interface IScreeningServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = MaterialExperimentFeatureVectorSummaryValidator.class)
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
-            String sessionToken, TechId materialId);
+            String sessionToken, TechId materialId,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria);
 
 }

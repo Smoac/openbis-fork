@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * A provider for material replica feature summaries.
@@ -46,12 +47,16 @@ class MaterialFeatureVectorsFromAllExperimentsProvider extends
 
     private final TechId materialId;
 
+    private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+
     public MaterialFeatureVectorsFromAllExperimentsProvider(IScreeningServer server,
-            String sessionToken, TechId materialId)
+            String sessionToken, TechId materialId,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         this.server = server;
         this.sessionToken = sessionToken;
         this.materialId = materialId;
+        this.experimentSearchCriteria = experimentSearchCriteria;
     }
 
     @Override
@@ -60,7 +65,8 @@ class MaterialFeatureVectorsFromAllExperimentsProvider extends
         TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary> builder =
                 new TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary>();
         List<MaterialSimpleFeatureVectorSummary> summaries =
-                server.getMaterialFeatureVectorsFromAllExperiments(sessionToken, materialId);
+                server.getMaterialFeatureVectorsFromAllExperiments(sessionToken, materialId,
+                        experimentSearchCriteria);
 
         builder.addColumn(EXPERIMENT);
         createFeatureColumns(builder, summaries);

@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -364,10 +365,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
-            String sessionToken, TechId materialId)
+            String sessionToken, TechId materialId,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         logAccess(sessionToken, "getMaterialFeatureVectorsFromAllExperiments",
-                "sessionToken(%s), materialId(%s)", sessionToken, materialId);
+                "sessionToken(%s), materialId(%s), projectId(%s)", sessionToken, materialId,
+                experimentSearchCriteria);
         return null;
     }
 }

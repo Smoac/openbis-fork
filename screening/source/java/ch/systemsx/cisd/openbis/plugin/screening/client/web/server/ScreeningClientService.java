@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -374,11 +375,13 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     public TypedTableResultSet<MaterialSimpleFeatureVectorSummary> listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
-            TechId materialId) throws UserFailureException
+            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            throws UserFailureException
     {
+
         MaterialFeatureVectorsFromAllExperimentsProvider provider =
                 new MaterialFeatureVectorsFromAllExperimentsProvider(server, getSessionToken(),
-                        materialId);
+                        materialId, experimentSearchCriteria);
         return listEntities(provider, resultSetConfig);
     }
 

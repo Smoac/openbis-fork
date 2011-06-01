@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 
@@ -85,7 +86,7 @@ public class WellSearchCriteria implements ISerializable
     }
 
     /** points to one experiment or all of them */
-    public static final class ExperimentSearchCriteria implements IsSerializable, Serializable
+    public static class ExperimentSearchCriteria implements IsSerializable, Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -143,6 +144,52 @@ public class WellSearchCriteria implements ISerializable
             } else
             {
                 return experimentOrNull.toString();
+            }
+        }
+    }
+
+    public static final class ExperimentSearchByProjectCriteria extends ExperimentSearchCriteria
+            implements IsSerializable, Serializable
+    {
+
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private Project projectOrNull;
+
+        public static final ExperimentSearchByProjectCriteria createAllExperimentsForProject(
+                Project projectOrNull)
+        {
+            return new ExperimentSearchByProjectCriteria(projectOrNull);
+        }
+
+        public static final ExperimentSearchByProjectCriteria createAllExperimentsForAllProjects()
+        {
+            return new ExperimentSearchByProjectCriteria();
+        }
+
+        private ExperimentSearchByProjectCriteria()
+        {
+        }
+
+        private ExperimentSearchByProjectCriteria(Project projectOrNull)
+        {
+            this.projectOrNull = projectOrNull;
+        }
+
+        public Project tryGetProject()
+        {
+            return projectOrNull;
+        }
+
+        @Override
+        public String toString()
+        {
+            if (projectOrNull == null)
+            {
+                return super.toString();
+            } else
+            {
+                return projectOrNull.toString();
             }
         }
     }

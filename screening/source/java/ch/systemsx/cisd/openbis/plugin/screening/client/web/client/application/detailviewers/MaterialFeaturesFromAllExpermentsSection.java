@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * Material section panel showing feature vector summaries from all experiments.
@@ -36,7 +37,7 @@ public class MaterialFeaturesFromAllExpermentsSection extends DisposableTabConte
     protected IDisposableComponent createDisposableContent()
     {
         return MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, new TechId(
-                material));
+                material), ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects());
     }
 
 }

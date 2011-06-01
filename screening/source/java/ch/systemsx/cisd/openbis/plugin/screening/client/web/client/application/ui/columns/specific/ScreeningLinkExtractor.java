@@ -83,6 +83,10 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public final static String MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_ACTION =
             "MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS";
 
+    public final static String PROJECT_CODE_KEY = "projectCode";
+
+    public final static String SPACE_CODE_KEY = "spaceCode";
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -114,11 +118,24 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public static final String createMaterialFeaturesFromAllExperimentsLink(String materialCode,
             String materialTypeCode)
     {
+        return createMaterialFeaturesFromAllExperimentsLink(materialCode, materialTypeCode, null,
+                null);
+    }
+
+    public static final String createMaterialFeaturesFromAllExperimentsLink(String materialCode,
+            String materialTypeCode, String spaceCodeOrNull, String projectCodeOrNull)
+    {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
                 MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_ACTION);
         url.addParameter(MATERIAL_CODE_KEY, materialCode);
         url.addParameter(MATERIAL_TYPE_CODE_KEY, materialTypeCode);
+        if (false == StringUtils.isBlank(spaceCodeOrNull)
+                && false == StringUtils.isBlank(projectCodeOrNull))
+        {
+            url.addParameter(SPACE_CODE_KEY, spaceCodeOrNull);
+            url.addParameter(PROJECT_CODE_KEY, projectCodeOrNull);
+        }
         return tryPrint(url);
     }
 

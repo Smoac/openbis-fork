@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * Component displaying details for a material + a grid with the material's features extracted from
@@ -51,10 +52,11 @@ public class MaterialFeaturesFromAllExperimentsComponent
     private static final String MATERIAL_ID_DICT_MSG = "Id";
 
     public static IDisposableComponent createViewer(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
-                .createViewer(material);
+        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext).createViewer(
+                material, experimentSearchCriteria);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -65,7 +67,8 @@ public class MaterialFeaturesFromAllExperimentsComponent
         this.screeningViewContext = screeningViewContext;
     }
 
-    private IDisposableComponent createViewer(Material material)
+    private IDisposableComponent createViewer(Material material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
@@ -76,7 +79,8 @@ public class MaterialFeaturesFromAllExperimentsComponent
 
         TechId materialTechId = new TechId(material);
         final IDisposableComponent gridComponent =
-                MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, materialTechId);
+                MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, materialTechId,
+                        experimentSearchCriteria);
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 

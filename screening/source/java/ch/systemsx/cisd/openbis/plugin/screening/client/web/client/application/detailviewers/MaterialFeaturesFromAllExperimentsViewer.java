@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -26,11 +28,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * Opens an independent tab with {@link MaterialFeaturesFromAllExperimentsComponent}.
@@ -49,19 +54,29 @@ public class MaterialFeaturesFromAllExperimentsViewer
     {
         MaterialFeaturesFromAllExperimentsViewer viewer =
                 new MaterialFeaturesFromAllExperimentsViewer(screeningViewContext);
-        viewer.openTab(material);
+        viewer.openTab(material, null);
     }
 
     /**
      * Fetches material and experiment and opens a tab with {@link MaterialReplicaSummaryComponent}.
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            MaterialIdentifier materialIdentifier)
+            MaterialIdentifier materialIdentifier, BasicProjectIdentifier projectIdentifierOrNull)
     {
         MaterialFeaturesFromAllExperimentsViewer viewer =
                 new MaterialFeaturesFromAllExperimentsViewer(screeningViewContext);
-        screeningViewContext.getCommonService().getMaterialInformationHolder(materialIdentifier,
-                viewer.createMaterialFoundCallback());
+
+        if (projectIdentifierOrNull == null)
+        {
+            screeningViewContext.getCommonService().getMaterialInformationHolder(
+                    materialIdentifier,
+                    viewer.createMaterialFoundCallback(ExperimentSearchByProjectCriteria
+                            .createAllExperimentsForAllProjects()));
+        } else
+        {
+            screeningViewContext.getCommonService().getProjectInfo(projectIdentifierOrNull,
+                    viewer.createProjectFoundCallback(materialIdentifier));
+        }
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -75,9 +90,13 @@ public class MaterialFeaturesFromAllExperimentsViewer
     private class MaterialFoundCallback extends
             AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
-        MaterialFoundCallback()
+        private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+
+        MaterialFoundCallback(ExperimentSearchByProjectCriteria experimentSearchCriteria)
         {
             super(screeningViewContext);
+
+            this.experimentSearchCriteria = experimentSearchCriteria;
         }
 
         @Override
@@ -89,24 +108,43 @@ public class MaterialFeaturesFromAllExperimentsViewer
                             @Override
                             protected void process(Material result)
                             {
-                                openTab(result);
+                                openTab(result, experimentSearchCriteria);
                             }
                         });
         }
     }
 
-    private MaterialFoundCallback createMaterialFoundCallback()
+    private MaterialFoundCallback createMaterialFoundCallback(
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFoundCallback();
+        return new MaterialFoundCallback(experimentSearchCriteria);
     }
 
-    private void openTab(Material material)
+    private AsyncCallback<Project> createProjectFoundCallback(
+            final MaterialIdentifier materialIdentifier)
     {
-        AbstractTabItemFactory factory = createTabFactory(material);
+        return new AbstractAsyncCallback<Project>(screeningViewContext)
+            {
+                @Override
+                protected void process(Project result)
+                {
+                    screeningViewContext.getCommonService().getMaterialInformationHolder(
+                            materialIdentifier,
+                            createMaterialFoundCallback(ExperimentSearchByProjectCriteria
+                                    .createAllExperimentsForProject(result)));
+                }
+            };
+    }
+
+    private void openTab(Material material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+    {
+        AbstractTabItemFactory factory = createTabFactory(material, experimentSearchCriteria);
         DispatcherHelper.dispatchNaviEvent(factory);
     }
 
-    private AbstractTabItemFactory createTabFactory(final Material material)
+    private AbstractTabItemFactory createTabFactory(final Material material,
+            final ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         return new AbstractTabItemFactory()
             {
@@ -124,15 +162,24 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 {
                     IDisposableComponent tabComponent =
                             MaterialFeaturesFromAllExperimentsComponent.createViewer(
-                                    screeningViewContext, material);
+                                    screeningViewContext, material, experimentSearchCriteria);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
-                            material.getCode(), material.getEntityType().getCode());
+                    if (experimentSearchCriteria.tryGetProject() == null)
+                    {
+                        return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
+                                material.getCode(), material.getEntityType().getCode());
+                    } else
+                    {
+                        Project project = experimentSearchCriteria.tryGetProject();
+                        return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
+                                material.getCode(), material.getEntityType().getCode(), project
+                                        .getSpace().getCode(), project.getCode());
+                    }
                 }
 
                 @Override
@@ -145,7 +192,8 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return null;
+                    return HelpPageIdentifier
+                            .createSpecific("Material features in all experiments");
                 }
 
             };

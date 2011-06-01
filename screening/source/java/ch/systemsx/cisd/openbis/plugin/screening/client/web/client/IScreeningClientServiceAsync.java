@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -203,11 +204,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig, TechId)
+     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig, TechId,
+     *      ExperimentSearchByProjectCriteria)
      */
     public void listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
-            TechId materialId,
+            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria,
             AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback);
 
     /**
