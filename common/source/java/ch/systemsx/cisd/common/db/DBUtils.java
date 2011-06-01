@@ -40,17 +40,19 @@ public final class DBUtils
     }
 
     /**
-     * Translates given regular expression to database-like form if possible.
-     * Returns<code>null</code> if translation is not possible.
+     * Translates given regular expression to database-like form if possible. Returns
+     * <code>null</code> if translation is not possible.
      * 
-     *  @return regular expression in database-like form, or <code>null</code> if translation is not possible.
+     * @return regular expression in database-like form, or <code>null</code> if translation is not
+     *         possible.
      */
     public static String tryToTranslateRegExpToLikeForm(String patternOrNull)
     {
-        if (StringUtils.isBlank(patternOrNull)) {
+        if (StringUtils.isBlank(patternOrNull))
+        {
             return null;
         }
-        
+
         StringBuilder result = new StringBuilder();
 
         int startPosition = 0;
@@ -164,7 +166,8 @@ public final class DBUtils
                                 default: // unsupported character
                                     return null;
                             }
-                        } else // unsupported character
+                        } else
+                        // unsupported character
                         {
                             return null;
                         }
@@ -182,7 +185,7 @@ public final class DBUtils
         }
         return result.toString();
     }
-    
+
     private DBUtils()
     {
     }
