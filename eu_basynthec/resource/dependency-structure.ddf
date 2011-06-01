@@ -1,6 +1,6 @@
 #show allResults
 
-{root} = eu.basynthec.cisd.dss
+{root} = eu.basynthec.cisd
 {dss} = ${root}.dss
 {openbis} = ch.systemsx.cisd.openbis
 
