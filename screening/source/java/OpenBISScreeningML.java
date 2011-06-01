@@ -884,6 +884,8 @@ public class OpenBISScreeningML
     /**
      * Has the same effect as {@link #loadImages(String, int, int, String[])}, but instead of
      * loading raw images loads their segmentation results if available.
+     * 
+     * @param objectNames The names of the segmentation objects to get the images for
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
             String[] objectNames)
@@ -973,6 +975,8 @@ public class OpenBISScreeningML
     /**
      * Has the same effect as {@link #loadImages(String, int, int, int, String[])}, but instead of
      * loading raw images loads their segmentation results if available.
+     * 
+     * @param objectNames The names of the segmentation objects to get the images for
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
             final int tile, String[] objectNames)
