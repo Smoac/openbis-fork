@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.client.web.server.PlateMetadataProvider.CONTENT_PROPERTY_PREFIX;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset.PlateMetadataProvider.CONTENT_PROPERTY_PREFIX;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset.PlateMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;

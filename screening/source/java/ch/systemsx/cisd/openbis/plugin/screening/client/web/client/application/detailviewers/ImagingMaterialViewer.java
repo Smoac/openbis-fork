@@ -91,12 +91,10 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
                     new MaterialReplicaSummarySection(screeningViewContext, material,
                             experimentPermId);
             sections.add(replicaSummarySection);
-        } else
-        {
-            MaterialFeaturesFromAllExpermentsSection featuresFromAllExperimentsSection =
-                    new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material);
-            sections.add(featuresFromAllExperimentsSection);
         }
+        MaterialFeaturesFromAllExpermentsSection featuresFromAllExperimentsSection =
+                new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material);
+        sections.add(featuresFromAllExperimentsSection);
         return sections;
     }
 

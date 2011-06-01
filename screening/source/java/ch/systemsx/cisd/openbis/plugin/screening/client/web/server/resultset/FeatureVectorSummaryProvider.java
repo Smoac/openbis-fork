@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.DETAILS;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
@@ -39,12 +39,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * 
  * @author Kaloyan Enimanev
  */
-class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
+public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
 {
-    private static final String SHOW_DETAILS_MSG = "Show details";
-
-    private static final String RANK_COLUMN_MSG = " Rank";
-
     private static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
 
     private static final String FEATURE_VALUE_PREFIX = "FEATURE_VALUE-";
@@ -89,7 +85,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
             featureColumnIds.add(featureColumnId);
 
             String rankColumnId = getRankColumnId(featureCode);
-            String rankTitle = RANK_COLUMN_MSG;
+            String rankTitle = ScreeningProviderMessages.RANK_COLUMN_MSG;
             builder.addColumn(rankColumnId).withTitle(rankTitle).withDataType(DataTypeCode.INTEGER);
             rankColumnIds.add(rankColumnId);
         }
@@ -114,7 +110,7 @@ class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFe
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());
         }
-        builder.column(DETAILS).addString(SHOW_DETAILS_MSG);
+        builder.column(DETAILS).addString(ScreeningProviderMessages.SHOW_DETAILS_MSG);
 
         float[] featureSummaries = summary.getFeatureVectorSummary();
         int[] ranksValues = summary.getFeatureVectorRanks();

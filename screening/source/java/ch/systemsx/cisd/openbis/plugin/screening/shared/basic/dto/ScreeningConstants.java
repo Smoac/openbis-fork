@@ -27,49 +27,64 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
  */
 public class ScreeningConstants
 {
-    // name of the directory inside the dataset where files in original form are stored
+    /** Name of the directory inside the dataset where files in original form are stored. */
     public static final String ORIGINAL_DATA_DIR = "original";
 
-    // name of the data source (configured in service.properties) which allows to access imaging db
+    /**
+     * Name of the data source (configured in service.properties) which allows to access imaging db.
+     */
     public static final String IMAGING_DATA_SOURCE = "imaging-db";
 
     // ---- required entity type patterns -----------
 
     // --- HCS dataset types
 
-    private static final String HCS_IMAGE_DATASET_PREFIX = "HCS_IMAGE";
+    /** Prefix of a dataset's type which stores hcs data. */
+    public static final String HCS_DATASET_TYPE_PREFIX = "HCS_";
 
-    // type of the dataset which stores plate image overlays
+    /** Prefix of a type of the dataset which stores any plate images. */
+    public static final String HCS_IMAGE_DATASET_TYPE_PREFIX = "HCS_IMAGE";
+
+    /** Type of the dataset which stores plate image overlays. */
     public static final String HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
-            (HCS_IMAGE_DATASET_PREFIX + ".*OVERLAY.*") + "|" // legacy
-                    + (HCS_IMAGE_DATASET_PREFIX + "_SEGMENTATION.*");
+            (HCS_IMAGE_DATASET_TYPE_PREFIX + ".*OVERLAY.*") + "|" // legacy
+                    + (HCS_IMAGE_DATASET_TYPE_PREFIX + "_SEGMENTATION.*");
 
-    // Type of the dataset which stores raw plate images.
-    public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_PREFIX
+    /** Type of the dataset which stores raw plate images. */
+    public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_TYPE_PREFIX
             + "_RAW.*";
 
-    // The plain old legacy type for raw image data sets.
-    public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = HCS_IMAGE_DATASET_PREFIX;
+    /** The plain old legacy type for raw image data sets. */
+    public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = HCS_IMAGE_DATASET_TYPE_PREFIX;
 
-    // Type of the dataset which stores plate images (raw, overvies or overlays).
-    // We do not want old analysis data to match to this pattern.
-    public static final String ANY_HCS_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_PREFIX
+    /**
+     * Type of the dataset which stores plate images (raw, overvies or overlays). We do not want old
+     * analysis data to match to this pattern.
+     */
+    public static final String ANY_HCS_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_TYPE_PREFIX
             + "($|[^_].*|_[^A].*|_A[^N].*|_AN[^A].*)";
 
-    // type of the dataset which stores image analysis data, there should be at most one
+    /** Prefix for types of the dataset which stores image analysis data. */
+    public static final String HCS_ANALYSIS_DATASET_TYPE_PREFIX = "HCS_ANALYSIS_WELL";
+
+    /** Type of the dataset which stores image analysis data, there should be at most one. */
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN = "HCS_IMAGE_ANALYSIS_DATA|" // legacy
-            + "HCS_ANALYSIS_WELL_.*";
+            + (HCS_ANALYSIS_DATASET_TYPE_PREFIX + ".*");
 
     // --- HCS sample types
 
     public static final String HCS_PLATE_SAMPLE_TYPE_PATTERN = "PLATE.*";
 
-    // the non-control well has to have a type code which contains this string
+    /** the non-control well has to have a type code which contains this string. */
     public static final String NON_CONTROL_WELL_SAMPLE_TYPE_PATTERN =
             ".*WELL.*|.*CHAMBER.*|OLIGO|GENE";
 
-    // the well is considered to be a control well if its type code contains this string
+    /** the well is considered to be a control well if its type code contains this string. */
     public static final String CONTROL_WELL_SAMPLE_TYPE_PATTERN = ".*CONTROL.*";
+
+    // --- HCS experiment types
+
+    public static final String HCS_EXPERIMENT_TYPE_PATTERN = "HCS_.*";
 
     // --- Microscopy
 
@@ -77,18 +92,18 @@ public class ScreeningConstants
 
     private static final String MICROSCOPY_IMAGE_TYPE_PATTERN = ".*IMG.*";
 
-    // type of the dataset which stores microscopy images
+    /** type of the dataset which stores microscopy images. */
     public static final String ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN = "MICROSCOPY_IMAGE|"// legacy
             + MICROSCOPY_IMAGE_TYPE_PATTERN;
 
-    // type of the dataset which stores image overlays
+    /** type of the dataset which stores image overlays. */
     public static final String MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
             MICROSCOPY_IMAGE_TYPE_PATTERN + ".*OVERLAY.*|" + // legacy
                     MICROSCOPY_IMAGE_TYPE_PATTERN + ".*SEGMENTATION.*";
 
     // --- Microscopy sample types
 
-    // the sample is considered to be a microscopy sample if its type code contains this string
+    /** The sample is considered to be a microscopy sample if its type code contains this string. */
     public static final String MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN = MICROSCOPY_IMAGE_TYPE_PATTERN;
 
     // --- Default dataset type codes for screening datasets
@@ -110,10 +125,10 @@ public class ScreeningConstants
 
     // ----
 
-    // code of plate geometry vocabulary
+    /** Code of plate geometry vocabulary. */
     public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
 
-    // Used to import Qiagen siRNA libraries
+    /** Used to import Qiagen siRNA libraries. */
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
     /** Types of materials which should be for grouping the analysis results */

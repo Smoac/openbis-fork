@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.PlateMetadataGridColumnIDs.TYPE;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * @author Izabela Adamczyk
  * @author Franz-Josef Elmer
  */
-class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
+public class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
 {
     static final String CONTENT_PROPERTY_PREFIX = "CONTENT_PROPERTY__";
     

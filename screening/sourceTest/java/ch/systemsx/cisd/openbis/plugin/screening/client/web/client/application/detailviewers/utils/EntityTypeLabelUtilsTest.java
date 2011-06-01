@@ -1,0 +1,50 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
+import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+
+/**
+ * Test of {@link EntityTypeLabelUtils}
+ * 
+ * @author Tomasz Pylak
+ */
+@Friend(toClasses = EntityTypeLabelUtils.class)
+public class EntityTypeLabelUtilsTest extends AssertJUnit
+{
+    @Test
+    public void test()
+    {
+        assertEquals("2011-05-30, Raw (DAT)", createLabel("HCS_IMAGE_RAW", true));
+        assertEquals("2011-05-30, Features", createLabel("HCS_ANALYSIS_WELL_FEATURES", false));
+        assertEquals("2011-05-30, Analysis cell classifications (DAT)",
+                createLabel("HCS_ANALYSIS_CELL_CLASSIFICATIONS", true));
+
+    }
+
+    private String createLabel(String typeCode, boolean withFileType)
+    {
+        DatasetReference ref =
+                new DatasetReference(0, "code", typeCode, null, "DAT", null, null, null, null);
+        return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30");
+    }
+
+}

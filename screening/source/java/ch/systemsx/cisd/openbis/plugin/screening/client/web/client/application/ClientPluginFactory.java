@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
@@ -54,13 +55,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingMaterialViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialFeaturesFromAllExperimentsViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialReplicaSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MicroscopyDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
@@ -175,6 +180,40 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     /**
+     * Opens experiment detail viewer. In embedded mode only the content of the analysis summary tab
+     * is presented.
+     */
+    public static final void openImagingExperimentViewer(
+            final IEntityInformationHolderWithPermId experiment,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        if (viewContext.getModel().isEmbeddedMode())
+        {
+            ExperimentAnalysisSummaryViewer.openTab(viewContext, new TechId(experiment));
+        } else
+        {
+            new OpenEntityDetailsTabAction(experiment, viewContext).execute();
+        }
+    }
+
+    /**
+     * Creates a link to experiment detail viewer. In embedded mode the link will lead to the tab
+     * which has only the content of the analysis summary panel.
+     */
+    public static String createImagingExperimentViewerLink(ExperimentReference experiment,
+            IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        if (viewContext.getModel().isEmbeddedMode())
+        {
+            return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
+                    .getPermId());
+        } else
+        {
+            return LinkExtractor.tryExtract(experiment);
+        }
+    }
+
+    /**
      * Opens material detail viewer. Shows wells in which the material is contained, with a selected
      * experiment. In embedded mode only the content of the replica summary tab is presented.
      * 
@@ -189,19 +228,50 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         String experimentPermId = tryGetExperimentPermId(experimentCriteriaOrNull);
         if (viewContext.getModel().isEmbeddedMode())
         {
+            MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
             if (experimentPermId != null)
             {
-                MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
                 MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId,
                         materialIdentifier);
             } else
             {
-                // TODO 2011-05-17, Tomasz Pylak: open view showing all assays with the material
-                openImagingMaterialGenericViewer(material, experimentCriteriaOrNull, viewContext);
+                MaterialFeaturesFromAllExperimentsViewer.openTab(viewContext, materialIdentifier,
+                        null);
             }
         } else
         {
             openImagingMaterialGenericViewer(material, experimentCriteriaOrNull, viewContext);
+        }
+    }
+
+    /**
+     * Creates a link to material detail viewer. In embedded mode the link will lead to the tab
+     * which has only the replica summary panel (for a chosen experiment or for all of them,
+     * depending on the criteria).
+     */
+    public static String createImagingMaterialViewerLink(
+            final IEntityInformationHolderWithPermId material,
+            final ExperimentSearchCriteria experimentCriteria,
+            IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        if (viewContext.getModel().isEmbeddedMode())
+        {
+            SingleExperimentSearchCriteria experiment = experimentCriteria.tryGetExperiment();
+            String materialCode = material.getCode();
+            String materialTypeCode = material.getEntityType().getCode();
+            if (experiment != null)
+            {
+                return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(
+                        experiment.getExperimentPermId(), materialCode, materialTypeCode);
+            } else
+            {
+                return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
+                        materialCode, materialTypeCode);
+            }
+        } else
+        {
+            return ScreeningLinkExtractor
+                    .tryCreateMaterialDetailsLink(material, experimentCriteria);
         }
     }
 

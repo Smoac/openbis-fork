@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.FILE_FORMAT_TYPE;
@@ -63,7 +63,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
 
     private final WellSearchCriteria materialCriteria;
 
-    WellContentProvider(IScreeningServer server, String sessionToken,
+    public WellContentProvider(IScreeningServer server, String sessionToken,
             WellSearchCriteria materialCriteria)
     {
         this.server = server;

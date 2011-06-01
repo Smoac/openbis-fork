@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialReplicaFeatureSummaryGridColumnIDs.DEVIATION;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialReplicaFeatureSummaryGridColumnIDs.FEATURE;
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
  * 
  * @author Kaloyan Enimanev
  */
-class MaterialReplicaFeatureSummaryProvider extends
+public class MaterialReplicaFeatureSummaryProvider extends
         AbstractTableModelProvider<MaterialReplicaFeatureSummary>
 {
     private static final String DEFAULT_SUBGROUP = "DEFAULT_SUBGROUP-";
@@ -73,7 +73,9 @@ class MaterialReplicaFeatureSummaryProvider extends
         builder.addColumn(FEATURE);
         builder.addColumn(MEDIAN).withDataType(DataTypeCode.REAL);
         builder.addColumn(DEVIATION).withDataType(DataTypeCode.REAL);
-        String rankTitle = "Rank (" + replicaResult.getNumberOfMaterialsInExperiment() + ")";
+        String rankTitle =
+                ScreeningProviderMessages.getRankColumnHeader(replicaResult
+                        .getNumberOfMaterialsInExperiment());
         builder.addColumn(RANK).withDataType(DataTypeCode.INTEGER).withTitle(rankTitle);
 
         List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
@@ -138,7 +140,8 @@ class MaterialReplicaFeatureSummaryProvider extends
         for (int i = 0; i < featureValues.length; i++)
         {
             String replicaColumnId = getReplicaColumnId(groupLabel, i);
-            String replicaColumnTitle = getReplicaColumnTitle(groupLabel, i + 1);
+            String replicaColumnTitle =
+                    ScreeningProviderMessages.getReplicaColumnTitle(groupLabel, i + 1);
             columnGroup.column(replicaColumnId).withDataType(DataTypeCode.REAL)
                     .withTitle(replicaColumnTitle).addDouble((double) featureValues[i]);
         }
@@ -168,12 +171,6 @@ class MaterialReplicaFeatureSummaryProvider extends
             MaterialReplicaSummaryAggregationType aggregationType)
     {
         return group + " " + aggregationType.name().toLowerCase();
-    }
-
-    private String getReplicaColumnTitle(String group, int i)
-    {
-
-        return group + " repl. " + i;
     }
 
     private String getReplicaColumnId(String group, int replicaIdx)

@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
@@ -49,13 +48,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.PropertiesUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * Component which for a specified material and experiment presents 1. feature vectors (detailed and
@@ -72,8 +74,6 @@ public class MaterialReplicaSummaryComponent
     private static final String REPLICATE_ABBREV_DICT_MSG = "repl.";
 
     private static final String NO_IMAGES_AVAILABLE_DICT_MSG = "No images available.";
-
-    private static final String MATERIAL_ID_DICT_MSG = "Id";
 
     private static final int ONE_IMAGE_SIZE_FACTOR_PX = 60;
 
@@ -368,29 +368,61 @@ public class MaterialReplicaSummaryComponent
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final IEntityInformationHolderWithPermId experiment, final Material material)
     {
+        LayoutContainer headerPanel = new LayoutContainer();
+        headerPanel.setLayout(new TableLayout(2));
+
         Widget headingWidget = createHeaderTitle(experiment, material);
-        Text emptyBox = new Text();
-        emptyBox.setWidth(200);
+        headerPanel.add(headingWidget);
+
+        LayoutContainer rightLinksPanel = new LayoutContainer();
+        rightLinksPanel.setLayout(new RowLayout());
+        RowData linkMargins = new RowData(-1, -1, new Margins(0, 0, 0, 50));
+
+        // in non-embedded mode there is a separate tab in material detail view with all assays
+        // information, so we do not display this link there
+        if (viewContext.getModel().isEmbeddedMode())
+        {
+            Widget materialInAllAssaysSummaryLink =
+                    createMaterialInAllAssaysSummaryLink(viewContext, material);
+            rightLinksPanel.add(materialInAllAssaysSummaryLink, linkMargins);
+        }
+
         Widget assayAnalysisSummaryLink =
                 createAssayAnalysisSummaryLink(viewContext, experiment, material);
-        LayoutContainer headerPanel = new LayoutContainer();
-        headerPanel.setLayout(new ColumnLayout());
-        headerPanel.add(headingWidget);
-        headerPanel.add(emptyBox);
-        headerPanel.add(assayAnalysisSummaryLink);
+        rightLinksPanel.add(assayAnalysisSummaryLink, linkMargins);
+
+        headerPanel.add(rightLinksPanel);
         return headerPanel;
+    }
+
+    private static Widget createMaterialInAllAssaysSummaryLink(
+            final IViewContext<IScreeningClientServiceAsync> viewContext, final Material material)
+    {
+        // add link to feature vector summary for the experiment
+        String linkUrl =
+                ClientPluginFactory.createImagingMaterialViewerLink(material,
+                        ExperimentSearchCriteria.createAllExperiments(), viewContext);
+        String linkText =
+                "Find " + MaterialComponentUtils.getMaterialFullName(material, false)
+                        + " in all assays";
+        Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    ClientPluginFactory.openImagingMaterialViewer(material,
+                            ExperimentSearchCriteria.createAllExperiments(), viewContext);
+                }
+            }, linkUrl);
+        return linkWidget;
     }
 
     private static Html createHeaderTitle(final IEntityInformationHolderWithPermId experiment,
             final Material material)
     {
-        String headingText =
-                MaterialComponentUtils.getMaterialTypeAsTitle(material) + " "
-                        + MaterialComponentUtils.getMaterialName(material) + " in assay "
-                        + experiment.getCode();
+        String materialDesc = MaterialComponentUtils.getMaterialFullName(material, true);
+        String headingText = materialDesc + " in assay " + experiment.getCode();
         return PropertiesUtil.createHeaderTitle(headingText);
     }
-
 
     private static Widget createAssayAnalysisSummaryLink(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
@@ -400,14 +432,12 @@ public class MaterialReplicaSummaryComponent
         String linkUrl =
                 ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
                         .getPermId());
-        String linkText = "Show assay " + experiment.getCode() + " analysis summary";
+        String linkText = "Show assay " + experiment.getCode();
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
-                    // TODO KE: We bind ourselves with
-                    // the implementation of the other view instead of relying on the browser
-                    ExperimentAnalysisSummaryViewer.openTab(viewContext, experiment.getPermId());
+                    ClientPluginFactory.openImagingExperimentViewer(experiment, viewContext);
                 }
             }, linkUrl);
         return linkWidget;
@@ -417,10 +447,9 @@ public class MaterialReplicaSummaryComponent
     {
         LayoutContainer propertiesPanel = new LayoutContainer();
         propertiesPanel.setLayout(new RowLayout());
-        Map<String, String> additionalProperties = new HashMap<String, String>();
-        additionalProperties.put(MATERIAL_ID_DICT_MSG, material.getCode());
-        PropertiesUtil.addProperties(material, propertiesPanel, additionalProperties,
-                ScreeningConstants.GENE_SYMBOLS);
+        PropertiesUtil.addProperties(material, propertiesPanel,
+                MaterialComponentUtils.createAdditionalMaterialProperties(material),
+                MaterialComponentUtils.getExcludedMatrialProperties());
         return propertiesPanel;
     }
 

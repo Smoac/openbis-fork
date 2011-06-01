@@ -32,14 +32,13 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.EntityTypeLabelUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
@@ -93,7 +92,7 @@ class ImagingDatasetGuiUtils
         c.add(new Text(UNKNOWN_DATASETS_LABEL));
         for (DatasetReference dataset : unknownDatasets)
         {
-            String label = createUnknownDatasetLabel(dataset);
+            String label = EntityTypeLabelUtils.createDatasetLabel(dataset, true);
             Widget detailsLink = createDatasetDetailsLink(dataset, label, viewContext);
             // WORKAROUND without wrapping in table all links are rendered in the same line )in
             // spite of the row layout)
@@ -108,12 +107,6 @@ class ImagingDatasetGuiUtils
         container.setLayout(new TableLayout(1));
         container.add(detailsLink);
         return container;
-    }
-
-    private static String createUnknownDatasetLabel(DatasetReference datasetReference)
-    {
-        return datasetReference.getEntityType().getCode() + ", registered on "
-                + createDatasetLabel(datasetReference);
     }
 
     public Widget createFeatureVectorDatasetDetailsRow(
@@ -176,9 +169,9 @@ class ImagingDatasetGuiUtils
                 List<FeatureVectorDataset> featureVectorDatasets,
                 final IFeatureVectorDatasetReferenceUpdater datasetUpdater)
         {
+            List<String> datasetLabels = getDatasetLabels(featureVectorDatasets);
             final SimpleModelComboBox<FeatureVectorDataset> datasetChooser =
-                    createDatasetChooserComboBox(viewContext, featureVectorDatasets,
-                            createDatasetLabels(asFeatureVectorReferences(featureVectorDatasets)));
+                    createDatasetChooserComboBox(viewContext, featureVectorDatasets, datasetLabels);
             final Anchor datasetDetailsButton = createImageAnalysisDetailsButton(datasetChooser);
             datasetChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<FeatureVectorDataset>>>()
@@ -200,6 +193,14 @@ class ImagingDatasetGuiUtils
             return GuiUtils.renderInRow(
                     withLabel(datasetChooser, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL),
                     datasetDetailsButton);
+        }
+
+        private List<String> getDatasetLabels(List<FeatureVectorDataset> featureVectorDatasets)
+        {
+            List<DatasetReference> references = asFeatureVectorReferences(featureVectorDatasets);
+            List<String> datasetLabels =
+                    EntityTypeLabelUtils.createDatasetLabels(references, false);
+            return datasetLabels;
         }
 
         private Widget createAndConnectFeatureVectorDatasetInfo(
@@ -330,7 +331,8 @@ class ImagingDatasetGuiUtils
         {
             final SimpleModelComboBox<ImageDatasetEnrichedReference> datasetChooser =
                     createDatasetChooserComboBox(viewContext, imageDatasets,
-                            createDatasetLabels(asReferences(imageDatasets)));
+                            EntityTypeLabelUtils.createDatasetLabels(asReferences(imageDatasets),
+                                    true));
 
             final Anchor datasetDetailsButton = createImageDetailsButton(datasetChooser);
             datasetChooser
@@ -393,25 +395,6 @@ class ImagingDatasetGuiUtils
     }
 
     // ----------- generic helpers --------------------
-
-    private static String createDatasetLabel(DatasetReference datasetReference)
-    {
-        String registrationDate =
-                DateRenderer.renderDate(datasetReference.getRegistrationDate(),
-                        BasicConstant.DATE_WITHOUT_TIME_FORMAT_PATTERN);
-        return registrationDate + ", " + datasetReference.getCode() + " ("
-                + datasetReference.getFileTypeCode() + ")";
-    }
-
-    private final static List<String> createDatasetLabels(List<DatasetReference> datasetReferences)
-    {
-        List<String> labels = new ArrayList<String>(datasetReferences.size());
-        for (DatasetReference dataset : datasetReferences)
-        {
-            labels.add(createDatasetLabel(dataset));
-        }
-        return labels;
-    }
 
     private static Widget createDatasetDetailsLink(final DatasetReference dataset, String label,
             final IViewContext<?> viewContext)

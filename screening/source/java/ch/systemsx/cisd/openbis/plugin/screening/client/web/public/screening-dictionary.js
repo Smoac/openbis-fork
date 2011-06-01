@@ -63,10 +63,10 @@ register: "Register",
 separator: "Separator",
 
 //
-// Gene Viewer
+// Material Viewer
 //
 plate_locations: "Plate Locations",
-REPLICA_SUMMARY_MATERIAL_SECTION_TITLE: "Assay Summary",
+MATERIAL_REPLICA_SUMMARY_SECTION_TITLE: "{0} Summary",
 
 //
 // Plate Material Reviewer 
@@ -95,7 +95,8 @@ material_replica_feature_summary_RANK: "Rank",
 material_replica_feature_summary_MEDIAN: "Median",
 material_replica_feature_summary_DEVIATION: "Deviation",
 
-material_features_from_all_experiments_ASSAY: "Assay",
+material_features_from_all_experiments_ASSAY: "Whole Assay",
+material_features_from_all_experiments_MATERIAL: "Details",
 MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "All Assays",
 
 EXACT_MATCH_ONLY: "Exact Matches Only",

@@ -16,18 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.Set;
-
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -39,11 +27,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 
 /**
@@ -59,42 +47,38 @@ public class ExperimentAnalysisSummaryViewer
             String experimentPermId)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId, new ExperimentFoundCallback(screeningViewContext));
+                experimentPermId,
+                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(IEntityInformationHolderWithPermId experiment)
+                        {
+                            TechId experimentId = new TechId(experiment);
+                            openTab(screeningViewContext, experimentId);
+                        }
+                    });
     }
 
-    private static class ExperimentFoundCallback extends
-            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
+    public static void openTab(
+            final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            TechId experimentId)
     {
-        ExperimentFoundCallback(IViewContext<IScreeningClientServiceAsync> screeningViewContext)
-        {
-            super(screeningViewContext);
-        }
-
-        @Override
-        protected void process(IEntityInformationHolderWithPermId experiment)
-        {
-
-            viewContext.getCommonService().getExperimentInfo(new TechId(experiment),
-                    new AbstractAsyncCallback<Experiment>(viewContext)
+        screeningViewContext.getCommonService().getExperimentInfo(experimentId,
+                new AbstractAsyncCallback<Experiment>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(Experiment result)
                         {
-
-                            @SuppressWarnings("unchecked")
-                            @Override
-                            protected void process(Experiment result)
-                            {
-                                AbstractTabItemFactory factory =
-                                        createTabFactory(
-                                                (IViewContext<IScreeningClientServiceAsync>) viewContext,
-                                                result);
-                                DispatcherHelper.dispatchNaviEvent(factory);
-                            }
-                        });
-        }
+                            AbstractTabItemFactory factory =
+                                    createTabFactory(screeningViewContext, result);
+                            DispatcherHelper.dispatchNaviEvent(factory);
+                        }
+                    });
     }
 
     private static AbstractTabItemFactory createTabFactory(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final Experiment experiment)
+            final IEntityInformationHolderWithProperties experiment)
     {
         return new AbstractTabItemFactory()
             {
@@ -137,73 +121,15 @@ public class ExperimentAnalysisSummaryViewer
     }
 
     private static IDisposableComponent createViewer(
-            IViewContext<IScreeningClientServiceAsync> viewContext, Experiment experiment)
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            IEntityInformationHolderWithProperties experiment)
     {
         String headingText = "Assay " + experiment.getCode();
         final IDisposableComponent gridComponent =
                 ExperimentAnalysisSummaryGrid.create(viewContext, experiment);
 
-        return createViewer(viewContext, experiment, headingText, gridComponent);
-    }
-
-    /** Creates a grid with some header on top containing the specified title and entity properties. */
-    private static IDisposableComponent createViewer(
-            IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithProperties entity, String headingText,
-            final IDisposableComponent gridComponent)
-    {
-        final LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new BorderLayout());
-
-        addHeader(panel, viewContext, headingText, entity);
-
-        panel.add(gridComponent.getComponent(), new BorderLayoutData(LayoutRegion.CENTER));
-
-        return new IDisposableComponent()
-            {
-
-                public void update(Set<DatabaseModificationKind> observedModifications)
-                {
-                }
-
-                public DatabaseModificationKind[] getRelevantModifications()
-                {
-                    return new DatabaseModificationKind[0];
-                }
-
-                public Component getComponent()
-                {
-                    return panel;
-                }
-
-                public void dispose()
-                {
-                    gridComponent.dispose();
-                }
-            };
-    }
-
-    private static void addHeader(LayoutContainer parentPanel,
-            IViewContext<IScreeningClientServiceAsync> viewContext, String headingText,
-            IEntityInformationHolderWithProperties entity)
-    {
-        LayoutContainer panel = new LayoutContainer();
-        panel.setLayout(new RowLayout());
-        panel.setScrollMode(Scroll.AUTOY);
-
-        Widget headingWidget = PropertiesUtil.createHeaderTitle(headingText);
-        panel.add(headingWidget, PropertiesUtil.createHeaderTitleLayoutData());
-
-        LayoutContainer propertiesPanel = new LayoutContainer();
-        propertiesPanel.setLayout(new RowLayout());
-        int propsHeight = PropertiesUtil.addProperties(entity, propertiesPanel, null);
-        panel.add(propertiesPanel, new RowData(1, propsHeight));
-
-        int headersHeight = 25;
-        int totalHeight = propsHeight + headersHeight;
-        BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.NORTH, totalHeight);
-        layoutData.setMargins(PropertiesUtil.createHeaderInfoMargin());
-        parentPanel.add(panel, layoutData);
+        return MaterialComponentUtils.createExperimentViewer(viewContext, experiment, headingText,
+                gridComponent);
     }
 
 }

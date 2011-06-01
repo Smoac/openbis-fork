@@ -30,7 +30,7 @@ class MaterialReplicaSummarySection extends TabContent
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             String experimentPermId)
     {
-        super(screeningViewContext.getMessage(Dict.REPLICA_SUMMARY_MATERIAL_SECTION_TITLE),
+        super(screeningViewContext.getMessage(Dict.MATERIAL_REPLICA_SUMMARY_SECTION_TITLE, ""),
                 screeningViewContext, material);
         this.screeningViewContext = screeningViewContext;
         this.material = material;
@@ -50,6 +50,9 @@ class MaterialReplicaSummarySection extends TabContent
                         @Override
                         protected void process(IEntityInformationHolderWithPermId experiment)
                         {
+                            setHeading(screeningViewContext.getMessage(
+                                    Dict.MATERIAL_REPLICA_SUMMARY_SECTION_TITLE,
+                                    experiment.getCode()));
                             createAndShowViewer(experiment);
                             // NOTE: we need this because the viewer has been shown asynchronously
                             // and the sections framework could perform the layout to early

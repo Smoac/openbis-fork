@@ -24,4 +24,5 @@ public class MaterialFeatureVectorsFromAllExperimentsGridColumnIDs
 
     public static final String EXPERIMENT = "ASSAY";
 
+    public static final String MATERIAL = "MATERIAL";
 }

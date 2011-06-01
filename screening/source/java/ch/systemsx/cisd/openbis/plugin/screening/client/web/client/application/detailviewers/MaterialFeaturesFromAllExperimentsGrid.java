@@ -22,16 +22,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs;
 
 /**
  * A grid showing feature vector summaries for a material from all corresponding experiments.
@@ -47,29 +56,94 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
 
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    private final IViewContext<IScreeningClientServiceAsync> specificViewContext;
+    private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final TechId materialId;
+    private final IEntityInformationHolderWithPermId material;
 
     private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
 
     public static IDisposableComponent create(
-            IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            IEntityInformationHolderWithPermId material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFeaturesFromAllExperimentsGrid(viewContext, materialId,
+        return new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
                 experimentSearchCriteria).asDisposableWithoutToolbar();
     }
 
     MaterialFeaturesFromAllExperimentsGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            IEntityInformationHolderWithPermId material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.MATERIAL_REPLICA_FEATURE_SUMMARY_SECTION);
-        this.specificViewContext = viewContext;
-        this.materialId = materialId;
+        this.screeningViewContext = viewContext;
+        this.material = material;
         this.experimentSearchCriteria = experimentSearchCriteria;
         setBorders(true);
+        linkExperiment();
+        linkMaterialInExperiment();
+    }
+
+    private void linkExperiment()
+    {
+        registerListenerAndLinkGenerator(
+                MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.EXPERIMENT,
+                new ICellListenerAndLinkGenerator<MaterialSimpleFeatureVectorSummary>()
+                    {
+                        public void handle(
+                                TableModelRowWithObject<MaterialSimpleFeatureVectorSummary> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            ClientPluginFactory.openImagingExperimentViewer(rowItem
+                                    .getObjectOrNull().getExperiment(), screeningViewContext);
+                        }
+
+                        public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
+                                ISerializableComparable value)
+                        {
+                            return ClientPluginFactory.createImagingExperimentViewerLink(
+                                    entity.getExperiment(), screeningViewContext);
+                        }
+                    });
+    }
+
+    private void linkMaterialInExperiment()
+    {
+        registerListenerAndLinkGenerator(
+                MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.MATERIAL,
+                new ICellListenerAndLinkGenerator<MaterialSimpleFeatureVectorSummary>()
+                    {
+                        public void handle(
+                                TableModelRowWithObject<MaterialSimpleFeatureVectorSummary> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            String experimentPermId =
+                                    rowItem.getObjectOrNull().getExperiment().getPermId();
+                            // NOTE: even in not-embedded mode we open specific standalone summary
+                            // view instead of material detail view (which contains the summary view
+                            // as one of its tabs). The reason is that in such a case we are already
+                            // in material detail view and the possibility of switching tabs is not
+                            // implemented there.
+                            MaterialReplicaSummaryViewer.openTab(screeningViewContext,
+                                    experimentPermId, new MaterialIdentifier(material));
+                        }
+
+                        public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
+                                ISerializableComparable value)
+                        {
+                            ExperimentSearchCriteria experiment = getExperimentCriteria(entity);
+                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                                    experiment);
+                        }
+                    });
+    }
+
+    private static ExperimentSearchCriteria getExperimentCriteria(
+            MaterialSimpleFeatureVectorSummary summary)
+    {
+        ExperimentReference experimentRef = summary.getExperiment();
+        return ExperimentSearchCriteria.createExperiment(experimentRef);
     }
 
     @Override
@@ -77,8 +151,8 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback)
     {
-        specificViewContext.getService().listMaterialFeaturesFromAllExperiments(resultSetConfig,
-                materialId, experimentSearchCriteria, callback);
+        screeningViewContext.getService().listMaterialFeaturesFromAllExperiments(resultSetConfig,
+                new TechId(material), experimentSearchCriteria, callback);
     }
 
     @Override
@@ -86,7 +160,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        specificViewContext.getService().prepareExportMaterialFeaturesFromAllExperiments(
+        screeningViewContext.getService().prepareExportMaterialFeaturesFromAllExperiments(
                 exportCriteria, callback);
     }
 
