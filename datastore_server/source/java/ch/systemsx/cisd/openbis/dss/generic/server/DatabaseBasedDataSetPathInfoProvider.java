@@ -354,6 +354,17 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                 {
                     case '/':
                     case ',':
+                    case '-':
+                    case '#':
+                    case '@':
+                    case '&':
+                    case '\'':
+                    case '"':
+                    case ':':
+                    case ';':
+                    case '`':
+                    case '~':
+                    case '=':
                         result.append(ch);
                         startPosition++;
                         break;
@@ -368,6 +379,11 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                                 && pattern.charAt(startPosition) == '*')
                         {
                             result.append('%');
+                            startPosition++;
+                        } else if (startPosition < pattern.length()
+                                && pattern.charAt(startPosition) == '+')
+                        {
+                            result.append('_').append('%');
                             startPosition++;
                         } else
                         {
@@ -394,6 +410,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                                     break;
                                 case '.':
                                 case '$':
+                                case '^':
                                 case '(':
                                 case ')':
                                 case '[':
@@ -403,8 +420,25 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                                 case '{':
                                 case '}':
                                 case '|':
+                                case '+':
+                                case '-':
+                                case '#':
+                                case '@':
+                                case '&':
+                                case '\'':
+                                case '"':
+                                case ':':
+                                case ';':
+                                case '`':
+                                case '~':
+                                case '=':
                                     startPosition++;
                                     result.append(escaped);
+                                    break;
+                                case '%':
+                                case '_':
+                                    startPosition++;
+                                    result.append('\\').append(escaped);
                                     break;
                                 default:
                                     return null;
