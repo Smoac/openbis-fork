@@ -13,6 +13,7 @@
 		<antcall target="_dist"><param name="project" value="eu_basysbio"/></antcall>
 		<antcall target="_dist"><param name="project" value="rtd_cina"/></antcall>
 		<antcall target="_dist"><param name="project" value="plasmid"/></antcall>
+		<antcall target="_dist"><param name="project" value="eu_basynthec"/></antcall>
 		<antcall target="javadoc"/>
 	</target>
 
@@ -40,6 +41,7 @@
 		<antcall target="_clean"><param name="project" value="eu_basysbio"/></antcall>
 		<antcall target="_clean"><param name="project" value="rtd_cina"/></antcall>
 		<antcall target="_clean"><param name="project" value="plasmid"/></antcall>
+		<antcall target="_clean"><param name="project" value="eu_basynthec"/></antcall>
 	</target>
 
 	<target name="_clean">
