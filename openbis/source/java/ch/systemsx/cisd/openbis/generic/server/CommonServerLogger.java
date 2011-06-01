@@ -749,6 +749,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public Material getMaterialInfo(String sessionToken, MaterialIdentifier identifier)
+    {
+        logTracking(sessionToken, "getMaterialInfo", " IDENTIFIER(%S) ", identifier);
+        return null;
+    }
+
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
@@ -1094,4 +1100,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "updateMaterialProperty",
                 "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
     }
+
 }

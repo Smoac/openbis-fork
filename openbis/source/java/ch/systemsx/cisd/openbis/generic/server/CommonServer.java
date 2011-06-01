@@ -183,6 +183,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -219,6 +220,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
@@ -1539,12 +1541,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ProjectTranslator.translate(project);
     }
 
-    public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
-            final MaterialIdentifier identifier)
+    public Material getMaterialInfo(String sessionToken, final MaterialIdentifier identifier)
     {
         checkSession(sessionToken);
-        return createMaterialInformationHolder(identifier, getDAOFactory().getMaterialDAO()
-                .tryFindMaterial(identifier));
+        MaterialPE materialPE = getDAOFactory().getMaterialDAO().tryFindMaterial(identifier);
+        return (materialPE != null) ? MaterialTranslator.translate(materialPE) : null;
+    }
+
+    public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
+            MaterialIdentifier identifier)
+    {
+        return getMaterialInfo(sessionToken, identifier);
     }
 
     public Date updateMaterial(String sessionToken, TechId materialId,

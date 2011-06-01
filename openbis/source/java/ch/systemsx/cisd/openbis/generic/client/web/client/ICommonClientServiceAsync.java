@@ -666,6 +666,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolderWithPermId> callback);
 
     /**
+     * @see ICommonClientService#getMaterialInfo(MaterialIdentifier)
+     */
+    public void getMaterialInfo(MaterialIdentifier materialIdentifier,
+            AsyncCallback<Material> callback);
+
+    /**
      * @see ICommonClientService#getMaterialInformationHolder(MaterialIdentifier)
      */
     public void getMaterialInformationHolder(MaterialIdentifier materialIdentifier,
