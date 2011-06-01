@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -196,11 +197,11 @@ public class HistoryWidget extends ContentPanel
                                 public void onClick(ClickEvent event)
                                 {
                                     OpenEntityDetailsTabHelper.open(viewContext, entityKind,
-                                            permID, false);
+                                            permID,
+                                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
                                 }
                             };
-                        final Widget link =
-                                LinkRenderer.getLinkWidget(displayText, listener, href, false);
+                        final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href);
                         final String date =
                                 DateRenderer.renderDate(new Date(visit.getTimeStamp()),
                                         BasicConstant.DATE_WITH_SHORT_TIME);
