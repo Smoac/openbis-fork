@@ -27,6 +27,7 @@ import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.db.DBUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
@@ -113,16 +114,17 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             {
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
-                    String likeExpression = translateToLikeForm("^" + regularExpression + "$");
+                    String likeExpressionOrNull =
+                            DBUtils.tryToTranslateRegExpToLikeForm("^" + regularExpression + "$");
 
-                    if (likeExpression == null)
+                    if (likeExpressionOrNull == null)
                     {
                         return getDao().listDataSetFilesByRelativePathRegex(dataSetId,
                                 "^" + regularExpression + "$");
                     } else
                     {
                         return getDao().listDataSetFilesByRelativePathLikeExpression(dataSetId,
-                                likeExpression);
+                                likeExpressionOrNull);
                     }
                 }
             }).getInfos();
@@ -193,9 +195,10 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
         {
-            String likeExpression = translateToLikeForm(prepareDBStyleRegex(relativePathPattern));
+            String likeExpressionOrNull =
+                    DBUtils.tryToTranslateRegExpToLikeForm(prepareDBStyleRegex(relativePathPattern));
             List<DataSetFileRecord> records;
-            if (likeExpression == null)
+            if (likeExpressionOrNull == null)
             {
                 records =
                         dao.listDataSetFilesByRelativePathRegex(dataSetId,
@@ -203,7 +206,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             } else
             {
                 records =
-                        dao.listDataSetFilesByRelativePathLikeExpression(dataSetId, likeExpression);
+                        dao.listDataSetFilesByRelativePathLikeExpression(dataSetId, likeExpressionOrNull);
             }
             return asPathInfos(records);
         }
@@ -326,138 +329,5 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
     private static String prepareDBStyleRegex(String pattern)
     {
         return "^" + pattern + "$";
-    }
-
-    private static String translateToLikeForm(String pattern)
-    {
-        StringBuilder result = new StringBuilder();
-
-        int startPosition = 0;
-        if (pattern.startsWith("^"))
-        {
-            startPosition++;
-        } else
-        {
-            result.append('%');
-        }
-
-        while (startPosition < pattern.length())
-        {
-            char ch = pattern.charAt(startPosition);
-            if (Character.isLetter(ch) || Character.isDigit(ch) || Character.isWhitespace(ch))
-            {
-                result.append(ch);
-                startPosition++;
-            } else
-            {
-                switch (ch)
-                {
-                    case '/':
-                    case ',':
-                    case '-':
-                    case '#':
-                    case '@':
-                    case '&':
-                    case '\'':
-                    case '"':
-                    case ':':
-                    case ';':
-                    case '`':
-                    case '~':
-                    case '=':
-                        result.append(ch);
-                        startPosition++;
-                        break;
-                    case '%':
-                    case '_':
-                        result.append('\\').append(ch);
-                        startPosition++;
-                        break;
-                    case '.':
-                        startPosition++;
-                        if (startPosition < pattern.length()
-                                && pattern.charAt(startPosition) == '*')
-                        {
-                            result.append('%');
-                            startPosition++;
-                        } else if (startPosition < pattern.length()
-                                && pattern.charAt(startPosition) == '+')
-                        {
-                            result.append('_').append('%');
-                            startPosition++;
-                        } else
-                        {
-                            result.append('_');
-                        }
-                        break;
-                    case '$':
-                        startPosition++;
-                        if (startPosition < pattern.length())
-                        {
-                            result.append(ch);
-                        }
-                        break;
-                    case '\\':
-                        startPosition++;
-                        if (startPosition < pattern.length())
-                        {
-                            char escaped = pattern.charAt(startPosition);
-                            switch (escaped)
-                            {
-                                case '\\':
-                                    startPosition++;
-                                    result.append('\\').append('\\');
-                                    break;
-                                case '.':
-                                case '$':
-                                case '^':
-                                case '(':
-                                case ')':
-                                case '[':
-                                case ']':
-                                case '?':
-                                case '*':
-                                case '{':
-                                case '}':
-                                case '|':
-                                case '+':
-                                case '-':
-                                case '#':
-                                case '@':
-                                case '&':
-                                case '\'':
-                                case '"':
-                                case ':':
-                                case ';':
-                                case '`':
-                                case '~':
-                                case '=':
-                                    startPosition++;
-                                    result.append(escaped);
-                                    break;
-                                case '%':
-                                case '_':
-                                    startPosition++;
-                                    result.append('\\').append(escaped);
-                                    break;
-                                default:
-                                    return null;
-                            }
-                        } else
-                        {
-                            return null;
-                        }
-                        break;
-                    default:
-                        return null;
-                }
-            }
-        }
-
-        if (false == pattern.endsWith("$"))
-        {
-            result.append('%');
-        }
-        return result.toString();
     }
 }

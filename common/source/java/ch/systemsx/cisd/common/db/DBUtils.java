@@ -19,10 +19,13 @@ package ch.systemsx.cisd.common.db;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+
 /**
  * Useful utility method concerning database code.
  * 
  * @author Basil Neff
+ * @author Pawel Glyzewski
  */
 public final class DBUtils
 {
@@ -36,6 +39,150 @@ public final class DBUtils
         return timestampOrNull == null ? null : new Date(timestampOrNull.getTime());
     }
 
+    /**
+     * Translates given regular expression to database-like form if possible.
+     * Returns<code>null</code> if translation is not possible.
+     * 
+     *  @return regular expression in database-like form, or <code>null</code> if translation is not possible.
+     */
+    public static String tryToTranslateRegExpToLikeForm(String patternOrNull)
+    {
+        if (StringUtils.isBlank(patternOrNull)) {
+            return null;
+        }
+        
+        StringBuilder result = new StringBuilder();
+
+        int startPosition = 0;
+        if (patternOrNull.startsWith("^"))
+        {
+            startPosition++;
+        } else
+        {
+            result.append('%');
+        }
+
+        while (startPosition < patternOrNull.length())
+        {
+            char ch = patternOrNull.charAt(startPosition);
+            if (Character.isLetter(ch) || Character.isDigit(ch) || Character.isWhitespace(ch))
+            { // just copy letters, digits and whitespaces
+                result.append(ch);
+                startPosition++;
+            } else
+            {
+                switch (ch)
+                {
+                    case '/': // standard characters which should be simply copied to result
+                    case ',':
+                    case '-':
+                    case '#':
+                    case '@':
+                    case '&':
+                    case '\'':
+                    case '"':
+                    case ':':
+                    case ';':
+                    case '`':
+                    case '~':
+                    case '=':
+                        result.append(ch);
+                        startPosition++;
+                        break;
+                    case '%': // special characters for db-like form, should be escaped
+                    case '_':
+                        result.append('\\').append(ch);
+                        startPosition++;
+                        break;
+                    case '.': // translates . to _, .* to % and .+ to _%
+                        startPosition++;
+                        if (startPosition < patternOrNull.length()
+                                && patternOrNull.charAt(startPosition) == '*')
+                        {
+                            result.append('%');
+                            startPosition++;
+                        } else if (startPosition < patternOrNull.length()
+                                && patternOrNull.charAt(startPosition) == '+')
+                        {
+                            result.append('_').append('%');
+                            startPosition++;
+                        } else
+                        {
+                            result.append('_');
+                        }
+                        break;
+                    case '$': // end of string
+                        startPosition++;
+                        if (startPosition < patternOrNull.length())
+                        {
+                            result.append(ch);
+                        }
+                        break;
+                    case '\\': // unescape characters
+                        startPosition++;
+                        if (startPosition < patternOrNull.length())
+                        {
+                            char escaped = patternOrNull.charAt(startPosition);
+                            switch (escaped)
+                            {
+                                case '\\':
+                                    startPosition++;
+                                    result.append('\\').append('\\');
+                                    break;
+                                case '.':
+                                case '$':
+                                case '^':
+                                case '(':
+                                case ')':
+                                case '[':
+                                case ']':
+                                case '?':
+                                case '*':
+                                case '{':
+                                case '}':
+                                case '|':
+                                case '+':
+                                case '-':
+                                case '#':
+                                case '@':
+                                case '&':
+                                case '\'':
+                                case '"':
+                                case ':':
+                                case ';':
+                                case '`':
+                                case '~':
+                                case '=':
+                                    startPosition++;
+                                    result.append(escaped);
+                                    break;
+                                case '%':
+                                case '_':
+                                    startPosition++;
+                                    result.append('\\').append(escaped);
+                                    break;
+                                default: // unsupported character
+                                    return null;
+                            }
+                        } else // unsupported character
+                        {
+                            return null;
+                        }
+                        break;
+                    default: // unsupported character
+                        return null;
+                }
+            }
+        }
+
+        // check if we should match end of patters in exact way
+        if (false == patternOrNull.endsWith("$"))
+        {
+            result.append('%');
+        }
+        return result.toString();
+    }
+    
     private DBUtils()
     {
     }
