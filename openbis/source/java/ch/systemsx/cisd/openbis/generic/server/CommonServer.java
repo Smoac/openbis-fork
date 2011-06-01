@@ -1597,18 +1597,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return createInformationHolder(kind, entityOrNull);
     }
 
-    private IEntityInformationHolderWithPermId createMaterialInformationHolder(
-            final MaterialIdentifier identifier, IEntityInformationHolderDTO entityOrNull)
-    {
-        if (entityOrNull == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "There is no Material of type '%s' with code '%s'.", identifier.getTypeCode(),
-                    identifier.getCode());
-        }
-        return createInformationHolder(EntityKind.MATERIAL, entityOrNull);
-    }
-
     private IEntityInformationHolderWithPermId createInformationHolder(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind,
             IEntityInformationHolderDTO entity)
