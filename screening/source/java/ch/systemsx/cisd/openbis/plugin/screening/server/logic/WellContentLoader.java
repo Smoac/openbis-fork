@@ -110,6 +110,16 @@ public class WellContentLoader extends AbstractContentLoader
         return loader.loadLocations(materialId);
     }
 
+    /** loads wells metadata, but no information about image or image analysis datasets */
+    public static List<WellContent> loadOnlyMetadataForProject(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            TechId materialId, TechId projectId)
+    {
+        final WellContentLoader loader =
+                new WellContentLoader(session, businessObjectFactory, daoFactory);
+        return loader.loadLocationsForProject(materialId, projectId);
+    }
+
     /**
      * Finds wells matching the specified criteria. containing the specified materials and belonging
      * to the specified experiment. Loads wells content: metadata and (if available) image dataset
@@ -850,6 +860,14 @@ public class WellContentLoader extends AbstractContentLoader
     {
         DataIterator<WellContentQueryResult> locations =
                 createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId());
+        return convert(locations);
+    }
+
+    private List<WellContent> loadLocationsForProject(TechId geneMaterialId, TechId projectId)
+    {
+        DataIterator<WellContentQueryResult> locations =
+                createDAO(daoFactory).getPlateLocationsForMaterialAndProjectIds(
+                        geneMaterialId.getId(), projectId.getId());
         return convert(locations);
     }
 

@@ -51,11 +51,11 @@ public class MaterialFeaturesFromAllExperimentsComponent
 {
     private static final String MATERIAL_ID_DICT_MSG = "Id";
 
-    public static IDisposableComponent createViewer(
+    public static IDisposableComponent createComponent(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext).createViewer(
+        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext).createComponent(
                 material, experimentSearchCriteria);
     }
 
@@ -67,7 +67,7 @@ public class MaterialFeaturesFromAllExperimentsComponent
         this.screeningViewContext = screeningViewContext;
     }
 
-    private IDisposableComponent createViewer(Material material,
+    private IDisposableComponent createComponent(Material material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         final LayoutContainer panel = new LayoutContainer();

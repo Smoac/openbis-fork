@@ -82,6 +82,15 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId);
 
     /**
+     * @return well locations which are connected to a given material (e.g. gene) and belong to the
+     *         experiments within a given project.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT
+            + " where well_material.id = ?{1} and projects.id = ?{2}")
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialAndProjectIds(
+            long materialId, long projectId);
+
+    /**
      * @return well locations which belong to a parent plate connected to a specified experiment.
      *         Each well will have a material property (e.g. gene) with one of the specified codes.
      *         The connected material will have one of the specified types.

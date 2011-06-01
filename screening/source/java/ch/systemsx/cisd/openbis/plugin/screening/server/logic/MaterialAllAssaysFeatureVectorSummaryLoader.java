@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentSetCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
@@ -53,24 +52,27 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
 {
     public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, TechId materialId, ExperimentSetCriteria experiments,
+            IDAOFactory daoFactory, TechId materialId, TechId projectTechIdOrNull,
             MaterialSummarySettings settings)
     {
-        // FIXME 2011-05-30, Tomasz Pylak: implement restriction to a set of experiments
-        return loadMaterialFeatureVectorsFromAllAssays(session, businessObjectFactory, daoFactory,
-                materialId, settings);
-    }
-
-    public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
-            Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, TechId materialId, MaterialSummarySettings settings)
-    {
-        List<WellContent> allAssayWellsForMaterial =
-                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
-                        materialId);
+        List<WellContent> assayWellsForMaterial = null;
+        if (projectTechIdOrNull == null)
+        {
+            // load results from all experiments
+            assayWellsForMaterial =
+                    WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
+                            materialId);
+        } else
+        {
+            // load results only for experiments within a given project
+            assayWellsForMaterial =
+                    WellContentLoader.loadOnlyMetadataForProject(session, businessObjectFactory,
+                            daoFactory,
+                            materialId, projectTechIdOrNull);
+        }
         return new MaterialAllAssaysFeatureVectorSummaryLoader(session, businessObjectFactory,
                 daoFactory, settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
-                allAssayWellsForMaterial);
+                assayWellsForMaterial);
     }
 
     private final MaterialSummarySettings settings;

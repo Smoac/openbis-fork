@@ -15,6 +15,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialFeaturesFromAllExperimentsViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * Locator resolver for material summary from all experiments.
@@ -43,16 +44,24 @@ public class MaterialFeaturesFromAllExperimentsResolver extends AbstractViewLoca
 
         String projectCodeOrNull = getOptionalParameter(locator, PROJECT_CODE_KEY);
         String spaceCodeOrNull = getOptionalParameter(locator, SPACE_CODE_KEY);
-        BasicProjectIdentifier projectIdentifierOrNull = null;
-        if (false == StringUtils.isBlank(projectCodeOrNull)
-                && false == StringUtils.isBlank(spaceCodeOrNull))
+        
+        
+        ExperimentSearchByProjectCriteria experimentCriteria = null;
+        if (StringUtils.isBlank(projectCodeOrNull) || StringUtils.isBlank(spaceCodeOrNull))
         {
-            projectIdentifierOrNull =
+            experimentCriteria =
+                    ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects();
+        } else
+        {
+            BasicProjectIdentifier projectIdentifier =
                     new BasicProjectIdentifier(spaceCodeOrNull, projectCodeOrNull);
+            experimentCriteria =
+                    ExperimentSearchByProjectCriteria
+                            .createAllExperimentsForProject(projectIdentifier);
         }
 
         MaterialFeaturesFromAllExperimentsViewer.openTab(viewContext, materialIdentifier,
-                projectIdentifierOrNull);
+                experimentCriteria);
 
     }
 }

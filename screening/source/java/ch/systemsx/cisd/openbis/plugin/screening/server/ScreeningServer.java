@@ -56,12 +56,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -106,7 +108,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -311,13 +312,24 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, TechId materialId,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            WellSearchCriteria.ExperimentSearchByProjectCriteria experimentCriteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
+        
+        TechId projectTechIdOrNull;
+        if (experimentCriteria.isAllExperiments()) {
+            projectTechIdOrNull = null;
+        } else {
+            ProjectIdentifier projectIdentifier =
+                    new ProjectIdentifier(experimentCriteria.tryGetProjectIdentifier());
+            Project project = commonServer.getProjectInfo(sessionToken, projectIdentifier);
+            projectTechIdOrNull = new TechId(project);
+        }
         return MaterialAllAssaysFeatureVectorSummaryLoader.loadMaterialFeatureVectorsFromAllAssays(
-                session, businessObjectFactory, getDAOFactory(), materialId, settings);
+                session, businessObjectFactory, getDAOFactory(), materialId, projectTechIdOrNull,
+                settings);
     }
 
     public static MaterialSummarySettings createDefaultSettings()

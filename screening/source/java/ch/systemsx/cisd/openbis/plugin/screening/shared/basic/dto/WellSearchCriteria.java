@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 
@@ -154,12 +154,16 @@ public class WellSearchCriteria implements ISerializable
 
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        private Project projectOrNull;
+        private BasicProjectIdentifier projectIdOrNull;
 
         public static final ExperimentSearchByProjectCriteria createAllExperimentsForProject(
-                Project projectOrNull)
+                BasicProjectIdentifier projectIdentifier)
         {
-            return new ExperimentSearchByProjectCriteria(projectOrNull);
+            if (projectIdentifier == null)
+            {
+                throw new IllegalArgumentException("Project identifier cannot be null");
+            }
+            return new ExperimentSearchByProjectCriteria(projectIdentifier);
         }
 
         public static final ExperimentSearchByProjectCriteria createAllExperimentsForAllProjects()
@@ -171,25 +175,30 @@ public class WellSearchCriteria implements ISerializable
         {
         }
 
-        private ExperimentSearchByProjectCriteria(Project projectOrNull)
+        private ExperimentSearchByProjectCriteria(BasicProjectIdentifier projectIdOrNull)
         {
-            this.projectOrNull = projectOrNull;
+            this.projectIdOrNull = projectIdOrNull;
         }
 
-        public Project tryGetProject()
+        public BasicProjectIdentifier tryGetProjectIdentifier()
         {
-            return projectOrNull;
+            return projectIdOrNull;
+        }
+
+        public boolean isAllExperiments()
+        {
+            return projectIdOrNull == null;
         }
 
         @Override
         public String toString()
         {
-            if (projectOrNull == null)
+            if (isAllExperiments())
             {
                 return super.toString();
             } else
             {
-                return projectOrNull.toString();
+                return projectIdOrNull.toString();
             }
         }
     }
