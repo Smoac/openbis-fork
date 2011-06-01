@@ -237,7 +237,7 @@ class BundleDownloader
     private void downloadDataSet(DataSet dataSet, String subfolderNameOrNull)
     {
         IDataSetDss dataSetDss = component.getDataSet(dataSet.getCode());
-        FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/original/", true);
+        FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("original/", true);
 
         File targetDir =
                 (subfolderNameOrNull != null) ? new File(outputDir, subfolderNameOrNull)

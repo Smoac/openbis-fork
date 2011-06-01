@@ -218,7 +218,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    final String startPath = "/original/";
+                    final String startPath = "original/";
 
                     IDataSetDss bundleMetadata = context.mock(IDataSetDss.class, "bundle-metadata");
                     one(dssComponent).getDataSet("BUNDLE-METADATA");
