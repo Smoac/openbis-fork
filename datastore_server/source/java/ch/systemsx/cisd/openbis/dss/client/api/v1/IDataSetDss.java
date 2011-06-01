@@ -38,8 +38,9 @@ public interface IDataSetDss
     /**
      * List files contained in this data set.
      * 
-     * @param startPath The path for the listing. "/" is the root of the hierarchy for this data
-     *            set.
+     * @param startPath The path for the listing. The path must be relative with respect to the data
+     *            set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}. Use "/"
+     *            or "" for the root of the hierarchy for this data set.
      * @param isRecursive If true, the contents of any subdirectories will be listed as well.
      */
     public FileInfoDssDTO[] listFiles(String startPath, boolean isRecursive)
@@ -48,7 +49,7 @@ public interface IDataSetDss
     /**
      * Get an {@link InputStream} with contents of a file contained in this data set.
      * 
-     * @param path The path of the file to retrieve. The path must be absolute with respect to the
+     * @param path The path of the file to retrieve. The path must be relative with respect to the
      *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
      */
     public InputStream getFile(String path) throws IllegalArgumentException,

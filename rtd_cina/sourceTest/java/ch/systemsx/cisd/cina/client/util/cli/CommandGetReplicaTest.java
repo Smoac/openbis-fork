@@ -212,7 +212,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                 {
                     one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
                     will(returnValue(dataSetDss));
-                    final String startPath = "/original/";
+                    final String startPath = "original/";
                     one(dataSetDss).listFiles(startPath, true);
                     will(returnValue(rawImagesInfosArray));
                     one(dataSetDss).getFile(startPath + rawImagesFolderName + "/Image.txt");

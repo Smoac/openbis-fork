@@ -87,8 +87,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         try
         {
             content = getHierarchicalContent(dataSetCode);
-            IHierarchicalContentNode startPathNode =
-                    content.getNode("/".equals(startPath) ? "" : startPath);
+            IHierarchicalContentNode startPathNode = getContentNode(content, startPath);
 
             IHierarchicalContentNode listingRootNode =
                     (startPathNode.isDirectory()) ? startPathNode : content.getNode(startPathNode
@@ -122,7 +121,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         try
         {
             content = getHierarchicalContent(dataSetCode);
-            IHierarchicalContentNode contentNode = content.getNode(path);
+            IHierarchicalContentNode contentNode = getContentNode(content, path);
             return HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
         } catch (RuntimeException ex)
         {
@@ -134,6 +133,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             }
             throw ex;
         }
+    }
+
+    private IHierarchicalContentNode getContentNode(IHierarchicalContent content, String startPath)
+    {
+        // handle both relative and absolute paths for backward compatibility
+        return content.getNode(startPath.startsWith("/") ? startPath.substring(1) : startPath);
     }
 
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
