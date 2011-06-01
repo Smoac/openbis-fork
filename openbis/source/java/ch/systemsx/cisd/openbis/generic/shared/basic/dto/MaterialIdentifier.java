@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -56,6 +57,11 @@ public final class MaterialIdentifier implements ISerializable
     {
         this.code = code;
         this.typeCode = typeCode;
+    }
+
+    public MaterialIdentifier(IEntityInformationHolderWithPermId material)
+    {
+        this(material.getCode(), material.getEntityType().getCode());
     }
 
     public final String getCode()
