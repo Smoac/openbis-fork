@@ -22,6 +22,8 @@ public final class ImageFileInfo
     private Float depthOrNull;
 
     private Integer seriesNumberOrNull;
+    
+    private ImageIdentifier imageIdentifier;
 
     public ImageFileInfo(String channelCode, int tileRow, int tileColumn, String imageRelativePath)
     {
@@ -33,6 +35,11 @@ public final class ImageFileInfo
         setTile(tileRow, tileColumn);
     }
 
+    public ImageIdentifier tryGetImageIdentifier()
+    {
+        return imageIdentifier;
+        
+    }
     public Integer tryGetWellRow()
     {
         return wellLocationOrNull == null ? null : wellLocationOrNull.getY();
@@ -89,6 +96,11 @@ public final class ImageFileInfo
     }
 
     // --- setters
+    
+    public void setImageIdentifier(ImageIdentifier imageIdentifier)
+    {
+        this.imageIdentifier = imageIdentifier;
+    }
 
     public void setWell(int row, int column)
     {

@@ -28,9 +28,14 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.imagereaders.IImageReader;
+import ch.systemsx.cisd.imagereaders.ImageID;
+import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
@@ -59,6 +64,7 @@ public class SimpleImageDataSetRegistrator
             setTileNumber(imageTokens.getTileNumber());
             setDepth(imageTokens.tryGetDepth());
             setTimepoint(imageTokens.tryGetTimepoint());
+            setImageIdentifier(imageTokens.tryGetImageIdentifier());
             this.imageRelativePath = imageRelativePath;
         }
 
@@ -111,23 +117,56 @@ public class SimpleImageDataSetRegistrator
     {
         List<ImageTokensWithPath> imageTokensList = new ArrayList<ImageTokensWithPath>();
         List<File> imageFiles = listImageFiles(incomingDirectory);
+        ImageLibraryInfo imageLibraryInfoOrNull =
+                simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
+        IImageReader readerOrNull = null;
+        if (imageLibraryInfoOrNull != null)
+        {
+            readerOrNull = ImageReaderFactory.tryGetReader(imageLibraryInfoOrNull.getName(),
+                    imageLibraryInfoOrNull.getReaderName());
+        }
         for (File imageFile : imageFiles)
         {
-            String imageRelativePath =
-                    FileUtilities.getRelativeFilePath(incomingDirectory, new File(imageFile.getPath()));
-            ImageMetadata imageTokens = simpleImageConfig.extractImageMetadata(imageRelativePath);
-            imageTokens.ensureValid();
-            imageTokensList.add(new ImageTokensWithPath(imageTokens, imageRelativePath));
+            File file = new File(imageFile.getPath());
+            List<ImageIdentifier> identifiers = getImageIdentifiers(readerOrNull, file);
+            String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
+            ImageMetadata[] imageTokens =
+                    simpleImageConfig.extractImageMetadata(imageRelativePath, identifiers);
+            for (ImageMetadata imageToken : imageTokens)
+            {
+                imageToken.ensureValid();
+                imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+            }
         }
         if (imageTokensList.size() == 0)
         {
             throw UserFailureException.fromTemplate(
                     "Incoming directory '%s' contains no images with extensions %s!",
-                    incomingDirectory.getPath(),
-                    CollectionUtils.abbreviate(simpleImageConfig.getRecognizedImageExtensions(), -1));
+                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
+                            simpleImageConfig.getRecognizedImageExtensions(), -1));
         }
         return imageTokensList;
     }
+
+    private List<ImageIdentifier> getImageIdentifiers(IImageReader readerOrNull, File imageFile)
+    {
+        List<ImageIdentifier> ids = new ArrayList<ImageIdentifier>();
+        if (readerOrNull == null)
+        {
+            ids.add(ImageIdentifier.NULL);
+        } else
+        {
+            List<ImageID> imageIDs =
+                readerOrNull.getImageIDs(imageFile);
+            for (ImageID imageID : imageIDs)
+            {
+                ids.add(new ImageIdentifier(imageID.getSeriesIndex(), imageID.getTimeSeriesIndex(),
+                        imageID.getFocalPlaneIndex(), imageID.getColorChannelIndex()));
+            }
+        }
+        return ids;
+    }
+    
 
     /**
      * Creates ImageFileInfo for a given path to an image.
@@ -143,6 +182,7 @@ public class SimpleImageDataSetRegistrator
         img.setDepth(imageTokens.tryGetDepth());
         img.setSeriesNumber(imageTokens.tryGetSeriesNumber());
         img.setWell(imageTokens.getWell());
+        img.setImageIdentifier(imageTokens.tryGetImageIdentifier());
         return img;
     }
 

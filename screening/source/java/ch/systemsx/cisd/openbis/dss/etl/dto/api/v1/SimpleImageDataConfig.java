@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 abstract public class SimpleImageDataConfig
 {
-    // --- methods which have to be overridden -----------------
+    // --- one of the following two methods have to be overridden -----------------
 
     /**
      * Extracts tile number, channel code and well code for a given relative path to an image.
@@ -41,7 +41,27 @@ abstract public class SimpleImageDataConfig
      * by {@link #getRecognizedImageExtensions()}.
      * </p>
      */
-    abstract public ImageMetadata extractImageMetadata(String imagePath);
+    public ImageMetadata extractImageMetadata(String imagePath)
+    {
+        throw new UnsupportedOperationException(
+                "One of the extractImageMetadata() methods has to be implemented.");
+    }
+
+    /**
+     * Returns meta-data for each image contained in specified image file path. This method returns
+     * just the {@link ImageMetadata} object returned by {@link #extractImageMetadata(String)}.
+     * <p>
+     * In case of a image container file format (like multi-page TIFF) this method should
+     * overridden. 
+     * 
+     * @param imageIdentifiers Identifiers of all images contained in the image file.
+     */
+    public ImageMetadata[] extractImageMetadata(String imagePath,
+            List<ImageIdentifier> imageIdentifiers)
+    {
+        return new ImageMetadata[]
+            { extractImageMetadata(imagePath) };
+    }
 
     // --- methods which can be overridden -----------------
 
@@ -332,7 +352,7 @@ abstract public class SimpleImageDataConfig
     {
         this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName, readerName);
     }
-
+    
     // --- predefined image dataset types
 
     /**

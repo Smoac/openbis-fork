@@ -21,6 +21,8 @@ public class ImageMetadata
     private Float depthOrNull;
 
     private Integer seriesNumberOrNull;
+    
+    private ImageIdentifier imageIdentifierOrNull;
 
     public String getChannelCode()
     {
@@ -77,6 +79,15 @@ public class ImageMetadata
         this.seriesNumberOrNull = value;
     }
 
+    /**
+     * Sets the id of the image inside a container image file format. This is optional and not
+     * needed for image files which contain only one image.
+     */
+    public void setImageIdentifier(ImageIdentifier imageIdentifier)
+    {
+        imageIdentifierOrNull = imageIdentifier;
+    }
+    
     public Float tryGetTimepoint()
     {
         return timepointOrNull;
@@ -92,6 +103,11 @@ public class ImageMetadata
         return seriesNumberOrNull;
     }
 
+    public ImageIdentifier tryGetImageIdentifier()
+    {
+        return imageIdentifierOrNull;
+    }
+    
     /**
      * Validates that tile number, well and channel have been specified.
      * 
