@@ -148,8 +148,8 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class ExperimentSearchByProjectCriteria extends ExperimentSearchCriteria
-            implements IsSerializable, Serializable
+    public static final class ExperimentSearchByProjectCriteria implements IsSerializable,
+            Serializable
     {
 
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -168,11 +168,7 @@ public class WellSearchCriteria implements ISerializable
 
         public static final ExperimentSearchByProjectCriteria createAllExperimentsForAllProjects()
         {
-            return new ExperimentSearchByProjectCriteria();
-        }
-
-        private ExperimentSearchByProjectCriteria()
-        {
+            return new ExperimentSearchByProjectCriteria(null);
         }
 
         private ExperimentSearchByProjectCriteria(BasicProjectIdentifier projectIdOrNull)
