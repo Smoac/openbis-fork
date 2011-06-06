@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -44,21 +43,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPropertySection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenExperimentBrowserTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -341,20 +337,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected Widget createSpaceLink(final Space space)
     {
         final String href = LinkExtractor.createExperimentBrowserLink(space.getCode(), null, null);
-        ClickHandler listener = new ClickHandler()
-            {
-                public void onClick(ClickEvent event)
-                {
-                    final boolean keyPressed =
-                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent());
-                    AbstractTabItemFactory tabView =
-                            new ComponentProvider(viewContext.getCommonViewContext())
-                                    .getExperimentBrowser(space.getCode(), null, null);
-                    tabView.setInBackground(keyPressed);
-                    tabView.setForceReopen(true);
-                    DispatcherHelper.dispatchNaviEvent(tabView);
-                }
-            };
+        ClickHandler listener =
+                new OpenExperimentBrowserTabClickListener(viewContext, space.getCode(), null, true);
         Widget link = LinkRenderer.getLinkWidget(space.getCode(), listener, href);
         link.setTitle(viewContext.getMessage(Dict.SPACE) + " " + space.getCode());
         return link;
@@ -364,20 +348,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         final String href =
                 LinkExtractor.createExperimentBrowserLink(null, project.getIdentifier(), null);
-        ClickHandler listener = new ClickHandler()
-            {
-                public void onClick(ClickEvent event)
-                {
-                    final boolean keyPressed =
-                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent());
-                    AbstractTabItemFactory tabView =
-                            new ComponentProvider(viewContext.getCommonViewContext())
-                                    .getExperimentBrowser(null, project.getIdentifier(), null);
-                    tabView.setInBackground(keyPressed);
-                    tabView.setForceReopen(true);
-                    DispatcherHelper.dispatchNaviEvent(tabView);
-                }
-            };
+        ClickHandler listener =
+                new OpenExperimentBrowserTabClickListener(viewContext, null,
+                        project.getIdentifier(), true);
         Widget link = LinkRenderer.getLinkWidget(project.getCode(), listener, href);
         link.setTitle(viewContext.getMessage(Dict.PROJECT) + " " + project.getCode());
         return link;
