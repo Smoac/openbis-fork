@@ -43,16 +43,28 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
         return BioFormatsImageUtils.getReaderNames();
     }
 
+    /**
+     * Tries to create a reader of specified name. This is a factory method which returns for each
+     * invocation a new instance of the requested reader.
+     * 
+     * @return <code>null</code> if no corresponding reader is found.
+     */
     public IImageReader tryGetReader(String readerName)
     {
         final IFormatReader formatReaderOrNull =
-                BioFormatsImageUtils.tryFindReaderByName(readerName);
+                BioFormatsImageUtils.tryToCreateReaderByName(readerName);
         return tryAdaptFormatReader(formatReaderOrNull);
     }
 
+    /**
+     * Tries to create a suitable reader for the file specified with <var>fileName</var>. This is a
+     * factory method which returns for each invocation a new instance of a suitable reader. 
+     * 
+     * @return <code>null</code> if no suitable reader is found.
+     */
     public IImageReader tryGetReaderForFile(String fileName)
     {
-        IFormatReader formatReaderOrNull = BioFormatsImageUtils.tryFindReaderForFile(fileName);
+        IFormatReader formatReaderOrNull = BioFormatsImageUtils.tryToCreateReaderForFile(fileName);
         return tryAdaptFormatReader(formatReaderOrNull);
     }
 

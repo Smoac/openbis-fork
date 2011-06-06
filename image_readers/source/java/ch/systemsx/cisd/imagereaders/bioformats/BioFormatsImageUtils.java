@@ -23,7 +23,6 @@ import ij.process.ImageProcessor;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -53,48 +52,56 @@ import ch.systemsx.cisd.imagereaders.ImageID;
 final class BioFormatsImageUtils
 {
 
-    private final static List<IFormatReader> readers;
-
-    static
-    {
-        IFormatReader[] formatReaders = new ImageReader().getReaders();
-        readers = Arrays.asList(formatReaders);
-    }
+    private static final IFormatReader[] READERS = new ImageReader().getReaders();
 
     /**
-     * Tries to find a suitable reader for the file specified with <var>fileName</var>. May return
-     * <code>null</code> if no suitable reader is found.
-     * <p>
-     * Note that the suffix of <var>fileName</var> is used to find the right reader.
+     * Tries to create a suitable reader for the file specified with <var>fileName</var>. This is a
+     * factory method which returns for each invocation a new instance of a suitable reader. May
+     * return <code>null</code> if no suitable reader is found.
      */
-    public static IFormatReader tryFindReaderForFile(String fileName)
+    public static IFormatReader tryToCreateReaderForFile(String fileName)
     {
-        for (IFormatReader r : readers)
+        for (IFormatReader r : READERS)
         {
             if (r.isThisType(fileName))
             {
-                return r;
+                return createReader(r.getClass());
             }
         }
         return null;
     }
 
     /**
-     * Return an {@link IFormatReader} for a specified name. May return <code>null</code> if no
-     * corresponding reader is found.
+     * Tries to create an {@link IFormatReader} for a specified name. This is a factory method which
+     * returns for each invocation a new instance of the requested reader. May return
+     * <code>null</code> if no corresponding reader is found.
      */
-    public static IFormatReader tryFindReaderByName(String readerName)
+    public static IFormatReader tryToCreateReaderByName(String readerName)
             throws IllegalArgumentException
     {
-        for (IFormatReader r : readers)
+        for (Class<? extends IFormatReader> clazz : ImageReader.getDefaultReaderClasses()
+                .getClasses())
         {
-            if (r.getClass().getSimpleName().equals(readerName))
+            if (clazz.getSimpleName().equals(readerName))
             {
-                return r;
+                return createReader(clazz);
             }
         }
         return null;
+    }
 
+    private static IFormatReader createReader(Class<? extends IFormatReader> clazz) throws Error
+    {
+        try
+        {
+            return clazz.newInstance();
+        } catch (InstantiationException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
+        } catch (IllegalAccessException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     /**
@@ -102,8 +109,8 @@ final class BioFormatsImageUtils
      */
     public static List<String> getReaderNames()
     {
-        final List<String> readerNames = new ArrayList<String>(readers.size());
-        for (IFormatReader reader : readers)
+        List<String> readerNames = new ArrayList<String>(READERS.length);
+        for (IFormatReader reader : READERS)
         {
             String readerName = getReaderName(reader);
             readerNames.add(readerName);

@@ -40,7 +40,7 @@ public class BioFormatsInfo
     {
         for (String fileName : args)
         {
-            IFormatReader reader = BioFormatsImageUtils.tryFindReaderForFile(fileName);
+            IFormatReader reader = BioFormatsImageUtils.tryToCreateReaderForFile(fileName);
             if (reader == null)
             {
                 System.out.println("No image reader found for " + fileName);

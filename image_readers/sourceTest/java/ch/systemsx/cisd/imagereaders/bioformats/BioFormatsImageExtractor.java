@@ -48,7 +48,7 @@ public class BioFormatsImageExtractor
         }
         for (String fileName : fileNames)
         {
-            IFormatReader reader = BioFormatsImageUtils.tryFindReaderForFile(fileName);
+            IFormatReader reader = BioFormatsImageUtils.tryToCreateReaderForFile(fileName);
             if (reader == null)
             {
                 System.out.println("No reader found: " + fileName);
