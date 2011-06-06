@@ -49,8 +49,8 @@ final class ListExperimentsOriginalDataProvider extends AbstractOriginalDataProv
     {
         final List<Experiment> experiments =
                 commonServer.listExperiments(sessionToken, listCriteria.getExperimentType(),
-                        new ProjectIdentifier(listCriteria.getGroupCode(), listCriteria
-                                .getProjectCode()));
+                        new ProjectIdentifier(listCriteria.getSpaceCode(), listCriteria
+                                .tryGetProjectCode()));
         return experiments;
     }
 }

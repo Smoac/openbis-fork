@@ -54,11 +54,11 @@ public class SpaceIdentifierPredicate extends AbstractSpacePredicate<SpaceIdenti
     @Override
     protected
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final SpaceIdentifier groupIdentifierOrNull)
+            final SpaceIdentifier spaceIdentifierOrNull)
     {
         assert initialized : "Predicate has not been initialized";
-        final String groupCode = SpaceCodeHelper.getSpaceCode(person, groupIdentifierOrNull);
-        final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
-        return evaluate(person, allowedRoles, databaseInstance, groupCode);
+        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifierOrNull);
+        final DatabaseInstancePE databaseInstance = getDatabaseInstance(spaceIdentifierOrNull);
+        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
     }
 }

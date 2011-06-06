@@ -43,7 +43,7 @@ public class ProjectIdentifier extends SpaceIdentifier
 
     public ProjectIdentifier(final String spaceCode, final String projectCode)
     {
-        this(null, spaceCode, projectCode);
+        this(DatabaseInstanceIdentifier.HOME, spaceCode, projectCode);
     }
 
     public ProjectIdentifier(SpaceIdentifier spaceIdentifier, String projectCode)

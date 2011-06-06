@@ -101,7 +101,7 @@ public class SampleOwnerFinder
     private SampleOwner tryFindAbsoluteGroupOwner(final SpaceIdentifier spaceIdentifier)
     {
         final SpacePE group =
-                GroupIdentifierHelper.tryGetGroup(spaceIdentifier, personPE, daoFactory);
+                GroupIdentifierHelper.tryGetSpace(spaceIdentifier, personPE, daoFactory);
         if (group == null)
         {
             return null;

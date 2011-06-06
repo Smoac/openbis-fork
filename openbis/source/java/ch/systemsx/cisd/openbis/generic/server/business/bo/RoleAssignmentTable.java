@@ -114,7 +114,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
             final SpacePE group =
                     GroupIdentifierHelper
-                            .tryGetGroup(groupIdentifier, session.tryGetPerson(), this);
+                            .tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
             if (group == null)
             {
                 throw UserFailureException.fromTemplate("Specified space '%s' could not be found",

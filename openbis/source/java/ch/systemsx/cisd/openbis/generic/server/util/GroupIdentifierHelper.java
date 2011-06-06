@@ -201,7 +201,7 @@ public final class GroupIdentifierHelper
     }
 
     /** finds a space in the database for the given identifier */
-    public static final SpacePE tryGetGroup(final SpaceIdentifier spaceIdentifier,
+    public static final SpacePE tryGetSpace(final SpaceIdentifier spaceIdentifier,
             final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);

@@ -953,8 +953,8 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getExperimentBrowser(final String initialProjectOrNull,
-            final String initialExperimentTypeOrNull)
+    public AbstractTabItemFactory getExperimentBrowser(final String initialSpaceOrNull,
+            final String initialProjectOrNull, final String initialExperimentTypeOrNull)
     {
         return new AbstractTabItemFactory()
             {
@@ -962,8 +962,8 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     IDisposableComponent browser =
-                            ExperimentBrowserGrid.create(viewContext, initialProjectOrNull,
-                                    initialExperimentTypeOrNull);
+                            ExperimentBrowserGrid.create(viewContext, initialSpaceOrNull,
+                                    initialProjectOrNull, initialExperimentTypeOrNull);
                     return createTab(getTabTitle(), browser);
                 }
 
@@ -997,7 +997,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getExperimentBrowser()
     {
-        return getExperimentBrowser(null, null);
+        return getExperimentBrowser(null, null, null);
     }
 
     public AbstractTabItemFactory getPropertyTypeBrowser()

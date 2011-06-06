@@ -121,7 +121,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(ExperimentTypeCode.SIRNA_HCS.getCode(), expType.getCode());
 
         experiments =
-                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectNemo);
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectNemo,
+                        null); // TODO tests
         Collections.sort(experiments);
         assertEquals(4, experiments.size());
         ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
@@ -147,8 +148,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(ExperimentTypeCode.SIRNA_HCS.getCode(), expType.getCode());
 
         experiments =
-                daoFactory.getExperimentDAO()
-                        .listExperimentsWithProperties(expType, projectDefault);
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
+                        projectDefault, null); // TODO tests
         Collections.sort(experiments);
         assertEquals(3, experiments.size());
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
@@ -175,8 +176,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(ExperimentTypeCode.COMPOUND_HCS.getCode(), expType.getCode());
 
         experiments =
-                daoFactory.getExperimentDAO()
-                        .listExperimentsWithProperties(expType, projectDefault);
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
+                        projectDefault, null); // TODO tests
         Collections.sort(experiments);
         assertEquals(0, experiments.size());
     }

@@ -158,7 +158,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                 }
             };
     }
-    
+
     private Widget createLink(final DatastoreServiceDescription description,
             final DisplayedOrSelectedDatasetCriteria criteria)
     {
@@ -172,7 +172,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                 }
             };
         String label = StringEscapeUtils.unescapeHtml(description.getLabel());
-        return LinkRenderer.getLinkWidget(label, listener, href, false);
+        return LinkRenderer.getLinkWidget(label, listener, href);
     }
 
 }

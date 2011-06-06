@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -600,6 +599,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(experimentType.getCode(), projectIdentifier);
+        final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        Collections.sort(experiments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+    }
+
+    public final List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final SpaceIdentifier spaceIdentifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IExperimentTable experimentTable =
+                businessObjectFactory.createExperimentTable(session);
+        experimentTable.load(experimentType.getCode(), spaceIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
         return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
@@ -2495,7 +2506,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Experiment exp = dataSet.getExperiment();
         if (exp != null)
         {
-            updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp.getIdentifier()));
+            updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp
+                    .getIdentifier()));
         }
         String sampleIdentifier = dataSet.getSampleIdentifier();
         if (sampleIdentifier != null)
@@ -2550,5 +2562,5 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         properties.put(CodeConverter.getPropertyTypeCode(propertyColumnName), value);
         return properties;
     }
-    
+
 }

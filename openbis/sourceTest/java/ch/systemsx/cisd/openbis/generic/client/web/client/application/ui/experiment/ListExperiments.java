@@ -65,7 +65,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
         GWTUtils.unselect(experimentTypeSelector);
 
         GWTUtils.setSelectedItem(projectSelector,
-                ProjectSelectionTreeGridContainer.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
+                ProjectSelectionTreeGridContainer.PROJECT_WITH_SPACE_CODE, projectCodeOrNull);
 
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeNameOrNull);

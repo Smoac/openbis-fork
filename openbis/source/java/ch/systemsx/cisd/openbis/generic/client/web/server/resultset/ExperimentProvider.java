@@ -20,13 +20,13 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.SPACE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_INVALID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.SHOW_DETAILS_LINK;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.SPACE;
 
 import java.util.List;
 
@@ -40,12 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentProvider extends AbstractCommonTableModelProvider<Experiment>
@@ -63,10 +62,21 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
     @Override
     protected TypedTableModel<Experiment> createTableModel()
     {
-        List<Experiment> experiments =
-            commonServer.listExperiments(sessionToken, criteria.getExperimentType(),
-                    new ProjectIdentifier(criteria.getGroupCode(), criteria
-                            .getProjectCode()));
+        List<Experiment> experiments = null;
+        if (criteria.tryGetProjectCode() != null)
+        {
+            experiments =
+                    commonServer.listExperiments(
+                            sessionToken,
+                            criteria.getExperimentType(),
+                            new ProjectIdentifier(criteria.getSpaceCode(), criteria
+                                    .tryGetProjectCode()));
+        } else
+        {
+            experiments =
+                    commonServer.listExperiments(sessionToken, criteria.getExperimentType(),
+                            new SpaceIdentifier(criteria.getSpaceCode()));
+        }
         TypedTableModelBuilder<Experiment> builder = new TypedTableModelBuilder<Experiment>();
         builder.addColumn(CODE);
         builder.addColumn(EXPERIMENT_TYPE).hideByDefault();
@@ -86,16 +96,20 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
             builder.column(CODE).addString(experiment.getCode());
             builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
             builder.column(EXPERIMENT_IDENTIFIER).addString(experiment.getIdentifier());
-            builder.column(DATABASE_INSTANCE).addString(experiment.getProject().getSpace().getInstance().getCode());
+            builder.column(DATABASE_INSTANCE).addString(
+                    experiment.getProject().getSpace().getInstance().getCode());
             builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
             builder.column(PROJECT).addString(experiment.getProject().getCode());
             builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
-            builder.column(IS_INVALID).addString(SimpleYesNoRenderer.render(experiment.getInvalidation() != null));
+            builder.column(IS_INVALID).addString(
+                    SimpleYesNoRenderer.render(experiment.getInvalidation() != null));
             builder.column(PERM_ID).addString(experiment.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
-            ExperimentType experimentType = experimentTypes.tryGet(experiment.getExperimentType().getCode());
-            IColumnGroup columnGroup = builder.columnGroup(ExperimentBrowserGridColumnIDs.PROPERTIES_PREFIX);
+            ExperimentType experimentType =
+                    experimentTypes.tryGet(experiment.getExperimentType().getCode());
+            IColumnGroup columnGroup =
+                    builder.columnGroup(ExperimentBrowserGridColumnIDs.PROPERTIES_PREFIX);
             if (experimentType != null)
             {
                 columnGroup.addColumnsForAssignedProperties(experimentType);

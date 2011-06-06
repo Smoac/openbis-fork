@@ -280,7 +280,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
                     will(returnValue(experimentType));
 
-                    one(experimentDAO).listExperimentsWithProperties(experimentType, null);
+                    one(experimentDAO).listExperimentsWithProperties(experimentType, null, null);
                     will(returnValue(Arrays.asList(experiments)));
                 }
             });

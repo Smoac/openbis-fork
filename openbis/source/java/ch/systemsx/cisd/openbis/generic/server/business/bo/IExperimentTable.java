@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Read-only table for experiments. Holds a collection of instances of {@link ExperimentPE}.
@@ -40,6 +41,14 @@ public interface IExperimentTable
      * @param projectIdentifier identifier of the project to which we restrict the load.
      */
     public void load(String experimentTypeCodeOrNull, ProjectIdentifier projectIdentifier);
+
+    /**
+     * Loads all experiments of given type and from given space together with all their properties.
+     * 
+     * @param experimentTypeCodeOrNull the experiment type code or <code>null</code>.
+     * @param spaceIdentifier identifier of the space to which we restrict the load.
+     */
+    public void load(String experimentTypeCodeOrNull, SpaceIdentifier spaceIdentifier);
 
     /** Returns the loaded {@link ExperimentPE}. */
     public List<ExperimentPE> getExperiments();

@@ -108,7 +108,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
 
     public void load(final GroupIdentifier groupIdentifier) throws UserFailureException
     {
-        group = GroupIdentifierHelper.tryGetGroup(groupIdentifier, session.tryGetPerson(), this);
+        group = GroupIdentifierHelper.tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
         if (group == null)
         {
             throw new UserFailureException(String.format("Space '%s' does not exist.",

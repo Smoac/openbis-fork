@@ -311,6 +311,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final SpaceIdentifier space)
+    {
+        logAccess(sessionToken, "list_experiments", "TYPE(%s) SPACE(%s)", experimentType, space);
+        return null;
+    }
+
     public List<Project> listProjects(final String sessionToken)
     {
         logAccess(sessionToken, "list_projects");

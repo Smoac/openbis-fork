@@ -25,6 +25,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * <i>Data Access Object</i> for {@link ExperimentPE}.
@@ -42,18 +43,26 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
             throws DataAccessException;
 
     /**
+     * Lists experiments of the specified space. Fetches also properties.
+     * 
+     * @param spaceOrNull If <code>null</code> all experiments are returned.
+     */
+    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE spaceOrNull)
+            throws DataAccessException;
+
+    /**
      * Lists experiments with specified ids. Fetches also properties.
      */
     public List<ExperimentPE> listExperimentsWithProperties(final Collection<Long> experimentIDs)
             throws DataAccessException;
 
     /**
-     * Lists experiments of specified type and specified project. Fetches also properties.
-     * 
-     * @param projectOrNull If <code>null</code> all experiments of specified type are returned.
+     * Lists experiments of specified type, project and space. All criteria are optional. If no
+     * criteria is specified all experiments are returned. Fetches also properties.
      */
-    public List<ExperimentPE> listExperimentsWithProperties(final ExperimentTypePE experimentType,
-            final ProjectPE projectOrNull) throws DataAccessException;
+    public List<ExperimentPE> listExperimentsWithProperties(
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
+            final SpacePE spaceOrNull) throws DataAccessException;
 
     /**
      * Lists all registered experiments. Doesn't fetch properties.

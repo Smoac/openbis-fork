@@ -46,7 +46,7 @@ public class LinkExtractor
         url.addParameter(ViewLocator.ENTITY_PARAMETER, EntityKind.SAMPLE.name());
         if (spaceOrNull != null)
         {
-            url.addParameter(BrowserLocatorResolver.GROUP_PARAMETER_KEY, spaceOrNull);
+            url.addParameter(BrowserLocatorResolver.SPACE_PARAMETER_KEY, spaceOrNull);
         }
         if (sampleTypeOrNull != null)
         {

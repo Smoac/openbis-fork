@@ -178,7 +178,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             {
                 ExperimentIdentifier expIdent =
                         new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-                fillGroupIdentifier(expIdent);
+                fillSpaceIdentifier(expIdent);
                 experimentPE = findExperiment(expIdent);
                 if (experimentCacheOrNull != null)
                 {

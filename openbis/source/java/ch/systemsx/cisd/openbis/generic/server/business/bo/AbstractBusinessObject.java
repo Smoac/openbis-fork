@@ -113,15 +113,15 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return registrator;
     }
 
-    protected void fillGroupIdentifier(final SpaceIdentifier spaceIdentifier)
+    protected void fillSpaceIdentifier(final SpaceIdentifier spaceIdentifier)
     {
         if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))
         {
-            final SpacePE group =
-                    GroupIdentifierHelper.tryGetGroup(spaceIdentifier, findRegistrator(), this);
-            checkNotNull(spaceIdentifier, group);
-            spaceIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
-            spaceIdentifier.setSpaceCode(group.getCode());
+            final SpacePE space =
+                    GroupIdentifierHelper.tryGetSpace(spaceIdentifier, findRegistrator(), this);
+            checkNotNull(spaceIdentifier, space);
+            spaceIdentifier.setDatabaseInstanceCode(space.getDatabaseInstance().getCode());
+            spaceIdentifier.setSpaceCode(space.getCode());
         }
     }
 

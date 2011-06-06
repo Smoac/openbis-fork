@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Data access object for {@link ExperimentPE}.
@@ -63,12 +64,18 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
             throws DataAccessException
     {
-        return listExperimentsWithProperties(null, projectOrNull);
+        return listExperimentsWithProperties(null, projectOrNull, null);
+    }
+
+    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE spaceOrNull)
+            throws DataAccessException
+    {
+        return listExperimentsWithProperties(null, null, spaceOrNull);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(
-            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull)
-            throws DataAccessException
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
+            final SpacePE spaceOrNull) throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         if (experimentTypeOrNull != null)
@@ -78,6 +85,12 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         if (projectOrNull != null)
         {
             criteria.add(Restrictions.eq("projectInternal", projectOrNull));
+        }
+        if (spaceOrNull != null)
+        {
+            // alias is the easiest way to restrict on association using criteria
+            criteria.createAlias("projectInternal", "project");
+            criteria.add(Restrictions.eq("project.space", spaceOrNull));
         }
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));

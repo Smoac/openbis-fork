@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -28,12 +29,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Izabela Adamczyk
  */
-public final class ListExperimentsCriteria extends DefaultResultSetConfig<String, TableModelRowWithObject<Experiment>>
-        implements IsSerializable
+public final class ListExperimentsCriteria extends
+        DefaultResultSetConfig<String, TableModelRowWithObject<Experiment>> implements
+        IsSerializable
 {
     private ExperimentType experimentType;
 
-    private Project project;
+    // one of the following two should be filled
+
+    private Project projectOrNull;
+
+    private Space spaceOrNull;
 
     public ExperimentType getExperimentType()
     {
@@ -45,24 +51,36 @@ public final class ListExperimentsCriteria extends DefaultResultSetConfig<String
         this.experimentType = experimentType;
     }
 
-    public String getGroupCode()
+    // always specified
+    public String getSpaceCode()
     {
-        return project.getSpace().getCode();
+        assert spaceOrNull != null || projectOrNull != null;
+        return spaceOrNull != null ? spaceOrNull.getCode() : projectOrNull.getSpace().getCode();
     }
 
-    public String getProjectCode()
+    public String tryGetProjectCode()
     {
-        return project.getCode();
+        return projectOrNull != null ? projectOrNull.getCode() : null;
     }
 
-    public Project getProject()
+    public Project tryGetProject()
     {
-        return project;
+        return projectOrNull;
     }
 
     public void setProject(Project project)
     {
-        this.project = project;
+        this.projectOrNull = project;
+    }
+
+    public Space tryGetSpace()
+    {
+        return spaceOrNull;
+    }
+
+    public void setSpace(Space space)
+    {
+        this.spaceOrNull = space;
     }
 
 }

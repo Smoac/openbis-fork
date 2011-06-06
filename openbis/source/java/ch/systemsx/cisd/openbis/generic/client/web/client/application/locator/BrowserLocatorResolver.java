@@ -20,7 +20,7 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
 
     public final static String TYPE_PARAMETER_KEY = "type";
 
-    public final static String GROUP_PARAMETER_KEY = "space";
+    public final static String SPACE_PARAMETER_KEY = "space";
 
     public final static String PROJECT_PARAMETER_KEY = "project";
 
@@ -34,15 +34,15 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
     {
         EntityKind entityKind = getEntityKind(locator);
         final String entityTypeOrNull = locator.getParameters().get(TYPE_PARAMETER_KEY);
+        final String spaceOrNull = locator.getParameters().get(SPACE_PARAMETER_KEY);
+        final String projectOrNull = locator.getParameters().get(PROJECT_PARAMETER_KEY);
         switch (entityKind)
         {
             case EXPERIMENT:
-                final String projectOrNull = locator.getParameters().get(PROJECT_PARAMETER_KEY);
-                openExperimentBrowser(projectOrNull, entityTypeOrNull);
+                openExperimentBrowser(spaceOrNull, projectOrNull, entityTypeOrNull);
                 break;
             case SAMPLE:
-                final String groupOrNull = locator.getParameters().get(GROUP_PARAMETER_KEY);
-                openSampleBrowser(groupOrNull, entityTypeOrNull);
+                openSampleBrowser(spaceOrNull, entityTypeOrNull);
                 break;
             case MATERIAL:
                 openMaterialBrowser(entityTypeOrNull);
@@ -53,11 +53,11 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
         }
     }
 
-    private void openExperimentBrowser(String initialProjectOrNull,
+    private void openExperimentBrowser(String initialSpaceOrNull, String initialProjectOrNull,
             String initialExperimentTypeOrNull)
     {
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getExperimentBrowser(
-                initialProjectOrNull, initialExperimentTypeOrNull));
+                initialSpaceOrNull, initialProjectOrNull, initialExperimentTypeOrNull));
     }
 
     private void openSampleBrowser(String initialGroupOrNull, String initialSampleTypeOrNull)

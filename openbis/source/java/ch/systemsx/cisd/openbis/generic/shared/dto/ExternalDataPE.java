@@ -80,6 +80,8 @@ public final class ExternalDataPE extends DataPE
 
     private boolean isPresentInArchive;
 
+    // FIXME all defaults should be the same as defaults in DB. Use default initialization in PE's
+    // only to simplify tests, otherwise nullable types should be used with null as default.
     private int speedHint = Constants.DEFAULT_SPEED_HINT;
 
     /**

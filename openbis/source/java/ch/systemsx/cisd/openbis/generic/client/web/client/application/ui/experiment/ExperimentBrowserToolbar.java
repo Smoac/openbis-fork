@@ -40,16 +40,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * The toolbar of experiment browser with a project selected with an external tree.
  * 
  * @author Piotr Buczek
  */
-class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent, 
+class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         ICriteriaProvider<ListExperimentsCriteria>
 {
     public static final String ID = "experiment-browser-toolbar";
@@ -114,14 +115,16 @@ class ExperimentBrowserToolbar extends ToolBar implements IDisposableComponent,
         {
             return null;
         }
-        final Project selectedProject = selectProjectTree.tryGetSelectedProject();
-        if (selectedProject == null)
+        final Project selectedProjectOrNull = selectProjectTree.tryGetSelectedProject();
+        final Space selectedSpaceOrNull = selectProjectTree.tryGetSelectedSpace();
+        if (selectedProjectOrNull == null && selectedSpaceOrNull == null)
         {
             return null;
         }
         ListExperimentsCriteria criteria = new ListExperimentsCriteria();
         criteria.setExperimentType(selectedType);
-        criteria.setProject(selectedProject);
+        criteria.setProject(selectedProjectOrNull);
+        criteria.setSpace(selectedSpaceOrNull);
         return criteria;
     }
 

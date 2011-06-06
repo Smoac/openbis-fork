@@ -166,7 +166,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         ExperimentTypePE type =
                 (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode(experimentTypeCode);
         List<ExperimentPE> experiments =
-                daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null);
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null, null);
         return ExperimentTranslator.translate(experiments, "");
     }
 

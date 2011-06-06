@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 
 /**
  * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main
- * items of the tree are project groups and projects are their children.
+ * items of the tree are project spaces and projects are their children.
  * 
  * @author Piotr Buczek
  */
@@ -88,9 +88,13 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private final IViewContext<?> viewContext;
 
-    private final String initialIdentifierOrNull;
+    private final String initialSpaceCodeOrNull;
+
+    private final String initialProjectIdentifierOrNull;
 
     private Project selectedProjectOrNull;
+
+    private Space selectedSpaceOrNull;
 
     private SelectionChangedListener<?> selectionChangedListener;
 
@@ -99,15 +103,16 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     private final TreeGrid<ModelData> tree;
 
     private final Map<Project, Widget> projectLinks = new HashMap<Project, Widget>();
-    
+
     private String resultSetKey;
 
     public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext,
-            String initialIdentifierOrNull)
+            String initialSpaceCodeOrNull, String initialProjectIdentifierOrNull)
     {
         super(new FitLayout());
         this.viewContext = viewContext;
-        this.initialIdentifierOrNull = initialIdentifierOrNull;
+        this.initialSpaceCodeOrNull = initialSpaceCodeOrNull;
+        this.initialProjectIdentifierOrNull = initialProjectIdentifierOrNull;
 
         ColumnConfig codeColumn = createCodeColumn();
         ColumnModel columnModel = new ColumnModel(Arrays.asList(codeColumn));
@@ -125,7 +130,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext)
     {
-        this(viewContext, null);
+        this(viewContext, null, null);
     }
 
     /** @return tree grid with empty store and specified column model */
@@ -152,25 +157,39 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                         @Override
                         public void selectionChanged(SelectionChangedEvent<ModelData> se)
                         {
-
                             if (selectedProjectOrNull != null)
                             {
                                 selectedProjectLinkOrNull.setVisible(false);
                                 selectedProjectLinkOrNull = null;
                                 selectedProjectOrNull = null;
                             }
+                            if (selectedSpaceOrNull != null)
+                            {
+                                selectedSpaceOrNull = null;
+                            }
 
                             ModelData selected = se.getSelectedItem();
 
-                            if (selected != null && tree.isLeaf(selected))
+                            if (selected != null)
                             {
-                                selectedProjectOrNull =
-                                        (Project) selected.get(ModelDataPropertyNames.OBJECT);
-                                getSelectionChangedListener().handleEvent(null);
-                                selectedProjectLinkOrNull = projectLinks.get(selectedProjectOrNull);
-                                if (selectedProjectLinkOrNull != null)
+                                if (tree.isLeaf(selected))
                                 {
-                                    selectedProjectLinkOrNull.setVisible(true);
+                                    // project
+                                    selectedProjectOrNull =
+                                            (Project) selected.get(ModelDataPropertyNames.OBJECT);
+                                    getSelectionChangedListener().handleEvent(null);
+                                    selectedProjectLinkOrNull =
+                                            projectLinks.get(selectedProjectOrNull);
+                                    if (selectedProjectLinkOrNull != null)
+                                    {
+                                        selectedProjectLinkOrNull.setVisible(true);
+                                    }
+                                } else
+                                {
+                                    // space
+                                    selectedSpaceOrNull =
+                                            (Space) selected.get(ModelDataPropertyNames.OBJECT);
+                                    getSelectionChangedListener().handleEvent(null);
                                 }
                             }
                         }
@@ -190,9 +209,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 public Widget getWidget(ModelData model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<ModelData> store, Grid<ModelData> grid)
                 {
-                    if (model instanceof GroupItemModel)
+                    if (model instanceof SpaceItemModel)
                     {
-                        return createGroupWidget((GroupItemModel) model);
+                        return createSpaceWidget((SpaceItemModel) model);
                     } else if (model instanceof ProjectItemModel)
                     {
                         return createProjectWidget((ProjectItemModel) model);
@@ -202,11 +221,11 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     }
                 }
 
-                private Widget createGroupWidget(GroupItemModel model)
+                private Widget createSpaceWidget(SpaceItemModel model)
                 {
                     final Space space = (Space) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(space.getCode());
-                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP),
+                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.SPACE),
                             space.getCode(), space.getDescription()));
                     return result;
                 }
@@ -322,6 +341,16 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         return selectedProjectOrNull;
     }
 
+    /**
+     * Returns the {@link Space} currently selected.
+     * 
+     * @return <code>null</code> if no space is selected.
+     */
+    public final Space tryGetSelectedSpace()
+    {
+        return selectedSpaceOrNull;
+    }
+
     private SelectionChangedListener<?> getSelectionChangedListener()
     {
         return selectionChangedListener;
@@ -353,15 +382,15 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     {
         for (Space space : getSortedSpaces(projects))
         {
-            GroupItemModel groupModel = new GroupItemModel(space);
-            tree.getTreeStore().add(groupModel, true);
-            tree.setLeaf(groupModel, false);
+            SpaceItemModel spaceModel = new SpaceItemModel(space);
+            tree.getTreeStore().add(spaceModel, true);
+            tree.setLeaf(spaceModel, false);
             for (Project project : projects)
             {
                 if (project.getSpace().equals(space))
                 {
                     ProjectItemModel projectModel = new ProjectItemModel(project);
-                    tree.getTreeStore().add(groupModel, projectModel, false);
+                    tree.getTreeStore().add(spaceModel, projectModel, false);
                     tree.setLeaf(projectModel, true);
                 }
             }
@@ -369,15 +398,15 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     }
 
-    /** @return a sorted set of groups of given <var>projects</var> */
+    /** @return a sorted set of spaces of given <var>projects</var> */
     private Set<Space> getSortedSpaces(List<Project> projects)
     {
-        Set<Space> groups = new TreeSet<Space>();
+        Set<Space> spaces = new TreeSet<Space>();
         for (final Project project : projects)
         {
-            groups.add(project.getSpace());
+            spaces.add(project.getSpace());
         }
-        return groups;
+        return spaces;
     }
 
     /**
@@ -391,13 +420,19 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void loadData()
     {
-        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config =
+                DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
     }
 
-    private void selectByIdentifierIfPossible(String projectIdentifier)
+    private void selectByProjectIdentifierIfPossible(String projectIdentifier)
     {
         GWTUtils.setSelectedItem(tree, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+    }
+
+    private void selectBySpaceCodeIfPossible(String spaceCode)
+    {
+        GWTUtils.setSelectedItem(tree, ModelDataPropertyNames.CODE, spaceCode);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -427,7 +462,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     //
     // Helper classes
     //
-    private final class ListProjectsCallback extends AbstractAsyncCallback<TypedTableResultSet<Project>>
+    private final class ListProjectsCallback extends
+            AbstractAsyncCallback<TypedTableResultSet<Project>>
     {
 
         ListProjectsCallback(final IViewContext<?> viewContext)
@@ -440,25 +476,39 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         {
             ResultSet<TableModelRowWithObject<Project>> resultSet = result.getResultSet();
             resultSetKey = resultSet.getResultSetKey();
-            List<TableModelRowWithObject<Project>> rows = resultSet.getList().extractOriginalObjects();
+            List<TableModelRowWithObject<Project>> rows =
+                    resultSet.getList().extractOriginalObjects();
             List<Project> projects = new ArrayList<Project>();
             for (TableModelRowWithObject<Project> row : rows)
             {
                 projects.add(row.getObjectOrNull());
             }
-            rebuildTree(projects );
+            rebuildTree(projects);
 
-            String identifierOrNull = tryGetProjectIdentifierToSelect();
-            if (identifierOrNull != null)
+            String projectIdentifierOrNull = tryGetProjectIdentifierToSelect();
+            if (projectIdentifierOrNull != null)
             {
-                selectByIdentifierIfPossible(identifierOrNull);
+                selectByProjectIdentifierIfPossible(projectIdentifierOrNull);
+            } else
+            {
+                String spaceCodeOrNull = tryGetSpaceCodeToSelect();
+                if (spaceCodeOrNull != null)
+                {
+                    selectBySpaceCodeIfPossible(spaceCodeOrNull);
+                }
             }
         }
 
         private String tryGetProjectIdentifierToSelect()
         {
             return selectedProjectOrNull != null ? selectedProjectOrNull.getIdentifier()
-                    : initialIdentifierOrNull;
+                    : initialProjectIdentifierOrNull;
+        }
+
+        private String tryGetSpaceCodeToSelect()
+        {
+            return selectedSpaceOrNull != null ? selectedSpaceOrNull.getCode()
+                    : initialSpaceCodeOrNull;
         }
 
     }
@@ -480,7 +530,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         }
     }
 
-    public static final String PROJECT_WITH_GROUP_CODE = "projectWithGroupCode";
+    public static final String PROJECT_WITH_SPACE_CODE = "projectWithSpaceCode";
 
     private static class ProjectItemModel extends BaseModelDataWithCode
     {
@@ -491,17 +541,17 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         {
             super(project);
             set(ModelDataPropertyNames.PROJECT_IDENTIFIER, project.getIdentifier());
-            set(PROJECT_WITH_GROUP_CODE, getProjectWithGroupCode(project));
+            set(PROJECT_WITH_SPACE_CODE, getProjectWithSpaceCode(project));
         }
 
-        private static String getProjectWithGroupCode(Project project)
+        private static String getProjectWithSpaceCode(Project project)
         {
             return project.getCode() + " (" + project.getSpace().getCode() + ")";
         }
 
         // equals is needed because of weird TreeGrid implementation in GXT
-        // to be able to selection of previously selected project after refresh of the tree
-        // #selectByIdentifierIfPossible()
+        // to be able to select of previously selected project after refresh of the tree
+        // #selectByProjectIdentifierIfPossible()
         @Override
         public boolean equals(Object obj)
         {
@@ -530,14 +580,45 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     }
 
-    private static class GroupItemModel extends BaseModelDataWithCode
+    private static class SpaceItemModel extends BaseModelDataWithCode
     {
         private static final long serialVersionUID = 1L;
 
-        public GroupItemModel(Space space)
+        public SpaceItemModel(Space space)
         {
             super(space);
+            set(ModelDataPropertyNames.CODE, space.getCode());
         }
+
+        // equals is needed because of weird TreeGrid implementation in GXT
+        // to be able to select of previously selected project after refresh of the tree
+        // #selectBySpaceIdentifierIfPossible()
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof SpaceItemModel == false)
+            {
+                return false;
+            }
+            final SpaceItemModel that = (SpaceItemModel) obj;
+            return this.getCode().equals(that.getCode());
+        }
+
+        private String getCode()
+        {
+            return get(ModelDataPropertyNames.CODE);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return getCode().hashCode();
+        }
+
     }
 
 }

@@ -124,11 +124,12 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
      * and project.
      */
     public static DisposableEntityChooser<TableModelRowWithObject<Experiment>> create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, String initialProjectOrNull,
-            String initialExperimentTypeOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, String initialSpaceOrNull,
+            String initialProjectOrNull, String initialExperimentTypeOrNull)
     {
         final ProjectSelectionTreeGridContainer tree =
-                new ProjectSelectionTreeGridContainer(viewContext, initialProjectOrNull);
+                new ProjectSelectionTreeGridContainer(viewContext, initialSpaceOrNull,
+                        initialProjectOrNull);
         final ExperimentBrowserToolbar toolbar =
                 new ExperimentBrowserToolbar(viewContext, tree, initialExperimentTypeOrNull);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
@@ -141,7 +142,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     public static DisposableEntityChooser<TableModelRowWithObject<Experiment>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return create(viewContext, null, null);
+        return create(viewContext, null, null, null);
     }
 
     private final ICriteriaProvider<ListExperimentsCriteria> criteriaProvider;
@@ -189,8 +190,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                         public void handle(TableModelRowWithObject<Experiment> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            final Project project =
-                                    rowItem.getObjectOrNull().getProject();
+                            final Project project = rowItem.getObjectOrNull().getProject();
                             final String href = LinkExtractor.tryExtract(project);
                             OpenEntityDetailsTabHelper.open(viewContext, project,
                                     specialKeyPressed, href);
@@ -203,7 +203,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                         }
                     });
     }
-    
+
     private void extendBottomToolbar()
     {
         if (viewContext.isSimpleOrEmbeddedMode())
@@ -242,7 +242,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
             {
                 @Override
-                protected Dialog createDialog(List<TableModelRowWithObject<Experiment>> experiments,
+                protected Dialog createDialog(
+                        List<TableModelRowWithObject<Experiment>> experiments,
                         IBrowserGridActionInvoker invoker)
                 {
                     return new ExperimentListDeletionConfirmationDialog(viewContext,
@@ -290,8 +291,10 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         {
             final ExperimentType experimentType = criteriaOrNull.getExperimentType();
             context.setExperimentType(experimentType);
-            final Project project = criteriaOrNull.getProject();
-            context.setProject(project);
+            final Project projectOrNull = criteriaOrNull.tryGetProject();
+            context.setProject(projectOrNull);
+            final String spaceCodeOrNull = criteriaOrNull.getSpaceCode();
+            context.setSpaceCode(spaceCodeOrNull);
         }
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
                 .getExperimentRegistration(context));
@@ -315,7 +318,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 }
             };
     }
-    
+
     @Override
     protected String translateColumnIdToDictionaryKey(String columnID)
     {
@@ -335,7 +338,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Experiment>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<Experiment>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<Experiment>> schema =
+                super.createColumnsDefinition();
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER,
                 linkCellRenderer);
@@ -378,7 +382,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         {
             super(selectedItems, displayedItemsConfig, displayedItemsCount);
         }
-        
+
         public List<Experiment> getExperiments()
         {
             ArrayList<Experiment> experiments = new ArrayList<Experiment>();

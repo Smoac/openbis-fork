@@ -312,7 +312,7 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class) final ListSampleCriteria criteria);
 
     /**
-     * Lists experiments.
+     * Lists experiments by project.
      * 
      * @return a sorted list of {@link Experiment}.
      */
@@ -322,6 +322,17 @@ public interface ICommonServer extends IServer
             final String sessionToken,
             ExperimentType experimentType,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
+
+    /**
+     * Lists experiments by space.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperiments(final String sessionToken,
+            ExperimentType experimentType,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier space);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
@@ -891,7 +902,7 @@ public interface ICommonServer extends IServer
     public ExperimentUpdateResult updateExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
-    
+
     /**
      * For given {@link TechId} returns the corresponding {@link Project}.
      */

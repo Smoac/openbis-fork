@@ -42,9 +42,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -77,7 +79,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             final ProjectIdentifier projectIdentifier)
     {
         checkNotNull(experimentTypeCode, projectIdentifier);
-        fillGroupIdentifier(projectIdentifier);
+        fillSpaceIdentifier(projectIdentifier);
         final ProjectPE project =
                 getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
                         projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
@@ -93,7 +95,38 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             checkNotNull(experimentTypeCode, entityType);
             experiments =
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
-                            project);
+                            project, null);
+        }
+    }
+
+    public final void load(final String experimentTypeCode, final SpaceIdentifier spaceIdentifier)
+    {
+        checkNotNull(experimentTypeCode, spaceIdentifier);
+        fillSpaceIdentifier(spaceIdentifier);
+        final SpacePE space =
+                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceIdentifier.getSpaceCode(),
+                        getHomeDatabaseInstance());
+        checkNotNull(spaceIdentifier, space);
+        if (EntityType.isAllTypesCode(experimentTypeCode))
+        {
+            experiments = getExperimentDAO().listExperimentsWithProperties(space);
+        } else
+        {
+            final EntityTypePE entityType =
+                    getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(
+                            experimentTypeCode);
+            checkNotNull(experimentTypeCode, entityType);
+            experiments =
+                    getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
+                            null, space);
+        }
+    }
+
+    private void checkNotNull(final SpaceIdentifier spaceIdentifier, final SpacePE space)
+    {
+        if (space == null)
+        {
+            throw new UserFailureException("Space '" + spaceIdentifier + "' unknown.");
         }
     }
 
@@ -114,7 +147,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     }
 
     private void checkNotNull(final String experimentTypeCode,
-            final ProjectIdentifier projectIdentifier)
+            final SpaceIdentifier projectIdentifier)
     {
         if (experimentTypeCode == null)
         {
@@ -186,7 +219,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     }
 
     /**
-     * Modeled after {@link ExperimentBO#updateProject(ProjectIdentifier)}
+     * Modeled after {@link ExperimentBO#updateProject(SpaceIdentifier)}
      */
     private void updateProject(ExperimentPE experiment, ExperimentBatchUpdatesDTO updates)
     {

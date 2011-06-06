@@ -75,7 +75,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     {
         final ProjectPE result = new ProjectPE();
         final SpacePE group =
-                GroupIdentifierHelper.tryGetGroup(projectIdentifier, session.tryGetPerson(), this);
+                GroupIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
         result.setSpace(group);
         result.setRegistrator(findRegistrator());
         result.setCode(projectIdentifier.getProjectCode());
