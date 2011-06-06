@@ -61,6 +61,6 @@ public class MetabolomicsValidatorTest extends AssertJUnit
                         .createValidatorFromScriptPath("dist/etc/metabolomics/data-set-validator.py");
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/Metabolomics-BadData.xlsx"));
-        assertEquals("The bad data should have 5 errors", 5, errors.size());
+        assertEquals("The bad data should have 7 errors", 7, errors.size());
     }
 }

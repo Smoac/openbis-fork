@@ -2,6 +2,27 @@ import os
 import re
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel, ValidationHelper
 
+def validate_data(timeSeriesData, errors):
+	chebiRegex = re.compile("^CHEBI:.*")
+	bsbmeRegex = re.compile("^BSBME:.*")
+	dataLines = timeSeriesData.getRawDataLines()
+	lineCount = 0
+	for line in dataLines:
+		# The header needs to be CompoundID
+		if lineCount is 0:
+			if line[0] != "CompoundID":
+				errors.append(createFileValidationError("The first data column must be 'CompoundID'"))
+				break
+			lineCount = lineCount + 1
+			continue
+
+		# The compound id should be one of these forms
+		compoundId = line[0]
+		if not chebiRegex.match(compoundId):
+			if not bsbmeRegex.match(compoundId):
+				errors.append(createFileValidationError("Line " + str(lineCount + 1) + " must be of the format 'CHEBI:#' or 'BSBME:#'"))
+		lineCount = lineCount + 1
+
 def validate_data_set_file(file):
 	errors = []
 	timeSeriesData = TimeSeriesDataExcel.createTimeSeriesDataExcel(file.getAbsolutePath())
@@ -39,5 +60,8 @@ def validate_data_set_file(file):
 	if validationHelper.checkIsSpecified("SCALE", "scale"):
 		if metadata.get("SCALE").lower() not in ['lin', 'log2', 'log10', 'ln']:
 			errors.append(createFileValidationError("The scale must be one of 'lin', 'log2', 'log10', 'ln'"))
+			
+	# validate the data
+	validate_data(timeSeriesData, errors)
 	
 	return errors
