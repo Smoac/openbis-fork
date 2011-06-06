@@ -1,6 +1,7 @@
 <userInput>
   <panel id="UserInputPanel.PSQL_PATH">
-    <field type="staticText" align="left" txt="The openBIS installation process requires access to the PostreSQL command line tools 'psql' and 'pg_dump'. Please specify their location:" />
+    <field type="staticText" align="left"
+      txt="The openBIS installation process requires access to the PostreSQL command line tools 'psql' and 'pg_dump'. Please specify their location:" />
     <field type="title" txt="Path to 'psql' (PostgreSQL) tool " bold="true" size="2" />
     <field type="dir" align="left" variable="POSTGRES_BIN">
       <spec txt="" size="30" set="/opt/local/lib/postgresql90/bin" mustExist="true" create="false" />
@@ -12,17 +13,33 @@
     <field type="password" align="left" variable="ADMIN_PASSWORD">
       <spec>
         <pwd txt="Admin password" size="20" set="" />
+        <pwd txt="Re-type password" size="20" set=""/>
       </spec>
+      <validator class="com.izforge.izpack.util.PasswordEqualityValidator" txt="The specified 'admin' passwords do not match." />
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Admin password cannot be empty.">
         <param name="pattern" value="^.+$" />
       </validator>
     </field>
-    <field type="staticText" align="left" txt="Password for the 'admin' user account." />
+    <field type="staticText" align="left" txt="Password for the openBIS 'admin' user." />
 
+    <field type="space"/>
+    <field type="space"/>
+    
     <field type="dir" align="left" variable="DSS.ROOT-DIR">
-      <spec txt="Data folder" size="25" set="$INSTALL_PATH/data" mustExist="false" create="true" />
+      <spec txt="Data folder" size="25" set="$INSTALL_PATH/data" mustExist="false" create="true"/>
     </field>
     <field type="staticText" align="left" txt="The directory to be used to store raw data like images, analysis files etc." />
+
+    <field type="space"/>
+    <field type="space"/>
+
+    <field type="radio" variable="INSTALLATION_TYPE">
+      <description align="left" id="Installation type" />
+      <spec>
+        <choice id="Server (accessed from other machines)" value="server" />
+        <choice id="Local (accessed from only from localhost)" value="local" />
+      </spec>
+    </field>
   </panel>
-  
+
 </userInput>

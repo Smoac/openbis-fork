@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.installer.izpack;
 
 import java.io.File;
-import java.net.InetAddress;
 
 import com.izforge.izpack.installer.AutomatedInstallData;
 
@@ -34,7 +33,8 @@ public class GlobalInstallationContext
 
     public static final String ETL_SERVER_PASSWORD_VARNAME = "ETLSERVER_PASSWORD";
 
-    public static final String HOSTNAME_VARNAME = "HOSTNAME";
+    public static final String DATA_DIR_VARNAME = "DSS.ROOT-DIR";
+
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.
      */
@@ -71,26 +71,20 @@ public class GlobalInstallationContext
     }
 
     /**
+     * Return the data directory chosen for this intallation.
+     */
+    public static String getDataDir(AutomatedInstallData data)
+    {
+        return data.getVariable(DATA_DIR_VARNAME);
+    }
+
+    /**
      * populates variables need for fist time installations.
      */
     private static void populateFirstTimeInstallVariables(AutomatedInstallData data)
     {
         data.setVariable(ETL_SERVER_PASSWORD_VARNAME,
                 new PasswordGenerator(true).generatePassword());
-        data.setVariable(HOSTNAME_VARNAME, getHostName());
     }
 
-    /**
-     * Return the cannonical host name for the localhost machine.
-     */
-    private static String getHostName()
-    {
-        try
-        {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (Exception ex)
-        {
-            return "localhost";
-        }
-    }
 }

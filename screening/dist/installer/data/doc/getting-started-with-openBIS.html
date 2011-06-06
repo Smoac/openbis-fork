@@ -7,7 +7,7 @@
 <H3>Start servers</H3>
 	The installation has completed successfully. To start openBIS launch the following script:
 	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
- &lt;OPENBIS&gt;/bin/allup.sh
+ ${INSTALL_BIN_PATH}/allup.sh
 	</DIV>
 
 	After the completion of the above command openBIS will be available at
@@ -22,7 +22,7 @@
   if it has no data in it. You could import a minimalistic example by executing the command: 
   
 	<DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
- cp -R &lt;OPENBIS_DATA&gt;/samples/PLATE1 &lt;OPENBIS_DATA&gt;/incoming-hcs
+ cp -R ${DSS.ROOT-DIR}/samples/PLATE1 ${DSS.ROOT-DIR}/incoming-hcs
 	</DIV>
 	
 	It will create a plate <i>PLATE1</i> with images data for one of its wells. 
@@ -33,7 +33,7 @@
   openBIS can store any data, not just HCS images. To test the import of random data select a random directory or file and copy it to <i>incoming-simple</i>
   
   <DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
- cp -R &lt;my-file-or-directory&gt; &lt;OPENBIS_DATA&gt;/incoming-simple
+ cp -R &lt;my-file-or-directory&gt; ${DSS.ROOT-DIR}/incoming-simple
 	</DIV>
 </P>
    	

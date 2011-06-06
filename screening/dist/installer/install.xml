@@ -8,7 +8,7 @@
   </info>
 
   <!-- Sets the installer window size. -->
-  <guiprefs width="640" height="480" resizable="yes">
+  <guiprefs width="640" height="530" resizable="yes">
       <modifier key="useHeadingPanel" value="yes"/>
       <modifier key="headingImageOnLeft" value="yes"/>
       <modifier key="headingBackgroundColor" value="0xffffff"/>
@@ -28,7 +28,6 @@
   <resources>
     <res id="HTMLHelloPanel.info" src="@{installer.resourcedir}/hello.html"/>
     <res id="HTMLInfoPanel.dbsetup" src="@{installer.resourcedir}/postgres-setup.html"/>
-    <res id="HTMLInfoPanel.completed" src="@{installer.resourcedir}/installation-completed.html"/>
     <res id="TargetPanel.dir" src="@{installer.resourcedir}/default-install-dir.txt" />
     <res id="Heading.image" src="@{installer.resourcedir}/openBIS_logo_229x100.png"/>
     <res id="userInputSpec.xml" src="@{installer.resourcedir}/userInputSpec.xml" />
@@ -89,8 +88,13 @@
     <panel classname="UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
     </panel>
+
+    <panel classname="UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
+      <actions>
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetHostnameVariableAction" />
+      </actions>
+    </panel>
     
-    <panel classname="UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation"/>
     
     <!--  create backup if needed -->
     <panel classname="ProcessPanel" condition="isUpdateInstallation" >
@@ -103,10 +107,11 @@
     <panel classname="InstallPanel">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction" />
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.OpenGettingStartedPageAction" />
       </actions>
     </panel>
     
-    <panel classname="HTMLInfoPanel" id="completed" condition="isFirstTimeInstallation"/>
+    <panel classname="SimpleFinishPanel"/>
   </panels>
 
 
@@ -141,7 +146,10 @@
     <pack name="Administration Scripts" required="yes" loose="yes">
       <description>Scripts to facilitate openBIS administration</description>
       <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
+      <file src="@{installer.dist.dir}/data/doc" targetdir="$DSS.ROOT-DIR" />
+      
       <parsable targetfile="$INSTALL_BIN_PATH/env" />
+      <parsable targetfile="$DSS.ROOT-DIR/doc/getting-started-with-openBIS.html" />
 
       <!--  set all *.sh files executable -->      
       <executable targetfile="$INSTALL_BIN_PATH/chmodx-all-scripts.sh" stage="postinstall" keep="false"/>

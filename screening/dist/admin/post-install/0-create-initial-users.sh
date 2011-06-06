@@ -4,16 +4,11 @@
 # These users will only be available when 'file-authentication-service' is configured in openBIS.
  
 # $1 - username
-# $2 - password. If not specified the function will ask for password input form stdin.
+# $2 - password. 
 createUser()
 {
   username=$1
   password=$2
-
-	if [ -z "$password" ]; then
-	    read -s -p "Enter password for '$username' : " password
-	fi
-
   
   pushd .
   cd $BASE/../../servers/openBIS-server/jetty
@@ -29,8 +24,20 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+#
+# create 'admin' user
+#
+if [ -z "$ADMIN_PASSWORD" ]; then
+    read -s -p "Enter password for 'admin' : " ADMIN_PASSWORD
+fi
 createUser "admin" "$ADMIN_PASSWORD"
 
+#
+# create 'etlserver' user
+#
+if [ -z "$ETLSERVER_PASSWORD" ]; then
+    read -s -p "Enter password for 'etlserver' : " $ETLSERVER_PASSWORD
+fi
 createUser "etlserver" "$ETLSERVER_PASSWORD"
 
 # remove existing password configuration
