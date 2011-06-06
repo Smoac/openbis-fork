@@ -161,7 +161,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
     }
 
     @Test
-    public void testListPathInfosByRelativePathRegex()
+    public void testListPathInfosByRelativeLikeExpression()
     {
         final String regex = "blabla";
         final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
@@ -173,6 +173,31 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
                     will(returnValue(DATA_SET_ID));
 
                     one(dao).listDataSetFilesByRelativePathLikeExpression(DATA_SET_ID, "blabla");
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        List<DataSetPathInfo> list =
+                pathInfoProvider.listPathInfosByRegularExpression("ds-1", regex);
+        sort(list);
+        check("dir", "dir", true, 53, list.get(0));
+        check("dir/text.txt", "text.txt", false, 23, list.get(1));
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void testListPathInfosByRelativeRegExp()
+    {
+        final String regex = "(blabla|blabla)";
+        final DataSetFileRecord r1 = record(1, 2L, "dir/text.txt", "text.txt", 23, false);
+        final DataSetFileRecord r2 = record(2, null, "dir", "dir", 53, true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryToGetDataSetId("ds-1");
+                    will(returnValue(DATA_SET_ID));
+
+                    one(dao).listDataSetFilesByRelativePathRegex(DATA_SET_ID, "^(blabla|blabla)$");
                     will(returnValue(Arrays.asList(r1, r2)));
                 }
             });
