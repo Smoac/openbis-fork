@@ -24,10 +24,13 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -44,7 +47,7 @@ public final class ExperimentTableTest extends AbstractBOTest
     }
 
     @Test
-    public void testLoad() throws Exception
+    public void testLoadByProject() throws Exception
     {
         final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
         final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
@@ -68,12 +71,49 @@ public final class ExperimentTableTest extends AbstractBOTest
                             projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
                     will(returnValue(project));
 
-                    // TODO tests
                     one(experimentDAO).listExperimentsWithProperties(experimentType, project, null);
                     will(returnValue(new ArrayList<ExperimentPE>()));
                 }
             });
         createExperimentTable().load(experimentType.getCode(), projectIdentifier);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadBySpace() throws Exception
+    {
+        final SpaceIdentifier spaceIdentifier = CommonTestUtils.createSpaceIdentifier();
+        final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        final SpacePE space = CommonTestUtils.createSpace(spaceIdentifier);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
+                    will(returnValue(experimentType));
+
+                    DatabaseInstancePE dbInstance = CommonTestUtils.createHomeDatabaseInstance();
+
+                    one(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(dbInstance));
+
+                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
+                            spaceIdentifier.getSpaceCode(), dbInstance);
+                    will(returnValue(space));
+
+                    one(experimentDAO).listExperimentsWithProperties(experimentType, null, space);
+                    will(returnValue(new ArrayList<ExperimentPE>()));
+                }
+            });
+        createExperimentTable().load(experimentType.getCode(), spaceIdentifier);
         context.assertIsSatisfied();
     }
 }

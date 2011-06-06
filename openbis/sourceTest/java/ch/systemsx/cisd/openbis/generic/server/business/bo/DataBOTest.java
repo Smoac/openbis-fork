@@ -714,7 +714,7 @@ public class DataBOTest extends AbstractBOTest
                             DATABASE_INSTANCE_IDENTIFIER.getDatabaseInstanceCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
+                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             GROUP_IDENTIFIER.getSpaceCode(),
                             ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));

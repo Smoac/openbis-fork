@@ -80,7 +80,7 @@ public final class GroupBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(instance));
 
-                    one(groupDAO).createSpace(groupDTO);
+                    one(spaceDAO).createSpace(groupDTO);
                 }
             });
         spaceBO.define(groupDTO.getCode(), null);

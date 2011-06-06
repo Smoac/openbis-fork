@@ -91,7 +91,7 @@ public final class ProjectBOTest extends AbstractBOTest
             {
                 {
                     ManagerTestTool.prepareFindGroup(this, ManagerTestTool.EXAMPLE_SESSION
-                            .tryGetHomeGroupCode(), daoFactory, groupDAO);
+                            .tryGetHomeGroupCode(), daoFactory, spaceDAO);
 
                     one(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));

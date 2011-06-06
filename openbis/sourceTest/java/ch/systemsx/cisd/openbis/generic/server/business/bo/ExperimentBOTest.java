@@ -449,7 +449,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
 
-        SpacePE group = CommonTestUtils.createGroup(identifier);
+        SpacePE group = CommonTestUtils.createSpace(identifier);
         SamplePE assignedSample = createSampleWithCode("assignedSample");
         assignedSample.setSpace(group);
         exp.setSamples(Arrays.asList(assignedSample));

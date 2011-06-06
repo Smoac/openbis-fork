@@ -190,19 +190,19 @@ public class CommonTestUtils
         return person;
     }
 
-    static public SpacePE createGroup(final String groupCode,
+    static public SpacePE createSpace(final String groupCode,
             final DatabaseInstancePE databaseInstance)
     {
-        final SpacePE group = new SpacePE();
-        group.setCode(groupCode);
-        group.setDatabaseInstance(databaseInstance);
-        return group;
+        final SpacePE space = new SpacePE();
+        space.setCode(groupCode);
+        space.setDatabaseInstance(databaseInstance);
+        return space;
     }
 
-    public static SpacePE createGroup(SpaceIdentifier identifier)
+    public static SpacePE createSpace(SpaceIdentifier identifier)
     {
         DatabaseInstancePE db = createDatabaseInstance(identifier.getDatabaseInstanceCode());
-        return createGroup(identifier.getSpaceCode(), db);
+        return createSpace(identifier.getSpaceCode(), db);
     }
 
     public static final ExperimentTypePE createExperimentType()
@@ -211,6 +211,13 @@ public class CommonTestUtils
         sampleTypePE.setCode(EXPERIMENT_TYPE);
         sampleTypePE.setDatabaseInstance(createHomeDatabaseInstance());
         return sampleTypePE;
+    }
+
+    public static final SpaceIdentifier createSpaceIdentifier()
+    {
+        final SpaceIdentifier identifier =
+                new SpaceIdentifier(HOME_DATABASE_INSTANCE_CODE, HOME_GROUP_CODE);
+        return identifier;
     }
 
     public static final ProjectIdentifier createProjectIdentifier()
@@ -264,7 +271,7 @@ public class CommonTestUtils
     {
         final ProjectPE project = new ProjectPE();
         project.setCode(pi.getProjectCode());
-        project.setSpace(createGroup(pi.getSpaceCode(),
+        project.setSpace(createSpace(pi.getSpaceCode(),
                 createDatabaseInstance(pi.getDatabaseInstanceCode())));
         return project;
     }

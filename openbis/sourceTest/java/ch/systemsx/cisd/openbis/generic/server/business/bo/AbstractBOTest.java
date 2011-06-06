@@ -67,7 +67,7 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IScriptFactory scriptFactory;
 
-    protected ISpaceDAO groupDAO;
+    protected ISpaceDAO spaceDAO;
 
     protected IScriptDAO scriptDAO;
 
@@ -123,7 +123,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         scriptFactory = context.mock(IScriptFactory.class);
-        groupDAO = context.mock(ISpaceDAO.class);
+        spaceDAO = context.mock(ISpaceDAO.class);
         relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
@@ -155,7 +155,7 @@ public abstract class AbstractBOTest extends AssertJUnit
                     allowing(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getSpaceDAO();
-                    will(returnValue(groupDAO));
+                    will(returnValue(spaceDAO));
                     allowing(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));
                     allowing(daoFactory).getSampleDAO();

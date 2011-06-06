@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
 
@@ -122,7 +123,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         experiments =
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, projectNemo,
-                        null); // TODO tests
+                        null);
         Collections.sort(experiments);
         assertEquals(4, experiments.size());
         ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
@@ -149,9 +150,35 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         experiments =
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
-                        projectDefault, null); // TODO tests
+                        projectDefault, null);
         Collections.sort(experiments);
         assertEquals(3, experiments.size());
+        assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
+        assertContains(experiments, CISD_CISD_DEFAULT_EXP_X);
+    }
+
+    @Test
+    public void testListExperimentsFromSpace() throws Exception
+    {
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experiments);
+        assertEqualsOrGreater(8, experiments.size());
+        final ExperimentPE expInCisd =
+                assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
+
+        final SpacePE spaceCisd = expInCisd.getProject().getSpace();
+        assertEquals("CISD", spaceCisd.getCode());
+
+        final ExperimentTypePE expType = expInCisd.getExperimentType();
+        assertEquals(ExperimentTypeCode.SIRNA_HCS.getCode(), expType.getCode());
+
+        experiments =
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, null,
+                        spaceCisd);
+        Collections.sort(experiments);
+        assertEquals(7, experiments.size());
+        assertContains(experiments, CISD_CISD_NEMO_EXP10);
+        assertContains(experiments, CISD_CISD_NEMO_EXP11);
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_X);
     }
@@ -162,10 +189,12 @@ public class ExperimentDAOTest extends AbstractDAOTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
         assertEqualsOrGreater(8, experiments.size());
-        final ExperimentPE expInDefault = experiments.get(0);
-        assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, expInDefault.getIdentifier());
+        final ExperimentPE exp = experiments.get(0);
+        assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, exp.getIdentifier());
 
-        final ProjectPE projectDefault = expInDefault.getProject();
+        final SpacePE spaceCisd = exp.getProject().getSpace();
+        assertEquals("CISD", spaceCisd.getCode());
+        final ProjectPE projectDefault = exp.getProject();
         assertEquals(ProjectDAOTest.DEFAULT, projectDefault.getCode());
 
         final List<EntityTypePE> types =
@@ -177,9 +206,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         experiments =
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
-                        projectDefault, null); // TODO tests
+                        projectDefault, null);
         Collections.sort(experiments);
         assertEquals(0, experiments.size());
+
+        experiments =
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, null,
+                        spaceCisd);
+        Collections.sort(experiments);
+        assertEquals(2, experiments.size());
     }
 
     @Test
