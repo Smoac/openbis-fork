@@ -20,8 +20,17 @@ import java.util.List;
 
 /**
  * Subclass of {@link SimpleImageDataConfig} for container image files which creates
- * {@link ImageMetadata} based on {@link ImageIdentifier} using a simple mapping.
- *
+ * {@link ImageMetadata} based on {@link ImageIdentifier} using the following simple mapping:
+ * <ul>
+ * <li>ImageMetadata.seriesNumber = ImageIdentifier.seriesIndex + 1
+ * <li>ImageMetadata.timePoint = ImageIdentifier.timeSeriesIndex
+ * <li>ImageMetadata.depth = ImageIdentifier.focalPlaneIndex
+ * <li>ImageMetadata.channelCode = 'CHANNEL-' + (ImageIdentifier.colorChannelIndex + 1)
+ * <li>ImageMetadata.tileNumber = 1
+ * </ul>
+ * ImageMetadata.well will be filled with return value of method
+ * {@link #tryToExtractWell(ImageIdentifier)}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class SimpleImageContainerDataConfig extends SimpleImageDataConfig
@@ -37,14 +46,24 @@ public class SimpleImageContainerDataConfig extends SimpleImageDataConfig
             ImageIdentifier imageIdentifier = imageIdentifiers.get(i);
             ImageMetadata imageMetadata = new ImageMetadata();
             imageMetadata.setImageIdentifier(imageIdentifier);
-            imageMetadata.setChannelCode("CHANNEL-" + (imageIdentifier.getColorChannelIndex() + 1));
-            imageMetadata.setDepth(new Float(imageIdentifier.getFocalPlaneIndex()));
+            imageMetadata.setSeriesNumber(imageIdentifier.getSeriesIndex() + 1);
             imageMetadata.setTimepoint(new Float(imageIdentifier.getTimeSeriesIndex()));
+            imageMetadata.setDepth(new Float(imageIdentifier.getFocalPlaneIndex()));
+            imageMetadata.setChannelCode("CHANNEL-" + (imageIdentifier.getColorChannelIndex() + 1));
+            imageMetadata.setWell(tryToExtractWell(imageIdentifier));
             imageMetadata.setTileNumber(1);
-            imageMetadata.setWell("A" + (imageIdentifier.getSeriesIndex() + 1));
             metaData[i] = imageMetadata;
         }
         return metaData;
+    }
+
+    /**
+     * Tries to extract well from the specified image identifier. Default implementation returns
+     * <code>null</code>. In case of screening this method can be overridden.
+     */
+    public String tryToExtractWell(ImageIdentifier imageIdentifier)
+    {
+        return null;
     }
 
 }

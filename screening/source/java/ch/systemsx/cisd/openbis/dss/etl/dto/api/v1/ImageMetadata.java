@@ -21,7 +21,7 @@ public class ImageMetadata
     private Float depthOrNull;
 
     private Integer seriesNumberOrNull;
-    
+
     private ImageIdentifier imageIdentifierOrNull;
 
     public String getChannelCode()
@@ -87,7 +87,7 @@ public class ImageMetadata
     {
         imageIdentifierOrNull = imageIdentifier;
     }
-    
+
     public Float tryGetTimepoint()
     {
         return timepointOrNull;
@@ -107,13 +107,14 @@ public class ImageMetadata
     {
         return imageIdentifierOrNull;
     }
-    
+
     /**
-     * Validates that tile number, well and channel have been specified.
+     * Validates that tile number, channel and well (if argument is <code>false</code>) have been
+     * specified.
      * 
      * @throws IllegalStateException if the object is not valid.
      */
-    public void ensureValid()
+    public void ensureValid(boolean isMicroscopy)
     {
         if (tileNumber <= 0)
         {
@@ -123,7 +124,7 @@ public class ImageMetadata
         {
             throw new IllegalStateException("Channel code is not specified");
         }
-        if (StringUtils.isBlank(well))
+        if (StringUtils.isBlank(well) && isMicroscopy == false)
         {
             throw new IllegalStateException("Well is not specified");
         }

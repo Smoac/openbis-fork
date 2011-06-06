@@ -155,6 +155,8 @@ abstract public class SimpleImageDataConfig
 
     private ImageLibraryInfo imageLibraryInfoOrNull;
 
+    private boolean isMicroscopy;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -353,6 +355,16 @@ abstract public class SimpleImageDataConfig
         this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName, readerName);
     }
     
+    /**
+     * Sets the image library to be used for reading images. Available libraries are: IJ, ImageIO,
+     * JAI, and BioFormats. The first image file is used to determine the actual reader. Note, that
+     * all images are read with the same image reader.
+     */
+    public void setImageLibrary(String imageLibraryName)
+    {
+        this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName);
+    }
+    
     // --- predefined image dataset types
 
     /**
@@ -407,6 +419,16 @@ abstract public class SimpleImageDataConfig
         this.isMeasured = isMeasured;
     }
 
+    /**
+     * Sets the microscopy flag which is by default <code>false</code>. This flag is used to check
+     * whether well in {@link ImageMetadata} is specified or not. In case of microscopy well is
+     * ignored. Otherwise it is mandatory.
+     */
+    public void setMicroscopyData(boolean isMicroscopy)
+    {
+        this.isMicroscopy = isMicroscopy;
+    }
+
     public String getDataSetType()
     {
         return datasetTypeCode;
@@ -420,6 +442,11 @@ abstract public class SimpleImageDataConfig
     public boolean isMeasuredData()
     {
         return isMeasured;
+    }
+    
+    public boolean isMicroscopyData()
+    {
+        return isMicroscopy;
     }
 
 }

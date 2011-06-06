@@ -27,15 +27,19 @@ public class ImageLibraryInfo
     private final String name;
 
     // Which reader in the library should be used?
-    private final String readerName;
+    private String readerName;
 
-    public ImageLibraryInfo(String imageLibraryName, String readerName)
+    public ImageLibraryInfo(String imageLibraryName)
     {
         assert imageLibraryName != null : "library name not specified!";
-        assert readerName != null : "reader name not specified!";
 
         this.name = imageLibraryName;
-        this.readerName = readerName;
+    }
+    
+    public ImageLibraryInfo(String imageLibraryName, String readerName)
+    {
+        this(imageLibraryName);
+        setReaderName(readerName);
     }
 
     public String getName()
@@ -48,6 +52,24 @@ public class ImageLibraryInfo
         return readerName;
     }
 
+    public void setReaderName(String readerName)
+    {
+        if (readerName == null)
+        {
+            throw new IllegalArgumentException("Unspecified reader name");
+        }
+        if (readerName.equals(this.readerName))
+        {
+            return;
+        }
+        if (this.readerName != null)
+        {
+            throw new IllegalStateException("Reader name already specified as '" + this.readerName
+                    + "': " + readerName);
+        }
+        this.readerName = readerName;
+    }
+    
     @Override
     public String toString()
     {

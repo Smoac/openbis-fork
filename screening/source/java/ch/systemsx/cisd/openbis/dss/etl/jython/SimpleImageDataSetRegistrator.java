@@ -19,10 +19,11 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -53,6 +54,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
  */
 public class SimpleImageDataSetRegistrator
 {
+    @Private static interface IImageReaderFactory 
+    {
+        IImageReader tryGetReader(String libraryName, String readerName);
+        IImageReader tryGetReaderForFile(String libraryName, String fileName);
+    }
+    
     private static class ImageTokensWithPath extends ImageMetadata
     {
         /** path relative to the incoming dataset directory */
@@ -65,6 +72,7 @@ public class SimpleImageDataSetRegistrator
             setTileNumber(imageTokens.getTileNumber());
             setDepth(imageTokens.tryGetDepth());
             setTimepoint(imageTokens.tryGetTimepoint());
+            setSeriesNumber(imageTokens.tryGetSeriesNumber());
             setImageIdentifier(imageTokens.tryGetImageIdentifier());
             this.imageRelativePath = imageRelativePath;
         }
@@ -79,15 +87,39 @@ public class SimpleImageDataSetRegistrator
             SimpleImageDataConfig simpleImageConfig, File incoming,
             IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory)
     {
-        return new SimpleImageDataSetRegistrator(simpleImageConfig).createImageDatasetDetails(incoming,
-                factory);
+        return createImageDatasetDetails(simpleImageConfig, incoming, factory,
+                new IImageReaderFactory()
+                    {
+                        public IImageReader tryGetReaderForFile(String libraryName, String fileName)
+                        {
+                            return ImageReaderFactory.tryGetReaderForFile(libraryName, fileName);
+                        }
+
+                        public IImageReader tryGetReader(String libraryName, String readerName)
+                        {
+                            return ImageReaderFactory.tryGetReader(libraryName, readerName);
+                        }
+                    });
+    }
+
+    @Private
+    static DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
+            SimpleImageDataConfig simpleImageConfig, File incoming,
+            IDataSetRegistrationDetailsFactory<ImageDataSetInformation> factory,
+            IImageReaderFactory readerFactory)
+    {
+        SimpleImageDataSetRegistrator registrator =
+                new SimpleImageDataSetRegistrator(simpleImageConfig, readerFactory);
+        return registrator.createImageDatasetDetails(incoming, factory);
     }
 
     private final SimpleImageDataConfig simpleImageConfig;
+    private final IImageReaderFactory readerFactory;
 
-    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig)
+    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig, IImageReaderFactory readerFactory)
     {
         this.simpleImageConfig = simpleImageConfig;
+        this.readerFactory = readerFactory;
     }
 
     private DataSetRegistrationDetails<ImageDataSetInformation> createImageDatasetDetails(
@@ -120,22 +152,34 @@ public class SimpleImageDataSetRegistrator
         List<File> imageFiles = listImageFiles(incomingDirectory);
         ImageLibraryInfo imageLibraryInfoOrNull =
                 simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
-        IImageReader readerOrNull = null;
-        if (imageLibraryInfoOrNull != null)
-        {
-            readerOrNull = ImageReaderFactory.tryGetReader(imageLibraryInfoOrNull.getName(),
-                    imageLibraryInfoOrNull.getReaderName());
-        }
         for (File imageFile : imageFiles)
         {
             File file = new File(imageFile.getPath());
+            IImageReader readerOrNull = null;
+            if (imageLibraryInfoOrNull != null)
+            {
+                String libraryName = imageLibraryInfoOrNull.getName();
+                String readerNameOrNull = imageLibraryInfoOrNull.getReaderName();
+                if (readerNameOrNull != null)
+                {
+                    readerOrNull = readerFactory.tryGetReader(libraryName, readerNameOrNull);
+                } else
+                {
+                    readerOrNull =
+                            readerFactory.tryGetReaderForFile(libraryName, imageFile.getPath());
+                    if (readerOrNull != null)
+                    {
+                        imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+                    }
+                }
+            }
             List<ImageIdentifier> identifiers = getImageIdentifiers(readerOrNull, file);
             String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
             ImageMetadata[] imageTokens =
                     simpleImageConfig.extractImageMetadata(imageRelativePath, identifiers);
             for (ImageMetadata imageToken : imageTokens)
             {
-                imageToken.ensureValid();
+                imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
                 imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
             }
         }
@@ -206,7 +250,7 @@ public class SimpleImageDataSetRegistrator
 
     private List<Channel> getAvailableChannels(List<ImageFileInfo> images)
     {
-        Set<String> channelCodes = new HashSet<String>();
+        Set<String> channelCodes = new LinkedHashSet<String>();
         for (ImageFileInfo image : images)
         {
             channelCodes.add(image.getChannelCode());
