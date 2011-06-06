@@ -44,8 +44,8 @@ public class ImgFeatureDefDTO extends AbstractImgIdentifiable
 
     public ImgFeatureDefDTO(String label, String code, String description, long dataSetId)
     {
+        setCode(code);
         this.label = label;
-        this.code = code;
         this.description = description;
         this.dataSetId = dataSetId;
     }
@@ -62,7 +62,7 @@ public class ImgFeatureDefDTO extends AbstractImgIdentifiable
 
     public void setCode(String code)
     {
-        this.code = code;
+        this.code = code.toUpperCase();
     }
 
     public String getCode()
