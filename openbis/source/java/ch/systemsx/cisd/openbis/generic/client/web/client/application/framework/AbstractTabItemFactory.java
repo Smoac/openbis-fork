@@ -28,6 +28,8 @@ public abstract class AbstractTabItemFactory
 {
     private boolean inBackground = false;
 
+    private boolean forceReopen = false;
+
     /** Creates and initializes a new tab. */
     public abstract ITabItem create();
 
@@ -64,9 +66,24 @@ public abstract class AbstractTabItemFactory
         return inBackground;
     }
 
+    // default: false
     public void setInBackground(boolean inBackground)
     {
         this.inBackground = inBackground;
+    }
+
+    /**
+     * True if the tab should become active.
+     */
+    public boolean isForceReopen()
+    {
+        return forceReopen;
+    }
+
+    // default: false
+    public void setForceReopen(boolean forceReopen)
+    {
+        this.forceReopen = forceReopen;
     }
 
 }

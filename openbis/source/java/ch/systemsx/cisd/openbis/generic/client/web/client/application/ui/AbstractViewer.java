@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPropertySection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -57,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -343,9 +345,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             {
                 public void onClick(ClickEvent event)
                 {
-                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
-                            .getCommonViewContext()).getExperimentBrowser(space.getCode(), null,
-                            null));
+                    final boolean keyPressed =
+                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent());
+                    AbstractTabItemFactory tabView =
+                            new ComponentProvider(viewContext.getCommonViewContext())
+                                    .getExperimentBrowser(space.getCode(), null, null);
+                    tabView.setInBackground(keyPressed);
+                    tabView.setForceReopen(true);
+                    DispatcherHelper.dispatchNaviEvent(tabView);
                 }
             };
         Widget link = LinkRenderer.getLinkWidget(space.getCode(), listener, href);
@@ -361,9 +368,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             {
                 public void onClick(ClickEvent event)
                 {
-                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
-                            .getCommonViewContext()).getExperimentBrowser(null,
-                            project.getIdentifier(), null));
+                    final boolean keyPressed =
+                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent());
+                    AbstractTabItemFactory tabView =
+                            new ComponentProvider(viewContext.getCommonViewContext())
+                                    .getExperimentBrowser(null, project.getIdentifier(), null);
+                    tabView.setInBackground(keyPressed);
+                    tabView.setForceReopen(true);
+                    DispatcherHelper.dispatchNaviEvent(tabView);
                 }
             };
         Widget link = LinkRenderer.getLinkWidget(project.getCode(), listener, href);

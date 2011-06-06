@@ -120,11 +120,16 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     {
         boolean inBackground = tabItemFactory.isInBackground();
         final MainTabItem tab = tryFindTab(tabItemFactory);
-        if (tab != null)
+        if (tab != null && tabItemFactory.isForceReopen() == false)
         {
             maybeActivate(tab, inBackground);
         } else
         {
+            if (tab != null)
+            {
+                // force reopen
+                tab.close(); // TODO open in the same position
+            }
             final String tabId = tabItemFactory.getId();
             // Note that if not set, is then automatically generated. So this is why we test for
             // 'ID_PREFIX'. We want the user to set an unique id.
