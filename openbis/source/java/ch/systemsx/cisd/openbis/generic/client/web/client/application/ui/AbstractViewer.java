@@ -45,17 +45,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPropertySection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -337,22 +338,32 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected Widget createSpaceLink(final Space space)
     {
-        // TODO change to link opening experiment browser with space selected
-        Widget link = new Html(space.getCode());
+        final String href = LinkExtractor.createExperimentBrowserLink(space.getCode(), null, null);
+        ClickHandler listener = new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
+                            .getCommonViewContext()).getExperimentBrowser(space.getCode(), null,
+                            null));
+                }
+            };
+        Widget link = LinkRenderer.getLinkWidget(space.getCode(), listener, href);
         link.setTitle(viewContext.getMessage(Dict.SPACE) + " " + space.getCode());
         return link;
     }
 
     protected Widget createProjectLink(final Project project)
     {
-        // TODO change to link opening experiment browser with project selected
-        final String href = LinkExtractor.tryExtract(project);
+        final String href =
+                LinkExtractor.createExperimentBrowserLink(null, project.getIdentifier(), null);
         ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
-                    OpenEntityDetailsTabHelper.open(viewContext, project,
-                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()), href);
+                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
+                            .getCommonViewContext()).getExperimentBrowser(null,
+                            project.getIdentifier(), null));
                 }
             };
         Widget link = LinkRenderer.getLinkWidget(project.getCode(), listener, href);
@@ -363,15 +374,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected Widget createEntityLink(final IEntityInformationHolderWithPermId entity)
     {
         String href = LinkExtractor.tryExtract(entity);
-        ClickHandler listener = new ClickHandler()
-            {
-                public void onClick(ClickEvent event)
-                {
-                    OpenEntityDetailsTabHelper.open(viewContext, entity.getEntityKind(),
-                            entity.getPermId(),
-                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
-                }
-            };
+        ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
         Widget link = LinkRenderer.getLinkWidget(entity.getCode(), listener, href);
         link.setTitle(entity.getEntityKind().getDescription() + " " + entity.getCode());
         return link;

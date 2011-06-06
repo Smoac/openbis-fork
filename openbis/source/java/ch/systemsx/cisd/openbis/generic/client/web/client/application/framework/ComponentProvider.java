@@ -988,8 +988,8 @@ public final class ComponentProvider
                 @Override
                 public String tryGetLink()
                 {
-                    return LinkExtractor.createExperimentBrowserLink(initialProjectOrNull,
-                            initialExperimentTypeOrNull);
+                    return LinkExtractor.createExperimentBrowserLink(initialSpaceOrNull,
+                            initialProjectOrNull, initialExperimentTypeOrNull);
                 }
 
             };

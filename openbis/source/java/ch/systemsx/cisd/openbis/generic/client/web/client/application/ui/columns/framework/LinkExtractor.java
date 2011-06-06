@@ -67,12 +67,16 @@ public class LinkExtractor
         return tryPrint(url);
     }
 
-    public static final String createExperimentBrowserLink(String projectOrNull,
-            String experimentTypeOrNull)
+    public static final String createExperimentBrowserLink(String spaceOrNull,
+            String projectOrNull, String experimentTypeOrNull)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(ViewLocator.ACTION_PARAMETER, BrowserLocatorResolver.BROWSE_ACTION);
         url.addParameter(ViewLocator.ENTITY_PARAMETER, EntityKind.EXPERIMENT.name());
+        if (spaceOrNull != null)
+        {
+            url.addParameter(BrowserLocatorResolver.SPACE_PARAMETER_KEY, spaceOrNull);
+        }
         if (projectOrNull != null)
         {
             url.addParameter(BrowserLocatorResolver.PROJECT_PARAMETER_KEY, projectOrNull);
