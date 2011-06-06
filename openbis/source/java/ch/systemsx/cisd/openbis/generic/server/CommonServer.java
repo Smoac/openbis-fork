@@ -595,22 +595,29 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
-        final Session session = getSession(sessionToken);
-        final IExperimentTable experimentTable =
-                businessObjectFactory.createExperimentTable(session);
-        experimentTable.load(experimentType.getCode(), projectIdentifier);
-        final List<ExperimentPE> experiments = experimentTable.getExperiments();
-        Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+        return listExperiments(sessionToken, experimentType, null, projectIdentifier);
     }
 
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifier)
     {
+        return listExperiments(sessionToken, experimentType, spaceIdentifier, null);
+    }
+
+    private final List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final SpaceIdentifier spaceIdentifierOrNull,
+            final ProjectIdentifier projectIdentifierOrNull)
+    {
         final Session session = getSession(sessionToken);
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
-        experimentTable.load(experimentType.getCode(), spaceIdentifier);
+        if (projectIdentifierOrNull != null)
+        {
+            experimentTable.load(experimentType.getCode(), projectIdentifierOrNull);
+        } else if (spaceIdentifierOrNull != null)
+        {
+            experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);
+        }
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
         return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());

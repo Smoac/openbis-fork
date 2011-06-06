@@ -61,16 +61,24 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         super(persistencyResources, databaseInstance, ExperimentPE.class);
     }
 
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
             throws DataAccessException
     {
-        return listExperimentsWithProperties(null, projectOrNull, null);
+        if (project == null)
+        {
+            throw new IllegalArgumentException("Project wasn't set");
+        }
+        return listExperimentsWithProperties(null, project, null);
     }
 
-    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE spaceOrNull)
+    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE space)
             throws DataAccessException
     {
-        return listExperimentsWithProperties(null, null, spaceOrNull);
+        if (space == null)
+        {
+            throw new IllegalArgumentException("Space wasn't set");
+        }
+        return listExperimentsWithProperties(null, null, space);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(

@@ -36,18 +36,14 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
 {
     /**
      * Lists experiments of the specified project. Fetches also properties.
-     * 
-     * @param projectOrNull If <code>null</code> all experiments are returned.
      */
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
             throws DataAccessException;
 
     /**
      * Lists experiments of the specified space. Fetches also properties.
-     * 
-     * @param spaceOrNull If <code>null</code> all experiments are returned.
      */
-    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE spaceOrNull)
+    public List<ExperimentPE> listExperimentsWithProperties(final SpacePE space)
             throws DataAccessException;
 
     /**
