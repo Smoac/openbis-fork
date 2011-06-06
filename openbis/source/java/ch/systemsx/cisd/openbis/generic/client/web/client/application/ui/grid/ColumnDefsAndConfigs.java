@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -51,7 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  */
 public class ColumnDefsAndConfigs<T>
 {
-    private static final IGenericImageBundle IMAGE_BUNDLE = GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
+    private static final IGenericImageBundle IMAGE_BUNDLE = GWT
+            .<IGenericImageBundle> create(IGenericImageBundle.class);
 
     private final List<ColumnConfig> columnConfigs;
 
@@ -89,7 +91,7 @@ public class ColumnDefsAndConfigs<T>
         }
         addColumn(column, columnConfig);
     }
-    
+
     private void addColumn(IColumnDefinitionUI<T> column)
     {
         addColumn(column, createColumn(column));
@@ -112,6 +114,7 @@ public class ColumnDefsAndConfigs<T>
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
@@ -129,11 +132,13 @@ public class ColumnDefsAndConfigs<T>
         }
         columnConfig.setWidth(column.getWidth());
         columnConfig.setHidden(column.isHidden());
-        String toolTip = "[Click] to sort, [SHIFT+Click] to adjust the width, "
-            + "[Drag & Drop] to change order.";
-        if (column.isEditable())
+        String toolTip =
+                "[Click] to sort, [SHIFT+Click] to adjust the width, "
+                        + "[Drag & Drop] to change order.";
+        if (column.isEditable() && ClientStaticState.isSimpleMode() == false)
         {
-            toolTip += " This is an editibale column. Just double-click on a cell or on the header icon.";
+            toolTip +=
+                    " This is an editibale column. Just double-click on a cell or on the header icon.";
             CellEditor editor = new CellEditor(new TextField<String>()
                 {
                     @Override
@@ -144,18 +149,19 @@ public class ColumnDefsAndConfigs<T>
                 });
             columnConfig.setEditor(editor);
             LayoutContainer header = new LayoutContainer();
-            HBoxLayout layout = new HBoxLayout();  
-            layout.setHBoxLayoutAlign(HBoxLayoutAlign.TOP);  
-            header.setLayout(layout);  
+            HBoxLayout layout = new HBoxLayout();
+            layout.setHBoxLayoutAlign(HBoxLayoutAlign.TOP);
+            header.setLayout(layout);
             AbstractImagePrototype editIcon =
-                AbstractImagePrototype.create(IMAGE_BUNDLE.getEditableIcon());
+                    AbstractImagePrototype.create(IMAGE_BUNDLE.getEditableIcon());
             Button editButton = new Button("", editIcon);
             editButton.addSelectionListener(new SelectionListener<ButtonEvent>()
                 {
                     @Override
                     public void componentSelected(ButtonEvent ce)
                     {
-                        MessageBox.info("Edit", "Editing for column " + headerTitle + " not yet implemented.", null);
+                        MessageBox.info("Edit", "Editing for column " + headerTitle
+                                + " not yet implemented.", null);
                     }
                 });
             header.add(new Label(headerTitle), new HBoxLayoutData(new Margins(0, 0, 0, 0)));

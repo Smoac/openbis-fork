@@ -1726,15 +1726,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void handleEvent(GridEvent<M> event)
                 {
-                    M model = event.getModel();
-                    String columnID = event.getProperty();
-                    boolean editable = isEditable(model, columnID);
-                    if (editable == false)
+                    if (viewContext.isSimpleOrEmbeddedMode())
                     {
-                        MessageBox.info("Not Editable", "Sorry, this table cell isn't editable",
+                        MessageBox.info("Not Allowed",
+                                "Sorry, table cell editing is not allowed in current viewing mode",
                                 null);
+                        event.setCancelled(true);
+                    } else
+                    {
+                        M model = event.getModel();
+                        String columnID = event.getProperty();
+                        boolean editable = isEditable(model, columnID);
+                        if (editable == false)
+                        {
+                            MessageBox.info("Not Editable",
+                                    "Sorry, this table cell isn't editable", null);
+                        }
+                        event.setCancelled(editable == false);
                     }
-                    event.setCancelled(editable == false);
                 }
             });
         editorGrid.addListener(Events.AfterEdit, new Listener<GridEvent<M>>()
@@ -1759,7 +1768,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     /**
      * Returns <code>true</code> if cell specified by model and column ID is editable. Default
-     * implementation returns false.
+     * implementation false.
      */
     protected boolean isEditable(M model, String columnID)
     {
