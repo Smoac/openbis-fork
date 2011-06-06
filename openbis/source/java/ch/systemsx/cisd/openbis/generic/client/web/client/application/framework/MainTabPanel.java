@@ -109,6 +109,11 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         return openTabs.get(tabItemFactory.getId());
     }
 
+    private final int getTabPosition(final MainTabItem tabItem)
+    {
+        return getItems().indexOf(tabItem);
+    }
+
     /**
      * Set the currently selected tab to the given <i>tabItem</i>.
      * <p>
@@ -125,11 +130,6 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             maybeActivate(tab, inBackground);
         } else
         {
-            if (tab != null)
-            {
-                // force reopen
-                tab.close(); // TODO open in the same position
-            }
             final String tabId = tabItemFactory.getId();
             // Note that if not set, is then automatically generated. So this is why we test for
             // 'ID_PREFIX'. We want the user to set an unique id.
@@ -141,7 +141,16 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                     new MainTabItem(tabItemFactory.create(), tabId, helpId, linkOrNull);
             // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
             newTab.setHideMode(HideMode.OFFSETS);
-            add(newTab);
+            if (tab != null)
+            {
+                // reopen tab in the same position
+                int oldPosition = getTabPosition(tab);
+                tab.close(); // e.g. removes from openTabs
+                insert(newTab, oldPosition);
+            } else
+            {
+                add(newTab);
+            }
             openTabs.put(tabId, newTab);
             maybeActivate(newTab, inBackground);
         }
