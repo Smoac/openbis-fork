@@ -410,7 +410,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         ProjectPE project = new ProjectPE();
         project.setCode("p");
         SpacePE group =
-                CommonTestUtils.createGroup(GROUP_CODE,
+                CommonTestUtils.createSpace(GROUP_CODE,
                         CommonTestUtils.createHomeDatabaseInstance());
         project.setSpace(group);
         experiment.setProject(project);
