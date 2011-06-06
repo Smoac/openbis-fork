@@ -133,7 +133,12 @@ public class TimeSeriesDataExcel
         for (int i = 1; i < metadataLines.size(); ++i)
         {
             String[] line = metadataLines.get(i);
-            metadataMap.put(line[0].toUpperCase(), line[1]);
+            String value = line[1];
+            if ("BLANK".equals(value))
+            {
+                value = null;
+            }
+            metadataMap.put(line[0].toUpperCase(), value);
         }
 
         return metadataMap;
