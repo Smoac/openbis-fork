@@ -171,6 +171,10 @@ public class WellSearchCriteria implements ISerializable
             return new ExperimentSearchByProjectCriteria(null);
         }
 
+        private ExperimentSearchByProjectCriteria()
+        {
+        }
+        
         private ExperimentSearchByProjectCriteria(BasicProjectIdentifier projectIdOrNull)
         {
             this.projectIdOrNull = projectIdOrNull;
