@@ -1,5 +1,6 @@
 import os
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
+from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
 SPACE_CODE = "TEST"
 PROJECT_CODE = "TEST-PROJECT"
@@ -51,6 +52,9 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
      
         image_tokens.channelCode = channelCode
         return image_tokens
+    
+    def getTileGeometry(self, imageTokens, maxTileNumber):
+        return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3)    
  
 if incoming.isDirectory():
     imageDataset = MyImageDataSetConfig()
