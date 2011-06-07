@@ -1,8 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.grid.CellEditor;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
@@ -32,12 +29,6 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
      * Returns <code>true</code> if the column cell is editable.
      */
     boolean isEditable();
-
-    /**
-     * Creates a field to be used for {@link CellEditor}. This method will only be invoked if
-     * {@link #isEditable()} returns <code>true</code>.
-     */
-    Field<? extends Object> createEditorField();
 
     String tryGetLink(T entity);
 }

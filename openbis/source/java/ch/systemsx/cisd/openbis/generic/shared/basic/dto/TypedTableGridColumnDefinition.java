@@ -47,6 +47,11 @@ public class TypedTableGridColumnDefinition<T extends ISerializable> implements
         return header.getId();
     }
     
+    public DataTypeCode tryToGetDataType()
+    {
+        return header.getDataType();
+    }
+
     public int getIndex()
     {
         return header.getIndex();

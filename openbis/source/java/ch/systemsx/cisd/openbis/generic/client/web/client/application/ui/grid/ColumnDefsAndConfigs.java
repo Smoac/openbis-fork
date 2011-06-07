@@ -120,7 +120,7 @@ public class ColumnDefsAndConfigs<T>
         if (column.isEditable() && ClientStaticState.isSimpleMode() == false)
         {
             toolTip += " This is an editibale column. Just double-click on a cell.";
-            CellEditor editor = new CellEditor(column.createEditorField());
+            CellEditor editor = new CellEditor(ColumnUtils.createCellEditorField(column.tryToGetDataType()));
             columnConfig.setEditor(editor);
         }
         columnConfig.setToolTip(toolTip);

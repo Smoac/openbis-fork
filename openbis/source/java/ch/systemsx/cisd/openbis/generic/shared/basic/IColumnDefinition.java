@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+
 /**
  * Describes table column's metadata. Has the ability to render cell values for the column given the
  * row model.
@@ -37,6 +39,11 @@ public interface IColumnDefinition<T> extends IsSerializable
 
     /** unique identifier of the column */
     String getIdentifier();
+
+    /**
+     * Returns data type code or <code>null</code> if undefined.
+     */
+    DataTypeCode tryToGetDataType();
 
     /** Tries to get specified property or <code>null</code> if not found. */
     String tryToGetProperty(String key);

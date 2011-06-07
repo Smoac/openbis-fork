@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
@@ -65,7 +63,7 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
-    public Field<? extends Object> createEditorField()
+    public DataTypeCode tryToGetDataType()
     {
         return null;
     }

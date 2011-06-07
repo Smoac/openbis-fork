@@ -1132,6 +1132,11 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 {
                     return null; // unused
                 }
+                
+                public DataTypeCode tryToGetDataType()
+                {
+                    return null;
+                }
 
                 public String tryToGetProperty(String key)
                 {

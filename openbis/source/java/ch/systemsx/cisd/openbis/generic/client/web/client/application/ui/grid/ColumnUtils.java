@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -31,9 +31,9 @@ public class ColumnUtils
     /**
      * Creates a field for {@link CellEditor} based on specified data type.
      */
-    public static Field<? extends Object> createCellEditorField(DataTypeCode dataType)
+    public static Field<? extends Object> createCellEditorField(DataTypeCode dataTypeOrNull)
     {
-        switch (dataType)
+        switch (dataTypeOrNull)
         {
             case MULTILINE_VARCHAR: return new MultiLineCellEditorField();
             default: return new DefaultCellEditorField();

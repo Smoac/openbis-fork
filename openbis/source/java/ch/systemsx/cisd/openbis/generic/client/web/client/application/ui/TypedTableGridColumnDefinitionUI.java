@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.ColumnUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ILinkGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
@@ -75,11 +72,6 @@ public class TypedTableGridColumnDefinitionUI<T extends ISerializable> extends
     public boolean isEditable()
     {
         return header.isEditable();
-    }
-
-    public Field<? extends Object> createEditorField()
-    {
-        return ColumnUtils.createCellEditorField(header.getDataType());
     }
 
     public boolean isLink()

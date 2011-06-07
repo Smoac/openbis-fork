@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -194,6 +195,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                         public String getIdentifier()
                         {
                             return header.getId();
+                        }
+
+                        public DataTypeCode tryToGetDataType()
+                        {
+                            return null;
                         }
 
                         public String tryToGetProperty(String key)

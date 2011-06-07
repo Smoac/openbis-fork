@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * @author Tomasz Pylak
@@ -90,9 +89,9 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return false;
     }
     
-    public Field<? extends Object> createEditorField()
+    public DataTypeCode tryToGetDataType()
     {
-        return new DefaultCellEditorField();
+        return null;
     }
 
     public boolean isLink()
