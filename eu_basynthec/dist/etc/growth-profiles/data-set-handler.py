@@ -56,7 +56,7 @@ tr = service.transaction(incoming)
 timeSeriesData = TimeSeriesDataExcel.createTimeSeriesDataExcel(incoming.getAbsolutePath())
 
 # create the data set and assign the metadata from the file
-dataset = tr.createNewDataSet("METABOLITE_INTENSITIES")
+dataset = tr.createNewDataSet("OD600")
 metadata = timeSeriesData.getMetadataMap()
 assign_properties(dataset, metadata)
 		

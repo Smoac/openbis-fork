@@ -2,27 +2,24 @@ import os
 import re
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel, ValidationHelper
 
-def validate_data(time_series_data, errors):
-	chebiRegex = re.compile("^CHEBI:.*")
-	bsbmeRegex = re.compile("^BSBME:.*")
-	dataLines = time_series_data.getRawDataLines()
+def validate_data(timeSeriesData, errors):
+	dataLines = timeSeriesData.getRawDataLines()
 	lineCount = 0
 	for line in dataLines:
-		# The header needs to be CompoundID
+		# The header needs to be Abs
 		if lineCount is 0:
-			if line[0] != "CompoundID":
-				errors.append(createFileValidationError("The first data column must be 'CompoundID'"))
+			if line[0] != "Abs":
+				errors.append(createFileValidationError("The first data column must be 'Abs'"))
 				break
 			lineCount = lineCount + 1
 			continue
 
 		# The compound id should be one of these forms
-		compoundId = line[0]
-		if not chebiRegex.match(compoundId):
-			if not bsbmeRegex.match(compoundId):
-				errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'CHEBI:#' or 'BSBME:#' (instead of " + compoundId + ")."))
+		od600 = line[0]
+		if od600 != "OD600":
+			errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be OD600 (instead of " + od600 + ")."))
 		lineCount = lineCount + 1
-		
+
 def validate_metadata(time_series_data, errors):
 	metadata = time_series_data.getMetadataMap()
 	validationHelper = ValidationHelper(metadata, errors)
@@ -47,8 +44,8 @@ def validate_metadata(time_series_data, errors):
 
 	# validate the value unit
 	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'ratiot1', 'ratiocs']:
-			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'RatioT1', 'RatioCs'"))
+		if metadata.get("VALUE UNIT").lower() != 'dimensionless':
+			errors.append(createFileValidationError("The value unit must be 'DIMENSIONLESS'"))
 	
 	# validate the value type
 	if validationHelper.checkIsSpecified("SCALE", "scale"):

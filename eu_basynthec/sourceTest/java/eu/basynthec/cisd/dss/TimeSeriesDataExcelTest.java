@@ -57,6 +57,35 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         assertLinesAreEqual(dataLines, expectedData);
     }
 
+    @Test
+    public void testReadingOD600Data()
+    {
+        TimeSeriesDataExcel data =
+                TimeSeriesDataExcel
+                        .createTimeSeriesDataExcel("sourceTest/examples/OD600-Example.xlsx");
+        List<String[]> metadataLines = data.getRawMetadataLines();
+        assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
+        String[][] expectedMetadata =
+            {
+                { "Property", "Value" },
+                { "Experiment", "/TEST/TEST/TEST" },
+                { "Strain", "strain1" },
+                { "Timepoint Type", "IN" },
+                { "Cell Location", "ES" },
+                { "Value Type", "Value" },
+                { "Value Unit", "Dimensionless" },
+                { "Scale", "Lin" } };
+        assertLinesAreEqual(metadataLines, expectedMetadata);
+
+        List<String[]> dataLines = data.getRawDataLines();
+        assertTrue("Data lines should not be empty", dataLines.size() > 0);
+        String[][] expectedData =
+            {
+                { "Abs", "HumanReadable", "-19020.0", "-17220.0" },
+                { "OD600", "OD600", "0.05", "0.064" } };
+        assertLinesAreEqual(dataLines, expectedData);
+    }
+
     /**
      * Check that the lines in expected show up in actual in the same order. Actual may have
      * additional columns, though -- these are ignored.
