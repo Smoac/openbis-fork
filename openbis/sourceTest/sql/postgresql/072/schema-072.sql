@@ -629,7 +629,7 @@ CREATE TABLE external_data (
     share_id code,
     size ordinal_int,
     present_in_archive boolean_char DEFAULT false,
-    speed_hint integer DEFAULT (-50)
+    speed_hint integer DEFAULT (-50) NOT NULL
 );
 CREATE SEQUENCE file_format_type_id_seq
     START WITH 1

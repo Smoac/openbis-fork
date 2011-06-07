@@ -229,9 +229,9 @@ public final class ExternalDataPE extends DataPE
         return speedHint;
     }
 
-    public void setSpeedHint(Integer speedHint)
+    public void setSpeedHint(int speedHint)
     {
-        this.speedHint = speedHint == null ? Constants.DEFAULT_SPEED_HINT : speedHint;
+        this.speedHint = speedHint;
     }
 
     /**
