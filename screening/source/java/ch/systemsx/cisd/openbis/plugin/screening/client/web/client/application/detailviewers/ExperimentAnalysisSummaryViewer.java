@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -129,7 +130,7 @@ public class ExperimentAnalysisSummaryViewer
             IEntityInformationHolderWithProperties experiment,
             boolean restrictGlobalScopeLinkToProject)
     {
-        String headingText = "Assay " + experiment.getCode();
+        String headingText = viewContext.getMessage(Dict.ASSAY_HEADER, experiment.getCode());
         final IDisposableComponent gridComponent =
                 ExperimentAnalysisSummaryGrid.create(viewContext, experiment,
                         restrictGlobalScopeLinkToProject);

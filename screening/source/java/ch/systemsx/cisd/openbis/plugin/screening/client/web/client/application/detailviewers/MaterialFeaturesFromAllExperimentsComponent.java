@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
@@ -36,8 +37,8 @@ public class MaterialFeaturesFromAllExperimentsComponent
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
-        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext).createComponent(
-                material, experimentSearchCriteria);
+        return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
+                .createComponent(material, experimentSearchCriteria);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -55,7 +56,8 @@ public class MaterialFeaturesFromAllExperimentsComponent
                 MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
                         experimentSearchCriteria);
         String headingText =
-                MaterialComponentUtils.getMaterialFullName(material, true) + " in all assays";
+                screeningViewContext.getMessage(Dict.MATERIAL_IN_ALL_ASSAYS,
+                        MaterialComponentUtils.getMaterialFullName(material, true));
         return MaterialComponentUtils.createMaterialViewer(screeningViewContext, material,
                 headingText, gridComponent);
     }

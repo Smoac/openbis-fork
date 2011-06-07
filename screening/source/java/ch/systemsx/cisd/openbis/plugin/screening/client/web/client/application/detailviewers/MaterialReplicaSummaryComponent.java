@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
@@ -376,7 +377,7 @@ public class MaterialReplicaSummaryComponent
         LayoutContainer headerPanel = new LayoutContainer();
         headerPanel.setLayout(new TableLayout(2));
 
-        Widget headingWidget = createHeaderTitle(experiment, material);
+        Widget headingWidget = createHeaderTitle(experiment, material, screeningViewContext);
         headerPanel.add(headingWidget);
 
         LayoutContainer rightLinksPanel = new LayoutContainer();
@@ -404,8 +405,8 @@ public class MaterialReplicaSummaryComponent
         String linkUrl =
                 ScreeningLinkExtractor.createMaterialDetailsLink(material, experimentCriteria);
         String linkText =
-                "Find " + MaterialComponentUtils.getMaterialFullName(material, false)
-                        + " in all assays";
+                screeningViewContext.getMessage(Dict.FIND_IN_ALL_ASSAYS,
+                        MaterialComponentUtils.getMaterialFullName(material, false));
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
                 public void onClick(ClickEvent event)
@@ -432,10 +433,12 @@ public class MaterialReplicaSummaryComponent
     }
 
     private static Html createHeaderTitle(final IEntityInformationHolderWithPermId experiment,
-            final Material material)
+            final Material material, IViewContext<IScreeningClientServiceAsync> screeningViewContext)
     {
         String materialDesc = MaterialComponentUtils.getMaterialFullName(material, true);
-        String headingText = materialDesc + " in assay " + experiment.getCode();
+        String headingText =
+                screeningViewContext.getMessage(Dict.MATERIAL_IN_ASSAY, materialDesc,
+                        experiment.getCode());
         return PropertiesUtil.createHeaderTitle(headingText);
     }
 
@@ -445,7 +448,7 @@ public class MaterialReplicaSummaryComponent
         String linkUrl =
                 ClientPluginFactory.createImagingExperimentViewerLink(experiment,
                         restrictGlobalScopeLinkToProject, screeningViewContext);
-        String linkText = "Show assay " + experiment.getCode();
+        String linkText = screeningViewContext.getMessage(Dict.SHOW_ASSAY, experiment.getCode());
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
                 public void onClick(ClickEvent event)

@@ -106,6 +106,16 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String MATERIAL_DISAMBIGUATION_GRID_EXPLANATION =
             "MATERIAL_DISAMBIGUATION_GRID_EXPLANATION";
 
+    public static final String ASSAY_HEADER = "ASSAY_HEADER";
+
+    public static final String FIND_IN_ALL_ASSAYS = "FIND_IN_ALL_ASSAYS";
+
+    public static final String MATERIAL_IN_ASSAY = "MATERIAL_IN_ASSAY";
+
+    public static final String SHOW_ASSAY = "SHOW_ASSAY";
+
+    public static final String MATERIAL_IN_ALL_ASSAYS = "MATERIAL_IN_ALL_ASSAYS";
+
     private Dict()
     {
         // Can not be instantiated.

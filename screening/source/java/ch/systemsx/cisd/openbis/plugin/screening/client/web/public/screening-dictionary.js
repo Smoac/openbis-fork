@@ -32,7 +32,7 @@ WELLS_SEARCH_tab_label: "Wells Search",
 // Experiment Viewer
 //
 experiment_samples_selction_title: "Plates",
-no_samples_found: "There are no plates in this assay",
+no_samples_found: "There are no plates in this experiment",
 
 //
 // Sample Viewer
@@ -95,20 +95,26 @@ material_replica_feature_summary_RANK: "Rank",
 material_replica_feature_summary_MEDIAN: "Median",
 material_replica_feature_summary_DEVIATION: "Deviation",
 
-material_features_from_all_experiments_ASSAY: "Whole Assay",
+material_features_from_all_experiments_ASSAY: "Experiment",
 material_features_from_all_experiments_MATERIAL: "Details",
-MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "All Assays",
+MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "All Experiments",
 
 EXACT_MATCH_ONLY: "Exact Matches Only",
 WELLS_SEARCH_SHOW_COMBINED_RESULTS: "Show all matching results combined",
-WELL_SEARCH_NO_RESULTS_IN_ANY_EXP_FOUND: "All assays have been searched and no results match the query. Please check the spelling.",
-WELL_SEARCH_NO_RESULTS_IN_SELECTED_EXP_FOUND: "No results match the query in the selected assay.",
-WELL_SEARCH_PERFORM_IN_ALL_EXP: "Search in all assays",
+WELL_SEARCH_NO_RESULTS_IN_ANY_EXP_FOUND: "All experiments have been searched and no results match the query. Please check the spelling.",
+WELL_SEARCH_NO_RESULTS_IN_SELECTED_EXP_FOUND: "No results match the query in the selected experiment.",
+WELL_SEARCH_PERFORM_IN_ALL_EXP: "Search in all experiments",
 
 MATERIAL_DISAMBIGUATION_TITLE: "Material Disambiguation",
 MATERIAL_DISAMBIGUATION_GRID_EXPLANATION: "More than one result has been found. Click on it to see the details.",
 
 image_viewer_button: "Adjust Colors",
+
+ASSAY_HEADER: "Experiment {0}",
+FIND_IN_ALL_ASSAYS: "Find {0} in all experiments",
+MATERIAL_IN_ASSAY: "{0} in experiment {1}",
+SHOW_ASSAY: "Show experiment {0}",
+MATERIAL_IN_ALL_ASSAYS: "{0} in all experiments",
 
 // LAST LINE: KEEP IT AT THE END
 lastline: "" // we need a line without a comma
