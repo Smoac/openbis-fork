@@ -44,14 +44,14 @@ public class EntityTypeLabelUtils
 
     /**
      * Creates user friendly labels, e.g.<br>
-     * 2011-05-30, Raw (TIFF)<br>
-     * 2011-05-30, Overview (JPG)<br>
+     * Raw (TIFF), 2011-05-30 12:34<br>
+     * Overview (JPG), 2011-05-30 12:34<br>
      * <br>
-     * 2011-05-30, Features <br>
-     * 2011-05-30, Quality<br>
-     * 2011-05-30, Metadata<br>
+     * Features, 2011-05-30 12:34<br>
+     * Quality<br>
+     * Metadata, 2011-05-30 12:34<br>
      * <br>
-     * 2011-05-30, Hcs analysis cell classifications (MAT)<br>
+     * Hcs analysis cell classifications (MAT), 2011-05-30 12:34<br>
      */
     public static String createDatasetLabel(DatasetReference datasetReference, boolean withFileType)
     {
@@ -65,13 +65,13 @@ public class EntityTypeLabelUtils
     {
         String typeLabel = getDatasetUserFriendlyTypeCode(datasetReference);
         String fileType = withFileType ? " (" + datasetReference.getFileTypeCode() + ")" : "";
-        return registrationDate + ", " + typeLabel + fileType;
+        return typeLabel + fileType + ", " + registrationDate;
     }
 
     private static String renderDate(DatasetReference datasetReference)
     {
         return DateRenderer.renderDate(datasetReference.getRegistrationDate(),
-                BasicConstant.DATE_WITHOUT_TIME_FORMAT_PATTERN);
+                BasicConstant.DATE_WITH_SHORT_TIME);
     }
 
     private static String getDatasetUserFriendlyTypeCode(DatasetReference datasetReference)
