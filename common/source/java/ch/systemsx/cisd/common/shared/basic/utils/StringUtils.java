@@ -125,10 +125,31 @@ public final class StringUtils
         return isBlank(value) ? null : value;
     }
 
-    /** Returns an empty if given <var>stringOrNull</var> is <code>null</code>. */
+    /**
+     * Returns an empty string if given <var>stringOrNull</var> is <code>null</code>, otherwise it
+     * returns <var>stringOrNull</var> itself.
+     */
     public static final String emptyIfNull(final String stringOrNull)
     {
         return stringOrNull == null ? EMPTY_STRING : stringOrNull;
+    }
+
+    /**
+     * Returns an empty string if given <var>objectOrNull</var> is <code>null</code>, otherwise it
+     * returns result of {@link #toString()} on the object.
+     */
+    public static final String toStringEmptyIfNull(final Object objectOrNull)
+    {
+        return objectOrNull == null ? EMPTY_STRING : objectOrNull.toString();
+    }
+
+    /**
+     * Returns null if given <var>objectOrNull</var> is <code>null</code>, otherwise it returns
+     * result of {@link #toString()} on the object.
+     */
+    public static final String toStringOrNull(final Object objectOrNull)
+    {
+        return objectOrNull == null ? null : objectOrNull.toString();
     }
 
     /**
@@ -228,18 +249,19 @@ public final class StringUtils
      * <p>
      * Allowed modifiers are:
      * <ul>
-     * <li> <i>i</i> - Perform case-insensitive matching
-     * <li> <i>g</i> - Perform a global match (find all matches rather than stopping after the first match) 
-     * <li> <i>m</i> - Perform multiline matching
+     * <li><i>i</i> - Perform case-insensitive matching
+     * <li><i>g</i> - Perform a global match (find all matches rather than stopping after the first
+     * match)
+     * <li><i>m</i> - Perform multiline matching
      * </ul>
      */
-    public static final native boolean matches(final String regExp, final String value, 
+    public static final native boolean matches(final String regExp, final String value,
             final String modifiers)
     /*-{
         var re = new RegExp(regExp, modifiers);
         return value.search(re) > -1;
     }-*/;
-    
+
     /**
      * Returns <code>true</code> if given <var>regExp</var> could be found in given
      * <var>value</var>.
