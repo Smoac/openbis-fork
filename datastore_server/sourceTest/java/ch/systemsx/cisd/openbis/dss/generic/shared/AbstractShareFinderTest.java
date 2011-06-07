@@ -151,7 +151,7 @@ public class AbstractShareFinderTest extends AssertJUnit
         } catch (AssertionError ex)
         {
             assertEquals("Found share 2 has speed 20 but data set ds-1 has speed hint 20. "
-                    + "This violates speed checker RESPECTUNG_SPEED_HINT_CHECKER.", ex.getMessage());
+                    + "This violates speed checker RESPECTING_SPEED_HINT_CHECKER.", ex.getMessage());
         }
         finder.verify(dataSet, SHARES);
     }

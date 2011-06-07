@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -45,7 +44,6 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -59,9 +57,6 @@ public class SegmentedStoreUtils
     private static final String RSYNC_EXEC = "rsync";
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
-
-    @Private
-    static final String SPEED_FILE = "speed";
 
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
@@ -230,21 +225,7 @@ public class SegmentedStoreUtils
         Map<String, Share> shares = new HashMap<String, Share>();
         for (File file : getShares(storeRoot))
         {
-            int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
-            File speedFile = new File(file, SPEED_FILE);
-            if (speedFile.isFile())
-            {
-                String value = FileUtilities.loadToString(speedFile).trim();
-                try
-                {
-                    speed = SpeedUtils.trim(Integer.parseInt(value));
-                } catch (NumberFormatException ex)
-                {
-                    log.log(LogLevel.WARN, "Speed file " + speedFile
-                            + " doesn't contain a number: " + value);
-                }
-            }
-            Share share = new Share(file, speed, freeSpaceProvider);
+            Share share = new ShareFactory().createShare(file, freeSpaceProvider, log);
             shares.put(share.getShareId(), share);
         }
         return shares;

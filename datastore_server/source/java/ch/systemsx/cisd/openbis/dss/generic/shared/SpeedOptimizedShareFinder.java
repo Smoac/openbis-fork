@@ -48,7 +48,7 @@ public class SpeedOptimizedShareFinder implements IShareFinder
         }
         share =
                 tryToFindExtensionShare(dataSet, shares,
-                        SpeedChecker.RESPECTUNG_SPEED_HINT_CHECKER);
+                        SpeedChecker.RESPECTING_SPEED_HINT_CHECKER);
         if (share != null)
         {
             return share;

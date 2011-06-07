@@ -16,25 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import static org.apache.commons.io.FileUtils.ONE_MB;
-
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -43,21 +34,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  *
  * @author Franz-Josef Elmer
  */
-public class SpeedOptimizedShareFinderTest extends AssertJUnit
+public class SpeedOptimizedShareFinderTest extends AbstractIShareFinderTestCase
 {
     private static final String DATA_SET_CODE = "ds-1";
     
     private SpeedOptimizedShareFinder finder;
     
     private Mockery context;
-    private IFreeSpaceProvider freeSpaceProvider;
     private SimpleDataSetInformationDTO dataSet;
     
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
-        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         dataSet = new SimpleDataSetInformationDTO();
         dataSet.setDataSetCode(DATA_SET_CODE);
         dataSet.setDataSetSize(FileUtils.ONE_MB);
@@ -81,10 +70,10 @@ public class SpeedOptimizedShareFinderTest extends AssertJUnit
     public void testFindMatchingExtensionShare()
     {
         dataSet.setSpeedHint(-50);
-        Share s1 = share(false, 50, 10 * ONE_MB);
-        Share s2 = share(true, 50, 0);
-        Share s3 = share(false, 40, 0);
-        Share s4 = share(false, 50, 11 * ONE_MB);
+        Share s1 = extensionShare("s1", megaBytes(10), 50);
+        Share s2 = incomingShare("s2", 0, 50);
+        Share s3 = extensionShare("s3", 0, 40);
+        Share s4 = extensionShare("s4", megaBytes(11), 50);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4));
         assertSame(s4.getShare(), foundShare.getShare());
@@ -94,9 +83,9 @@ public class SpeedOptimizedShareFinderTest extends AssertJUnit
     public void testFindExtensionShareRespectingSpeedHint()
     {
         dataSet.setSpeedHint(-50);
-        Share s1 = share(false, 49, 10 * ONE_MB);
-        Share s2 = share(true, 50, 0);
-        Share s3 = share(false, 40, 11 * ONE_MB);
+        Share s1 = extensionShare("s1", megaBytes(10), 49);
+        Share s2 = incomingShare("s2", 0, 50);
+        Share s3 = extensionShare("s3", megaBytes(11), 40);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
         assertSame(s3.getShare(), foundShare.getShare());
@@ -106,37 +95,14 @@ public class SpeedOptimizedShareFinderTest extends AssertJUnit
     public void testFindShareIgnoringSpeedHint()
     {
         dataSet.setSpeedHint(-50);
-        dataSet.setDataSetShareId("20");
-        Share s1 = share(false, 51, 10 * ONE_MB);
-        Share s2 = share(true, 50, 20 * ONE_MB);
-        Share s3 = share(false, 60, 11 * ONE_MB);
-        Share s4 = share(true, 50, 15 * ONE_MB);
+        dataSet.setDataSetShareId("s2");
+
+        Share s1 = extensionShare("s1", megaBytes(10), 51);
+        Share s2 = incomingShare("s2", megaBytes(20), 50);
+        Share s3 = extensionShare("s3", megaBytes(11), 60);
+        Share s4 = incomingShare("s4", megaBytes(15), 50);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4));
         assertSame(s3.getShare(), foundShare.getShare());
-    }
-    
-    private Share share(boolean incoming, int speed, final long freeSpace)
-    {
-        final File file = new File(Integer.toString(speed) + "/" + incoming + "/" + freeSpace);
-        if (freeSpace > 0)
-        {
-            context.checking(new Expectations()
-                {
-                    {
-                        try
-                        {
-                            one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(file));
-                            will(returnValue(freeSpace / FileUtils.ONE_KB));
-                        } catch (IOException ex)
-                        {
-                            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                        }
-                    }
-                });
-        }
-        Share share = new Share(file, speed, freeSpaceProvider);
-        share.setIncoming(incoming);
-        return share;
     }
 }

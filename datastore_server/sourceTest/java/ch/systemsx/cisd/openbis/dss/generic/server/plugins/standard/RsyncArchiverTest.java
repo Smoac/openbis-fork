@@ -75,18 +75,29 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         private static SimpleDataSetInformationDTO recordedDataSet;
         private static List<Share> recordedShares;
 
+        private boolean alwaysReturnNull = false;
+
         public ShareFinder(Properties properties)
         {
             ShareFinder.properties = properties;
+            if (properties.containsKey("alwaysReturnNull"))
+            {
+                this.alwaysReturnNull = true;
+            }
         }
 
         public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
         {
             ShareFinder.recordedDataSet = dataSet;
             ShareFinder.recordedShares = shares;
-            return shares.isEmpty() ? null : shares.get(0);
+            if (shares.isEmpty() || alwaysReturnNull)
+            {
+                return null;
+            } else
+            {
+                return shares.get(0);
+            }
         }
-        
     }
     
     private BufferedAppender logRecorder;
@@ -318,7 +329,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         assertEquals("ds1", ShareFinder.recordedDataSet.getDataSetCode());
         assertEquals("db", ShareFinder.recordedDataSet.getDatabaseInstanceCode());
         assertEquals("loc1", ShareFinder.recordedDataSet.getDataSetLocation());
-        assertEquals("2", ShareFinder.recordedDataSet.getDataSetShareId());
+        assertEquals(null, ShareFinder.recordedDataSet.getDataSetShareId());
         assertEquals("my-type", ShareFinder.recordedDataSet.getDataSetType());
         assertEquals("exp1", ShareFinder.recordedDataSet.getExperimentCode());
         assertEquals("space", ShareFinder.recordedDataSet.getGroupCode());
@@ -330,6 +341,45 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         assertEquals(2, ShareFinder.recordedShares.size());
     }
     
+    @Test
+    public void testFailingUnarchivingWhenNoShareHasBeenFound()
+    {
+        properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
+        properties.setProperty(SHARE_FINDER_KEY + ".alwaysReturnNull", "true");
+        archiverTaskContext.setUnarchivingPreparation(unarchivingPreparation);
+        final DatasetDescription ds1 =
+                new DatasetDescriptionBuilder("ds1").databaseInstance("db").experiment("exp1")
+                        .location("loc1").project("p1").sample("s1").space("space").size(11l)
+                        .type("my-type").getDatasetDescription();
+        context.checking(new Expectations()
+            {
+                {
+                    one(configProvider).getDataStoreCode();
+                    will(returnValue(DATA_STORE_CODE));
+
+                    one(service).listDataSets();
+                    SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
+                    dataSet.setDataSetCode("ds1");
+                    dataSet.setDataStoreCode(DATA_STORE_CODE);
+                    dataSet.setDataSetShareId("1");
+                    dataSet.setDataSetLocation(LOCATION);
+                    dataSet.setDataSetSize(11L);
+                    will(returnValue(Arrays.asList(dataSet)));
+
+                    one(statusUpdater).update(Arrays.asList("ds1"),
+                            DataSetArchivingStatus.ARCHIVED, true);
+                }
+            });
+
+        ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
+
+        assertEquals(1, status.getErrorStatuses().size());
+        Status errorStatus = status.getErrorStatuses().get(0);
+        assertEquals("Unarchiving failed: Unarchiving of data set 'ds1' has failed, because no "
+                + "appropriate destination share was found. Most probably there is not enough "
+                + "free space in the data store.", errorStatus.tryGetErrorMessage());
+    }
+
     @Test
     public void testUnarchivingWithDefaultShareFinder()
     {
@@ -355,9 +405,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     dataSet2.setDataSetLocation(LOCATION);
                     dataSet2.setDataSetSize(22L);
                     will(returnValue(Arrays.asList(dataSet1, dataSet2)));
-
-                    one(shareIdManager).getShareId("ds1");
-                    will(returnValue("2"));
 
                     one(statusUpdater).update(Arrays.asList("ds1", "ds2"), DataSetArchivingStatus.ARCHIVED,
                             true);

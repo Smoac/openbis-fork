@@ -48,6 +48,43 @@ public final class Share
                     }
                 };
 
+    /**
+     * different factors that have priority when moving a data set to the share.
+     */
+    public static enum ShufflePriority
+    {
+        /**
+         * always respect the speed hint of a data set when moving.
+         */
+        SPEED()
+        {
+            @Override
+            public boolean forceNonSpeedMatchingShuffle()
+            {
+                return false;
+            }
+        },
+
+        /**
+         * allows a shuffling operation to ignore the speed hints when moving from incoming to
+         * extension share.
+         */
+        MOVE_TO_EXTENSION()
+        {
+            @Override
+            public boolean forceNonSpeedMatchingShuffle()
+            {
+                return true;
+            }
+        };
+
+        /**
+         * Return true if the priority forces a data set with non-matching speed hint to be moved to
+         * the share.
+         */
+        public abstract boolean forceNonSpeedMatchingShuffle();
+    }
+
     private final File share;
 
     private final IFreeSpaceProvider freeSpaceProvider;
@@ -62,6 +99,8 @@ public final class Share
     private boolean incoming;
 
     private long size;
+
+    private ShufflePriority shufflePriority = ShufflePriority.SPEED;
 
     public Share(File share, int speed, IFreeSpaceProvider freeSpaceProvider)
     {
@@ -143,5 +182,15 @@ public final class Share
     public long getTotalSizeOfDataSets()
     {
         return size;
+    }
+
+    public ShufflePriority getShufflePriority()
+    {
+        return shufflePriority;
+    }
+
+    public void setShufflePriority(ShufflePriority shufflePriority)
+    {
+        this.shufflePriority = shufflePriority;
     }
 }

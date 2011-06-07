@@ -16,19 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.etlserver.postregistration.SimpleShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -38,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  *
  * @author Franz-Josef Elmer
  */
-public class SimpleShareFinderTest extends AssertJUnit
+public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
 {
     private static final class MockSpeedChecker implements ISpeedChecker
     {
@@ -83,12 +78,12 @@ public class SimpleShareFinderTest extends AssertJUnit
     public void testMaxFreeExtensionShare()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setDataSetSize(42 * 1024L);
+        dataSet.setDataSetSize(kiloBytes(42));
         dataSet.setDataSetShareId("1");
-        Share s1 = share("1", 300, true);
-        Share s2 = share("2", 300, true);
-        Share s3 = share("3", 30, false);
-        Share s4 = share("4", 50, false);
+        Share s1 = incomingShare("1", kiloBytes(300), 0);
+        Share s2 = incomingShare("2", kiloBytes(300), 0);
+        Share s3 = extensionShare("3", kiloBytes(30), 0);
+        Share s4 = extensionShare("4", kiloBytes(50), 0);
         
         MockSpeedChecker speedChecker = new MockSpeedChecker(true, true, true, true);
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4), speedChecker);
@@ -101,12 +96,12 @@ public class SimpleShareFinderTest extends AssertJUnit
     public void testMaxFreeIncomingShare()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setDataSetSize(42 * 1024L);
+        dataSet.setDataSetSize(kiloBytes(42));
         dataSet.setDataSetShareId("1");
-        Share s1 = share("1", 300, true);
-        Share s2 = share("2", 400, true);
-        Share s3 = share("3", 30, false);
-        Share s4 = share("4", 50, false);
+        Share s1 = incomingShare("1", kiloBytes(300), 0);
+        Share s2 = incomingShare("2", kiloBytes(400), 0);
+        Share s3 = extensionShare("3", kiloBytes(30), 0);
+        Share s4 = extensionShare("4", kiloBytes(50), 0);
         
         MockSpeedChecker speedChecker = new MockSpeedChecker(true, true, true, false);
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3, s4), speedChecker);
@@ -119,11 +114,11 @@ public class SimpleShareFinderTest extends AssertJUnit
     public void testIncomingDataSetShareHasMoreSpaceThanOtherIncomingShare()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setDataSetSize(42 * 1024L);
+        dataSet.setDataSetSize(kiloBytes(42));
         dataSet.setDataSetShareId("1");
-        Share s1 = share("1", 300, true);
-        Share s2 = share("2", 200, true);
-        Share s3 = share("3", 30, false);
+        Share s1 = incomingShare("1", kiloBytes(300), 0);
+        Share s2 = incomingShare("2", kiloBytes(200), 0);
+        Share s3 = extensionShare("3", kiloBytes(30), 0);
         
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
         
@@ -134,30 +129,14 @@ public class SimpleShareFinderTest extends AssertJUnit
     public void testExtensionDataSetShareHasMoreSpaceThanOtherExtensionShare()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setDataSetSize(42 * 1024L);
+        dataSet.setDataSetSize(kiloBytes(42));
         dataSet.setDataSetShareId("1");
-        Share s1 = share("1", 300, false);
-        Share s2 = share("2", 200, false);
-        Share s3 = share("3", 50, true);
+        Share s1 = extensionShare("1", kiloBytes(300), 0);
+        Share s2 = extensionShare("2", kiloBytes(200), 0);
+        Share s3 = incomingShare("3", kiloBytes(50), 0);
         
         Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3));
         
         assertSame(null, share);
-    }
-    
-    private Share share(String shareId, final long freeSpace, boolean incoming)
-    {
-        final File file = new File(shareId);
-        Share share = new Share(file, 0, new IFreeSpaceProvider()
-            {
-
-                public long freeSpaceKb(HostAwareFile path) throws IOException
-                {
-                    assertSame(file, path.getFile());
-                    return freeSpace;
-                }
-            });
-        share.setIncoming(incoming);
-        return share;
     }
 }

@@ -57,7 +57,7 @@ public class SimpleShareFinder extends AbstractShareFinder
             }
             long freeSpace = share.calculateFreeSpace();
             String shareId = share.getShareId();
-            if (dataSetShareId.equals(shareId))
+            if (dataSetShareId != null && dataSetShareId.equals(shareId))
             {
                 dataSetShareFreeSpace = freeSpace;
                 dataSetShareIncoming = share.isIncoming();

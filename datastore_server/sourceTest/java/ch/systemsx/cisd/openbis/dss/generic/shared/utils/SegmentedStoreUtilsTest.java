@@ -103,7 +103,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         final File ds1File = new File(store, "1/uuid/01/02/03/ds-1");
         ds1File.mkdirs();
         FileUtilities.writeToFile(new File(ds1File, "read.me"), "nice work!");
-        FileUtilities.writeToFile(new File(store, "1/" + SegmentedStoreUtils.SPEED_FILE), "  143  \n");
+        FileUtilities.writeToFile(new File(store, "1/" + ShareFactory.SPEED_FILE), "  143  \n");
         final SimpleDataSetInformationDTO ds1 = dataSet(ds1File, DATA_STORE_CODE, null);
         File ds2File = new File(store, "1/uuid/01/02/04/ds-2");
         ds2File.mkdirs();
@@ -111,7 +111,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds2 = dataSet(ds2File, "blabla", null);
         File ds3File = new File(store, "2/uuid/01/05/04/ds-3");
         ds3File.mkdirs();
-        File speedFile2 = new File(store, "2/" + SegmentedStoreUtils.SPEED_FILE);
+        File speedFile2 = new File(store, "2/" + ShareFactory.SPEED_FILE);
         FileUtilities.writeToFile(speedFile2, "not a number");
         FileUtilities.writeToFile(new File(ds3File, "hi.txt"), "hi everybody");
         final SimpleDataSetInformationDTO ds3 = dataSet(ds3File, DATA_STORE_CODE, 123456789L);

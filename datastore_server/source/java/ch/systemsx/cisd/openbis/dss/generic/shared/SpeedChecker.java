@@ -34,7 +34,8 @@ public enum SpeedChecker implements ISpeedChecker
             return Math.abs(dataSet.getSpeedHint()) == share.getSpeed();
         }
     },
-    RESPECTUNG_SPEED_HINT_CHECKER()
+
+    RESPECTING_SPEED_HINT_CHECKER()
     {
         public boolean check(SimpleDataSetInformationDTO dataSet, Share share)
         {
@@ -43,6 +44,7 @@ public enum SpeedChecker implements ISpeedChecker
             return speedHint < 0 ? speed < Math.abs(speedHint) : speed > speedHint;
         }
     },
+
     IGNORING_SPEED_HINT_CHECKER()
     {
         public boolean check(SimpleDataSetInformationDTO dataSet, Share share)

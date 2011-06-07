@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -609,17 +610,23 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
             String dataSetCode = dataSet.getDataSetCode();
-            String shareId = shareIdManager.getShareId(dataSetCode);
-            translatedDataSet.setDataSetShareId(shareId);
+            translatedDataSet.setDataSetShareId(null);
             Share share = shareFinder.tryToFindShare(translatedDataSet, shares);
             if (share != null)
             {
+                String oldShareId = shareIdManager.getShareId(dataSetCode);
                 String newShareId = share.getShareId();
-                if (newShareId.equals(shareId) == false)
+                if (newShareId.equals(oldShareId) == false)
                 {
                     service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
                     shareIdManager.setShareId(dataSetCode, newShareId);
                 }
+            } else
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Unarchiving of data set '%s' has failed, because no appropriate "
+                                + "destination share was found. Most probably there is not enough "
+                                + "free space in the data store.", dataSetCode);
             }
         }
 
