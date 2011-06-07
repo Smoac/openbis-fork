@@ -3,24 +3,32 @@ import re
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel, ValidationHelper
 
 def validate_data(time_series_data, errors):
-	chebiRegex = re.compile("^CHEBI:[0-9]+")
-	bsbmeRegex = re.compile("^BSBME:[0-9]+")
+	gene_locus_regex = re.compile("^BSU[0-9]+|^BSU_misc_RNA_[0-9]+|^VMG_[0-9]+_[0-9]+(_c)?")
+	column_header_regex = re.compile("(\+|-)?[0-9]+::(value|mean|median|std|var|error|iqr)")
 	dataLines = time_series_data.getRawDataLines()
 	lineCount = 0
 	for line in dataLines:
-		# The header needs to be CompoundID
+		# The header needs to be GeneLocus
 		if lineCount is 0:
-			if line[0] != "CompoundID":
-				errors.append(createFileValidationError("The first data column must be 'CompoundID'"))
+			if line[0] != "GeneLocus":
+				errors.append(createFileValidationError("The first data column must be 'GeneLocus'"))
 				break
 			lineCount = lineCount + 1
+			has_human_readable = line[1] == "HumanReadable"
+			
+			if has_human_readable:
+				range_start = 2
+			else:
+				range_start = 1
+			for i in range(range_start, len(line)):
+				if not column_header_regex.match(line[i].lower()):
+					errors.append(createFileValidationError("Column " + str(i) + " header must be of the format Timepoint::(value|mean|median|std|var|error|iqr), (instead of " + line[i] + ")."))
 			continue
 
 		# The compound id should be one of these forms
-		compoundId = line[0]
-		if not chebiRegex.match(compoundId):
-			if not bsbmeRegex.match(compoundId):
-				errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'CHEBI:#' or 'BSBME:#' (instead of " + compoundId + ")."))
+		gene_locus = line[0]
+		if not gene_locus_regex.match(gene_locus):
+			errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
 		lineCount = lineCount + 1
 		
 def validate_metadata(time_series_data, errors):
@@ -39,16 +47,11 @@ def validate_metadata(time_series_data, errors):
 	if validationHelper.checkIsSpecified("CELL LOCATION", "cell location"):
 		if metadata.get("CELL LOCATION").upper() not in ['CE', 'ES', 'ME', 'CY', 'NC']:
 			errors.append(createFileValidationError("The cell location must be one of 'CE', 'ES', 'ME', 'CY', 'NC'"))
-		
-	# validate the value type
-	if validationHelper.checkIsSpecified("VALUE TYPE", "value type"):
-		if metadata.get("VALUE TYPE").lower() not in ['value', 'mean', 'median', 'std', 'var', 'error', 'iqr']:
-			errors.append(createFileValidationError("The value type must be one of 'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'"))
 
 	# validate the value unit
 	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'ratiot1', 'ratiocs']:
-			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'RatioT1', 'RatioCs'"))
+		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'percent', 'ratiot1', 'ratiocs', 'au', 'dimensionless']:
+			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'"))
 	
 	# validate the value type
 	if validationHelper.checkIsSpecified("SCALE", "scale"):

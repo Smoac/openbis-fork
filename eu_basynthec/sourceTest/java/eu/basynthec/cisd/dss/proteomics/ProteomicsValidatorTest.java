@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.basynthec.cisd.dss.metabolomics;
+package eu.basynthec.cisd.dss.proteomics;
 
 import java.io.File;
 import java.util.List;
@@ -28,10 +28,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class MetabolomicsValidatorTest extends AssertJUnit
+public class ProteomicsValidatorTest extends AssertJUnit
 {
     private static final String VALIDATION_SCRIPT_PATH =
-            "dist/etc/metabolomics/data-set-validator.py";
+            "dist/etc/proteomics/data-set-validator.py";
 
     @Test
     public void testGoodData()
@@ -39,7 +39,7 @@ public class MetabolomicsValidatorTest extends AssertJUnit
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPath(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-Example.xlsx"));
+                scriptRunner.validate(new File("sourceTest/examples/Proteomics-Example.xlsx"));
         assertTrue("The example should have no errors", errors.isEmpty());
     }
 
@@ -49,17 +49,18 @@ public class MetabolomicsValidatorTest extends AssertJUnit
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPath(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-Template.xlsx"));
-        assertEquals("The template should have six errors", 6, errors.size());
+                scriptRunner.validate(new File("sourceTest/examples/Proteomics-Template.xlsx"));
+        assertEquals("The template should have five errors", 5, errors.size());
     }
 
     @Test
-    public void testBadData()
+    public void testBadHeader()
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPath(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
-                scriptRunner.validate(new File("sourceTest/examples/Metabolomics-BadData.xlsx"));
-        assertEquals("The bad data should have 7 errors", 7, errors.size());
+                scriptRunner.validate(new File("sourceTest/examples/Proteomics-BadHeader.xlsx"));
+        System.out.println(errors);
+        assertEquals("The bad data should have three errors", 3, errors.size());
     }
 }

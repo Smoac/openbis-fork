@@ -3,24 +3,22 @@ import re
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel, ValidationHelper
 
 def validate_data(time_series_data, errors):
-	chebiRegex = re.compile("^CHEBI:[0-9]+")
-	bsbmeRegex = re.compile("^BSBME:[0-9]+")
+	gene_locus_regex = re.compile("^BSU[0-9]+|^BSU_misc_RNA_[0-9]+|^VMG_[0-9]+_[0-9]+(_c)?")
 	dataLines = time_series_data.getRawDataLines()
 	lineCount = 0
 	for line in dataLines:
 		# The header needs to be CompoundID
 		if lineCount is 0:
-			if line[0] != "CompoundID":
-				errors.append(createFileValidationError("The first data column must be 'CompoundID'"))
+			if line[0] != "GeneLocus":
+				errors.append(createFileValidationError("The first data column must be 'GeneLocus'"))
 				break
 			lineCount = lineCount + 1
 			continue
 
 		# The compound id should be one of these forms
-		compoundId = line[0]
-		if not chebiRegex.match(compoundId):
-			if not bsbmeRegex.match(compoundId):
-				errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'CHEBI:#' or 'BSBME:#' (instead of " + compoundId + ")."))
+		gene_locus = line[0]
+		if not gene_locus_regex.match(gene_locus):
+			errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
 		lineCount = lineCount + 1
 		
 def validate_metadata(time_series_data, errors):
@@ -47,8 +45,8 @@ def validate_metadata(time_series_data, errors):
 
 	# validate the value unit
 	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'ratiot1', 'ratiocs']:
-			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'RatioT1', 'RatioCs'"))
+		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'percent', 'ratiot1', 'ratiocs', 'au', 'dimensionless']:
+			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'"))
 	
 	# validate the value type
 	if validationHelper.checkIsSpecified("SCALE", "scale"):
