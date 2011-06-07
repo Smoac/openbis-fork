@@ -2794,38 +2794,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
-            String value)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            switch (kind)
-            {
-                case DATA_SET:
-                    commonServer.updateDataSetProperty(sessionToken, entityId, propertyColumnName,
-                            value);
-                    break;
-                case EXPERIMENT:
-                    commonServer.updateExperimentProperty(sessionToken, entityId,
-                            propertyColumnName, value);
-                    break;
-                case MATERIAL:
-                    commonServer.updateMaterialProperty(sessionToken, entityId, propertyColumnName,
-                            value);
-                    break;
-                case SAMPLE:
-                    commonServer.updateSampleProperty(sessionToken, entityId, propertyColumnName,
-                            value);
-                    break;
-            }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

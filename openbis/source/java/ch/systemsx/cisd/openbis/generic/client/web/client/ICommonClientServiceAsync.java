@@ -761,13 +761,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
+    public void archiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**
      * @see ICommonClientService#unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
      */
-    public void unarchiveDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
+    public void unarchiveDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
             AsyncCallback<ArchivingResult> callback);
 
     /**
@@ -934,12 +936,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void evaluate(DynamicPropertyEvaluationInfo dynamicPropertyEvaluationInfo,
             AsyncCallback<String> callback);
-
-    /**
-     * @see ICommonClientService#updateProperty(EntityKind, TechId, String, String)
-     */
-    public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
-            String value, AsyncCallback<Void> callback);
 
     /**
      * @see ICommonClientService#updateProperties(EntityPropertyUpdates)

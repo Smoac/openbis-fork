@@ -1047,12 +1047,6 @@ public interface ICommonClientService extends IClientService
     public String evaluate(DynamicPropertyEvaluationInfo info) throws UserFailureException;
 
     /**
-     * Updates specified property for specified entity of specified kind.
-     */
-    public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
-            String value) throws UserFailureException;
-
-    /**
      * Updates specified properties of an entity.
      */
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
