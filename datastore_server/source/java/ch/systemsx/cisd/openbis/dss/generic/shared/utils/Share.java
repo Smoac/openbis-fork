@@ -56,33 +56,12 @@ public final class Share
         /**
          * always respect the speed hint of a data set when moving.
          */
-        SPEED()
-        {
-            @Override
-            public boolean forceNonSpeedMatchingShuffle()
-            {
-                return false;
-            }
-        },
-
+        SPEED,
         /**
          * allows a shuffling operation to ignore the speed hints when moving from incoming to
          * extension share.
          */
-        MOVE_TO_EXTENSION()
-        {
-            @Override
-            public boolean forceNonSpeedMatchingShuffle()
-            {
-                return true;
-            }
-        };
-
-        /**
-         * Return true if the priority forces a data set with non-matching speed hint to be moved to
-         * the share.
-         */
-        public abstract boolean forceNonSpeedMatchingShuffle();
+        MOVE_TO_EXTENSION;
     }
 
     private final File share;
