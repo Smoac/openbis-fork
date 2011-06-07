@@ -471,17 +471,49 @@ public final class GWTUtils
         return GWT.isScript();
     }
 
+    public enum DisplayInfoTime
+    {
+        /** short time of display (2,5s) */
+        SHORT(2500),
+        /** medium time of display (5s) */
+        MEDIUM(5000),
+        /** long time of display (10s) */
+        LONG(10000);
+
+        private final int time;
+
+        DisplayInfoTime(int time)
+        {
+            this.time = time;
+        }
+
+        public int getTime()
+        {
+            return time;
+        }
+    }
+
     public final static void displayInfo(String title)
     {
-        displayInfo(title, "");
+        displayInfo(title, "", DisplayInfoTime.MEDIUM);
+    }
+
+    public final static void displayInfo(String title, DisplayInfoTime time)
+    {
+        displayInfo(title, "", time.getTime());
     }
 
     public final static void displayInfo(String title, String text)
     {
-        displayInfo(title, text, 10000); // 10s
+        displayInfo(title, text, DisplayInfoTime.MEDIUM);
     }
 
-    public final static void displayInfo(String title, String text, int displayTime)
+    public final static void displayInfo(String title, String text, DisplayInfoTime time)
+    {
+        displayInfo(title, text, time.getTime());
+    }
+
+    private final static void displayInfo(String title, String text, int displayTime)
     {
         InfoConfig config = new InfoConfig(title, text);
         config.display = displayTime;

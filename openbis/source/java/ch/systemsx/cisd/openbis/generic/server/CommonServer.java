@@ -2500,15 +2500,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataStores.get(0).getDownloadUrl();
     }
 
-    public void updateDataSetProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateDataSetProperty(String sessionToken, TechId entityId, String propertyName,
+            String value)
     {
         checkSession(sessionToken);
         ExternalData dataSet = getDataSetInfo(sessionToken, entityId);
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
         updates.setDatasetId(entityId);
         updates.setVersion(dataSet.getModificationDate());
-        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        Map<String, String> properties = createPropertiesMap(propertyName, value);
         updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
         Experiment exp = dataSet.getExperiment();
         if (exp != null)
@@ -2528,8 +2528,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         updateDataSet(sessionToken, updates);
     }
 
-    public void updateExperimentProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateExperimentProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
         checkSession(sessionToken);
         Experiment experiment = getExperimentInfo(sessionToken, entityId);
@@ -2539,34 +2539,34 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         updates.setAttachments(Collections.<NewAttachment> emptySet());
         updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
                 .getIdentifier()).createIdentifier());
-        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        Map<String, String> properties = createPropertiesMap(propertyCode, value);
         updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
         updateExperiment(sessionToken, updates);
     }
 
-    public void updateSampleProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateSampleProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
         checkSession(sessionToken);
-        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        Map<String, String> properties = createPropertiesMap(propertyCode, value);
         EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
     }
 
-    public void updateMaterialProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateMaterialProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
         checkSession(sessionToken);
         Date modificationDate =
                 getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
-        Map<String, String> properties = createPropertiesMap(propertyColumnName, value);
+        Map<String, String> properties = createPropertiesMap(propertyCode, value);
         updateMaterial(sessionToken, entityId,
                 EntityHelper.translatePropertiesMapToList(properties), modificationDate);
     }
 
-    private Map<String, String> createPropertiesMap(String propertyColumnName, String value)
+    private Map<String, String> createPropertiesMap(String propertyCode, String value)
     {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(CodeConverter.getPropertyTypeCode(propertyColumnName), value);
+        properties.put(CodeConverter.getPropertyTypeCode(propertyCode), value);
         return properties;
     }
 

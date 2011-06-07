@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -47,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaOrSelectedEntityHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -2195,8 +2198,7 @@ public final class CommonClientService extends AbstractClientService implements
             TableExportCriteria<TableModelRowWithObject<Experiment>> displayedItemsCriteria =
                     experimentCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            rows =
-                    fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
+            rows = fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
         }
         List<Experiment> experiments = new ArrayList<Experiment>();
         for (TableModelRowWithObject<Experiment> row : rows)
@@ -2760,7 +2762,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ArchivingResult lockDatasets(DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
+    public ArchivingResult lockDatasets(
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -2801,16 +2804,20 @@ public final class CommonClientService extends AbstractClientService implements
             switch (kind)
             {
                 case DATA_SET:
-                    commonServer.updateDataSetProperty(sessionToken, entityId, propertyColumnName, value);
+                    commonServer.updateDataSetProperty(sessionToken, entityId, propertyColumnName,
+                            value);
                     break;
                 case EXPERIMENT:
-                    commonServer.updateExperimentProperty(sessionToken, entityId, propertyColumnName, value);
+                    commonServer.updateExperimentProperty(sessionToken, entityId,
+                            propertyColumnName, value);
                     break;
                 case MATERIAL:
-                    commonServer.updateMaterialProperty(sessionToken, entityId, propertyColumnName, value);
+                    commonServer.updateMaterialProperty(sessionToken, entityId, propertyColumnName,
+                            value);
                     break;
                 case SAMPLE:
-                    commonServer.updateSampleProperty(sessionToken, entityId, propertyColumnName, value);
+                    commonServer.updateSampleProperty(sessionToken, entityId, propertyColumnName,
+                            value);
                     break;
             }
         } catch (final UserFailureException e)
@@ -2819,4 +2826,45 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+
+        final EntityKind entityKind = updates.getEntityKind();
+        final TechId entityId = updates.getEntityId();
+        final EntityPropertyUpdatesResult result = new EntityPropertyUpdatesResult();
+
+        for (Entry<String, String> entry : updates.getModifiedProperties().entrySet())
+        {
+            try
+            {
+                String propertyCode = entry.getKey();
+                String value = entry.getValue();
+                switch (entityKind)
+                {
+                    case DATA_SET:
+                        commonServer.updateDataSetProperty(sessionToken, entityId, propertyCode,
+                                value);
+                        break;
+                    case EXPERIMENT:
+                        commonServer.updateExperimentProperty(sessionToken, entityId, propertyCode,
+                                value);
+                        break;
+                    case MATERIAL:
+                        commonServer.updateMaterialProperty(sessionToken, entityId, propertyCode,
+                                value);
+                        break;
+                    case SAMPLE:
+                        commonServer.updateSampleProperty(sessionToken, entityId, propertyCode,
+                                value);
+                        break;
+                }
+            } catch (final UserFailureException e)
+            {
+                result.addError(e.getMessage());
+            }
+        }
+        return result;
+    }
 }

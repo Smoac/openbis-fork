@@ -1080,32 +1080,32 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void updateDataSetProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateDataSetProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
-        logTracking(sessionToken, "updateDataSetProperty",
-                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+        logTracking(sessionToken, "updateDataSetProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
+                entityId, propertyCode, value);
     }
 
-    public void updateExperimentProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateExperimentProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
-        logTracking(sessionToken, "updateExperimentProperty",
-                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+        logTracking(sessionToken, "updateExperimentProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
+                entityId, propertyCode, value);
     }
 
-    public void updateSampleProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateSampleProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
-        logTracking(sessionToken, "updateSampleProperty",
-                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+        logTracking(sessionToken, "updateSampleProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
+                entityId, propertyCode, value);
     }
 
-    public void updateMaterialProperty(String sessionToken, TechId entityId,
-            String propertyColumnName, String value)
+    public void updateMaterialProperty(String sessionToken, TechId entityId, String propertyCode,
+            String value)
     {
-        logTracking(sessionToken, "updateMaterialProperty",
-                "ID(%s) PROPERTY_COLUMN_NAME(%s) VALUE(%s)", entityId, propertyColumnName, value);
+        logTracking(sessionToken, "updateMaterialProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
+                entityId, propertyCode, value);
     }
 
 }

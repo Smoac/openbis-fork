@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -130,7 +131,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                 }
             };
     }
-    
+
     @Override
     protected boolean isEditable(M model, String columnID)
     {
@@ -145,13 +146,20 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     }
 
     @Override
-    protected void handleEditingEvent(M model, String columnID, String newValueOrNull)
+    protected void applyModifications(M model, List<IModification> modifications)
     {
-        EntityKind entityKind = getEntityKind();
-        TechId entityId = new TechId(model.getBaseObject().getId());
-        String propertyName = columnID.substring(EntityPropertyColDef.PROPERTY_PREFIX.length());
-        viewContext.getService().updateProperty(entityKind, entityId, propertyName,
-                newValueOrNull, createPostEditingRefreshCallback());
+        final EntityKind entityKind = getEntityKind();
+        final TechId entityId = new TechId(model.getBaseObject().getId());
+        final EntityPropertyUpdates updates = new EntityPropertyUpdates(entityKind, entityId);
+        for (IModification modification : modifications)
+        {
+            String propertyCode =
+                    modification.getColumnID().substring(
+                            EntityPropertyColDef.PROPERTY_PREFIX.length());
+            updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
+        }
+        viewContext.getService().updateProperties(updates,
+                createApplyModificationsCallback(model, modifications));
     }
 
     /**

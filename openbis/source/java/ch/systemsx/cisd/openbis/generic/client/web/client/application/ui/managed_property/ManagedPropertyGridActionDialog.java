@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -188,7 +189,7 @@ public final class ManagedPropertyGridActionDialog extends
             {
                 if (viewContext.isLoggingEnabled())
                 {
-                    Info.display("found binding", inputDescription.getLabel() + "->"
+                    GWTUtils.displayInfo("found binding", inputDescription.getLabel() + "->"
                             + boundedColumnTitleOrNull);
                 }
                 TableModelRowWithObject<ReportRowModel> selectedRow = data.get(0);

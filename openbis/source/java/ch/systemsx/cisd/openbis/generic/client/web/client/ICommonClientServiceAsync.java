@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaOrSelectedEntityHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -938,4 +940,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void updateProperty(EntityKind kind, TechId entityId, String propertyColumnName,
             String value, AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#updateProperties(EntityPropertyUpdates)
+     */
+    public void updateProperties(EntityPropertyUpdates entityPropertyUpdates,
+            AsyncCallback<EntityPropertyUpdatesResult> callback);
 }

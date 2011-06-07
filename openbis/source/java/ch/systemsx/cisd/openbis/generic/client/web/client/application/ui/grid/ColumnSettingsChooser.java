@@ -18,7 +18,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
 
 /**
  * Allows to change visibility and order of the grid columns.
@@ -129,8 +129,9 @@ class ColumnSettingsChooser
                         {
                             if (counter == maxVisibleColumns - 1)
                             {
-                                Info.display(
-                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns), "");
+                                GWTUtils.displayInfo(
+                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns), "",
+                                        DisplayInfoTime.SHORT);
                             }
                             if (counter >= maxVisibleColumns)
                             {
@@ -145,8 +146,9 @@ class ColumnSettingsChooser
                         {
                             if (counter == maxVisibleColumns + 1)
                             {
-                                Info.display(
-                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns), "");
+                                GWTUtils.displayInfo(
+                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns),
+                                        DisplayInfoTime.SHORT);
                             }
                             r.set(getDataIndex(), !b);
                         }
