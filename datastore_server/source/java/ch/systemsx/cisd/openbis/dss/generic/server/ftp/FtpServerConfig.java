@@ -59,6 +59,8 @@ public class FtpServerConfig
 
     final static String ACTIVE_PORT_KEY = PREFIX + "activemode.port";
 
+    final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
+
     private static final int DEFAULT_PORT = 2121;
 
     private static final int DEFAULT_ACTIVE_PORT = 2122;
@@ -69,6 +71,8 @@ public class FtpServerConfig
 
     private static final String DEFAULT_DATASET_TEMPLATE = "${dataSetCode}";
 
+    private static final String DEFAULT_PASSIVE_PORTS = "2130-2140";
+
     private boolean startServer;
 
     private int port;
@@ -76,6 +80,8 @@ public class FtpServerConfig
     private boolean activeModeEnabled;
 
     private int activePort;
+
+    private String passivePortsRange;
 
     private boolean useSSL;
 
@@ -113,6 +119,9 @@ public class FtpServerConfig
         }
         activeModeEnabled = PropertyUtils.getBoolean(props, ACTIVE_MODE_ENABLE_KEY, false);
         activePort = PropertyUtils.getPosInt(props, ACTIVE_PORT_KEY, DEFAULT_ACTIVE_PORT);
+        passivePortsRange =
+                PropertyUtils
+                        .getProperty(props, PASSIVE_MODE_PORT_RANGE_KEY, DEFAULT_PASSIVE_PORTS);
         maxThreads = PropertyUtils.getPosInt(props, MAX_THREADS_KEY, DEFAULT_MAX_THREADS);
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
@@ -208,6 +217,7 @@ public class FtpServerConfig
         operationLog.info("Ftp Server port: " + port);
         operationLog.info("Ftp Server using SSL: " + useSSL);
         operationLog.info("Ftp Server data set display template : " + dataSetDisplayTemplate);
+        operationLog.info("Ftp Server passive ports: " + passivePortsRange);
         operationLog.info("Ftp Server enable active mode: " + activeModeEnabled);
         if (activeModeEnabled)
         {
@@ -239,6 +249,11 @@ public class FtpServerConfig
     public int getActiveLocalPort()
     {
         return activePort;
+    }
+
+    public String getPassivePortsRange()
+    {
+        return passivePortsRange;
     }
 
 }

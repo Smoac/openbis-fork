@@ -85,14 +85,15 @@ public class FtpServer implements FileSystemFactory
             factory.setImplicitSsl(true);
         }
 
+        DataConnectionConfigurationFactory dccFactory = new DataConnectionConfigurationFactory();
+        dccFactory.setPassivePorts(config.getPassivePortsRange());
         if (config.isActiveModeEnabled())
         {
-            DataConnectionConfigurationFactory dccFactory =
-                    new DataConnectionConfigurationFactory();
             dccFactory.setActiveEnabled(true);
             dccFactory.setActiveLocalPort(config.getActiveLocalPort());
-            factory.setDataConnectionConfiguration(dccFactory.createDataConnectionConfiguration());
         }
+
+        factory.setDataConnectionConfiguration(dccFactory.createDataConnectionConfiguration());
         serverFactory.addListener("default", factory.createListener());
 
         ConnectionConfigFactory connectionConfigFactory = new ConnectionConfigFactory();
