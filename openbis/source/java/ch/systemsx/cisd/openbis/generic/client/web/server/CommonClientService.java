@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -2817,37 +2817,33 @@ public final class CommonClientService extends AbstractClientService implements
 
         final EntityKind entityKind = updates.getEntityKind();
         final TechId entityId = updates.getEntityId();
+        final List<PropertyUpdates> modifiedProperties = updates.getModifiedProperties();
+
         final EntityPropertyUpdatesResult result = new EntityPropertyUpdatesResult();
 
-        for (Entry<String, String> entry : updates.getModifiedProperties().entrySet())
+        try
         {
-            try
+            switch (entityKind)
             {
-                String propertyCode = entry.getKey();
-                String value = entry.getValue();
-                switch (entityKind)
-                {
-                    case DATA_SET:
-                        commonServer.updateDataSetProperty(sessionToken, entityId, propertyCode,
-                                value);
-                        break;
-                    case EXPERIMENT:
-                        commonServer.updateExperimentProperty(sessionToken, entityId, propertyCode,
-                                value);
-                        break;
-                    case MATERIAL:
-                        commonServer.updateMaterialProperty(sessionToken, entityId, propertyCode,
-                                value);
-                        break;
-                    case SAMPLE:
-                        commonServer.updateSampleProperty(sessionToken, entityId, propertyCode,
-                                value);
-                        break;
-                }
-            } catch (final UserFailureException e)
-            {
-                result.addError(e.getMessage());
+                case DATA_SET:
+                    commonServer
+                            .updateDataSetProperties(sessionToken, entityId, modifiedProperties);
+                    break;
+                case EXPERIMENT:
+                    commonServer.updateExperimentProperties(sessionToken, entityId,
+                            modifiedProperties);
+                    break;
+                case MATERIAL:
+                    commonServer.updateMaterialProperties(sessionToken, entityId,
+                            modifiedProperties);
+                    break;
+                case SAMPLE:
+                    commonServer.updateSampleProperties(sessionToken, entityId, modifiedProperties);
+                    break;
             }
+        } catch (final UserFailureException e)
+        {
+            result.setErrorMessage(UserFailureExceptionTranslator.translate(e).getMessage());
         }
         return result;
     }

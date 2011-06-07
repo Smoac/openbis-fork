@@ -20,29 +20,52 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Stores result of update of properties of an entity. Currently used only to transfer error
- * messages to the client side.
+ * Updates of a single property.
  * 
  * @author Piotr Buczek
  */
-public class EntityPropertyUpdatesResult implements ISerializable
+public class PropertyUpdates implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String errorMessage;
+    private String propertyCode;
 
-    public EntityPropertyUpdatesResult()
+    private String value;
+
+    public PropertyUpdates()
     {
     }
 
-    public void setErrorMessage(String errorMessage)
+    public PropertyUpdates(String propertyCode, String value)
     {
-        this.errorMessage = errorMessage;
+        this.propertyCode = propertyCode;
+        this.value = value;
     }
 
-    public String tryGetErrorMessage()
+    public String getPropertyCode()
     {
-        return errorMessage;
+        return propertyCode;
+    }
+
+    public void setPropertyCode(String propertyCode)
+    {
+        this.propertyCode = propertyCode;
+    }
+
+    public String getValue()
+    {
+        return value;
+    }
+
+    public void setValue(String value)
+    {
+        this.value = value;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[property=" + propertyCode + ",value='" + value + "']";
     }
 
 }

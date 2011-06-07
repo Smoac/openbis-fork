@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1011,7 +1010,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void clearModifications()
     {
-        // allModifications = 0;
         finishedModifications = 0;
         failedModifications.clear();
         modificationsByModel.clear();
@@ -1893,11 +1891,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private final Map<M, List<String>> failedModifications = new LinkedHashMap<M, List<String>>();
+    private final Map<M, String> failedModifications = new HashMap<M, String>();
 
     private int finishedModifications = 0;
-
-    // private int allModifications = 0;
 
     private final Map<M, List<IModification>> modificationsByModel =
             new LinkedHashMap<M, List<IModification>>();
@@ -1912,7 +1908,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             modificationsByModel.put(model, modificationsForModel);
         }
         modificationsForModel.add(new Modification(columnID, newValueOrNull));
-        // allModifications++;
     }
 
     /**
@@ -1948,9 +1943,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 protected void process(EntityPropertyUpdatesResult result)
                 {
                     finishedModifications++;
-                    if (result.getErrors().size() > 0)
+                    String errorMessage = result.tryGetErrorMessage();
+                    if (errorMessage != null)
                     {
-                        handleErrors(result.getErrors());
+                        handleError(errorMessage);
                     }
                     if (isApplyModificationsComplete())
                     {
@@ -1962,16 +1958,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 public void finishOnFailure(Throwable caught)
                 {
                     finishedModifications++;
-                    handleErrors(Arrays.asList(caught.getMessage()));
+                    handleError(caught.getMessage());
                     if (isApplyModificationsComplete())
                     {
                         onApplyModificationsComplete();
                     }
                 }
 
-                private void handleErrors(List<String> errors)
+                private void handleError(String errorMessage)
                 {
-                    failedModifications.put(model, errors);
+                    failedModifications.put(model, errorMessage);
                 }
             };
     }
@@ -1985,8 +1981,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         if (failedModifications.size() > 0)
         {
-            MessageBox.alert("Operation failed", failedModifications.size()
-                    + " modification(s) couldn't be applied.", null);
+            String failureTitle =
+                    (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
+                            : "Operation partly failed";
+            String failureReport = createFailedModificationsReport();
+            MessageBox.alert(failureTitle, failureReport, null);
             refresh();
         } else
         {
@@ -1994,6 +1993,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             refresh();
         }
         clearModifications();
+    }
+
+    private String createFailedModificationsReport()
+    {
+        assert failedModifications.size() > 0;
+        StringBuilder result = new StringBuilder();
+        result.append("Modifications of " + failedModifications.size() + " entities failed:");
+        for (String error : failedModifications.values())
+        {
+            result.append("<br/>- " + error);
+        }
+        return result.toString();
     }
 
     /**

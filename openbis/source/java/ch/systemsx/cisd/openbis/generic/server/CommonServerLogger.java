@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -1080,32 +1081,33 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void updateDataSetProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateDataSetProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
-        logTracking(sessionToken, "updateDataSetProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
-                entityId, propertyCode, value);
+        logTracking(sessionToken, "updateDataSetProperty", "ID(%s) MODIFIED_PROPERTIES(%s)",
+                entityId, abbreviate(modifiedProperties));
     }
 
-    public void updateExperimentProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateExperimentProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
-        logTracking(sessionToken, "updateExperimentProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
-                entityId, propertyCode, value);
+        logTracking(sessionToken, "updateExperimentProperty", "ID(%s) MODIFIED_PROPERTIES(%s)",
+                entityId, abbreviate(modifiedProperties));
     }
 
-    public void updateSampleProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateSampleProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
-        logTracking(sessionToken, "updateSampleProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
-                entityId, propertyCode, value);
+        logTracking(sessionToken, "updateSampleProperty", "ID(%s) MODIFIED_PROPERTIES(%s)",
+                entityId, abbreviate(modifiedProperties));
     }
 
-    public void updateMaterialProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateMaterialProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
+
     {
-        logTracking(sessionToken, "updateMaterialProperty", "ID(%s) PROPERTY(%s) VALUE(%s)",
-                entityId, propertyCode, value);
+        logTracking(sessionToken, "updateMaterialProperty", "ID(%s) MODIFIED_PROPERTIES(%s)",
+                entityId, abbreviate(modifiedProperties));
     }
 
 }

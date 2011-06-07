@@ -134,11 +134,9 @@ public class EntityHelper
         return (property != null) ? property.tryGetOriginalValue() : null;
     }
 
-
-    public static void updateSampleProperties(ICommonServer server, String sessionToken, TechId id,
-            Map<String, String> properties)
+    public static void updateSampleProperties(ICommonServer server, String sessionToken,
+            Sample sample, Map<String, String> properties)
     {
-        Sample sample = server.getSampleInfo(sessionToken, id).getParent();
         List<IEntityProperty> props = translatePropertiesMapToList(properties);
         Experiment experiment = sample.getExperiment();
         ExperimentIdentifier experimentIdentifier =
@@ -148,10 +146,17 @@ public class EntityHelper
         Sample container = sample.getContainer();
         String containerIdentifier = container == null ? null : container.getIdentifier();
         SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(id, props, experimentIdentifier,
+                new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier,
                         Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
                         sampleIdentifier, containerIdentifier, null);
         server.updateSample(sessionToken, updates);
+    }
+
+    public static void updateSampleProperties(ICommonServer server, String sessionToken, TechId id,
+            Map<String, String> properties)
+    {
+        Sample sample = server.getSampleInfo(sessionToken, id).getParent();
+        updateSampleProperties(server, sessionToken, sample, properties);
     }
 
     public static List<IEntityProperty> translatePropertiesMapToList(Map<String, String> properties)
@@ -163,10 +168,10 @@ public class EntityHelper
         }
         return props;
     }
-    
+
     /**
-     * Creates a property with specified code and value. An already existing property with same
-     * code will be removed.
+     * Creates a property with specified code and value. An already existing property with same code
+     * will be removed.
      */
     public static void createOrUpdateProperty(IEntityPropertiesHolder holder, String propertyCode,
             String propertyValue)

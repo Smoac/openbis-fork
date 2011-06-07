@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -37,8 +37,7 @@ public class EntityPropertyUpdates implements ISerializable
 
     private TechId entityId;
 
-    private Map<String /* property code */, String /* new value */> modifiedProperties =
-            new LinkedHashMap<String, String>();
+    private List<PropertyUpdates> modifiedProperties = new ArrayList<PropertyUpdates>();
 
     public EntityPropertyUpdates()
     {
@@ -70,17 +69,26 @@ public class EntityPropertyUpdates implements ISerializable
         this.entityId = entityId;
     }
 
-    public Map<String, String> getModifiedProperties()
+    public List<PropertyUpdates> getModifiedProperties()
     {
         return modifiedProperties;
     }
 
-    public void addModifiedProperty(String propertyCode, String propertyValue)
+    public void addModifiedProperty(PropertyUpdates propertyUpdates)
     {
-        modifiedProperties.put(propertyCode, propertyValue);
+        modifiedProperties.add(propertyUpdates);
     }
 
-    public void setModifiedProperties(Map<String, String> modifiedProperties)
+    public void addModifiedProperty(String propertyCode, String propertyValue)
+    {
+        if (modifiedProperties == null)
+        {
+            modifiedProperties = new ArrayList<PropertyUpdates>();
+        }
+        modifiedProperties.add(new PropertyUpdates(propertyCode, propertyValue));
+    }
+
+    public void setModifiedProperties(List<PropertyUpdates> modifiedProperties)
     {
         this.modifiedProperties = modifiedProperties;
     }

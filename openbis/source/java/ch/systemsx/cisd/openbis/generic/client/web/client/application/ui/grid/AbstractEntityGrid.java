@@ -79,7 +79,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
             List<IModification> modifications)
     {
         final EntityKind entityKind = getEntityKind();
-        final TechId entityId = new TechId(model.getBaseObject().getObjectOrNull());
+        final TechId entityId = new TechId(model.getBaseObject().getId());
         final EntityPropertyUpdates updates = new EntityPropertyUpdates(entityKind, entityId);
         for (IModification modification : modifications)
         {

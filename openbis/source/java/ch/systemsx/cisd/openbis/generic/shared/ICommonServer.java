@@ -24,6 +24,7 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -1360,27 +1361,39 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
+    /**
+     * Updates properties of a data set with given id.
+     */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateDataSetProperty(String sessionToken,
+    public void updateDataSetProperties(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId,
-            String propertyCode, String value);
+            List<PropertyUpdates> modifiedProperties);
 
+    /**
+     * Updates properties of an experiment with given id.
+     */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateExperimentProperty(String sessionToken,
+    public void updateExperimentProperties(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId,
-            String propertyCode, String value);
+            List<PropertyUpdates> modifiedProperties);
 
+    /**
+     * Updates properties of a sample with given id.
+     */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void updateSampleProperty(String sessionToken,
+    public void updateSampleProperties(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId,
-            String propertyCode, String value);
+            List<PropertyUpdates> modifiedProperties);
 
+    /**
+     * Updates properties of a material with given id.
+     */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void updateMaterialProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value);
+    public void updateMaterialProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties);
 
 }

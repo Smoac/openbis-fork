@@ -37,6 +37,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.server.business.DetailedSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -84,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -2500,74 +2502,103 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return dataStores.get(0).getDownloadUrl();
     }
 
-    public void updateDataSetProperty(String sessionToken, TechId entityId, String propertyName,
-            String value)
+    public void updateDataSetProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         ExternalData dataSet = getDataSetInfo(sessionToken, entityId);
-        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
-        updates.setDatasetId(entityId);
-        updates.setVersion(dataSet.getModificationDate());
-        Map<String, String> properties = createPropertiesMap(propertyName, value);
-        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
-        Experiment exp = dataSet.getExperiment();
-        if (exp != null)
+        try
         {
-            updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp
-                    .getIdentifier()));
-        }
-        String sampleIdentifier = dataSet.getSampleIdentifier();
-        if (sampleIdentifier != null)
+            DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+            updates.setDatasetId(entityId);
+            updates.setVersion(dataSet.getModificationDate());
+            Map<String, String> properties = createPropertiesMap(modifiedProperties);
+            updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
+            Experiment exp = dataSet.getExperiment();
+            if (exp != null)
+            {
+                updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp
+                        .getIdentifier()));
+            }
+            String sampleIdentifier = dataSet.getSampleIdentifier();
+            if (sampleIdentifier != null)
+            {
+                updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sampleIdentifier));
+            }
+            if (dataSet instanceof DataSet)
+            {
+                updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
+            }
+            updateDataSet(sessionToken, updates);
+        } catch (UserFailureException e)
         {
-            updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sampleIdentifier));
+            throw wrapExceptionWithEntityIdentifier(e, dataSet);
         }
-        if (dataSet instanceof DataSet)
-        {
-            updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
-        }
-        updateDataSet(sessionToken, updates);
     }
 
-    public void updateExperimentProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateExperimentProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         Experiment experiment = getExperimentInfo(sessionToken, entityId);
-        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
-        updates.setVersion(experiment.getModificationDate());
-        updates.setExperimentId(entityId);
-        updates.setAttachments(Collections.<NewAttachment> emptySet());
-        updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
-                .getIdentifier()).createIdentifier());
-        Map<String, String> properties = createPropertiesMap(propertyCode, value);
-        updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
-        updateExperiment(sessionToken, updates);
+        try
+        {
+            ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+            updates.setVersion(experiment.getModificationDate());
+            updates.setExperimentId(entityId);
+            updates.setAttachments(Collections.<NewAttachment> emptySet());
+            updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
+                    .getIdentifier()).createIdentifier());
+            Map<String, String> properties = createPropertiesMap(modifiedProperties);
+            updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
+            updateExperiment(sessionToken, updates);
+        } catch (UserFailureException e)
+        {
+            throw wrapExceptionWithEntityIdentifier(e, experiment);
+        }
     }
 
-    public void updateSampleProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateSampleProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
-        Map<String, String> properties = createPropertiesMap(propertyCode, value);
-        EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+        Map<String, String> properties = createPropertiesMap(modifiedProperties);
+        Sample sample = getSampleInfo(sessionToken, entityId).getParent();
+        try
+        {
+            EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+        } catch (UserFailureException e)
+        {
+            throw wrapExceptionWithEntityIdentifier(e, sample);
+        }
     }
 
-    public void updateMaterialProperty(String sessionToken, TechId entityId, String propertyCode,
-            String value)
+    public void updateMaterialProperties(String sessionToken, TechId entityId,
+            List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
         Date modificationDate =
                 getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
-        Map<String, String> properties = createPropertiesMap(propertyCode, value);
+        Map<String, String> properties = createPropertiesMap(modifiedProperties);
         updateMaterial(sessionToken, entityId,
                 EntityHelper.translatePropertiesMapToList(properties), modificationDate);
     }
 
-    private Map<String, String> createPropertiesMap(String propertyCode, String value)
+    private Map<String, String> createPropertiesMap(List<PropertyUpdates> updates)
     {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(CodeConverter.getPropertyTypeCode(propertyCode), value);
+        for (PropertyUpdates p : updates)
+        {
+            properties.put(CodeConverter.getPropertyTypeCode(p.getPropertyCode()), p.getValue());
+        }
         return properties;
+    }
+
+    private static UserFailureException wrapExceptionWithEntityIdentifier(
+            UserFailureException exception, IEntityInformationHolderWithIdentifier entity)
+    {
+        return UserFailureException.fromTemplate(exception, "%s '%s': %s", entity.getEntityKind()
+                .getDescription(), entity.getIdentifier(), exception.getMessage());
     }
 
 }
