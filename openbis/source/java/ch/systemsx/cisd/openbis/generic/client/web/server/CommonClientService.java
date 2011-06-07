@@ -1778,6 +1778,22 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public Experiment getExperimentInfoByPermId(String experimentPermId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IEntityInformationHolderWithPermId expInfo =
+                    commonServer.getEntityInformationHolder(sessionToken, EntityKind.EXPERIMENT,
+                            experimentPermId);
+            return getExperimentInfo(new TechId(expInfo.getId()));
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public final Experiment getExperimentInfo(final TechId experimentId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

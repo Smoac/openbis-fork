@@ -723,6 +723,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * For given <var>experiment perm id</var> returns corresponding {@link Experiment}.
+     */
+    public Experiment getExperimentInfoByPermId(final String experimentPermId)
+            throws UserFailureException;
+
+    /**
      * For given {@link TechId} returns corresponding {@link Experiment}.
      */
     public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;

@@ -620,6 +620,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#getExperimentInfo(TechId)
      */
+    public void getExperimentInfoByPermId(String experimentPermId,
+            final AsyncCallback<Experiment> experimentInfoCallback);
+
+    /**
+     * @see ICommonClientService#getExperimentInfo(TechId)
+     */
     public void getExperimentInfo(TechId experimentId,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
