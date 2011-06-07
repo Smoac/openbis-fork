@@ -1,15 +1,10 @@
 from datetime import datetime
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel
 
-def retrieve_or_create_experiment(tr, exp_id):
-	"""Get the specified experiment form the server, or create a new one if no experiment is specified. Return the experiment."""
+def retrieve_experiment(tr, exp_id):
+	"""Get the specified experiment form the server. Return the experiment."""
 	if exp_id is None:
-		now_str = datetime.today().strftime('%Y%m%d')
-		exp_id = "/SHARED/SHARED/" + now_str
-		exp = tr.getExperiment(exp_id)
-		if None == exp:
-			exp = tr.createNewExperiment(expid, 'BASYNTHEC')
-			exp.setPropertyValue("DESCRIPTION", "An experiment created on " + now_str)
+		exp = None
 	else:
 		exp = tr.getExperiment(exp_id)
 	return exp
@@ -64,9 +59,10 @@ assign_properties(dataset, metadata)
 convert_data_to_tsv(tr, dataset, "data/tsv")
 store_original_data(tr, dataset, "data/xls")
 
-# If no experiment has been set, then create one
+# If no experiment has been set, then get the experiment from the excel file
 if dataset.getExperiment() is None:
 	exp_id = metadata.get("EXPERIMENT")
-	exp = retrieve_or_create_experiment(tr, exp_id)
-	dataset.setExperiment(exp)
+	exp = retrieve_experiment(tr, exp_id)
+	if exp is not None:
+		dataset.setExperiment(exp)
 
