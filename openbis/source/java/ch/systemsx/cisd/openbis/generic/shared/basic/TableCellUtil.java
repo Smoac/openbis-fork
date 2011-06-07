@@ -80,6 +80,7 @@ public class TableCellUtil
             case REAL:
             case INTEGER:
             case VARCHAR:
+            case MULTILINE_VARCHAR:
             case BOOLEAN:
 //            case CONTROLLEDVOCABULARY:
                 return true;

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -162,6 +163,13 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     public boolean isEditable()
     {
         return TableCellUtil.isEditiableProperty(propertyType);
+    }
+
+    @Override
+    public Field<? extends Object> createEditorField()
+    {
+        DataTypeCode dataType = getDataTypeCode();
+        return ColumnUtils.createCellEditorField(dataType);
     }
 
     public IEntityProperty tryGetProperty(T entity)

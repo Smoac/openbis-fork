@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -64,7 +63,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -290,25 +288,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     for (int i = 2; i < itemCount; i++)
                     {
                         menu.remove(menu.getItem(2));
-                    }
-                    final int columnIndex = ge.getColIndex();
-                    ColumnConfig column = ge.getGrid().getColumnModel().getColumn(columnIndex);
-                    final String dataIndex = column.getDataIndex();
-                    if (column.getEditor() != null)
-                    {
-                        MenuItem item = new MenuItem("edit");
-                        item.addSelectionListener(new SelectionListener<MenuEvent>()
-                            {
-                                @Override
-                                public void componentSelected(MenuEvent ce)
-                                {
-                                    List<M> selectedItems =
-                                            grid.getSelectionModel().getSelectedItems();
-                                    MessageBox.info("edit", "edit column '" + dataIndex + "' "
-                                            + columnIndex + "\n" + selectedItems, null);
-                                }
-                            });
-                        menu.add(item);
                     }
                 }
             });

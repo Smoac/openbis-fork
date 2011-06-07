@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
+import com.extjs.gxt.ui.client.widget.form.Field;
+
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.DefaultCellEditorField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
@@ -112,6 +115,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
     public boolean isEditable()
     {
         return false;
+    }
+
+    public Field<? extends Object> createEditorField()
+    {
+        return new DefaultCellEditorField();
     }
 
     public String tryGetLink(T entity)
