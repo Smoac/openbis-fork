@@ -267,7 +267,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 screeningService.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
                         featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
 
-        assertEquals("[f1, f2, f3]", names.toString());
+        assertEquals("[F1, F2, F3]", names.toString());
         assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
