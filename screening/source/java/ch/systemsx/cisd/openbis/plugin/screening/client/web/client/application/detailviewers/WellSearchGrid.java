@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -79,7 +80,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -362,17 +362,26 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private static String tryCreateMaterialDetailsLink(WellContent wellContent, Material material)
     {
-        String experimentIdentifier = wellContent.getExperiment().getIdentifier();
-        return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material, experimentIdentifier);
+        return ScreeningLinkExtractor.createMaterialDetailsLink(material,
+                getExperimentCriteria(wellContent));
+    }
+
+    private static ExperimentSearchCriteria getExperimentCriteria(WellContent wellContent)
+    {
+        IEntityInformationHolderWithIdentifier experiment = wellContent.getExperiment();
+        return getExperimentCriteria(experiment);
+    }
+
+    private static ExperimentSearchCriteria getExperimentCriteria(
+            IEntityInformationHolderWithIdentifier experiment)
+    {
+        return ExperimentSearchCriteria.createExperiment(experiment);
     }
 
     private void openImagingMaterialViewer(WellContent wellContent, Material material)
     {
-        ExperimentReference experiment = wellContent.getExperiment();
-        ExperimentSearchCriteria experimentCriteria =
-                ExperimentSearchCriteria.createExperiment(experiment);
-
-        ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria, viewContext);
+        ClientPluginFactory.openImagingMaterialViewer(material, getExperimentCriteria(wellContent),
+                viewContext);
     }
 
     private void linkExperiment()
@@ -528,16 +537,17 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         ExperimentChooserFieldAdaptor experimentChooser =
                 ExperimentChooserField.create("", true, null, viewContext.getCommonViewContext());
         final ExperimentChooserField chooserField = experimentChooser.getChooserField();
-        chooserField.addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
-            {
-                public void entityChosen(TableModelRowWithObject<Experiment> row)
-                {
-                    if (row != null)
+        chooserField
+                .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
                     {
-                        chooseSingleExperiment(chooserField, row.getObjectOrNull());
-                    }
-                }
-            });
+                        public void entityChosen(TableModelRowWithObject<Experiment> row)
+                        {
+                            if (row != null)
+                            {
+                                chooseSingleExperiment(chooserField, row.getObjectOrNull());
+                            }
+                        }
+                    });
 
         chooserField.setEditable(false);
         if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
@@ -567,7 +577,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
                         experiment.getIdentifier());
         updateSingleExperimentChooser(chooserField, singleExperiment);
-        this.experimentCriteriaOrNull = ExperimentSearchCriteria.createExperiment(singleExperiment);
+        this.experimentCriteriaOrNull =
+                ExperimentSearchCriteria.createExperiment(singleExperiment);
         refresh();
     }
 

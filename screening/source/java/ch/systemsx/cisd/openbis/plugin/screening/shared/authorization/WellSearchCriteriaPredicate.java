@@ -16,40 +16,76 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
+import java.util.List;
+
+import org.springframework.dao.DataAccessException;
+
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * @author Tomasz Pylak
  */
-public final class WellSearchCriteriaPredicate extends
-        DelegatedPredicate<TechId, WellSearchCriteria>
+public final class WellSearchCriteriaPredicate implements IPredicate<WellSearchCriteria>
 {
+    private final IPredicate<TechId> experimentPredicate;
+
+    private final SpaceIdentifierPredicate spacePredicate;
+
     public WellSearchCriteriaPredicate()
     {
-        super(new ExperimentTechIdPredicate());
+        this.experimentPredicate = new ExperimentTechIdPredicate();
+        this.spacePredicate = new SpaceIdentifierPredicate();
     }
 
-    @Override
-    public final String getCandidateDescription()
+    public final void init(IAuthorizationDataProvider provider)
     {
-        return "plate materials search criteria";
+        experimentPredicate.init(provider);
+        spacePredicate.init(provider);
     }
 
-    @Override
-    public TechId tryConvert(WellSearchCriteria value)
+    public final Status evaluate(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final WellSearchCriteria value)
     {
-        SingleExperimentSearchCriteria exp = value.getExperimentCriteria().tryGetExperiment();
-        if (exp != null)
+        assert person != null : "Unspecified person";
+        assert allowedRoles != null : "Unspecified allowed roles";
+        if (value == null)
         {
-            return exp.getExperimentId();
-        } else
+            throw UserFailureException.fromTemplate("No well search criteria specified.");
+        }
+        try
         {
-            return null;
+            ExperimentSearchCriteria experimentCriteria = value.getExperimentCriteria();
+            SingleExperimentSearchCriteria experiment = experimentCriteria.tryGetExperiment();
+            BasicProjectIdentifier project = experimentCriteria.tryGetProjectIdentifier();
+            if (experiment != null)
+            {
+                return experimentPredicate.evaluate(person, allowedRoles,
+                        experiment.getExperimentId());
+            } else if (project != null)
+            {
+                SpaceIdentifier space =
+                        new SpaceIdentifier(project.getInstanceCode(), project.getSpaceCode());
+                return spacePredicate.evaluate(person, allowedRoles, space);
+            } else
+            {
+                return Status.OK;
+            }
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMessage(), ex);
         }
     }
-
 }

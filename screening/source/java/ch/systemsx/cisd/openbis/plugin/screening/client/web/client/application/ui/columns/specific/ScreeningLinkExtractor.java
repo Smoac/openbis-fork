@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -24,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -52,7 +52,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static String WELL_SEARCH_ACTION = "WELL_SEARCH";
 
-    /** If not given then all experiments are searched. */
+    /** If not given then all experiments or experiments in the specified project are searched. */
     public final static String WELL_SEARCH_EXPERIMENT_PERM_ID_PARAMETER_KEY = "experimentPermId";
 
     public final static String WELL_SEARCH_IS_EXACT_PARAMETER_KEY = "isExactSearch";
@@ -72,20 +72,18 @@ public class ScreeningLinkExtractor extends LinkExtractor
     public final static String EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY =
             "experimentPermId";
 
-    public final static String MATERIAL_REPLICA_SUMMARY_ACTION = "MATERIAL_REPLICA_SUMMARY";
-
     public final static String MATERIAL_REPLICA_SUMMARY_EXPERIMENT_PERM_ID_KEY = "experimentPermId";
 
     public final static String MATERIAL_CODE_KEY = "materialCode";
 
     public final static String MATERIAL_TYPE_CODE_KEY = "materialTypeCode";
 
-    public final static String MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_ACTION =
-            "MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS";
-
     public final static String PROJECT_CODE_KEY = "projectCode";
 
     public final static String SPACE_CODE_KEY = "spaceCode";
+
+    // false by default
+    public static final String RESTRICT_GLOBAL_SEARCH_TO_PROJECT = "restrictGlobalSearchToProject";
 
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
@@ -95,46 +93,17 @@ public class ScreeningLinkExtractor extends LinkExtractor
         return tryPrint(url);
     }
 
-    public static final String createExperimentAnalysisSummaryBrowserLink(String experimentPermId)
+    public static final String createExperimentAnalysisSummaryBrowserLink(String experimentPermId,
+            boolean restrictGlobalScopeLinkToProject)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, EXPERIMENT_ANALYSIS_SUMMARY_ACTION);
         url.addParameter(EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY,
                 experimentPermId);
-        return tryPrint(url);
-    }
-
-    public static final String createMaterialReplicaSummaryLink(String experimentPermId,
-            String materialCode, String materialTypeCode)
-    {
-        URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, MATERIAL_REPLICA_SUMMARY_ACTION);
-        url.addParameter(MATERIAL_REPLICA_SUMMARY_EXPERIMENT_PERM_ID_KEY, experimentPermId);
-        url.addParameter(MATERIAL_CODE_KEY, materialCode);
-        url.addParameter(MATERIAL_TYPE_CODE_KEY, materialTypeCode);
-        return tryPrint(url);
-    }
-
-    public static final String createMaterialFeaturesFromAllExperimentsLink(String materialCode,
-            String materialTypeCode)
-    {
-        return createMaterialFeaturesFromAllExperimentsLink(materialCode, materialTypeCode, null,
-                null);
-    }
-
-    public static final String createMaterialFeaturesFromAllExperimentsLink(String materialCode,
-            String materialTypeCode, String spaceCodeOrNull, String projectCodeOrNull)
-    {
-        URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
-                MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_ACTION);
-        url.addParameter(MATERIAL_CODE_KEY, materialCode);
-        url.addParameter(MATERIAL_TYPE_CODE_KEY, materialTypeCode);
-        if (false == StringUtils.isBlank(spaceCodeOrNull)
-                && false == StringUtils.isBlank(projectCodeOrNull))
+        if (restrictGlobalScopeLinkToProject)
         {
-            url.addParameter(SPACE_CODE_KEY, spaceCodeOrNull);
-            url.addParameter(PROJECT_CODE_KEY, projectCodeOrNull);
+            url.addParameterWithoutEncoding(RESTRICT_GLOBAL_SEARCH_TO_PROJECT,
+                    restrictGlobalScopeLinkToProject);
         }
         return tryPrint(url);
     }
@@ -154,71 +123,22 @@ public class ScreeningLinkExtractor extends LinkExtractor
                 materialCodesOrProperties, showCombinedResults);
     }
 
-    public static String createWellsSearchLink(ExperimentSearchCriteria experimentSearchCriteria,
+    public static String createWellsSearchLink(ExperimentSearchCriteria experimentCriteria,
             MaterialSearchCodesCriteria materialCodesCriteria, Boolean showCombinedResults)
-    {
-        ExperimentPermIdSearchCriteria experimentCriteria =
-                convertToPermIdExperimentCriteria(experimentSearchCriteria);
-        return createWellsSearchLink(experimentCriteria, materialCodesCriteria, showCombinedResults);
-    }
-
-    private static class ExperimentPermIdSearchCriteria
-    {
-        public static ExperimentPermIdSearchCriteria createSearchAll()
-        {
-            return new ExperimentPermIdSearchCriteria(null);
-        }
-
-        // if null, all experiments are taken into account
-        private final String experimentPermIdOrNull;
-
-        public ExperimentPermIdSearchCriteria(String experimentPermIdOrNull)
-        {
-            this.experimentPermIdOrNull = experimentPermIdOrNull;
-        }
-
-        public String tryGetExperimentPermId()
-        {
-            return experimentPermIdOrNull;
-        }
-    }
-
-    private static ExperimentPermIdSearchCriteria convertToPermIdExperimentCriteria(
-            ExperimentSearchCriteria experimentSearchCriteria)
-    {
-        SingleExperimentSearchCriteria expOrNull = experimentSearchCriteria.tryGetExperiment();
-        if (expOrNull == null)
-        {
-            return ExperimentPermIdSearchCriteria.createSearchAll();
-        } else
-        {
-            return new ExperimentPermIdSearchCriteria(expOrNull.getExperimentPermId());
-        }
-    }
-
-    private static ExperimentIdentifierSearchCriteria convertToIdentifierExperimentCriteria(
-            ExperimentSearchCriteria experimentSearchCriteria)
-    {
-        SingleExperimentSearchCriteria experiment = experimentSearchCriteria.tryGetExperiment();
-        if (experiment != null)
-        {
-            return new ExperimentIdentifierSearchCriteria(experiment.getExperimentIdentifier());
-        } else
-        {
-            return ExperimentIdentifierSearchCriteria.createSearchAll();
-        }
-    }
-
-    public static String createWellsSearchLink(
-            final ExperimentPermIdSearchCriteria experimentCriteria,
-            final MaterialSearchCodesCriteria materialCodesCriteria, boolean showCombinedResults)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, WELL_SEARCH_ACTION);
-        if (false == StringUtils.isBlank(experimentCriteria.tryGetExperimentPermId()))
+        SingleExperimentSearchCriteria experiment = experimentCriteria.tryGetExperiment();
+        BasicProjectIdentifier project = experimentCriteria.tryGetProjectIdentifier();
+        if (experiment != null)
         {
             url.addParameter(WELL_SEARCH_EXPERIMENT_PERM_ID_PARAMETER_KEY,
-                    experimentCriteria.tryGetExperimentPermId());
+                    experiment.getExperimentPermId());
+        }
+        if (project != null)
+        {
+            url.addParameterWithoutEncoding(SPACE_CODE_KEY, project.getSpaceCode());
+            url.addParameterWithoutEncoding(PROJECT_CODE_KEY, project.getProjectCode());
         }
         url.addParameter(WELL_SEARCH_IS_EXACT_PARAMETER_KEY,
                 materialCodesCriteria.isExactMatchOnly());
@@ -232,38 +152,49 @@ public class ScreeningLinkExtractor extends LinkExtractor
         return tryPrint(url);
     }
 
-    /** Creates a link for material detail view where a single experiment is chosen */
-    public static final String tryCreateMaterialDetailsLink(IEntityInformationHolder material,
-            String experimentIdentifier)
+    private static ExperimentIdentifierSearchCriteria convertToIdentifierExperimentCriteria(
+            ExperimentSearchCriteria experimentSearchCriteria)
     {
-        assert experimentIdentifier != null : "experimentIdentifier is null";
-        return tryCreateMaterialDetailsLink(material, new ExperimentIdentifierSearchCriteria(
-                experimentIdentifier));
+        SingleExperimentSearchCriteria experiment = experimentSearchCriteria.tryGetExperiment();
+        BasicProjectIdentifier project = experimentSearchCriteria.tryGetProjectIdentifier();
+        if (experiment != null)
+        {
+            return ExperimentIdentifierSearchCriteria.createExperimentScope(
+                    experiment.getExperimentIdentifier(),
+                    experimentSearchCriteria.getRestrictGlobalSearchLinkToProject());
+        } else if (project != null)
+        {
+            return ExperimentIdentifierSearchCriteria.createProjectScope(project);
+        } else
+        {
+            return ExperimentIdentifierSearchCriteria.createSearchAll();
+        }
     }
 
     /**
-     * Creates a link for material detail.
+     * Creates a link for material detail view.
      * 
      * @param experimentCriteriaOrNull if null, no search for data about locations of the material
      *            takes place. Otherwise the search is performed in all or a single experiment.
      */
-    public static final String tryCreateMaterialDetailsLink(IEntityInformationHolder material,
+    public static final String createMaterialDetailsLink(IEntityInformationHolder material,
             ExperimentIdentifierSearchCriteria experimentCriteriaOrNull)
     {
         URLMethodWithParameters url =
-                tryCreateMaterialDetailsLink(material.getCode(),
-                        material.getEntityType().getCode(), experimentCriteriaOrNull);
+                createMaterialDetailsLink(material.getCode(), material.getEntityType().getCode(),
+                        experimentCriteriaOrNull);
         return tryPrint(url);
     }
 
-    private static final URLMethodWithParameters tryCreateMaterialDetailsLink(String materialCode,
+    private static final URLMethodWithParameters createMaterialDetailsLink(String materialCode,
             String materialTypeCode, ExperimentIdentifierSearchCriteria experimentCriteriaOrNull)
     {
-        if (materialCode == null || materialTypeCode == null)
-        {
-            return null;
-        }
+        assert materialCode != null;
+        assert materialTypeCode != null;
+
         URLMethodWithParameters url = tryCreateMaterialLink(materialCode, materialTypeCode);
+        assert url != null : "url is null";
+
         if (experimentCriteriaOrNull != null)
         {
             if (experimentCriteriaOrNull.searchAllExperiments())
@@ -272,24 +203,37 @@ public class ScreeningLinkExtractor extends LinkExtractor
                         MATERIAL_DETAIL_SEARCH_ALL_EXPERIMENTS_PARAMETER_VALUE);
             } else
             {
-                // We know that experiment identifier cannot contain characters that should be
-                // encoded
-                // apart from '/'. Encoding '/' makes the URL less readable and on the other hand
-                // leaving it as it is doesn't cause us any problems.
-                url.addParameterWithoutEncoding(MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY,
-                        StringEscapeUtils.unescapeHtml(experimentCriteriaOrNull
-                                .tryGetExperimentIdentifier()));
+                BasicProjectIdentifier project = experimentCriteriaOrNull.tryGetProject();
+                if (project != null)
+                {
+                    url.addParameterWithoutEncoding(SPACE_CODE_KEY, project.getSpaceCode());
+                    url.addParameterWithoutEncoding(PROJECT_CODE_KEY, project.getProjectCode());
+                } else
+                {
+                    // We know that experiment identifier cannot contain characters that should be
+                    // encoded
+                    // apart from '/'. Encoding '/' makes the URL less readable and on the other
+                    // hand
+                    // leaving it as it is doesn't cause us any problems.
+                    url.addParameterWithoutEncoding(MATERIAL_DETAIL_EXPERIMENT_IDENT_PARAMETER_KEY,
+                            StringEscapeUtils.unescapeHtml(experimentCriteriaOrNull
+                                    .tryGetExperimentIdentifier()));
+                    if (experimentCriteriaOrNull.getRestrictGlobalSearchLinkToProject())
+                    {
+                        url.addParameterWithoutEncoding(RESTRICT_GLOBAL_SEARCH_TO_PROJECT, "true");
+                    }
+                }
             }
         }
         return url;
     }
 
-    public static String tryCreateMaterialDetailsLink(IEntityInformationHolder material,
+    public static String createMaterialDetailsLink(IEntityInformationHolder material,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
         ExperimentIdentifierSearchCriteria experimentCriteria =
                 convertToIdentifierExperimentCriteria(experimentSearchCriteria);
-        return tryCreateMaterialDetailsLink(material, experimentCriteria);
+        return createMaterialDetailsLink(material, experimentCriteria);
     }
 
 }

@@ -44,7 +44,7 @@ public class ExperimentAnalysisSummaryViewer
 
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId)
+            String experimentPermId, final boolean restrictGlobalScopeLinkToProject)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -54,14 +54,15 @@ public class ExperimentAnalysisSummaryViewer
                         protected void process(IEntityInformationHolderWithPermId experiment)
                         {
                             TechId experimentId = new TechId(experiment);
-                            openTab(screeningViewContext, experimentId);
+                            openTab(screeningViewContext, experimentId,
+                                    restrictGlobalScopeLinkToProject);
                         }
                     });
     }
 
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            TechId experimentId)
+            TechId experimentId, final boolean restrictGlobalScopeLinkToProject)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
                 new AbstractAsyncCallback<Experiment>(screeningViewContext)
@@ -70,7 +71,8 @@ public class ExperimentAnalysisSummaryViewer
                         protected void process(Experiment result)
                         {
                             AbstractTabItemFactory factory =
-                                    createTabFactory(screeningViewContext, result);
+                                    createTabFactory(screeningViewContext, result,
+                                            restrictGlobalScopeLinkToProject);
                             DispatcherHelper.dispatchNaviEvent(factory);
                         }
                     });
@@ -78,7 +80,8 @@ public class ExperimentAnalysisSummaryViewer
 
     private static AbstractTabItemFactory createTabFactory(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithProperties experiment)
+            final IEntityInformationHolderWithProperties experiment,
+            final boolean restrictGlobalScopeLinkToProject)
     {
         return new AbstractTabItemFactory()
             {
@@ -94,15 +97,16 @@ public class ExperimentAnalysisSummaryViewer
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent tabComponent = createViewer(viewContext, experiment);
+                    IDisposableComponent tabComponent =
+                            createViewer(viewContext, experiment, restrictGlobalScopeLinkToProject);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
                 }
 
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor
-                            .createExperimentAnalysisSummaryBrowserLink(experiment.getPermId());
+                    return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(
+                            experiment.getPermId(), restrictGlobalScopeLinkToProject);
                 }
 
                 @Override
@@ -122,11 +126,13 @@ public class ExperimentAnalysisSummaryViewer
 
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithProperties experiment)
+            IEntityInformationHolderWithProperties experiment,
+            boolean restrictGlobalScopeLinkToProject)
     {
         String headingText = "Assay " + experiment.getCode();
         final IDisposableComponent gridComponent =
-                ExperimentAnalysisSummaryGrid.create(viewContext, experiment);
+                ExperimentAnalysisSummaryGrid.create(viewContext, experiment,
+                        restrictGlobalScopeLinkToProject);
 
         return MaterialComponentUtils.createExperimentViewer(viewContext, experiment, headingText,
                 gridComponent);

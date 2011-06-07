@@ -29,8 +29,11 @@ public class ExperimentAnalysisSummaryResolver extends AbstractViewLocatorResolv
                 getMandatoryParameter(
                         locator,
                         ScreeningLinkExtractor.EXPERIMENT_ANALYSIS_SUMMARY_EXPERIMENT_PERMID_PARAMETER_KEY);
-
-        ExperimentAnalysisSummaryViewer.openTab(viewContext, experimentPermId);
+        boolean restrictGlobalScopeLinkToProject =
+                getOptionalBooleanParameter(locator,
+                        ScreeningLinkExtractor.RESTRICT_GLOBAL_SEARCH_TO_PROJECT, false);
+        ExperimentAnalysisSummaryViewer.openTab(viewContext, experimentPermId,
+                restrictGlobalScopeLinkToProject);
 
     }
 }

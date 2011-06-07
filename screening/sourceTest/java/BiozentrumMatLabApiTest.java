@@ -41,19 +41,109 @@ public class BiozentrumMatLabApiTest
             mountPoint = args[2];
         }
 
-        OpenBISScreeningML.login("admin", passwd, "http://bc2-openbis01.bc2.unibas.ch:8443");
+        OpenBISScreeningML.login("cisd", passwd, "http://bc2-openbis01.bc2.unibas.ch:8443");
 
+        String experiment = "/TEST/TEST-USER/MY-ASSAY";
+        Object[][] channels = OpenBISScreeningML.listChannels(experiment);
+        print2DArray(channels);
+
+        testLoadFeatures(chosenPlate, experiment);
+
+        testImagesMetadata(chosenPlate);
+        testLoadImage(chosenPlate);
+        testWellProperties(chosenPlate);
+        testLoadDataset(chosenPlate, mountPoint, datasetTypePattern);
+
+        OpenBISScreeningML.logout();
+    }
+
+    private static void testLoadFeatures(String chosenPlate, String experiment)
+    {
+        Object[][] features = OpenBISScreeningML.listFeatures(experiment);
+        print2DArray(features);
+
+        Object[][][] featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate);
+        System.out.println("per plate features -------------------------------");
+        print3DArray(featureMatrix);
+
+        String[] featureNames = new String[]
+            { "OOF" };
+        featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, featureNames);
+        System.out.println("one per plate feature -------------------------------");
+        print3DArray(featureMatrix);
+
+        featureMatrix = OpenBISScreeningML.getFeatureMatrix(experiment, "149420", featureNames);
+        System.out.println("one per gene feature -------------------------------");
+        print3DArray(featureMatrix);
+    }
+
+    private static void print3DArray(Object[][][] array)
+    {
+        System.out.println("{");
+        for (int i = 0; i < array.length; i++)
+        {
+            print2DArray(array[i]);
+        }
+        System.out.println("}");
+    }
+
+    private static void print2DArray(Object[][] array)
+    {
+        System.out.println("[");
+        for (int i = 0; i < array.length; i++)
+        {
+            printAsRow(array[i]);
+        }
+        System.out.println("]");
+    }
+
+    private static void printAsRow(Object[] objects)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        for (int i = 0; i < objects.length; i++)
+        {
+            sb.append(objects[i]);
+            sb.append(",");
+        }
+        sb.append("]");
+        System.out.println(sb.toString());
+    }
+
+    private static void testImagesMetadata(String chosenPlate)
+    {
         Object[][] meta = OpenBISScreeningML.getImagesMetadata(chosenPlate);
-        System.out.println(String.format("Number of tiles: %s. Plate geometry %sx%s", meta[1][3],
-                meta[1][6], meta[1][7]));
+        System.out.println(String.format("Number of tiles: %s. Plate geometry %sx%s", meta[0][2],
+                meta[0][5], meta[0][6]));
+    }
 
+    private static void testLoadDataset(String chosenPlate, String mountPoint,
+            String datasetTypePattern)
+    {
+        // Loads dataset with classification results.
+        // OpenBIS store diretcory is mounted locally in "/mount/openbis/store", so no data are
+        // copied and just a path to the appropriate location
+        // is returned.
+        Object[][] datasets =
+                OpenBISScreeningML.loadDataSets(chosenPlate, datasetTypePattern, mountPoint);
+        System.out.println("Path to the first downloaded dataset: " + datasets[0][1]);
+    }
+
+    private static void testLoadImage(String chosenPlate)
+    {
         // fetch 3ed tile of well (1,1). The second call to fetch this image will return it from the
         // local cache.
         // The last optional parameter can specify a list of channels to load (otherwise all
         // channels are loaded).
-        Object[][][] images = OpenBISScreeningML.loadImages(chosenPlate, 1, 1, 3);
-        System.out.println("Image path: " + images[1][1]);
+        long start = System.currentTimeMillis();
+        Object[][][] images = OpenBISScreeningML.loadImages(chosenPlate, 1, 1, 3, new String[]
+            { "CY3" });
+        System.out.println("Image path: " + images[0][0][0]);
+        System.out.println("Took: " + (System.currentTimeMillis() - start));
+    }
 
+    private static void testWellProperties(String chosenPlate)
+    {
         // properties of well (2,4)
         Object[][] props = OpenBISScreeningML.getWellProperties(chosenPlate, 2, 4);
         for (int i = 0; i < props.length; i++)
@@ -66,13 +156,5 @@ public class BiozentrumMatLabApiTest
             {
                 { "DESCRIPTION", "hello example" } };
         OpenBISScreeningML.updateWellProperties(chosenPlate, 2, 4, props);
-
-        // Loads dataset with classification results.
-        // OpenBIS store diretcory is mounted locally in "/mount/openbis/store", so no data are
-        // copied and just a path to the appropriate location
-        // is returned.
-        Object[][] datasets =
-                OpenBISScreeningML.loadDataSets(chosenPlate, datasetTypePattern, mountPoint);
-        System.out.println("Path to the first downloaded dataset: " + datasets[0][1]);
     }
 }

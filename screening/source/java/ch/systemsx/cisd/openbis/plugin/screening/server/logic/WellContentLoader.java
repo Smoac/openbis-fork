@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
@@ -736,14 +737,18 @@ public class WellContentLoader extends AbstractContentLoader
         Iterable<WellContentQueryResult> locations;
         MaterialSearchCriteria materialSearchCriteria =
                 materialCriteria.getMaterialSearchCriteria();
-        ExperimentSearchCriteria experiment = materialCriteria.getExperimentCriteria();
+
+        ExperimentSearchCriteria experimentCriteria =
+                materialCriteria.getExperimentCriteria();
+        SingleExperimentSearchCriteria experimentOrNull = experimentCriteria.tryGetExperiment();
+        BasicProjectIdentifier projectOrNull = experimentCriteria.tryGetProjectIdentifier();
+
         IScreeningQuery dao = createDAO(daoFactory);
         if (materialSearchCriteria.tryGetMaterialCodesOrProperties() != null)
         {
             MaterialSearchCodesCriteria codesCriteria =
                     materialSearchCriteria.tryGetMaterialCodesOrProperties();
 
-            Long expId = tryGetExperimentId(experiment);
             long start = System.currentTimeMillis();
             long[] materialIds = findMaterialIds(codesCriteria);
 
@@ -753,28 +758,39 @@ public class WellContentLoader extends AbstractContentLoader
                     abbreviate(materialIds, 100)));
             start = System.currentTimeMillis();
 
-            if (expId == null)
+            if (experimentOrNull != null)
+            {
+                locations =
+                        dao.getPlateLocationsForMaterialCodes(materialIds, codesCriteria
+                                .getMaterialTypeCodes(), experimentOrNull.getExperimentId().getId());
+            } else if (projectOrNull != null)
+            {
+                locations =
+                        dao.getPlateLocationsForMaterialCodesInProject(materialIds,
+                                codesCriteria.getMaterialTypeCodes(), projectOrNull.getSpaceCode(),
+                                projectOrNull.getProjectCode());
+            } else
             {
                 locations =
                         dao.getPlateLocationsForMaterialCodes(materialIds,
                                 codesCriteria.getMaterialTypeCodes());
-            } else
-            {
-                locations =
-                        dao.getPlateLocationsForMaterialCodes(materialIds,
-                                codesCriteria.getMaterialTypeCodes(), expId);
             }
-
         } else if (materialSearchCriteria.tryGetMaterialId() != null)
         {
             long materialId = materialSearchCriteria.tryGetMaterialId().getId();
-            Long expId = tryGetExperimentId(experiment);
-            if (expId == null)
+            if (experimentOrNull != null)
             {
-                locations = dao.getPlateLocationsForMaterialId(materialId);
+                locations =
+                        dao.getPlateLocationsForMaterialId(materialId, experimentOrNull
+                                .getExperimentId().getId());
+            } else if (projectOrNull != null)
+            {
+                locations =
+                        dao.getPlateLocationsForMaterialId(materialId,
+                                projectOrNull.getSpaceCode(), projectOrNull.getProjectCode());
             } else
             {
-                locations = dao.getPlateLocationsForMaterialId(materialId, expId);
+                locations = dao.getPlateLocationsForMaterialId(materialId);
             }
         } else
         {
@@ -861,12 +877,6 @@ public class WellContentLoader extends AbstractContentLoader
                 .createAttributeField(MaterialAttributeSearchFieldKind.CODE));
         criterion.setValue(code);
         return criterion;
-    }
-
-    private Long tryGetExperimentId(ExperimentSearchCriteria experiment)
-    {
-        SingleExperimentSearchCriteria exp = experiment.tryGetExperiment();
-        return exp == null ? null : exp.getExperimentId().getId();
     }
 
     private List<WellContent> loadLocations(TechId geneMaterialId, TechId experimentId)

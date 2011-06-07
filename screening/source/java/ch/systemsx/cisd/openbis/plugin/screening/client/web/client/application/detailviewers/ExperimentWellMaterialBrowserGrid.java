@@ -108,14 +108,17 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         if (editMode == false)
         {
-            ExperimentSearchCriteria experimentCriteria =
-                    ExperimentSearchCriteria.createExperiment(experiment);
-            ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
-                    screeningViewContext);
+            ClientPluginFactory.openImagingMaterialViewer(material,
+                    createExperimentSearchCriteria(), screeningViewContext);
         } else
         {
             super.showEntityViewer(material, editMode, active);
         }
+    }
+
+    private ExperimentSearchCriteria createExperimentSearchCriteria()
+    {
+        return ExperimentSearchCriteria.createExperiment(experiment);
     }
 
     @Override
@@ -123,8 +126,8 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         BaseEntityModel<Material> basicModel = super.createModel(entity);
         basicModel.set(ModelDataPropertyNames.link(CommonMaterialColDefKind.CODE.id()),
-                ScreeningLinkExtractor.tryCreateMaterialDetailsLink(entity.getOriginalObject(),
-                        experiment.getIdentifier()));
+                ScreeningLinkExtractor.createMaterialDetailsLink(entity.getOriginalObject(),
+                        createExperimentSearchCriteria()));
         return basicModel;
     }
 

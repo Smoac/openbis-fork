@@ -4,8 +4,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
@@ -24,17 +23,20 @@ class MaterialReplicaSummarySection extends TabContent
 
     private final String experimentPermId;
 
+    private final boolean restrictGlobalScopeLinkToProject;
+
     private IDisposableComponent viewer;
 
     public MaterialReplicaSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
-            String experimentPermId)
+            String experimentPermId, boolean restrictGlobalScopeLinkToProject)
     {
         super(screeningViewContext.getMessage(Dict.MATERIAL_REPLICA_SUMMARY_SECTION_TITLE, ""),
                 screeningViewContext, material);
         this.screeningViewContext = screeningViewContext;
         this.material = material;
         this.experimentPermId = experimentPermId;
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
 
         setHeaderVisible(false);
         setIds(DisplayTypeIDGenerator.REPLICA_SUMMARY_MATERIAL_SECTION);
@@ -43,12 +45,11 @@ class MaterialReplicaSummarySection extends TabContent
     @Override
     protected void showContent()
     {
-        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId,
-                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
+        screeningViewContext.getCommonService().getExperimentInfoByPermId(experimentPermId,
+                new AbstractAsyncCallback<Experiment>(screeningViewContext)
                     {
                         @Override
-                        protected void process(IEntityInformationHolderWithPermId experiment)
+                        protected void process(Experiment experiment)
                         {
                             setHeading(screeningViewContext.getMessage(
                                     Dict.MATERIAL_REPLICA_SUMMARY_SECTION_TITLE,
@@ -62,11 +63,11 @@ class MaterialReplicaSummarySection extends TabContent
                     });
     }
 
-    private void createAndShowViewer(IEntityInformationHolderWithPermId experiment)
+    private void createAndShowViewer(Experiment experiment)
     {
         this.viewer =
                 MaterialReplicaSummaryComponent.createViewer(screeningViewContext, experiment,
-                        material);
+                        material, restrictGlobalScopeLinkToProject);
         add(viewer.getComponent());
     }
 

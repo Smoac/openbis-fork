@@ -54,20 +54,21 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     private static final String PREFIX = GenericConstants.ID_PREFIX
             + "experiment-feature-vector-summary";
 
-    public static final String BROWSER_ID = PREFIX + "_main";
-
-    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
+    private static final String BROWSER_ID = PREFIX + "_main";
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
     private final IEntityInformationHolderWithIdentifier experiment;
 
+    private final boolean restrictGlobalScopeLinkToProject;
+
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithIdentifier experiment)
+            IEntityInformationHolderWithIdentifier experiment,
+            boolean restrictGlobalScopeLinkToProject)
     {
-        return new ExperimentAnalysisSummaryGrid(viewContext, experiment)
-                .asDisposableWithoutToolbar();
+        return new ExperimentAnalysisSummaryGrid(viewContext, experiment,
+                restrictGlobalScopeLinkToProject).asDisposableWithoutToolbar();
     }
 
     private ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> createMaterialReplicaSummaryLinkGenerator()
@@ -87,7 +88,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
                         ISerializableComparable comparableValue)
                 {
                     IEntityInformationHolder material = entity.getMaterial();
-                    return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                    return ScreeningLinkExtractor.createMaterialDetailsLink(material,
                             getExperimentAsSearchCriteria());
                 }
             };
@@ -101,16 +102,19 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
 
     private ExperimentSearchCriteria getExperimentAsSearchCriteria()
     {
-        return ExperimentSearchCriteria.createExperiment(experiment);
+        return ExperimentSearchCriteria.createExperiment(experiment,
+                restrictGlobalScopeLinkToProject);
     }
 
     ExperimentAnalysisSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithIdentifier experiment)
+            final IEntityInformationHolderWithIdentifier experiment,
+            boolean restrictGlobalScopeLinkToProject)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
         this.screeningViewContext = viewContext;
         this.experiment = experiment;
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
 
         ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> linkGenerator =
                 createMaterialReplicaSummaryLinkGenerator();

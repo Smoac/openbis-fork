@@ -26,13 +26,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * Opens an independent tab with {@link MaterialReplicaSummaryComponent}.
@@ -47,11 +48,12 @@ public class MaterialReplicaSummaryViewer
      * @param material should be enriched with properties
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId, Material material)
+            String experimentPermId, boolean restrictGlobalScopeLinkToProject, Material material)
     {
         MaterialReplicaSummaryViewer viewer =
-                new MaterialReplicaSummaryViewer(screeningViewContext);
-        AbstractAsyncCallback<IEntityInformationHolderWithPermId> experimentFoundCallback =
+                new MaterialReplicaSummaryViewer(screeningViewContext,
+                        restrictGlobalScopeLinkToProject);
+        AbstractAsyncCallback<Experiment> experimentFoundCallback =
                 viewer.createExperimentFoundCallback(material);
         viewer.fetchExperimentByPermId(experimentPermId, experimentFoundCallback);
     }
@@ -60,38 +62,43 @@ public class MaterialReplicaSummaryViewer
      * Fetches material and experiment and opens a tab with {@link MaterialReplicaSummaryComponent}.
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId, MaterialIdentifier materialIdentifier)
+            String experimentPermId, boolean restrictGlobalScopeLinkToProject,
+            MaterialIdentifier materialIdentifier)
     {
         MaterialReplicaSummaryViewer viewer =
-                new MaterialReplicaSummaryViewer(screeningViewContext);
-        AbstractAsyncCallback<IEntityInformationHolderWithPermId> experimentFoundCallback =
+                new MaterialReplicaSummaryViewer(screeningViewContext,
+                        restrictGlobalScopeLinkToProject);
+        AbstractAsyncCallback<Experiment> experimentFoundCallback =
                 viewer.createExperimentFoundCallback(materialIdentifier);
         viewer.fetchExperimentByPermId(experimentPermId, experimentFoundCallback);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
+    private final boolean restrictGlobalScopeLinkToProject;
+
     private MaterialReplicaSummaryViewer(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            boolean restrictGlobalScopeLinkToProject)
     {
         this.screeningViewContext = screeningViewContext;
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
     }
 
     private void fetchExperimentByPermId(String experimentPermId,
-            AbstractAsyncCallback<IEntityInformationHolderWithPermId> experimentFoundCallback)
+            AbstractAsyncCallback<Experiment> experimentFoundCallback)
     {
-        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
-                experimentPermId, experimentFoundCallback);
+        screeningViewContext.getCommonService().getExperimentInfoByPermId(experimentPermId,
+                experimentFoundCallback);
     }
 
     // NOTE: material is already fetched
-    private AbstractAsyncCallback<IEntityInformationHolderWithPermId> createExperimentFoundCallback(
-            final Material material)
+    private AbstractAsyncCallback<Experiment> createExperimentFoundCallback(final Material material)
     {
-        return new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
+        return new AbstractAsyncCallback<Experiment>(screeningViewContext)
             {
                 @Override
-                protected void process(IEntityInformationHolderWithPermId experiment)
+                protected void process(Experiment experiment)
                 {
                     openTab(experiment, material);
                 }
@@ -99,13 +106,13 @@ public class MaterialReplicaSummaryViewer
     }
 
     // NOTE: material has to be still fetched
-    private AbstractAsyncCallback<IEntityInformationHolderWithPermId> createExperimentFoundCallback(
+    private AbstractAsyncCallback<Experiment> createExperimentFoundCallback(
             final MaterialIdentifier materialIdentifier)
     {
-        return new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
+        return new AbstractAsyncCallback<Experiment>(screeningViewContext)
             {
                 @Override
-                protected void process(IEntityInformationHolderWithPermId experiment)
+                protected void process(Experiment experiment)
                 {
                     viewContext.getCommonService().getMaterialInformationHolder(materialIdentifier,
                             new MaterialFoundCallback(experiment));
@@ -116,9 +123,9 @@ public class MaterialReplicaSummaryViewer
     private class MaterialFoundCallback extends
             AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
-        private final IEntityInformationHolderWithPermId experiment;
+        private final Experiment experiment;
 
-        MaterialFoundCallback(IEntityInformationHolderWithPermId experiment)
+        MaterialFoundCallback(Experiment experiment)
         {
             super(screeningViewContext);
             this.experiment = experiment;
@@ -139,24 +146,22 @@ public class MaterialReplicaSummaryViewer
         }
     }
 
-    private void openTab(IEntityInformationHolderWithPermId experiment, Material material)
+    private void openTab(Experiment experiment, Material material)
     {
         AbstractTabItemFactory factory = createTabFactory(experiment, material);
         DispatcherHelper.dispatchNaviEvent(factory);
     }
 
-    private AbstractTabItemFactory createTabFactory(
-            final IEntityInformationHolderWithPermId experiment, final Material material)
+    private AbstractTabItemFactory createTabFactory(final Experiment experiment,
+            final Material material)
     {
         return new AbstractTabItemFactory()
             {
-
                 @Override
                 public String getId()
                 {
-                    return ScreeningModule.ID
-                            + ScreeningLinkExtractor.MATERIAL_REPLICA_SUMMARY_ACTION
-                            + experiment.getCode() + material.getPermId();
+                    return ScreeningModule.ID + "MATERIAL_REPLICA_SUMMARY" + experiment.getPermId()
+                            + "-" + material.getPermId();
                 }
 
                 @Override
@@ -164,15 +169,18 @@ public class MaterialReplicaSummaryViewer
                 {
                     IDisposableComponent tabComponent =
                             MaterialReplicaSummaryComponent.createViewer(screeningViewContext,
-                                    experiment, material);
+                                    experiment, material, restrictGlobalScopeLinkToProject);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 
                 @Override
                 public String tryGetLink()
                 {
-                    return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(experiment
-                            .getPermId(), material.getCode(), material.getEntityType().getCode());
+                    ExperimentSearchCriteria experimentCriteria =
+                            ExperimentSearchCriteria.createExperiment(experiment,
+                                    restrictGlobalScopeLinkToProject);
+                    return ScreeningLinkExtractor.createMaterialDetailsLink(material,
+                            experimentCriteria);
                 }
 
                 @Override
@@ -190,5 +198,4 @@ public class MaterialReplicaSummaryViewer
 
             };
     }
-
 }

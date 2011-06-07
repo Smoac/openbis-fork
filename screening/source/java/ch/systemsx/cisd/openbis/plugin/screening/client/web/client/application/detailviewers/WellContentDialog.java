@@ -425,18 +425,17 @@ public class WellContentDialog extends Dialog
             final IEntityInformationHolderWithPermId material)
     {
         final String href =
-                ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
-                        experimentCriteria.getExperimentIdentifier());
+                ScreeningLinkExtractor.createMaterialDetailsLink(material, getExperimentCriteria());
         final ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openImagingMaterialViewer(material,
-                                    ExperimentSearchCriteria.createExperiment(experimentCriteria),
+                            .openImagingMaterialViewer(material, getExperimentCriteria(),
                                     viewContext);
                 }
+
             };
         Anchor link = (Anchor) LinkRenderer.getLinkWidget(material.getCode(), listener, href);
         if (viewContext.isSimpleOrEmbeddedMode())
@@ -450,6 +449,11 @@ public class WellContentDialog extends Dialog
                 });
         }
         return link;
+    }
+
+    private ExperimentSearchCriteria getExperimentCriteria()
+    {
+        return ExperimentSearchCriteria.createExperiment(experimentCriteria, false);
     }
 
     private Widget createEntityLink(IEntityInformationHolderWithPermId entity)

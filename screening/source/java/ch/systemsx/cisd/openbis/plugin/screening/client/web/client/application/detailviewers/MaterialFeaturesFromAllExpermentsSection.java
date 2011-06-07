@@ -21,22 +21,26 @@ public class MaterialFeaturesFromAllExpermentsSection extends DisposableTabConte
 
     private final IEntityInformationHolderWithIdentifier material;
 
+    private final ExperimentSearchByProjectCriteria experimentCriteria;
+
     public MaterialFeaturesFromAllExpermentsSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            IEntityInformationHolderWithIdentifier material)
+            IEntityInformationHolderWithIdentifier material,
+            ExperimentSearchByProjectCriteria experimentCriteria)
     {
         super(screeningViewContext.getMessage(Dict.MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION),
                 screeningViewContext, material);
         this.screeningViewContext = screeningViewContext;
         this.material = material;
+        this.experimentCriteria = experimentCriteria;
         setIds(DisplayTypeIDGenerator.MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION);
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, 
-                material, ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects());
+        return MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
+                experimentCriteria);
     }
 
 }

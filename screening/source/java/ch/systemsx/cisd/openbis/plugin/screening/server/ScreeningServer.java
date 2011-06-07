@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -317,19 +318,30 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
-        
-        TechId projectTechIdOrNull;
-        if (experimentCriteria.isAllExperiments()) {
-            projectTechIdOrNull = null;
-        } else {
-            ProjectIdentifier projectIdentifier =
-                    new ProjectIdentifier(experimentCriteria.tryGetProjectIdentifier());
-            Project project = commonServer.getProjectInfo(sessionToken, projectIdentifier);
-            projectTechIdOrNull = new TechId(project);
-        }
+
+        TechId projectTechIdOrNull = tryFetchProjectId(sessionToken, experimentCriteria);
         return MaterialAllAssaysFeatureVectorSummaryLoader.loadMaterialFeatureVectorsFromAllAssays(
                 session, businessObjectFactory, getDAOFactory(), materialId, projectTechIdOrNull,
                 settings);
+    }
+
+    private TechId tryFetchProjectId(String sessionToken,
+            WellSearchCriteria.ExperimentSearchByProjectCriteria experimentCriteria)
+    {
+        if (experimentCriteria == null || experimentCriteria.isAllExperiments())
+        {
+            return null;
+        } else
+        {
+            return fetchProjectId(sessionToken, experimentCriteria.tryGetProjectIdentifier());
+        }
+    }
+
+    private TechId fetchProjectId(String sessionToken, BasicProjectIdentifier basicProjectIdentifier)
+    {
+        ProjectIdentifier projectIdentifier = new ProjectIdentifier(basicProjectIdentifier);
+        Project project = commonServer.getProjectInfo(sessionToken, projectIdentifier);
+        return new TechId(project);
     }
 
     public static MaterialSummarySettings createDefaultSettings()

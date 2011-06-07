@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -65,9 +66,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
@@ -185,11 +186,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      */
     public static final void openImagingExperimentViewer(
             final IEntityInformationHolderWithPermId experiment,
+            boolean restrictGlobalScopeLinkToProject,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (viewContext.getModel().isEmbeddedMode())
         {
-            ExperimentAnalysisSummaryViewer.openTab(viewContext, new TechId(experiment));
+            ExperimentAnalysisSummaryViewer.openTab(viewContext, new TechId(experiment),
+                    restrictGlobalScopeLinkToProject);
         } else
         {
             new OpenEntityDetailsTabAction(experiment, viewContext).execute();
@@ -200,13 +203,15 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * Creates a link to experiment detail viewer. In embedded mode the link will lead to the tab
      * which has only the content of the analysis summary panel.
      */
-    public static String createImagingExperimentViewerLink(ExperimentReference experiment,
+    public static String createImagingExperimentViewerLink(
+            IEntityInformationHolderWithPermId experiment,
+            boolean restrictGlobalScopeLinkToProject,
             IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (viewContext.getModel().isEmbeddedMode())
         {
-            return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
-                    .getPermId());
+            return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(
+                    experiment.getPermId(), restrictGlobalScopeLinkToProject);
         } else
         {
             return LinkExtractor.tryExtract(experiment);
@@ -225,18 +230,26 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        String experimentPermId = tryGetExperimentPermId(experimentCriteriaOrNull);
         if (viewContext.getModel().isEmbeddedMode())
         {
             MaterialIdentifier materialIdentifier = asMaterialIdentifier(material);
-            if (experimentPermId != null)
-            {
-                MaterialReplicaSummaryViewer.openTab(viewContext, experimentPermId,
-                        materialIdentifier);
-            } else
+            ExperimentSearchByProjectCriteria multipleExperimentsScope =
+                    tryAsMultipleExperimentsCriteria(experimentCriteriaOrNull);
+            if (multipleExperimentsScope != null)
             {
                 MaterialFeaturesFromAllExperimentsViewer.openTab(viewContext, materialIdentifier,
-                        null);
+                        multipleExperimentsScope);
+            } else
+            {
+                assert experimentCriteriaOrNull != null;
+                SingleExperimentSearchCriteria experiment =
+                        experimentCriteriaOrNull.tryGetExperiment();
+                assert experiment != null;
+
+                MaterialReplicaSummaryViewer.openTab(viewContext, experiment.getExperimentPermId(),
+                        experimentCriteriaOrNull.getRestrictGlobalSearchLinkToProject(),
+                        materialIdentifier);
+
             }
         } else
         {
@@ -244,35 +257,23 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
     }
 
-    /**
-     * Creates a link to material detail viewer. In embedded mode the link will lead to the tab
-     * which has only the replica summary panel (for a chosen experiment or for all of them,
-     * depending on the criteria).
-     */
-    public static String createImagingMaterialViewerLink(
-            final IEntityInformationHolderWithPermId material,
-            final ExperimentSearchCriteria experimentCriteria,
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+    private static ExperimentSearchByProjectCriteria tryAsMultipleExperimentsCriteria(
+            ExperimentSearchCriteria experimentCriteriaOrNull)
     {
-        if (viewContext.getModel().isEmbeddedMode())
+        if (experimentCriteriaOrNull == null)
         {
-            SingleExperimentSearchCriteria experiment = experimentCriteria.tryGetExperiment();
-            String materialCode = material.getCode();
-            String materialTypeCode = material.getEntityType().getCode();
-            if (experiment != null)
-            {
-                return ScreeningLinkExtractor.createMaterialReplicaSummaryLink(
-                        experiment.getExperimentPermId(), materialCode, materialTypeCode);
-            } else
-            {
-                return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
-                        materialCode, materialTypeCode);
-            }
-        } else
-        {
-            return ScreeningLinkExtractor
-                    .tryCreateMaterialDetailsLink(material, experimentCriteria);
+            return ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects();
         }
+        if (experimentCriteriaOrNull.tryGetExperiment() != null)
+        {
+            return null;
+        }
+        BasicProjectIdentifier project = experimentCriteriaOrNull.tryGetProjectIdentifier();
+        if (project != null)
+        {
+            return ExperimentSearchByProjectCriteria.createAllExperimentsForProject(project);
+        }
+        return ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects();
     }
 
     private static void openImagingMaterialGenericViewer(
@@ -284,22 +285,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
                         viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
-    }
-
-    private static String tryGetExperimentPermId(ExperimentSearchCriteria criteriaOrNull)
-    {
-        if (criteriaOrNull == null)
-        {
-            return null;
-        }
-        SingleExperimentSearchCriteria singleExperiment = criteriaOrNull.tryGetExperiment();
-        if (singleExperiment != null)
-        {
-            return singleExperiment.getExperimentPermId();
-        } else
-        {
-            return null;
-        }
     }
 
     private static MaterialIdentifier asMaterialIdentifier(

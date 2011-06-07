@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs;
 
 /**
@@ -96,14 +96,16 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                                 boolean specialKeyPressed)
                         {
                             ClientPluginFactory.openImagingExperimentViewer(rowItem
-                                    .getObjectOrNull().getExperiment(), screeningViewContext);
+                                    .getObjectOrNull().getExperiment(),
+                                    getRestrictGlobalScopeLinkToProject(), screeningViewContext);
                         }
 
                         public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
                                 ISerializableComparable value)
                         {
                             return ClientPluginFactory.createImagingExperimentViewerLink(
-                                    entity.getExperiment(), screeningViewContext);
+                                    entity.getExperiment(), getRestrictGlobalScopeLinkToProject(),
+                                    screeningViewContext);
                         }
                     });
     }
@@ -126,24 +128,31 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                             // in material detail view and the possibility of switching tabs is not
                             // implemented there.
                             MaterialReplicaSummaryViewer.openTab(screeningViewContext,
-                                    experimentPermId, new MaterialIdentifier(material));
+                                    experimentPermId, getRestrictGlobalScopeLinkToProject(),
+                                    new MaterialIdentifier(material));
                         }
 
                         public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,
                                 ISerializableComparable value)
                         {
                             ExperimentSearchCriteria experiment = getExperimentCriteria(entity);
-                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                            return ScreeningLinkExtractor.createMaterialDetailsLink(material,
                                     experiment);
                         }
                     });
     }
 
-    private static ExperimentSearchCriteria getExperimentCriteria(
+    private boolean getRestrictGlobalScopeLinkToProject()
+    {
+        return experimentSearchCriteria.tryGetProjectIdentifier() != null;
+    }
+
+    private ExperimentSearchCriteria getExperimentCriteria(
             MaterialSimpleFeatureVectorSummary summary)
     {
         ExperimentReference experimentRef = summary.getExperiment();
-        return ExperimentSearchCriteria.createExperiment(experimentRef);
+        return ExperimentSearchCriteria.createExperiment(experimentRef,
+                getRestrictGlobalScopeLinkToProject());
     }
 
     @Override

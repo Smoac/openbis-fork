@@ -80,10 +80,21 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
     }
 
     @Test
+    public void testGetPlateLocationsForOneMaterialAllExperimentsFromProject()
+    {
+        // it just tests if the sql runs
+        List<WellContentQueryResult> locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialId(1, "space",
+                        "project"));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
     public void testGetPlateMappingAllTypes()
     {
         // it just tests if the sql runs
-        List<WellContentQueryResult> locations = EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
+        List<WellContentQueryResult> locations =
+                EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
         AssertJUnit.assertEquals(0, locations.size());
     }
 
@@ -146,6 +157,12 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
         List<WellContentQueryResult> locations =
                 EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(ids,
                         materialTypeCodes, 1));
+        AssertJUnit.assertEquals(0, locations.size());
+
+        // one project
+        locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodesInProject(ids,
+                        materialTypeCodes, "space", "project"));
         AssertJUnit.assertEquals(0, locations.size());
 
         // all experiments

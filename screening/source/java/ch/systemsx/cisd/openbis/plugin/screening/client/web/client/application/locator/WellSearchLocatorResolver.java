@@ -6,6 +6,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -34,6 +35,9 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
         String experimentPermId =
                 getOptionalParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_EXPERIMENT_PERM_ID_PARAMETER_KEY);
+        String projectCode = getOptionalParameter(locator, ScreeningLinkExtractor.PROJECT_CODE_KEY);
+        String spaceCode = getOptionalParameter(locator, ScreeningLinkExtractor.SPACE_CODE_KEY);
+
         String materialCodesOrProperties =
                 getMandatoryParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY);
@@ -56,8 +60,19 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                 MaterialSearchCriteria.create(materialCodesCriteria);
         if (StringUtils.isBlank(experimentPermId))
         {
-            WellSearchGrid.openTab(viewContext, ExperimentSearchCriteria.createAllExperiments(),
-                    materialSearchCriteria, showCombinedResults);
+            ExperimentSearchCriteria criteria;
+            if (StringUtils.isBlank(projectCode) || StringUtils.isBlank(spaceCode))
+            {
+                criteria = ExperimentSearchCriteria.createAllExperiments();
+            } else
+            {
+                criteria =
+                        ExperimentSearchCriteria
+                                .createAllExperimentsForProject(new BasicProjectIdentifier(
+                                        spaceCode, projectCode));
+            }
+            WellSearchGrid.openTab(viewContext, criteria, materialSearchCriteria,
+                    showCombinedResults);
         } else
         {
             WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria,

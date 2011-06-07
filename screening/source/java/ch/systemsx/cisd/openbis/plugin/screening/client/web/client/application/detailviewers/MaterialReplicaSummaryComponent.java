@@ -45,8 +45,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.NotScrollableContainer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
@@ -78,19 +81,26 @@ public class MaterialReplicaSummaryComponent
     private static final int ONE_IMAGE_SIZE_FACTOR_PX = 60;
 
     public static IDisposableComponent createViewer(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            IEntityInformationHolderWithPermId experiment, Material material)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext, Experiment experiment,
+            Material material, boolean restrictGlobalScopeLinkToProject)
     {
-        return new MaterialReplicaSummaryComponent(screeningViewContext).createViewer(experiment,
-                material);
+        return new MaterialReplicaSummaryComponent(screeningViewContext,
+                restrictGlobalScopeLinkToProject, experiment).createViewer(material);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
+    private final boolean restrictGlobalScopeLinkToProject;
+
+    private final Experiment experiment;
+
     private MaterialReplicaSummaryComponent(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            boolean restrictGlobalScopeLinkToProject, Experiment experiment)
     {
         this.screeningViewContext = screeningViewContext;
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
+        this.experiment = experiment;
     }
 
     private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellReplicaImage>>
@@ -299,14 +309,13 @@ public class MaterialReplicaSummaryComponent
         return widgetWithListener.asWidget();
     }
 
-    private IDisposableComponent createViewer(IEntityInformationHolderWithPermId experiment,
-            Material material)
+    private IDisposableComponent createViewer(Material material)
     {
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
         panel.setScrollMode(Scroll.AUTO);
 
-        Widget materialInfo = createMaterialInfo(screeningViewContext, experiment, material);
+        Widget materialInfo = createMaterialInfo(material);
         panel.add(materialInfo, new RowData(-1, -1, PropertiesUtil.createHeaderInfoMargin()));
 
         TechId materialTechId = new TechId(material);
@@ -348,14 +357,12 @@ public class MaterialReplicaSummaryComponent
             };
     }
 
-    private static Widget createMaterialInfo(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithPermId experiment, final Material material)
+    private Widget createMaterialInfo(final Material material)
     {
         LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout());
 
-        Widget headerWidget = createHeaderWithLinks(viewContext, experiment, material);
+        Widget headerWidget = createHeaderWithLinks(material);
         panel.add(headerWidget, PropertiesUtil.createHeaderTitleLayoutData());
 
         LayoutContainer materialPropertiesPanel = createMaterialPropertiesPanel(material);
@@ -364,9 +371,7 @@ public class MaterialReplicaSummaryComponent
         return panel;
     }
 
-    private static Widget createHeaderWithLinks(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithPermId experiment, final Material material)
+    private Widget createHeaderWithLinks(final Material material)
     {
         LayoutContainer headerPanel = new LayoutContainer();
         headerPanel.setLayout(new TableLayout(2));
@@ -380,28 +385,24 @@ public class MaterialReplicaSummaryComponent
 
         // in non-embedded mode there is a separate tab in material detail view with all assays
         // information, so we do not display this link there
-        if (viewContext.getModel().isEmbeddedMode())
+        if (screeningViewContext.getModel().isEmbeddedMode())
         {
-            Widget materialInAllAssaysSummaryLink =
-                    createMaterialInAllAssaysSummaryLink(viewContext, material);
+            Widget materialInAllAssaysSummaryLink = createMaterialInAllAssaysSummaryLink(material);
             rightLinksPanel.add(materialInAllAssaysSummaryLink, linkMargins);
         }
 
-        Widget assayAnalysisSummaryLink =
-                createAssayAnalysisSummaryLink(viewContext, experiment, material);
+        Widget assayAnalysisSummaryLink = createAssayAnalysisSummaryLink(material);
         rightLinksPanel.add(assayAnalysisSummaryLink, linkMargins);
 
         headerPanel.add(rightLinksPanel);
         return headerPanel;
     }
 
-    private static Widget createMaterialInAllAssaysSummaryLink(
-            final IViewContext<IScreeningClientServiceAsync> viewContext, final Material material)
+    private Widget createMaterialInAllAssaysSummaryLink(final Material material)
     {
-        // add link to feature vector summary for the experiment
+        final ExperimentSearchCriteria experimentCriteria = createAllAssaysExperimentCriteria();
         String linkUrl =
-                ClientPluginFactory.createImagingMaterialViewerLink(material,
-                        ExperimentSearchCriteria.createAllExperiments(), viewContext);
+                ScreeningLinkExtractor.createMaterialDetailsLink(material, experimentCriteria);
         String linkText =
                 "Find " + MaterialComponentUtils.getMaterialFullName(material, false)
                         + " in all assays";
@@ -409,11 +410,25 @@ public class MaterialReplicaSummaryComponent
             {
                 public void onClick(ClickEvent event)
                 {
-                    ClientPluginFactory.openImagingMaterialViewer(material,
-                            ExperimentSearchCriteria.createAllExperiments(), viewContext);
+                    ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
+                            screeningViewContext);
                 }
             }, linkUrl);
         return linkWidget;
+    }
+
+    private ExperimentSearchCriteria createAllAssaysExperimentCriteria()
+    {
+        if (restrictGlobalScopeLinkToProject)
+        {
+            Project project = experiment.getProject();
+            BasicProjectIdentifier projectIdentifier =
+                    new BasicProjectIdentifier(project.getSpace().getCode(), project.getCode());
+            return ExperimentSearchCriteria.createAllExperimentsForProject(projectIdentifier);
+        } else
+        {
+            return ExperimentSearchCriteria.createAllExperiments();
+        }
     }
 
     private static Html createHeaderTitle(final IEntityInformationHolderWithPermId experiment,
@@ -424,20 +439,19 @@ public class MaterialReplicaSummaryComponent
         return PropertiesUtil.createHeaderTitle(headingText);
     }
 
-    private static Widget createAssayAnalysisSummaryLink(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final IEntityInformationHolderWithPermId experiment, final Material material)
+    private Widget createAssayAnalysisSummaryLink(final Material material)
     {
         // add link to feature vector summary for the experiment
         String linkUrl =
-                ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(experiment
-                        .getPermId());
+                ClientPluginFactory.createImagingExperimentViewerLink(experiment,
+                        restrictGlobalScopeLinkToProject, screeningViewContext);
         String linkText = "Show assay " + experiment.getCode();
         Widget linkWidget = LinkRenderer.getLinkWidget(linkText, new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
-                    ClientPluginFactory.openImagingExperimentViewer(experiment, viewContext);
+                    ClientPluginFactory.openImagingExperimentViewer(experiment,
+                            restrictGlobalScopeLinkToProject, screeningViewContext);
                 }
             }, linkUrl);
         return linkWidget;

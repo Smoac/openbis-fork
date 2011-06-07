@@ -55,6 +55,11 @@ public class WellSearchCriteria implements ISerializable
         {
         }
 
+        public SingleExperimentSearchCriteria(IEntityInformationHolderWithIdentifier experiment)
+        {
+            this(experiment.getId(), experiment.getPermId(), experiment.getIdentifier());
+        }
+
         public SingleExperimentSearchCriteria(long experimentId, String experimentPermId,
                 String experimentIdentifier)
         {
@@ -85,49 +90,26 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    /** points to one experiment or all of them */
-    public static class ExperimentSearchCriteria implements IsSerializable, Serializable
+    /** Points to one experiment, all experiments of a project or all accessible experiments. */
+    public static final class ExperimentSearchCriteria implements IsSerializable, Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        // if null, all experiments are taken into account
+        // if null, all experiments are taken into account (from one or all projects)
         private SingleExperimentSearchCriteria experimentOrNull;
 
-        public static final ExperimentSearchCriteria createAllExperiments()
-        {
-            return new ExperimentSearchCriteria(null);
+        private BasicProjectIdentifier projectIdOrNull;
 
-        }
-
-        public static ExperimentSearchCriteria createExperiment(
-                SingleExperimentSearchCriteria experiment)
-        {
-            assert experiment != null : "experiment not specified";
-            return new ExperimentSearchCriteria(experiment);
-        }
-
-        public static final ExperimentSearchCriteria createExperiment(
-                IEntityInformationHolderWithIdentifier experiment)
-        {
-            return createExperiment(experiment.getId(), experiment.getPermId(),
-                    experiment.getIdentifier());
-        }
-
-        private static final ExperimentSearchCriteria createExperiment(long experimentId,
-                String experimentPermId, String experimentIdentifier)
-        {
-            return new ExperimentSearchCriteria(new SingleExperimentSearchCriteria(experimentId,
-                    experimentPermId, experimentIdentifier));
-        }
+        /**
+         * Valid only if single experiment is used as a criteria.
+         */
+        // TODO 2011-06-07, Tomasz Pylak: Determines UI behaviour, should be refactored out from
+        // this server side DTO.
+        private boolean restrictGlobalScopeLinkToProject = false;
 
         // GWT only
         private ExperimentSearchCriteria()
         {
-        }
-
-        private ExperimentSearchCriteria(SingleExperimentSearchCriteria experimentOrNull)
-        {
-            this.experimentOrNull = experimentOrNull;
         }
 
         public SingleExperimentSearchCriteria tryGetExperiment()
@@ -135,17 +117,110 @@ public class WellSearchCriteria implements ISerializable
             return experimentOrNull;
         }
 
+        private ExperimentSearchCriteria(SingleExperimentSearchCriteria experimentOrNull,
+                boolean restrictGlobalScopeLinkToProject)
+        {
+            this.experimentOrNull = experimentOrNull;
+            this.projectIdOrNull = null;
+            this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
+        }
+
+        private ExperimentSearchCriteria(BasicProjectIdentifier projectIdOrNull)
+        {
+            this.projectIdOrNull = projectIdOrNull;
+        }
+
+        public static ExperimentSearchCriteria createExperiment(
+                SingleExperimentSearchCriteria experiment)
+        {
+            return createExperiment(experiment);
+        }
+
+        public static ExperimentSearchCriteria createExperiment(
+                SingleExperimentSearchCriteria experiment, boolean restrictGlobalScopeLinkToProject)
+        {
+            return new ExperimentSearchCriteria(experiment, restrictGlobalScopeLinkToProject);
+        }
+
+        public static ExperimentSearchCriteria createExperiment(
+                IEntityInformationHolderWithIdentifier experiment)
+        {
+            return createExperiment(experiment, false);
+        }
+
+        public static ExperimentSearchCriteria createExperiment(
+                IEntityInformationHolderWithIdentifier experiment,
+                boolean restrictGlobalScopeLinkToProject)
+        {
+            return createExperiment(new SingleExperimentSearchCriteria(experiment),
+                    restrictGlobalScopeLinkToProject);
+        }
+
+        public static ExperimentSearchCriteria createAllExperiments()
+        {
+            return new ExperimentSearchCriteria(null, false);
+        }
+
+        public static final ExperimentSearchCriteria createAllExperimentsForProject(
+                BasicProjectIdentifier projectIdentifier)
+        {
+            if (projectIdentifier == null)
+            {
+                throw new IllegalArgumentException("Project identifier cannot be null");
+            }
+            return new ExperimentSearchCriteria(projectIdentifier);
+        }
+
+        public BasicProjectIdentifier tryGetProjectIdentifier()
+        {
+            return projectIdOrNull;
+        }
+
+        /**
+         * Valid only if single experiment is used as a criteria.<br>
+         * It determines the behavior of the link from material detail view in a single experiment
+         * context to the material detail view in 'global' context. If this parameter is true, the
+         * context will be the project to which the current experiment belongs, otherwise the
+         * context will be switched to all experiments.
+         */
+        public boolean getRestrictGlobalSearchLinkToProject()
+        {
+            return restrictGlobalScopeLinkToProject;
+        }
+
+        public ExperimentSearchByProjectCriteria tryAsSearchByProjectCriteria()
+        {
+            if (tryGetExperiment() != null)
+            {
+                return null;
+            } else if (projectIdOrNull != null)
+            {
+                return ExperimentSearchByProjectCriteria
+                        .createAllExperimentsForProject(projectIdOrNull);
+            } else
+            {
+                return ExperimentSearchByProjectCriteria.createAllExperimentsForAllProjects();
+            }
+        }
+
         @Override
         public String toString()
         {
             if (experimentOrNull == null)
             {
-                return "all experiments";
+                if (projectIdOrNull == null)
+                {
+                    return "all experiments";
+                } else
+                {
+                    return "all experiments from project " + projectIdOrNull;
+                }
             } else
             {
                 return experimentOrNull.toString();
             }
         }
+
     }
 
     public static final class ExperimentSearchByProjectCriteria implements IsSerializable,
@@ -171,10 +246,11 @@ public class WellSearchCriteria implements ISerializable
             return new ExperimentSearchByProjectCriteria(null);
         }
 
+        // GWT only
         private ExperimentSearchByProjectCriteria()
         {
         }
-        
+
         private ExperimentSearchByProjectCriteria(BasicProjectIdentifier projectIdOrNull)
         {
             this.projectIdOrNull = projectIdOrNull;
@@ -188,6 +264,17 @@ public class WellSearchCriteria implements ISerializable
         public boolean isAllExperiments()
         {
             return projectIdOrNull == null;
+        }
+
+        public ExperimentSearchCriteria asExtendedCriteria()
+        {
+            if (projectIdOrNull != null)
+            {
+                return ExperimentSearchCriteria.createAllExperimentsForProject(projectIdOrNull);
+            } else
+            {
+                return ExperimentSearchCriteria.createAllExperiments();
+            }
         }
 
         @Override

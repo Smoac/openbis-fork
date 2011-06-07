@@ -221,7 +221,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                     {
                         public String tryGetLink(Material material, ISerializableComparable value)
                         {
-                            return ScreeningLinkExtractor.tryCreateMaterialDetailsLink(material,
+                            return ScreeningLinkExtractor.createMaterialDetailsLink(material,
                                     searchCriteria.getExperimentCriteria());
                         }
 

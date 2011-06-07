@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Gen
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
@@ -87,15 +88,44 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         String experimentPermId = tryGetExperimentPermId();
         if (experimentPermId != null)
         {
+            boolean restrictGlobalScopeLinkToProject =
+                    isRestrictGlobalScopeLinkToProject(experimentCriteriaOrNull);
             MaterialReplicaSummarySection replicaSummarySection =
                     new MaterialReplicaSummarySection(screeningViewContext, material,
-                            experimentPermId);
+                            experimentPermId, restrictGlobalScopeLinkToProject);
             sections.add(replicaSummarySection);
         }
+        ExperimentSearchByProjectCriteria experimentCriteria = tryConvert(experimentCriteriaOrNull);
         MaterialFeaturesFromAllExpermentsSection featuresFromAllExperimentsSection =
-                new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material);
+                new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material,
+                        experimentCriteria);
         sections.add(featuresFromAllExperimentsSection);
         return sections;
+    }
+
+    private static boolean isRestrictGlobalScopeLinkToProject(
+            ExperimentSearchCriteria experimentCriteriaOrNull)
+    {
+
+        if (experimentCriteriaOrNull == null)
+        {
+            return false;
+        } else
+        {
+            return experimentCriteriaOrNull.getRestrictGlobalSearchLinkToProject();
+        }
+    }
+
+    private static ExperimentSearchByProjectCriteria tryConvert(
+            ExperimentSearchCriteria experimentCriteriaOrNull)
+    {
+        if (experimentCriteriaOrNull == null)
+        {
+            return null;
+        } else
+        {
+            return experimentCriteriaOrNull.tryAsSearchByProjectCriteria();
+        }
     }
 
     private String tryGetExperimentPermId()

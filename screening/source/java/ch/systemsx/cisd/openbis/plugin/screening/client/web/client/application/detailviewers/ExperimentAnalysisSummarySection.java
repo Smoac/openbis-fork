@@ -34,7 +34,7 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return ExperimentAnalysisSummaryGrid.create(screeningViewContext, experiment);
+        return ExperimentAnalysisSummaryGrid.create(screeningViewContext, experiment, false);
     }
 
 }

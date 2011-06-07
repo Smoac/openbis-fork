@@ -11,8 +11,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ExperimentAnalysisSummaryResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ImagingMaterialLocatorResolver;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.MaterialFeaturesFromAllExperimentsResolver;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.MaterialReplicaSummaryResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMetadataBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.WellSearchLocatorResolver;
 
@@ -52,8 +50,6 @@ public final class ScreeningViewContext extends
         handlerRegistry.registerHandler(new WellSearchLocatorResolver(this));
         handlerRegistry.registerHandler(new GlobalWellSearchLocatorResolver(this));
         handlerRegistry.registerHandler(new ExperimentAnalysisSummaryResolver(this));
-        handlerRegistry.registerHandler(new MaterialReplicaSummaryResolver(this));
-        handlerRegistry.registerHandler(new MaterialFeaturesFromAllExperimentsResolver(this));
     }
 
     public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(

@@ -33,9 +33,9 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
     @Test
     public void test()
     {
-        assertEquals("2011-05-30, Raw (DAT)", createLabel("HCS_IMAGE_RAW", true));
-        assertEquals("2011-05-30, Features", createLabel("HCS_ANALYSIS_WELL_FEATURES", false));
-        assertEquals("2011-05-30, Analysis cell classifications (DAT)",
+        assertEquals("Raw (DAT), 2011-05-30 12:34", createLabel("HCS_IMAGE_RAW", true));
+        assertEquals("Features, 2011-05-30 12:34", createLabel("HCS_ANALYSIS_WELL_FEATURES", false));
+        assertEquals("Analysis cell classifications (DAT), 2011-05-30 12:34",
                 createLabel("HCS_ANALYSIS_CELL_CLASSIFICATIONS", true));
 
     }
@@ -44,7 +44,7 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
     {
         DatasetReference ref =
                 new DatasetReference(0, "code", typeCode, null, "DAT", null, null, null, null);
-        return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30");
+        return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30 12:34");
     }
 
 }

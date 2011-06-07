@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -85,8 +84,7 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 @Override
                 public String getId()
                 {
-                    return ScreeningModule.ID
-                            + ScreeningLinkExtractor.MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_ACTION
+                    return ScreeningModule.ID + "MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS"
                             + material.getPermId();
                 }
 
@@ -102,20 +100,8 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 @Override
                 public String tryGetLink()
                 {
-                    String materialCode = material.getCode();
-                    String materialTypeCode = material.getEntityType().getCode();
-                    String spaceCodeOrNull = null;
-                    String projectCodeOrNull = null;
-                    BasicProjectIdentifier projectIdentifier =
-                            experimentCriteria.tryGetProjectIdentifier();
-                    if (projectIdentifier != null)
-                    {
-                        spaceCodeOrNull = projectIdentifier.getSpaceCode();
-                        projectCodeOrNull = projectIdentifier.getProjectCode();
-                    }
-
-                    return ScreeningLinkExtractor.createMaterialFeaturesFromAllExperimentsLink(
-                            materialCode, materialTypeCode, spaceCodeOrNull, projectCodeOrNull);
+                    return ScreeningLinkExtractor.createMaterialDetailsLink(material,
+                            experimentCriteria.asExtendedCriteria());
                 }
 
                 @Override

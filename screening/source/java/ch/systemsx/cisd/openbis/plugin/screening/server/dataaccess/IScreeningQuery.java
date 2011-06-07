@@ -75,6 +75,15 @@ public interface IScreeningQuery extends BaseQuery
             long experimentId);
 
     /**
+     * @return well locations which are connected to a given material (e.g. gene) and belong to the
+     *         experiments within a given project.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT
+            + " where well_material.id = ?{1} and spaces.code = ?{2} and projects.code = ?{3}")
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialId(long materialId,
+            String spaceCode, String projectCode);
+
+    /**
      * @return well locations which are connected to a given material (e.g. gene) with the specified
      *         id.
      */
@@ -89,6 +98,18 @@ public interface IScreeningQuery extends BaseQuery
             + " where well_material.id = ?{1} and projects.id = ?{2}")
     public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialAndProjectIds(
             long materialId, long projectId);
+
+    /**
+     * @return well locations which belong to a parent plate connected to any experiment in the
+     *         specified project. Each well will have a material property (e.g. gene) with one of
+     *         the specified codes. The connected material will have one of the specified types.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
+            + "well_material_type.code = any(?{2}) and spaces.code = ?{3} and projects.code = ?{4}", parameterBindings =
+        { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */,
+                TypeMapper.class })
+    public DataIterator<WellContentQueryResult> getPlateLocationsForMaterialCodesInProject(
+            long[] materialIds, String[] materialTypeCodes, String spaceCode, String projectCode);
 
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment.
