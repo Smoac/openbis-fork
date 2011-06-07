@@ -405,7 +405,8 @@
     </zip>
     <delete dir="${dist.screening-api.javadoc}" />
     <zip destfile="${dist.screening-api.src}">
-      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
+      <zipfileset dir="${sources}" includes="OpenBISScreeningML.java" />
+    	<zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
       <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*Facade.java" />
     </zip>
   	
@@ -610,7 +611,8 @@
         <pathelement location="${sources}" />
         <pathelement location="../openbis/${sources}" />
         <pathelement path="${ecp}" />
-        <pathelement path="${ecp.gwt}" />
+  
+      <pathelement path= "${ecp.gwt}" />
         <pathelement location="${gwt.lib}/gwt-dev.jar" />
         <pathelement location="${gwt.lib}/gwt-user.jar" />
       </classpath>
