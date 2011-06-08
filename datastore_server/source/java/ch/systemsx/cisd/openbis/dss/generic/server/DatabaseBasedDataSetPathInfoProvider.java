@@ -84,11 +84,15 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetFileRecord> listDataSetFilesByRelativePathLikeExpression(long dataSetId,
                 String relativePathLikeExpression);
 
-        // FIXME we should have 2 methods, one with regexp one with like
         @Select(SELECT_DATA_SET_FILES
                 + "WHERE dase_id = ?{1} AND relative_path = '?{2}' AND file_name ~ ?{3}")
         public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(long dataSetId,
                 String startingPath, String filenameRegex);
+
+        @Select(SELECT_DATA_SET_FILES
+                + "WHERE dase_id = ?{1} AND relative_path = '?{2}' AND file_name LIKE ?{3}")
+        public List<DataSetFileRecord> listDataSetFilesByFilenameLikeExpression(long dataSetId,
+                String startingPath, String filenameLikeExpression);
     }
 
     private static interface ILoader
@@ -216,9 +220,20 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
                 String fileNamePattern)
         {
-            List<DataSetFileRecord> records =
-                    dao.listDataSetFilesByFilenameRegex(dataSetId, startingPath,
-                            prepareDBStyleRegex(fileNamePattern));
+            String likeExpressionOrNull =
+                    DBUtils.tryToTranslateRegExpToLikePattern(prepareDBStyleRegex(fileNamePattern));
+            List<DataSetFileRecord> records;
+            if (likeExpressionOrNull == null)
+            {
+                records =
+                        dao.listDataSetFilesByFilenameRegex(dataSetId, startingPath,
+                                prepareDBStyleRegex(fileNamePattern));
+            } else
+            {
+                records =
+                        dao.listDataSetFilesByFilenameLikeExpression(dataSetId, startingPath,
+                                likeExpressionOrNull);
+            }
             return asPathInfos(records);
         }
 

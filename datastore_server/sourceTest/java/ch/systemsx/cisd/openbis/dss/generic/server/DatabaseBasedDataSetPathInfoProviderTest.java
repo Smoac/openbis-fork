@@ -335,7 +335,34 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
     }
 
     @Test
-    void testListMatchingPathInfosWithFileNamePattern()
+    void testListMatchingPathInfosWithFileNameRegExpPattern()
+    {
+        ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
+
+        final String startingPath = "dir";
+        final String regex = "(child.*|child)";
+
+        // NOTE: data in records are not significant
+        final DataSetFileRecord rc1 = record(3L, 2L, "dir/child_dir", "child_dir", 20, true);
+        final DataSetFileRecord rc2 = record(4L, 2L, "dir/child_file", "child_file", 30, false);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listDataSetFilesByFilenameRegex(DATA_SET_ID, startingPath,
+                            "^" + regex + "$");
+                    will(returnValue(Arrays.asList(rc1, rc2)));
+                }
+            });
+
+        List<DataSetPathInfo> list = provider.listMatchingPathInfos(startingPath, regex);
+        sort(list);
+        check(rc1, list.get(0));
+        check(rc2, list.get(1));
+    }
+
+    @Test
+    void testListMatchingPathInfosWithFileNameLikePattern()
     {
         ISingleDataSetPathInfoProvider provider = createSingleDataSetPathInfoProvider();
 
@@ -349,8 +376,8 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDataSetFilesByFilenameRegex(DATA_SET_ID, startingPath,
-                            "^" + regex + "$");
+                    one(dao).listDataSetFilesByFilenameLikeExpression(DATA_SET_ID, startingPath,
+                            "child%");
                     will(returnValue(Arrays.asList(rc1, rc2)));
                 }
             });
