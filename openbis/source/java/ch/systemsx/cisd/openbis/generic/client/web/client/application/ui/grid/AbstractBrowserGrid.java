@@ -51,7 +51,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -69,17 +68,14 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -102,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.modifications.ModificationsToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
@@ -220,6 +217,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private final ToolBar modificationsToolbar;
 
+    @SuppressWarnings("unused")
+    private final TableModificationsManager tableModificationsManager;
+
     private final IDisplayTypeIDGenerator displayTypeIDGenerator;
 
     // --------- private non-final fields
@@ -246,9 +246,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         this(viewContext, gridId, false, displayTypeIDGenerator);
     }
-
-    private static final IGenericImageBundle IMAGE_BUNDLE = GWT
-            .<IGenericImageBundle> create(IGenericImageBundle.class);
 
     /**
      * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
@@ -279,30 +276,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
-        this.modificationsToolbar = new ToolBar();
-        modificationsToolbar.add(new Label("Table Modifications:"));
-        AbstractImagePrototype confirmIcon =
-                AbstractImagePrototype.create(IMAGE_BUNDLE.getConfirmIcon());
-        AbstractImagePrototype cancelIcon =
-                AbstractImagePrototype.create(IMAGE_BUNDLE.getCancelIcon());
-        modificationsToolbar.add(new Button("Save", confirmIcon,
-                new SelectionListener<ButtonEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ButtonEvent be)
-                        {
-                            asActionInvoker().saveModifications();
-                        }
-                    }));
-        modificationsToolbar.add(new Button("Cancel", cancelIcon,
-                new SelectionListener<ButtonEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ButtonEvent be)
-                        {
-                            asActionInvoker().cancelModifications();
-                        }
-                    }));
+        this.tableModificationsManager = new TableModificationsManager();
+        this.modificationsToolbar = new ModificationsToolbar(viewContext, asActionInvoker());
 
         this.contentPanel = createEmptyContentPanel();
         bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
@@ -1008,15 +983,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    private void clearModifications()
-    {
-        finishedModifications = 0;
-        failedModifications.clear();
-        modificationsByModel.clear();
-        hideModificationsBar();
-        refresh();
-    }
-
     protected void showFiltersBar()
     {
         // always show filters under modifications
@@ -1029,9 +995,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         if (bottomToolbars.getItems().contains(modificationsToolbar) == false)
         {
-            GWTUtils.displayInfo(
-                    "Table Modification Mode On",
-                    "Use 'Table Modification' toolbar below the table to <b>save</b> or <b>cancel</b> the changes made in table cells.",
+            GWTUtils.displayInfo(viewContext.getMessage(Dict.TABLE_MODIFICATIONS_INFO_TITLE),
+                    viewContext.getMessage(Dict.TABLE_MODIFICATIONS_INFO_TEXT),
                     DisplayInfoTime.LONG);
             bottomToolbars.insert(modificationsToolbar, 0);
             bottomToolbars.layout();
@@ -1860,175 +1825,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return null;
     }
 
-    public interface IModification
-    {
-        String getColumnID();
-
-        String tryGetNewValue();
-    }
-
-    private static class Modification implements IModification
-    {
-        private final String columnID;
-
-        private final String newValueOrNull;
-
-        public Modification(String columnID, String newValueOrNull)
-        {
-            super();
-            this.columnID = columnID;
-            this.newValueOrNull = newValueOrNull;
-        }
-
-        public String getColumnID()
-        {
-            return columnID;
-        }
-
-        public String tryGetNewValue()
-        {
-            return newValueOrNull;
-        }
-    }
-
-    private final Map<M, String> failedModifications = new HashMap<M, String>();
-
-    private int finishedModifications = 0;
-
-    private final Map<M, List<IModification>> modificationsByModel =
-            new LinkedHashMap<M, List<IModification>>();
-
-    /** Handle cell editing event. */
-    private void handleEditingEvent(M model, String columnID, String newValueOrNull)
-    {
-        List<IModification> modificationsForModel = modificationsByModel.get(model);
-        if (modificationsForModel == null)
-        {
-            modificationsForModel = new ArrayList<IModification>();
-            modificationsByModel.put(model, modificationsForModel);
-        }
-        modificationsForModel.add(new Modification(columnID, newValueOrNull));
-    }
-
-    /**
-     * Apply specified modification to the model. Should be overriden by subclasses. Default
-     * implementation does nothing.
-     */
-    protected void applyModifications(M model, List<IModification> modifications)
-    {
-
-    }
-
-    /**
-     * Creates a callback object which invokes {@link #refresh()} after server-side editing action
-     * took place.
-     */
-    protected AsyncCallback<Void> createPostEditingRefreshCallback()
-    {
-        return createPostEditingCallback(new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    asActionInvoker().refresh();
-                }
-            });
-    }
-
-    protected AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
-            final M model, final List<IModification> modifications)
-    {
-        return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
-            {
-                @Override
-                protected void process(EntityPropertyUpdatesResult result)
-                {
-                    finishedModifications++;
-                    String errorMessage = result.tryGetErrorMessage();
-                    if (errorMessage != null)
-                    {
-                        handleError(errorMessage);
-                    }
-                    if (isApplyModificationsComplete())
-                    {
-                        onApplyModificationsComplete();
-                    }
-                }
-
-                @Override
-                public void finishOnFailure(Throwable caught)
-                {
-                    finishedModifications++;
-                    handleError(caught.getMessage());
-                    if (isApplyModificationsComplete())
-                    {
-                        onApplyModificationsComplete();
-                    }
-                }
-
-                private void handleError(String errorMessage)
-                {
-                    failedModifications.put(model, errorMessage);
-                }
-            };
-    }
-
-    private boolean isApplyModificationsComplete()
-    {
-        return finishedModifications == modificationsByModel.size();
-    }
-
-    private void onApplyModificationsComplete()
-    {
-        if (failedModifications.size() > 0)
-        {
-            String failureTitle =
-                    (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
-                            : "Operation partly failed";
-            String failureReport = createFailedModificationsReport();
-            MessageBox.alert(failureTitle, failureReport, null);
-            refresh();
-        } else
-        {
-            GWTUtils.displayInfo("All modifications successfully applied.");
-            refresh();
-        }
-        clearModifications();
-    }
-
-    private String createFailedModificationsReport()
-    {
-        assert failedModifications.size() > 0;
-        StringBuilder result = new StringBuilder();
-        result.append("Modifications of " + failedModifications.size() + " entities failed:");
-        for (String error : failedModifications.values())
-        {
-            result.append("<br/>- " + error);
-        }
-        return result.toString();
-    }
-
-    /**
-     * Creates a callback object which invokes specified refresh action after server-side editing
-     * action took place.
-     */
-    protected AsyncCallback<Void> createPostEditingCallback(final IDelegatedAction refreshAction)
-    {
-        return new AbstractAsyncCallback<Void>(viewContext)
-            {
-                @Override
-                protected void process(Void result)
-                {
-                    refreshAction.execute();
-                }
-
-                @Override
-                public void finishOnFailure(Throwable caught)
-                {
-                    refreshAction.execute();
-                }
-            };
-    }
-
     // this should be the only place where we create the grid column model.
     private static ColumnModel createColumnModel(List<ColumnConfig> columConfigs)
     {
@@ -2143,6 +1939,195 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
 
         protected abstract Dialog createDialog(List<T> data, IBrowserGridActionInvoker invoker);
+    }
+
+    //
+    // Table Modifications
+    //
+
+    public interface IModification
+    {
+        String getColumnID();
+
+        String tryGetNewValue();
+    }
+
+    private static class Modification implements IModification
+    {
+        private final String columnID;
+
+        private final String newValueOrNull;
+
+        public Modification(String columnID, String newValueOrNull)
+        {
+            super();
+            this.columnID = columnID;
+            this.newValueOrNull = newValueOrNull;
+        }
+
+        public String getColumnID()
+        {
+            return columnID;
+        }
+
+        public String tryGetNewValue()
+        {
+            return newValueOrNull;
+        }
+    }
+
+    private static class TableModificationsManager
+    {
+
+    }
+
+    // TODO 2011-08-06, Piotr Buczek: refactor the code - move to TableModificationsManager
+
+    private final Map<M, String> failedModifications = new HashMap<M, String>();
+
+    private int finishedModifications = 0;
+
+    private final Map<M, List<IModification>> modificationsByModel =
+            new LinkedHashMap<M, List<IModification>>();
+
+    private void clearModifications()
+    {
+        finishedModifications = 0;
+        failedModifications.clear();
+        modificationsByModel.clear();
+        hideModificationsBar();
+        refresh();
+    }
+
+    /** Handle cell editing event. */
+    private void handleEditingEvent(M model, String columnID, String newValueOrNull)
+    {
+        List<IModification> modificationsForModel = modificationsByModel.get(model);
+        if (modificationsForModel == null)
+        {
+            modificationsForModel = new ArrayList<IModification>();
+            modificationsByModel.put(model, modificationsForModel);
+        }
+        modificationsForModel.add(new Modification(columnID, newValueOrNull));
+    }
+
+    /**
+     * Apply specified modification to the model. Should be overriden by subclasses. Default
+     * implementation does nothing.
+     */
+    protected void applyModifications(M model, List<IModification> modifications)
+    {
+
+    }
+
+    protected AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
+            final M model, final List<IModification> modifications)
+    {
+        return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
+            {
+                @Override
+                protected void process(EntityPropertyUpdatesResult result)
+                {
+                    finishedModifications++;
+                    String errorMessage = result.tryGetErrorMessage();
+                    if (errorMessage != null)
+                    {
+                        handleError(errorMessage);
+                    }
+                    if (isApplyModificationsComplete())
+                    {
+                        onApplyModificationsComplete();
+                    }
+                }
+
+                @Override
+                public void finishOnFailure(Throwable caught)
+                {
+                    finishedModifications++;
+                    handleError(caught.getMessage());
+                    if (isApplyModificationsComplete())
+                    {
+                        onApplyModificationsComplete();
+                    }
+                }
+
+                private void handleError(String errorMessage)
+                {
+                    failedModifications.put(model, errorMessage);
+                }
+            };
+    }
+
+    private boolean isApplyModificationsComplete()
+    {
+        return finishedModifications == modificationsByModel.size();
+    }
+
+    private void onApplyModificationsComplete()
+    {
+        if (failedModifications.size() > 0)
+        {
+            String failureTitle =
+                    (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
+                            : "Operation partly failed";
+            String failureReport = createFailedModificationsReport();
+            MessageBox.alert(failureTitle, failureReport, null);
+            refresh();
+        } else
+        {
+            GWTUtils.displayInfo("All modifications successfully applied.");
+            refresh();
+        }
+        clearModifications();
+    }
+
+    private String createFailedModificationsReport()
+    {
+        assert failedModifications.size() > 0;
+        StringBuilder result = new StringBuilder();
+        result.append("Modifications of " + failedModifications.size() + " entities failed:");
+        for (String error : failedModifications.values())
+        {
+            result.append("<br/>- " + error);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Creates a callback object which invokes {@link #refresh()} after server-side editing action
+     * took place.
+     */
+    protected AsyncCallback<Void> createPostEditingRefreshCallback()
+    {
+        return createPostEditingCallback(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    asActionInvoker().refresh();
+                }
+            });
+    }
+
+    /**
+     * Creates a callback object which invokes specified refresh action after server-side editing
+     * action took place.
+     */
+    protected AsyncCallback<Void> createPostEditingCallback(final IDelegatedAction refreshAction)
+    {
+        return new AbstractAsyncCallback<Void>(viewContext)
+            {
+                @Override
+                protected void process(Void result)
+                {
+                    refreshAction.execute();
+                }
+
+                @Override
+                public void finishOnFailure(Throwable caught)
+                {
+                    refreshAction.execute();
+                }
+            };
     }
 
 }

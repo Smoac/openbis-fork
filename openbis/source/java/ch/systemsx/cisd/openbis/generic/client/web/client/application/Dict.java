@@ -79,6 +79,16 @@ public abstract class Dict
     public static final String ENTITY_OPERATIONS = "entity_operations";
 
     //
+    // Table Modifications
+    //
+
+    public static final String TABLE_MODIFICATIONS = "table_modifications";
+
+    public static final String TABLE_MODIFICATIONS_INFO_TITLE = "table_modifications_info_title";
+
+    public static final String TABLE_MODIFICATIONS_INFO_TEXT = "table_modifications_info_text";
+
+    //
     // Field
     //
 
