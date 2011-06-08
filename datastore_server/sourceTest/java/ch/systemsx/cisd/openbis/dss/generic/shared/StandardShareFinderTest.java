@@ -77,6 +77,28 @@ public class StandardShareFinderTest extends AbstractIShareFinderTestCase
     }
 
     @Test
+    public void testMoveToExtensionShareWithMoreSpace()
+    {
+        shares =
+                Arrays.asList(incomingShare("1", megaBytes(2000), 50, ShufflePriority.SPEED),
+                        extensionShare("2", megaBytes(3000), 40),
+                        extensionShare("3", megaBytes(5000), 40),
+                        extensionShare("4", megaBytes(4000), 40));
+        assertShareFoundForDataSet("3", dataSet("2", megaBytes(900), 60));
+    }
+
+    @Test
+    public void testMoveToExtensionShareWithBetterSpeedMatch()
+    {
+        shares =
+                Arrays.asList(incomingShare("1", megaBytes(2000), 50, ShufflePriority.SPEED),
+                        extensionShare("2", megaBytes(3000), 40),
+                        extensionShare("3", megaBytes(3000), 45),
+                        extensionShare("4", megaBytes(1000), 50));
+        assertShareFoundForDataSet("4", dataSet("2", megaBytes(900), 60));
+    }
+
+    @Test
     public void testShuffleToIncomingShareWithMoreSpace()
     {
         shares =

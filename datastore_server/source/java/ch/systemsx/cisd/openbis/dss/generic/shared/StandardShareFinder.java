@@ -30,17 +30,24 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share.ShufflePriority;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * A share finder working in the following way
+ * A share finder implementation. The search algorithm considers all shares with enough free space
+ * as potential result "candidates" (The free space of the data set "home" share is increased by the
+ * data set size). The result (which is simply the best candidate) is elected by the following
+ * rules:
  * 
  * <pre>
- * 1. Try to find an extension share before trying to find incoming shares.
- * 2. Try to find share with speed respecting speed hint. If there are more than one choose that 
- * one with speed closest to absolute value of speed hint. 
- * 3. Otherwise choose the share with most free space.
+ * 1. An extension share is preferred above an incoming share.
+ * 2. A share whose speed matches the speed requirements of the data set is preferred. If there is more 
+ * than one share matching in the same way then choose the one with speed closest to absolute value of speed hint. 
+ * 3. If all candidates have the same parameters for (1) and (2) choose the share with most free space.
  * </pre>
  * 
  * The priority of points (1) and (2) can be swapped if the current location of the data set is an
  * incoming share and it has a shuffle priority of {@link ShufflePriority#SPEED}.
+ * <p>
+ * Generally the {@link StandardShareFinder} tends to move data sets from incoming to extension
+ * shares. A data set can only be moved from extension to incoming share by an unarchiving operation
+ * if at the time of unarchiving all extension shares (regardless of their speeds) are full.
  * 
  * @author Kaloyan Enimanev
  */
@@ -78,10 +85,10 @@ public class StandardShareFinder implements IShareFinder
         if (false == candidates.isEmpty())
         {
             CandidateShare bestCandidate = Collections.min(candidates);
-            Share bestDestination = bestCandidate.getShare();
-            if (false == bestDestination.equals(homeShare))
+            Share bestDestinationShare = bestCandidate.getShare();
+            if (false == bestDestinationShare.equals(homeShare))
             {
-                return bestDestination;
+                return bestDestinationShare;
             }
         }
         return null;
