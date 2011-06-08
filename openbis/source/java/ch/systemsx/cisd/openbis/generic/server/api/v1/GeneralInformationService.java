@@ -382,9 +382,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     }
 
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
-            EnumSet<Connections> connectionsToGet)
+            EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
+        EnumSet<Connections> connectionsToGet =
+                (connections != null) ? connections : EnumSet.noneOf(Connections.class);
+
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
                 commonServer.listSampleTypes(sessionToken);
         SampleToDataSetRelatedEntitiesTranslator translator =
