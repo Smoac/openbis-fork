@@ -89,7 +89,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
             updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
         }
         viewContext.getService().updateProperties(updates,
-                createApplyModificationsCallback(model, modifications));
+                tableModificationsManager.createApplyModificationsCallback(model, modifications));
     }
 
     @Override

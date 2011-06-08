@@ -227,16 +227,6 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
                 {
                     delegate.configure();
                 }
-
-                public void saveModifications()
-                {
-                    delegate.saveModifications();
-                }
-
-                public void cancelModifications()
-                {
-                    delegate.cancelModifications();
-                }
             };
     }
 

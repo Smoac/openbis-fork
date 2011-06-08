@@ -192,6 +192,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final ICellListener<T> showEntityViewerLinkClickListener;
 
+    protected final TableModificationsManager tableModificationsManager;
+
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = Constants.GRID_PAGE_SIZE;
@@ -216,9 +218,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final FilterToolbar<T> filterToolbar;
 
     private final ToolBar modificationsToolbar;
-
-    @SuppressWarnings("unused")
-    private final TableModificationsManager tableModificationsManager;
 
     private final IDisplayTypeIDGenerator displayTypeIDGenerator;
 
@@ -277,7 +276,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
         this.tableModificationsManager = new TableModificationsManager();
-        this.modificationsToolbar = new ModificationsToolbar(viewContext, asActionInvoker());
+        this.modificationsToolbar =
+                new ModificationsToolbar(viewContext, tableModificationsManager);
 
         this.contentPanel = createEmptyContentPanel();
         bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
@@ -967,19 +967,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     }
                 }
 
-                public void saveModifications()
-                {
-                    finishedModifications = 0;
-                    for (Entry<M, List<IModification>> entry : modificationsByModel.entrySet())
-                    {
-                        applyModifications(entry.getKey(), entry.getValue());
-                    }
-                }
-
-                public void cancelModifications()
-                {
-                    clearModifications();
-                }
             };
     }
 
@@ -1788,7 +1775,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     } else
                     {
                         showModificationsBar();
-                        handleEditingEvent(model, columnID, StringUtils.toStringOrNull(value));
+                        tableModificationsManager.handleEditingEvent(model, columnID,
+                                StringUtils.toStringOrNull(value));
                     }
                 }
             });
@@ -1945,6 +1933,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // Table Modifications
     //
 
+    /**
+     * Apply specified modifications to the model. Should be overriden by subclasses. Default
+     * implementation does nothing.
+     */
+    protected void applyModifications(M model, List<IModification> modifications)
+    {
+
+    }
+
+    /** Manager of table modifications */
+    public interface ITableModificationsManager
+    {
+        /** save all modifications made in the table to the DB and refresh the table */
+        void saveModifications();
+
+        /** cancel all modifications made in the table and refresh the table */
+        void cancelModifications();
+    }
+
     public interface IModification
     {
         String getColumnID();
@@ -1976,158 +1983,130 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private static class TableModificationsManager
+    protected class TableModificationsManager implements ITableModificationsManager
     {
+        private final Map<M, List<IModification>> modificationsByModel =
+                new LinkedHashMap<M, List<IModification>>();
 
-    }
+        private final Map<M, String> failedModifications = new HashMap<M, String>();
 
-    // TODO 2011-08-06, Piotr Buczek: refactor the code - move to TableModificationsManager
+        private int finishedModifications = 0;
 
-    private final Map<M, String> failedModifications = new HashMap<M, String>();
+        //
+        // ITableModificationsManager
+        //
 
-    private int finishedModifications = 0;
-
-    private final Map<M, List<IModification>> modificationsByModel =
-            new LinkedHashMap<M, List<IModification>>();
-
-    private void clearModifications()
-    {
-        finishedModifications = 0;
-        failedModifications.clear();
-        modificationsByModel.clear();
-        hideModificationsBar();
-        refresh();
-    }
-
-    /** Handle cell editing event. */
-    private void handleEditingEvent(M model, String columnID, String newValueOrNull)
-    {
-        List<IModification> modificationsForModel = modificationsByModel.get(model);
-        if (modificationsForModel == null)
+        public void saveModifications()
         {
-            modificationsForModel = new ArrayList<IModification>();
-            modificationsByModel.put(model, modificationsForModel);
-        }
-        modificationsForModel.add(new Modification(columnID, newValueOrNull));
-    }
-
-    /**
-     * Apply specified modification to the model. Should be overriden by subclasses. Default
-     * implementation does nothing.
-     */
-    protected void applyModifications(M model, List<IModification> modifications)
-    {
-
-    }
-
-    protected AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
-            final M model, final List<IModification> modifications)
-    {
-        return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
+            finishedModifications = 0;
+            for (Entry<M, List<IModification>> entry : modificationsByModel.entrySet())
             {
-                @Override
-                protected void process(EntityPropertyUpdatesResult result)
-                {
-                    finishedModifications++;
-                    String errorMessage = result.tryGetErrorMessage();
-                    if (errorMessage != null)
-                    {
-                        handleError(errorMessage);
-                    }
-                    if (isApplyModificationsComplete())
-                    {
-                        onApplyModificationsComplete();
-                    }
-                }
+                applyModifications(entry.getKey(), entry.getValue());
+            }
+        }
 
-                @Override
-                public void finishOnFailure(Throwable caught)
-                {
-                    finishedModifications++;
-                    handleError(caught.getMessage());
-                    if (isApplyModificationsComplete())
-                    {
-                        onApplyModificationsComplete();
-                    }
-                }
-
-                private void handleError(String errorMessage)
-                {
-                    failedModifications.put(model, errorMessage);
-                }
-            };
-    }
-
-    private boolean isApplyModificationsComplete()
-    {
-        return finishedModifications == modificationsByModel.size();
-    }
-
-    private void onApplyModificationsComplete()
-    {
-        if (failedModifications.size() > 0)
+        public void cancelModifications()
         {
-            String failureTitle =
-                    (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
-                            : "Operation partly failed";
-            String failureReport = createFailedModificationsReport();
-            MessageBox.alert(failureTitle, failureReport, null);
+            clearModifications();
+        }
+
+        //
+
+        /** @return callback for given modifications made to specified model. */
+        protected AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
+                final M model, final List<IModification> modifications)
+        {
+            return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
+                {
+                    @Override
+                    protected void process(EntityPropertyUpdatesResult result)
+                    {
+                        finishedModifications++;
+                        String errorMessage = result.tryGetErrorMessage();
+                        if (errorMessage != null)
+                        {
+                            handleError(errorMessage);
+                        }
+                        if (isApplyModificationsComplete())
+                        {
+                            onApplyModificationsComplete();
+                        }
+                    }
+
+                    @Override
+                    public void finishOnFailure(Throwable caught)
+                    {
+                        finishedModifications++;
+                        handleError(caught.getMessage());
+                        if (isApplyModificationsComplete())
+                        {
+                            onApplyModificationsComplete();
+                        }
+                    }
+
+                    private void handleError(String errorMessage)
+                    {
+                        failedModifications.put(model, errorMessage);
+                    }
+                };
+        }
+
+        /** Handle cell editing event. */
+        protected void handleEditingEvent(M model, String columnID, String newValueOrNull)
+        {
+            List<IModification> modificationsForModel = modificationsByModel.get(model);
+            if (modificationsForModel == null)
+            {
+                modificationsForModel = new ArrayList<IModification>();
+                modificationsByModel.put(model, modificationsForModel);
+            }
+            modificationsForModel.add(new Modification(columnID, newValueOrNull));
+        }
+
+        private boolean isApplyModificationsComplete()
+        {
+            return finishedModifications == modificationsByModel.size();
+        }
+
+        private void onApplyModificationsComplete()
+        {
+            if (failedModifications.size() > 0)
+            {
+                String failureTitle =
+                        (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
+                                : "Operation partly failed";
+                String failureReport = createFailedModificationsReport();
+                MessageBox.alert(failureTitle, failureReport, null);
+                refresh();
+            } else
+            {
+                GWTUtils.displayInfo("All modifications successfully applied.");
+                refresh();
+            }
+            clearModifications();
+        }
+
+        private String createFailedModificationsReport()
+        {
+            assert failedModifications.size() > 0;
+            StringBuilder result = new StringBuilder();
+            result.append("Modifications of " + failedModifications.size() + " entities failed:");
+            for (String error : failedModifications.values())
+            {
+                result.append("<br/>- " + error);
+            }
+            return result.toString();
+        }
+
+        private void clearModifications()
+        {
+            finishedModifications = 0;
+            failedModifications.clear();
+            modificationsByModel.clear();
+            hideModificationsBar();
             refresh();
-        } else
-        {
-            GWTUtils.displayInfo("All modifications successfully applied.");
-            refresh();
         }
-        clearModifications();
-    }
 
-    private String createFailedModificationsReport()
-    {
-        assert failedModifications.size() > 0;
-        StringBuilder result = new StringBuilder();
-        result.append("Modifications of " + failedModifications.size() + " entities failed:");
-        for (String error : failedModifications.values())
-        {
-            result.append("<br/>- " + error);
-        }
-        return result.toString();
-    }
-
-    /**
-     * Creates a callback object which invokes {@link #refresh()} after server-side editing action
-     * took place.
-     */
-    protected AsyncCallback<Void> createPostEditingRefreshCallback()
-    {
-        return createPostEditingCallback(new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    asActionInvoker().refresh();
-                }
-            });
-    }
-
-    /**
-     * Creates a callback object which invokes specified refresh action after server-side editing
-     * action took place.
-     */
-    protected AsyncCallback<Void> createPostEditingCallback(final IDelegatedAction refreshAction)
-    {
-        return new AbstractAsyncCallback<Void>(viewContext)
-            {
-                @Override
-                protected void process(Void result)
-                {
-                    refreshAction.execute();
-                }
-
-                @Override
-                public void finishOnFailure(Throwable caught)
-                {
-                    refreshAction.execute();
-                }
-            };
     }
 
 }

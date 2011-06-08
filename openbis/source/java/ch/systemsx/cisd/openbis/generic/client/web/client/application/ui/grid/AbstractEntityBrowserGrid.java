@@ -159,7 +159,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
             updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
         }
         viewContext.getService().updateProperties(updates,
-                createApplyModificationsCallback(model, modifications));
+                tableModificationsManager.createApplyModificationsCallback(model, modifications));
     }
 
     /**

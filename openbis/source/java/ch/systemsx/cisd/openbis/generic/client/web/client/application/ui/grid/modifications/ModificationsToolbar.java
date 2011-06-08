@@ -26,8 +26,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid.ITableModificationsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -40,17 +39,9 @@ public class ModificationsToolbar extends ToolBar
     private static final IGenericImageBundle IMAGE_BUNDLE = GWT
             .<IGenericImageBundle> create(IGenericImageBundle.class);
 
-    private final IMessageProvider messageProvider;
-
-    @SuppressWarnings("unused")
-    private final IViewContext<?> viewContext; // TODO remove if not used
-
-    public ModificationsToolbar(final IViewContext<?> viewContext,
-            final IBrowserGridActionInvoker browserActionInvoker)
+    public ModificationsToolbar(final IMessageProvider messageProvider,
+            final ITableModificationsManager manager)
     {
-        this.viewContext = viewContext;
-        this.messageProvider = viewContext;
-
         add(new Label(messageProvider.getMessage(Dict.TABLE_MODIFICATIONS)));
 
         final AbstractImagePrototype confirmIcon =
@@ -62,7 +53,7 @@ public class ModificationsToolbar extends ToolBar
                 @Override
                 public void componentSelected(ButtonEvent be)
                 {
-                    browserActionInvoker.saveModifications();
+                    manager.saveModifications();
                 }
             }));
         add(new Button("Cancel", cancelIcon, new SelectionListener<ButtonEvent>()
@@ -70,7 +61,7 @@ public class ModificationsToolbar extends ToolBar
                 @Override
                 public void componentSelected(ButtonEvent be)
                 {
-                    browserActionInvoker.cancelModifications();
+                    manager.cancelModifications();
                 }
             }));
     }
