@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -142,7 +144,7 @@ public final class DataSet implements Serializable
             this.parentCodes = (null == parentCodes) ? new ArrayList<String>() : parentCodes;
         }
 
-        public ArrayList<String> getParentCodes()
+        public List<String> getParentCodes()
         {
             return parentCodes;
         }
@@ -163,7 +165,7 @@ public final class DataSet implements Serializable
     // For handling connections to entities
     private final EnumSet<Connections> retrievedConnections;
 
-    private final ArrayList<String> parentCodes;
+    private final List<String> parentCodes;
 
     /**
      * Creates a new instance with the provided initializer
@@ -240,9 +242,9 @@ public final class DataSet implements Serializable
         return retrievedConnections;
     }
 
-    public ArrayList<String> getParentCodes()
+    public List<String> getParentCodes()
     {
-        return parentCodes;
+        return Collections.unmodifiableList(parentCodes);
     }
 
     @Override
