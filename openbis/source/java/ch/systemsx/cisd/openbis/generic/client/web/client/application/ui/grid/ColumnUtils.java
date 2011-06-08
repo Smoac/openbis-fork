@@ -16,28 +16,44 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * Utility methods for columns.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ColumnUtils
 {
     /**
-     * Creates a field for {@link CellEditor} based on specified data type.
+     * Creates a {@link CellEditor} based on specified data type.
      */
-    public static Field<? extends Object> createCellEditorField(DataTypeCode dataTypeOrNull)
+    public static CellEditor createCellEditor(DataTypeCode dataTypeOrNull)
     {
+        CellEditor editor;
         switch (dataTypeOrNull)
         {
-            case MULTILINE_VARCHAR: return new MultiLineCellEditorField();
-            default: return new DefaultCellEditorField();
+            case MULTILINE_VARCHAR:
+                editor = new CellEditor(new MultiLineCellEditorField())
+                    {
+                        // WORKAROUND to allow use enter key in table editing
+                        @Override
+                        protected void onSpecialKey(FieldEvent fe)
+                        {
+                            if (fe.getKeyCode() != KeyCodes.KEY_ENTER)
+                            {
+                                super.onSpecialKey(fe);
+                            }
+                        }
+                    };
+                return editor;
+            default:
+                editor = new CellEditor(new DefaultCellEditorField());
+                return editor;
         }
     }
-
 }

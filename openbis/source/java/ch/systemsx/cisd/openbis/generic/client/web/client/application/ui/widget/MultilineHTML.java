@@ -44,10 +44,9 @@ public final class MultilineHTML extends HTML
         super(preserveWhitespace(html));
     }
 
-    @Override
-    public void setHTML(String html)
+    public void setMultilineHTML(String html)
     {
-        super.setHTML(preserveWhitespace(html));
+        setHTML(preserveWhitespace(html));
     }
 
     private static final String BR = DOM.toString(DOM.createElement("br"));
@@ -64,7 +63,8 @@ public final class MultilineHTML extends HTML
         result = result.replaceAll("[\t]", "&nbsp;&nbsp;&nbsp; ");
         result = result.replaceAll("  ", "&nbsp; ");
         // result will not be wrapped in AbstractBrowserGrid so we wrap it up in div with tooltip
-        return wrapUpInDivWithTooltip(result, html);
+        // WORKAROUND HTML tooltips don't support <br/> :(
+        return wrapUpInDivWithTooltip(result, result.replaceAll(BR, "&nbsp;"));
     }
 
     public static String wrapUpInDivWithTooltip(String text, String tooltip)

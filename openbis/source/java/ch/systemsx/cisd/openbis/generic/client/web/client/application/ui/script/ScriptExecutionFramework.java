@@ -173,7 +173,7 @@ public class ScriptExecutionFramework
     private void reset()
     {
         panel.reset();
-        html.setHTML("");
+        html.setMultilineHTML("");
         evaluationResultPanel.setVisible(false);
     }
 
@@ -346,7 +346,7 @@ public class ScriptExecutionFramework
 
     private void updateEvaluationResultField(String result)
     {
-        html.setHTML(result == null ? "(null)" : result);
+        html.setMultilineHTML(result == null ? "(null)" : result);
     }
 
     private static void updateVisibleEntityLink(boolean visible, Field<?> entityLink)
