@@ -120,8 +120,14 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                                 TableModelRowWithObject<MaterialSimpleFeatureVectorSummary> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            String experimentPermId =
-                                    rowItem.getObjectOrNull().getExperiment().getPermId();
+                            MaterialSimpleFeatureVectorSummary summaryOrNull =
+                                    rowItem.getObjectOrNull();
+                            if (summaryOrNull == null)
+                            {
+                                return;
+                            }
+                            String experimentPermId = summaryOrNull.getExperiment().getPermId();
+
                             // NOTE: even in not-embedded mode we open specific standalone summary
                             // view instead of material detail view (which contains the summary view
                             // as one of its tabs). The reason is that in such a case we are already
@@ -136,15 +142,18 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                                 ISerializableComparable value)
                         {
                             ExperimentSearchCriteria experiment = getExperimentCriteria(entity);
-                            return ScreeningLinkExtractor.createMaterialDetailsLink(material,
-                                    experiment);
+                            String link =
+                                    ScreeningLinkExtractor.createMaterialDetailsLink(material,
+                                            experiment);
+                            return link;
                         }
                     });
     }
 
     private boolean getRestrictGlobalScopeLinkToProject()
     {
-        return experimentSearchCriteria.tryGetProjectIdentifier() != null;
+        return experimentSearchCriteria != null
+                && experimentSearchCriteria.tryGetProjectIdentifier() != null;
     }
 
     private ExperimentSearchCriteria getExperimentCriteria(
