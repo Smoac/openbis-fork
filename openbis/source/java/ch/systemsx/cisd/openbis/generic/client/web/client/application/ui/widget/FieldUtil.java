@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
@@ -112,6 +113,11 @@ public class FieldUtil
     }
 
     public static void setValueWithUnescaping(Field<String> field, String value)
+    {
+        field.setValue(StringEscapeUtils.unescapeHtml(value));
+    }
+
+    public static void setValueWithUnescaping(LabelField field, String value)
     {
         field.setValue(StringEscapeUtils.unescapeHtml(value));
     }

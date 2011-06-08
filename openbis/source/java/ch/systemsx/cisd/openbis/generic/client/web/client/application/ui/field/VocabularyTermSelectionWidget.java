@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -36,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField.CodeFieldKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -64,7 +64,7 @@ public class VocabularyTermSelectionWidget extends
 
         private final IViewContext<?> viewContext;
 
-        private final CodeField codeField;
+        private final LabelField codeField;
 
         private final DescriptionField descriptionField;
 
@@ -86,17 +86,16 @@ public class VocabularyTermSelectionWidget extends
             form.setFieldWidth(FIELD_WIDTH);
             this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
 
-            codeField =
-                    new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
-                            CodeFieldKind.CODE_WITH_COLON);
-            codeField.setMaxLength(GenericConstants.COLUMN_LABEL);
+            codeField = new LabelField();
+            codeField.setLabelSeparator(":");
+            codeField.setFieldLabel(viewContext.getMessage(Dict.CODE));
             codeField.setReadOnly(true);
-            // FIXME GWT hangs if this field is disabled, but we want disabled style
-            // codeField.disable();
+
             addField(codeField);
 
             boolean mandatory = false;
             labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
+            labelField.setEmptyText("enter label");
             FieldUtil.setValueWithUnescaping(labelField, refreshAction.code);
             FieldUtil.setValueWithUnescaping(codeField, labelField.getValue() == null ? ""
                     : CodeNormalizer.normalize(labelField.getValue()));
@@ -125,12 +124,14 @@ public class VocabularyTermSelectionWidget extends
 
             termSelectionWidget = createTermSelectionWidget();
             addField(termSelectionWidget);
+
+            setFocusWidget(labelField);
         }
 
         @Override
         protected void register(AsyncCallback<Void> registrationCallback)
         {
-            refreshAction.code = codeField.getValue();
+            refreshAction.code = (String) codeField.getValue();
             viewContext.getCommonService().addUnofficialVocabularyTerm(
                     TechId.create(vocabularyOrNull), refreshAction.code,
                     labelField.getValue().trim(), descriptionField.getValue(),
