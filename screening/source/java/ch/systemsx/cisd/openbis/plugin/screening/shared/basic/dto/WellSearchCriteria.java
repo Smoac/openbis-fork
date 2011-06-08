@@ -282,7 +282,7 @@ public class WellSearchCriteria implements ISerializable
         {
             if (isAllExperiments())
             {
-                return super.toString();
+                return "all experiments";
             } else
             {
                 return projectIdOrNull.toString();
