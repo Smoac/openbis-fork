@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -70,9 +70,9 @@ class ShareFactory
         {
             Properties props = new Properties();
             try {
-                FileReader reader = new FileReader(propsFile);
-                props.load(reader);
-                reader.close();
+                FileInputStream fis = new FileInputStream(propsFile);
+                props.load(fis);
+                fis.close();
             } catch (IOException ioex) {
                 log.log(LogLevel.WARN, "Error while reading from " + propsFile.getAbsolutePath()
                         + " : " + ioex.getMessage());
