@@ -230,9 +230,16 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         breadcrumbContainer.removeAll();
         List<Widget> widgets = new ArrayList<Widget>();
         fillBreadcrumbWidgets(widgets);
-        for (Widget widget : widgets)
+        if (widgets.size() == 1)
         {
-            breadcrumbContainer.addBreadcrumb(widget);
+            // add raw widget without separator if there is just one widget
+            breadcrumbContainer.addWidget(widgets.get(0));
+        } else
+        {
+            for (Widget widget : widgets)
+            {
+                breadcrumbContainer.addBreadcrumb(widget);
+            }
         }
         breadcrumbContainer.layout();
         titleLabel.removeStyleName("xtb-text"); // WORKAROUND for consistent style of text
@@ -383,9 +390,16 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             return tableRowLayout;
         }
 
+        /** adds the <var>widget</var> with a separator prefix to breadcrumbs */
         public void addBreadcrumb(Widget widget)
         {
             add(new Html(SEPARATOR));
+            addWidget(widget);
+        }
+
+        /** adds the <var>widget</var> to breadcrumbs (without separator prefix) */
+        public void addWidget(Widget widget)
+        {
             add(widget);
         }
 
