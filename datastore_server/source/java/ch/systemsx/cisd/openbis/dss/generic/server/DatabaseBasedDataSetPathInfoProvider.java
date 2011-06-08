@@ -84,8 +84,9 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetFileRecord> listDataSetFilesByRelativePathLikeExpression(long dataSetId,
                 String relativePathLikeExpression);
 
+        // FIXME we should have 2 methods, one with regexp one with like
         @Select(SELECT_DATA_SET_FILES
-                + "WHERE dase_id = ?{1} AND relative_path like '?{2}' AND file_name ~ ?{3}")
+                + "WHERE dase_id = ?{1} AND relative_path = '?{2}' AND file_name ~ ?{3}")
         public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(long dataSetId,
                 String startingPath, String filenameRegex);
     }
@@ -115,7 +116,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                 public List<DataSetFileRecord> listDataSetFiles(long dataSetId)
                 {
                     String likeExpressionOrNull =
-                            DBUtils.tryToTranslateRegExpToLikeForm("^" + regularExpression + "$");
+                            DBUtils.tryToTranslateRegExpToLikePattern("^" + regularExpression + "$");
 
                     if (likeExpressionOrNull == null)
                     {
@@ -196,7 +197,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetPathInfo> listMatchingPathInfos(String relativePathPattern)
         {
             String likeExpressionOrNull =
-                    DBUtils.tryToTranslateRegExpToLikeForm(prepareDBStyleRegex(relativePathPattern));
+                    DBUtils.tryToTranslateRegExpToLikePattern(prepareDBStyleRegex(relativePathPattern));
             List<DataSetFileRecord> records;
             if (likeExpressionOrNull == null)
             {
@@ -206,7 +207,8 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             } else
             {
                 records =
-                        dao.listDataSetFilesByRelativePathLikeExpression(dataSetId, likeExpressionOrNull);
+                        dao.listDataSetFilesByRelativePathLikeExpression(dataSetId,
+                                likeExpressionOrNull);
             }
             return asPathInfos(records);
         }

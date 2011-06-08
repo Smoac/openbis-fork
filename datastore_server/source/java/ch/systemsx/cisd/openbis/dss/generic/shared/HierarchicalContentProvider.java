@@ -107,7 +107,6 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         }
     }
 
-
     private IHierarchicalContent tryCreateComponentContent(ExternalData component)
     {
         try
@@ -129,7 +128,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public IHierarchicalContent asContent(final IDatasetLocation datasetLocation)
     {
-        // NOTE: remember to call IHierarchicalContent.close() to unlock the dataset when finished
+        // NOTE: remember to call IHierarchicalContent.close() to unlock the data set when finished
         // working with the IHierarchivalContent
         directoryProvider.getShareIdManager().lock(datasetLocation.getDataSetCode());
         File dataSetDirectory = directoryProvider.getDataSetDirectory(datasetLocation);

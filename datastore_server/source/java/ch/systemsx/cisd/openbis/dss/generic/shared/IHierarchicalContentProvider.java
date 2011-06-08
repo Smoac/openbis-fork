@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  * A provider of {@link IHierarchicalContent} for given data set.
  * <p>
  * <b>NOTE</b>{@link IHierarchicalContent#close()} needs to be called to release resources when
- * working with the content is done. Otherwise data set may e.g. remain locked in its share until
+ * working with the content is done. Otherwise data set will remain locked in its share until
  * timeout occurs.
  * 
  * @author Piotr Buczek
@@ -36,7 +36,7 @@ public interface IHierarchicalContentProvider
 {
 
     /**
-     * This is method needs to access openBIS DB to retrieve information first.
+     * This method needs to access openBIS DB to retrieve information first.
      * 
      * @return {@link IHierarchicalContent} for the specified data set
      * @throws IllegalArgumentException if data set doesn't exist in openBIS DB
@@ -55,7 +55,7 @@ public interface IHierarchicalContentProvider
 
     /**
      * @return {@link IHierarchicalContent} for the specified data set
-     * @deprecated doesn't support abstraction for virtual data sets, use {@link #asContent(String)}
+     * @deprecated doesn't support container data sets, use {@link #asContent(String)}
      */
     @Deprecated
     IHierarchicalContent asContent(IDatasetLocation datasetLocation);
@@ -65,7 +65,7 @@ public interface IHierarchicalContentProvider
      * 
      * @param datasetDirectory the directory file of the data set
      * @return {@link IHierarchicalContent} for the specified data set
-     * @deprecated doesn't support abstraction for virtual data sets, use {@link #asContent(String)}
+     * @deprecated doesn't support container data sets, use {@link #asContent(String)}
      */
     @Deprecated
     IHierarchicalContent asContent(File datasetDirectory);

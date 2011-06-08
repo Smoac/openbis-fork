@@ -40,15 +40,15 @@ public final class DBUtils
     }
 
     /**
-     * Translates given regular expression to database-like form if possible. Returns
+     * Translates given regular expression to database-like pattern if possible. Returns
      * <code>null</code> if translation is not possible.
      * 
-     * @return regular expression in database-like form, or <code>null</code> if translation is not
-     *         possible.
+     * @return regular expression in database-like pattern, or <code>null</code> if translation is
+     *         not possible.
      */
-    public static String tryToTranslateRegExpToLikeForm(String patternOrNull)
+    public static String tryToTranslateRegExpToLikePattern(String regexpOrNull)
     {
-        if (StringUtils.isBlank(patternOrNull))
+        if (StringUtils.isBlank(regexpOrNull))
         {
             return null;
         }
@@ -56,7 +56,7 @@ public final class DBUtils
         StringBuilder result = new StringBuilder();
 
         int startPosition = 0;
-        if (patternOrNull.startsWith("^"))
+        if (regexpOrNull.startsWith("^"))
         {
             startPosition++;
         } else
@@ -64,9 +64,9 @@ public final class DBUtils
             result.append('%');
         }
 
-        while (startPosition < patternOrNull.length())
+        while (startPosition < regexpOrNull.length())
         {
-            char ch = patternOrNull.charAt(startPosition);
+            char ch = regexpOrNull.charAt(startPosition);
             if (Character.isLetter(ch) || Character.isDigit(ch) || Character.isWhitespace(ch))
             { // just copy letters, digits and whitespaces
                 result.append(ch);
@@ -98,13 +98,13 @@ public final class DBUtils
                         break;
                     case '.': // translates . to _, .* to % and .+ to _%
                         startPosition++;
-                        if (startPosition < patternOrNull.length()
-                                && patternOrNull.charAt(startPosition) == '*')
+                        if (startPosition < regexpOrNull.length()
+                                && regexpOrNull.charAt(startPosition) == '*')
                         {
                             result.append('%');
                             startPosition++;
-                        } else if (startPosition < patternOrNull.length()
-                                && patternOrNull.charAt(startPosition) == '+')
+                        } else if (startPosition < regexpOrNull.length()
+                                && regexpOrNull.charAt(startPosition) == '+')
                         {
                             result.append('_').append('%');
                             startPosition++;
@@ -115,16 +115,16 @@ public final class DBUtils
                         break;
                     case '$': // end of string
                         startPosition++;
-                        if (startPosition < patternOrNull.length())
+                        if (startPosition < regexpOrNull.length())
                         {
                             result.append(ch);
                         }
                         break;
                     case '\\': // unescape characters
                         startPosition++;
-                        if (startPosition < patternOrNull.length())
+                        if (startPosition < regexpOrNull.length())
                         {
-                            char escaped = patternOrNull.charAt(startPosition);
+                            char escaped = regexpOrNull.charAt(startPosition);
                             switch (escaped)
                             {
                                 case '\\':
@@ -179,7 +179,7 @@ public final class DBUtils
         }
 
         // check if we should match end of patters in exact way
-        if (false == patternOrNull.endsWith("$"))
+        if (false == regexpOrNull.endsWith("$"))
         {
             result.append('%');
         }

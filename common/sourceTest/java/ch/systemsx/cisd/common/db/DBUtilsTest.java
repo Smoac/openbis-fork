@@ -27,20 +27,20 @@ public class DBUtilsTest
     @Test
     public void testTryToTranslateRegExpToLikeForm()
     {
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^test$"), "test");
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("ala ma kota"), "%ala ma kota%");
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^ala/.*/kota$"), "ala/%/kota");
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^ala.ma\\.kota$"),
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^test$"), "test");
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("ala ma kota"), "%ala ma kota%");
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^ala/.*/kota$"), "ala/%/kota");
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^ala.ma\\.kota$"),
                 "ala_ma.kota");
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^ala.+ma\\+kota$"),
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^ala.+ma\\+kota$"),
                 "ala_%ma+kota");
 
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^ala%ma_ko\\\\ta$"),
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^ala%ma_ko\\\\ta$"),
                 "ala\\%ma\\_ko\\\\ta");
-        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikeForm("^$"), "");
+        Assert.assertEquals(DBUtils.tryToTranslateRegExpToLikePattern("^$"), "");
 
-        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikeForm(null));
-        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikeForm("ala(ma|kota)"));
-        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikeForm("a*la"));
+        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikePattern(null));
+        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikePattern("ala(ma|kota)"));
+        Assert.assertNull(DBUtils.tryToTranslateRegExpToLikePattern("a*la"));
     }
 }
