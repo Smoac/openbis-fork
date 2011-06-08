@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.addAny;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
@@ -29,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GridUtils
@@ -44,9 +43,9 @@ public class GridUtils
         relevantModifications.addAll(GridUtils.getGridRelevantModifications(entityKind, true));
         return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
     }
-    
+
     public final static Set<DatabaseModificationKind> getGridRelevantModifications(
-            ObjectKind entity, boolean withProject)
+            ObjectKind entity, boolean withProjectAndSpace)
     {
         Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
         result.add(createOrDelete(entity));
@@ -54,9 +53,10 @@ public class GridUtils
         result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         result.add(edit(ObjectKind.VOCABULARY_TERM));
-        if (withProject)
+        if (withProjectAndSpace)
         {
-            result.add(edit((ObjectKind.PROJECT)));
+            addAny(result, ObjectKind.PROJECT);
+            addAny(result, ObjectKind.SPACE);
         }
         return result;
     }
