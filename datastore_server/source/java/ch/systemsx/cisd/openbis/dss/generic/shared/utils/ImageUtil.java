@@ -202,7 +202,14 @@ public class ImageUtil
                             imageLibraryReaderNameOrNull);
             if (reader != null)
             {
-                return reader.readImage(content.getReadOnlyRandomAccessFile(), imageID, params);
+                IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
+                try
+                {
+                    return reader.readImage(handle, imageID, params);
+                } finally
+                {
+                    closeQuietly(handle);
+                }
             }
         }
         return loadImageGuessingLibrary(content, imageID);
