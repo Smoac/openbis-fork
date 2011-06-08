@@ -375,6 +375,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         assert dataset != null : "Unspecified data set.";
 
         dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
+        if (false == dataset.isPlaceholder())
+        {
+            validatePE(dataset);
+        }
+
         final HibernateTemplate template = getHibernateTemplate();
         if (operationLog.isInfoEnabled())
         {
