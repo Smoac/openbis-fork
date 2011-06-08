@@ -242,6 +242,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             }
         }
         breadcrumbContainer.layout();
+        syncSize(); // fixes layout problems in simple view mode
+
         titleLabel.removeStyleName("xtb-text"); // WORKAROUND for consistent style of text
     }
 
