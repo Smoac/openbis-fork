@@ -2566,7 +2566,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Sample sample = getSampleInfo(sessionToken, entityId).getParent();
         try
         {
-            EntityHelper.updateSampleProperties(this, sessionToken, entityId, properties);
+            EntityHelper.updateSampleProperties(this, sessionToken, sample, properties);
         } catch (UserFailureException e)
         {
             throw wrapExceptionWithEntityIdentifier(e, sample);

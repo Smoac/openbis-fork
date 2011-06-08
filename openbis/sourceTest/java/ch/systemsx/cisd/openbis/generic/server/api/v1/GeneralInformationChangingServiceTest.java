@@ -40,12 +40,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.VocabularyTerm
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-//PLEASE, if you add here a new test add also a system test to
-//ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationChangingServiceTest
+// PLEASE, if you add here a new test add also a system test to
+// ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationChangingServiceTest
 public class GeneralInformationChangingServiceTest extends AbstractServerTestCase
 {
     private static final long SAMPLE_ID = 137;
@@ -69,13 +67,15 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
     public void testUpdateSampleProperties()
     {
         prepareGetSession();
-        final RecordingMatcher<SampleUpdatesDTO> updateMatcher = new RecordingMatcher<SampleUpdatesDTO>();
+        final RecordingMatcher<SampleUpdatesDTO> updateMatcher =
+                new RecordingMatcher<SampleUpdatesDTO>();
         context.checking(new Expectations()
             {
                 {
                     one(commonServer).getSampleInfo(SESSION_TOKEN, new TechId(SAMPLE_ID));
                     SampleBuilder sample =
                             new SampleBuilder("/P/S1:A03")
+                                    .id(SAMPLE_ID)
                                     .experiment(
                                             new ExperimentBuilder().identifier("/S/P/E")
                                                     .getExperiment())
@@ -89,7 +89,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
                     SampleParentWithDerived sampleParentWithDerived = new SampleParentWithDerived();
                     sampleParentWithDerived.setParent(sample.getSample());
                     will(returnValue(sampleParentWithDerived));
-                    
+
                     one(commonServer).updateSample(with(SESSION_TOKEN), with(updateMatcher));
                 }
             });
@@ -97,7 +97,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
         properties.put("age", "76");
         properties.put("greetings", "hello");
         properties.put("material", "B (Fluid)");
-        
+
         service.updateSampleProperties(SESSION_TOKEN, SAMPLE_ID, properties);
 
         SampleUpdatesDTO updatesDTO = updateMatcher.recordedObject();
