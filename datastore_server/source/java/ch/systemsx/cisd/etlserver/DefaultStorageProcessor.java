@@ -17,12 +17,18 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
@@ -43,6 +49,9 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     static final String UNZIP_CRITERIA_KEY = "unzip";
 
     static final String DELETE_UNZIPPED_KEY = "delete_unzipped";
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DefaultStorageProcessor.class);
 
     private final boolean unzip;
 
@@ -105,11 +114,19 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             File targetFile =
                     new File(getOriginalDirectory(storedDataDirectory),
                             incomingDataSetDirectory.getName());
-            // Note that this will move back <code>targetFilePath</code> to its original place but
-            // the
-            // directory structure will persist. Right now, we consider this is fine as these empty
-            // directories will not disturb the running application.
             FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
+
+            try
+            {
+                FileUtils.deleteDirectory(storedDataDirectory);
+            } catch (IOException ex1)
+            {
+                String message = String.format("Failed to remove stored directory '%s'. " +
+                		"In the future the creation of a data set with the same code will fail. " +
+                		"To fix the problem remove the directory manually.");
+                operationLog.warn(message);
+
+            }
             return getDefaultUnstoreDataAction(ex);
         }
 
