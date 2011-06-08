@@ -58,7 +58,15 @@ var common = {
   data_report_label: "Report:",
   explore_label: "Explore:",
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc term",
-	  
+	
+  //
+  // Table Modifications
+  //
+  
+  table_modifications: "Table Modifications:",
+  table_modifications_info_title: "Table Modification Mode On",
+  table_modifications_info_text: "Use <i>Table Modifications</i> toolbar below the table to <b>save</b> or <b>cancel</b> the changes made in table cells.",
+          
   //
   // Field
   //
