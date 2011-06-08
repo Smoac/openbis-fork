@@ -406,6 +406,12 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // have at least one child so cycles need to be checked when they are updated.
             validateRelationshipGraph(data.getParents());
 
+            if (data.isContainer())
+            {
+                Collection<String> componentCodes = Code.extractCodes(data.getContainedDataSets());
+                validateContainerRelationshipGraph(componentCodes);
+            }
+
             data.setPlaceholder(false);
             data.setId(HibernateUtils.getId(placeholder));
             data.setRegistrationDate(new Date());
@@ -582,7 +588,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private void validateContainerRelationshipGraph(Collection<String> componentCodes)
     {
-        if (componentCodes.contains(data.getCode()))
+        if (componentCodes.isEmpty())
+        {
+            return;
+        } else if (componentCodes.contains(data.getCode()))
         {
             throw new UserFailureException("Data set '" + data.getCode()
                             + "' cannot contain itself as a component neither directly nor via subordinate components.");
