@@ -157,7 +157,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     private void updateOriginalProject(Project result)
     {
         this.originalProject = result;
-        updateTitle(getOriginalDataDescription());
+        updateBreadcrumbs();
         setToolBarButtonsEnabled(true);
     }
 

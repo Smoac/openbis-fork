@@ -224,7 +224,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         widgets.add(titleLabel);
     }
 
-    private void updateBreadcrumbs()
+    protected void updateBreadcrumbs()
     {
         updateTitle(getOriginalDataDescription());
         breadcrumbContainer.removeAll();
