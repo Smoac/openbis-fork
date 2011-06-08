@@ -690,9 +690,50 @@ public class DataBOTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Data set 'DS1' can not be its own component.", e.getMessage());
+            assertEquals("Data set 'DS1' cannot contain itself as a "
+                    + "component neither directly nor via subordinate components.", e.getMessage());
         }
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateWithContainerRecursivelyContainingItself()
+    {
+        final ExperimentPE experiment =
+                createExperiment(EXPERIMENT_IDENTIFIER.getExperimentCode(), "spaceCode");
+
+        final DataPE container1 = createDataSet("container-1", null, experiment);
+        container1.getDataSetType().setContainerType(true);
+        final DataPE container2 = createDataSet("container-2", null, experiment);
+        container2.getDataSetType().setContainerType(true);
+        container2.addComponent(container1);
+
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(container1, null, EXPERIMENT_IDENTIFIER);
+        String[] componentCodes =
+            { container2.getCode() };
+        dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
+
+        prepareForUpdate(container1, experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(container2.getCode());
+                    will(returnValue(container2));
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+        try
+        {
+            dataBO.update(dataSetUpdatesDTO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            assertEquals("Data set 'container-1' cannot contain itself as a component"
+                    + " neither directly nor via subordinate components.", e.getMessage());
+        }
         context.assertIsSatisfied();
     }
 

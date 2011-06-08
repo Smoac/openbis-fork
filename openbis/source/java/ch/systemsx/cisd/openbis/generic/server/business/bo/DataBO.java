@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -572,17 +573,31 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             // quick check for direct cycle
             final Set<String> brandNewCodes = new HashSet<String>(newCodes);
             brandNewCodes.removeAll(currentCodes);
-            if (brandNewCodes.contains(data.getCode()))
-            {
-                throw new UserFailureException("Data set '" + data.getCode()
-                        + "' can not be its own component.");
-            }
-            // TODO 2011-05-16, Piotr Buczek: validation of container relationship graph
-            // validateContainerRelationshipGraph(componentsToAdd);
 
+            validateContainerRelationshipGraph(brandNewCodes);
             final List<DataPE> newComponents = findDataSetsByCodes(newCodes);
             addComponents(newComponents);
         }
+    }
+
+    private void validateContainerRelationshipGraph(Collection<String> componentCodes)
+    {
+        if (componentCodes.contains(data.getCode()))
+        {
+            throw new UserFailureException("Data set '" + data.getCode()
+                            + "' cannot contain itself as a component neither directly nor via subordinate components.");
+        }
+
+        final List<DataPE> components = findDataSetsByCodes(componentCodes);
+        for (DataPE componentDataSet : components)
+        {
+            if (componentDataSet.isContainer())
+            {
+                List<DataPE> containedDataSets = componentDataSet.getContainedDataSets();
+                validateContainerRelationshipGraph(Code.extractCodes(containedDataSets));
+            }
+        }
+
     }
 
     /**
@@ -685,7 +700,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
     }
 
-    private List<DataPE> findDataSetsByCodes(Set<String> codes)
+    private List<DataPE> findDataSetsByCodes(Collection<String> codes)
     {
         final IDataDAO dao = getDataDAO();
         final List<DataPE> dataSets = new ArrayList<DataPE>();
