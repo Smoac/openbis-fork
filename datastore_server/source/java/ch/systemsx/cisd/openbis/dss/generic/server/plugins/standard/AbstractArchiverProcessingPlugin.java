@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.SimpleShareFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.StandardShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -560,8 +560,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         String className = props.getProperty("class");
         if (StringUtils.isEmpty(className))
         {
-            // use simple share finder by default when no share finder is configured
-            className = SimpleShareFinder.class.getName();
+            className = StandardShareFinder.class.getName();
         }
 
         IShareFinder shareFinder = ClassUtils.create(IShareFinder.class, className, props);
