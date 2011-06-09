@@ -113,7 +113,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             toolBar = new ToolBar();
             setTopComponent(toolBar);
             titleLabel = new LabelToolItem(title);
-            toolBar.add(breadcrumbContainer = new BreadcrumbContainer());
+            toolBar.add(breadcrumbContainer = new BreadcrumbContainer(viewContext));
             toolBar.add(new FillToolItem());
             if (viewContext.isSimpleOrEmbeddedMode() == false)
             {
@@ -230,16 +230,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         breadcrumbContainer.removeAll();
         List<Widget> widgets = new ArrayList<Widget>();
         fillBreadcrumbWidgets(widgets);
-        if (widgets.size() == 1)
+        for (Widget widget : widgets)
         {
-            // add raw widget without separator if there is just one widget
-            breadcrumbContainer.addWidget(widgets.get(0));
-        } else
-        {
-            for (Widget widget : widgets)
-            {
-                breadcrumbContainer.addBreadcrumb(widget);
-            }
+            breadcrumbContainer.addBreadcrumb(widget);
         }
         breadcrumbContainer.layout();
         syncSize(); // fixes layout problems in simple view mode
@@ -376,10 +369,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     private static class BreadcrumbContainer extends LayoutContainer
     {
-        private final static String SEPARATOR = "/";
+        private final String separator;
 
-        public BreadcrumbContainer()
+        public BreadcrumbContainer(IMessageProvider messageProvider)
         {
+            this.separator = messageProvider.getMessage(Dict.BREADCRUMBS_SEPARATOR);
             setLayout(createLayout());
         }
 
@@ -392,16 +386,16 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             return tableRowLayout;
         }
 
-        /** adds the <var>widget</var> with a separator prefix to breadcrumbs */
+        /**
+         * Adds the <var>widget</var> to breadcrumbs. For every widget but the first one a separator
+         * will be added before the widget.
+         */
         public void addBreadcrumb(Widget widget)
         {
-            add(new Html(SEPARATOR));
-            addWidget(widget);
-        }
-
-        /** adds the <var>widget</var> to breadcrumbs (without separator prefix) */
-        public void addWidget(Widget widget)
-        {
+            if (getItemCount() > 0)
+            {
+                add(new Html(separator));
+            }
             add(widget);
         }
 

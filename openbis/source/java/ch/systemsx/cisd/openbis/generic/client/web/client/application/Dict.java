@@ -78,6 +78,8 @@ public abstract class Dict
 
     public static final String ENTITY_OPERATIONS = "entity_operations";
 
+    public static final String BREADCRUMBS_SEPARATOR = "breadcrumbs_separator";
+
     //
     // Table Modifications
     //
