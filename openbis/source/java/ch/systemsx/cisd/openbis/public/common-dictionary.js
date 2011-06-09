@@ -57,7 +57,7 @@ var common = {
   auto_resolve_label: "Smart View",
   data_report_label: "Report:",
   explore_label: "Explore:",
-  add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc term",
+  add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
 	
   //
   // Table Modifications
