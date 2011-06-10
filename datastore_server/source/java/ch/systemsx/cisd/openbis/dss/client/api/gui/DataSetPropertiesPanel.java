@@ -34,6 +34,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
@@ -60,6 +62,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  */
 public class DataSetPropertiesPanel extends JPanel
 {
+
+    public static interface Observer
+    {
+        public void update();
+    }
+
     private static final long serialVersionUID = 1L;
 
     private final DataSetType dataSetType;
@@ -69,6 +77,8 @@ public class DataSetPropertiesPanel extends JPanel
     private final HashMap<String, JComponent> formFields = new HashMap<String, JComponent>();
 
     private final HashMap<String, JLabel> labels = new HashMap<String, JLabel>();
+
+    private final LinkedList<Observer> observers = new LinkedList<Observer>();
 
     private NewDataSetInfo newDataSetInfo;
 
@@ -155,26 +165,39 @@ public class DataSetPropertiesPanel extends JPanel
     private JTextField createTextField(final PropertyType propertyType)
     {
         final JTextField textField = new JTextField();
-        textField.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setPropertyValue(propertyType, textField.getText());
-                }
 
-            });
-        textField.addFocusListener(new FocusListener()
+        class FieldListener implements ActionListener, FocusListener
+        {
+            public void focusGained(FocusEvent e)
             {
-                public void focusLost(FocusEvent e)
-                {
-                    setPropertyValue(propertyType, textField.getText());
-                }
+            }
 
-                public void focusGained(FocusEvent e)
+            public void focusLost(FocusEvent e)
+            {
+                handleEvent();
+            }
+
+            public void actionPerformed(ActionEvent e)
+            {
+                handleEvent();
+            }
+
+            private void handleEvent()
+            {
+                String newValue = StringUtils.toStringEmptyIfNull(textField.getText());
+                String oldValue =
+                        StringUtils.toStringEmptyIfNull(setPropertyValue(propertyType, newValue));
+
+                if (false == newValue.equals(oldValue))
                 {
-                    // Do nothing
+                    notifyObservers();
                 }
-            });
+            }
+        }
+
+        FieldListener listener = new FieldListener();
+        textField.addActionListener(listener);
+        textField.addFocusListener(listener);
         return textField;
     }
 
@@ -191,6 +214,7 @@ public class DataSetPropertiesPanel extends JPanel
                 public void itemStateChanged(ItemEvent e)
                 {
                     setPropertyValue(propertyType, ((VocabularyTerm) e.getItem()).getCode());
+                    notifyObservers();
                 }
             });
 
@@ -208,6 +232,7 @@ public class DataSetPropertiesPanel extends JPanel
                     setPropertyValue(propertyType,
                             checkBox.isSelected() ? PropertyUtils.Boolean.TRUE.toString()
                                     : PropertyUtils.Boolean.FALSE.toString());
+                    notifyObservers();
                 }
 
             });
@@ -242,29 +267,32 @@ public class DataSetPropertiesPanel extends JPanel
         add(field, c);
     }
 
-    private void setPropertyValue(PropertyType propertyType, String text)
+    private String setPropertyValue(PropertyType propertyType, String text)
     {
         if (null == newDataSetInfo)
         {
-            return;
+            return null;
         }
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
         NewDataSetMetadataDTO metadata = builder.getDataSetMetadata();
         Map<String, String> props = metadata.getProperties();
         HashMap<String, String> newProps = new HashMap<String, String>(props);
+        String oldValue;
         if (null == text || text.trim().length() < 1)
         {
-            newProps.remove(propertyType.getCode());
+            oldValue = newProps.remove(propertyType.getCode());
         } else
         {
-            newProps.put(propertyType.getCode(), text);
+            oldValue = newProps.put(propertyType.getCode(), text);
         }
         metadata.setProperties(newProps);
 
         clientModel.validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
         syncErrors();
         clientModel.notifyObserversOfChanges(newDataSetInfo);
+
+        return oldValue;
     }
 
     private void syncGui()
@@ -345,4 +373,16 @@ public class DataSetPropertiesPanel extends JPanel
         component.setToolTipText(label.getToolTipText());
     }
 
+    public void registerObserver(Observer observer)
+    {
+        observers.add(observer);
+    }
+
+    private void notifyObservers()
+    {
+        for (Observer observer : observers)
+        {
+            observer.update();
+        }
+    }
 }

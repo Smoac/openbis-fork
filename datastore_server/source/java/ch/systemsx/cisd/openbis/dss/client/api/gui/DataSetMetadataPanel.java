@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetPropertiesPanel.Observer;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
@@ -61,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSetMetadataPanel extends JPanel
+public class DataSetMetadataPanel extends JPanel implements Observer
 {
     private class AsynchronousValidator implements Runnable
     {
@@ -361,6 +362,7 @@ public class DataSetMetadataPanel extends JPanel
                     setDataSetType((String) e.getItem());
                     CardLayout cardLayout = (CardLayout) dataSetTypePanel.getLayout();
                     cardLayout.show(dataSetTypePanel, (String) e.getItem());
+                    validationQueue.add(Boolean.TRUE);
                 }
             });
         addRow(3, label, dataSetTypeComboBox);
@@ -414,10 +416,12 @@ public class DataSetMetadataPanel extends JPanel
 
     private void createDataSetTypePanel()
     {
+
         dataSetTypePanel.setLayout(new CardLayout());
         for (DataSetType dataSetType : getDataSetTypes())
         {
             DataSetPropertiesPanel typeView = new DataSetPropertiesPanel(dataSetType, clientModel);
+            typeView.registerObserver(this);
             dataSetTypePanel.add(typeView, dataSetType.getCode());
             propertiesPanels.put(dataSetType.getCode(), typeView);
         }
@@ -599,6 +603,11 @@ public class DataSetMetadataPanel extends JPanel
     {
         UiUtilities.clearError(label, component, errorAreaOrNull);
         component.setToolTipText(label.getToolTipText());
+    }
+
+    public void update()
+    {
+        validationQueue.add(Boolean.TRUE);
     }
 
 }

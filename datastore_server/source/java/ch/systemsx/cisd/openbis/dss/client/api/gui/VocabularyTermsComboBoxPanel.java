@@ -126,6 +126,7 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
         this.clientModel = clientModel;
         this.button = new JButton("+");
         button.setMargin(new Insets(button.getMargin().top, 2, button.getMargin().bottom, 2));
+        button.setFocusable(false);
         this.add(button, BorderLayout.EAST);
 
         this.comboBox = new JComboBox();
