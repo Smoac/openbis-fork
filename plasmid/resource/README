@@ -6,7 +6,7 @@ h1. How to test on productive server (temporary)
 -- create/delete samples attached to EXPERIMENT_TEST (don't delete sample SAMPLE_TEST)
 -- register/delete datasets attached to test samples 
 2. Login to bs-plasmids.ethz.ch as openbis 
-3. There is a link 'dss-data' to a shared directory with e.g. a dropbox ('incoming') and an example
+3. There is a link 'dss-data' to a shared directory with a dropbox ('incoming') and an example
 of a directory with files that can be registered as datasets for sample SAMPLE_TEST.
 - to register datasets for the SAMPLE_TEST sample copy ~/dss-data/SAMPLE_TEST to ~/dss-data/incoming 
 
@@ -28,7 +28,7 @@ PlasMapper/WEB-INF/classes/ca/ualberta/xdong/plasMapper/annotate/plasMapConfigur
 - targets/playground/data/incoming
 - targets/playground/data/incoming-cifex
 - targets/playground/data/store
-3.2 change in /etc/service.properties values of properties needed for PlasMapper integration
+3.2 change values of properties in /etc/service.properties needed for PlasMapper integration
 main-thread.storage-processor.plasmapper-root-dir
 main-thread.storage-processor.plasmapper-base-url
 
