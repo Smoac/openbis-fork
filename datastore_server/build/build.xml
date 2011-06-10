@@ -413,6 +413,10 @@
 			<param name="jar" value="poi-ooxml-schemas-3.7-20101029.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/log4j" />
+			<param name="jar" value="log4j.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/poi/ooxml-lib" />
 			<param name="jar" value="dom4j-1.6.1.jar" />
 		</antcall>
