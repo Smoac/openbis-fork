@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business;
+package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -41,20 +40,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFi
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
- * Manages detailed search with complex search criteria.
+ * Manages detailed search with complex sample search criteria.
  * 
  * @author Piotr Buczek
  */
-public class DetailedSearchManager
+public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
 {
-    private final IHibernateSearchDAO searchDAO;
-
-    private final ISampleLister sampleLister;
-
-    public DetailedSearchManager(IHibernateSearchDAO searchDAO, ISampleLister sampleLister)
+    public SampleSearchManager(IHibernateSearchDAO searchDAO, ISampleLister sampleLister)
     {
-        this.searchDAO = searchDAO;
-        this.sampleLister = sampleLister;
+        super(searchDAO, sampleLister);
     }
 
     public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
@@ -84,7 +78,7 @@ public class DetailedSearchManager
                 listChildrensParentsAndFilterChildren(mainSampleIds, parentSampleIds,
                         filteredSampleIds);
             }
-        } else if (false == childCriteria.isEmpty())
+        } else if (false == childCriteria.isEmpty()) // FIXME this should be if
         {
             final List<Long> childSampleIds =
                     findSampleIds(childCriteria,
@@ -102,14 +96,14 @@ public class DetailedSearchManager
         {
             filteredSampleIds.addAll(mainSampleIds);
         }
-        return sampleLister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
+        return lister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
     }
 
     private void listChildrensParentsAndFilterChildren(final List<Long> allChildrenIds,
             final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
     {
         Map<Long, Set<Long>> childToParentIds =
-                sampleLister.getChildToParentsIdsMap(allChildrenIds);
+                lister.getChildToParentsIdsMap(allChildrenIds);
         for (Entry<Long, Set<Long>> entry : childToParentIds.entrySet())
         {
             Long childId = entry.getKey();
@@ -126,7 +120,7 @@ public class DetailedSearchManager
             final List<Long> allParentIds, final Set<Long> filteredParentIds)
     {
         Map<Long, Set<Long>> parentToChildIds =
-                sampleLister.getParentToChildrenIdsMap(allParentIds);
+                lister.getParentToChildrenIdsMap(allParentIds);
         for (Entry<Long, Set<Long>> entry : parentToChildIds.entrySet())
         {
             Long parentId = entry.getKey();
@@ -143,7 +137,7 @@ public class DetailedSearchManager
             final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
     {
         Map<Long, Set<Long>> parentToChildIds =
-                sampleLister.getParentToChildrenIdsMap(allParentIds);
+                lister.getParentToChildrenIdsMap(allParentIds);
         for (Set<Long> childrenIds : parentToChildIds.values())
         {
             filteredChildrenIds.addAll(childrenIds);
@@ -155,7 +149,7 @@ public class DetailedSearchManager
             final List<Long> allParentIds, final Set<Long> filteredParentsIds)
     {
         Map<Long, Set<Long>> childToParentIds =
-                sampleLister.getChildToParentsIdsMap(allChildrenIds);
+                lister.getChildToParentsIdsMap(allChildrenIds);
         for (Set<Long> parentIds : childToParentIds.values())
         {
             filteredParentsIds.addAll(parentIds);
@@ -214,20 +208,6 @@ public class DetailedSearchManager
                 searchDAO.searchForEntityIds(criteria,
                         DtoConverters.convertEntityKind(EntityKind.SAMPLE), associations);
         return sampleIds;
-    }
-
-    private DetailedSearchAssociationCriteria findAssociatedEntities(
-            DetailedSearchSubCriteria subCriteria)
-    {
-        // for now we don't support sub criteria of sub criteria
-        List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
-        final Collection<Long> associatedIds =
-                searchDAO.searchForEntityIds(subCriteria.getCriteria(), DtoConverters
-                        .convertEntityKind(subCriteria.getTargetEntityKind().getEntityKind()),
-                        associations);
-
-        return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),
-                associatedIds);
     }
 
 }

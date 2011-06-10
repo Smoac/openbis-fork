@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import static ch.systemsx.cisd.common.collections.CollectionUtils.nullSafe;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -60,6 +63,17 @@ public class Translator
     static Role translate(RoleCode roleCode, boolean spaceLevel)
     {
         return new Role(roleCode.name(), spaceLevel);
+    }
+
+    public static List<Sample> translate(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples)
+    {
+        ArrayList<Sample> samples = new ArrayList<Sample>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
+        {
+            samples.add(Translator.translate(privateSample));
+        }
+        return samples;
     }
 
     public static Sample translate(
@@ -207,6 +221,17 @@ public class Translator
         return terms;
     }
 
+    public static List<DataSet> translate(Collection<ExternalData> dataSets,
+            EnumSet<Connections> connectionsToGet)
+    {
+        ArrayList<DataSet> translated = new ArrayList<DataSet>();
+        for (ExternalData dataSet : dataSets)
+        {
+            translated.add(translate(dataSet, connectionsToGet));
+        }
+        return translated;
+    }
+
     public static DataSet translate(ExternalData externalDatum,
             EnumSet<Connections> connectionsToGet)
     {
@@ -228,8 +253,9 @@ public class Translator
             switch (connection)
             {
                 case PARENTS:
+                    Collection<ExternalData> parents = externalDatum.getParents();
                     ArrayList<String> parentCodes = new ArrayList<String>();
-                    for (ExternalData parentDatum : externalDatum.getParents())
+                    for (ExternalData parentDatum : nullSafe(parents))
                     {
                         parentCodes.add(parentDatum.getCode());
                     }

@@ -198,4 +198,14 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connectionsToGet);
 
+    /**
+     * Return all data sets matching a specified search criteria. Available since minor version 1.
+     * 
+     * @param searchCriteria the criteria used for searching.
+     * @since 1.8
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
+
 }

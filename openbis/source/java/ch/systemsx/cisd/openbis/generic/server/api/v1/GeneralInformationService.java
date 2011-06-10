@@ -161,7 +161,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 7;
+        return 8;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -239,13 +239,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         SearchableEntityKind.SAMPLE, searchCriteria);
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
                 commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
-        ArrayList<Sample> samples = new ArrayList<Sample>();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
-        {
-            samples.add(Translator.translate(privateSample));
-        }
-
-        return samples;
+        return Translator.translate(privateSamples);
     }
 
     public List<Sample> listSamplesForExperiment(String sessionToken,
@@ -262,13 +256,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 ListSampleCriteria.createForExperiment(new TechId(privateExperiment.getId()));
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
                 commonServer.listSamples(sessionToken, listSampleCriteria);
-        ArrayList<Sample> samples = new ArrayList<Sample>();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
-        {
-            samples.add(Translator.translate(privateSample));
-        }
-
-        return samples;
+        return Translator.translate(privateSamples);
     }
 
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
@@ -321,12 +309,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ExternalData> externalData =
                 commonServer.listSampleExternalData(sessionToken, new TechId(sample.getId()),
                         areOnlyDirectlyConnectedIncluded);
-        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
-        for (ExternalData externalDatum : externalData)
-        {
-            dataSets.add(Translator.translate(externalDatum, EnumSet.noneOf(Connections.class)));
-        }
-        return dataSets;
+        return Translator.translate(externalData, EnumSet.noneOf(Connections.class));
     }
 
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
@@ -393,12 +376,20 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         SampleToDataSetRelatedEntitiesTranslator translator =
                 new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> externalData = commonServer.listRelatedDataSets(sessionToken, dsre);
-        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
-        for (ExternalData externalDatum : externalData)
-        {
-            dataSets.add(Translator.translate(externalDatum, connectionsToGet));
-        }
-        return dataSets;
+        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
+        return Translator.translate(dataSets, connectionsToGet);
+    }
+
+    public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    {
+        checkSession(sessionToken);
+
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                        SearchableEntityKind.DATA_SET, searchCriteria);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
+                commonServer.searchForDataSets(sessionToken, detailedSearchCriteria);
+
+        return Translator.translate(privateDataSets, EnumSet.allOf(Connections.class));
     }
 }

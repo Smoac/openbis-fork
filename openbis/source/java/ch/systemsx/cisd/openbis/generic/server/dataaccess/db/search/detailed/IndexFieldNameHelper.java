@@ -47,18 +47,24 @@ class IndexFieldNameHelper
                     return SearchFieldConstants.EXPERIMENT_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
+
             case SAMPLE:
                 if (entityKind == EntityKind.DATA_SET)
                 {
                     return SearchFieldConstants.SAMPLE_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
+
+            case DATA_SET:
+                throw createAssociationNotHandledException(entityKind, associationKind);
+
             case SAMPLE_CONTAINER:
                 if (entityKind == EntityKind.SAMPLE)
                 {
                     return SearchFieldConstants.CONTAINER_ID;
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
+
             case SAMPLE_PARENT:
             case SAMPLE_CHILD:
                 // parent-child is a many-to-many connection - it is not handled by lucene index

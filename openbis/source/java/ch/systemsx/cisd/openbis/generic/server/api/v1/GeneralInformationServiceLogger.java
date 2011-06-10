@@ -144,4 +144,10 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "search-for-data-sets", "SEARCH_CRITERIA(%s)", searchCriteria);
+        return null;
+    }
+
 }

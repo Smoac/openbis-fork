@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.Propert
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -58,6 +59,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
     {
         translators.put(SearchableEntityKind.EXPERIMENT, new ExperimentAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
+        translators.put(SearchableEntityKind.DATA_SET, new DataSetAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CHILD, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
@@ -84,6 +86,8 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                 return AssociatedEntityKind.SAMPLE;
             case EXPERIMENT:
                 return AssociatedEntityKind.EXPERIMENT;
+            case DATA_SET:
+                return AssociatedEntityKind.DATA_SET;
             case SAMPLE_CONTAINER:
                 return AssociatedEntityKind.SAMPLE_CONTAINER;
             case SAMPLE_PARENT:
@@ -143,7 +147,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
         public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
                 MatchClauseAttribute attribute)
         {
-            final IAttributeSearchFieldKind ans;
+            IAttributeSearchFieldKind ans = null;
             switch (attribute)
             {
                 case CODE:
@@ -160,7 +164,28 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
-                    ans = null; // for Eclipse
+            }
+            return ans;
+        }
+
+    }
+
+    public static class DataSetAttributeTranslator implements IMatchClauseAttributeTranslator
+    {
+        public IAttributeSearchFieldKind convertMatchClauseAttributeToAttributeSearchFieldKind(
+                MatchClauseAttribute attribute)
+        {
+            IAttributeSearchFieldKind ans = null;
+            switch (attribute)
+            {
+                case CODE:
+                    ans = DataSetAttributeSearchFieldKind.CODE;
+                    break;
+                case TYPE:
+                    ans = DataSetAttributeSearchFieldKind.DATA_SET_TYPE;
+                    break;
+                default:
+                    throwInvalidSearchAttributeException(attribute, SearchableEntityKind.DATA_SET);
             }
             return ans;
         }

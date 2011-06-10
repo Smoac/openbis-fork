@@ -36,6 +36,8 @@ public enum AssociatedEntityKind implements ISerializable
     EXPERIMENT("Experiment", EntityKind.EXPERIMENT, EnumSet.of(EntityKind.SAMPLE,
             EntityKind.DATA_SET)),
 
+    DATA_SET("Data Set", EntityKind.DATA_SET, EnumSet.noneOf(EntityKind.class)),
+
     SAMPLE_CONTAINER("Container", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),
 
     SAMPLE_PARENT("Parent", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),

@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -44,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
@@ -350,6 +350,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 identifierIsOk);
     }
 
+    @Test
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
@@ -378,6 +379,61 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("ANY_MATERIAL", propertyType.getCode());
         assertEquals("any_material", propertyType.getLabel());
         assertEquals("any_material", propertyType.getDescription());
+    }
+
+    @Test
+    public void testSearchForDataSetByCode()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+        assertTrue(result.size() > 0);
+        String expectedDataSetCode = "20081105092159188-3";
+        for (DataSet dataSet : result)
+        {
+            if (expectedDataSetCode.equals(dataSet.getCode()))
+            {
+                return;
+            }
+        }
+        fail("result didn't contain data set" + expectedDataSetCode);
+    }
+
+    @Test
+    public void testSearchForDataSetsByExperiments()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria expCriteria = new SearchCriteria();
+        expCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "EXP-TEST-1"));
+        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(expCriteria));
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(1, result.size());
+
+        DataSet dataSet = result.get(0);
+        assertEquals("20081105092159111-1", dataSet.getCode());
+        assertEquals("/CISD/NEMO/EXP-TEST-1", dataSet.getExperimentIdentifier());
 
     }
+
+    @Test
+    public void testSearchForDataSetsBySamples()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria sampleCriteria = new SearchCriteria();
+        sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "CP-TEST-1"));
+        searchCriteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria));
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(1, result.size());
+
+        DataSet dataSet = result.get(0);
+        assertEquals("20081105092159111-1", dataSet.getCode());
+        assertEquals("/CISD/NEMO/EXP-TEST-1", dataSet.getExperimentIdentifier());
+        assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifierOrNull());
+
+    }
+
 }

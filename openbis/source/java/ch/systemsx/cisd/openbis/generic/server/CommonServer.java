@@ -37,7 +37,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.generic.server.business.DetailedSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
@@ -71,6 +70,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -104,7 +105,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -496,7 +496,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
             final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            return new DetailedSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
+            return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -907,19 +907,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
-        final Session session = getSession(sessionToken);
-
+        Session session = getSession(sessionToken);
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-
-            final Collection<Long> datasetIds =
-                    searchDAO.searchForEntityIds(criteria,
-                            DtoConverters.convertEntityKind(EntityKind.DATA_SET),
-                            Collections.<DetailedSearchAssociationCriteria> emptyList());
-            final IDatasetLister datasetLister = createDatasetLister(session);
-            return datasetLister.listByDatasetIds(datasetIds);
-        } catch (final DataAccessException ex)
+            IDatasetLister dataSetLister = createDatasetLister(session);
+            return new DataSetSearchManager(searchDAO, dataSetLister).searchForDataSets(criteria);
+        } catch (DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
