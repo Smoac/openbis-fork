@@ -47,6 +47,14 @@ public final class StringUtils
     }
 
     /**
+     * Whether given <var>value</var> is not blank.
+     */
+    public static final boolean isNotBlank(final String value)
+    {
+        return value != null && value.trim().length() > 0;
+    }
+
+    /**
      * Joins the elements using comma as a separator. <br>
      * Example: "a", "b", "c" -> "a, b, c"
      */
