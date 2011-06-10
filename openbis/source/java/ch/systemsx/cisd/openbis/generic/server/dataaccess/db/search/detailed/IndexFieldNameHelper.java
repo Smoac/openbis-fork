@@ -65,6 +65,8 @@ class IndexFieldNameHelper
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
 
+            case DATA_SET_PARENT:
+            case DATA_SET_CHILD:
             case SAMPLE_PARENT:
             case SAMPLE_CHILD:
                 // parent-child is a many-to-many connection - it is not handled by lucene index

@@ -38,6 +38,10 @@ public enum AssociatedEntityKind implements ISerializable
 
     DATA_SET("Data Set", EntityKind.DATA_SET, EnumSet.noneOf(EntityKind.class)),
 
+    DATA_SET_PARENT("Parent", EntityKind.DATA_SET, EnumSet.of(EntityKind.DATA_SET)),
+
+    DATA_SET_CHILD("Child", EntityKind.DATA_SET, EnumSet.of(EntityKind.DATA_SET)),
+
     SAMPLE_CONTAINER("Container", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),
 
     SAMPLE_PARENT("Parent", EntityKind.SAMPLE, EnumSet.of(EntityKind.SAMPLE)),

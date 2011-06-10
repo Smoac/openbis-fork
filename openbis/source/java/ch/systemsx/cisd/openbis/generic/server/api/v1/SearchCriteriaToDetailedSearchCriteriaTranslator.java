@@ -60,6 +60,8 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
         translators.put(SearchableEntityKind.EXPERIMENT, new ExperimentAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.DATA_SET, new DataSetAttributeTranslator());
+        translators.put(SearchableEntityKind.DATA_SET_PARENT, new DataSetAttributeTranslator());
+        translators.put(SearchableEntityKind.DATA_SET_CHILD, new DataSetAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CHILD, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
@@ -82,12 +84,16 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
     {
         switch (entityKind)
         {
-            case SAMPLE:
-                return AssociatedEntityKind.SAMPLE;
             case EXPERIMENT:
                 return AssociatedEntityKind.EXPERIMENT;
             case DATA_SET:
                 return AssociatedEntityKind.DATA_SET;
+            case DATA_SET_PARENT:
+                return AssociatedEntityKind.DATA_SET_PARENT;
+            case DATA_SET_CHILD:
+                return AssociatedEntityKind.DATA_SET_CHILD;
+            case SAMPLE:
+                return AssociatedEntityKind.SAMPLE;
             case SAMPLE_CONTAINER:
                 return AssociatedEntityKind.SAMPLE_CONTAINER;
             case SAMPLE_PARENT:
@@ -278,11 +284,12 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                                 .getPropertyCode());
                 break;
             case ATTRIBUTE:
-                searchField =
-                        DetailedSearchField
-                                .createAttributeField(attributeTranslator
-                                        .convertMatchClauseAttributeToAttributeSearchFieldKind(((AttributeMatchClause) matchClause)
-                                                .getAttribute()));
+                MatchClauseAttribute attribute =
+                        ((AttributeMatchClause) matchClause).getAttribute();
+                IAttributeSearchFieldKind searchFieldKind =
+                        attributeTranslator
+                                        .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
+                searchField = DetailedSearchField.createAttributeField(searchFieldKind);
                 break;
             default:
                 // Should never reach here

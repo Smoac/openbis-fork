@@ -433,7 +433,31 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("20081105092159111-1", dataSet.getCode());
         assertEquals("/CISD/NEMO/EXP-TEST-1", dataSet.getExperimentIdentifier());
         assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifierOrNull());
-
     }
 
+    @Test
+    public void testSearchForDataSetsByParentAndChild()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "20081105092159333-3"));
+        searchCriteria
+                .addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
+
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "20081105092259900-1"));
+        searchCriteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(childCriteria));
+
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(1, result.size());
+
+        DataSet dataSet = result.get(0);
+        assertEquals("20081105092259000-9", dataSet.getCode());
+        assertEquals("/CISD/DEFAULT/EXP-REUSE", dataSet.getExperimentIdentifier());
+        assertEquals(null, dataSet.getSampleIdentifierOrNull());
+    }
 }

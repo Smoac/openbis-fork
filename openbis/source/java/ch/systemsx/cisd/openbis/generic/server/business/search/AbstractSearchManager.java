@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
@@ -55,6 +56,15 @@ public class AbstractSearchManager<T>
 
         return new DetailedSearchAssociationCriteria(subCriteria.getTargetEntityKind(),
                 associatedIds);
+    }
+
+    protected void mergeSubCriteria(DetailedSearchCriteria criteria,
+            DetailedSearchSubCriteria subCriteriaToMerge)
+    {
+        criteria.getCriteria().addAll(subCriteriaToMerge.getCriteria().getCriteria());
+        criteria.setConnection(subCriteriaToMerge.getCriteria().getConnection());
+        criteria.setUseWildcardSearchMode(subCriteriaToMerge.getCriteria()
+                .isUseWildcardSearchMode());
     }
 
 }

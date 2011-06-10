@@ -169,17 +169,11 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
             {
                 case SAMPLE_PARENT:
                     // merge all parent sub criteria into one
-                    parentCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
-                    parentCriteria.setConnection(subCriteria.getCriteria().getConnection());
-                    parentCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
-                            .isUseWildcardSearchMode());
+                    mergeSubCriteria(parentCriteria, subCriteria);
                     break;
                 case SAMPLE_CHILD:
                     // merge all child sub criteria into one
-                    childCriteria.getCriteria().addAll(subCriteria.getCriteria().getCriteria());
-                    childCriteria.setConnection(subCriteria.getCriteria().getConnection());
-                    childCriteria.setUseWildcardSearchMode(subCriteria.getCriteria()
-                            .isUseWildcardSearchMode());
+                    mergeSubCriteria(childCriteria, subCriteria);
                     break;
                 default:
                     otherSubCriterias.add(subCriteria);

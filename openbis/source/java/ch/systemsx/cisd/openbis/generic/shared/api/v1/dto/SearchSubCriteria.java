@@ -47,6 +47,16 @@ public class SearchSubCriteria implements Serializable
         return new SearchSubCriteria(SearchableEntityKind.EXPERIMENT, criteria);
     }
 
+    public static SearchSubCriteria createDataSetParentCriteria(SearchCriteria criteria)
+    {
+        return new SearchSubCriteria(SearchableEntityKind.DATA_SET_PARENT, criteria);
+    }
+
+    public static SearchSubCriteria createDataSetChildCriteria(SearchCriteria criteria)
+    {
+        return new SearchSubCriteria(SearchableEntityKind.DATA_SET_CHILD, criteria);
+    }
+
     /**
      * Protected constructor. Use one of the factory methods to instantiate a
      * {@link SearchSubCriteria}.
