@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -326,5 +327,20 @@ public final class CollectionUtils
             }
         }
         return filtered;
+    }
+
+    /**
+     * For a given collection C returns
+     * 
+     * <pre>
+     * 1) C when is not null
+     * 2) Empty collection when C is null
+     * </pre>
+     * 
+     * This allows e.g. iterating over the collections elements without redundant null checks.
+     */
+    public static <E> Collection<E> nullSafe(Collection<E> list)
+    {
+        return (list != null) ? list : Collections.<E> emptyList();
     }
 }
