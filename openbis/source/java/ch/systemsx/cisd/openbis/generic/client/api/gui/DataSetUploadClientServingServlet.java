@@ -49,7 +49,7 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                     + "    <jar href='commons-httpclient.jar'/>\n"
                     + "    <jar href='commons-io.jar'/>\n" + "    <jar href='commons-lang.jar'/>\n"
                     + "    <jar href='commons-logging.jar'/>\n" + "    <jar href='jython.jar'/>\n"
-                    + "    <jar href='dss_upload_gui.jar'/>\n"
+                    + "    <jar href='dss_upload_gui.jar'/>\n" + "    <jar href='log4j.jar'/>\n"
                     + "    <jar href='poi-3.7-20101029.jar'/>\n"
                     + "    <jar href='poi-ooxml-3.7-20101029.jar'/>\n"
                     + "    <jar href='poi-ooxml-schemas-3.7-20101029.jar'/>\n"
