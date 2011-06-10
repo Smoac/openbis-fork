@@ -427,7 +427,7 @@ public abstract class AbstractClientService implements IClientService,
         if (commonClientService == null || commonClientService == this
                 || getApplicationInfoInvocationCount > 0)
         {
-            applicationInfo.setCIFEXURL(cifexURL);
+            applicationInfo.setCifexURL(cifexURL);
             applicationInfo.setCifexRecipient(cifexRecipient);
             applicationInfo.setMaxResults(maxResults);
             applicationInfo.setWebClientConfiguration(getWebClientConfiguration());
@@ -436,9 +436,9 @@ public abstract class AbstractClientService implements IClientService,
             getApplicationInfoInvocationCount++;
             ApplicationInfo commonApplicationInfo = commonClientService.getApplicationInfo();
             getApplicationInfoInvocationCount--;
-            applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
-            applicationInfo.setMaxResults(commonApplicationInfo.getMaxResults());
+            applicationInfo.setCifexURL(commonApplicationInfo.getCifexURL());
             applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());
+            applicationInfo.setMaxResults(commonApplicationInfo.getMaxResults());
             applicationInfo.setWebClientConfiguration(commonApplicationInfo
                     .getWebClientConfiguration());
         }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
@@ -56,11 +57,10 @@ public class DataSetMenu extends TopMenuItem
                 componentProvider.getDataSetTypeBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_MASS_UPDATE,
                 messageProvider, componentProvider.getDataSetBatchUpdate()));
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
         boolean cifexConfigured =
-                StringUtils
-                        .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
-                        && StringUtils.isBlank(viewContext.getModel().getApplicationInfo()
-                                .getCIFEXURL()) == false;
+                StringUtils.isNotBlank(applicationInfo.getCifexRecipient())
+                        && StringUtils.isNotBlank(applicationInfo.getCifexURL());
         if (cifexConfigured)
         {
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD,

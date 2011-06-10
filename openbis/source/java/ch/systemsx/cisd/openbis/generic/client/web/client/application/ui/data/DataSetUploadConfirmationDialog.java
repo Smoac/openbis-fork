@@ -75,7 +75,7 @@ final class DataSetUploadConfirmationDialog extends
         this.viewContext = viewContext;
         this.displayedItemsCount = displayedItemsCount;
         this.selectedAndDisplayedItemsAction = selectedAndDisplayedItemsAction;
-        cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
+        cifexURL = viewContext.getModel().getApplicationInfo().getCifexURL();
         setWidth(LABEL_WIDTH_IN_UPLOAD_DIALOG + FIELD_WIDTH_IN_UPLOAD_DIALOG + 50);
     }
 

@@ -97,7 +97,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
             String sampleIdentifierOrNull)
     {
         super(viewContext, createSimpleId(sampleIdentifierOrNull));
-        cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
+        cifexURL = viewContext.getModel().getApplicationInfo().getCifexURL();
         cifexRecipient = viewContext.getModel().getApplicationInfo().getCifexRecipient();
         saveButton.setText(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATA_VIA_CIFEX));
 

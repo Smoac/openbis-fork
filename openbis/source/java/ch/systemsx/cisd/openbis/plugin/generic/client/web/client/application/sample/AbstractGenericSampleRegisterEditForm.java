@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -121,11 +122,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         addUploadFeatures(sesionKeys);
         extractInitialValues(actionContext);
         saveUploadButton = createSaveAndUploadButton();
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
         boolean cifexConfigured =
-                StringUtils
-                        .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
-                        && StringUtils.isBlank(viewContext.getModel().getApplicationInfo()
-                                .getCIFEXURL()) == false;
+                StringUtils.isNotBlank(applicationInfo.getCifexRecipient())
+                        && StringUtils.isNotBlank(applicationInfo.getCifexURL());
         if (cifexConfigured)
         {
             formPanel.addButton(saveUploadButton);
@@ -301,17 +301,18 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                                 .withSuffix(getSampleTypeCode()));
         parentsArea = new ParentSamplesArea(viewContext, getId());
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
-        parentChooserButton.addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Sample>>()
-            {
-                public void entityChosen(TableModelRowWithObject<Sample> entity)
-                {
-                    if (entity != null)
+        parentChooserButton
+                .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Sample>>()
                     {
-                        String sampleIdentifier = entity.getObjectOrNull().getIdentifier();
-                        parentsArea.appendItem(sampleIdentifier);
-                    }
-                }
-            });
+                        public void entityChosen(TableModelRowWithObject<Sample> entity)
+                        {
+                            if (entity != null)
+                            {
+                                String sampleIdentifier = entity.getObjectOrNull().getIdentifier();
+                                parentsArea.appendItem(sampleIdentifier);
+                            }
+                        }
+                    });
         container =
                 SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
                         true, false, false, viewContext.getCommonViewContext(), getId()
@@ -358,7 +359,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         builder.append(code);
         return builder.toString().toUpperCase();
     }
-    
+
     /** sets visibility of container and parent fields dependent on sample type */
     private final void setContainerAndParentVisibility(final SampleType sampleType)
     {

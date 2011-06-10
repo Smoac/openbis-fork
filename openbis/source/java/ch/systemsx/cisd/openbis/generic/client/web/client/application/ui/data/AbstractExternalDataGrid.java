@@ -182,7 +182,7 @@ public abstract class AbstractExternalDataGrid
                                             viewContext);
                                 }
                             });
-        if (StringUtils.isBlank(viewContext.getModel().getApplicationInfo().getCIFEXURL()))
+        if (StringUtils.isBlank(viewContext.getModel().getApplicationInfo().getCifexURL()))
         {
             uploadButton.disable();
         }

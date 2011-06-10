@@ -74,12 +74,12 @@ public final class ApplicationInfo implements IsSerializable
         this.version = version;
     }
 
-    public void setCIFEXURL(String cifexURL)
+    public void setCifexURL(String cifexURL)
     {
         this.cifexURL = cifexURL;
     }
 
-    public final String getCIFEXURL()
+    public final String getCifexURL()
     {
         return cifexURL;
     }
