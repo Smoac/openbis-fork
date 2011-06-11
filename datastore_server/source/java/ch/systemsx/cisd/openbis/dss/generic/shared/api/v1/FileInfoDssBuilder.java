@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -103,7 +104,9 @@ public class FileInfoDssBuilder
      */
     private String pathRelativeToDataSetRoot(File file) throws IOException
     {
-        String result = dataSetRootFile.toURI().relativize(file.toURI()).toString();
+        URI dataSetRootUri = dataSetRootFile.toURI();
+        URI fileUri = file.getCanonicalFile().toURI();
+        String result = dataSetRootUri.relativize(fileUri).toString();
         // remove trailing slashes
         result = result.replaceAll("/+$", "");
         return result;
