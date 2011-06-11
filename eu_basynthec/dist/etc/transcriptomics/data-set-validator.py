@@ -85,7 +85,7 @@ class ValidationHelper:
 
 	def checkIsSpecified(self, property, displayName):
 		if self.metadataMap.get(property) is None:
-			errors.add(ValidationError.createFileValidationError("A " + displayName
+			self.errors.append(ValidationError.createFileValidationError("A " + displayName
 					+ " must be specified."))
 			return False
 		return True
