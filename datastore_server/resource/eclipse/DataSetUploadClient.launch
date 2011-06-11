@@ -6,7 +6,8 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888 test a;ldfj"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888 cramakri a;ldfj"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="datastore_server"/>
 </launchConfiguration>
