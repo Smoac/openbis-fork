@@ -92,17 +92,18 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     {
         RelativeImageReference imageReference = plateImage.getImageReference();
         String imagePath = imageReference.getRelativeImagePath();
-        String thumbnailPath = replaceExtensionToPng(imagePath);
+        String thumbnailPath = createThumbnailPath(imageReference);
         File img = new File(imagesInStoreFolder, imagePath);
 
         try
         {
             long start = System.currentTimeMillis();
-            byte[] byteArray = generateThumbnail(bufferOutputStream, img);
+            String imageIdOrNull = imageReference.tryGetImageID();
+            byte[] byteArray = generateThumbnail(bufferOutputStream, img, imageIdOrNull);
             String path =
                     relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
-            plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, imageReference
-                    .tryGetImageID(), imageReference.tryGetColorComponent()));
+            plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, null,
+                    imageReference.tryGetColorComponent()));
 
             if (operationLog.isDebugEnabled())
             {
@@ -122,7 +123,25 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         return Status.OK;
     }
 
-    private byte[] generateThumbnail(ByteArrayOutputStream bufferOutputStream, File img)
+    public String createThumbnailPath(RelativeImageReference imageReference)
+    {
+        String imagePath = imageReference.getRelativeImagePath();
+        String newImagePath = imagePath;
+        int lastIndex = imagePath.lastIndexOf('.');
+        if (lastIndex > 0)
+        {
+            newImagePath = imagePath.substring(0, lastIndex);
+        }
+        String imageIdOrNull = imageReference.tryGetImageID();
+        if (imageIdOrNull != null)
+        {
+            newImagePath += "_" + imageIdOrNull;
+        }
+        newImagePath += ".png";
+        return newImagePath;
+    }
+
+    private byte[] generateThumbnail(ByteArrayOutputStream bufferOutputStream, File img, String imageIdOrNull)
             throws IOException
     {
         byte[] byteArray;
@@ -131,7 +150,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             byteArray = generateThumbnailWithImageMagic(img);
         } else
         {
-            byteArray = generateThumbnailInternally(img, bufferOutputStream);
+            byteArray = generateThumbnailInternally(img, imageIdOrNull, bufferOutputStream);
         }
         return byteArray;
     }
@@ -159,9 +178,9 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     }
 
     private byte[] generateThumbnailInternally(File imageFile,
-            ByteArrayOutputStream bufferOutputStream) throws IOException
+            String imageIdOrNull, ByteArrayOutputStream bufferOutputStream) throws IOException
     {
-        BufferedImage image = loadImage(imageFile);
+        BufferedImage image = loadImage(imageFile, imageIdOrNull);
         BufferedImage thumbnail =
                 ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
                         thumbnailsStorageFormat.getMaxHeight(), false,
@@ -170,10 +189,10 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         return bufferOutputStream.toByteArray();
     }
 
-    private BufferedImage loadImage(File imageFile)
+    private BufferedImage loadImage(File imageFile, String imageIdOrNull)
     {
         // NOTE 2011-04-20, Tomasz Pylak: support paged tiffs when generating thumbnails
-        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), null,
+        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), imageIdOrNull,
                 imageLibraryOrNull);
     }
 
@@ -182,18 +201,6 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         operationLog.warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
         return Status.createRetriableError(String.format("Could not generate a thumbnail '%s': %s",
                 thumbnailPath, ex.getMessage()));
-    }
-
-    private static String replaceExtensionToPng(String imagePath)
-    {
-        String newImagePath = imagePath;
-        int lastIndex = imagePath.lastIndexOf('.');
-        if (lastIndex > 0)
-        {
-            newImagePath = imagePath.substring(0, lastIndex);
-        }
-        newImagePath += ".png";
-        return newImagePath;
     }
 
     private ITaskExecutor<AcquiredSingleImage> createThumbnailGenerator(
