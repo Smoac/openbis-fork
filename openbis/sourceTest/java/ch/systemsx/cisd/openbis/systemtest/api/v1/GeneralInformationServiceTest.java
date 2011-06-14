@@ -436,6 +436,47 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsByParent()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "20081105092159333-3"));
+        searchCriteria
+                .addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
+
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+
+        assertEquals(2, result.size());
+        assertEquals(
+                "[DataSet[20081105092259000-8,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=no comment},[]], "
+                        + "DataSet[20081105092259000-9,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=no comment},[]]]",
+                result.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByChild()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "20081105092259000-9"));
+        searchCriteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(childCriteria));
+
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(4, result.size());
+        assertEquals(
+                "[DataSet[20081105092158673-1,/CISD/NEMO/EXP1,/CISD/3VCP1,HCS_IMAGE,{COMMENT=no comment},[]], "
+                        + "DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=null, GENDER=null, COMMENT=no comment, BACTERIUM=null},[]], "
+                        + "DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
+                        + "DataSet[20081105092159333-3,/CISD/NEMO/EXP-TEST-2,/CISD/CP-TEST-3,HCS_IMAGE,{COMMENT=no comment},[]]]",
+                result.toString());
+    }
+
+    @Test
     public void testSearchForDataSetsByParentAndChild()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -454,10 +495,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> result =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(1, result.size());
-
-        DataSet dataSet = result.get(0);
-        assertEquals("20081105092259000-9", dataSet.getCode());
-        assertEquals("/CISD/DEFAULT/EXP-REUSE", dataSet.getExperimentIdentifier());
-        assertEquals(null, dataSet.getSampleIdentifierOrNull());
+        assertEquals(
+                "[DataSet[20081105092259000-9,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=no comment},[]]]",
+                result.toString());
     }
 }
