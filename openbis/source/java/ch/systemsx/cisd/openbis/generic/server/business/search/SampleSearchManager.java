@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -46,6 +44,46 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
  */
 public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
 {
+    private final IRelationshipHandler CHILDREN_RELATIONSHIP_HANDLER = new IRelationshipHandler()
+        {
+
+            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+                    List<DetailedSearchSubCriteria> otherSubCriterias)
+            {
+                return findSampleIds(criteria, otherSubCriterias);
+            }
+
+            public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> sampleIds)
+            {
+                return lister.getParentToChildrenIdsMap(sampleIds);
+            }
+
+            public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenSampleIds)
+            {
+                return lister.getChildToParentsIdsMap(childrenSampleIds);
+            }
+        };
+
+    private final IRelationshipHandler PARENT_RELATIONSHIP_HANDLER = new IRelationshipHandler()
+        {
+
+            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+                    List<DetailedSearchSubCriteria> otherSubCriterias)
+            {
+                return findSampleIds(criteria, otherSubCriterias);
+            }
+
+            public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> sampleIds)
+            {
+                return lister.getChildToParentsIdsMap(sampleIds);
+            }
+
+            public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentSampleIds)
+            {
+                return lister.getParentToChildrenIdsMap(parentSampleIds);
+            }
+        };
+
     public SampleSearchManager(IHibernateSearchDAO searchDAO, ISampleLister sampleLister)
     {
         super(searchDAO, sampleLister);
@@ -54,107 +92,31 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
     public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
             throws DataAccessException
     {
-        final DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
-        final DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
-        final List<DetailedSearchSubCriteria> otherSubCriterias =
+        DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
+        DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
+        List<DetailedSearchSubCriteria> otherSubCriterias =
                 new ArrayList<DetailedSearchSubCriteria>();
         groupSampleSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
         final List<Long> mainSampleIds = findSampleIds(criteria, otherSubCriterias);
 
-        final Set<Long> filteredSampleIds = new HashSet<Long>();
+        Collection<Long> filteredSampleIds = mainSampleIds;
         if (false == parentCriteria.isEmpty())
         {
-            final List<Long> parentSampleIds =
-                    findSampleIds(parentCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
-            if (mainSampleIds.size() > parentSampleIds.size())
-            {
-                listParentsChildrenAndFilterChildren(mainSampleIds, parentSampleIds,
-                        filteredSampleIds);
-            } else
-            {
-                listChildrensParentsAndFilterChildren(mainSampleIds, parentSampleIds,
-                        filteredSampleIds);
-            }
-        } else if (false == childCriteria.isEmpty()) // FIXME this should be if
-        {
-            final List<Long> childSampleIds =
-                    findSampleIds(childCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
-            if (mainSampleIds.size() > childSampleIds.size())
-            {
-                listChildrensParentsAndFilterParents(childSampleIds, mainSampleIds,
-                        filteredSampleIds);
-            } else
-            {
-                listParentsChildrenAndFilterParents(childSampleIds, mainSampleIds,
-                        filteredSampleIds);
-            }
-        } else
-        {
-            filteredSampleIds.addAll(mainSampleIds);
+            filteredSampleIds =
+                    filterSearchResultsBySubcriteria(filteredSampleIds, parentCriteria,
+                            PARENT_RELATIONSHIP_HANDLER);
         }
+
+        if (false == childCriteria.isEmpty())
+        {
+            filteredSampleIds =
+                    filterSearchResultsBySubcriteria(filteredSampleIds, childCriteria,
+                            CHILDREN_RELATIONSHIP_HANDLER);
+        }
+
         return lister.list(new ListOrSearchSampleCriteria(filteredSampleIds));
-    }
-
-    private void listChildrensParentsAndFilterChildren(final List<Long> allChildrenIds,
-            final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
-    {
-        Map<Long, Set<Long>> childToParentIds =
-                lister.getChildToParentsIdsMap(allChildrenIds);
-        for (Entry<Long, Set<Long>> entry : childToParentIds.entrySet())
-        {
-            Long childId = entry.getKey();
-            Set<Long> parentIds = entry.getValue();
-            parentIds.retainAll(allParentIds);
-            if (parentIds.isEmpty() == false)
-            {
-                filteredChildrenIds.add(childId);
-            }
-        }
-    }
-
-    private void listParentsChildrenAndFilterParents(final List<Long> allChildrenIds,
-            final List<Long> allParentIds, final Set<Long> filteredParentIds)
-    {
-        Map<Long, Set<Long>> parentToChildIds =
-                lister.getParentToChildrenIdsMap(allParentIds);
-        for (Entry<Long, Set<Long>> entry : parentToChildIds.entrySet())
-        {
-            Long parentId = entry.getKey();
-            Set<Long> childIds = entry.getValue();
-            childIds.retainAll(allChildrenIds);
-            if (childIds.isEmpty() == false)
-            {
-                filteredParentIds.add(parentId);
-            }
-        }
-    }
-
-    private void listParentsChildrenAndFilterChildren(final List<Long> allChildrenIds,
-            final List<Long> allParentIds, final Set<Long> filteredChildrenIds)
-    {
-        Map<Long, Set<Long>> parentToChildIds =
-                lister.getParentToChildrenIdsMap(allParentIds);
-        for (Set<Long> childrenIds : parentToChildIds.values())
-        {
-            filteredChildrenIds.addAll(childrenIds);
-        }
-        filteredChildrenIds.retainAll(allChildrenIds);
-    }
-
-    private void listChildrensParentsAndFilterParents(final List<Long> allChildrenIds,
-            final List<Long> allParentIds, final Set<Long> filteredParentsIds)
-    {
-        Map<Long, Set<Long>> childToParentIds =
-                lister.getChildToParentsIdsMap(allChildrenIds);
-        for (Set<Long> parentIds : childToParentIds.values())
-        {
-            filteredParentsIds.addAll(parentIds);
-        }
-        filteredParentsIds.retainAll(allParentIds);
     }
 
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,

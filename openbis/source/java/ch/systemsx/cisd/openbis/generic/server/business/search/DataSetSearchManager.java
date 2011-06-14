@@ -18,11 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -46,6 +43,45 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
  */
 public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
 {
+    private final IRelationshipHandler CHILDREN_RELATIONSHIP_HANDLER = new IRelationshipHandler()
+        {
+
+        public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+                    List<DetailedSearchSubCriteria> otherSubCriterias)
+        {
+                return findDataSetIds(criteria, otherSubCriterias);
+            }
+
+        public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
+            {
+                return lister.listChildrenIds(dataSetIds);
+            }
+
+        public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> childrenDataSetIds)
+            {
+                return lister.listParentIds(childrenDataSetIds);
+            }
+        };
+
+    private final IRelationshipHandler PARENT_RELATIONSHIP_HANDLER = new IRelationshipHandler()
+        {
+
+        public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+                    List<DetailedSearchSubCriteria> otherSubCriterias)
+        {
+                return findDataSetIds(criteria, otherSubCriterias);
+            }
+
+        public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
+            {
+                return lister.listParentIds(dataSetIds);
+            }
+
+        public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentDataSetIds)
+            {
+                return lister.listChildrenIds(parentDataSetIds);
+            }
+        };
 
     public DataSetSearchManager(IHibernateSearchDAO searchDAO, IDatasetLister lister)
     {
@@ -64,80 +100,23 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
                 otherSubCriterias);
 
         List<Long> dataSetIds = findDataSetIds(criteria, otherSubCriterias);
-        
         Collection<Long> filteredDataSetIds = dataSetIds;
 
         if (false == parentCriteria.isEmpty())
         {
-            List<Long> parentDataSetIds =
-                    findDataSetIds(parentCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
-            filteredDataSetIds = filterDataSetIdsByRelatedParentIds(dataSetIds, parentDataSetIds);
+            filteredDataSetIds =
+                    filterSearchResultsBySubcriteria(dataSetIds, parentCriteria,
+                            PARENT_RELATIONSHIP_HANDLER);
         }
 
         if (false == childCriteria.isEmpty())
         {
-            List<Long> childrenDataSetIds =
-                    findDataSetIds(childCriteria,
-                            Collections.<DetailedSearchSubCriteria> emptyList());
             filteredDataSetIds =
-                    filterDataSetIdByRelatedChildrenIds(dataSetIds, childrenDataSetIds);
+                    filterSearchResultsBySubcriteria(dataSetIds, childCriteria,
+                            CHILDREN_RELATIONSHIP_HANDLER);
         }
 
         return lister.listByDatasetIds(filteredDataSetIds);
-    }
-
-    private Collection<Long> filterDataSetIdsByRelatedParentIds(List<Long> dataSetIds,
-            List<Long> parentDataSetIds)
-    {
-        if (dataSetIds.size() > parentDataSetIds.size())
-        {
-            Map<Long, Set<Long>> parentToChildren = lister.listChildrenIds(parentDataSetIds);
-            return filterJoinedIds(dataSetIds, parentToChildren.values());
-        } else
-        {
-            Map<Long, Set<Long>> dataSetsToParent = lister.listParentIds(dataSetIds);
-            return filteIdsByJoinTable(dataSetIds, parentDataSetIds, dataSetsToParent);
-        }
-    }
-
-    private Collection<Long> filterDataSetIdByRelatedChildrenIds(List<Long> dataSetIds,
-            List<Long> childrenDataSetIds)
-    {
-        if (dataSetIds.size() > childrenDataSetIds.size())
-        {
-            Map<Long, Set<Long>> childrenToDataSets = lister.listParentIds(childrenDataSetIds);
-            return filterJoinedIds(dataSetIds, childrenToDataSets.values());
-        } else
-        {
-            Map<Long, Set<Long>> dataSetsToChildren = lister.listChildrenIds(dataSetIds);
-            return filteIdsByJoinTable(dataSetIds, childrenDataSetIds, dataSetsToChildren);
-        }
-    }
-
-    private Collection<Long> filterJoinedIds(List<Long> leftJoinSide,
-            Collection<Set<Long>> rightJoinSide)
-    {
-        Set<Long> joinResult = new HashSet<Long>();
-        for (Set<Long> joinedIds : rightJoinSide)
-        {
-            joinedIds.retainAll(leftJoinSide);
-            joinResult.addAll(joinedIds);
-        }
-        return joinResult;
-    }
-
-    private Collection<Long> filteIdsByJoinTable(List<Long> leftJoinSide, List<Long> rightJoinSide,
-            Map<Long, Set<Long>> leftToRightJoinTable)
-    {
-        for (Entry<Long, Set<Long>> entry : leftToRightJoinTable.entrySet())
-        {
-            if (Collections.disjoint(rightJoinSide, entry.getValue()))
-            {
-                leftJoinSide.remove(entry.getKey());
-            }
-        }
-        return leftJoinSide;
     }
 
 

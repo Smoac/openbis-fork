@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
@@ -66,5 +70,73 @@ public class AbstractSearchManager<T>
         criteria.setUseWildcardSearchMode(subCriteriaToMerge.getCriteria()
                 .isUseWildcardSearchMode());
     }
+    
+    interface IRelationshipHandler
+    {
+        Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+                List<DetailedSearchSubCriteria> otherSubCriterias);
+
+        Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> ids);
+
+        Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> relatedIds);
+    }
+
+    protected Collection<Long> filterSearchResultsBySubcriteria(Collection<Long> idsToFilter,
+            DetailedSearchCriteria criteria, IRelationshipHandler relationshipHandler)
+    {
+        Collection<Long> relatedIds =
+                relationshipHandler.findRelatedIdsByCriteria(criteria,
+                        Collections.<DetailedSearchSubCriteria> emptyList());
+
+        if (idsToFilter.size() > relatedIds.size())
+        {
+            Map<Long, Set<Long>> relatedIdsToIds =
+                    relationshipHandler.listRelatedIdsToIds(relatedIds);
+            return intersection(idsToFilter, relatedIdsToIds.values());
+        } else
+        {
+            Map<Long, Set<Long>> idsToRelatedIds =
+                    relationshipHandler.listIdsToRelatedIds(idsToFilter);
+            return filteIdsByRelationship(idsToFilter, relatedIds, idsToRelatedIds);
+        }
+    }
+
+    /**
+     * @return the intersection of a collection and a multi set (collection of sets).
+     */
+    protected Collection<Long> intersection(Collection<Long> collection,
+            Collection<Set<Long>> multiSet)
+    {
+        Set<Long> intersection = new HashSet<Long>();
+        for (Set<Long> set : multiSet)
+        {
+            set.retainAll(collection);
+            intersection.addAll(set);
+        }
+        return intersection;
+    }
+
+    /**
+     * Filters search results by a relationship. This comes handy when filtering search results
+     * based on a subcriteria which operates on a different entity than the encapsulating criteria.
+     * 
+     * @param idsToFilter the ids to be filtered.
+     * @param relatedIds ids matching a subcriteria
+     * @param relationshipMap a relationship map in the form <id, set<related-ids>>
+     * @return all id-s having relationship to at least on id from relatedIds.
+     */
+    protected Collection<Long> filteIdsByRelationship(Collection<Long> idsToFilter,
+            Collection<Long> relatedIds, Map<Long, Set<Long>> relationshipMap)
+    {
+        for (Entry<Long, Set<Long>> entry : relationshipMap.entrySet())
+        {
+            if (Collections.disjoint(relatedIds, entry.getValue()))
+            {
+                idsToFilter.remove(entry.getKey());
+            }
+        }
+        return idsToFilter;
+    }
+    
 
 }
