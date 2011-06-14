@@ -381,18 +381,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         final HibernateTemplate template = getHibernateTemplate();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("ADD BEFORE SAVE: data set id '%d'.",
-                    HibernateUtils.getId(dataset)));
-        }
         template.save(dataset);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("ADD BEFORE FLUSH: data set id '%d'.",
-                    HibernateUtils.getId(dataset)));
-        }
-
         template.flush();
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(dataset));
 
