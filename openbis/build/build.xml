@@ -164,7 +164,6 @@
 			</fileset>
 			<fileset dir="dist/server">
 				<include name="service.properties" />
-				<include name="log.xml" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/{1}">
@@ -199,6 +198,9 @@
 				<include name="jetty.xml" />
 				<include name="openBIS.keystore" />
 				<include name="web-client.properties" />
+			</fileset>
+			<fileset dir="dist/server/etc">
+				<include name="log.xml" />
 			</fileset>
 		</checksum>
 	</target>

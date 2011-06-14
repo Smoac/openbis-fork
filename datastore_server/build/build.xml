@@ -213,14 +213,17 @@
         <include name="openBIS.keystore" />
       </fileset>
     </checksum>
-	<checksum todir="${dist}" pattern="{0}  bin/{1}">
-		<fileset dir="dist/etc">
-			<include name="datastore_server.conf" />
-		</fileset>
-		<fileset dir="dist">
-			<include name="datastore_server.sh" />
-		</fileset>
-	</checksum>
+		<checksum todir="${dist}" pattern="{0}  etc/{1}">
+			<fileset dir="dist/etc">
+				<include name="datastore_server.conf" />
+			</fileset>
+		</checksum>
+  	<checksum todir="${dist}" pattern="{0}  ./{1}">
+			<fileset dir="dist">
+				<include name="datastore_server.sh" />
+			</fileset>
+  	</checksum>
+
   </target>
     
 	<!-- parameters: 
