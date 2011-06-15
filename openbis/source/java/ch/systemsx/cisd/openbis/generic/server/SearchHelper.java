@@ -21,11 +21,14 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -59,6 +62,20 @@ class SearchHelper
             final IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
             return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
         } catch (final DataAccessException ex)
+        {
+            throw CommonServer.createUserFailureException(ex);
+        }
+    }
+
+    public List<ExternalData> searchForDataSets(DetailedSearchCriteria detailedSearchCriteria)
+    {
+        try
+        {
+            IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
+            IDatasetLister dataSetLister = businessObjectFactory.createDatasetLister(session);
+            return new DataSetSearchManager(searchDAO, dataSetLister)
+                    .searchForDataSets(detailedSearchCriteria);
+        } catch (DataAccessException ex)
         {
             throw CommonServer.createUserFailureException(ex);
         }

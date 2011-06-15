@@ -70,13 +70,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -914,16 +912,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
-        Session session = getSession(sessionToken);
-        try
-        {
-            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            IDatasetLister dataSetLister = createDatasetLister(session);
-            return new DataSetSearchManager(searchDAO, dataSetLister).searchForDataSets(criteria);
-        } catch (DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        final Session session = getSession(sessionToken);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        return searchHelper.searchForDataSets(criteria);
     }
 
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)

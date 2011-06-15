@@ -482,4 +482,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "searchForDataSets", "%s", searchCriteria);
+        return null;
+    }
 }

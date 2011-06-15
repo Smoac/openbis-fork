@@ -1365,4 +1365,15 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return searchHelper.searchForSamples(detailedSearchCriteria);
     }
 
+    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    {
+        Session session = getSession(sessionToken);
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                        SearchableEntityKind.DATA_SET, searchCriteria);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        return searchHelper.searchForDataSets(detailedSearchCriteria);
+    }
+
 }

@@ -692,4 +692,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
+
+    /**
+     * Search for data sets matching the provided criteria.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param searchCriteria The criteria for data sets.
+     * @return A collection of data sets matching the search criteria.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 }
