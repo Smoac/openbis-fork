@@ -2106,12 +2106,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                 : "Operation partly failed";
                 String failureReport = createFailedModificationsReport();
                 MessageBox.alert(failureTitle, failureReport, null);
+                refresh();
             } else
             {
                 GWTUtils.displayInfo("All modifications successfully applied.");
+                grid.getStore().commitChanges(); // no need to refresh - everything should be valid
             }
             clearModifications();
-            refresh();
         }
 
         private String createFailedModificationsReport()
