@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.OpenBisServiceFactory;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -540,6 +541,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private void setShareId(NewExternalData data)
     {
         getShareIdManager().setShareId(data.getCode(), data.getShareId());
+    }
+
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+    {
+        return service.searchForSamples(session.getToken(), searchCriteria);
+    }
+
+    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria)
+    {
+        return service.searchForDataSets(session.getToken(), searchCriteria);
+    }
+
+    public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier)
+    {
+        return service.listExperiments(session.getToken(), projectIdentifier);
     }
 
 }

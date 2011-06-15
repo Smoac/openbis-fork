@@ -43,6 +43,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProjectImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISearchService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpaceImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
@@ -214,7 +215,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().getDataSetForUpdate(dataSetCode);
     }
 
-    
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
         SampleIdentifier sampleIdentifier =
@@ -413,5 +413,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             }
             throw new EnvironmentFailureException(message, ex);
         }
+    }
+
+    public ISearchService getSearchService()
+    {
+        return new SearchService(openBisService);
     }
 }

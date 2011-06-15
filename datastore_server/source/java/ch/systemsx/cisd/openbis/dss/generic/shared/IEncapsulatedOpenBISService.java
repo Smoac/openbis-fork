@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -90,7 +91,7 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
-    
+
     /**
      * Checks if the current user has access rights to a dataset with the specified data set code.
      */
@@ -194,14 +195,15 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public List<ExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected) throws UserFailureException;
-    
+
     /**
      * Returns all data sets found for specified data set codes.
      * 
      * @return plain data sets without properties, samples, and experiments.
      */
     @ManagedAuthentication
-    public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes) throws UserFailureException;
+    public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes)
+            throws UserFailureException;
 
     /**
      * Registers the specified experiment.
@@ -271,17 +273,17 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
 
-    /** 
+    /**
      * Returns informations about all data sets which belong to the calling data store server.
      */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
-    
+
     /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
     public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException;
-    
+
     /**
      * Creates and returns a unique code for a new data set.
      */
@@ -335,7 +337,7 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException;
-    
+
     /**
      * Updates share id and size of specified data set.
      */
@@ -434,5 +436,23 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails);
+
+    /**
+     * {@link IETLLIMSService#searchForSamples(String, SearchCriteria)}
+     */
+    @ManagedAuthentication
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria);
+
+    /**
+     * {@link IETLLIMSService#searchForDataSets(String, SearchCriteria)}
+     */
+    @ManagedAuthentication
+    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria);
+
+    /**
+     * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}
+     */
+    @ManagedAuthentication
+    public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier);
 
 }

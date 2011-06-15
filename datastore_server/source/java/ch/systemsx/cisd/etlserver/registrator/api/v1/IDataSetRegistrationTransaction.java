@@ -47,7 +47,7 @@ public interface IDataSetRegistrationTransaction
      * Create a new data set with the specified type and code.
      */
     IDataSet createNewDataSet(String dataSetType, String dataSetCode);
-    
+
     /**
      * Get a data set from the openBIS AS. Returns null if the data set does not exist.
      * 
@@ -179,5 +179,12 @@ public interface IDataSetRegistrationTransaction
      * @return The absolute path of the new file.
      */
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
+
+    /**
+     * Retrieve the search service for this transaction
+     * 
+     * @return The search service for this transaction.
+     */
+    ISearchService getSearchService();
 
 }

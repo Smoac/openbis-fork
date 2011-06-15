@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -62,6 +63,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -78,6 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -158,7 +164,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testSimpleTransaction()
     {
         setUpHomeDataBaseExpectations();
-        Properties properties = createThreadProperties(SCRIPTS_FOLDER + "simple-transaction.py");
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
@@ -216,7 +223,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadProperties(SCRIPTS_FOLDER + "simple-transaction-rollback.py");
+                createThreadPropertiesRelativeToScriptsFolder("simple-transaction-rollback.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, true, false);
@@ -263,7 +270,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testSimpleTransactionRollback()
     {
         setUpHomeDataBaseExpectations();
-        Properties properties = createThreadProperties(SCRIPTS_FOLDER + "simple-transaction.py");
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, false);
@@ -315,7 +323,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testTwoSimpleDataSets()
     {
         setUpHomeDataBaseExpectations();
-        Properties properties = createThreadProperties(SCRIPTS_FOLDER + "two-simple-datasets.py");
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("two-simple-datasets.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
@@ -407,7 +416,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadProperties(SCRIPTS_FOLDER + "transaction-with-new-experiment.py");
+                createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-experiment.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
@@ -465,7 +474,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadProperties(SCRIPTS_FOLDER + "transaction-with-new-sample.py");
+                createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-sample.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
@@ -538,7 +547,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     {
         setUpHomeDataBaseExpectations();
         Properties properties =
-                createThreadProperties(SCRIPTS_FOLDER + "transaction-with-dataset-update.py");
+                createThreadPropertiesRelativeToScriptsFolder("transaction-with-dataset-update.py");
         final File stagingDir = new File(workingDirectory, "staging");
         properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
         createHandler(properties, false, true);
@@ -622,7 +631,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         setUpOpenBisExpectations();
 
         Properties threadProperties =
-                createThreadProperties("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/dying-script.py");
+                createThreadPropertiesRelativeToScriptsFolder("dying-script.py");
 
         createHandler(threadProperties, false);
         createData();
@@ -659,7 +668,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         // Create a handler that throws an exception during registration
         Properties threadProperties =
-                createThreadProperties(SCRIPTS_FOLDER + "rollback-dying-script.py");
+                createThreadPropertiesRelativeToScriptsFolder("rollback-dying-script.py");
         createHandler(threadProperties, false);
 
         createData();
@@ -718,6 +727,29 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         }
     }
 
+    @Test
+    public void testSearching()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties threadProperties = createThreadPropertiesRelativeToScriptsFolder("search.py");
+        createHandler(threadProperties, false);
+
+        createData();
+
+        setUpSearchExpectations();
+
+        handler.handle(markerFile);
+
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+
+        assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
+
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
+        assertFalse(theHandler.didRollbackServiceFunctionRun);
+    }
+
     private Properties createThreadProperties(String scriptPath)
     {
         Properties threadProperties = new Properties();
@@ -729,6 +761,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                 MockStorageProcessor.class.getName());
         threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
         return threadProperties;
+    }
+
+    private Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
+    {
+        return createThreadProperties(SCRIPTS_FOLDER + scriptPath);
     }
 
     @Test
@@ -857,6 +894,42 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                             with(aNull(From.class)), with(any(String[].class)));
                 }
             });
+    }
+
+    private void setUpSearchExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    ProjectIdentifier projectIdentifier =
+                            new ProjectIdentifierFactory("/SPACE/PROJECT").createIdentifier();
+                    oneOf(openBisService).listExperiments(projectIdentifier);
+
+                    Experiment experiment = new Experiment();
+                    experiment.setIdentifier("/SPACE/PROJECT/EXP-CODE");
+                    experiment.setCode("EXP-CODE");
+                    Person registrator = new Person();
+                    registrator.setEmail("email@email.com");
+                    experiment.setRegistrator(registrator);
+                    will(returnValue(Arrays.asList(experiment)));
+
+                    SearchCriteria searchCriteria = createTestSearchCriteria("DATA_SET_TYPE");
+                    oneOf(openBisService).searchForDataSets(searchCriteria);
+                    will(returnValue(Collections.EMPTY_LIST));
+
+                    searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
+                    oneOf(openBisService).searchForSamples(searchCriteria);
+                    will(returnValue(Collections.EMPTY_LIST));
+                }
+            });
+    }
+
+    protected SearchCriteria createTestSearchCriteria(String typeString)
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, typeString));
+        sc.addMatchClause(MatchClause.createPropertyMatch("PROP", "VALUE"));
+        return sc;
     }
 
     public static final class MockStorageProcessor implements IStorageProcessorTransactional
