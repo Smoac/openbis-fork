@@ -56,6 +56,8 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         if (null != userProvidedDataSetInformationOrNull)
         {
             applyUserProvidedValues(dataSetInfo);
+            dataSetInfo.setUploadingUserId(userProvidedDataSetInformationOrNull
+                    .getUploadingUserIdOrNull());
         }
         if (null == dataSetInfo.getDataSetType())
         {

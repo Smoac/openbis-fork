@@ -85,7 +85,7 @@ class PutDataSetTopLevelDataSetHandler
     private final File temporaryIncomingDir;
 
     private final File dataSetDir;
-    
+
     private final File dataSet;
 
     PutDataSetTopLevelDataSetHandler(PutDataSetService service,
@@ -109,7 +109,9 @@ class PutDataSetTopLevelDataSetHandler
         if (dataSetIsASingleFile)
         {
             dataSetDir = temporaryIncomingDir;
-            dataSet = new File(temporaryIncomingDir, newDataSet.getFileInfos().get(0).getPathInDataSet());
+            dataSet =
+                    new File(temporaryIncomingDir, newDataSet.getFileInfos().get(0)
+                            .getPathInDataSet());
         } else
         {
             this.dataSetDir = new File(temporaryIncomingDir, dataSetFolderName);
@@ -168,6 +170,9 @@ class PutDataSetTopLevelDataSetHandler
     public DataSetInformation getCallerDataSetInformation()
     {
         DataSetInformation dataSetInfo = new DataSetInformation();
+        SessionContextDTO sessionContext = getSessionContext();
+        dataSetInfo.setUploadingUserEmail(sessionContext.getUserEmail());
+        dataSetInfo.setUploadingUserId(sessionContext.getUserName());
         DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {

@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -61,27 +62,35 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTestCase
 {
+    private static final String TEST_USER_NAME = "test-user";
+
     private static final String DATABASE_INSTANCE_CODE = "DB";
+
     private static final String SESSION_TOKEN = "session-1";
+
     private static final String DATA_SET_CODE = "ds-1";
+
     private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION,
             PutDataSetTopLevelDataSetHandlerTest.class);
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private PutDataSetService putDataSetService;
 
     private ITopLevelDataSetRegistrator registrator;
+
     private File incomingDir;
+
     private File storeDir;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -108,7 +117,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                         new TestDataSetTypeToTopLevelRegistratorMapper(registrator), null,
                         DATA_SET_CODE, null);
     }
-    
+
     @AfterMethod
     public void afterMethod(Method method)
     {
@@ -123,7 +132,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
             throw new Error(method.getName() + "() : ", t);
         }
     }
-    
+
     @Test
     public void testDataSetFile() throws IOException
     {
@@ -170,6 +179,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         assertEquals(1, dataSetProperties.size());
         assertEquals(experimentIdentifier, dataSetInfoMatcher.recordedObject()
                 .getExperimentIdentifier());
+        assertEquals(TEST_USER_NAME, dataSetInfoMatcher.recordedObject().getUploadingUserIdOrNull());
         assertEquals("", logRecorder.getLogContent());
     }
 
@@ -215,9 +225,10 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         assertEquals(null, dataSetInfoMatcher.recordedObject().getInstanceCode());
         assertEquals("S", dataSetInfoMatcher.recordedObject().getSpaceCode());
         assertEquals("S1", dataSetInfoMatcher.recordedObject().getSampleCode());
+        assertEquals(TEST_USER_NAME, dataSetInfoMatcher.recordedObject().getUploadingUserIdOrNull());
         assertEquals("", logRecorder.getLogContent());
     }
-    
+
     private List<IContent> prepareRegistrator(final File dataSet, final List<File> files,
             final List<String> contents,
             final RecordingMatcher<DataSetInformation> dataSetInfoMatcher)
@@ -225,6 +236,11 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         context.checking(new Expectations()
             {
                 {
+                    one(service).tryGetSession(SESSION_TOKEN);
+                    SessionContextDTO sessionContext = new SessionContextDTO();
+                    sessionContext.setUserName(TEST_USER_NAME);
+                    will(returnValue(sessionContext));
+
                     one(registrator).handle(with(dataSet), with(dataSetInfoMatcher),
                             with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
                                 {
