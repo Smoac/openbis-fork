@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -161,7 +163,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 8;
+        return 9;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -239,7 +241,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         SearchableEntityKind.SAMPLE, searchCriteria);
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
                 commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
-        return Translator.translate(privateSamples);
+        return Translator.translateSamples(privateSamples);
     }
 
     public List<Sample> listSamplesForExperiment(String sessionToken,
@@ -256,7 +258,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 ListSampleCriteria.createForExperiment(new TechId(privateExperiment.getId()));
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
                 commonServer.listSamples(sessionToken, listSampleCriteria);
-        return Translator.translate(privateSamples);
+        return Translator.translateSamples(privateSamples);
     }
 
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
@@ -270,18 +272,19 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         // Convert the string to an experiment type
-        List<ExperimentType> experimentTypes = commonServer.listExperimentTypes(sessionToken);
         ExperimentType experimentType = null;
-        for (ExperimentType anExperimentType : experimentTypes)
+        if (experimentTypeString == null || EntityType.ALL_TYPES_CODE.equals(experimentTypeString))
         {
-            if (anExperimentType.getCode().equals(experimentTypeString))
+            experimentType = new ExperimentType();
+            experimentType.setCode(EntityType.ALL_TYPES_CODE);
+        } else
+        {
+            experimentType = tryFindExperimentType(sessionToken, experimentTypeString);
+            if (null == experimentType)
             {
-                experimentType = anExperimentType;
+                throw new UserFailureException("Unknown experiment type : " + experimentTypeString);
             }
-        }
-        if (null == experimentType)
-        {
-            throw new UserFailureException("Unknown experiment type : " + experimentTypeString);
+
         }
 
         // Retrieve the matches for each project
@@ -300,6 +303,19 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
         }
         return experiments;
+    }
+
+    private ExperimentType tryFindExperimentType(String sessionToken, String experimentTypeString)
+    {
+        List<ExperimentType> experimentTypes = commonServer.listExperimentTypes(sessionToken);
+        for (ExperimentType anExperimentType : experimentTypes)
+        {
+            if (anExperimentType.getCode().equals(experimentTypeString))
+            {
+                return anExperimentType;
+            }
+        }
+        return null;
     }
 
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
@@ -391,5 +407,18 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.searchForDataSets(sessionToken, detailedSearchCriteria);
 
         return Translator.translate(privateDataSets, EnumSet.allOf(Connections.class));
+    }
+
+    public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
+    {
+        checkSession(sessionToken);
+
+        List<ExperimentIdentifier> parsedIdentifiers =
+                ExperimentIdentifierFactory.parse(experimentIdentifiers);
+
+        Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> experiments =
+                commonServer.listExperiments(sessionToken, parsedIdentifiers);
+
+        return Translator.translateExperiments(experiments);
     }
 }

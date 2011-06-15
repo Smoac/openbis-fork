@@ -122,7 +122,9 @@ public interface IGeneralInformationService extends IRpcService
      * since minor version 2.
      * 
      * @param projects The projects for which we return attached experiments.
-     * @param experimentType The experiment type of the experiments we want to list.
+     * @param experimentType The experiment type of the experiments we want to list. Since version
+     *            1.9 NULL are accepted. Specifying a NULL experiment type will result in all
+     *            experiments for the specified projects being returned.
      * @since 1.2
      */
     @Transactional(readOnly = true)
@@ -208,4 +210,14 @@ public interface IGeneralInformationService extends IRpcService
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
+    /**
+     * Return all experiments matching a specified set of identifiers. Available since minor version
+     * 1.
+     * 
+     * @param experimentIdentifiers the identifiers of the experiments to be returned.
+     * @since 1.9
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
 }

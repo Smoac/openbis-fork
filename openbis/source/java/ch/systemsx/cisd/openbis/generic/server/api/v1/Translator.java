@@ -65,7 +65,7 @@ public class Translator
         return new Role(roleCode.name(), spaceLevel);
     }
 
-    public static List<Sample> translate(
+    public static List<Sample> translateSamples(
             Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples)
     {
         ArrayList<Sample> samples = new ArrayList<Sample>();
@@ -100,6 +100,17 @@ public class Translator
         }
 
         return new Sample(initializer);
+    }
+
+    static List<Experiment> translateExperiments(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> privateExperiments)
+    {
+        ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment privateExpeiment : privateExperiments)
+        {
+            experiments.add(Translator.translate(privateExpeiment));
+        }
+        return experiments;
     }
 
     static Experiment translate(

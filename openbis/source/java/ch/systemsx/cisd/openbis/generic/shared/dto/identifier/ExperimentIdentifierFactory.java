@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -48,6 +51,15 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
         final String code = assertValidCode(lexer.next());
         lexer.ensureNoTokensLeft();
         return create(parentIdentifier, code);
+    }
+
+    public static List<ExperimentIdentifier> parse(final List<String> texts) {
+        List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
+        for (String identifierString : texts)
+        {
+            identifiers.add(ExperimentIdentifierFactory.parse(identifierString));
+        }
+        return identifiers;
     }
 
     private static ExperimentIdentifier create(final ProjectIdentifier parent, final String code)

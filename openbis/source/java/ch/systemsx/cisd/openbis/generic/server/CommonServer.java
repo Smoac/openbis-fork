@@ -599,6 +599,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return listExperiments(sessionToken, experimentType, spaceIdentifier, null);
     }
 
+    public List<Experiment> listExperiments(String sessionToken,
+            Collection<ExperimentIdentifier> experimentIdentifiers)
+    {
+        Session session = getSession(sessionToken);
+        IExperimentTable experimentTable =
+                businessObjectFactory.createExperimentTable(session);
+
+        experimentTable.load(experimentIdentifiers);
+
+        List<ExperimentPE> experiments = experimentTable.getExperiments();
+        Collections.sort(experiments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+    }
+
     private final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifierOrNull,
             final ProjectIdentifier projectIdentifierOrNull)

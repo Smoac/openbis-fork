@@ -336,6 +336,16 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) SpaceIdentifier space);
 
     /**
+     * Lists experiments by project.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperiments(final String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) Collection<ExperimentIdentifier> experimentIdentifiers);
+
+    /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 
      * @return a sorted list of {@link ExternalData}.

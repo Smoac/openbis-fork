@@ -150,4 +150,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
+    {
+        logAccess(sessionToken, "list-experiments", "EXPERIMENT_IDENTIFIERS(%s)",
+                abbreviate(experimentIdentifiers));
+        return null;
+    }
+
 }

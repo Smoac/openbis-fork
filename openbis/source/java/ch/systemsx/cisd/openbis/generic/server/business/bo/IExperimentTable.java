@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -23,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -49,6 +51,11 @@ public interface IExperimentTable
      * @param spaceIdentifier identifier of the space to which we restrict the load.
      */
     public void load(String experimentTypeCodeOrNull, SpaceIdentifier spaceIdentifier);
+
+    /**
+     * Loads all experiments by identifiers with all their properties.
+     */
+    public void load(Collection<ExperimentIdentifier> experimentIdentifiers);
 
     /** Returns the loaded {@link ExperimentPE}. */
     public List<ExperimentPE> getExperiments();

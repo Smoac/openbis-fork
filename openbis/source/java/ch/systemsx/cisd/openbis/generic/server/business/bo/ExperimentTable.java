@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -122,6 +123,12 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
+    public final void load(final Collection<ExperimentIdentifier> identifiers)
+    {
+        checkNotEmpty(identifiers);
+        experiments = listExperimentsByIdentifiers(identifiers);
+    }
+
     private void checkNotNull(final SpaceIdentifier spaceIdentifier, final SpacePE space)
     {
         if (space == null)
@@ -156,6 +163,14 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         if (projectIdentifier == null)
         {
             throw new UserFailureException("Project not specified.");
+        }
+    }
+
+    private void checkNotEmpty(Collection<ExperimentIdentifier> identifiers)
+    {
+        if (identifiers == null || identifiers.isEmpty())
+        {
+            throw new UserFailureException("Experiment identifiers cannot be NULL or empty.");
         }
     }
 
@@ -274,7 +289,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     }
 
     protected List<ExperimentPE> listExperimentsByIdentifiers(
-            final List<ExperimentIdentifier> experimentIdentifiers)
+            final Collection<ExperimentIdentifier> experimentIdentifiers)
     {
         assert experimentIdentifiers != null : "Experiment identifiers unspecified.";
 
