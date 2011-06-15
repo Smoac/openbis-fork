@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -68,14 +69,17 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -98,7 +102,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.modifications.ModificationsToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
@@ -137,6 +140,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         LayoutContainer implements IDatabaseModificationObserver, IDisplayTypeIDProvider,
         IColumnDefinitionProvider<T>
 {
+    private static final IGenericImageBundle IMAGE_BUNDLE = GWT
+            .<IGenericImageBundle> create(IGenericImageBundle.class);
 
     /**
      * Shows the detail view for the specified entity
@@ -192,7 +197,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final ICellListener<T> showEntityViewerLinkClickListener;
 
-    protected final TableModificationsManager tableModificationsManager;
+    protected final ITableModificationsManager<M> tableModificationsManager;
 
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
@@ -277,7 +282,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
         this.tableModificationsManager = new TableModificationsManager();
         this.modificationsToolbar =
-                new ModificationsToolbar(viewContext, tableModificationsManager);
+                new TableModificationsToolbar(viewContext, tableModificationsManager);
 
         this.contentPanel = createEmptyContentPanel();
         bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
@@ -293,6 +298,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         configureLoggingBetweenEvents(logID);
 
+        // this.addListener(Events.BeforeHide, new Listener<ComponentEvent>()
+        // {
+        //
+        // @Override
+        // public void handleEvent(ComponentEvent ce)
+        // {
+        // GWTUtils.displayInfo("BeforeHide main event");
+        // }
+        // });
         grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
             {
                 public void handleEvent(final GridEvent<ModelData> ge)
@@ -1943,16 +1957,26 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** Manager of table modifications */
-    public interface ITableModificationsManager
+    interface ITableModificationsManager<M extends ModelData>
     {
+        /** @return <code>true</code> iff there are any uncommitted modifications */
+        boolean isTableDirty();
+
         /** save all modifications made in the table to the DB and refresh the table */
         void saveModifications();
 
         /** cancel all modifications made in the table and refresh the table */
         void cancelModifications();
+
+        /** handle cell editing event */
+        void handleEditingEvent(M model, String columnID, String stringOrNull);
+
+        /** @return callback for given modifications made to specified model. */
+        AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(final M model,
+                final List<IModification> modifications);
     }
 
-    public interface IModification
+    protected interface IModification
     {
         String getColumnID();
 
@@ -1983,7 +2007,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    protected class TableModificationsManager implements ITableModificationsManager
+    private class TableModificationsManager implements ITableModificationsManager<M>
     {
         private final Map<M, List<IModification>> modificationsByModel =
                 new LinkedHashMap<M, List<IModification>>();
@@ -1995,6 +2019,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         //
         // ITableModificationsManager
         //
+
+        // @Override
+        public boolean isTableDirty()
+        {
+            return isApplyModificationsComplete() == false;
+        }
 
         public void saveModifications()
         {
@@ -2008,12 +2038,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         public void cancelModifications()
         {
             clearModifications();
+            grid.getStore().rejectChanges();
         }
 
-        //
+        public void handleEditingEvent(M model, String columnID, String newValueOrNull)
+        {
+            List<IModification> modificationsForModel = modificationsByModel.get(model);
+            if (modificationsForModel == null)
+            {
+                modificationsForModel = new ArrayList<IModification>();
+                modificationsByModel.put(model, modificationsForModel);
+            }
+            modificationsForModel.add(new Modification(columnID, newValueOrNull));
+        }
 
-        /** @return callback for given modifications made to specified model. */
-        protected AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
+        public AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
                 final M model, final List<IModification> modifications)
         {
             return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
@@ -2051,17 +2090,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 };
         }
 
-        /** Handle cell editing event. */
-        protected void handleEditingEvent(M model, String columnID, String newValueOrNull)
-        {
-            List<IModification> modificationsForModel = modificationsByModel.get(model);
-            if (modificationsForModel == null)
-            {
-                modificationsForModel = new ArrayList<IModification>();
-                modificationsByModel.put(model, modificationsForModel);
-            }
-            modificationsForModel.add(new Modification(columnID, newValueOrNull));
-        }
+        //
 
         private boolean isApplyModificationsComplete()
         {
@@ -2077,13 +2106,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                 : "Operation partly failed";
                 String failureReport = createFailedModificationsReport();
                 MessageBox.alert(failureTitle, failureReport, null);
-                refresh();
             } else
             {
                 GWTUtils.displayInfo("All modifications successfully applied.");
-                refresh();
             }
             clearModifications();
+            refresh();
         }
 
         private String createFailedModificationsReport()
@@ -2104,7 +2132,39 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             failedModifications.clear();
             modificationsByModel.clear();
             hideModificationsBar();
-            refresh();
+        }
+
+    }
+
+    /** Toolbar for handling table modifications */
+    static class TableModificationsToolbar extends ToolBar
+    {
+
+        public TableModificationsToolbar(final IMessageProvider messageProvider,
+                final ITableModificationsManager<?> manager)
+        {
+            add(new Label(messageProvider.getMessage(Dict.TABLE_MODIFICATIONS)));
+
+            final AbstractImagePrototype confirmIcon =
+                    AbstractImagePrototype.create(IMAGE_BUNDLE.getConfirmIcon());
+            final AbstractImagePrototype cancelIcon =
+                    AbstractImagePrototype.create(IMAGE_BUNDLE.getCancelIcon());
+            add(new Button("Save", confirmIcon, new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent be)
+                    {
+                        manager.saveModifications();
+                    }
+                }));
+            add(new Button("Cancel", cancelIcon, new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent be)
+                    {
+                        manager.cancelModifications();
+                    }
+                }));
         }
 
     }
