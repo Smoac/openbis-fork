@@ -237,15 +237,21 @@ public abstract class AbstractSwingGUI
         final Throwable th =
                 (throwable instanceof Error) ? throwable : CheckedExceptionTunnel
                         .unwrapIfNecessary((Exception) throwable);
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
+        if (throwable instanceof ClassCastException)
+        {
+            System.err.println("Encountered ClassCastException problem.");
+        } else
+        {
+            SwingUtilities.invokeLater(new Runnable()
                 {
-                    JOptionPane.showMessageDialog(parentFrame,
-                            WordUtils.wrap(message, MESSAGE_WRAP_MAX_CHAR), title,
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            });
+                    public void run()
+                    {
+                        JOptionPane.showMessageDialog(parentFrame,
+                                WordUtils.wrap(message, MESSAGE_WRAP_MAX_CHAR), title,
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+        }
         th.printStackTrace();
     }
 
