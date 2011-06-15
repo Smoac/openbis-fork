@@ -58,7 +58,7 @@ var common = {
   data_report_label: "Report:",
   explore_label: "Explore:",
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
-  breadcrumbs_separator: ">",
+  breadcrumbs_separator: "»",
 	 
   //
   // Table Modifications
