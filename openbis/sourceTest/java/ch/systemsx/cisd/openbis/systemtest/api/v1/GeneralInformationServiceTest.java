@@ -470,7 +470,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(4, result.size());
         assertEquals(
                 "[DataSet[20081105092158673-1,/CISD/NEMO/EXP1,/CISD/3VCP1,HCS_IMAGE,{COMMENT=no comment},[]], "
-                        + "DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=null, GENDER=null, COMMENT=no comment, BACTERIUM=null},[]], "
+                        + "DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=null, BACTERIUM=null, COMMENT=no comment, GENDER=null},[]], "
                         + "DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
                         + "DataSet[20081105092159333-3,/CISD/NEMO/EXP-TEST-2,/CISD/CP-TEST-3,HCS_IMAGE,{COMMENT=no comment},[]]]",
                 result.toString());

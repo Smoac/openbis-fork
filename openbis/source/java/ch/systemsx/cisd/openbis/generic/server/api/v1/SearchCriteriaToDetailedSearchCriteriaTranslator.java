@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnectio
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class SearchCriteriaToDetailedSearchCriteriaTranslator
+public class SearchCriteriaToDetailedSearchCriteriaTranslator
 {
     private final static String INVALID_SEARCH_ATTRIBUTE_TEMPLATE =
             "%s is not a valid search attribute for %s";
@@ -288,7 +288,7 @@ class SearchCriteriaToDetailedSearchCriteriaTranslator
                         ((AttributeMatchClause) matchClause).getAttribute();
                 IAttributeSearchFieldKind searchFieldKind =
                         attributeTranslator
-                                        .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
+                                .convertMatchClauseAttributeToAttributeSearchFieldKind(attribute);
                 searchField = DetailedSearchField.createAttributeField(searchFieldKind);
                 break;
             default:

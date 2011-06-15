@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -54,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
@@ -63,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -1106,16 +1110,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                 samplesUpdated, samplesCreated, dataSetsCreated, dataSetsUpdated);
     }
 
-    private List<Space> createSpaces(Session session,
-            AtomicEntityOperationDetails operationDetails)
+    private List<Space> createSpaces(Session session, AtomicEntityOperationDetails operationDetails)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
         for (NewSpace newSpace : newSpaces)
         {
             SpacePE spacePE =
-                    registerSpaceInternal(session, newSpace,
-                            operationDetails.tryUserIdOrNull());
+                    registerSpaceInternal(session, newSpace, operationDetails.tryUserIdOrNull());
             spacePEsCreated.add(spacePE);
         }
         return GroupTranslator.translate(spacePEsCreated);
@@ -1161,8 +1163,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         for (NewProject newProject : newProjects)
         {
             ProjectPE projectPE =
-                    registerProjectInternal(session, newProject,
-                            operationDetails.tryUserIdOrNull());
+                    registerProjectInternal(session, newProject, operationDetails.tryUserIdOrNull());
             projectPEsCreated.add(projectPE);
         }
         return ProjectTranslator.translate(projectPEsCreated);
@@ -1193,8 +1194,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         for (NewSample newSample : newSamples)
         {
             SamplePE samplePE =
-                    registerSampleInternal(session, newSample,
-                            operationDetails.tryUserIdOrNull());
+                    registerSampleInternal(session, newSample, operationDetails.tryUserIdOrNull());
             samplePEsCreated.add(samplePE);
         }
         return SampleTranslator.translate(samplePEsCreated, session.getBaseIndexURL());
@@ -1352,6 +1352,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert dataSetCode != null : "Data set code not specified.";
 
         return externalDataBO;
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
+    {
+        Session session = getSession(sessionToken);
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                        SearchableEntityKind.SAMPLE, searchCriteria);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        return searchHelper.searchForSamples(detailedSearchCriteria);
     }
 
 }

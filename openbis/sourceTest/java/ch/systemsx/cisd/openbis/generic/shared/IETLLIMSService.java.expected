@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
@@ -111,7 +112,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @param experimentIdentifier an identifier which uniquely identifies the experiment.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed({RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER})
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Experiment tryToGetExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
@@ -183,7 +185,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed({RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER})
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<ExternalData> listDataSetsByExperimentID(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentID)
@@ -349,7 +352,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
-    
+
     /**
      * Checks that the user of specified session has SPACE_POWER_USER access rights.
      */
@@ -428,8 +431,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<DataSetShareId> listShareIds(final String sessionToken,
-            String dataStore) throws UserFailureException;
+    public List<DataSetShareId> listShareIds(final String sessionToken, String dataStore)
+            throws UserFailureException;
 
     /**
      * Lists data sets belonging to chosen data store.
@@ -438,7 +441,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listDataSets(final String sessionToken,
             String dataStore) throws UserFailureException;
-    
+
     /**
      * List data sets deleted after specified date.
      */
@@ -460,7 +463,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode, TrackingDataSetCriteria criteria);
+    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+            TrackingDataSetCriteria criteria);
 
     /**
      * List all experiments for a given project identifier.
@@ -480,7 +484,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
         { RoleWithHierarchy.SPACE_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken);
-    
+
     /**
      * Adds specified properties of given data set. Properties defined before will not be updated.
      */
@@ -677,4 +681,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public Project tryGetProject(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
+
+    /**
+     * Search for samples matching the provided criteria.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param searchCriteria The criteria for samples.
+     * @return A collection of samples matching the search criteria.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 }

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -342,8 +343,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public void updateShareIdAndSize(String sessionToken, String dataSetCode, String shareId,
             long size) throws UserFailureException
     {
-        logTracking(sessionToken, "updateShareIdAndSize", "DATA_SET_CODE(%s) SHARE_ID(%s) SIZE(%s)",
-                dataSetCode, shareId, size);
+        logTracking(sessionToken, "updateShareIdAndSize",
+                "DATA_SET_CODE(%s) SHARE_ID(%s) SIZE(%s)", dataSetCode, shareId, size);
     }
 
     public void updateDataSetStatuses(String sessionToken, List<String> dataSetCodes,
@@ -472,6 +473,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public List<Project> listProjects(String sessionToken)
     {
         logAccess(sessionToken, "listProjects");
+        return null;
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "searchForSamples", "%s", searchCriteria);
         return null;
     }
 

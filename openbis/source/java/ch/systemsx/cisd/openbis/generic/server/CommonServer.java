@@ -71,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -266,7 +265,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return businessObjectFactory;
     }
 
-    private static UserFailureException createUserFailureException(final DataAccessException ex)
+    static UserFailureException createUserFailureException(final DataAccessException ex)
     {
         return new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
     }
@@ -492,15 +491,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        try
-        {
-            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            final IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        return searchHelper.searchForSamples(criteria);
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,

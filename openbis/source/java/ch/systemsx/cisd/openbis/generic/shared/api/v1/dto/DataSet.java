@@ -281,7 +281,26 @@ public final class DataSet implements Serializable
         builder.append(getExperimentIdentifier());
         builder.append(getSampleIdentifierOrNull());
         builder.append(getDataSetTypeCode());
-        builder.append(getProperties());
+
+        // Append properties alphabetically for consistency
+        HashMap<String, String> props = getProperties();
+        ArrayList<String> sortedKeys = new ArrayList<String>(props.size());
+        sortedKeys.addAll(props.keySet());
+        Collections.sort(sortedKeys);
+        StringBuilder propString = new StringBuilder();
+        propString.append("{");
+        for (String key : sortedKeys)
+        {
+            propString.append(key);
+            propString.append("=");
+            propString.append(props.get(key));
+            propString.append(", ");
+        }
+        // Get rid of the trailing ,
+        propString.deleteCharAt(propString.length() - 1);
+        propString.deleteCharAt(propString.length() - 1);
+        propString.append("}");
+        builder.append(propString);
         if (retrievedConnections.contains(Connections.PARENTS))
         {
             builder.append(getParentCodes());

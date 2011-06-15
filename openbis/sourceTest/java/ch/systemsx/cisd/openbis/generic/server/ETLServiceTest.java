@@ -39,16 +39,22 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -62,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -88,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -117,6 +125,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
+    private IHibernateSearchDAO hibernateSearchDao;
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -125,6 +135,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
+        hibernateSearchDao = context.mock(IHibernateSearchDAO.class);
     }
 
     @Test
@@ -1005,6 +1016,48 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(updatedDataSetCode, result.getDataSetsUpdated().get(0).getCode());
 
         context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSearchForSamples()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+
+                    one(daoFactory).getHibernateSearchDAO();
+                    will(returnValue(hibernateSearchDao));
+
+                    one(hibernateSearchDao).searchForEntityIds(
+                            with(aNonNull(DetailedSearchCriteria.class)),
+                            with(equal(EntityKind.SAMPLE)), with(aNonNull(List.class)));
+                    will(returnValue(Arrays.asList(new Long(1), new Long(2))));
+
+                    one(sampleLister).list(with(aNonNull(ListOrSearchSampleCriteria.class)));
+                    SampleBuilder sample1 = new SampleBuilder().id(1);
+                    SampleBuilder sample2 = new SampleBuilder().id(2);
+                    will(returnValue(Arrays.asList(sample1, sample2)));
+
+                }
+            });
+
+        List<Sample> sample =
+                createService().searchForSamples(SESSION_TOKEN, createSearchCriteriaForSample());
+
+        assertEquals(2, sample.size());
+        context.assertIsSatisfied();
+    }
+
+    private SearchCriteria createSearchCriteriaForSample()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "a code"));
+        sc.addMatchClause(MatchClause.createPropertyMatch("MY_PROPERTY2", "a property value"));
+        return sc;
     }
 
     private void prepareRegisterDataSet(final SampleIdentifier sampleIdentifier,
