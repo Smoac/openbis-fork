@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author Bernd Rinn
  */
-public class FeatureVectorWithDescription extends FeatureVector implements Serializable
+public class FeatureVectorWithDescription extends FeatureVector implements IFeatureCodesProvider, Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -38,6 +38,11 @@ public class FeatureVectorWithDescription extends FeatureVector implements Seria
      * Names (and implicitly order) of the features present in each feature vector.
      */
     public List<String> getFeatureNames()
+    {
+        return featureNames;
+    }
+    
+    public List<String> getFeatureCodes()
     {
         return featureNames;
     }

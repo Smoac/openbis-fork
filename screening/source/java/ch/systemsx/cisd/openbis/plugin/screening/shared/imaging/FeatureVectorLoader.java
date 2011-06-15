@@ -480,7 +480,8 @@ public class FeatureVectorLoader
 
         private List<ImgFeatureDefDTO> getRequestedFeatureDefinitions(ImgDatasetDTO dataset)
         {
-            return requestedFeatureDefinitionsMap.getOrDie(dataset.getId());
+            List<ImgFeatureDefDTO> def = requestedFeatureDefinitionsMap.tryGet(dataset.getId());
+            return def == null ? Collections.<ImgFeatureDefDTO>emptyList() : def;
         }
 
         public List<ImgFeatureVocabularyTermDTO> getFeatureVocabularyTerms(ImgDatasetDTO dataSet)

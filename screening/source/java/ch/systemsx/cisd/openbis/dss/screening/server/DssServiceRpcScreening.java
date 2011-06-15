@@ -101,7 +101,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 6;
+    public static final int MINOR_VERSION = 7;
 
     /**
      * NULL_SIZE encodes for "no thumbnails available"

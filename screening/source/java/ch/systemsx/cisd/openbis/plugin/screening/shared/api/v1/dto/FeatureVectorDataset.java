@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
-public class FeatureVectorDataset implements Serializable
+public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
 {
     private static final long serialVersionUID = 1L;
 

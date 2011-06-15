@@ -24,10 +24,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
@@ -40,8 +44,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureCodesProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
@@ -146,6 +152,40 @@ public class OpenBISScreeningML
                 outputStream.close();
             }
             outputStream = null;
+        }
+    }
+
+    private static final class IndexSet<T extends Comparable<T>>
+    {
+        private final Map<T, Integer> indexMap = new HashMap<T, Integer>();
+        private final Set<T> set = new TreeSet<T>();
+        
+        public void add(T item)
+        {
+            set.add(item);
+        }
+        
+        public int getIndex(T item)
+        {
+            if (set.size() != indexMap.size())
+            {
+                List<T> items = new ArrayList<T>(set);
+                for (int i = 0; i < items.size(); i++)
+                {
+                    indexMap.put(items.get(i), i);
+                }
+            }
+            Integer index = indexMap.get(item);
+            if (index == null)
+            {
+                throw new IllegalArgumentException("Unknown item: " + item);
+            }
+            return index;
+        }
+        
+        public int size()
+        {
+            return set.size();
         }
     }
 
@@ -634,25 +674,15 @@ public class OpenBISScreeningML
         {
             return new Object[0][];
         }
-        final List<String> features = listAvailableFeatureCodes(featureDatasets);
-        Object[][] result = new Object[features.size()][1];
+        List<String> featureCodes = openbis.listAvailableFeatureCodes(featureDatasets);
+        Collections.sort(featureCodes);
+        Object[][] result = new Object[featureCodes.size()][1];
         for (int i = 0; i < result.length; ++i)
         {
-            result[i][0] = features.get(i);
+            result[i][0] = featureCodes.get(i);
         }
         return result;
     }
-
-    @SuppressWarnings("deprecation")
-    private static List<String> listAvailableFeatureCodes(
-            final List<FeatureVectorDatasetReference> featureDatasets)
-    {
-        return openbis.listAvailableFeatureNames(Arrays.asList(featureDatasets.get(0)));
-    }
-
-    //
-    // Data Sets
-    //
 
     /**
      * Loads data sets for specified plate code. For each data set the path to the root of the data
@@ -1237,32 +1267,41 @@ public class OpenBISScreeningML
      * <code>[0]</code>, location annotations in <code>[1]</code> and feature annotation in
      * <code>[2]</code>.
      * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
-     * <p>
      * Matlab example:
      * 
      * <pre>
      * % Get feature matrix for experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
      * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME');
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the fifth feature for all locations (assuming there are at least 5 features)
-     * feature5 = fmatrix(1,:,5)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param experiment The augmented experiment code
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
     public static Object[][][] getFeatureMatrix(String experiment, String gene)
     {
@@ -1275,36 +1314,45 @@ public class OpenBISScreeningML
      * <var>experiment</var> connected to <var>gene</var> in <code>[0]</code>, location annotations
      * in <code>[1]</code> and feature annotation in <code>[2]</code>.
      * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
-     * <p>
      * Matlab example:
      * 
      * <pre>
-     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for 
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for 
      * % experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
      * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
-     * feature5 = fmatrix(1,:,4)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param experiment The augmented experiment code
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @param features The names of the features to contain the feature matrix
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
-    public static Object[][][] getFeatureMatrix(String experiment, String gene, String[] features)
+    public static Object[][][][] getFeatureMatrix(String experiment, String gene, String[] features)
     {
         checkLoggedIn();
         final ExperimentIdentifier experimentId = experimentCodeToExperimentMap.get(experiment);
@@ -1315,89 +1363,57 @@ public class OpenBISScreeningML
         final List<Plate> experimentPlates = experimentToPlateMap.get(experiment);
         if (experimentPlates == null || experimentPlates.isEmpty())
         {
-            return new Object[][][]
-                { new Object[0][], new Object[0][], new Object[0][] };
+            return new Object[][][][]
+                { new Object[0][][], new Object[0][][], new Object[0][][] };
         }
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(experimentId, new MaterialIdentifier(
                         MaterialTypeIdentifier.GENE, gene),
                         (features == null) ? null : Arrays.asList(features));
-        final List<String> featureNameList =
-                featureVectors.get(featureVectors.size() - 1).getFeatureNames();
-        final Object[][][] result = new Object[3][][];
-        if (featureVectors.isEmpty())
-        {
-            return result;
-        }
-        result[0] = new Object[featureVectors.size()][featureNameList.size()];
-        result[1] = new Object[featureVectors.size()][13];
-        int resultIdx = 0;
-        for (FeatureVectorWithDescription f : featureVectors)
-        {
-            arraycopy(f.getValues(), result[0][resultIdx]);
-            final Object[] annotations =
-                    new Object[]
-                        {
-                                createPlateWellDescription(f),
-                                f.getDatasetWellReference().getPlate().getAugmentedCode(),
-                                f.getDatasetWellReference().getPlate().getPermId(),
-                                f.getDatasetWellReference().getPlate().tryGetSpaceCode(),
-                                f.getDatasetWellReference().getPlate().getPlateCode(),
-                                f.getWellPosition().getWellRow(),
-                                f.getWellPosition().getWellColumn(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getAugmentedCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier().getPermId(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getSpaceCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getProjectCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getExperimentCode(),
-                                f.getDatasetWellReference().getDatasetCode(), };
-            System.arraycopy(annotations, 0, result[1][resultIdx], 0, annotations.length);
-            resultIdx++;
-        }
-        result[2] = new Object[featureNameList.size()][1];
-        for (int i = 0; i < featureNameList.size(); ++i)
-        {
-            result[2][i][0] = featureNameList.get(i);
-        }
-        return result;
+        return getFeatureMatrix(featureVectors);
     }
-
+    
     /**
      * Returns the feature matrix of all features for all locations (a location is one well position
      * in one feature vector data set) connected to <var>gene</var> in <code>[0]</code>, location
      * annotations in <code>[1]</code> and feature annotation in <code>[2]</code>.
-     * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
      * <p>
      * Matlab example:
      * 
      * <pre>
      * % Get feature matrix for GENENAME
      * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME');
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the fifth feature for all locations (assuming there are at least 5 features)
-     * feature5 = fmatrix(1,:,5)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
-    public static Object[][][] getFeatureMatrix(String gene)
+    public static Object[][][][] getFeatureMatrix(String gene)
     {
         return getFeatureMatrix(gene, (String[]) null);
     }
@@ -1408,82 +1424,91 @@ public class OpenBISScreeningML
      * <var>gene</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
      * annotation in <code>[2]</code>.
      * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
-     * <p>
      * Matlab example:
      * 
      * <pre>
-     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for GENENAME
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for GENENAME
      * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the second feature ('FEATURE2' here) for all locations
-     * feature2 = fmatrix(1,:,2)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @param features The names of the features to contain the feature matrix
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
-    public static Object[][][] getFeatureMatrix(String gene, String[] features)
+    public static Object[][][][] getFeatureMatrix(String gene, String[] features)
     {
         checkLoggedIn();
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(new MaterialIdentifier(
                         MaterialTypeIdentifier.GENE, gene),
                         (features == null) ? null : Arrays.asList(features));
-        final List<String> featureNameList =
-                featureVectors.get(featureVectors.size() - 1).getFeatureNames();
-        final Object[][][] result = new Object[3][][];
+        return getFeatureMatrix(featureVectors);
+    }
+
+    private static Object[][][][] getFeatureMatrix(
+            final List<FeatureVectorWithDescription> featureVectors)
+    {
+        final Object[][][][] result = new Object[3][][][];
         if (featureVectors.isEmpty())
         {
             return result;
         }
-        result[0] = new Object[featureVectors.size()][featureNameList.size()];
-        result[1] = new Object[featureVectors.size()][13];
-        int resultIdx = 0;
-        for (FeatureVectorWithDescription f : featureVectors)
+        List<String> featureCodes = getFeatureCodes(featureVectors);
+        Map<String, Integer> featureCodeToIndexMap = new HashMap<String, Integer>();
+        result[2] = new Object[featureCodes.size()][1][1];
+        for (int i = 0; i < featureCodes.size(); ++i)
         {
-            arraycopy(f.getValues(), result[0][resultIdx]);
-            final Object[] annotations =
-                    new Object[]
-                        {
-                                createPlateWellDescription(f),
-                                f.getDatasetWellReference().getPlate().getAugmentedCode(),
-                                f.getDatasetWellReference().getPlate().getPermId(),
-                                f.getDatasetWellReference().getPlate().tryGetSpaceCode(),
-                                f.getDatasetWellReference().getPlate().getPlateCode(),
-                                f.getWellPosition().getWellRow(),
-                                f.getWellPosition().getWellColumn(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getAugmentedCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier().getPermId(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getSpaceCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getProjectCode(),
-                                f.getDatasetWellReference().getExperimentIdentifier()
-                                        .getExperimentCode(),
-                                f.getDatasetWellReference().getDatasetCode(), };
-            System.arraycopy(annotations, 0, result[1][resultIdx], 0, annotations.length);
-            resultIdx++;
+            String code = featureCodes.get(i);
+            result[2][i][0][0] = code;
+            featureCodeToIndexMap.put(code, i);
         }
-        result[2] = new Object[featureNameList.size()][1];
-        for (int i = 0; i < featureNameList.size(); ++i)
+        IndexSet<String> dataSetCodes = new IndexSet<String>();
+        IndexSet<WellPosition> wellPositions = new IndexSet<WellPosition>();
+        for (FeatureVectorWithDescription featureVector : featureVectors)
         {
-            result[2][i][0] = featureNameList.get(i);
+            WellPosition wellPosition = featureVector.getWellPosition();
+            wellPositions.add(wellPosition);
+            dataSetCodes.add(featureVector.getDatasetWellReference().getDatasetCode());
         }
-        return result;
+        result[0] =
+                new Object[featureCodes.size()][wellPositions.size()][dataSetCodes.size()];
+        result[1] = new Object[wellPositions.size()][dataSetCodes.size()][13];
+        for (FeatureVectorWithDescription vector : featureVectors)
+        {
+            WellPosition wellPosition = vector.getWellPosition();
+            int wellIndex = wellPositions.getIndex(wellPosition);
+            int[] featureIndexes = createFeatureIndexes(vector, featureCodeToIndexMap);
+            FeatureVectorDatasetWellReference dataSetRef = vector.getDatasetWellReference();
+            int dataSetIndex = dataSetCodes.getIndex(dataSetRef.getDatasetCode());
+            copyFeatureValuesInto(result, wellIndex, dataSetIndex, featureIndexes, vector);
+            copyAnnotationsInto(result, wellIndex, dataSetIndex, dataSetRef, vector);
+        }
+        return replaceFeatureNullValuesByNaN(result);
     }
 
     /**
@@ -1492,33 +1517,41 @@ public class OpenBISScreeningML
      * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
      * annotation in <code>[2]</code>.
      * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
-     * <p>
      * Matlab example:
-     * 
      * <pre>
      * % Get feature matrix for PLATECODE
      * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE');
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
-     * feature5 = fmatrix(1,:,4)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param plate augmented code of the plate for which features should be loaded
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
-    public static Object[][][] getFeatureMatrixForPlate(String plate)
+    public static Object[][][][] getFeatureMatrixForPlate(String plate)
     {
         return getFeatureMatrixForPlate(plate, (String[]) null);
     }
@@ -1529,92 +1562,177 @@ public class OpenBISScreeningML
      * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
      * annotation in <code>[2]</code>.
      * <p>
-     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
-     * dataset), one column corresponds to one feature.
-     * <p>
      * Matlab example:
-     * 
      * <pre>
-     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for PLATECODE
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for PLATECODE
      * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', ('FEATURE1','FEATURE2','FEATURE3'));
-     * % Get the feature vector for the second location (assuming there are at least two locations)
-     * loc2 = fmatrix(1,2,:)
-     * % Get the values of the second feature for all locations
-     * feature5 = fmatrix(1,:,2)
-     * % What are the features?
-     * featureNames = fmatrix(3,:)
-     * % Get the plate-well descriptions of the locations
-     * locationDescriptions = fmatrix(2,:,1)
+     * % Get the feature vector for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,:,2,3)
+     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(1,4,:,3)
+     * % Get code of the fourth feature (assuming that there are at least 4 features)
+     * fmatrix(3,4)
+     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
+     * % of third data set (assuming that there are at least three data sets)
+     * fmatrix(2,2,3,:)
      * </pre>
      * 
      * @param plate augmented code of the plate for which features should be loaded
-     * @param features The names of the features to contain the feature matrix
-     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
-     *         <code>annotations per location</code> contain:
-     *         <p>
-     *         <code>{ plate well description, plate augmented code, plate perm id,
-     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
-     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     * @param features The codes of the features to contain the feature matrix. 
+     *         Unknown feature codes will be ignored.
+     * @return a four dimensional matrix. The first dimension denotes the type in the following
+     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
+     *         other dimensions depend on the value of the first dimension:
+     *         <ol>
+     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
+     *         4. dimension is data set number. If for a particular location and a particular data
+     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
+     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
+     *         dimension is location annotations in the following order: <code>{plate well
+     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
+     *         column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code}</code> 
+     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one) 
+     *         </ol>
      */
-    public static Object[][][] getFeatureMatrixForPlate(String plate, String[] features)
+    public static Object[][][][] getFeatureMatrixForPlate(String plate, String[] features)
     {
         checkLoggedIn();
-        final List<FeatureVectorDataset> featureVectors =
+        final List<FeatureVectorDataset> dataSets =
                 openbis.loadFeaturesForPlates(
                         Arrays.asList(PlateIdentifier.createFromAugmentedCode(plate)),
                         (features == null) ? null : Arrays.asList(features));
-        FeatureVectorDataset last = featureVectors.get(featureVectors.size() - 1);
-        final List<String> featureCodeList = getFeatureCodes(last);
-        final Object[][][] result = new Object[3][][];
-        if (featureVectors.isEmpty())
+        final Object[][][][] result = new Object[3][][][];
+        if (dataSets.isEmpty())
         {
             return result;
         }
-        int numberOfRows = 0;
-        for (FeatureVectorDataset fvds : featureVectors)
+        List<String> featureCodes = getFeatureCodes(dataSets);
+        Map<String, Integer> featureCodeToIndexMap = new HashMap<String, Integer>();
+        result[2] = new Object[featureCodes.size()][1][1];
+        for (int i = 0; i < featureCodes.size(); ++i)
         {
-            numberOfRows += fvds.getFeatureVectors().size();
+            String code = featureCodes.get(i);
+            result[2][i][0][0] = code;
+            featureCodeToIndexMap.put(code, i);
         }
-        result[0] = new Object[numberOfRows][featureCodeList.size()];
-        result[1] = new Object[numberOfRows][13];
-        int resultIdx = 0;
-        for (FeatureVectorDataset fvds : featureVectors)
+        IndexSet<WellPosition> wellPositions = new IndexSet<WellPosition>();
+        for (FeatureVectorDataset dataSet : dataSets)
         {
-            final FeatureVectorDatasetReference datasetRef = fvds.getDataset();
-            for (FeatureVector f : fvds.getFeatureVectors())
+            List<FeatureVector> featureVectors = dataSet.getFeatureVectors();
+            for (FeatureVector featureVector : featureVectors)
             {
-                arraycopy(f.getValues(), result[0][resultIdx]);
-                final Object[] annotations =
-                        new Object[]
-                            { createPlateWellDescription(datasetRef.getPlate(), f),
-                                    datasetRef.getPlate().getAugmentedCode(),
-                                    datasetRef.getPlate().getPermId(),
-                                    datasetRef.getPlate().tryGetSpaceCode(),
-                                    datasetRef.getPlate().getPlateCode(),
-                                    f.getWellPosition().getWellRow(),
-                                    f.getWellPosition().getWellColumn(),
-                                    datasetRef.getExperimentIdentifier().getAugmentedCode(),
-                                    datasetRef.getExperimentIdentifier().getPermId(),
-                                    datasetRef.getExperimentIdentifier().getSpaceCode(),
-                                    datasetRef.getExperimentIdentifier().getProjectCode(),
-                                    datasetRef.getExperimentIdentifier().getExperimentCode(),
-                                    datasetRef.getDatasetCode(), };
-                System.arraycopy(annotations, 0, result[1][resultIdx], 0, annotations.length);
-                resultIdx++;
+                WellPosition wellPosition = featureVector.getWellPosition();
+                wellPositions.add(wellPosition);
             }
         }
-        result[2] = new Object[featureCodeList.size()][1];
-        for (int i = 0; i < featureCodeList.size(); ++i)
+        int numberOfDataSets = dataSets.size();
+        result[0] =
+                new Object[featureCodes.size()][wellPositions.size()][numberOfDataSets];
+        result[1] = new Object[wellPositions.size()][numberOfDataSets][13];
+        for (int dataSetIndex = 0; dataSetIndex < numberOfDataSets; dataSetIndex++)
         {
-            result[2][i][0] = featureCodeList.get(i);
+            FeatureVectorDataset dataSet = dataSets.get(dataSetIndex);
+            FeatureVectorDatasetReference dataSetRef = dataSet.getDataset();
+            int[] featureIndexes = createFeatureIndexes(dataSet, featureCodeToIndexMap);
+            for (FeatureVector vector : dataSet.getFeatureVectors())
+            {
+                WellPosition wellPosition = vector.getWellPosition();
+                int wellIndex = wellPositions.getIndex(wellPosition);
+                copyFeatureValuesInto(result, wellIndex, dataSetIndex, featureIndexes, vector);
+                copyAnnotationsInto(result, wellIndex, dataSetIndex, dataSetRef, vector);
+            }
+        }
+        return replaceFeatureNullValuesByNaN(result);
+    }
+
+    private static Object[][][][] replaceFeatureNullValuesByNaN(final Object[][][][] result)
+    {
+        Double nan = Double.NaN;
+        for (int i = 0; i < result[0].length; i++)
+        {
+            Object[][] r0i = result[0][i];
+            for (int j = 0; j < r0i.length; j++)
+            {
+                Object[] r0ij = r0i[j];
+                for (int k = 0; k < r0ij.length; k++)
+                {
+                    if (r0ij[k] == null)
+                    {
+                        r0ij[k] = nan;
+                    }
+                }
+            }
         }
         return result;
     }
 
-    @SuppressWarnings("deprecation")
-    private static List<String> getFeatureCodes(FeatureVectorDataset last)
+    private static int[] createFeatureIndexes(IFeatureCodesProvider dataSet,
+            Map<String, Integer> featureCodeToIndexMap)
     {
-        return last.getFeatureNames();
+        List<String> codes = dataSet.getFeatureCodes();
+        int[] featureIndexes = new int[codes.size()];
+        for (int i = 0; i < featureIndexes.length; i++)
+        {
+            featureIndexes[i] = featureCodeToIndexMap.get(codes.get(i));
+        }
+        return featureIndexes;
+    }
+
+    private static void copyFeatureValuesInto(final Object[][][][] result, int wellIndex,
+            int dataSetIndex, int[] featureIndexes, FeatureVector vector)
+    {
+        List<Object> valueObjects = vector.getValueObjects();
+        for (int i = 0, n = valueObjects.size(); i < n; i++)
+        {
+            int featureIndex = featureIndexes[i];
+            try
+            {
+                Object[][] f = result[0][featureIndex];
+                Object[] d = f[wellIndex];
+                d[dataSetIndex] = valueObjects.get(i);
+                
+            } catch (Exception ex)
+            {
+                throw new RuntimeException(featureIndex+"."+wellIndex+"."+dataSetIndex, ex);
+            }
+        }
+    }
+
+    private static void copyAnnotationsInto(final Object[][][][] result, int wellIndex,
+            int dataSetIndex, FeatureVectorDatasetReference dataSetRef, FeatureVector vector)
+    {
+        Object[] annotations =
+                new Object[]
+                    { createPlateWellDescription(dataSetRef.getPlate(), vector),
+                            dataSetRef.getPlate().getAugmentedCode(),
+                            dataSetRef.getPlate().getPermId(),
+                            dataSetRef.getPlate().tryGetSpaceCode(),
+                            dataSetRef.getPlate().getPlateCode(),
+                            vector.getWellPosition().getWellRow(),
+                            vector.getWellPosition().getWellColumn(),
+                            dataSetRef.getExperimentIdentifier().getAugmentedCode(),
+                            dataSetRef.getExperimentIdentifier().getPermId(),
+                            dataSetRef.getExperimentIdentifier().getSpaceCode(),
+                            dataSetRef.getExperimentIdentifier().getProjectCode(),
+                            dataSetRef.getExperimentIdentifier().getExperimentCode(),
+                            dataSetRef.getDatasetCode(), };
+        System.arraycopy(annotations, 0, result[1][wellIndex][dataSetIndex], 0, annotations.length);
+    }
+    
+    private static List<String> getFeatureCodes(List<? extends IFeatureCodesProvider> dataSets)
+    {
+        Set<String> codes = new HashSet<String>();
+        for (IFeatureCodesProvider featureVectorDataset : dataSets)
+        {
+            codes.addAll(featureVectorDataset.getFeatureCodes());
+        }
+        List<String> result = new ArrayList<String>(codes);
+        Collections.sort(result);
+        return result;
     }
 
     /**
@@ -1704,20 +1822,6 @@ public class OpenBISScreeningML
                     + "' found.");
         }
         return plateIdentifier;
-    }
-
-    private static void arraycopy(double[] src, Object[] dest)
-    {
-        for (int i = 0; i < dest.length; ++i)
-        {
-            dest[i] = src[i];
-        }
-    }
-
-    private static String createPlateWellDescription(FeatureVectorWithDescription f)
-    {
-        return createPlateWellDescription(f.getDatasetWellReference().getPlate(), f
-                .getWellPosition().getWellRow(), f.getWellPosition().getWellColumn());
     }
 
     private static String createPlateWellDescription(PlateIdentifier p, FeatureVector f)

@@ -19,8 +19,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +47,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbis
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -57,6 +68,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 {
+    private static final PlateIdentifier PLATE_1 = PlateIdentifier.createFromAugmentedCode("/S/PLATE-1");
+
     private static final FilenameFilter FILTER_TEMP_DIR = new FilenameFilter()
         {
             public boolean accept(File dir, String name)
@@ -82,6 +95,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
     private IScreeningOpenbisServiceFacadeFactory facadeFactory;
 
+    private Plate p1;
+
+    private Plate p2;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -95,6 +112,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         OpenBISScreeningML.tempDir = workingDirectory;
         eId1 = new ExperimentIdentifier("E1", "P", "S", "e-1");
         eId2 = new ExperimentIdentifier("E2", "P", "S", "e-2");
+        p1 = new Plate("PLATE-1", "S", "s-1", eId1);
+        p2 = new Plate("PLATE-2", "S", "s-2", eId2);
         context.checking(new Expectations()
             {
                 {
@@ -105,8 +124,6 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(eId1, eId2)));
 
                     one(openbis).listPlates();
-                    Plate p1 = new Plate("PLATE-1", "S", "s-1", eId1);
-                    Plate p2 = new Plate("PLATE-2", "S", "s-2", eId2);
                     will(returnValue(Arrays.asList(p1, p2)));
                 }
             });
@@ -294,7 +311,171 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         assertEquals(1, plates.length);
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testListFeatures()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).listFeatureVectorDatasets(Arrays.asList(p1));
+                    List<FeatureVectorDatasetReference> list =
+                            Arrays.asList((FeatureVectorDatasetReference) null);
+                    will(returnValue(list));
 
+                    one(openbis).listAvailableFeatureCodes(list);
+                    will(returnValue(Arrays.asList("F1", "F2")));
+                }
+            });
+        
+        Object[][] features = OpenBISScreeningML.listFeatures("/S/P/E1");
+        
+        assertEquals("F1", features[0][0]);
+        assertEquals("F2", features[1][0]);
+        assertEquals(2, features.length);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetFeatureMatrixForGene()
+    {
+        final MaterialIdentifier gene = new MaterialIdentifier(
+                MaterialTypeIdentifier.GENE, "GEN1");
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).loadFeaturesForPlateWells(gene, null);
+                    FeatureVectorDatasetReference fds1 =
+                            new FeatureVectorDatasetReference("ds1", "", p1,
+                                    ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
+                                    Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
+                                    null, null);
+                    FeatureVectorDatasetWellReference well1 =
+                            new FeatureVectorDatasetWellReference(fds1, new WellPosition(3, 4));
+                    FeatureVectorWithDescription f1 =
+                            new FeatureVectorWithDescription(well1, Arrays.asList("F1", "F3"),
+                                    new double[]
+                                        { 1.5, 42 });
+                    FeatureVectorDatasetReference fds2 =
+                        new FeatureVectorDatasetReference("ds2", "", p2,
+                                ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
+                                Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
+                                null, null);
+                    FeatureVectorDatasetWellReference well2 =
+                        new FeatureVectorDatasetWellReference(fds2, new WellPosition(2, 7));
+                    FeatureVectorWithDescription f2 =
+                        new FeatureVectorWithDescription(well2, Arrays.asList("F1", "F2"),
+                                new double[]
+                                           { -3, 7.125 });
+                    will(returnValue(Arrays.asList(f1, f2)));
+                }
+            });
+
+        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrix("GEN1");
+
+        assertEquals(Double.NaN, matrix[0][0][0][0]);
+        assertEquals(1.5,        matrix[0][0][1][0]);
+        assertEquals(Double.NaN, matrix[0][1][0][0]);
+        assertEquals(Double.NaN, matrix[0][1][1][0]);
+        assertEquals(Double.NaN, matrix[0][2][0][0]);
+        assertEquals(42.0,       matrix[0][2][1][0]);
+        assertEquals(-3.0,       matrix[0][0][0][1]);
+        assertEquals(Double.NaN, matrix[0][0][1][1]);
+        assertEquals(7.125,      matrix[0][1][0][1]);
+        assertEquals(Double.NaN, matrix[0][1][1][1]);
+        assertEquals(Double.NaN, matrix[0][2][0][1]);
+        assertEquals(Double.NaN, matrix[0][2][1][1]);
+        assertEquals(3, matrix[0].length);
+        assertEquals(
+                "[PLATE-2:B7, /S/PLATE-2, s-2, S, PLATE-2, 2, 7, /S/P/E, null, S, P, E, ds2]",
+                Arrays.asList(matrix[1][0][1]).toString());
+        assertEquals(
+                "[PLATE-1:C4, /S/PLATE-1, s-1, S, PLATE-1, 3, 4, /S/P/E, null, S, P, E, ds1]",
+                Arrays.asList(matrix[1][1][0]).toString());
+        assertEquals(2, matrix[1].length);
+        assertEquals("F1", matrix[2][0][0][0]);
+        assertEquals("F2", matrix[2][1][0][0]);
+        assertEquals("F3", matrix[2][2][0][0]);
+        assertEquals(3, matrix[2].length);
+        assertEquals(3, matrix.length);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetEmptyFeatureMatrixForPlate()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).loadFeaturesForPlates(
+                            Arrays.asList(PlateIdentifier.createFromAugmentedCode(p1
+                                    .getAugmentedCode())), null);
+                }
+            });
+
+        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrixForPlate(p1.getAugmentedCode());
+
+        assertEquals(0, matrix[0].length);
+        assertEquals(0, matrix[1].length);
+        assertEquals(0, matrix[2].length);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetFeatureMatrixForPlate()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).loadFeaturesForPlates(Arrays.asList(PLATE_1),
+                            Arrays.asList("F1", "F2", "F3"));
+                    FeatureVectorDatasetReference ref =
+                            new FeatureVectorDatasetReference("ds1", "", PLATE_1,
+                                    ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
+                                    Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
+                                    null, null);
+                    FeatureVector v1 = new FeatureVector(new WellPosition(2, 1), new double[]
+                        { 1.5, 42 });
+                    FeatureVector v2 = new FeatureVector(new WellPosition(1, 3), new double[]
+                        { 1.25, 42.5 }, new boolean[]
+                        { true, false }, new String[]
+                        { "a", "b" });
+                    FeatureVectorDataset d1 =
+                            new FeatureVectorDataset(ref, Arrays.asList("F1", "F3"), Arrays.asList(
+                                    "f1", "f3"), Arrays.asList(v1, v2));
+                    will(returnValue(Arrays.asList(d1)));
+                }
+            });
+
+        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrixForPlate("/S/PLATE-1", new String[] {"F1", "F2", "F3"});
+        
+        assertPlateFeatures("[a, 1.5]", matrix[0][0]);
+        assertPlateFeatures("[42.5, 42.0]", matrix[0][1]);
+        assertEquals(2, matrix[0].length);
+        assertEquals(
+                "[PLATE-1:A3, /S/PLATE-1, null, S, PLATE-1, 1, 3, /S/P/E, null, S, P, E, ds1]",
+                Arrays.asList(matrix[1][0][0]).toString());
+        assertEquals(
+                "[PLATE-1:B1, /S/PLATE-1, null, S, PLATE-1, 2, 1, /S/P/E, null, S, P, E, ds1]",
+                Arrays.asList(matrix[1][1][0]).toString());
+        assertEquals(2, matrix[1].length);
+        assertEquals("F1", matrix[2][0][0][0]);
+        assertEquals("F3", matrix[2][1][0][0]);
+        assertEquals(2, matrix[2].length);
+        context.assertIsSatisfied();
+    }
+    
+    private void assertPlateFeatures(String expectedFeatures, Object[][] plateFeatures)
+    {
+        List<Object> list = new ArrayList<Object>();
+        for (Object[] plateFeature : plateFeatures)
+        {
+            list.add(plateFeature[0]);
+            assertEquals(1, plateFeature.length);
+        }
+        assertEquals(expectedFeatures, list.toString());
+    }
+    
     @Test
     public void testGetWellProperties()
     {

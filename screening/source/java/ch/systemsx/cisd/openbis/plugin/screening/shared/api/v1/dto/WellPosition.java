@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
  * 
  * @author Tomasz Pylak
  */
-public class WellPosition implements Serializable
+public class WellPosition implements Serializable, Comparable<WellPosition>
 {
     private static final long serialVersionUID = 1L;
 
@@ -152,6 +152,12 @@ public class WellPosition implements Serializable
             return false;
         }
         return true;
+    }
+
+    public int compareTo(WellPosition other)
+    {
+        int diff = wellRow - other.wellRow;
+        return diff != 0 ? diff : wellColumn - other.wellColumn;
     }
 
 }
