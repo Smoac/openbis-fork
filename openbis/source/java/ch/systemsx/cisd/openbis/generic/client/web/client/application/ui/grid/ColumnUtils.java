@@ -18,13 +18,22 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DateFormField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.HyperlinkField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.RealField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
@@ -37,13 +46,29 @@ public class ColumnUtils
     /**
      * Creates a {@link CellEditor} based on specified data type.
      */
-    public static CellEditor createCellEditor(DataTypeCode dataTypeOrNull)
+    public static CellEditor createCellEditor(DataTypeCode dataType)
     {
         CellEditor editor;
-        switch (dataTypeOrNull)
+        switch (dataType)
         {
+            case INTEGER:
+                editor = new StringBasedCellEditor(new IntegerField("", false));
+                break;
+            case REAL:
+                editor = new StringBasedCellEditor(new RealField("", false));
+                break;
+            case TIMESTAMP:
+                editor = new StringBasedCellEditor(new DateFormField("", false));
+                break;
+            case VARCHAR:
+                editor = new StringEscapingCellEditor(new VarcharField("", false));
+                break;
+            case HYPERLINK:
+                editor = new StringEscapingCellEditor(new HyperlinkField("", false));
+                break;
+            case XML:
             case MULTILINE_VARCHAR:
-                editor = new CellEditor(new MultiLineCellEditorField())
+                editor = new StringEscapingCellEditor(new MultilineVarcharField("", false))
                     {
                         // WORKAROUND to allow use enter key in table editing
                         @Override
@@ -57,14 +82,37 @@ public class ColumnUtils
                     };
                 break;
             case BOOLEAN:
-                CheckBox checkBox = new CheckBox();
-                editor = new StringBasedCellEditor(checkBox);
-                break;
-            case TIMESTAMP:
-                editor = new StringBasedCellEditor(new DateFormField("", false));
+                final SimpleComboBox<String> combo = new SimpleComboBox<String>();
+                combo.setForceSelection(true);
+                combo.setTriggerAction(TriggerAction.ALL);
+                combo.add("true");
+                combo.add("false");
+                editor = new CellEditor(combo)
+                    {
+                        @Override
+                        public Object preProcessValue(Object value)
+                        {
+                            if (value == null)
+                            {
+                                return value;
+                            }
+                            return combo.findModel(value.toString());
+                        }
+
+                        @Override
+                        public Object postProcessValue(Object value)
+                        {
+                            if (value == null)
+                            {
+                                return value;
+                            }
+                            return ((ModelData) value).get("value");
+                        }
+                    };
                 break;
             default:
-                editor = new CellEditor(new DefaultCellEditorField());
+                throw new UserFailureException("Edition of properties of type '" + dataType
+                        + "' is not supported.");
         }
         return editor;
     }
@@ -101,6 +149,39 @@ public class ColumnUtils
                 return value;
             }
             return getField().getPropertyEditor().getStringValue(value);
+        }
+
+    }
+
+    /**
+     * Extension of GXT {@link CellEditor} with escaping of String values.
+     */
+    private static class StringEscapingCellEditor extends CellEditor
+    {
+
+        public StringEscapingCellEditor(Field<? extends Object> field)
+        {
+            super(field);
+        }
+
+        @Override
+        public Object preProcessValue(Object value)
+        {
+            if (value == null)
+            {
+                return value;
+            }
+            return StringEscapeUtils.unescapeHtml(value.toString());
+        }
+
+        @Override
+        public Object postProcessValue(Object value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            return StringEscapeUtils.escapeHtml(value.toString());
         }
 
     }

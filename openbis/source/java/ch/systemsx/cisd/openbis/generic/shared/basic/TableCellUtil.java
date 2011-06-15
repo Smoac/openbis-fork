@@ -77,17 +77,11 @@ public class TableCellUtil
         DataTypeCode dataType = propertyType.getDataType().getCode();
         switch (dataType)
         {
-            case REAL:
-            case INTEGER:
-            case VARCHAR:
-            case MULTILINE_VARCHAR:
-            case BOOLEAN:
-            case TIMESTAMP:
-                // case CONTROLLEDVOCABULARY:
-                // case MATERIAL:
-                return true;
-            default:
+            case CONTROLLEDVOCABULARY:
+            case MATERIAL:
                 return false;
+            default:
+                return true;
         }
     }
 

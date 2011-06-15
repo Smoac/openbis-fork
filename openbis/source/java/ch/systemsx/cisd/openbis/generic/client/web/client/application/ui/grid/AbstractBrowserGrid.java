@@ -108,6 +108,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Constants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
@@ -1781,8 +1782,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     M model = event.getModel();
                     String columnID = event.getProperty();
                     Object value = event.getValue();
-                    String oldValueNotNull = StringUtils.toStringEmptyIfNull(value);
-                    String newValueNotNull = StringUtils.toStringEmptyIfNull(event.getStartValue());
+                    String newValueNotNull = StringUtils.toStringEmptyIfNull(value);
+                    String oldValueNotNull = StringUtils.toStringEmptyIfNull(event.getStartValue());
                     if (oldValueNotNull.equals(newValueNotNull))
                     {
                         event.setCancelled(true);
@@ -1993,7 +1994,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             super();
             this.columnID = columnID;
-            this.newValueOrNull = newValueOrNull;
+            this.newValueOrNull =
+                    newValueOrNull == null ? null : StringEscapeUtils.unescapeHtml(newValueOrNull);
         }
 
         public String getColumnID()
