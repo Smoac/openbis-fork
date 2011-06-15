@@ -82,13 +82,15 @@ public class TableCellUtil
             case VARCHAR:
             case MULTILINE_VARCHAR:
             case BOOLEAN:
-//            case CONTROLLEDVOCABULARY:
+            case TIMESTAMP:
+                // case CONTROLLEDVOCABULARY:
+                // case MATERIAL:
                 return true;
             default:
                 return false;
         }
     }
-    
+
     private TableCellUtil()
     {
     }
