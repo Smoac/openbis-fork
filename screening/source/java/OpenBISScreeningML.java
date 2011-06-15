@@ -1298,7 +1298,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1347,7 +1347,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1408,7 +1408,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1455,7 +1455,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1497,7 +1497,7 @@ public class OpenBISScreeningML
         }
         result[0] =
                 new Object[featureCodes.size()][wellPositions.size()][dataSetCodes.size()];
-        result[1] = new Object[wellPositions.size()][dataSetCodes.size()][13];
+        result[1] = new Object[wellPositions.size()][dataSetCodes.size()][14];
         for (FeatureVectorWithDescription vector : featureVectors)
         {
             WellPosition wellPosition = vector.getWellPosition();
@@ -1546,7 +1546,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1593,7 +1593,7 @@ public class OpenBISScreeningML
      *         dimension is location annotations in the following order: <code>{plate well
      *         description, plate augmented code, plate perm id, plate space code, plate code, row,
      *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code}</code> 
+     *         experiment project code, experiment code, data set code, data set type}</code> 
      *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
@@ -1632,7 +1632,7 @@ public class OpenBISScreeningML
         int numberOfDataSets = dataSets.size();
         result[0] =
                 new Object[featureCodes.size()][wellPositions.size()][numberOfDataSets];
-        result[1] = new Object[wellPositions.size()][numberOfDataSets][13];
+        result[1] = new Object[wellPositions.size()][numberOfDataSets][14];
         for (int dataSetIndex = 0; dataSetIndex < numberOfDataSets; dataSetIndex++)
         {
             FeatureVectorDataset dataSet = dataSets.get(dataSetIndex);
@@ -1719,7 +1719,7 @@ public class OpenBISScreeningML
                             dataSetRef.getExperimentIdentifier().getSpaceCode(),
                             dataSetRef.getExperimentIdentifier().getProjectCode(),
                             dataSetRef.getExperimentIdentifier().getExperimentCode(),
-                            dataSetRef.getDatasetCode(), };
+                            dataSetRef.getDatasetCode(), dataSetRef.getDataSetType() };
         System.arraycopy(annotations, 0, result[1][wellIndex][dataSetIndex], 0, annotations.length);
     }
     

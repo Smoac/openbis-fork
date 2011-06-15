@@ -42,6 +42,9 @@ public class FeatureVectorWithDescription extends FeatureVector implements IFeat
         return featureNames;
     }
     
+    /**
+     * @since 1.7
+     */
     public List<String> getFeatureCodes()
     {
         return featureNames;

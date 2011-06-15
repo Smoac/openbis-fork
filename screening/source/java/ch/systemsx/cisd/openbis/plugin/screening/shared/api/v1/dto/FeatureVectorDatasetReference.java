@@ -40,14 +40,25 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
         this.imageDatasetIdentifierOrNull = imageDatasetIdentifier;
     }
 
+    @Deprecated
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,
             IImageDatasetIdentifier imageDatasetIdentifierOrNull,
             Map<String, String> propertiesOrNull)
     {
-        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
-                registrationDate, propertiesOrNull);
+        this(datasetCode, null, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
+                registrationDate, imageDatasetIdentifierOrNull, propertiesOrNull);
+    }
+
+    public FeatureVectorDatasetReference(String datasetCode, String dataSetTypeOrNull,
+            String datastoreServerUrl, PlateIdentifier plate,
+            ExperimentIdentifier experimentIdentifier, Geometry plateGeometry,
+            Date registrationDate, IImageDatasetIdentifier imageDatasetIdentifierOrNull,
+            Map<String, String> propertiesOrNull)
+    {
+        super(datasetCode, dataSetTypeOrNull, datastoreServerUrl, plate, experimentIdentifier,
+                plateGeometry, registrationDate, propertiesOrNull);
         this.imageDatasetIdentifierOrNull = imageDatasetIdentifierOrNull;
     }
 

@@ -639,7 +639,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private FeatureVectorDatasetWellReference createFVDatasetReference(
             FeatureVectorDatasetReference fvdr, WellPosition wellPosition)
     {
-        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(),
+        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr.getDataSetType(), 
                 fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(),
                 fvdr.getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
                 fvdr.getProperties(), wellPosition);
@@ -1053,7 +1053,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         // PlateImageReference should really implement IImageDatasetIdentifier, however it doesn't,
         // so we need to convert to ImageDatasetReference here.
         final IImageDatasetIdentifier imageDatasetId =
-                new ImageDatasetReference(imageReference.getDatasetCode(),
+                new ImageDatasetReference(imageReference.getDatasetCode(), null,
                         imageReference.getDatastoreServerUrl(), null, null, null, null, null, null);
         final ImageDatasetMetadata imageMetadata = listImageMetadata(imageDatasetId);
         final ImageSize size =
@@ -1149,7 +1149,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         // PlateImageReference should really implement IImageDatasetIdentifier, however it doesn't,
         // so we need to convert to ImageDatasetReference here.
         final IImageDatasetIdentifier imageDatasetId =
-                new ImageDatasetReference(imageReference.getDatasetCode(),
+                new ImageDatasetReference(imageReference.getDatasetCode(), null,
                         imageReference.getDatastoreServerUrl(), null, null, null, null, null, null);
         final ImageDatasetMetadata imageMetadata = listImageMetadata(imageDatasetId);
         final WellImages images =

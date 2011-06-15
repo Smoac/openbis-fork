@@ -26,6 +26,8 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
 
     private Map<String, String> properties = Collections.<String, String> emptyMap();
 
+    private final String dataSetType;
+
     @Deprecated
     public DatasetReference(String datasetCode, String datastoreServerUrl, PlateIdentifier plate)
     {
@@ -39,11 +41,21 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
         this(datasetCode, datastoreServerUrl, plate, null, plateGeometry, registrationDate, null);
     }
 
+    @Deprecated
     public DatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plateWithExperiment, ExperimentIdentifier experiment,
             Geometry plateGeometry, Date registrationDate, Map<String, String> propertiesOrNull)
     {
+        this(datasetCode, null, datastoreServerUrl, plateWithExperiment, experiment, plateGeometry,
+                registrationDate, propertiesOrNull);
+    }
+    
+    public DatasetReference(String datasetCode, String dataSetTypeOrNull, String datastoreServerUrl,
+            PlateIdentifier plateWithExperiment, ExperimentIdentifier experiment,
+            Geometry plateGeometry, Date registrationDate, Map<String, String> propertiesOrNull)
+    {
         super(datasetCode, datastoreServerUrl);
+        this.dataSetType = dataSetTypeOrNull;
         this.plate = plateWithExperiment;
         this.experimentIdentifier = (experiment == null) ? createFakeExperiment(plate) : experiment;
         this.plateGeometry = plateGeometry;
@@ -58,6 +70,16 @@ public class DatasetReference extends DatasetIdentifier implements Serializable
     {
         return new ExperimentIdentifier("?", "?", (plate == null) ? "?" : plate.tryGetSpaceCode(),
                 "?");
+    }
+
+    /**
+     * Returns data set type.
+     * 
+     * @since 1.7
+     */
+    public String getDataSetType()
+    {
+        return dataSetType;
     }
 
     /**

@@ -43,19 +43,31 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
     public FeatureVectorDatasetWellReference(FeatureVectorDatasetReference fvdr,
             WellPosition wellPosition)
     {
-        this(fvdr.getDatasetCode(), fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr
-                .getExperimentIdentifier(), fvdr.getPlateGeometry(), fvdr.getRegistrationDate(),
-                fvdr.getParentImageDataset(), fvdr.getProperties(), wellPosition);
+        this(fvdr.getDatasetCode(), fvdr.getDataSetType(), fvdr.getDatastoreServerUrl(), fvdr
+                .getPlate(), fvdr.getExperimentIdentifier(), fvdr.getPlateGeometry(), fvdr
+                .getRegistrationDate(), fvdr.getParentImageDataset(), fvdr.getProperties(),
+                wellPosition);
     }
 
+    @Deprecated
     public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,
             IImageDatasetIdentifier imageDatasetIdentifier, Map<String, String> propertiesOrNull,
             WellPosition wellPosition)
     {
-        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
-                registrationDate, imageDatasetIdentifier, propertiesOrNull);
+        this(datasetCode, null, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
+                registrationDate, imageDatasetIdentifier, propertiesOrNull, wellPosition);
+    }
+    
+    public FeatureVectorDatasetWellReference(String datasetCode, String dataSetTypeOrNull,
+            String datastoreServerUrl, PlateIdentifier plate,
+            ExperimentIdentifier experimentIdentifier, Geometry plateGeometry,
+            Date registrationDate, IImageDatasetIdentifier imageDatasetIdentifier,
+            Map<String, String> propertiesOrNull, WellPosition wellPosition)
+    {
+        super(datasetCode, dataSetTypeOrNull, datastoreServerUrl, plate, experimentIdentifier,
+                plateGeometry, registrationDate, imageDatasetIdentifier, propertiesOrNull);
         this.wellPosition = wellPosition;
     }
 

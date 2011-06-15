@@ -346,7 +346,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 {
                     one(openbis).loadFeaturesForPlateWells(gene, null);
                     FeatureVectorDatasetReference fds1 =
-                            new FeatureVectorDatasetReference("ds1", "", p1,
+                            new FeatureVectorDatasetReference("ds1", "MY-TYPE", "", p1,
                                     ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
                                     Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
                                     null, null);
@@ -357,7 +357,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                                     new double[]
                                         { 1.5, 42 });
                     FeatureVectorDatasetReference fds2 =
-                        new FeatureVectorDatasetReference("ds2", "", p2,
+                        new FeatureVectorDatasetReference("ds2", "MY-TYPE", "", p2,
                                 ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
                                 Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
                                 null, null);
@@ -387,10 +387,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         assertEquals(Double.NaN, matrix[0][2][1][1]);
         assertEquals(3, matrix[0].length);
         assertEquals(
-                "[PLATE-2:B7, /S/PLATE-2, s-2, S, PLATE-2, 2, 7, /S/P/E, null, S, P, E, ds2]",
+                "[PLATE-2:B7, /S/PLATE-2, s-2, S, PLATE-2, 2, 7, /S/P/E, null, S, P, E, ds2, MY-TYPE]",
                 Arrays.asList(matrix[1][0][1]).toString());
         assertEquals(
-                "[PLATE-1:C4, /S/PLATE-1, s-1, S, PLATE-1, 3, 4, /S/P/E, null, S, P, E, ds1]",
+                "[PLATE-1:C4, /S/PLATE-1, s-1, S, PLATE-1, 3, 4, /S/P/E, null, S, P, E, ds1, MY-TYPE]",
                 Arrays.asList(matrix[1][1][0]).toString());
         assertEquals(2, matrix[1].length);
         assertEquals("F1", matrix[2][0][0][0]);
@@ -430,7 +430,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     one(openbis).loadFeaturesForPlates(Arrays.asList(PLATE_1),
                             Arrays.asList("F1", "F2", "F3"));
                     FeatureVectorDatasetReference ref =
-                            new FeatureVectorDatasetReference("ds1", "", PLATE_1,
+                            new FeatureVectorDatasetReference("ds1", "MY-TYPE", "", PLATE_1,
                                     ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
                                     Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
                                     null, null);
@@ -453,10 +453,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         assertPlateFeatures("[42.5, 42.0]", matrix[0][1]);
         assertEquals(2, matrix[0].length);
         assertEquals(
-                "[PLATE-1:A3, /S/PLATE-1, null, S, PLATE-1, 1, 3, /S/P/E, null, S, P, E, ds1]",
+                "[PLATE-1:A3, /S/PLATE-1, null, S, PLATE-1, 1, 3, /S/P/E, null, S, P, E, ds1, MY-TYPE]",
                 Arrays.asList(matrix[1][0][0]).toString());
         assertEquals(
-                "[PLATE-1:B1, /S/PLATE-1, null, S, PLATE-1, 2, 1, /S/P/E, null, S, P, E, ds1]",
+                "[PLATE-1:B1, /S/PLATE-1, null, S, PLATE-1, 2, 1, /S/P/E, null, S, P, E, ds1, MY-TYPE]",
                 Arrays.asList(matrix[1][1][0]).toString());
         assertEquals(2, matrix[1].length);
         assertEquals("F1", matrix[2][0][0][0]);
@@ -631,8 +631,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     Plate plate = new Plate("PLATE-1", "S", "s-1", eId1);
                     exactly(2).of(openbis).listRawImageDatasets(Arrays.asList(plate));
                     ImageDatasetReference ds1Ref =
-                            new ImageDatasetReference("ds1", "", plate, eId1, null, null, null,
-                                    null);
+                            new ImageDatasetReference("ds1", "MY-TYPE", "", plate, eId1, null,
+                                    null, null, null);
                     List<ImageDatasetReference> imageRefs = Arrays.asList(ds1Ref);
                     will(returnValue(imageRefs));
 

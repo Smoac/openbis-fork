@@ -54,12 +54,22 @@ public class ImageDatasetReference extends DatasetReference implements IImageDat
                 registrationDate, propertiesOrNull, null);
     }
 
+    @Deprecated
     public ImageDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull,
             ImageDatasetReference parentImageSetsetReference)
     {
-        super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
+        this(datasetCode, null, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
+                registrationDate, propertiesOrNull, parentImageSetsetReference);
+    }
+    
+    public ImageDatasetReference(String datasetCode, String dataSetTypeOrNull, String datastoreServerUrl,
+            PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
+            Geometry plateGemoetry, Date registrationDate, Map<String, String> propertiesOrNull,
+            ImageDatasetReference parentImageSetsetReference)
+    {
+        super(datasetCode, dataSetTypeOrNull, datastoreServerUrl, plate, experimentIdentifier, plateGemoetry,
                 registrationDate, propertiesOrNull);
         this.parentImageDatasetReference = parentImageSetsetReference;
     }

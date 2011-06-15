@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -147,9 +148,11 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         DataStore dataStore = externalData.getDataStore();
         // there should be no more parents than one, we ensure about that earlier
         ExternalData parentDataset = tryGetOneParent(externalData);
+        DataSetType dataSetType = externalData.getDataSetType();
+        String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
         if (parentDataset == null)
         {
-            return new FeatureVectorDatasetReference(externalData.getCode(),
+            return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull, 
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                     createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
                     externalData.getRegistrationDate(), null, extractProperties(externalData));
@@ -158,7 +161,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
             // Note: this only works reliably because this class sets the parents of the feature
             // vector data sets itself and sets it to a list with exactly one entry!
             // (see loadFeatureVectorDatasets() above)
-            return new FeatureVectorDatasetReference(externalData.getCode(),
+            return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
                     createExperimentIdentifier(externalData), extractPlateGeometry(parentDataset),
                     externalData.getRegistrationDate(), tryAsImageDataset(parentDataset),

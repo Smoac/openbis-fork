@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -240,7 +241,9 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
             return null;
         }
         DataStore dataStore = externalData.getDataStore();
-        return new ImageDatasetReference(externalData.getCode(),
+        DataSetType dataSetType = externalData.getDataSetType();
+        String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
+        return new ImageDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                 getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                 createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
                 externalData.getRegistrationDate(), extractProperties(externalData),
