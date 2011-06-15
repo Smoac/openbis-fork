@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
@@ -50,8 +51,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlasmidStorageProcessor.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlasmidStorageProcessor.class);
+
+    private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            PlasmidStorageProcessor.class);
 
     private final static String PLASMAPPER_BASE_URL_KEY = "plasmapper-base-url";
 
@@ -155,6 +159,13 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
             final File destinationFile)
     {
         String outputFilePath = uploader.upload(seqFile, service);
+        if (StringUtils.isBlank(outputFilePath))
+        {
+            notifyLog.error("Cannot upload file '" + seqFile.getName()
+                    + "', see jetty.out for details.");
+            throw new IllegalStateException("Cannot upload file '" + seqFile.getName()
+                    + "', see jetty.out for details.");
+        }
         File outputFile = new File(serverRootDir + outputFilePath);
         if (outputFile.isFile())
         {
