@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import ch.rinn.restrictions.Private;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -336,5 +338,10 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria)
     {
         return service.searchForDataSets(sessionToken, searchCriteria);
+    }
+
+    public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet)
+    {
+        return service.listDataSets(sessionToken, samples, connectionsToGet);
     }
 }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
@@ -428,6 +430,23 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
             });
 
         assertEquals(result, openbisFacade.searchForDataSets(sc));
+    }
+
+    @Test
+    public final void testListDataSets()
+    {
+        final List<Sample> samples = Arrays.asList(createSample("S1", null));
+        final EnumSet<Connections> connections = EnumSet.allOf(Connections.class);
+        final List<DataSet> result = unmodifiableList(createDataSet("dataset", "E1", "S1"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSets(SESSION_TOKEN, samples, connections);
+                    will(returnValue(result));
+                }
+            });
+
+        assertEquals(result, openbisFacade.listDataSets(samples, connections));
     }
 
     private String projectIdentifier(String code)

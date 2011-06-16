@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 
@@ -49,5 +51,12 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @param searchCriteria the criteria used for searching.
      */
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria);
+
+    /**
+     * Return all data sets attached to the given samples with connections.
+     * 
+     * @param samples The samples for which we return attached data sets.
+     */
+    public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet);
 
 }
