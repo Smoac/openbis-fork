@@ -45,7 +45,7 @@ class SearchService implements ISearchService
         this.openBisService = openBisService;
     }
 
-    public List<IExperimentImmutable> listExperiments(String projectIdentifierString, String type)
+    public List<IExperimentImmutable> listExperiments(String projectIdentifierString)
     {
         ProjectIdentifier projectIdentifier =
                 new ProjectIdentifierFactory(projectIdentifierString.toUpperCase())
@@ -60,18 +60,27 @@ class SearchService implements ISearchService
         return experiments;
     }
 
-    public List<IDataSetImmutable> searchForDataSets(String property, String value, String type)
+    public List<IDataSetImmutable> searchForDataSets(String property, String value,
+            String typeOrNull)
     {
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, type));
+        if (null != typeOrNull)
+        {
+            sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                    typeOrNull));
+        }
         sc.addMatchClause(MatchClause.createPropertyMatch(property, value));
         return searchForDataSets(sc);
     }
 
-    public List<ISampleImmutable> searchForSamples(String property, String value, String type)
+    public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull)
     {
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, type));
+        if (null != typeOrNull)
+        {
+            sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                    typeOrNull));
+        }
         sc.addMatchClause(MatchClause.createPropertyMatch(property, value));
         return searchForSamples(sc);
     }
