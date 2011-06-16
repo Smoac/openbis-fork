@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -581,10 +582,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(dataSetCodes), reason);
     }
 
-    public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason)
+    public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
+            DeletionType deletionType)
     {
-        logTracking(sessionToken, "delete_samples", "IDS(%s) REASON(%s)", abbreviate(sampleIds),
-                reason);
+        logTracking(sessionToken, "delete_samples", "TYPE(%s) IDS(%s) REASON(%s)", deletionType,
+                abbreviate(sampleIds), reason);
     }
 
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)

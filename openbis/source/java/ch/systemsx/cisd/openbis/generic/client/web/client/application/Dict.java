@@ -477,6 +477,29 @@ public abstract class Dict
     // -------- generic plugin dictionary -------------------
 
     //
+    // Deletion
+    //
+
+    public static final String INVALIDATE = "invalidate";
+
+    public static final String INVALIDATION = "invalidation";
+
+    public static final String INVALIDATION_TEMPLATE = "invalidation_template";
+
+    public static final String PERMANENT = "permanent";
+
+    public static final String DELETE_CONFIRMATION_TITLE = "delete_confirmation_title";
+
+    public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
+
+    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON =
+            "delete_confirmation_message_with_reason";
+
+    public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
+
+    public static final String INVALIDATE_PROGRESS_MESSAGE = "invalidate_progress_message";
+
+    //
     // Sample Viewer
     //
 
@@ -491,10 +514,6 @@ public abstract class Dict
     public static final String DERIVED_SAMPLE = "derived_sample";
 
     public static final String EXTERNAL_DATA_HEADING = "external_data_heading";
-
-    public static final String INVALIDATION = "invalidation";
-
-    public static final String INVALIDATION_TEMPLATE = "invalidation_template";
 
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED = "show_only_directly_connected";
 
@@ -949,23 +968,6 @@ public abstract class Dict
     public static final String BUTTON_EDIT = "edit";
 
     public static final String BUTTON_DELETE = "button_delete";
-
-    public static final String DELETE_CONFIRMATION_TITLE = "delete_confirmation_title";
-
-    public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
-
-    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON =
-            "delete_confirmation_message_with_reason";
-
-    public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
-
-    public static final String DELETE_CONFIRMATION_WARNING = "delete_confirmation_warning";
-
-    public static final String DELETE_CONFIRMATION_WARNING_PART_FOR_EXPERIMENT =
-            "delete_confirmation_warning_part_for_experiment";
-
-    public static final String DELETE_CONFIRMATION_WARNING_PART_FOR_SAMPLE =
-            "delete_confirmation_warning_part_for_sample";
 
     public static final String BUTTON_CONFIGURE = "button_configure";
 

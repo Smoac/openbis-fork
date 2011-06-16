@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * Class representing invalidation.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Entity
 @Table(name = TableNames.INVALIDATION_TABLE)
@@ -47,7 +47,7 @@ public class InvalidationPE extends HibernateAbstractRegistrationHolder implemen
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    private transient Long id;
+    private Long id;
 
     private String reason;
 

@@ -265,7 +265,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final Sample sample = sampleGeneration.getParent();
         final SampleType sampleType = sample.getSampleType();
-        final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getDerived();
         properties.put(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER),
                 sample.getIdentifier());
@@ -275,6 +274,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         properties.put(viewContext.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties
                 .put(viewContext.getMessage(Dict.REGISTRATION_DATE), sample.getRegistrationDate());
+        final Invalidation invalidation = sample.getInvalidation();
         if (invalidation != null)
         {
             properties.put(viewContext.getMessage(Dict.INVALIDATION), invalidation);

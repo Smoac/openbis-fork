@@ -340,4 +340,18 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
+    public void invalidateByTechIds(List<TechId> sampleIds, String reason)
+            throws UserFailureException
+    {
+        try
+        {
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+            getSampleDAO().invalidate(sampleIds, session.tryGetPerson(), reason);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Sample", EntityKind.SAMPLE);
+        }
+    }
+
 }

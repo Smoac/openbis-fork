@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -437,6 +438,26 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         List<Long> ids = TechId.asLongs(sampleIds);
         scheduleRemoveFromFullTextIndex(ids);
+    }
+
+    public void invalidate(final List<TechId> sampleIds, final PersonPE registrator,
+            final String reason) throws DataAccessException
+    {
+        // TODO 2011-06-16, Piotr Buczek: move when cascade invalidation is implemented
+        InvalidationPE invalidation = new InvalidationPE();
+        invalidation.setReason(reason);
+        invalidation.setRegistrator(registrator);
+        getHibernateTemplate().save(invalidation);
+
+        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
+        for (TechId sampleId : sampleIds)
+        {
+            SamplePE sample = loadByTechId(sampleId);
+            sample.setInvalidation(invalidation);
+            getHibernateTemplate().update(sample);
+        }
+
+        getHibernateTemplate().flush();
     }
 
     @SuppressWarnings("unchecked")

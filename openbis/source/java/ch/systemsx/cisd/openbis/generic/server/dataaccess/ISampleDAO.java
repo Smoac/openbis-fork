@@ -117,8 +117,14 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listByPermID(Set<String> values);
 
     /**
-     * Delete samples with given by specified registrator with specified reason.
+     * Delete samples with given ids by specified registrator with specified reason.
      */
     void delete(List<TechId> sampleIds, PersonPE registrator, String reason)
+            throws DataAccessException;
+
+    /**
+     * Invalidate samples with given ids by specified registrator with specified reason.
+     */
+    void invalidate(List<TechId> sampleIds, PersonPE registrator, String reason)
             throws DataAccessException;
 }

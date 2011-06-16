@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> extends
@@ -68,16 +69,18 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
+        DeletionType deletionType =
+                isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.INVALIDATION;
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedIdHolderCriteria<T> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
-                    deletionCallback);
+                    deletionType, deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteSample(TechId.create(singleDataOrNull),
-                    reason.getValue(), deletionCallback);
+                    reason.getValue(), deletionType, deletionCallback);
         }
     }
 

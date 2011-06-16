@@ -115,6 +115,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -1577,26 +1578,27 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteSamples(List<TechId> sampleIds, String reason)
+    public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteSamples(sessionToken, sampleIds, reason);
+            commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public void deleteSample(TechId sampleId, String reason)
+    public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), reason);
+            commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), reason,
+                    deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1604,14 +1606,14 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
-            String reason)
+            String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<TechId> sampleIds = extractTechIds(criteria);
-            commonServer.deleteSamples(sessionToken, sampleIds, reason);
+            commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

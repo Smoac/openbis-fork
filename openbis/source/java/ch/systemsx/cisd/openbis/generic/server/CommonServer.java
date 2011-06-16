@@ -102,6 +102,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -1166,13 +1167,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason)
+    public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
+            DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         try
         {
             ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
-            sampleTableBO.deleteByTechIds(sampleIds, reason);
+            switch (deletionType)
+            {
+                case PERMANENT:
+                    sampleTableBO.deleteByTechIds(sampleIds, reason);
+                    break;
+                case INVALIDATION:
+                    sampleTableBO.invalidateByTechIds(sampleIds, reason);
+                    break;
+            }
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

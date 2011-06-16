@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,6 +28,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
@@ -46,27 +50,44 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String SELECTED = " selected ";
 
+    private static final String TEMPORARILY = "temporarily";
+
+    private static final String PERMANENTLY_EMPHASIZED = "<b>permanently</b>";
+
     private final AbstractAsyncCallback<Void> callback;
 
     private final boolean withRadio;
 
+    private final boolean withInvalidateOption;
+
     protected Radio onlySelectedRadioOrNull;
+
+    protected CheckBoxField permanentCheckBoxOrNull;
 
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio)
+            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio,
+            boolean withInvalidateOption)
     {
         super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
         this.callback = callback;
         this.withRadio = withRadio;
+        this.withInvalidateOption = withInvalidateOption;
     }
 
-    // without radio
+    // maybe with radio & temporarily
+    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
+            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio)
+    {
+        this(messageProvider, data, callback, withRadio, true);
+    }
+
+    // without radio & permanently
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
             List<T> data, AbstractAsyncCallback<Void> callback)
     {
-        this(messageProvider, data, callback, false);
+        this(messageProvider, data, callback, false, false);
     }
 
     @Override
@@ -78,6 +99,10 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         reason = new ReasonField(messageProvider, true);
         reason.focus();
         reason.addKeyListener(keyListener);
+        if (withInvalidateOption)
+        {
+            formPanel.add(permanentCheckBoxOrNull = createDeletePermanentlyCheckBox());
+        }
         if (withRadio)
         {
             formPanel.add(createRadio());
@@ -98,7 +123,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
                     (isOnlySelected() ? data.size() + SELECTED : ALL_EMPHASIZED) + getEntityName();
         }
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
-                deletedObjects);
+                isPermanentDeletion() ? PERMANENTLY_EMPHASIZED : TEMPORARILY, deletedObjects);
     }
 
     protected abstract String getEntityName();
@@ -120,9 +145,28 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         return null;
     }
 
+    private CheckBoxField createDeletePermanentlyCheckBox()
+    {
+        CheckBoxField result = new CheckBoxField(messageProvider.getMessage(Dict.PERMANENT), false);
+        result.setValue(true);
+        result.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                public void handleEvent(FieldEvent fe)
+                {
+                    refreshMessage();
+                }
+            });
+        return result;
+    }
+
     protected final boolean isOnlySelected()
     {
         return WidgetUtils.isSelected(onlySelectedRadioOrNull);
+    }
+
+    protected final boolean isPermanentDeletion()
+    {
+        return permanentCheckBoxOrNull == null || permanentCheckBoxOrNull.getValue();
     }
 
     /**
@@ -131,7 +175,8 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
      */
     private AsyncCallback<Void> getCallbackWithProgressBar()
     {
-        return AsyncCallbackWithProgressBar.decorate(callback,
-                messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
+        return AsyncCallbackWithProgressBar.decorate(callback, messageProvider.getMessage(
+                isPermanentDeletion() ? Dict.DELETE_PROGRESS_MESSAGE
+                        : Dict.INVALIDATE_PROGRESS_MESSAGE, getEntityName()));
     }
 }

@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -644,17 +645,19 @@ public interface ICommonClientService extends IClientService
     public void deleteDataSet(String singleData, String reason) throws UserFailureException;
 
     /**
-     * Deletes the specified samples. NOTE: this is a stale version used only for samples with
-     * abundance.
+     * Deletes/Invalidates the specified samples. NOTE: this is a stale version used only for
+     * samples with abundance.
      */
-    public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
+    public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
+            throws UserFailureException;
 
-    /** Deletes the specified samples. */
+    /** Deletes/Invalidates the specified samples. */
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
-            String reason) throws UserFailureException;
+            String reason, DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes the specified sample. */
-    public void deleteSample(TechId sampleId, String reason) throws UserFailureException;
+    /** Deletes/Invalidates the specified sample. */
+    public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
+            throws UserFailureException;
 
     /** Deletes the specified experiments. */
     public void deleteExperiments(

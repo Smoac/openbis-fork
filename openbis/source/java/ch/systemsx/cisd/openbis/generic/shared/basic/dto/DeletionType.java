@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * @author Franz-Josef Elmer
+ * Types of deletion operations.
+ * 
+ * @author Piotr Buczek
  */
-public interface IInvalidationProvider
+public enum DeletionType implements ISerializable
 {
-    public Invalidation getInvalidation();
+    PERMANENT, INVALIDATION
 }

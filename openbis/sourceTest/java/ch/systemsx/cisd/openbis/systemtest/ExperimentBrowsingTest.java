@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
@@ -31,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
@@ -61,7 +58,7 @@ public class ExperimentBrowsingTest extends SystemTestCase
         assertEquals(5, resultSet.getResultSet().getTotalLength());
         assertEquals(5, resultSet.getResultSet().getList().size());
     }
-    
+
     @Test
     public void testListExperiments()
     {
@@ -85,7 +82,7 @@ public class ExperimentBrowsingTest extends SystemTestCase
         assertEquals(3, resultSet.getResultSet().getTotalLength());
         assertEquals(3, resultSet.getResultSet().getList().size());
     }
-    
+
     @Test
     public void testListExperimentsPartially()
     {
@@ -101,13 +98,13 @@ public class ExperimentBrowsingTest extends SystemTestCase
         project.setCode("NEMO");
         criteria.setProject(project);
         criteria.setLimit(2);
-        criteria.setCacheConfig(ResultSetFetchConfig.<String>createComputeAndCache());
+        criteria.setCacheConfig(ResultSetFetchConfig.<String> createComputeAndCache());
         TypedTableResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
         String key = resultSet.getResultSet().getResultSetKey();
         assertEquals(true, resultSet.getResultSet().isPartial());
         assertEquals(2, resultSet.getResultSet().getTotalLength());
         assertEquals(2, resultSet.getResultSet().getList().size());
-        
+
         criteria.setCacheConfig(ResultSetFetchConfig.createFetchFromCacheAndRecompute(key));
         resultSet = commonClientService.listExperiments(criteria);
         assertEquals(key, resultSet.getResultSet().getResultSetKey());

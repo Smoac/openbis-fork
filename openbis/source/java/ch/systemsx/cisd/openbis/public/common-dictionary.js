@@ -41,9 +41,6 @@ var common = {
   entity_operations: "Entity:",
   url: "URL",
   is_official: "Approved?",
-  reason: "Reason",
-  delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
-  delete_progress_message: "Deleting {0}(s)...",
   add_attachment: "Add attachment...",
   data_view: "Data View",
   container_type: "Container",
@@ -59,6 +56,21 @@ var common = {
   explore_label: "Explore:",
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
   breadcrumbs_separator: "»",
+	 
+  //
+  // Deletion
+  // 
+  
+  invalidate: "Invalidate",
+  invalidation: "Invalidation",
+  invalidation_template: "Invalidated by: {0}<br>date: {1}<br>reason: {2}",
+  permanent: "Permanent",
+  reason: "Reason",
+  delete_confirmation_title: "Confirm Deletion",
+  delete_confirmation_message: "Are you sure you want to delete [{0}]?",
+  delete_confirmation_message_with_reason: "You are {0} deleting {1}(s).<br><br>Please enter a reason or cancel deletion.",
+  delete_progress_message: "Deleting {0}(s)...",
+  delete_progress_message: "Invalidating {0}(s)...",
 	 
   //
   // Table Modifications
@@ -203,8 +215,6 @@ var common = {
   part_of: "Container",
   generatedfromparent: "Parents",
   containerparent: "Container",
-  invalidation: "Invalidation",
-  invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
   
   //
   // Experiment Browser
@@ -244,8 +254,6 @@ var common = {
   edit_type_button: "Edit",
   add_type_title_template: "Add a new {0} Type",
   edit_type_title_template: "Edit {0} Type {1}",
-  delete_confirmation_title: "Confirm Deletion",
-  delete_confirmation_message: "Are you sure you want to delete [{0}]?",
   
   //
   // Sample Type Browser

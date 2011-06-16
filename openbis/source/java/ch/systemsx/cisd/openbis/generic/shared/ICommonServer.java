@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -756,7 +757,7 @@ public interface ICommonServer extends IServer
     public void deleteSamples(
             String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds,
-            String reason);
+            String reason, DeletionType type);
 
     /**
      * Deletes specified experiments.

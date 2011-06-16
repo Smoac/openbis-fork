@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -362,7 +363,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         commonClientService.unassignPropertyType(EntityKind.SAMPLE, DESCRIPTION, CELL_PLATE);
         if (createdSampleId != null)
         {
-            commonClientService.deleteSample(createdSampleId, "test cleanup");
+            commonClientService.deleteSample(createdSampleId, "test cleanup",
+                    DeletionType.PERMANENT);
         }
     }
 }

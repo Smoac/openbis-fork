@@ -72,7 +72,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
                     + techId.getId() + " does not exist. Maybe someone has just deleted it.");
         } else
         {
-            result = getEntity(getHibernateTemplate().get(getEntityClass(), techId.getId()));
+            result = getEntity(entity);
         }
         if (operationLog.isDebugEnabled())
         {
@@ -80,6 +80,12 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
                     .getName(), techId, result));
         }
         return result;
+    }
+
+    public final T loadByTechId(final TechId techId) throws DataAccessException
+    {
+        assert techId != null : "Technical identifier unspecified.";
+        return getEntity(getHibernateTemplate().load(getEntityClass(), techId.getId()));
     }
 
     private String getEntityDescription()

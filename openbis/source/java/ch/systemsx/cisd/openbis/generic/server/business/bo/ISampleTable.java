@@ -71,4 +71,13 @@ public interface ISampleTable
      */
     public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException;
 
+    /**
+     * Invalidates samples for specified reason.
+     * 
+     * @param sampleIds sample technical identifiers
+     * @throws UserFailureException if one of the samples can not be invalidated.
+     */
+    public void invalidateByTechIds(List<TechId> sampleIds, String reason)
+            throws UserFailureException;
+
 }

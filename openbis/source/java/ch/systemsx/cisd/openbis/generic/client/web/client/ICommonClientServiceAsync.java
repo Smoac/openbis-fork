@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -548,42 +549,46 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteDataSet(String, String) */
     public void deleteDataSet(String singleData, String reason, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteSamples(List, String) */
-    public void deleteSamples(List<TechId> sampleIds, String value,
+    /** @see ICommonClientService#deleteSamples(List, String, DeletionType) */
+    public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType type,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String) */
+    /**
+     * @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String,
+     *      DeletionType)
+     */
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
-            String value, AsyncCallback<Void> asyncCallback);
+            String reason, DeletionType type, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteSample(TechId, String) */
-    public void deleteSample(TechId sampleIs, String value, AsyncCallback<Void> asyncCallback);
+    /** @see ICommonClientService#deleteSample(TechId, String, DeletionType) */
+    public void deleteSample(TechId sampleIs, String reason, DeletionType type,
+            AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String) */
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
-            String value, AsyncCallback<Void> asyncCallback);
+            String reason, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiment(TechId, String) */
-    public void deleteExperiment(TechId experimentId, String value,
+    public void deleteExperiment(TechId experimentId, String reason,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteProjects(List, String) */
-    public void deleteProjects(List<TechId> projectIds, String value,
+    public void deleteProjects(List<TechId> projectIds, String reason,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteGroups(List, String) */
-    public void deleteGroups(List<TechId> groupIds, String value, AsyncCallback<Void> asyncCallback);
+    public void deleteGroups(List<TechId> groupIds, String reason, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteScripts(List) */
     public void deleteScripts(List<TechId> scriptIds, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteVocabularies(List, String) */
-    public void deleteVocabularies(List<TechId> vocabularyIds, String value,
+    public void deleteVocabularies(List<TechId> vocabularyIds, String reason,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deletePropertyTypes(List, String) */
-    public void deletePropertyTypes(List<TechId> propertyTypeIds, String value,
+    public void deletePropertyTypes(List<TechId> propertyTypeIds, String reason,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteAttachments(TechId, AttachmentHolderKind, List, String) */
@@ -898,7 +903,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#deleteMaterials(DisplayedOrSelectedIdHolderCriteria, String) */
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria,
-            String value, AsyncCallback<Void> callback);
+            String reason, AsyncCallback<Void> callback);
 
     /**
      * @see ICommonClientService#lockDatasets(DisplayedOrSelectedDatasetCriteria)
