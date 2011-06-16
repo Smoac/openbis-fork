@@ -508,7 +508,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         : dataSetMetadataOrNull;
         final DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
-        final String dataSetFolderNameOrNull = null;
+        final String dataSetFolderNameOrNull = dataSetFile.isDirectory() ? dataSetFile.getName() : null;
         final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
         final NewDataSetDTO newDataSet =
                 new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
