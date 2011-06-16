@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -103,7 +104,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
             builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
             builder.column(IS_INVALID).addString(
-                    SimpleYesNoRenderer.render(experiment.getInvalidation() != null));
+                    SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(experiment)));
             builder.column(PERM_ID).addString(experiment.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
             ExperimentType experimentType =

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -103,7 +104,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(IS_INSTANCE_SAMPLE).addString(
                     SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
             builder.column(IS_INVALID).addString(
-                    SimpleYesNoRenderer.render(sample.getInvalidation() != null));
+                    SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             builder.column(EXPERIMENT).addString(getExperimentCode(sample));

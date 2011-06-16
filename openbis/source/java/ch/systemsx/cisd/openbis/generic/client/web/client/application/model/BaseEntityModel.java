@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -140,8 +141,7 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
                     && column instanceof AbstractColumnDefinition<?>)
             {
                 String linkHref = ((AbstractColumnDefinition<T>) column).tryGetLink(originalRecord);
-                boolean invalidate =
-                        ((IInvalidationProvider) originalRecord).getInvalidation() != null;
+                boolean invalidate = InvalidationUtils.isInvalid(originalRecord);
                 value = LinkRenderer.getLinkWidget(value, null, linkHref, invalidate).toString();
             }
         }

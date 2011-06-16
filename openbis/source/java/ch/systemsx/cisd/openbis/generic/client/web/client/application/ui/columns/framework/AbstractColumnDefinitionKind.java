@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
@@ -128,7 +129,7 @@ public abstract class AbstractColumnDefinitionKind<T>
 
     protected final String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
     {
-        return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);
+        return SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(invalidationProvider));
     }
 
     /** to be overriden by subclasses */

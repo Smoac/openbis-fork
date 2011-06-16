@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -403,19 +403,6 @@ public final class PropertyValueRenderers
         }
     }
 
-    static class InvalidationFactory
-    {
-        static boolean isInvalid(IInvalidationProvider invalidable)
-        {
-            return invalidable.getInvalidation() != null;
-        }
-
-        static boolean isInvalid(Object object)
-        {
-            return false;
-        }
-    }
-
     /**
      * Renderer for {@link IEntityInformationHolder}.
      * 
@@ -440,7 +427,7 @@ public final class PropertyValueRenderers
         public FlowPanel getAsWidget(final T entity)
         {
             final String displayText = getDisplayText(entity);
-            final boolean invalidate = getInvalidate(entity);
+            final boolean invalidate = InvalidationUtils.isInvalid(entity);
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             String href = LinkExtractor.tryExtract(entity);
@@ -456,17 +443,6 @@ public final class PropertyValueRenderers
         protected String getDisplayText(final T entity)
         {
             return entity.getIdentifier();
-        }
-
-        private boolean getInvalidate(final T entity)
-        {
-            if (entity instanceof IInvalidationProvider)
-            {
-                return ((IInvalidationProvider) entity).getInvalidation() != null;
-            } else
-            {
-                return false;
-            }
         }
 
     }
