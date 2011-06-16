@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -259,7 +260,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected String getOriginalDataDescription()
     {
         return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
-                + originalData.getEntityType().getCode() + "]";
+                + originalData.getEntityType().getCode() + "]"
+                + (isInvalidated() ? "" : " (invalidated)");
+    }
+
+    private final boolean isInvalidated()
+    {
+        return originalData instanceof IInvalidationProvider
+                && ((IInvalidationProvider) originalData).getInvalidation() != null;
     }
 
     protected final static BorderLayoutData createBorderLayoutData(LayoutRegion region)
