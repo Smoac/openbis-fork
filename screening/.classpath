@@ -49,7 +49,7 @@
 	<classpathentry kind="lib" path="/libraries/bioformats/bioformats.jar" sourcepath="/libraries/bioformats/bioformats_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers-bioformats.jar" sourcepath="/image_readers/source/java"/>
 	<classpathentry kind="lib" path="/libraries/cisd-image_readers/cisd-image_readers.jar" sourcepath="/image_readers/source/java"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
 	<classpathentry kind="lib" path="/libraries/izpack/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar" sourcepath="/libraries/junit/src.jar"/>
