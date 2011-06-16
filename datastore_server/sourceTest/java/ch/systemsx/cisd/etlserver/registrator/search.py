@@ -8,7 +8,7 @@ def rollback_service(service, throwable):
 
 tr = service.transaction(incoming, factory)
 searchService = tr.getSearchService()
-searchService.listExperiments("/space/project", "EXP_TYPE")
+searchService.listExperiments("/space/project")
 searchService.searchForDataSets("PROP", "VALUE", "DATA_SET_TYPE")
 searchService.searchForSamples("PROP", "VALUE", "SAMPLE_TYPE")
 
