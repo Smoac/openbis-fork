@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper Class for creating FileInfoDss objects based on file system.
@@ -32,6 +33,28 @@ import java.util.ArrayList;
  */
 public class FileInfoDssBuilder
 {
+
+    /**
+     * Return a list of {@link FileInfoDssDTO} objects corresponding to all files existing within a
+     * certain folder. The list is accumulated recursively.
+     */
+    public static List<FileInfoDssDTO> getFileInfos(File dataSetContents)
+    {
+        FileInfoDssBuilder fileInfoBuilder =
+                new FileInfoDssBuilder(dataSetContents.getAbsolutePath(),
+                        dataSetContents.getAbsolutePath());
+        ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+        try
+        {
+            fileInfoBuilder.appendFileInfosForFile(dataSetContents, fileInfos, true);
+        } catch (IOException ioex)
+        {
+            throw new RuntimeException(
+                    "Error occurred while gathering information from the local data set contents: "
+                            + ioex.getMessage(), ioex);
+        }
+        return fileInfos;
+    }
 
     private final File dataSetRootFile;
 

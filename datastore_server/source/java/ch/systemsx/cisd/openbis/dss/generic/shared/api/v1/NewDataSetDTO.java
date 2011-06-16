@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,16 @@ public class NewDataSetDTO implements Serializable
         }
     }
 
+    private static String getFolderNameOrNull(File dataSetFile)
+    {
+        String folderNameOrNull = null;
+        if (dataSetFile.isDirectory())
+        {
+            folderNameOrNull = dataSetFile.getName();
+        }
+        return folderNameOrNull;
+    }
+    
     private static final long serialVersionUID = 1L;
 
     private final DataSetOwner dataSetOwner;
@@ -98,6 +109,18 @@ public class NewDataSetDTO implements Serializable
     private final List<FileInfoDssDTO> fileInfos;
 
     private final NewDataSetMetadataDTO dataSetMetadata;
+
+    /**
+     * Constructor
+     * 
+     * @param dataSetOwner the owner of the new data set
+     * @param dataSetFile a local file or directory whose contents will be uploaded to openBIS.
+     */
+    public NewDataSetDTO(DataSetOwner dataSetOwner, File dataSetFile)
+    {
+        this(dataSetOwner, getFolderNameOrNull(dataSetFile), FileInfoDssBuilder
+                .getFileInfos(dataSetFile));
+    }
 
     /**
      * Constructor
