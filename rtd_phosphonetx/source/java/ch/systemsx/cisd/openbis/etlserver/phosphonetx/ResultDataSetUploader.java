@@ -212,11 +212,8 @@ class ResultDataSetUploader extends AbstractHandler
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)
         {
-            List<Protein> proteins = proteinGroup.getProteins();
-            if (proteins.isEmpty() == false)
+            for (Protein protein : proteinGroup.getProteins())
             {
-                // Only the first protein of a ProteinGroup is valid
-                Protein protein = proteins.get(0);
                 try
                 {
                     if (calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)

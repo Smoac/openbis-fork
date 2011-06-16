@@ -206,7 +206,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     }
 
     @Test
-    public void testProteinGroupWithTwoProteins()
+    public void testProteinWithIndistiguishableProtein()
     {
         prepareForCreatingExperimentSampleDatabaseAndDataSet();
         double probability = 1.0;
@@ -219,8 +219,32 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1, a2);
         p1.setPeptides(Collections.<Peptide> emptyList());
-        summary.getProteinGroups().add(createProteinGroup(p1, new Protein()));
+        summary.getProteinGroups().add(createProteinGroup(p1));
 
+        uploader.upload(createDataSetInfo(), summary);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProteinGroupWithTwoProteins()
+    {
+        prepareForCreatingExperimentSampleDatabaseAndDataSet();
+        double probability = 1.0;
+        ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
+        prepareForCreatingProtein(probability);
+        prepareForCreatingIdentifiedProtein(a1, false, true);
+        Protein p1 = createProtein(probability, a1);
+        p1.setPeptides(Collections.<Peptide> emptyList());
+        ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
+        probability = 0.99;
+        prepareForCreatingProtein(probability);
+        prepareForCreatingIdentifiedProtein(a2, false, true);
+        Protein p2 = createProtein(probability, a2);
+        p2.setPeptides(Collections.<Peptide> emptyList());
+        
+        ProteinSummary summary = createProteinSummary();
+        summary.getProteinGroups().add(createProteinGroup(p1, p2));
+        
         uploader.upload(createDataSetInfo(), summary);
         context.assertIsSatisfied();
     }
