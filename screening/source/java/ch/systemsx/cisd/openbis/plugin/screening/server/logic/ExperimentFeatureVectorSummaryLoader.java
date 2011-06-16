@@ -295,8 +295,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         {
             return null;
         }
-        return WellFeatureCollectionLoader.asFeatureVectorValues(featureVector,
-                orderedFeatureLabels);
+        return WellFeatureCollectionLoader.asFeatureVectorValues(featureVector);
     }
 
     private static WellReference asWellReference(Sample well)

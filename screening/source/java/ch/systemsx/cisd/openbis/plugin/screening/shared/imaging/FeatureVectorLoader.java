@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,6 +98,10 @@ public class FeatureVectorLoader
     private final Set<String> featureCodes;
 
     private final boolean useAllFeatures;
+
+    // This is lazily initialized and is the same information as featureCodeLabelToIndexMap, but in
+    // an array form.
+    private CodeAndLabel[] codesAndLabels;
 
     /**
      * fetches specified features of specified wells
@@ -586,7 +591,7 @@ public class FeatureVectorLoader
      */
     List<CodeAndLabel> getCodesAndLabels()
     {
-        return new ArrayList<CodeAndLabel>(featureCodeLabelToIndexMap.keySet());
+        return Arrays.asList(getCodeAndLabelArray());
     }
 
     /**
@@ -722,7 +727,14 @@ public class FeatureVectorLoader
 
     private CodeAndLabel[] getCodeAndLabelArray()
     {
-        CodeAndLabel[] codesAndLabels = new CodeAndLabel[featureCodeLabelToIndexMap.size()];
+        // Return the value if has already been initialized
+        if (codesAndLabels != null)
+        {
+            return codesAndLabels;
+        }
+
+        // Lazily initialize it.
+        codesAndLabels = new CodeAndLabel[featureCodeLabelToIndexMap.size()];
         for (CodeAndLabel codeAndLabel : featureCodeLabelToIndexMap.keySet())
         {
             codesAndLabels[featureCodeLabelToIndexMap.get(codeAndLabel)] = codeAndLabel;

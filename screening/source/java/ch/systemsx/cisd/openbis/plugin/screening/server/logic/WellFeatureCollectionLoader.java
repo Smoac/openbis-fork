@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -191,15 +190,13 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         }
     }
 
-    public static float[] asFeatureVectorValues(FeatureVectorValues featureVector,
-            List<String> orderedFeatureLabels)
+    public static float[] asFeatureVectorValues(FeatureVectorValues featureVector)
     {
-        Map<String, FeatureValue> featureMap = featureVector.getFeatureMap();
-        float[] values = new float[featureMap.size()];
+        FeatureValue[] featureValues = featureVector.getFeatureValues();
+        float[] values = new float[featureValues.length];
         int i = 0;
-        for (String featureLabel : orderedFeatureLabels)
+        for (FeatureValue featureValue : featureValues)
         {
-            FeatureValue featureValue = featureMap.get(featureLabel);
             values[i++] = asFloat(featureValue);
         }
         return values;

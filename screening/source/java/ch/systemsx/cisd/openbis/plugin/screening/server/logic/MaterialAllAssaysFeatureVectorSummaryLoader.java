@@ -67,8 +67,7 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
             // load results only for experiments within a given project
             assayWellsForMaterial =
                     WellContentLoader.loadOnlyMetadataForProject(session, businessObjectFactory,
-                            daoFactory,
-                            materialId, projectTechIdOrNull);
+                            daoFactory, materialId, projectTechIdOrNull);
         }
         return new MaterialAllAssaysFeatureVectorSummaryLoader(session, businessObjectFactory,
                 daoFactory, settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
@@ -133,17 +132,13 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
     private static List<IWellData> selectExperimentWellData(Set<WellReference> experimentWells,
             WellFeatureCollection<FeatureVectorValues> allWellFeatures, TechId materialId)
     {
-        List<String> orderedFeatureLabels = allWellFeatures.getFeatureLabels();
-
         List<IWellData> experimentWellDataList = new ArrayList<IWellData>();
         List<FeatureVectorValues> features = allWellFeatures.getFeatures();
         for (FeatureVectorValues feature : features)
         {
             if (experimentWells.contains(feature.getWellReference()))
             {
-                float[] values =
-                        WellFeatureCollectionLoader.asFeatureVectorValues(feature,
-                                orderedFeatureLabels);
+                float[] values = WellFeatureCollectionLoader.asFeatureVectorValues(feature);
                 IWellData wellData = new WellData(materialId.getId(), values);
                 experimentWellDataList.add(wellData);
             }

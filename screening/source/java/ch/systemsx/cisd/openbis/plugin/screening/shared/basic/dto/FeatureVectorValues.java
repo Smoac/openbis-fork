@@ -37,11 +37,12 @@ public class FeatureVectorValues implements ISerializable
 
     private PlateWellFeatureVectorReference featureVectorReference;
 
-    private Map<String /* feature label */, FeatureValue /* value */> featureMap;
-
     private CodeAndLabel[] codesAndLabels;
 
     private FeatureValue[] featureValues;
+
+    // The map is lazily initialized
+    private Map<String /* feature label */, FeatureValue /* value */> featureMap;
 
     /**
      * Convert the two arrays into a map. It is assumed that codesAndLabels has the same length as
@@ -72,7 +73,7 @@ public class FeatureVectorValues implements ISerializable
     public FeatureVectorValues(FeatureVectorValues featureVector)
     {
         this(featureVector.getFeatureVectorReference(), featureVector.getCodesAndLabels(),
-                featureVector.getFeatureValues(), featureVector.getFeatureMap());
+                featureVector.getFeatureValues(), featureVector.tryFeatureMap());
     }
 
     public FeatureVectorValues(String dataSetCode, WellLocation wellLocation, String platePermId,
@@ -96,8 +97,8 @@ public class FeatureVectorValues implements ISerializable
         this.featureVectorReference = featureVectorReference;
         this.codesAndLabels = codesAndLabels;
         this.featureValues = featureValues;
-        this.featureMap =
-                (null == featureMap) ? asValueMap(codesAndLabels, featureValues) : featureMap;
+        this.featureMap = featureMap;
+
     }
 
     public CodeAndLabel[] getCodesAndLabels()
@@ -111,6 +112,20 @@ public class FeatureVectorValues implements ISerializable
     }
 
     public Map<String, FeatureValue> getFeatureMap()
+    {
+        // Lazily initialize the map
+        if (null == featureMap)
+        {
+            featureMap = asValueMap(codesAndLabels, featureValues);
+        }
+        return featureMap;
+    }
+
+    /**
+     * An internal method that returns the feature map without triggering an initialization. Used by
+     * the copy constructor.
+     */
+    private Map<String, FeatureValue> tryFeatureMap()
     {
         return featureMap;
     }
