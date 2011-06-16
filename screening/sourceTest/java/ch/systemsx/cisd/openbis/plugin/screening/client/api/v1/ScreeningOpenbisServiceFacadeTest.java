@@ -599,7 +599,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
-        assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
+        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject()
                 .getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
                 .getType());
@@ -649,7 +649,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
-        assertEquals(NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME, dataSetMatcher.recordedObject()
+        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject()
                 .getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
                 .getType());
