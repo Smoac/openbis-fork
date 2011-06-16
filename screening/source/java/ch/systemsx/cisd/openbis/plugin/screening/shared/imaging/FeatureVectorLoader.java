@@ -163,7 +163,7 @@ public class FeatureVectorLoader
         List<FeatureVectorValues> fvs = new ArrayList<FeatureVectorValues>();
         for (FeatureTableRow row : featureRows)
         {
-            fvs.add(new FeatureVectorValues(row.getFeatureVectorReference(), row.getFeatureMap()));
+            fvs.add(new FeatureVectorValues(row));
         }
         return new WellFeatureCollection<FeatureVectorValues>(fvs,
                 featureRowsCollection.getFeatureCodesAndLabels());
@@ -481,7 +481,7 @@ public class FeatureVectorLoader
         private List<ImgFeatureDefDTO> getRequestedFeatureDefinitions(ImgDatasetDTO dataset)
         {
             List<ImgFeatureDefDTO> def = requestedFeatureDefinitionsMap.tryGet(dataset.getId());
-            return def == null ? Collections.<ImgFeatureDefDTO>emptyList() : def;
+            return def == null ? Collections.<ImgFeatureDefDTO> emptyList() : def;
         }
 
         public List<ImgFeatureVocabularyTermDTO> getFeatureVocabularyTerms(ImgDatasetDTO dataSet)
@@ -717,20 +717,18 @@ public class FeatureVectorLoader
                 createFeatureValueArray(bundle.featureDefToValuesMap,
                         bundle.featureDefToVocabularyTerms, wellLocation);
         return new FeatureVectorValues(permId, wellLocation, bundle.container.getPermId(),
-                asValueMap(valueArray));
+                getCodeAndLabelArray(), valueArray);
     }
 
-    private Map<String, FeatureValue> asValueMap(FeatureValue[] valueArray)
+    private CodeAndLabel[] getCodeAndLabelArray()
     {
-        List<CodeAndLabel> features = getCodesAndLabels();
-        assert features.size() == valueArray.length;
-
-        Map<String, FeatureValue> result = new LinkedHashMap<String, FeatureValue>();
-        for (int i = 0; i < valueArray.length; i++)
+        CodeAndLabel[] codesAndLabels = new CodeAndLabel[featureCodeLabelToIndexMap.size()];
+        for (CodeAndLabel codeAndLabel : featureCodeLabelToIndexMap.keySet())
         {
-            result.put(features.get(i).getLabel(), valueArray[i]);
+            codesAndLabels[featureCodeLabelToIndexMap.get(codeAndLabel)] = codeAndLabel;
         }
-        return result;
+
+        return codesAndLabels;
     }
 
     private FeatureValue[] createFeatureValueArray(

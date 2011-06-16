@@ -20,9 +20,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.applic
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -154,18 +152,20 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     private static FeatureVectorDataset createLargeFeatureVectorDataset()
     {
         int size = 40;
-        List<CodeAndLabel> featureNames = new ArrayList<CodeAndLabel>(size);
-        Map<String, FeatureValue> featureValuesMap = new LinkedHashMap<String, FeatureValue>();
+        CodeAndLabel[] featureNames = new CodeAndLabel[size];
+        FeatureValue[] featureValues = new FeatureValue[size];
         for (int i = 0; i < size; i++)
         {
             final String label = "Feature" + i;
             final FeatureValue featureValue = FeatureValue.createFloat(i);
-            featureNames.add(new CodeAndLabel(label, label));
-            featureValuesMap.put(label, featureValue);
+            featureNames[i] = new CodeAndLabel(label, label);
+            featureValues[i] = featureValue;
         }
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, featureValuesMap));
-        return new FeatureVectorDataset(createDatasetReference(), features, featureNames);
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, featureNames,
+                featureValues));
+        return new FeatureVectorDataset(createDatasetReference(), features,
+                Arrays.asList(featureNames));
     }
 
     private static FeatureVectorDataset createFeatureVectorDataset()
@@ -173,32 +173,20 @@ public class WellTooltipGeneratorTest extends AssertJUnit
 
         String[] featureLabels =
             { "FeatureX", "FeatureY" };
+        CodeAndLabel[] codesAndLabels =
+                new CodeAndLabel[]
+                    { new CodeAndLabel(featureLabels[0], featureLabels[0]),
+                            new CodeAndLabel(featureLabels[1], featureLabels[1]) };
 
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null,
-                createFeatureVectorMap(featureLabels, new FeatureValue[]
-                    { FeatureValue.createFloat(1), FeatureValue.createFloat(2) })));
-        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), null,
-                createFeatureVectorMap(featureLabels, new FeatureValue[]
-                    { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) })));
-        return new FeatureVectorDataset(createDatasetReference(), features, Arrays.asList(
-                new CodeAndLabel(featureLabels[0], featureLabels[0]), new CodeAndLabel(
-                        featureLabels[1], featureLabels[1])));
-    }
-
-    private static Map<String, FeatureValue> createFeatureVectorMap(String[] labels,
-            FeatureValue[] values)
-    {
-        assert labels.length == values.length;
-
-        Map<String, FeatureValue> result = new LinkedHashMap<String, FeatureValue>();
-        for (int i = 0; i < labels.length; i++)
-        {
-            final String label = labels[i];
-            final FeatureValue featureValue = values[i];
-            result.put(label, featureValue);
-        }
-        return result;
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, codesAndLabels,
+                new FeatureValue[]
+                    { FeatureValue.createFloat(1), FeatureValue.createFloat(2) }));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), null, codesAndLabels,
+                new FeatureValue[]
+                    { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
+        return new FeatureVectorDataset(createDatasetReference(), features,
+                Arrays.asList(codesAndLabels));
     }
 
     private static DatasetReference createDatasetReference()
