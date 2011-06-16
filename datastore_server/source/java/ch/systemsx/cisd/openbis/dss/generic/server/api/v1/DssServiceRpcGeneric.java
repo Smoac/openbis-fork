@@ -88,13 +88,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         {
             content = getHierarchicalContent(dataSetCode);
             IHierarchicalContentNode startPathNode = getContentNode(content, startPath);
-
-            IHierarchicalContentNode listingRootNode =
-                    (startPathNode.isDirectory()) ? startPathNode : content.getNode(startPathNode
-                            .getParentRelativePath());
-
             ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
-            appendFileInfosForFile(listingRootNode, list, isRecursive);
+            if (startPathNode.isDirectory())
+            {
+                appendFileInfosForFile(startPathNode, list, isRecursive);
+            } else
+            {
+                list.add(new FileInfoDssDTO(startPathNode.getRelativePath(), startPathNode
+                        .getName(), false, startPathNode.getFileLength()));
+            }
             FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
             return list.toArray(fileInfos);
         } catch (IOException ex)

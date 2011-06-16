@@ -412,6 +412,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         final Sample wellSample = getWellSample(wellIdentifier);
         return getDataSets(wellSample, datasetTypeCodePattern);
     }
+    
+    
+
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        return dssComponent.getDataSet(dataSetCode);
+    }
 
     /**
      * Get proxies to the data sets owned by specified plate.

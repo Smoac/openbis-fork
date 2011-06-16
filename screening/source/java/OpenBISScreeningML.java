@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
@@ -290,6 +291,7 @@ public class OpenBISScreeningML
         {
             throw new RuntimeException("Couldn't create a temporary directory.");
         }
+        temporarySessionDir.deleteOnExit();
         loadedImages = new HashMap<PlateImageReference, File>();
         experiments = openbis.listExperiments();
         experimentCodeToExperimentMap.clear();
@@ -695,7 +697,7 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Load all data sets of plate P005 in space SPACE
-     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005')
+     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005', '.*', '')
      * % Get the data set codes
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
@@ -703,7 +705,7 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
-     * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
+     * @param dataSetTypeCodePattern only datasets of the type which matches the specified pattern
      *            will be returned. To fetch all datasets specify ".*".
      * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
      *            the DSS' store root. If null, paths are returned in the context of the DSS' file
@@ -712,13 +714,13 @@ public class OpenBISScreeningML
      *         <p>
      *         <code>{ data set code, data set root path  }</code>
      */
-    public static Object[][] loadDataSets(String augmentedPlateCode, String datasetTypeCodePattern,
+    public static Object[][] loadDataSets(String augmentedPlateCode, String dataSetTypeCodePattern,
             String overrideStoreRootPathOrNull)
     {
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
 
-        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, datasetTypeCodePattern);
+        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, dataSetTypeCodePattern);
         Object[][] result = new Object[dataSets.size()][];
         try
         {
@@ -742,6 +744,84 @@ public class OpenBISScreeningML
             throw new RuntimeException("Loading data sets for plate '" + augmentedPlateCode
                     + "' failed: " + ex, ex);
         }
+    }
+    
+    /**
+     * Loads file/folder of specified data set and specified file/folder path inside the data set.
+     * If it is possible the path points directly into the data set store. No data is copied.
+     * Otherwise the data is retrieved from the data store server.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % List all data sets of plate P005 in space SPACE. The query is restricted to data sets
+     * % of a type starting with HCS_IMAGE
+     * files = OpenBISScreeningML.listDataSetsFiles('/SPACE/P005', 'HCS_IMAGE.*')
+     * % Load from the first data set (assuming at least one data set found) the third file/folder 
+     * % (assuming at least three files/folders)
+     * file = OpenBISScreeningML.loadDataSetFile(files(1,1), files(1,2,3), '')
+     * </pre>
+     * 
+     * @param dataSetCode The code of the data set.
+     * @param pathInDataSet Path inside the data set pointing to the file/folder which should be
+     *            down loaded. Use '/' if all files are requested.
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
+     * @return path to the down loaded file/folder.
+     */
+    public static Object loadDataSetFile(String dataSetCode, String pathInDataSet, String overrideStoreRootPathOrNull)
+    {
+        checkLoggedIn();
+        IDataSetDss dataSet = openbis.getDataSet(dataSetCode);
+        return dataSet.getLinkOrCopyOfContent(overrideStoreRootPathOrNull, temporarySessionDir, pathInDataSet).toString();
+    }
+    
+    /**
+     * Lists all files of all data sets for specifies plate and data set type code matching
+     * specified regular expression pattern. 
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % List all data sets of plate P005 in space SPACE. The query is restricted to data sets
+     * % of a type starting with HCS_IMAGE
+     * files = OpenBISScreeningML.listDataSetsFiles('/SPACE/P005', 'HCS_IMAGE.*')
+     * % Codes of all found data sets
+     * files(:,1)
+     * % Code of third data set (assuming at least three data sets found)
+     * files(3,1)
+     * % Files of third data set (assuming at least three data sets found)
+     * files(3,2,:)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
+     *            will be returned. To fetch all data sets specify ".*".
+     * @return <code>{data set code, file/folder paths}</code>
+     */
+    public static Object[][][] listDataSetsFiles(String augmentedPlateCode, String dataSetTypeCodePattern)
+    {
+        checkLoggedIn();
+        Plate plateIdentifier = getPlate(augmentedPlateCode);
+
+        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, dataSetTypeCodePattern);
+        Object[][][] result = new Object[dataSets.size()][][];
+        for (int i = 0; i < dataSets.size(); i++)
+        {
+            IDataSetDss dataSet = dataSets.get(i);
+            FileInfoDssDTO[] fileInfos = dataSet.listFiles("/", true);
+            String code = dataSet.getCode();
+            result[i] = new Object[2][];
+            result[i][0] = new Object[] {code};
+            result[i][1] = new Object[fileInfos.length];
+            for (int j = 0; j < fileInfos.length; j++)
+            {
+                FileInfoDssDTO fileInfo = fileInfos[j];
+                result[i][1][j] = fileInfo.getPathInDataSet();
+            }
+        }
+        return result;
     }
 
     /**

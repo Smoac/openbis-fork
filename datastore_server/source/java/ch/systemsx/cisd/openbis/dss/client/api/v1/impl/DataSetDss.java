@@ -71,7 +71,13 @@ public class DataSetDss implements IDataSetDss
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException
     {
-        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir);
+        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir, null);
+    }
+
+    public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
+            String pathInDataSet) throws IllegalArgumentException, InvalidSessionException
+    {
+        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir, pathInDataSet);
     }
 
     public AuthenticatedState getParent()

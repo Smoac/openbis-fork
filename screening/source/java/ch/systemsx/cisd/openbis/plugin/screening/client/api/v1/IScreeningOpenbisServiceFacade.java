@@ -173,6 +173,9 @@ public interface IScreeningOpenbisServiceFacade
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException;
+    
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException;
 
     /**
      * Upload a new data set to the DSS for a well.

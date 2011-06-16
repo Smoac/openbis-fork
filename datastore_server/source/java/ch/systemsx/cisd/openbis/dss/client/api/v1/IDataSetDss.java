@@ -84,5 +84,20 @@ public interface IDataSetDss
      */
     public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
             throws IllegalArgumentException, InvalidSessionException;
+    
+    /**
+     * Returns a {@link File}, if possible, that directly references some specified content of a data set in
+     * the data store server. If not possible, downloads that content and returns a File in
+     * the downloadDir containing that content.
+     * 
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, datasets are copied to the downloadDir folder.
+     * @param downloadDir The directory in which to place the contents of the data set if they must
+     *            be downloaded.
+     * @param pathInDataSet Path of requested content inside the data set.
+     * @return A File containing the requested content.
+     */
+    public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
+            String pathInDataSet) throws IllegalArgumentException, InvalidSessionException;
 
 }

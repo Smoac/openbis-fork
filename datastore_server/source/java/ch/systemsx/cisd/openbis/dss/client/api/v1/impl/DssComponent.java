@@ -479,6 +479,41 @@ class AuthenticatedState extends AbstractDssComponentState
      * otherwise copy the contents locally.
      */
     File getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
+            File downloadDir, String pathInDataSetOrNull) throws InvalidSessionException
+    {
+        if (pathInDataSetOrNull == null)
+        {
+            return getLinkOrCopyOfContents(dataSetDss, overrideStoreRootPathOrNull, downloadDir);
+        }
+        File link = tryLinkToContents(dataSetDss, overrideStoreRootPathOrNull);
+        if (null != link)
+        {
+            File file = new File(link, pathInDataSetOrNull);
+            if (file.exists() == false)
+            {
+                throw new IllegalArgumentException("Data set " + dataSetDss.getCode()
+                        + " has no file/folder with path '" + pathInDataSetOrNull + "'.");
+            }
+            return file;
+        }
+
+        FileInfoDssDTO[] fileInfos =
+                dataSetDss.getService().listFilesForDataSet(getSessionToken(),
+                        dataSetDss.getCode(), pathInDataSetOrNull, true);
+        File result = new File(new File(downloadDir, dataSetDss.getCode()), pathInDataSetOrNull);
+        File outputDir = result;
+        if (fileInfos.length == 1 && fileInfos[0].isDirectory() == false)
+        {
+            outputDir = result.getParentFile();
+        }
+        outputDir.mkdirs();
+        FileInfoDssDownloader downloader =
+                new FileInfoDssDownloader(dataSetDss, fileInfos, outputDir);
+        downloader.downloadFiles();
+        return result;
+    }
+
+    private File getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
             File downloadDir) throws InvalidSessionException
     {
         File link = tryLinkToContents(dataSetDss, overrideStoreRootPathOrNull);
@@ -500,7 +535,6 @@ class AuthenticatedState extends AbstractDssComponentState
 
         return outputDir;
     }
-
     /**
      * Create a connection to the DSS server referenced by url
      */

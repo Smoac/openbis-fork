@@ -41,6 +41,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
@@ -535,6 +536,60 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListDataSetsFiles()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).getDataSets(p1, ".*");
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    
+                    one(ds1).listFiles("/", true);
+                    will(returnValue(new FileInfoDssDTO[]
+                        { new FileInfoDssDTO("a", "a", true, -1),
+                                new FileInfoDssDTO("a/b", "a/b", false, 42) }));
+                    one(ds1).getCode();
+                    will(returnValue("ds1"));
+
+                    one(ds2).listFiles("/", true);
+                    will(returnValue(new FileInfoDssDTO[]
+                        { new FileInfoDssDTO("c", "c", false, 137) }));
+                    one(ds2).getCode();
+                    will(returnValue("ds2"));
+                }
+            });
+        
+        Object[][][] files = OpenBISScreeningML.listDataSetsFiles(p1.getAugmentedCode(), ".*");
+        
+        assertEquals("ds1", files[0][0][0]);
+        assertEquals("[a, a/b]", Arrays.asList(files[0][1]).toString());
+        assertEquals("ds2", files[1][0][0]);
+        assertEquals("[c]", Arrays.asList(files[1][1]).toString());
+        assertEquals(2, files.length);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadDataSetFile()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).getDataSet("ds1");
+                    will(returnValue(ds1));
+                    
+                    one(ds1).getLinkOrCopyOfContent("root", tempDir, "a/b/c");
+                    will(returnValue(new File("data")));
+                }
+            });
+        
+        Object file = OpenBISScreeningML.loadDataSetFile("ds1", "a/b/c", "root");
+        
+        assertEquals("data", file);
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testLoadDataSets()
     {
