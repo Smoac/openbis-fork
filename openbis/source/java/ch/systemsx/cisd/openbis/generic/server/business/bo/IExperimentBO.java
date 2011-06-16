@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -23,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -75,10 +78,18 @@ public interface IExperimentBO extends IEntityBusinessObject
     /**
      * Deletes experiment for specified reason.
      * 
-     * @param experimentId experiment technical identifier
-     * @throws UserFailureException if experiment with given technical identifier is not found.
+     * @param experimentIds experiment technical identifiers
+     * @throws UserFailureException if one of the experiments can not be deleted.
      */
-    void deleteByTechId(TechId experimentId, String reason);
+    void deleteByTechIds(List<TechId> experimentIds, String reason);
+
+    /**
+     * Invalidates experiment with given invalidation.
+     * 
+     * @param experimentIds experiment technical identifiers
+     * @throws UserFailureException if one of the experiments can not be invalidated.
+     */
+    void invalidateByTechIds(List<TechId> experimentIds, InvalidationPE invalidation);
 
     /**
      * Changes the value of a managed property.

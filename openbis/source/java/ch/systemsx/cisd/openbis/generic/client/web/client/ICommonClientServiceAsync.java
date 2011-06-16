@@ -564,13 +564,17 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteSample(TechId sampleIs, String reason, DeletionType type,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String) */
+    /**
+     * @param deletionType
+     * @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String,
+     *      DeletionType)
+     */
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
-            String reason, AsyncCallback<Void> asyncCallback);
+            String reason, DeletionType deletionType, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteExperiment(TechId, String) */
-    public void deleteExperiment(TechId experimentId, String reason,
+    /** @see ICommonClientService#deleteExperiment(TechId, String, DeletionType) */
+    public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteProjects(List, String) */

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -57,9 +58,11 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> callback, Experiment experiment)
+            AbstractAsyncCallback<Void> deletionCallback,
+            AbstractAsyncCallback<Void> invalidationCallback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment), callback, false);
+        super(viewContext, Collections.singletonList(experiment), deletionCallback,
+                invalidationCallback, false);
         this.viewContext = viewContext;
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;
@@ -68,16 +71,18 @@ public final class ExperimentListDeletionConfirmationDialog extends
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
+        DeletionType deletionType =
+                isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.INVALIDATION;
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteExperiments(uploadCriteria, reason.getValue(),
-                    deletionCallback);
+                    deletionType, deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteExperiment(TechId.create(singleDataOrNull),
-                    reason.getValue(), deletionCallback);
+                    reason.getValue(), deletionType, deletionCallback);
         }
     }
 

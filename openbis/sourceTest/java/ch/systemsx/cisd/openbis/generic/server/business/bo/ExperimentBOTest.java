@@ -102,7 +102,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     one(propertiesConverter).updateProperties(oldProperties, entityType,
-                            newProperties, registrator, Collections.<String>emptySet());
+                            newProperties, registrator, Collections.<String> emptySet());
                     will(returnValue(new HashSet<ExperimentPropertyPE>(updated)));
 
                 }
@@ -622,7 +622,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             });
 
         final ExperimentBO expBO = createExperimentBO();
-        expBO.deleteByTechId(experimentId, reason);
+        expBO.deleteByTechIds(Collections.singletonList(experimentId), reason);
         context.assertIsSatisfied();
     }
 

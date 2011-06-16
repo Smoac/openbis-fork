@@ -182,6 +182,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -602,8 +603,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Collection<ExperimentIdentifier> experimentIdentifiers)
     {
         Session session = getSession(sessionToken);
-        IExperimentTable experimentTable =
-                businessObjectFactory.createExperimentTable(session);
+        IExperimentTable experimentTable = businessObjectFactory.createExperimentTable(session);
 
         experimentTable.load(experimentIdentifiers);
 
@@ -1189,20 +1189,36 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)
+    public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
+            DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            for (TechId id : experimentIds)
+            switch (deletionType)
             {
-                experimentBO.deleteByTechId(id, reason);
+                case PERMANENT:
+                    experimentBO.deleteByTechIds(experimentIds, reason);
+                    break;
+                case INVALIDATION:
+                    InvalidationPE invalidation = createInvalidation(reason, session);
+                    experimentBO.invalidateByTechIds(experimentIds, invalidation);
+                    break;
             }
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
+    }
+
+    private InvalidationPE createInvalidation(String reason, Session session)
+    {
+        InvalidationPE invalidation = new InvalidationPE();
+        invalidation.setReason(reason);
+        invalidation.setRegistrator(session.tryGetPerson());
+        getDAOFactory().getInvalidationDAO().create(invalidation);
+        return invalidation;
     }
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)

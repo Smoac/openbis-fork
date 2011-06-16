@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IInvalidationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -86,21 +87,24 @@ abstract class AbstractBusinessObject implements IDAOFactory
         this(daoFactory, session, (IEntityPropertiesConverter) null);
     }
 
-    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session, EntityKind entityKindOrNull)
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
+            EntityKind entityKindOrNull)
     {
-        this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(entityKindOrNull, daoFactory));
+        this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(
+                entityKindOrNull, daoFactory));
     }
-    
-    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session, IEntityPropertiesConverter converter)
+
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
+            IEntityPropertiesConverter converter)
     {
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
-        
+
         this.daoFactory = daoFactory;
         this.session = session;
         entityPropertiesConverter = converter;
     }
-    
+
     public SessionFactory getSessionFactory()
     {
         return daoFactory.getSessionFactory();
@@ -191,8 +195,8 @@ abstract class AbstractBusinessObject implements IDAOFactory
                 propertiesToUpdate.add(property.getPropertyType().getCode());
             }
         }
-        return entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, propertiesToUpdate);
+        return entityPropertiesConverter.updateProperties(existingProperties, type, properties,
+                registrator, propertiesToUpdate);
     }
 
     //
@@ -327,6 +331,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IEventDAO getEventDAO()
     {
         return daoFactory.getEventDAO();
+    }
+
+    public final IInvalidationDAO getInvalidationDAO()
+    {
+        return daoFactory.getInvalidationDAO();
     }
 
     public void setBatchUpdateMode(boolean batchMode)

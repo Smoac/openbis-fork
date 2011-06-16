@@ -36,10 +36,12 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -296,6 +298,20 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             operationLog.debug(String.format("ADD: experiment '%s'.", experiment));
         }
+    }
+
+    public void invalidate(final List<TechId> experimentIds, final InvalidationPE invalidation)
+            throws DataAccessException
+    {
+        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
+        for (TechId experimentId : experimentIds)
+        {
+            ExperimentPE experiment = loadByTechId(experimentId);
+            experiment.setInvalidation(invalidation);
+            getHibernateTemplate().update(experiment);
+        }
+
+        getHibernateTemplate().flush();
     }
 
 }

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetail
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -347,7 +348,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             getSessionFactory().getCurrentSession().flush();
             getSessionFactory().getCurrentSession().clear();
-            getSampleDAO().invalidate(sampleIds, session.tryGetPerson(), reason);
+
+            InvalidationPE invalidation = new InvalidationPE();
+            invalidation.setReason(reason);
+            invalidation.setRegistrator(session.tryGetPerson());
+            getInvalidationDAO().create(invalidation);
+
+            getSampleDAO().invalidate(sampleIds, invalidation);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Sample", EntityKind.SAMPLE);

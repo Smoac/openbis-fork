@@ -42,10 +42,10 @@ public final class MaterialListDeletionConfirmationDialog extends
 
     public MaterialListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Material> data,
-            AbstractAsyncCallback<Void> callback,
+            AbstractAsyncCallback<Void> deletionCallback,
             DisplayedAndSelectedMaterials selectedAndDisplayedItems)
     {
-        super(viewContext, data, callback, true);
+        super(viewContext, data, deletionCallback, deletionCallback, true, false);
         this.viewContext = viewContext;
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }

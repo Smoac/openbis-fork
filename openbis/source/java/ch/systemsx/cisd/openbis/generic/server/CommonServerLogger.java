@@ -589,10 +589,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 abbreviate(sampleIds), reason);
     }
 
-    public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)
+    public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
+            DeletionType deletionType)
     {
-        logTracking(sessionToken, "delete_experiments", "IDS(%s) REASON(%s)",
-                abbreviate(experimentIds), reason);
+        logTracking(sessionToken, "delete_experiments", "TYPE(%s) IDS(%s) REASON(%s)",
+                deletionType, abbreviate(experimentIds), reason);
     }
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)

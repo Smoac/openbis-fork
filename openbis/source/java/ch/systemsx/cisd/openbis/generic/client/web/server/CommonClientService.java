@@ -1620,14 +1620,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteExperiment(TechId experimentId, String reason)
+    public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
-                    reason);
+                    reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1636,14 +1636,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
-            String reason)
+            String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<TechId> experimentIds = extractTechIds(criteria);
-            commonServer.deleteExperiments(sessionToken, experimentIds, reason);
+            commonServer.deleteExperiments(sessionToken, experimentIds, reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

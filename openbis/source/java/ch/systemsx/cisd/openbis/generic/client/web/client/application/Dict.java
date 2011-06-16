@@ -492,8 +492,12 @@ public abstract class Dict
 
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
-    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON =
-            "delete_confirmation_message_with_reason";
+    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE =
+            "delete_confirmation_message_with_reason_template";
+
+    public static final String DELETING_PERMANENTLY = "deleting_permanently";
+
+    public static final String INVALIDATING = "invalidating";
 
     public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
 

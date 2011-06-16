@@ -58,9 +58,10 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> callback, T sample)
+            AbstractAsyncCallback<Void> deletionCallback,
+            AbstractAsyncCallback<Void> invalidationCallback, T sample)
     {
-        super(viewContext, data, callback, false);
+        super(viewContext, data, deletionCallback, invalidationCallback, false);
         this.viewContext = viewContext;
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;

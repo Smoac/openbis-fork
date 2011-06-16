@@ -440,15 +440,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         scheduleRemoveFromFullTextIndex(ids);
     }
 
-    public void invalidate(final List<TechId> sampleIds, final PersonPE registrator,
-            final String reason) throws DataAccessException
+    public void invalidate(final List<TechId> sampleIds, final InvalidationPE invalidation)
+            throws DataAccessException
     {
-        // TODO 2011-06-16, Piotr Buczek: move when cascade invalidation is implemented
-        InvalidationPE invalidation = new InvalidationPE();
-        invalidation.setReason(reason);
-        invalidation.setRegistrator(registrator);
-        getHibernateTemplate().save(invalidation);
-
         // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
         for (TechId sampleId : sampleIds)
         {

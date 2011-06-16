@@ -50,11 +50,9 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String SELECTED = " selected ";
 
-    private static final String TEMPORARILY = "temporarily";
+    private final AbstractAsyncCallback<Void> deletionCallback;
 
-    private static final String PERMANENTLY_EMPHASIZED = "<b>permanently</b>";
-
-    private final AbstractAsyncCallback<Void> callback;
+    private final AbstractAsyncCallback<Void> invalidationCallback;
 
     private final boolean withRadio;
 
@@ -67,27 +65,37 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio,
+            List<T> data, AbstractAsyncCallback<Void> deletionCallback,
+            AbstractAsyncCallback<Void> invalidationCallback, boolean withRadio,
             boolean withInvalidateOption)
     {
         super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
-        this.callback = callback;
+        this.deletionCallback = deletionCallback;
+        this.invalidationCallback = invalidationCallback;
         this.withRadio = withRadio;
         this.withInvalidateOption = withInvalidateOption;
     }
 
-    // maybe with radio & temporarily
+    // maybe with radio & with invalidation as an option & possibly different callbacks
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> callback, boolean withRadio)
+            List<T> data, AbstractAsyncCallback<Void> deletionCallback,
+            AbstractAsyncCallback<Void> invalidationCallback, boolean withRadio)
     {
-        this(messageProvider, data, callback, withRadio, true);
+        this(messageProvider, data, deletionCallback, invalidationCallback, withRadio, true);
+    }
+
+    // maybe with radio & with invalidation as an option & with one callback
+    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
+            List<T> data, AbstractAsyncCallback<Void> deletionCallback, boolean withRadio)
+    {
+        this(messageProvider, data, deletionCallback, deletionCallback, withRadio, true);
     }
 
     // without radio & permanently
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> callback)
+            List<T> data, AbstractAsyncCallback<Void> deletionCallback)
     {
-        this(messageProvider, data, callback, false, false);
+        this(messageProvider, data, deletionCallback, deletionCallback, false, false);
     }
 
     @Override
@@ -122,13 +130,16 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
             deletedObjects =
                     (isOnlySelected() ? data.size() + SELECTED : ALL_EMPHASIZED) + getEntityName();
         }
-        return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
-                isPermanentDeletion() ? PERMANENTLY_EMPHASIZED : TEMPORARILY, deletedObjects);
+        final String operationName =
+                messageProvider.getMessage(isPermanentDeletion() ? Dict.DELETING_PERMANENTLY
+                        : Dict.INVALIDATING);
+        return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE,
+                operationName, deletedObjects);
     }
 
     protected abstract String getEntityName();
 
-    protected abstract void executeDeletion(AsyncCallback<Void> deletionCallback);
+    protected abstract void executeDeletion(AsyncCallback<Void> callback);
 
     @Override
     protected final void executeConfirmedAction()
@@ -170,13 +181,19 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     }
 
     /**
-     * Returns deletion callback and shows a progress bar that will be hidden when the callback is
-     * finished.
+     * Returns deletion/invalidation callback and shows a progress bar that will be hidden when the
+     * callback is finished.
      */
     private AsyncCallback<Void> getCallbackWithProgressBar()
     {
-        return AsyncCallbackWithProgressBar.decorate(callback, messageProvider.getMessage(
-                isPermanentDeletion() ? Dict.DELETE_PROGRESS_MESSAGE
-                        : Dict.INVALIDATE_PROGRESS_MESSAGE, getEntityName()));
+        if (isPermanentDeletion())
+        {
+            return AsyncCallbackWithProgressBar.decorate(deletionCallback,
+                    messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
+        } else
+        {
+            return AsyncCallbackWithProgressBar.decorate(invalidationCallback,
+                    messageProvider.getMessage(Dict.INVALIDATE_PROGRESS_MESSAGE, getEntityName()));
+        }
     }
 }

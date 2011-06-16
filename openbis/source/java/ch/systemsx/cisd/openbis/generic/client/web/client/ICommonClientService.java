@@ -659,13 +659,14 @@ public interface ICommonClientService extends IClientService
     public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
             throws UserFailureException;
 
-    /** Deletes the specified experiments. */
+    /** Deletes/Invalidates the specified experiments. */
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
-            String reason) throws UserFailureException;
+            String reason, DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes the specified experiment. */
-    public void deleteExperiment(TechId experimentId, String reason) throws UserFailureException;
+    /** Deletes/Invalidates the specified experiment. */
+    public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType)
+            throws UserFailureException;
 
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;

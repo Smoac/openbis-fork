@@ -279,6 +279,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return new CloseViewerCallback(viewContext);
     }
 
+    protected final AbstractAsyncCallback<Void> createInvalidationCallback()
+    {
+        return new RefreshViewerCallback(viewContext);
+    }
+
     private final class CloseViewerCallback extends AbstractAsyncCallback<Void>
     {
         public CloseViewerCallback(IViewContext<?> viewContext)
@@ -290,6 +295,20 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         protected void process(Void result)
         {
             fireEvent(AppEvents.CloseViewer);
+        }
+    }
+
+    private final class RefreshViewerCallback extends AbstractAsyncCallback<Void>
+    {
+        public RefreshViewerCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Void result)
+        {
+            reloadAllData();
         }
     }
 

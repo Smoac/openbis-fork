@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -207,18 +208,38 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
-    public void deleteByTechId(TechId experimentId, String reason) throws UserFailureException
+    public void invalidateByTechIds(List<TechId> experimentIds, InvalidationPE invalidation)
+            throws UserFailureException
     {
-        loadDataByTechId(experimentId);
         try
         {
-            deleteZombieDatasetPlaceholders();
-            getExperimentDAO().delete(experiment);
-            getEventDAO().persist(createDeletionEvent(experiment, session.tryGetPerson(), reason));
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+
+            getExperimentDAO().invalidate(experimentIds, invalidation);
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
-                    EntityKind.EXPERIMENT);
+            throwException(ex, "Experiment", EntityKind.EXPERIMENT);
+        }
+    }
+
+    public void deleteByTechIds(List<TechId> experimentIds, String reason)
+            throws UserFailureException
+    {
+        for (TechId experimentId : experimentIds)
+        {
+            loadDataByTechId(experimentId);
+            try
+            {
+                deleteZombieDatasetPlaceholders();
+                getExperimentDAO().delete(experiment);
+                getEventDAO().persist(
+                        createDeletionEvent(experiment, session.tryGetPerson(), reason));
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
+                        EntityKind.EXPERIMENT);
+            }
         }
     }
 
@@ -374,8 +395,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             final IEntityProperty[] experimentProperties, PersonPE registrator)
     {
         final List<ExperimentPropertyPE> properties =
-                entityPropertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
-                        registrator);
+                entityPropertiesConverter.convertProperties(experimentProperties,
+                        experimentTypeCode, registrator);
         for (final ExperimentPropertyPE experimentProperty : properties)
         {
             experiment.addProperty(experimentProperty);
@@ -573,8 +594,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
-        experiment.setProperties(entityPropertiesConverter.updateManagedProperty(existingProperties,
-                type, managedProperty, registrator));
+        experiment.setProperties(entityPropertiesConverter.updateManagedProperty(
+                existingProperties, type, managedProperty, registrator));
 
         dataChanged = true;
     }

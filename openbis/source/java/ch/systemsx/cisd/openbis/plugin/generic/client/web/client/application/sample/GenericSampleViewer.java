@@ -174,7 +174,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 {
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
                             getOriginalDataAsSingleton(), createDeletionCallback(),
-                            getOriginalData()).show();
+                            createInvalidationCallback(), getOriginalData()).show();
                 }
             }));
     }

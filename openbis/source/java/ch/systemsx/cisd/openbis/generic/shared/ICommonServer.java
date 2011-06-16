@@ -343,7 +343,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Experiment> listExperiments(final String sessionToken,
+    public List<Experiment> listExperiments(
+            final String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) Collection<ExperimentIdentifier> experimentIdentifiers);
 
     /**
@@ -749,7 +750,7 @@ public interface ICommonServer extends IServer
             String reason);
 
     /**
-     * Deletes specified samples.
+     * Deletes/Invalidates specified samples.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
@@ -760,7 +761,7 @@ public interface ICommonServer extends IServer
             String reason, DeletionType type);
 
     /**
-     * Deletes specified experiments.
+     * Deletes/Invalidates specified experiments.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
@@ -768,7 +769,7 @@ public interface ICommonServer extends IServer
     public void deleteExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds,
-            String reason);
+            String reason, DeletionType deletionType);
 
     /**
      * Deletes specified attachments (all versions with given file names) of specified experiment.

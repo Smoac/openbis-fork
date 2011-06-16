@@ -63,12 +63,14 @@ var common = {
   
   invalidate: "Invalidate",
   invalidation: "Invalidation",
-  invalidation_template: "Invalidated by: {0}<br>date: {1}<br>reason: {2}",
+  invalidation_template: "<i>by:</i> {0}<br><i>date:</i> {1}<br><i>reason:</i> {2}",
   permanent: "Permanent",
   reason: "Reason",
   delete_confirmation_title: "Confirm Deletion",
   delete_confirmation_message: "Are you sure you want to delete [{0}]?",
-  delete_confirmation_message_with_reason: "You are {0} deleting {1}(s).<br><br>Please enter a reason or cancel deletion.",
+  delete_confirmation_message_with_reason_template: "You are {0} {1}(s).<br><br>Please enter a reason or cancel the operation.",
+  deleting_permanently: "<b>permanently</b> deleting",
+  invalidating: "invalidating",
   delete_progress_message: "Deleting {0}(s)...",
   delete_progress_message: "Invalidating {0}(s)...",
 	 
