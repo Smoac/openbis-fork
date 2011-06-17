@@ -72,7 +72,7 @@ var common = {
   deleting_permanently: "<b>permanently</b> deleting",
   invalidating: "invalidating",
   delete_progress_message: "Deleting {0}(s)...",
-  delete_progress_message: "Invalidating {0}(s)...",
+  invalidate_progress_message: "Invalidating {0}(s)...",
 	 
   //
   // Table Modifications
