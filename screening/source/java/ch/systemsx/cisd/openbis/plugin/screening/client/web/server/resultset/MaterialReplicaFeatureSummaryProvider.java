@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
 /**
@@ -70,15 +70,20 @@ public class MaterialReplicaFeatureSummaryProvider extends
         MaterialReplicaFeatureSummaryResult replicaResult =
                 server.getMaterialFeatureVectorSummary(sessionToken, experimentId, materialId);
 
+        List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
+        boolean displayMedianAndDeviation = shouldDisplayMedianAndDeviationColumns(rows);
+
         builder.addColumn(FEATURE);
-        builder.addColumn(MEDIAN).withDataType(DataTypeCode.REAL);
-        builder.addColumn(DEVIATION).withDataType(DataTypeCode.REAL);
+        if (displayMedianAndDeviation)
+        {
+            builder.addColumn(MEDIAN).withDataType(DataTypeCode.REAL);
+            builder.addColumn(DEVIATION).withDataType(DataTypeCode.REAL);
+        }
         String rankTitle =
                 ScreeningProviderMessages.getRankColumnHeader(replicaResult
                         .getNumberOfMaterialsInExperiment());
         builder.addColumn(RANK).withDataType(DataTypeCode.INTEGER).withTitle(rankTitle);
 
-        List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
         List<String> subgroupLabels = replicaResult.getSubgroupLabels();
         if (rows.isEmpty())
         {
@@ -98,21 +103,54 @@ public class MaterialReplicaFeatureSummaryProvider extends
 
         for (MaterialReplicaFeatureSummary row : rows)
         {
-            addRow(builder, row, subgroupLabels);
+            addRow(builder, row, subgroupLabels, displayMedianAndDeviation);
         }
 
         return builder.getModel();
     }
 
+    private boolean shouldDisplayMedianAndDeviationColumns(List<MaterialReplicaFeatureSummary> rows)
+    {
+        return false == hasOnlyOneReplica(rows);
+    }
+
+    private boolean hasOnlyOneReplica(List<MaterialReplicaFeatureSummary> rows)
+    {
+        for (MaterialReplicaFeatureSummary row : rows)
+        {
+            List<MaterialBiologicalReplicateFeatureSummary> allSubgroups =
+                    row.getBiologicalRelicates();
+            MaterialBiologicalReplicateFeatureSummary defaultSubGroup =
+                    row.getDirectTechnicalReplicates();
+            allSubgroups.add(defaultSubGroup);
+
+            if (allSubgroups.size() > 1)
+            {
+                return false;
+            } else if (allSubgroups.size() == 1)
+            {
+                if (allSubgroups.get(0).getFeatureValues().length > 1)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private void addRow(TypedTableModelBuilder<MaterialReplicaFeatureSummary> builder,
-            MaterialReplicaFeatureSummary row, List<String> subgroupLabels)
+            MaterialReplicaFeatureSummary row, List<String> subgroupLabels,
+            boolean displayMedianAndDeviation)
     {
         builder.addRow(row);
 
         builder.column(FEATURE).addString(row.getFeatureDescription().getLabel());
-        builder.column(MEDIAN).addDouble(row.getFeatureVectorSummary());
-        builder.column(DEVIATION).addDouble(row.getFeatureVectorDeviation());
         builder.column(RANK).addInteger((long) row.getFeatureVectorRank());
+        if (displayMedianAndDeviation)
+        {
+            builder.column(MEDIAN).addDouble(row.getFeatureVectorSummary());
+            builder.column(DEVIATION).addDouble(row.getFeatureVectorDeviation());
+        }
 
         MaterialBiologicalReplicateFeatureSummary defaultSubgroup =
                 row.getDirectTechnicalReplicates();
@@ -137,18 +175,20 @@ public class MaterialReplicaFeatureSummaryProvider extends
         IColumnGroup columnGroup = builder.columnGroup(groupId);
 
         float[] featureValues = subgroup.getFeatureValues();
-        for (int i = 0; i < featureValues.length; i++)
+        final int numberFeatures = featureValues.length;
+        for (int i = 0; i < numberFeatures; i++)
         {
             String replicaColumnId = getReplicaColumnId(groupLabel, i);
             String replicaColumnTitle =
-                    ScreeningProviderMessages.getReplicaColumnTitle(groupLabel, i + 1);
+                    ScreeningProviderMessages.getReplicaColumnTitle(groupLabel, i + 1,
+                            numberFeatures);
             columnGroup.column(replicaColumnId).withDataType(DataTypeCode.REAL)
                     .withTitle(replicaColumnTitle).addDouble((double) featureValues[i]);
         }
 
         // aggregates should be shown only for biological replicates which have more than one
         // technical replicate
-        if (false == DEFAULT_SUBGROUP.equals(groupId) && featureValues.length > 1)
+        if (false == DEFAULT_SUBGROUP.equals(groupId) && numberFeatures > 1)
         {
             MaterialReplicaSummaryAggregationType aggregationType =
                     subgroup.getSummaryAggregationType();

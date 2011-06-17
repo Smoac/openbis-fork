@@ -32,10 +32,17 @@ class ScreeningProviderMessages
         return "Rank (" + numberOfMaterialsInExperiment + ")";
     }
 
-    public static String getReplicaColumnTitle(String group, int replicaNumber)
+    public static String getReplicaColumnTitle(String group, int replicaNumber, int totalReplicas)
     {
+        if (totalReplicas > 1)
+        {
+            return group + " repl. " + replicaNumber;
+        } else
+        {
+            return group + " Value";
 
-        return group + " repl. " + replicaNumber;
+        }
+
     }
 
 }
