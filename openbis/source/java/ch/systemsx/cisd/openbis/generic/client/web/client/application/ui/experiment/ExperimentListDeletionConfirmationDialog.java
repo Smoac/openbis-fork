@@ -50,7 +50,8 @@ public final class ExperimentListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getExperiments(), callback, true);
+        super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
+        this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
@@ -61,8 +62,8 @@ public final class ExperimentListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> deletionCallback,
             AbstractAsyncCallback<Void> invalidationCallback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment), deletionCallback,
-                invalidationCallback, false);
+        super(viewContext, Collections.singletonList(experiment), deletionCallback);
+        this.withInvalidation(invalidationCallback);
         this.viewContext = viewContext;
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;

@@ -47,7 +47,8 @@ public final class DataSetListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback, true);
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback);
+        this.withRadio();
         this.viewContext = viewContext;
         this.singleData = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
@@ -57,7 +58,7 @@ public final class DataSetListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext, ExternalData data,
             AbstractAsyncCallback<Void> callback)
     {
-        super(viewContext, Collections.singletonList(data), callback, false);
+        super(viewContext, Collections.singletonList(data), callback);
         this.viewContext = viewContext;
         this.singleData = data;
         this.selectedAndDisplayedItemsOrNull = null;

@@ -72,14 +72,19 @@ public class BasicConstant
     public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss ZZZZ";
 
     /**
+     * Date format which does not include time zone.
+     */
+    public static final String DATE_WITHOUT_TIMEZONE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    /**
      * Date format which does not include time and time zone.
      */
     public static final String DATE_WITHOUT_TIME_FORMAT_PATTERN = "yyyy-MM-dd";
 
     /**
-     * Date format which does not include time zone.
+     * Date format which does not include seconds & time zone.
      */
-    public static final String DATE_WITH_SHORT_TIME = "yyyy-MM-dd HH:mm";
+    public static final String DATE_WITH_SHORT_TIME_PATTERN = "yyyy-MM-dd HH:mm";
 
     // constants used for link creation and handling
 

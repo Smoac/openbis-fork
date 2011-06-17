@@ -45,7 +45,8 @@ public final class MaterialListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> deletionCallback,
             DisplayedAndSelectedMaterials selectedAndDisplayedItems)
     {
-        super(viewContext, data, deletionCallback, deletionCallback, true, false);
+        super(viewContext, data, deletionCallback);
+        this.withRadio();
         this.viewContext = viewContext;
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }

@@ -240,10 +240,11 @@ public final class PropertyValueRenderers
         @Override
         public final String renderNotNull(final Invalidation invalidation)
         {
-            return getMessageProvider().getMessage(Dict.INVALIDATION_TEMPLATE,
+            return getMessageProvider().getMessage(
+                    Dict.INVALIDATION_TEMPLATE,
                     rendererPerson(invalidation.getRegistrator()),
-                    DateRenderer.renderDate(invalidation.getRegistrationDate()),
-                    invalidation.getReason());
+                    DateRenderer.renderDate(invalidation.getRegistrationDate(),
+                            BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN), invalidation.getReason());
         }
     }
 

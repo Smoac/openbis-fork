@@ -245,7 +245,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     public void setupRemovedEntityView()
     {
         removeAll();
-        updateTitle(getOriginalDataDescription() + " does not exist any more.");
+        updateTitle(getOriginalDataDescription() + " <b>does not exist any more</b>");
         setToolBarButtonsEnabled(false);
     }
 
@@ -261,10 +261,10 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
                 + originalData.getEntityType().getCode() + "]"
-                + (isInvalidated() ? "" : " (invalidated)");
+                + (isInvalid() ? " <b>(invalid)</b>" : "");
     }
 
-    protected final boolean isInvalidated()
+    protected final boolean isInvalid()
     {
         return InvalidationUtils.isInvalid(originalData);
     }

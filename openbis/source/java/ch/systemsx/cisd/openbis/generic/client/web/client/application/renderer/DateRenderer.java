@@ -41,8 +41,8 @@ public final class DateRenderer
     /**
      * Default {@link DateTimeFormat}.
      */
-    public static final DateTimeFormat DEFAULT_DATE_TIME_FORMAT =
-            DateTimeFormat.getFormat(DEFAULT_DATE_FORMAT_PATTERN);
+    public static final DateTimeFormat DEFAULT_DATE_TIME_FORMAT = DateTimeFormat
+            .getFormat(DEFAULT_DATE_FORMAT_PATTERN);
 
     /**
      * Short date time format pattern.
@@ -55,8 +55,8 @@ public final class DateRenderer
     /**
      * Default {@link DateTimeFormat}.
      */
-    public static final DateTimeFormat SHORT_DATE_TIME_FORMAT =
-            DateTimeFormat.getFormat(SHORT_DATE_FORMAT_PATTERN);
+    public static final DateTimeFormat SHORT_DATE_TIME_FORMAT = DateTimeFormat
+            .getFormat(SHORT_DATE_FORMAT_PATTERN);
 
     private DateRenderer()
     {

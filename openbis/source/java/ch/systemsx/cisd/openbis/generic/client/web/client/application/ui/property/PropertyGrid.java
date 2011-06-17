@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**
  * A <code>HTMLTable</code> that displays a couple of properties.
@@ -55,7 +56,8 @@ public final class PropertyGrid extends Grid
     /** Registers default <code>PropertyValueRenderer</code>. */
     private final void registerDefaultPropertyValueRenderers()
     {
-        propertyValueRenderers.put(Date.class, new DatePropertyValueRenderer(messageProvider));
+        propertyValueRenderers.put(Date.class, new DatePropertyValueRenderer(messageProvider,
+                BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN));
     }
 
     /**

@@ -204,7 +204,7 @@ public class HistoryWidget extends ContentPanel
                         final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href);
                         final String date =
                                 DateRenderer.renderDate(new Date(visit.getTimeStamp()),
-                                        BasicConstant.DATE_WITH_SHORT_TIME);
+                                        BasicConstant.DATE_WITH_SHORT_TIME_PATTERN);
 
                         FlowPanel panel = new FlowPanel();
                         panel.add(link);

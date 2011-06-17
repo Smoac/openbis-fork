@@ -52,11 +52,11 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private final AbstractAsyncCallback<Void> deletionCallback;
 
-    private final AbstractAsyncCallback<Void> invalidationCallback;
+    private boolean withRadio = false;
 
-    private final boolean withRadio;
+    private boolean withInvalidationOption = false;
 
-    private final boolean withInvalidateOption;
+    private AbstractAsyncCallback<Void> invalidationCallbackOrNull;
 
     protected Radio onlySelectedRadioOrNull;
 
@@ -65,38 +65,34 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback,
-            AbstractAsyncCallback<Void> invalidationCallback, boolean withRadio,
-            boolean withInvalidateOption)
+            List<T> data, AbstractAsyncCallback<Void> deletionCallback)
     {
         super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
         this.deletionCallback = deletionCallback;
-        this.invalidationCallback = invalidationCallback;
-        this.withRadio = withRadio;
-        this.withInvalidateOption = withInvalidateOption;
     }
 
-    // maybe with radio & with invalidation as an option & possibly different callbacks
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback,
-            AbstractAsyncCallback<Void> invalidationCallback, boolean withRadio)
+    // optional initialization
+
+    /** adds radio group for selecting between deletion of all or only selected data */
+    protected void withRadio()
     {
-        this(messageProvider, data, deletionCallback, invalidationCallback, withRadio, true);
+        this.withRadio = true;
     }
 
-    // maybe with radio & with invalidation as an option & with one callback
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback, boolean withRadio)
+    /** adds invalidation option to the dialog with the same callback as the one used for deletion */
+    protected void withInvalidation()
     {
-        this(messageProvider, data, deletionCallback, deletionCallback, withRadio, true);
+        withInvalidation(deletionCallback);
     }
 
-    // without radio & permanently
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback)
+    /** adds invalidation option to the dialog with fiven callback */
+    protected void withInvalidation(AbstractAsyncCallback<Void> invalidationCallback)
     {
-        this(messageProvider, data, deletionCallback, deletionCallback, false, false);
+        this.withInvalidationOption = true;
+        this.invalidationCallbackOrNull = invalidationCallback;
     }
+
+    //
 
     @Override
     protected void extendForm()
@@ -107,7 +103,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         reason = new ReasonField(messageProvider, true);
         reason.focus();
         reason.addKeyListener(keyListener);
-        if (withInvalidateOption)
+        if (withInvalidationOption)
         {
             formPanel.add(permanentCheckBoxOrNull = createDeletePermanentlyCheckBox());
         }
@@ -192,7 +188,8 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
                     messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
         } else
         {
-            return AsyncCallbackWithProgressBar.decorate(invalidationCallback,
+            assert invalidationCallbackOrNull != null;
+            return AsyncCallbackWithProgressBar.decorate(invalidationCallbackOrNull,
                     messageProvider.getMessage(Dict.INVALIDATE_PROGRESS_MESSAGE, getEntityName()));
         }
     }
