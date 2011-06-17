@@ -94,10 +94,11 @@ test -f "$checksum_file" && cp -p "$checksum_file" "$server_folder/${rel_jetty_f
 
 # Create symlinks for easier access.
 cd "$server_folder"
+relative_war_classes=../webapps/openbis/WEB-INF/classes
 ln -s "${rel_jetty_folder}" jetty
 cd jetty/etc
-ln -s $war_classes/service.properties .
-ln -s $war_classes/etc/log.xml .
+ln -s ${relative_war_classes}/service.properties .
+ln -s ${relative_war_classes}/etc/log.xml .
 ln -s ../bin/jetty.properties .
 cd ../..
 
