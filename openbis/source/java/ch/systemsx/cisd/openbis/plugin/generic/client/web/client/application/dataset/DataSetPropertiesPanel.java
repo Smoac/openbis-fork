@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -33,18 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
 /**
@@ -72,35 +62,14 @@ public class DataSetPropertiesPanel extends ContentPanel
 
     private final PropertyGrid createPropertyGrid()
     {
+        final IMessageProvider messageProvider = viewContext;
         final Map<String, Object> properties = createProperties(viewContext);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + dataset.getIdentifier());
-        propertyGrid.registerPropertyValueRenderer(Person.class,
-                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(DataSetType.class,
-                PropertyValueRenderers.createDataSetTypePropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
-                PropertyValueRenderers.createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Project.class,
-                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
-        final IPropertyValueRenderer<IEntityProperty> propertyRenderer =
-                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
-        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
-                propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, propertyRenderer);
-        propertyGrid.registerPropertyValueRenderer(Sample.class,
-                PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
-        propertyGrid.registerPropertyValueRenderer(Experiment.class,
-                PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(DataSet.class,
-                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(ContainerDataSet.class,
-                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
+                PropertyValueRenderers.createDataSetTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(DataStore.class,
-                PropertyValueRenderers.createDataStorePropertyValueRenderer(viewContext));
+                PropertyValueRenderers.createDataStorePropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }

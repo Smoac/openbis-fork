@@ -34,24 +34,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -89,7 +80,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
         pp.add(grid);
         add(pp, new BorderLayoutData(LayoutRegion.CENTER));
     }
-    
+
     public void addSouthComponent(Component component)
     {
         add(component, new BorderLayoutData(LayoutRegion.SOUTH));
@@ -103,24 +94,11 @@ public class ExperimentPropertiesPanel extends ContentPanel
 
     private final PropertyGrid createPropertyGrid(Map<String, Object> properties)
     {
-        IMessageProvider messageProvider = viewContext;
-        final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
+        final IMessageProvider messageProvider = viewContext;
+        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experimentId);
-        propertyGrid.registerPropertyValueRenderer(Person.class,
-                PropertyValueRenderers.createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(ExperimentType.class,
                 PropertyValueRenderers.createExperimentTypePropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
-                PropertyValueRenderers.createInvalidationPropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Project.class,
-                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
-        final IPropertyValueRenderer<IEntityProperty> renderer =
-                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
-        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class, renderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class, renderer);
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }

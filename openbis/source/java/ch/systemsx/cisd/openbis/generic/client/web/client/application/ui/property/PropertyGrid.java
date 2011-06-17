@@ -24,8 +24,23 @@ import java.util.Map;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 
 /**
  * A <code>HTMLTable</code> that displays a couple of properties.
@@ -41,12 +56,15 @@ public final class PropertyGrid extends Grid
 
     private Map<String, ?> properties;
 
+    private final IViewContext<?> viewContext;
+
     private final IMessageProvider messageProvider;
 
-    public PropertyGrid(final IMessageProvider messageProvider, final int rows)
+    public PropertyGrid(final IViewContext<?> viewContext, final int rows)
     {
         super(rows, 2);
-        this.messageProvider = messageProvider;
+        this.messageProvider = viewContext;
+        this.viewContext = viewContext;
         setStyleName("property-grid");
         getColumnFormatter().addStyleName(0, "header");
         defaultPropertyValueRenderer = new ObjectPropertyValueRenderer(messageProvider);
@@ -56,8 +74,35 @@ public final class PropertyGrid extends Grid
     /** Registers default <code>PropertyValueRenderer</code>. */
     private final void registerDefaultPropertyValueRenderers()
     {
-        propertyValueRenderers.put(Date.class, new DatePropertyValueRenderer(messageProvider,
+        registerPropertyValueRenderer(Date.class, new DatePropertyValueRenderer(messageProvider,
                 BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN));
+        // Common
+        registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(messageProvider));
+
+        // Entities
+        registerPropertyValueRenderer(Invalidation.class,
+                PropertyValueRenderers.createInvalidationPropertyValueRenderer(messageProvider));
+
+        registerPropertyValueRenderer(ContainerDataSet.class,
+                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
+        registerPropertyValueRenderer(DataSet.class,
+                PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
+        registerPropertyValueRenderer(Experiment.class,
+                PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
+        registerPropertyValueRenderer(Sample.class,
+                PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
+        registerPropertyValueRenderer(Project.class,
+                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
+
+        // Properties
+        final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
+                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
+        registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);
+        registerPropertyValueRenderer(GenericEntityProperty.class, propertyValueRenderer);
+        registerPropertyValueRenderer(ManagedEntityProperty.class, propertyValueRenderer);
+        registerPropertyValueRenderer(MaterialEntityProperty.class, propertyValueRenderer);
+        registerPropertyValueRenderer(VocabularyTermEntityProperty.class, propertyValueRenderer);
     }
 
     /**

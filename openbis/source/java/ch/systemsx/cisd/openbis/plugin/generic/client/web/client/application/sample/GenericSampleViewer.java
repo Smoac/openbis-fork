@@ -48,29 +48,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -329,34 +321,13 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     public static PropertyGrid createPropertyGrid(final TechId sampleId,
             final SampleParentWithDerived sampleGeneration, final IViewContext<?> viewContext)
     {
+        final IMessageProvider messageProvider = viewContext;
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.registerPropertyValueRenderer(Person.class,
-                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleType.class,
-                PropertyValueRenderers.createSampleTypePropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Sample.class,
-                PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
-                PropertyValueRenderers.createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Project.class,
-                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
-        final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
-                PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
-        propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(GenericEntityProperty.class,
-                propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(VocabularyTermEntityProperty.class,
-                propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(MaterialEntityProperty.class,
-                propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(ManagedEntityProperty.class,
-                propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(Experiment.class,
-                PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
+                PropertyValueRenderers.createSampleTypePropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
-
         return propertyGrid;
     }
 
