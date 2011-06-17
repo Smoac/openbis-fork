@@ -162,14 +162,19 @@ public class MaterialReplicaSummaryComponent
             List<WellReplicaImage> orphanTechnicalReplicates, ChannelChooserPanel channelChooser)
     {
         LayoutContainer imagePanel = new LayoutContainer();
+        boolean shouldDisplayLabels = orphanTechnicalReplicates.size() > 1;
+
         for (WellReplicaImage image : orphanTechnicalReplicates)
         {
             LayoutContainer imageWithLabel = new LayoutContainer();
             imageWithLabel.setLayout(new RowLayout());
 
-            Widget label =
-                    createTechnicalReplicateLabel(image.getTechnicalReplicateSequenceNumber());
-            imageWithLabel.add(label);
+            if (shouldDisplayLabels)
+            {
+                Widget label =
+                        createTechnicalReplicateLabel(image.getTechnicalReplicateSequenceNumber());
+                imageWithLabel.add(label);
+            }
 
             Widget imageViewer = createImageViewer(image.getWellImage(), channelChooser);
             imageWithLabel.add(imageViewer);
@@ -183,8 +188,15 @@ public class MaterialReplicaSummaryComponent
             Map<String, List<WellReplicaImage>> labelToReplicasMap,
             ChannelChooserPanel channelChooser)
     {
-        int maxReplicaNumber = calcMaxReplicaNumber(labelToReplicasMap);
         LayoutContainer imagePanel = new LayoutContainer();
+
+        int maxReplicaNumber = calcMaxReplicaNumber(labelToReplicasMap);
+        if (maxReplicaNumber == 0)
+        {
+            // nothing to display
+            return imagePanel;
+        }
+
         TableLayout layout = new TableLayout(maxReplicaNumber + 1);
         layout.setBorder(1);
         layout.setCellPadding(5);
