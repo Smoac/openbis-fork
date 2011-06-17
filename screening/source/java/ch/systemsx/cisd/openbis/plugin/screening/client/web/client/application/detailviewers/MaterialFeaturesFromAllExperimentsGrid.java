@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs;
 
 /**
@@ -113,7 +113,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
     private void linkMaterialInExperiment()
     {
         registerListenerAndLinkGenerator(
-                MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.MATERIAL,
+                MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<MaterialSimpleFeatureVectorSummary>()
                     {
                         public void handle(

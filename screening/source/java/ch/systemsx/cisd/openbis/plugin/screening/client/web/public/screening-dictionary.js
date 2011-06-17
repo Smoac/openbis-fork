@@ -96,7 +96,6 @@ material_replica_feature_summary_MEDIAN: "Median",
 material_replica_feature_summary_DEVIATION: "Deviation",
 
 material_features_from_all_experiments_ASSAY: "Experiment",
-material_features_from_all_experiments_MATERIAL: "Details",
 MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION: "All Experiments",
 
 EXACT_MATCH_ONLY: "Exact Matches Only",

@@ -17,15 +17,12 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.EXPERIMENT;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs.MATERIAL;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -69,7 +66,6 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
                 server.getMaterialFeatureVectorsFromAllExperiments(sessionToken, materialId,
                         experimentSearchCriteria);
 
-        builder.addColumn(MATERIAL);
         builder.addColumn(EXPERIMENT);
 
         createFeatureColumns(builder, summaries);
@@ -100,12 +96,8 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
     {
         builder.addRow(row);
 
-        ExperimentReference exp = row.getExperiment();
-        EntityTableCell experimentCell =
-                new EntityTableCell(EntityKind.EXPERIMENT, exp.getPermId(), exp.getIdentifier());
-        experimentCell.setLinkText(exp.getCode());
-        builder.column(MATERIAL).addString(ScreeningProviderMessages.SHOW_DETAILS_MSG);
-        builder.column(EXPERIMENT).addString(exp.getCode());
+        ExperimentReference experiment = row.getExperiment();
+        builder.column(EXPERIMENT).addString(experiment.getCode());
 
         float[] features = row.getFeatureVectorSummary();
         List<CodeAndLabel> descriptions = row.getFeatureDescriptions();

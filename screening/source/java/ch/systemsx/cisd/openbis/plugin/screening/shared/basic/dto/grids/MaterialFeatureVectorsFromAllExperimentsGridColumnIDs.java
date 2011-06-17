@@ -21,8 +21,5 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids;
  */
 public class MaterialFeatureVectorsFromAllExperimentsGridColumnIDs
 {
-
     public static final String EXPERIMENT = "ASSAY";
-
-    public static final String MATERIAL = "MATERIAL";
 }
