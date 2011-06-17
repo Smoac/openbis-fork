@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -57,6 +58,17 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     public void loadDataByTechId(TechId materialId)
     {
         material = getMaterialById(materialId);
+        dataChanged = false;
+    }
+
+    public void loadByMaterialIdentifier(MaterialIdentifier identifier)
+    {
+        material = getMaterialDAO().tryFindMaterial(identifier);
+        if (material == null)
+        {
+            throw new UserFailureException(String.format(
+                    "Material with identifier '%s' does not exist.", identifier));
+        }
         dataChanged = false;
     }
 

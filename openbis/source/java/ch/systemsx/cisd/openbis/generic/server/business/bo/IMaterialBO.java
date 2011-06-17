@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
@@ -31,6 +32,11 @@ public interface IMaterialBO extends IEntityBusinessObject
     /** Returns the material which has been loaded. */
     MaterialPE getMaterial();
 
+    /**
+     * Loads the material by a given identifier.
+     */
+    public void loadByMaterialIdentifier(MaterialIdentifier identifier);
+    
     /** Adds properties */
     public void enrichWithProperties();
 
