@@ -22,7 +22,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -76,10 +75,10 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
     protected EntityTableCell createEntityTableCellTemplate(
             final IEntityInformationHolderWithIdentifier entity)
     {
-        final EntityTableCell experimentCell =
-                new EntityTableCell(EntityKind.EXPERIMENT, entity.getPermId(),
+        final EntityTableCell cell =
+                new EntityTableCell(entity.getEntityKind(), entity.getPermId(),
                         entity.getIdentifier());
-        experimentCell.setInvalid(InvalidationUtils.isInvalid(entity));
-        return experimentCell;
+        cell.setInvalid(InvalidationUtils.isInvalid(entity));
+        return cell;
     }
 }
