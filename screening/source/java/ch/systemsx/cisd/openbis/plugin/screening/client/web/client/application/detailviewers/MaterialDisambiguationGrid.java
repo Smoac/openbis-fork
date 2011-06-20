@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnIDUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -232,8 +234,18 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                             openMaterialDetailViewer(material);
                         }
                     };
-        registerListenerAndLinkGenerator(MaterialGridColumnIDs.SHOW_DETAILS, listenerLinkGenerator);
+                    
         registerListenerAndLinkGenerator(MaterialGridColumnIDs.CODE, listenerLinkGenerator);
+        String detailsLinkPropertyTypeName =
+                screeningViewContext
+                        .getPropertyOrNull(Constants.MATERIAL_DETAILS_PROPERTY_TYPE_KEY);
+        if (detailsLinkPropertyTypeName != null)
+        {
+            String detailsLinkPropertyColumnId =
+                    ColumnIDUtils.getColumnIdForProperty(MaterialGridColumnIDs.PROPERTIES_GROUP,
+                            detailsLinkPropertyTypeName);
+            registerListenerAndLinkGenerator(detailsLinkPropertyColumnId, listenerLinkGenerator);
+        }
     }
 
     private void openMaterialDetailViewer(Material material)

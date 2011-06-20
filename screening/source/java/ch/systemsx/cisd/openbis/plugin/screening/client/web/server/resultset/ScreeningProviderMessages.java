@@ -23,8 +23,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
  */
 class ScreeningProviderMessages
 {
-    public static final String SHOW_DETAILS_MSG = "Show";
-
     public static final String RANK_COLUMN_MSG = " Rank";
 
     public static String getRankColumnHeader(int numberOfMaterialsInExperiment)

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnIDUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -120,7 +122,17 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
                 createMaterialReplicaSummaryLinkGenerator();
         registerListenerAndLinkGenerator(FeatureVectorSummaryGridColumnIDs.MATERIAL_ID,
                 linkGenerator);
-        registerListenerAndLinkGenerator(FeatureVectorSummaryGridColumnIDs.DETAILS, linkGenerator);
+        String detailsLinkPropertyTypeName =
+                screeningViewContext
+                        .getPropertyOrNull(Constants.MATERIAL_DETAILS_PROPERTY_TYPE_KEY);
+        if (detailsLinkPropertyTypeName != null)
+        {
+            String detailsLinkPropertyColumnId =
+                    ColumnIDUtils.getColumnIdForProperty(
+                            FeatureVectorSummaryGridColumnIDs.MATERIAL_PROPS_GROUP,
+                            detailsLinkPropertyTypeName);
+            registerListenerAndLinkGenerator(detailsLinkPropertyColumnId, linkGenerator);
+        }
 
         setBorders(true);
     }

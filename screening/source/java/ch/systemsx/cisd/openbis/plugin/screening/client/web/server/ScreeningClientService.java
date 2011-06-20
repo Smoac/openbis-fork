@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataPr
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialDisambiguationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -231,7 +231,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
             WellSearchCriteria materialCriteria)
     {
         List<Material> materials = server.listMaterials(getSessionToken(), materialCriteria);
-        final ITableModelProvider<Material> provider = new MaterialProvider(materials);
+        final ITableModelProvider<Material> provider = new MaterialDisambiguationProvider(materials);
         ResultSet<TableModelRowWithObject<Material>> resultSet =
                 listEntities(gridCriteria, new DataProviderAdapter<Material>(provider));
         return new TypedTableResultSet<Material>(resultSet);

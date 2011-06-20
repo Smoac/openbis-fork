@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.MATERIAL_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.PROPERTIES_GROUP;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.REGISTRATOR;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -33,13 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  * 
  * @author Tomasz Pylak
  */
-public class MaterialProvider extends AbstractTableModelProvider<Material>
+public class MaterialDisambiguationProvider extends AbstractTableModelProvider<Material>
 {
-    private static final String PROPERTIES_GROUP = "property-";
-
     private final List<Material> materials;
 
-    public MaterialProvider(List<Material> materials)
+    public MaterialDisambiguationProvider(List<Material> materials)
     {
         this.materials = materials;
     }
@@ -60,7 +58,6 @@ public class MaterialProvider extends AbstractTableModelProvider<Material>
 
     private void addStandardColumns(TypedTableModelBuilder<Material> builder)
     {
-        builder.addColumn(MaterialGridColumnIDs.SHOW_DETAILS);
         builder.addColumn(CODE);
         builder.addColumn(MATERIAL_TYPE);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
@@ -70,7 +67,6 @@ public class MaterialProvider extends AbstractTableModelProvider<Material>
     private void addRow(TypedTableModelBuilder<Material> builder, Material material)
     {
         builder.addRow(material);
-        builder.column(MaterialGridColumnIDs.SHOW_DETAILS).addString("Show details");
         builder.column(CODE).addString(material.getCode());
         builder.column(MATERIAL_TYPE).addString(material.getEntityType().getCode());
         builder.column(REGISTRATION_DATE).addDate(material.getRegistrationDate());

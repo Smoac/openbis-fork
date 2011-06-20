@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.DETAILS;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_PROPS_GROUP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +41,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  */
 public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<MaterialFeatureVectorSummary>
 {
-    private static final String MATERIAL_PROPS_GROUP = "MATERIAL_PROP-";
-
     private static final String FEATURE_VALUE_PREFIX = "FEATURE_VALUE-";
 
     private final IScreeningServer server;
@@ -69,7 +67,6 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
 
         builder.addColumn(MATERIAL_ID);
         builder.columnGroup(MATERIAL_PROPS_GROUP);
-        builder.addColumn(DETAILS);
 
         List<CodeAndLabel> featureDescriptions = fvSummary.getFeatureDescriptions();
         List<String> featureColumnIds = new ArrayList<String>();
@@ -110,7 +107,6 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
         {
             builder.columnGroup(MATERIAL_PROPS_GROUP).addProperties(material.getProperties());
         }
-        builder.column(DETAILS).addString(ScreeningProviderMessages.SHOW_DETAILS_MSG);
 
         float[] featureSummaries = summary.getFeatureVectorSummary();
         int[] ranksValues = summary.getFeatureVectorRanks();

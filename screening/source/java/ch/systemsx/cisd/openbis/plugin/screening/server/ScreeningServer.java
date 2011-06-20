@@ -349,6 +349,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         MaterialSummarySettings settings = new MaterialSummarySettings();
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setFeatureCodes(new ArrayList<String>());
+        settings.setMaterialDetailsPropertyType(ScreeningConstants.GENE_SYMBOLS);
         settings.setReplicaMatrialTypePatterns(ScreeningConstants.REPLICA_METERIAL_TYPE_PATTERN);
         settings.setBiologicalReplicatePropertyTypeCodes("CONCENTRATION", "SIRNA");
         return settings;

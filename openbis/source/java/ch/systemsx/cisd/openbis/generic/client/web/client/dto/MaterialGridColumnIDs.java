@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
  */
 public class MaterialGridColumnIDs
 {
-    public static final String SHOW_DETAILS = "SHOW_DETAILS";
-
     public static final String CODE = "CODE";
 
     public static final String REGISTRATOR = "REGISTRATOR";
@@ -34,4 +32,7 @@ public class MaterialGridColumnIDs
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
     public static final String MATERIAL_TYPE = "MATERIAL_TYPE";
+
+    public static final String PROPERTIES_GROUP = "property-";
+
 }

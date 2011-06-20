@@ -100,7 +100,7 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setDefaultViewMode(DEFAULT_VIEW_MODE_VALUE);
         webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
         webClientConfiguration.setMaxEntityVisits(DEFAULT_MAX_ENTITY_VISITS);
-        webClientConfiguration.setAllowAddingUnofficielTerms(DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
+        webClientConfiguration.setAllowAddingUnofficialTerms(DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
     }
 
     private void init(Properties properties)
@@ -109,7 +109,7 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setDefaultAnonymousLogin(extractDefaultAnonymousLogin(properties));
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
         webClientConfiguration
-                .setAllowAddingUnofficielTerms(extractAllowAddingUnofficialTerms(properties));
+                .setAllowAddingUnofficialTerms(extractAllowAddingUnofficialTerms(properties));
         webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
                 MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
         webClientConfiguration

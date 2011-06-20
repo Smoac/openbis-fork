@@ -126,7 +126,7 @@ public class WebClientConfiguration implements ISerializable
         this.maxEntityVisits = maxEntityVisits;
     }
 
-    public void setAllowAddingUnofficielTerms(boolean allowAddingUnofficialTerms)
+    public void setAllowAddingUnofficialTerms(boolean allowAddingUnofficialTerms)
     {
         this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
     }

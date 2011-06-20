@@ -29,6 +29,12 @@ public class MaterialSummarySettings implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * the name of a material property type that can be rendered as a link to a details view. TODO
+     * KE: this should be part of the display settings ?!
+     */
+    private String materialDetailsPropertyType;
+
     private List<String> featureCodes;
 
     private String replicaMatrialTypePattern;
@@ -77,5 +83,15 @@ public class MaterialSummarySettings implements ISerializable
     public void setAggregationType(MaterialReplicaSummaryAggregationType aggregationType)
     {
         this.aggregationType = aggregationType;
+    }
+
+    public String getMaterialDetailsPropertyType()
+    {
+        return materialDetailsPropertyType;
+    }
+
+    public void setMaterialDetailsPropertyType(String materialDetailsProperty)
+    {
+        this.materialDetailsPropertyType = materialDetailsProperty;
     }
 }
