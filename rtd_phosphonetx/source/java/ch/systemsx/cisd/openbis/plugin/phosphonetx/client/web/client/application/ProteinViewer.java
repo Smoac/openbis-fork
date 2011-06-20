@@ -296,8 +296,6 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         if (experimentOrNull != null)
         {
             properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
-            propertyGrid.registerPropertyValueRenderer(Experiment.class,
-                    ProteinRenderers.createExperimentPropertyValueRenderer(viewContext));
         }
         properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), protein);
         propertyGrid.registerPropertyValueRenderer(ProteinByExperiment.class,
