@@ -51,6 +51,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
+        this.withInvalidation();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;

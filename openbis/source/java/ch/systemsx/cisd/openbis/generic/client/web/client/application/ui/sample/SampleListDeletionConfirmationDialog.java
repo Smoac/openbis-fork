@@ -51,6 +51,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
             DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
         super(viewContext, data, callback);
+        this.withInvalidation();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
