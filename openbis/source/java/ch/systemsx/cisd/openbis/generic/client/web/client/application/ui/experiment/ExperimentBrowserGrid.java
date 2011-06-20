@@ -154,32 +154,9 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         this.criteriaProvider = criteriaProvider;
         registerLinkClickListenerFor(CommonExperimentColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 showEntityViewerLinkClickListener);
-        linkExperiment();
+        // NOTE: links to experiment are handled by EntityTableCell
         linkProject();
         setId(BROWSER_ID);
-    }
-
-    private void linkExperiment()
-    {
-        ICellListenerAndLinkGenerator<Experiment> listenerLinkGenerator =
-                new ICellListenerAndLinkGenerator<Experiment>()
-                    {
-                        public void handle(TableModelRowWithObject<Experiment> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false,
-                                    specialKeyPressed);
-                        }
-
-                        public String tryGetLink(Experiment entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            return LinkExtractor.tryExtract(entity);
-                        }
-                    };
-        registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.CODE, listenerLinkGenerator);
-        registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER,
-                listenerLinkGenerator);
     }
 
     private void linkProject()

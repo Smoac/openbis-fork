@@ -92,10 +92,11 @@ public class SampleProviderTest extends AbstractProviderTest
         assertEquals(
                 "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
                         + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, null, null, VARCHAR, "
-                        + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
+                        + "VARCHAR, VARCHAR, VARCHAR, null, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
-        assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, "
-                + "null, null, null, null, null, null, null, null, MATERIAL, null]",
+        assertEquals("[SAMPLE, SAMPLE, null, null, SAMPLE, null, "
+                + "null, null, null, null, null, null, null, "
+                + "null, null, null, null, null, null, null, MATERIAL, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
@@ -126,7 +127,7 @@ public class SampleProviderTest extends AbstractProviderTest
         s2.experiment(new ExperimentBuilder().identifier("DB:/SPACE1/P1/EXP1").permID("e-123")
                 .getExperiment());
         Sample p2 = new SampleBuilder("/DE/FG").getSample();
-        s2.partOf(new SampleBuilder("DB:/A/B").getSample()).childOf(p1, p2);
+        s2.partOf(new SampleBuilder("DB:/A/B").permID("c-456").getSample()).childOf(p1, p2);
         context.checking(new Expectations()
             {
                 {
@@ -144,14 +145,13 @@ public class SampleProviderTest extends AbstractProviderTest
                         + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
                         + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals(
-                "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
-                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, null, null, VARCHAR, "
-                        + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
+        assertEquals("[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
+                + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, null, null, VARCHAR, "
+                + "VARCHAR, VARCHAR, VARCHAR, null, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
-        assertEquals(
-                "[null, null, null, null, null, null, null, null, null, null, null, null, null, "
-                        + "null, null, null, null, null, null, null, null]",
+        assertEquals("[SAMPLE, SAMPLE, null, null, SAMPLE, null, "
+                + "null, null, null, null, EXPERIMENT, EXPERIMENT, null, "
+                + "null, null, null, SAMPLE, null, null, null, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());

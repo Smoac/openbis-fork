@@ -90,7 +90,7 @@ public class ExperimentProviderTest extends AbstractProviderTest
         assertEquals("[null, VARCHAR, null, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "
                 + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
-        assertEquals("[null, null, null, null, null, null, null, null, null, null, "
+        assertEquals("[EXPERIMENT, null, EXPERIMENT, null, null, null, null, null, null, null, "
                 + "null, null, null]", getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Experiment>> rows = tableModel.getRows();
         assertSame(e1.getExperiment(), rows.get(0).getObjectOrNull());

@@ -19,10 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -67,18 +64,4 @@ public abstract class AbstractTableModelProvider<T extends ISerializable> implem
      */
     protected abstract TypedTableModel<T> createTableModel();
 
-    /**
-     * Creates a template of a cell for displaying links to entities. Identifier of the entity will
-     * be used as the link's text. To override the text its best to call
-     * {@link EntityTableCell#createCopyWithLinkText(String)} on the template.
-     */
-    protected EntityTableCell createEntityTableCellTemplate(
-            final IEntityInformationHolderWithIdentifier entity)
-    {
-        final EntityTableCell cell =
-                new EntityTableCell(entity.getEntityKind(), entity.getPermId(),
-                        entity.getIdentifier());
-        cell.setInvalid(InvalidationUtils.isInvalid(entity));
-        return cell;
-    }
 }

@@ -299,15 +299,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         configureLoggingBetweenEvents(logID);
 
-        // this.addListener(Events.BeforeHide, new Listener<ComponentEvent>()
-        // {
-        //
-        // @Override
-        // public void handleEvent(ComponentEvent ce)
-        // {
-        // GWTUtils.displayInfo("BeforeHide main event");
-        // }
-        // });
         grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
             {
                 public void handleEvent(final GridEvent<ModelData> ge)

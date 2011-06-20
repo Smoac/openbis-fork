@@ -30,7 +30,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -342,6 +344,19 @@ public class TypedTableModelBuilder<T extends ISerializable>
             ISerializableComparable value =
                     valueOrNull == null ? EMPTY_CELL : new DateTableCell(valueOrNull);
             addValue(value);
+        }
+
+        public void addEntityLink(IEntityInformationHolderWithIdentifier entity, String linkText)
+        {
+            assert entity != null;
+            // TODO 2011-06-20, Piotr Buczek: extend DataType with ENTITY and set the type here
+            header.setEntityKind(entity.getEntityKind());
+            final EntityTableCell cell =
+                    new EntityTableCell(entity.getEntityKind(), entity.getPermId(),
+                            entity.getIdentifier());
+            cell.setInvalid(InvalidationUtils.isInvalid(entity));
+            cell.setLinkText(linkText);
+            addValue(cell);
         }
 
         private void setDataType(DataTypeCode dataType)

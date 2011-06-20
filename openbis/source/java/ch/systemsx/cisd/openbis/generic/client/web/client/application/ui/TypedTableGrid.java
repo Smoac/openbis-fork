@@ -328,7 +328,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                     {
                         title = viewContext.getMessage(translateColumnIdToDictionaryKey(columnId));
                     }
-                    // support for links in queries
+                    // support for entity links
                     ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                             tryGetCellListenerAndLinkGenerator(columnId);
                     final EntityKind entityKind = header.tryGetEntityKind();

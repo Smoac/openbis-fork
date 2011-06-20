@@ -57,19 +57,6 @@ public class EntityTableCell implements ISerializableComparable
         this.identifierOrNull = identifierOrNull;
     }
 
-    /** copy constructor overwriting link's text */
-    private EntityTableCell(EntityTableCell entityCell, String linkText)
-    {
-        this(entityCell.entityKind, entityCell.permId, entityCell.identifierOrNull);
-        setInvalid(entityCell.invalid);
-        setLinkText(linkText);
-    }
-
-    public EntityTableCell createCopyWithLinkText(String linkText)
-    {
-        return new EntityTableCell(this, linkText);
-    }
-
     public int compareTo(ISerializableComparable o)
     {
         return this.toString().compareTo(o.toString());

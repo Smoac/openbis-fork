@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -323,11 +322,9 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         super(viewContext, browserId, displayTypeIDGenerator);
         propertyTypesAndCriteriaProvider = criteriaProvider;
-        linkSample();
-        linkExperiment();
+        // NOTE: links to sample, container and experiment are handled by EntityTableCell
         linkProject();
         linkParent();
-        linkContainer();
     }
 
     @Override
@@ -353,54 +350,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
             suffix += "-" + entityTypeOrNull.getCode();
         }
         return suffix;
-    }
-
-    private void linkSample()
-    {
-        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
-                new ICellListenerAndLinkGenerator<Sample>()
-                    {
-                        public void handle(TableModelRowWithObject<Sample> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false,
-                                    specialKeyPressed);
-                        }
-
-                        public String tryGetLink(Sample entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            return LinkExtractor.tryExtract(entity);
-                        }
-                    };
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.CODE, listenerLinkGenerator);
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.SUBCODE, listenerLinkGenerator);
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.SAMPLE_IDENTIFIER,
-                listenerLinkGenerator);
-    }
-
-    private void linkExperiment()
-    {
-        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
-                new ICellListenerAndLinkGenerator<Sample>()
-                    {
-                        public void handle(TableModelRowWithObject<Sample> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            Experiment experiment = rowItem.getObjectOrNull().getExperiment();
-                            new OpenEntityDetailsTabAction(experiment, viewContext,
-                                    specialKeyPressed).execute();
-                        }
-
-                        public String tryGetLink(Sample entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            return LinkExtractor.tryExtract(entity.getExperiment());
-                        }
-                    };
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT, listenerLinkGenerator);
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER,
-                listenerLinkGenerator);
     }
 
     private void linkProject()
@@ -460,27 +409,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                     });
     }
 
-    private void linkContainer()
-    {
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.CONTAINER_SAMPLE,
-                new ICellListenerAndLinkGenerator<Sample>()
-                    {
-                        public void handle(TableModelRowWithObject<Sample> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull()
-                                    .getContainer(), false, specialKeyPressed);
-                        }
-
-                        public String tryGetLink(Sample entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            Sample container = entity.getContainer();
-                            return LinkExtractor.tryExtract(container);
-                        }
-                    });
-    }
-
     @Override
     protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
@@ -511,15 +439,19 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
     }
 
-    protected boolean isPropertyEditable(EntityType entityType, String propertyColumnNameWithoutPrefix)
+    protected boolean isPropertyEditable(EntityType entityType,
+            String propertyColumnNameWithoutPrefix)
     {
-        String propertyTypeCode = CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
-        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes = entityType.getAssignedPropertyTypes();
+        String propertyTypeCode =
+                CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
+        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes =
+                entityType.getAssignedPropertyTypes();
         for (EntityTypePropertyType<?> entityTypePropertyType : assignedPropertyTypes)
         {
             if (entityTypePropertyType.getPropertyType().getCode().equals(propertyTypeCode))
             {
-                return entityTypePropertyType.isDynamic() == false && entityTypePropertyType.isManaged() == false;
+                return entityTypePropertyType.isDynamic() == false
+                        && entityTypePropertyType.isManaged() == false;
             }
         }
         return false;

@@ -45,8 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+mport ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -94,18 +93,13 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         TableMap<String, SampleType> sampleTypes = getSampleTypes();
         for (Sample sample : samples)
         {
-            final EntityTableCell sampleCellTemplate = createEntityTableCellTemplate(sample);
-
             builder.addRow(sample);
-            builder.column(CODE).addValue(
-                    sampleCellTemplate.createCopyWithLinkText(sample.getCode()));
-            builder.column(SUBCODE).addValue(
-                    sampleCellTemplate.createCopyWithLinkText(sample.getSubCode()));
+            builder.column(CODE).addEntityLink(sample, sample.getCode());
+            builder.column(SUBCODE).addEntityLink(sample, sample.getSubCode());
             builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
             builder.column(SPACE).addString(
                     sample.getSpace() == null ? "" : sample.getSpace().getCode());
-            builder.column(SAMPLE_IDENTIFIER).addValue(
-                    sampleCellTemplate.createCopyWithLinkText(sample.getIdentifier()));
+            builder.column(SAMPLE_IDENTIFIER).addEntityLink(sample, sample.getIdentifier());
             builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
             builder.column(IS_INSTANCE_SAMPLE).addString(
                     SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
@@ -113,23 +107,25 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                     SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
-
             final Experiment experimentOrNull = sample.getExperiment();
             if (experimentOrNull != null)
             {
                 final Experiment experiment = experimentOrNull;
-                final EntityTableCell experimentCellTemplate =
-                        createEntityTableCellTemplate(experiment);
-                builder.column(EXPERIMENT).addValue(
-                        experimentCellTemplate.createCopyWithLinkText(experiment.getCode()));
-                builder.column(EXPERIMENT_IDENTIFIER).addValue(
-                        experimentCellTemplate.createCopyWithLinkText(experiment.getIdentifier()));
+                builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
+                builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
+                        experiment.getIdentifier());
             }
             builder.column(PROJECT).addString(getProjectCode(sample));
             builder.column(PERM_ID).addString(sample.getPermId());
             builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
             builder.column(PARENTS).addString(getParents(sample));
-            builder.column(CONTAINER_SAMPLE).addString(getContainer(sample));
+            final Sample containerOrNull = sample.getContainer();
+            if (containerOrNull != null)
+            {
+                final Sample container = containerOrNull;
+                builder.column(CONTAINER_SAMPLE)
+                        .addEntityLink(container, container.getIdentifier());
+            }
             SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
             IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
             if (sampleType != null)
@@ -177,12 +173,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             counter++;
         }
         return builder.toString();
-    }
-
-    private String getContainer(Sample sample)
-    {
-        Sample container = sample.getContainer();
-        return container == null ? "" : container.getIdentifier();
     }
 
     private String getProjectCode(Sample sample)
