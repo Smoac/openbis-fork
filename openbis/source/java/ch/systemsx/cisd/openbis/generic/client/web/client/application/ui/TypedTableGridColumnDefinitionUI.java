@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author Franz-Josef Elmer
@@ -96,4 +97,14 @@ public class TypedTableGridColumnDefinitionUI<T extends ISerializable> extends
         return type == DataTypeCode.INTEGER || type == DataTypeCode.REAL;
     }
 
+    public boolean isVocabulary()
+    {
+        DataTypeCode type = header.getDataType();
+        return type == DataTypeCode.CONTROLLEDVOCABULARY;
+    }
+
+    public Vocabulary tryGetVocabulary()
+    {
+        return header.tryGetVocabulary();
+    }
 }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Column definition for a one entity property.
@@ -91,7 +92,8 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
             boolean isInternalNamespace, String propertyTypeLabel, String identifierPrefix,
             PropertyType propertyType)
     {
-        super(propertyTypeLabel, width, isDisplayedByDefault, false);
+        super(propertyTypeLabel, width, isDisplayedByDefault, false, propertyType.getDataType()
+                .getCode() == DataTypeCode.CONTROLLEDVOCABULARY);
         this.isInternalNamespace = isInternalNamespace;
         this.simpleCode = propertyTypeCode;
         this.identifierPrefix = identifierPrefix;
@@ -156,6 +158,18 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
             default:
                 return false;
         }
+    }
+
+    @Override
+    public boolean isVocabulary()
+    {
+        return getDataTypeCode() == DataTypeCode.CONTROLLEDVOCABULARY;
+    }
+
+    @Override
+    public Vocabulary tryGetVocabulary()
+    {
+        return propertyType.getVocabulary();
     }
 
     @Override

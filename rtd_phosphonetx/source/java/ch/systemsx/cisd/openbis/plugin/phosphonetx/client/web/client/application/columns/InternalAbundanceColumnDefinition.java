@@ -39,7 +39,7 @@ public final class InternalAbundanceColumnDefinition extends AbstractColumnDefin
     public InternalAbundanceColumnDefinition(String headerTextOrNull,
             Map<String, String> propertiesOrNull, int width, boolean isHidden, long sampleID)
     {
-        super(headerTextOrNull, width, isHidden, true);
+        super(headerTextOrNull, width, isHidden, true, false);
         this.properties = propertiesOrNull;
         this.sampleID = sampleID;
     }

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * An abstract decorator for {@link EntityPropertyColDef} to be used in grids for rendering values
@@ -117,6 +118,16 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
     public DataTypeCode tryToGetDataType()
     {
         return null;
+    }
+
+    public boolean isVocabulary()
+    {
+        return colDef.isVocabulary();
+    }
+
+    public Vocabulary tryGetVocabulary()
+    {
+        return colDef.tryGetVocabulary();
     }
 
     public String tryGetLink(T entity)

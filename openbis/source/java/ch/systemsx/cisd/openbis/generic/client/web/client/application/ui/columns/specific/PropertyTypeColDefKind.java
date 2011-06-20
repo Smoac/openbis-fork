@@ -68,7 +68,8 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             }
         }),
 
-    VOCABULARY(new AbstractColumnDefinitionKind<PropertyType>(Dict.VOCABULARY, true)
+    VOCABULARY(new AbstractColumnDefinitionKind<PropertyType>(Dict.VOCABULARY,
+            AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH, true, false, true)
         {
             @Override
             public String tryGetValue(PropertyType entity)

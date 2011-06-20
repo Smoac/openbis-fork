@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Describes column's metadata and UI.
@@ -24,6 +25,16 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
      * Returns <code>true</code> if the column cell is editable.
      */
     boolean isEditable();
+
+    /**
+     * Returns <code>true</code> if the column cell is the controlled vocabulary
+     */
+    boolean isVocabulary();
+
+    /**
+     * Returns the vocabulary if the column cell is a controlled vocabulary
+     */
+    Vocabulary tryGetVocabulary();
 
     String tryGetLink(T entity);
 }

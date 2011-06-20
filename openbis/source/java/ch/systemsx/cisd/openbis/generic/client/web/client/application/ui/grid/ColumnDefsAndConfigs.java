@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -41,10 +42,10 @@ public class ColumnDefsAndConfigs<T>
     private final Set<IColumnDefinition<T>> columnDefs;
 
     public static <T> ColumnDefsAndConfigs<T> create(
-            List<? extends IColumnDefinitionUI<T>> columnsSchema)
+            List<? extends IColumnDefinitionUI<T>> columnsSchema, IViewContext<?> viewContext)
     {
         ColumnDefsAndConfigs<T> result = new ColumnDefsAndConfigs<T>();
-        result.addColumns(columnsSchema);
+        result.addColumns(columnsSchema, viewContext);
         return result;
     }
 
@@ -54,18 +55,19 @@ public class ColumnDefsAndConfigs<T>
         this.columnDefs = new HashSet<IColumnDefinition<T>>();
     }
 
-    public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema)
+    public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema,
+            IViewContext<?> viewContext)
     {
         for (IColumnDefinitionUI<T> column : columnsSchema)
         {
-            addColumn(column);
+            addColumn(column, viewContext);
         }
     }
 
     public void addColumn(IColumnDefinitionUI<T> column,
-            GridCellRenderer<BaseEntityModel<?>> rendererOrNull)
+            GridCellRenderer<BaseEntityModel<?>> rendererOrNull, IViewContext<?> viewContext)
     {
-        ColumnConfig columnConfig = createColumn(column);
+        ColumnConfig columnConfig = createColumn(column, viewContext);
         if (rendererOrNull != null)
         {
             columnConfig.setRenderer(rendererOrNull);
@@ -73,9 +75,9 @@ public class ColumnDefsAndConfigs<T>
         addColumn(column, columnConfig);
     }
 
-    private void addColumn(IColumnDefinitionUI<T> column)
+    private void addColumn(IColumnDefinitionUI<T> column, IViewContext<?> viewContext)
     {
-        addColumn(column, createColumn(column));
+        addColumn(column, createColumn(column, viewContext));
     }
 
     private void addColumn(IColumnDefinitionUI<T> column, ColumnConfig columnConfig)
@@ -96,7 +98,8 @@ public class ColumnDefsAndConfigs<T>
     }
 
     @SuppressWarnings("deprecation")
-    private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column)
+    private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column,
+            IViewContext<?> viewContext)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setSortable(true);
@@ -115,7 +118,7 @@ public class ColumnDefsAndConfigs<T>
         if (column.isEditable() && ClientStaticState.isSimpleMode() == false)
         {
             toolTip += " This is an editibale column. Just double-click on a cell.";
-            CellEditor editor = ColumnUtils.createCellEditor(column.tryToGetDataType());
+            CellEditor editor = ColumnUtils.createCellEditor(column, viewContext);
             columnConfig.setEditor(editor);
         }
         columnConfig.setToolTip(toolTip);

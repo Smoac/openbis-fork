@@ -223,6 +223,20 @@ public class VocabularyTermSelectionWidget extends
     }
 
     /**
+     * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
+     * terms by calling the server.
+     */
+    public static DatabaseModificationAwareField<VocabularyTermModel> create(String idSuffix,
+            String label, Vocabulary vocabulary, final boolean mandatory,
+            IViewContext<?> viewContext, String initialTermCodeOrNull,
+            boolean allowAddingUnofiicialTerms)
+    {
+        return new VocabularyTermSelectionWidget(idSuffix, label, mandatory, vocabulary,
+                viewContext, null, initialTermCodeOrNull, allowAddingUnofiicialTerms)
+                .asDatabaseModificationAware();
+    }
+
+    /**
      * Allows to choose one of the specified vocabulary terms.
      */
     public VocabularyTermSelectionWidget(String idSuffix, String label, final boolean mandatory,
@@ -351,6 +365,31 @@ public class VocabularyTermSelectionWidget extends
     public void trySelectByCode(String termCode)
     {
         GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, termCode);
+    }
+
+    /**
+     * Returns the model for the given value.
+     * 
+     * @param code the value
+     * @return the corresponding model for the value
+     */
+    public VocabularyTermModel findModel(String code)
+    {
+        VocabularyTermModel val = null;
+        for (VocabularyTermModel c : store.getModels())
+        {
+            if (c.getTerm().getCode().equals(code))
+            {
+                val = c;
+                break;
+            }
+        }
+
+        if (val == null)
+        {
+            initialTermCodeOrNull = code;
+        }
+        return val;
     }
 
     private class ListTermsCallback extends VocabularyTermSelectionWidget.ListItemsCallback

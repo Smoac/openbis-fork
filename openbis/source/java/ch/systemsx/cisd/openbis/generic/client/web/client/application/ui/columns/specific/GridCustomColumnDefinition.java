@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Column definition for a grid custom column.
@@ -51,6 +52,16 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
     {
         DataTypeCode dataType = columnMetadata.getDataType();
         return dataType == DataTypeCode.INTEGER || dataType == DataTypeCode.REAL;
+    }
+
+    public boolean isVocabulary()
+    {
+        return columnMetadata.getDataType() == DataTypeCode.CONTROLLEDVOCABULARY;
+    }
+
+    public Vocabulary tryGetVocabulary()
+    {
+        return null;
     }
 
     public boolean isEditable()

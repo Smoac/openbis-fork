@@ -49,7 +49,9 @@ public class TableModelColumnHeader implements ISerializable
     private boolean hidden;
 
     private boolean editable;
-    
+
+    protected Vocabulary vocabularyOrNull;
+
     public TableModelColumnHeader()
     {
     }
@@ -124,6 +126,21 @@ public class TableModelColumnHeader implements ISerializable
     public boolean isNumeric()
     {
         return dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER;
+    }
+
+    public boolean isVocabulary()
+    {
+        return dataType == DataTypeCode.CONTROLLEDVOCABULARY;
+    }
+
+    public Vocabulary tryGetVocabulary()
+    {
+        return vocabularyOrNull;
+    }
+
+    public void setVocabulary(Vocabulary vocabularyOrNull)
+    {
+        this.vocabularyOrNull = vocabularyOrNull;
     }
 
     public void setEditable(boolean editable)

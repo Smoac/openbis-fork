@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
@@ -91,20 +92,20 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
     }
 
     public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
-            IMessageProvider messageProvider, List<PropertyType> mergedPropertyTypesOrNull,
+            IViewContext<?> viewContext, List<PropertyType> mergedPropertyTypesOrNull,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
-                createCommonColumnsSchema(messageProvider);
+                createCommonColumnsSchema(viewContext);
         ColumnDefsAndConfigs<ExternalData> columns =
-                ColumnDefsAndConfigs.create(commonColumnsSchema);
+                ColumnDefsAndConfigs.create(commonColumnsSchema, viewContext);
 
         if (mergedPropertyTypesOrNull != null)
         {
             List<PropertyType> datasetProperties =
                     PropertyTypesFilterUtil.filterDataSetPropertyTypes(mergedPropertyTypesOrNull);
             EntityGridModelFactory.createPropertyColumnsSchema(columns, datasetProperties,
-                    realNumberFormatingParameters);
+                    realNumberFormatingParameters, viewContext);
         }
         return columns;
     }

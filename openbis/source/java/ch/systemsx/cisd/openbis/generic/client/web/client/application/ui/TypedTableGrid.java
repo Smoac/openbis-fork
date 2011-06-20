@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelate
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MaterialRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.TimestampStringCellRenderer;
@@ -218,7 +219,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
     protected ColumnDefsAndConfigs<TableModelRowWithObject<T>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<T>> definitions =
-                ColumnDefsAndConfigs.create(createColDefinitions());
+                ColumnDefsAndConfigs.create(createColDefinitions(), viewContext);
         Set<IColumnDefinition<TableModelRowWithObject<T>>> columnDefs = definitions.getColumnDefs();
         columnDefinitions = new HashMap<String, IColumnDefinition<TableModelRowWithObject<T>>>();
         for (IColumnDefinition<TableModelRowWithObject<T>> definition : columnDefs)
@@ -233,8 +234,16 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 String id = header.getId();
                 if (tryGetCellListenerAndLinkGenerator(id) != null)
                 {
-                    definitions.setGridCellRendererFor(id,
-                            LinkRenderer.createLinkRenderer(true, header.getIndex()));
+                    final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
+                            tryGetSpecificRenderer(header.getDataType(), header.getIndex());
+                    if (specificRendererOrNull != null)
+                    {
+                        definitions.setGridCellRendererFor(id, specificRendererOrNull);
+                    } else
+                    {
+                        definitions.setGridCellRendererFor(id,
+                                LinkRenderer.createLinkRenderer(true, header.getIndex()));
+                    }
                 } else
                 {
                     final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
@@ -261,6 +270,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
         {
             case CONTROLLEDVOCABULARY:
                 return new VocabularyTermStringCellRenderer(columnIndex);
+            case MATERIAL:
+                return new MaterialRenderer(columnIndex);
             case HYPERLINK:
                 return LinkRenderer.createExternalLinkRenderer();
             case REAL:

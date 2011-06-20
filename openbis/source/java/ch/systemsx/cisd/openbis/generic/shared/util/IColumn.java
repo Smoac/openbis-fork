@@ -23,10 +23,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- *  Interface of a fluent API for building columns in a {@link TypedTableModel}.
- *
+ * Interface of a fluent API for building columns in a {@link TypedTableModel}.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IColumn
@@ -35,7 +36,7 @@ public interface IColumn
      * Sets the column title.
      */
     public IColumn withTitle(String title);
-    
+
     /**
      * Sets the default column width.
      */
@@ -45,49 +46,55 @@ public interface IColumn
      * Sets the data type.
      */
     public IColumn withDataType(DataTypeCode dataType);
-    
+
     /**
      * Sets the entity kind.
      */
     public IColumn withEntityKind(EntityKind entityKind);
-    
+
     /**
      * Sets editable flag to <code>true</code>.
      */
     public IColumn editable();
-    
+
+    /**
+     * Sets the vocabulary for controlled vocabulary property type
+     */
+    public void setVocabulary(Vocabulary vocabularyOrNull);
+
     /**
      * Sets property specified by key and value.
      */
     public IColumn property(String key, String value);
-    
+
     /**
      * Adds a value.
      */
     public void addValue(ISerializableComparable valueOrNull);
-    
+
     /**
-     * Adds a string value to the column. 
+     * Adds a string value to the column.
      */
     public void addString(String valueOrNull);
-    
+
     /**
      * Adds an integer value to the column.
      */
     public void addInteger(Long valueOrNull);
-    
+
     /**
      * Adds a double value to the column.
      */
     public void addDouble(Double valueOrNull);
-    
+
     /**
      * Adds a date value to the column.
      */
     public void addDate(Date valueOrNull);
-    
+
     /**
      * Adds a person to the column as a string.
      */
     public void addPerson(Person personOrNull);
+
 }

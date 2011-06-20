@@ -19,22 +19,32 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.google.gwt.event.dom.client.KeyCodes;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DateFormField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.HyperlinkField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MaterialChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.RealField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
 /**
  * Utility methods for columns.
@@ -46,9 +56,11 @@ public class ColumnUtils
     /**
      * Creates a {@link CellEditor} based on specified data type.
      */
-    public static CellEditor createCellEditor(DataTypeCode dataType)
+    public static <T> CellEditor createCellEditor(IColumnDefinitionUI<T> column,
+            IViewContext<?> viewContext)
     {
-        CellEditor editor;
+        final CellEditor editor;
+        DataTypeCode dataType = column.tryToGetDataType();
         switch (dataType)
         {
             case INTEGER:
@@ -109,6 +121,55 @@ public class ColumnUtils
                             return ((ModelData) value).get("value");
                         }
                     };
+                break;
+            case CONTROLLEDVOCABULARY:
+                final VocabularyTermSelectionWidget vocabularyTermSelectionWidget =
+                        (VocabularyTermSelectionWidget) VocabularyTermSelectionWidget.create(
+                                "_table_edit", "", column.tryGetVocabulary(), false, viewContext,
+                                null, false).get();
+                editor = new CellEditor(vocabularyTermSelectionWidget)
+                    {
+                        @Override
+                        public Object preProcessValue(Object value)
+                        {
+                            if (value == null)
+                            {
+                                return value;
+                            }
+
+                            return vocabularyTermSelectionWidget.findModel(value.toString());
+                        }
+
+                        @Override
+                        public Object postProcessValue(Object value)
+                        {
+                            if (value == null)
+                            {
+                                return value;
+                            }
+                            return ((VocabularyTermModel) value).getTerm();
+                        }
+                    };
+                break;
+            case MATERIAL:
+                MaterialChooserField materialChooser =
+                        MaterialChooserField.create("", false, null, null,
+                                viewContext.getCommonViewContext());
+                editor = new StringBasedCellEditor(materialChooser);
+                materialChooser.addListener(Events.TriggerClick, new Listener<BaseEvent>()
+                    {
+                        public void handleEvent(BaseEvent be)
+                        {
+                            editor.setAllowBlur(true);
+                        }
+                    });
+                materialChooser.addChosenEntityListener(new IChosenEntityListener<Material>()
+                    {
+                        public void entityChosen(Material entity)
+                        {
+                            editor.completeEdit();
+                        }
+                    });
                 break;
             default:
                 throw new UserFailureException("Edition of properties of type '" + dataType

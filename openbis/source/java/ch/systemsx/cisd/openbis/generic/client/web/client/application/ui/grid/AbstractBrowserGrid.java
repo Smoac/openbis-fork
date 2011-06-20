@@ -1279,7 +1279,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             List<IColumnDefinitionUI<T>> customColumnsDefs =
                     createCustomColumnDefinitions(customColumnsMetadata);
-            defsAndConfigs.addColumns(customColumnsDefs);
+            defsAndConfigs.addColumns(customColumnsDefs, viewContext);
 
             RealNumberRenderer renderer =
                     new RealNumberRenderer(viewContext.getDisplaySettingsManager()

@@ -235,7 +235,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                 abundanceColumnIDs.add(columnDefinition.getIdentifier());
                 columns.add(columnDefinition);
             }
-            columnDefinitionsAndConfigs.addColumns(columns);
+            columnDefinitionsAndConfigs.addColumns(columns, viewContext);
             columnDefinitionsAndConfigs.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
                     createInternalLinkCellRenderer());
             RealNumberRenderer renderer =

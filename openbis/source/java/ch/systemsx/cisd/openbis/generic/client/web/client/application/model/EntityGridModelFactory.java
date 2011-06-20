@@ -112,7 +112,8 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         ColumnDefsAndConfigs<T> columns = createStaticColumnDefsAndConfigs(messageProvider);
         if (propertyTypesOrNull != null)
         {
-            createPropertyColumnsSchema(columns, propertyTypesOrNull, realNumberFormatingParameters);
+            createPropertyColumnsSchema(columns, propertyTypesOrNull,
+                    realNumberFormatingParameters, viewContext);
         }
         return columns;
     }
@@ -122,7 +123,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
     {
         List<IColumnDefinitionUI<T>> commonColumnsSchema =
                 createStaticColumnDefinitions(messageProvider);
-        return ColumnDefsAndConfigs.create(commonColumnsSchema);
+        return ColumnDefsAndConfigs.create(commonColumnsSchema, viewContext);
     }
 
     private List<IColumnDefinitionUI<T>> createStaticColumnDefinitions(
@@ -133,7 +134,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
 
     public static <T extends IEntityPropertiesHolder> void createPropertyColumnsSchema(
             ColumnDefsAndConfigs<T> columns, List<PropertyType> propertyTypes,
-            RealNumberFormatingParameters realNumberFormatingParameters)
+            RealNumberFormatingParameters realNumberFormatingParameters, IViewContext<?> viewContext)
     {
         for (PropertyType propertyType : propertyTypes)
         {
@@ -145,7 +146,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
             {
                 renderer = new RealNumberRenderer(realNumberFormatingParameters);
             }
-            columns.addColumn(def, renderer);
+            columns.addColumn(def, renderer, viewContext);
         }
     }
 }

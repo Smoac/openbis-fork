@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
@@ -132,13 +133,12 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
         return value;
     }
 
-    /** @param msgProviderOrNull if null, no headers labels will be generated */
+    /** @param viewContext if null, no headers labels will be generated */
     public static <T> ColumnDefsAndConfigs<T> createColumnConfigs(
-            IColumnDefinitionKind<T>[] colDefKinds, IMessageProvider msgProviderOrNull)
+            IColumnDefinitionKind<T>[] colDefKinds, IViewContext<?> viewContext)
     {
-        List<IColumnDefinitionUI<T>> colDefs =
-                createColumnsDefinition(colDefKinds, msgProviderOrNull);
-        return ColumnDefsAndConfigs.create(colDefs);
+        List<IColumnDefinitionUI<T>> colDefs = createColumnsDefinition(colDefKinds, viewContext);
+        return ColumnDefsAndConfigs.create(colDefs, viewContext);
     }
 
     /** @param msgProviderOrNull if null, no headers labels will be generated */

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author Tomasz Pylak
@@ -34,22 +35,25 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
 
     private boolean numeric;
 
+    private boolean isVocabulary;
+
     // GWT only
     protected AbstractColumnDefinition()
     {
-        this(null, 0, false, false);
+        this(null, 0, false, false, false);
     }
 
     /**
      * if headerTextOrNull is null, it means that we never want to call {@link #getHeader()} method
      */
     protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden,
-            boolean numeric)
+            boolean numeric, boolean isVocabulary)
     {
         this.headerText = headerTextOrNull;
         this.width = width;
         this.isHidden = isHidden;
         this.numeric = numeric;
+        this.isVocabulary = isVocabulary;
     }
 
     public int getWidth()
@@ -60,6 +64,11 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     public boolean isHidden()
     {
         return isHidden;
+    }
+
+    public boolean isVocabulary()
+    {
+        return isVocabulary;
     }
 
     public String getHeader()
@@ -104,4 +113,8 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return null;
     }
 
+    public Vocabulary tryGetVocabulary()
+    {
+        return null;
+    }
 }

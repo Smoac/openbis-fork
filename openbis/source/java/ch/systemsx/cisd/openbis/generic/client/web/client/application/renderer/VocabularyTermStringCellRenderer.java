@@ -48,10 +48,18 @@ public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEn
             if (cell instanceof VocabularyTermTableCell == false)
             {
                 return cell.toString();
+            } else
+            {
+                if (obj instanceof VocabularyTerm)
+                {
+                    cell = new VocabularyTermTableCell((VocabularyTerm) obj);
+                    values.set(columnIndex, cell);
+                }
+
+                VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) cell;
+                VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
+                return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
             }
-            VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) cell;
-            VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
-            return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
         }
     }
 }

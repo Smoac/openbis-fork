@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell;
 
 /**
@@ -115,7 +116,7 @@ public class TypedTableModelBuilder<T extends ISerializable>
         private final String groupKey;
 
         private final Set<Column> cols = new LinkedHashSet<TypedTableModelBuilder.Column>();
-        
+
         private boolean uneditablePropertyColumns;
 
         private ColumnGroup(String groupKey)
@@ -155,6 +156,7 @@ public class TypedTableModelBuilder<T extends ISerializable>
                 IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
                 column.property(entityType.getCode(), Boolean.TRUE.toString());
                 setEditableFlag(column, propertyType.getPropertyType());
+                setVocabulary(column, propertyType.getPropertyType().getVocabulary());
             }
         }
 
@@ -223,6 +225,10 @@ public class TypedTableModelBuilder<T extends ISerializable>
             }
         }
 
+        private void setVocabulary(IColumn column, Vocabulary vocabularyOrNull)
+        {
+            column.setVocabulary(vocabularyOrNull);
+        }
     }
 
     private static final class Column implements IColumn, IColumnItem
@@ -346,6 +352,11 @@ public class TypedTableModelBuilder<T extends ISerializable>
         public void addPerson(Person personOrNull)
         {
             addString(SimplePersonRenderer.createPersonName(personOrNull).toString());
+        }
+
+        public void setVocabulary(Vocabulary vocabularyOrNull)
+        {
+            header.setVocabulary(vocabularyOrNull);
         }
     }
 
