@@ -6,11 +6,11 @@ function findGene()
   var assay = document.getElementById('assay').value
   
   // -- For infectome.org site: 
-  // var host = "https://infectome.org/openbis"
+  // var host = "https://infectome.org/openbis/index.html"
   // -- For testing locally:
   var host = "http://127.0.0.1:8888/openbis-test-screening/index.html"
   // -- For testing on the sprint server:
-  //var host = "https://sprint-openbis.ethz.ch:8446/openbis"
+  //var host = "https://sprint-openbis.ethz.ch:8446/openbis/index.html"
   
   var url = host + "?viewMode=embedded#action=WELL_SEARCH&isExactSearch=false&showCombinedResults=false"+
      			         "&types=GENE&items=" + gene
@@ -23,7 +23,11 @@ function findGene()
   queryDiv.style.display = "none" 
   
   resultFrame = document.getElementById('resultFrame')
-  resultFrame.src = url
+  if (resultFrame.location) { 
+      resultFrame.location = url // IE8
+  } else { 
+      resultFrame.src = url
+  }
   resultDiv = document.getElementById('result')
   resultDiv.style.display = "block" 
 }
@@ -66,6 +70,6 @@ function findGene()
 </form>
 </div>
 <div id="result" style="display: none">
-	<iframe  id="resultFrame" width="100%" height=700 frameborder="0"  vspace="0"  hspace="0"  marginwidth="0"  marginheight="0" scrolling="no" />
+	<iframe  id="resultFrame"/>
 </div>
 </body>

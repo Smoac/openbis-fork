@@ -1,0 +1,321 @@
+*|* {
+  margin:0pt;
+  padding:0pt;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+  background: transparent url(header_background.gif) repeat-x center top;
+  background-color:#fff;
+  font-family:"lucida grande", arial, sans-serif;
+  font-size:12px;
+  color:#666666;
+  margin:0;
+  padding:0;
+  height: 100%;
+}
+
+p {
+  line-height:1.5;
+  padding-bottom:12px;
+}
+h1 {
+  font-size:20px;
+  font-weight:bold;
+  color:#272e34;
+  line-height:1.5;
+}
+h2 {
+  font-size:14px;
+  font-weight:bold;
+  color:#272e34;
+}
+#wrapper {
+  width:95%;
+  margin:0pt auto;
+}
+#header {
+  float:left;
+  width:100%;
+  height:87px;
+  margin-bottom:5px;
+}
+.weebly_header {
+  float:left;
+  background:transparent;
+  margin-top:5px;
+}
+#sitename {
+  float:left;
+  height:63px;
+  width:100%;
+  font-family:"times new roman", times, serif;
+  font-size:30px;
+  color:#fff;
+  font-weight:normal;
+  padding-top:25px;
+  position:relative;
+  z-index: 20;
+}
+#content-wrapper {
+  float:left;
+  width:100%;
+}
+#contents-body {
+  float:left;
+  width:100%;
+  padding:20px 20px 10px 0px;
+  background-color:#ffffff;
+}
+*html #contents-body {
+  float:left;
+  width:100%;
+  padding:10px 18px 10px 19px;
+  background-color:#ffffff;
+  margin-top:-5px;
+
+}
+#navigation {
+  float:left;
+  height:34px;
+  width:100%;
+  position:relative;
+  z-index: 20;
+}
+#navigation ul {
+  float:left;
+  padding:0px 10px 0 0;
+  height:31px;
+  margin-left:0;
+}
+#navigation li {
+  float:left;
+  display:inline;
+  font-family:"lucida grande", arial, sans-serif;
+  text-align:center;
+  font-size:1em;
+  font-weight:bold;
+  height:15px;
+  padding:5px 15px 10px 5px;
+  margin-right:3px;
+}
+*html #navigation li {
+  margin-right:4px;
+  padding-right:15px;
+  padding-bottom:9px;
+}
+#active {
+  background: transparent url(tab_left.gif) no-repeat left top;
+  padding:5px 13px 6px 4px;
+  height:31px;
+  color:#333;
+  font-weight:bold;
+}
+*html #active {
+  padding-right:15px;
+}
+#active a {
+  background: transparent url(tab_right.gif) no-repeat right top;
+  padding:5px 14px 10px 10px;
+}
+#navigation a:link  {
+  color:#fff;
+  text-decoration:none;  
+}
+#navigation a:hover  {
+  color:#fff;
+  text-decoration:none;  
+}
+#navigation a:visited  {
+  color:#fff;
+  text-decoration:none;  
+}
+#active a:link  {
+  color:#333;
+  text-decoration:none;  
+}
+#active a:hover {
+  color:#333;
+  text-decoration:none;  
+}
+#active a:visited {
+  color:#333;
+  text-decoration:none;  
+}
+a:link, a:hover, a:visited {
+  color:#af5211;
+  font-weight:normal;
+  text-decoration:none;
+}
+#header-image {
+  float:left;
+  width:100%;
+  height:260px;
+  padding:1px;
+  margin-bottom:25px;
+  border:1px solid #e5e5e5;
+}
+#image {
+  width:100%;
+  height:260px;
+}
+#contents {
+  width:100%;
+}
+#contents-bottom {
+  float:left;
+  width:100%;
+  height:10px;
+}
+#footer {
+  float:left;
+  width:100%;  
+  margin:20px 0 30px 0;
+}
+#footer-contents {
+  float:left;
+  color:#666666;
+  text-align:right;
+  font-family:"lucida grande", "lucida sans", arial, sans-serif;
+  padding:7px 10px 0 0px;
+  width:100%;
+  height:28px;
+  z-index: 20;
+}
+
+
+
+/****************************** flyout menus ******************************/
+
+#weebly-menus .weebly-menu-wrap {
+  z-index: 5000;
+}
+
+#weebly-menus .weebly-menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+#weebly-menus .weebly-menu li {
+  float: left;
+  clear: left;
+  width: 170px;
+  text-align: left;
+}
+
+#weebly-menus .weebly-menu li a {
+  position: relative;
+  display: block;
+  width: 100%;
+  background: #f9f9f8;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: normal;
+  line-height:1;
+  padding:5px;
+  color: #000;
+}
+
+#weebly-menus .weebly-menu li a:hover {
+  background: #e3e3e3;
+}
+
+#weebly-menus span.weebly-menu-title {
+  display: block;
+  padding: 5px 10px;
+}
+
+/****************************** flyout menus ******************************/
+
+#weebly-menus .weebly-menu-wrap {
+  z-index: 5000;
+}
+
+#weebly-menus .weebly-menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+#weebly-menus .weebly-menu li {
+  float: left;
+  clear: left;
+  width: 170px;
+  text-align: left;
+}
+
+#weebly-menus .weebly-menu li a {
+  position: relative;
+  display: block;
+  width: 100%;
+  background: #f9f9f8;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: normal;
+  line-height:1;
+  padding:5px;
+  color: #000;
+}
+
+#weebly-menus .weebly-menu li a:hover {
+  background: #e3e3e3;
+}
+
+#weebly-menus span.weebly-menu-title {
+  display: block;
+  padding: 5px 10px;
+}
+
+#weebly-menus span.weebly-menu-more {
+  background: transparent url(http://images.weebly.com/weebly/images/submenu_arrow.gif) no-repeat center top;
+  display: block;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  font-family: Courier;
+  height: 28px;
+  line-height: 28px;
+  padding:5px 0 5px 0;
+}
+
+
+
+
+
+#weebly-menus span.weebly-menu-more {
+  background: transparent url(http://images.weebly.com/weebly/images/submenu_arrow.gif) no-repeat center top;
+  display: block;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  font-family: Courier;
+  height: 28px;
+  line-height: 28px;
+  padding:5px 0 5px 0;
+}
+
+
+/****************************** IFRAME/OpenBIS Styles ******************************/
+#query { 
+   display: block; 
+}
+
+#resultFrame {
+    background: transparent url(header_background.gif) repeat-x center top;
+    box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; -ms-box-sizing: border-box;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border: none; 
+    padding-top: 120px;
+}
+

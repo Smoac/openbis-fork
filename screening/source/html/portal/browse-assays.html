@@ -3,11 +3,11 @@
 function relocate(expPermId) {
 
   // -- For infectome.org site: 
-  // var host = "https://infectome.org/openbis"
+  // var host = "https://infectome.org/openbis/index.html"
   // -- For testing locally:
   var host = "http://127.0.0.1:8888/openbis-test-screening/index.html"
   // -- For testing on the sprint server:
-  //var host = "https://sprint-openbis.ethz.ch:8446/openbis"
+  //var host = "https://sprint-openbis.ethz.ch:8446/openbis/index.html"
 
   url = host + "?viewMode=embedded#action=FEATURE_VECTOR_SUMMARY&experimentPermId="+expPermId
   
@@ -15,7 +15,11 @@ function relocate(expPermId) {
   queryDiv.style.display = "none" 
   
   resultFrame = document.getElementById('resultFrame')
-  resultFrame.src = url
+  if (resultFrame.location) { 
+      resultFrame.location = url // IE8
+  } else { 
+      resultFrame.src = url
+  }
   resultDiv = document.getElementById('result')
   resultDiv.style.display = "block" 
 
@@ -24,7 +28,7 @@ function relocate(expPermId) {
 </head>
 
 <body>
-<div id="query" style="display: block;">
+<div id="query">
 Choose an assay to see all the genes and results for them:
 <table>
 <tr><td><a href=javascript:relocate("20100702163316757-131164")>Assay 1</a></td></tr>
@@ -33,7 +37,6 @@ Choose an assay to see all the genes and results for them:
 </table>
 </div>
 <div id="result" style="display: none">
-<iframe id="resultFrame" width="100%" height=700 frameborder="0"  vspace="0"  hspace="0"  marginwidth="0"  
-        marginheight="0" scrolling="no"/>
+  <iframe id="resultFrame"/>
 </div>
 </body>
