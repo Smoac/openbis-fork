@@ -231,27 +231,16 @@ public abstract class TypedTableGrid<T extends ISerializable>
         {
             for (TableModelColumnHeader header : headers)
             {
-                String id = header.getId();
-                if (tryGetCellListenerAndLinkGenerator(id) != null)
+                final String id = header.getId();
+                final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
+                        tryGetSpecificRenderer(header.getDataType(), header.getIndex());
+                if (specificRendererOrNull != null)
                 {
-                    final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
-                            tryGetSpecificRenderer(header.getDataType(), header.getIndex());
-                    if (specificRendererOrNull != null)
-                    {
-                        definitions.setGridCellRendererFor(id, specificRendererOrNull);
-                    } else
-                    {
-                        definitions.setGridCellRendererFor(id,
-                                LinkRenderer.createLinkRenderer(true, header.getIndex()));
-                    }
-                } else
+                    definitions.setGridCellRendererFor(id, specificRendererOrNull);
+                } else if (tryGetCellListenerAndLinkGenerator(id) != null)
                 {
-                    final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
-                            tryGetSpecificRenderer(header.getDataType(), header.getIndex());
-                    if (specificRendererOrNull != null)
-                    {
-                        definitions.setGridCellRendererFor(id, specificRendererOrNull);
-                    }
+                    definitions.setGridCellRendererFor(id,
+                            LinkRenderer.createLinkRenderer(true, header.getIndex()));
                 }
             }
         }

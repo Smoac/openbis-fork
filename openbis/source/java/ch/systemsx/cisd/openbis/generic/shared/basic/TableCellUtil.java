@@ -85,10 +85,12 @@ public class TableCellUtil
             case TIMESTAMP:
             case CONTROLLEDVOCABULARY:
             case MATERIAL:
+            case HYPERLINK:
                 return true;
-            default:
+            case XML:
                 return false;
         }
+        throw new UnsupportedOperationException(""); // not possible
     }
 
     private TableCellUtil()

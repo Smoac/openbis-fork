@@ -61,6 +61,7 @@ public class ColumnUtils
     {
         final CellEditor editor;
         DataTypeCode dataType = column.tryToGetDataType();
+        assert dataType != null;
         switch (dataType)
         {
             case INTEGER:
