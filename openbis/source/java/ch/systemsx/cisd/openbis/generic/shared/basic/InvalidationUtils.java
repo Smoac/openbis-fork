@@ -16,23 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
-
 /**
  * @author Piotr Buczek
  */
 public class InvalidationUtils
 {
 
-    public static boolean isInvalid(IInvalidationProvider invalidable)
+    public static boolean isInvalid(IInvalidationProvider invalidableOrNull)
     {
-        return invalidable.getInvalidation() != null;
+        return invalidableOrNull != null && invalidableOrNull.getInvalidation() != null;
     }
 
-    public static boolean isInvalid(Object object)
+    public static boolean isInvalid(Object objectOrNull)
     {
-        if (object instanceof IInvalidationProvider)
+        if (objectOrNull != null && objectOrNull instanceof IInvalidationProvider)
         {
-            return isInvalid((IInvalidationProvider) object);
+            return isInvalid((IInvalidationProvider) objectOrNull);
         } else
         {
             return false;

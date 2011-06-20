@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -36,21 +38,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
  */
+// TODO 2011-06-17, Piotr Buczek: reduce amount of methods & their parameters (use link builders)
 public class LinkRenderer
 {
+    private static final String INVALID_STYLE_CLASS = "invalid";
+
     private static final String LINK_STYLE = "link-style";
 
+    @Deprecated 
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(
             final boolean renderOriginalValueForEmptyToken)
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
-                @SuppressWarnings("deprecation")
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -84,22 +92,64 @@ public class LinkRenderer
             };
     }
 
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
-    {
-        return createLinkRenderer(false);
-    }
-
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(final String text)
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(
+            final boolean renderOriginalValueForEmptyToken, final int columnIndex)
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
+                @SuppressWarnings("deprecation")
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    return LinkRenderer.renderAsLinkWithAnchor(text);
+                    if (model.get(property) == null)
+                    {
+                        return "";
+                    } else
+                    {
+                        boolean invalidate = false;
+                        if (model.getBaseObject() instanceof TableModelRowWithObject)
+                        {
+                            List<ISerializableComparable> values =
+                                    ((TableModelRowWithObject<?>) model.getBaseObject())
+                                            .getValues();
+                            if (columnIndex < values.size()) // sanity check
+                            {
+                                ISerializableComparable cell = values.get(columnIndex);
+                                if (cell instanceof EntityTableCell)
+                                {
+                                    invalidate = ((EntityTableCell) cell).isInvalid();
+                                }
+                            }
+                        }
+                        String originalValue = model.get(property).toString();
+                        String tokenOrNull = model.tryGetLink(property);
+                        if (tokenOrNull == null
+                                && (renderOriginalValueForEmptyToken || ClientStaticState
+                                        .isSimpleMode()))
+                        {
+                            return new MultilineHTML(originalValue).toString();
+                        } else
+                        {
+                            if (ClientStaticState.isSimpleMode())
+                            {
+                                String href = "#" + tokenOrNull;
+                                return LinkRenderer.renderAsLinkWithAnchor(originalValue, href,
+                                        false, invalidate);
+                            } else
+                            {
+                                return LinkRenderer.renderAsLinkWithAnchor(originalValue,
+                                        invalidate);
+                            }
+                        }
+                    }
                 }
             };
+    }
+
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
+    {
+        return createLinkRenderer(false);
     }
 
     public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer(
@@ -112,7 +162,8 @@ public class LinkRenderer
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    String originalValue = StringEscapeUtils.unescapeHtml(String.valueOf(model.get(property)));
+                    String originalValue =
+                            StringEscapeUtils.unescapeHtml(String.valueOf(model.get(property)));
                     String linkText =
                             overridenLinkTextOrNull != null ? overridenLinkTextOrNull
                                     : originalValue;
@@ -138,12 +189,25 @@ public class LinkRenderer
     /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
     public static String renderAsLinkWithAnchor(final String text)
     {
-        return renderAsLinkWithAnchor(text, "#", false);
+        return renderAsLinkWithAnchor(text, "#", false, false);
+    }
+
+    /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
+    public static String renderAsLinkWithAnchor(final String text, final boolean invalidate)
+    {
+        return renderAsLinkWithAnchor(text, "#", false, invalidate);
     }
 
     /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
     public static String renderAsLinkWithAnchor(final String text, final String href,
             final boolean openInNewWindow)
+    {
+        return renderAsLinkWithAnchor(text, href, openInNewWindow, false);
+    }
+
+    /** renders a div with an inline anchor inside (hand cursor is on anchor - inline) */
+    public static String renderAsLinkWithAnchor(final String text, final String href,
+            final boolean openInNewWindow, final boolean invalidate)
     {
         final Element anchor = DOM.createAnchor();
         DOM.setInnerText(anchor, text);
@@ -152,6 +216,10 @@ public class LinkRenderer
         if (openInNewWindow)
         {
             DOM.setElementProperty(anchor, "target", "blank");
+        }
+        if (invalidate)
+        {
+            anchor.addClassName(INVALID_STYLE_CLASS);
         }
         return DOM.toString(anchor);
     }
@@ -169,6 +237,8 @@ public class LinkRenderer
 
     /**
      * See {@link #getLinkAnchor}. Use this method to hide the type of returned widget.
+     * <p>
+     * The link display style is default (not invalidated).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
             final String historyHref)
@@ -207,9 +277,15 @@ public class LinkRenderer
         setHrefOrListener(listener, historyHref, link);
         if (invalidate)
         {
-            link.addStyleName("invalid");
+            invalidate(link);
         }
         return link;
+    }
+
+    /** adds style for invalidated links to given widget */
+    public static void invalidate(Widget linkWidget)
+    {
+        linkWidget.addStyleName(INVALID_STYLE_CLASS);
     }
 
     @SuppressWarnings("deprecation")

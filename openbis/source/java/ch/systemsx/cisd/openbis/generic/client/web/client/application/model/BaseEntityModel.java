@@ -103,22 +103,6 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
         return get(ModelDataPropertyNames.link(columnId));
     }
 
-    /**
-     * render specified column as a link with anchor
-     * 
-     * @deprecated use cell renderer configured in AbstractBrowser.createColumnDefinitions() instead
-     */
-    @Deprecated
-    public void renderAsLinkWithAnchor(String columnId)
-    {
-        String value = this.get(columnId);
-        if (value.length() > 0)
-        {// only for not null value
-            value = LinkRenderer.renderAsLinkWithAnchor(value);
-        }
-        this.set(columnId, value);
-    }
-
     // TODO 2010-05-18, IA: unify renderers and remove code below
     // ugly, ugly, ugly!
     protected String renderColumnValue(final GridRowModel<T> entity, IColumnDefinition<T> column)

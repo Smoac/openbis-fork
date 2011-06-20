@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -93,13 +94,18 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         TableMap<String, SampleType> sampleTypes = getSampleTypes();
         for (Sample sample : samples)
         {
+            final EntityTableCell sampleCellTemplate = createEntityTableCellTemplate(sample);
+
             builder.addRow(sample);
-            builder.column(CODE).addString(sample.getCode());
-            builder.column(SUBCODE).addString(sample.getSubCode());
+            builder.column(CODE).addValue(
+                    sampleCellTemplate.createCopyWithLinkText(sample.getCode()));
+            builder.column(SUBCODE).addValue(
+                    sampleCellTemplate.createCopyWithLinkText(sample.getSubCode()));
             builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
             builder.column(SPACE).addString(
                     sample.getSpace() == null ? "" : sample.getSpace().getCode());
-            builder.column(SAMPLE_IDENTIFIER).addString(sample.getIdentifier());
+            builder.column(SAMPLE_IDENTIFIER).addValue(
+                    sampleCellTemplate.createCopyWithLinkText(sample.getIdentifier()));
             builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
             builder.column(IS_INSTANCE_SAMPLE).addString(
                     SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
@@ -107,8 +113,18 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                     SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
-            builder.column(EXPERIMENT).addString(getExperimentCode(sample));
-            builder.column(EXPERIMENT_IDENTIFIER).addString(getExperimentIdentifier(sample));
+
+            final Experiment experimentOrNull = sample.getExperiment();
+            if (experimentOrNull != null)
+            {
+                final Experiment experiment = experimentOrNull;
+                final EntityTableCell experimentCellTemplate =
+                        createEntityTableCellTemplate(experiment);
+                builder.column(EXPERIMENT).addValue(
+                        experimentCellTemplate.createCopyWithLinkText(experiment.getCode()));
+                builder.column(EXPERIMENT_IDENTIFIER).addValue(
+                        experimentCellTemplate.createCopyWithLinkText(experiment.getIdentifier()));
+            }
             builder.column(PROJECT).addString(getProjectCode(sample));
             builder.column(PERM_ID).addString(sample.getPermId());
             builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
@@ -173,18 +189,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
     {
         Experiment experiment = sample.getExperiment();
         return experiment == null ? "" : experiment.getProject().getCode();
-    }
-
-    private String getExperimentCode(Sample sample)
-    {
-        Experiment experiment = sample.getExperiment();
-        return experiment == null ? "" : experiment.getCode();
-    }
-
-    private String getExperimentIdentifier(Sample sample)
-    {
-        Experiment experiment = sample.getExperiment();
-        return experiment == null ? "" : experiment.getIdentifier();
     }
 
     private DatabaseInstance getDatabaseInstance(Sample sample)

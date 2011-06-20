@@ -88,15 +88,10 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     {
         return false;
     }
-    
+
     public DataTypeCode tryToGetDataType()
     {
         return null;
-    }
-
-    public boolean isLink()
-    {
-        return false;
     }
 
     public String tryToGetProperty(String key)

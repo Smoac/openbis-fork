@@ -63,7 +63,7 @@ var common = {
   
   invalidate: "Invalidate",
   invalidation: "Invalidation",
-  invalidation_template: "<i>by:</i> {0}<br><i>date:</i> {1}<br><i>reason:</i> {2}",
+  invalidation_template: "{0}; {1}<br><i>reason:</i>&nbsp;{2}",
   permanent: "Permanent",
   reason: "Reason",
   delete_confirmation_title: "Confirm Deletion",
@@ -225,7 +225,7 @@ var common = {
   experiments_grid_header: "Experiments",
   experiment_type: "Experiment Type",
   project_selector_title: "Projects",
-  project_selector_tooltip: "Click on a row with project code to select it.",
+  project_selector_tooltip: "Click on a row with space/project to see list of experiments in that space/project.",
   project_selector_description_not_available: "(not available)",
   project_selector_code_column: "Space / Project",
   project_selector_details_link_label: "(info)",

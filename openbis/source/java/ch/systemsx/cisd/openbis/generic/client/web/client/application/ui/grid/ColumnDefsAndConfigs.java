@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
@@ -107,10 +106,6 @@ public class ColumnDefsAndConfigs<T>
         if (column.isNumeric())
         {
             columnConfig.setAlignment(HorizontalAlignment.RIGHT);
-        }
-        if (column.isLink())
-        {
-            columnConfig.setRenderer(LinkRenderer.createLinkRenderer());
         }
         columnConfig.setWidth(column.getWidth());
         columnConfig.setHidden(column.isHidden());

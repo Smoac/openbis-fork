@@ -1652,6 +1652,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
+        // FIXME invalidation
         return LinkRenderer.createLinkRenderer();
     }
 

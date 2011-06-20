@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -93,10 +94,15 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         TableMap<String, ExperimentType> experimentTypes = getExperimentTypes();
         for (Experiment experiment : experiments)
         {
+            final EntityTableCell experimentCellTemplate =
+                    createEntityTableCellTemplate(experiment);
+
             builder.addRow(experiment);
-            builder.column(CODE).addString(experiment.getCode());
+            builder.column(CODE).addValue(
+                    experimentCellTemplate.createCopyWithLinkText(experiment.getCode()));
             builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
-            builder.column(EXPERIMENT_IDENTIFIER).addString(experiment.getIdentifier());
+            builder.column(EXPERIMENT_IDENTIFIER).addValue(
+                    experimentCellTemplate.createCopyWithLinkText(experiment.getIdentifier()));
             builder.column(DATABASE_INSTANCE).addString(
                     experiment.getProject().getSpace().getInstance().getCode());
             builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());

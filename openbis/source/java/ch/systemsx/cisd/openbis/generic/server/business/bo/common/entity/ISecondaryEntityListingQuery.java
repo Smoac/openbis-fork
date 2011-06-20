@@ -49,7 +49,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * 
      * @param experimentId The id of the experiment to get the code for.
      */
-    @Select("select e.code as e_code, e.perm_id as e_permid, et.code as et_code, "
+    @Select("select e.code as e_code, e.perm_id as e_permid, e.inva_id as inva_id, et.code as et_code, "
             + "p.code as p_code, p.id as p_id, g.code as spc_code, g.dbin_id as dbin_id from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join spaces g on p.space_id=g.id where e.id=?{1}")

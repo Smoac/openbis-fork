@@ -201,6 +201,7 @@ public class HistoryWidget extends ContentPanel
                                             WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
                                 }
                             };
+                        // TODO 2011-06-17, Piotr Buczek: invalidation (requires request to server)
                         final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href);
                         final String date =
                                 DateRenderer.renderDate(new Date(visit.getTimeStamp()),

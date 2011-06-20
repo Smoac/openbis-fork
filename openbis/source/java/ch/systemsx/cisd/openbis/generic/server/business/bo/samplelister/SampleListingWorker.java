@@ -588,6 +588,7 @@ final class SampleListingWorker extends AbstractLister
             sample.setModificationDate(row.modification_timestamp);
             if (row.inva_id != null)
             {
+                // NOTE: this just marks the sample as invalid without any details
                 final Invalidation invalidation = new Invalidation();
                 sample.setInvalidation(invalidation);
             }

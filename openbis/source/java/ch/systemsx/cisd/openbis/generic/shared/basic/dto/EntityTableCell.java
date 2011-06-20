@@ -35,6 +35,8 @@ public class EntityTableCell implements ISerializableComparable
 
     private String linkTextOrNull; // 'null' when link text wasn't redefined (use identifier)
 
+    private boolean invalid = false;
+
     public EntityTableCell(EntityKind entityKind, String permId)
     {
         this(entityKind, permId, permId);
@@ -53,6 +55,19 @@ public class EntityTableCell implements ISerializableComparable
         this.entityKind = entityKind;
         this.permId = permId;
         this.identifierOrNull = identifierOrNull;
+    }
+
+    /** copy constructor overwriting link's text */
+    private EntityTableCell(EntityTableCell entityCell, String linkText)
+    {
+        this(entityCell.entityKind, entityCell.permId, entityCell.identifierOrNull);
+        setInvalid(entityCell.invalid);
+        setLinkText(linkText);
+    }
+
+    public EntityTableCell createCopyWithLinkText(String linkText)
+    {
+        return new EntityTableCell(this, linkText);
     }
 
     public int compareTo(ISerializableComparable o)
@@ -110,6 +125,16 @@ public class EntityTableCell implements ISerializableComparable
     public void setLinkText(String linkText)
     {
         this.linkTextOrNull = linkText;
+    }
+
+    public boolean isInvalid()
+    {
+        return invalid;
+    }
+
+    public void setInvalid(boolean invalid)
+    {
+        this.invalid = invalid;
     }
 
     @Override

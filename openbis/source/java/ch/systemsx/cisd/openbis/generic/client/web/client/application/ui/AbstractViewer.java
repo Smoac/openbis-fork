@@ -388,6 +388,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         String href = LinkExtractor.tryExtract(entity);
         ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
+        // TODO 2011-06-17, Piotr Buczek: invalidation
         Widget link = LinkRenderer.getLinkWidget(entity.getCode(), listener, href);
         link.setTitle(entity.getEntityKind().getDescription() + " " + entity.getCode());
         return link;

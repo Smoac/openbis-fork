@@ -233,7 +233,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 String id = header.getId();
                 if (tryGetCellListenerAndLinkGenerator(id) != null)
                 {
-                    definitions.setGridCellRendererFor(id, LinkRenderer.createLinkRenderer(true));
+                    definitions.setGridCellRendererFor(id,
+                            LinkRenderer.createLinkRenderer(true, header.getIndex()));
                 } else
                 {
                     final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
