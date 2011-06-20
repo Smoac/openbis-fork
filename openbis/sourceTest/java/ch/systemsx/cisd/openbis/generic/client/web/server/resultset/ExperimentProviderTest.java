@@ -36,10 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PersonBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentProviderTest extends AbstractProviderTest
@@ -77,28 +74,29 @@ public class ExperimentProviderTest extends AbstractProviderTest
                                     .propertyType("NUMBER", "number", DataTypeCode.REAL)
                                     .getExperimentType();
                     will(returnValue(Arrays.asList(type1)));
-                    
+
                     one(server).listExperiments(SESSION_TOKEN, experimentType,
                             new ProjectIdentifier("space", "project"));
                     will(returnValue(Arrays.asList(e1.getExperiment())));
                 }
             });
-        
+
         TypedTableModel<Experiment> tableModel =
                 new ExperimentProvider(server, SESSION_TOKEN, criteria).getTableModel(100);
         assertEquals("[CODE, EXPERIMENT_TYPE, EXPERIMENT_IDENTIFIER, DATABASE_INSTANCE, SPACE, "
                 + "PROJECT, REGISTRATOR, REGISTRATION_DATE, IS_INVALID, PERM_ID, "
                 + "SHOW_DETAILS_LINK, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "
+        assertEquals("[null, VARCHAR, null, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "
                 + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[null, null, null, null, null, null, null, null, null, null, "
                 + "null, null, null]", getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Experiment>> rows = tableModel.getRows();
         assertSame(e1.getExperiment(), rows.get(0).getObjectOrNull());
-        assertEquals("[E1, 1, DB:/A/B/E1, DB, A, B, Einstein, Albert, Mon Jan 12 14:48:43 CET 1970, "
-                + "yes, 123-45, , 42, ]", rows.get(0).getValues().toString());
+        assertEquals(
+                "[E1, 1, DB:/A/B/E1, DB, A, B, Einstein, Albert, Mon Jan 12 14:48:43 CET 1970, "
+                        + "yes, 123-45, , 42, ]", rows.get(0).getValues().toString());
         context.assertIsSatisfied();
     }
 }

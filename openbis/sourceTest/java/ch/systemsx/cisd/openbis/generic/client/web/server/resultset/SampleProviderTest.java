@@ -64,10 +64,12 @@ public class SampleProviderTest extends AbstractProviderTest
         final ListSampleCriteria criteria = new ListSampleCriteria();
         ListSampleDisplayCriteria2 listCriteria = new ListSampleDisplayCriteria2(criteria);
         SampleProvider sampleProvider = new SampleProvider(server, SESSION_TOKEN, listCriteria);
-        final SampleBuilder s1 = new SampleBuilder("DB:/MY-SPACE/S1").id(1).type("ALPHA");
+        final SampleBuilder s1 =
+                new SampleBuilder("DB:/MY-SPACE/S1").id(1).type("ALPHA").permID("123-45");
         s1.property("NAME", "hello");
         s1.property("MY-MATERIAL").value(new MaterialBuilder().code("WATER").type("FLUID"));
-        final SampleBuilder s2 = new SampleBuilder("DB:/MY-SPACE/S2").id(2).type("BETA");
+        final SampleBuilder s2 =
+                new SampleBuilder("DB:/MY-SPACE/S2").id(2).type("BETA").permID("234-56");
         s2.property("NUMBER").value(2.5);
         s2.property("TIMESTAMP").value(new Date(42));
         context.checking(new Expectations()
@@ -88,8 +90,8 @@ public class SampleProviderTest extends AbstractProviderTest
                         + "property-USER-NUMBER, property-USER-TIMESTAMP, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
         assertEquals(
-                "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
-                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
+                "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, null, null, VARCHAR, "
                         + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, "
@@ -98,11 +100,11 @@ public class SampleProviderTest extends AbstractProviderTest
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals(
-                "[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , , , , , "
+                "[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , 123-45, , , , , , "
                         + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals(
-                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , , , 2.5, 1970-01-01 01:00:00 +0100, , , ]",
+                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , 234-56, , , , 2.5, 1970-01-01 01:00:00 +0100, , , ]",
                 rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
