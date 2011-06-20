@@ -121,9 +121,8 @@ public class DataSetTranslatorTest extends AssertJUnit
         personPE.setUserId("user");
         personPE.setDatabaseInstance(databaseInstancePE);
         invalidationPE.setRegistrator(personPE);
-        samplePE.setInvalidation(invalidationPE);
+        externalDataPE.setInvalidation(invalidationPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
-
         ExternalData data = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
         DataSet translated = data.tryGetAsDataSet();

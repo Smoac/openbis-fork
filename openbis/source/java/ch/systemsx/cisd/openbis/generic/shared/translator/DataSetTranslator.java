@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -44,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
@@ -160,7 +158,6 @@ public class DataSetTranslator
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(dataPE.isDerived());
-        externalData.setInvalidation(tryToGetInvalidation(sampleOrNull, experiment));
         externalData.setContainer(tryToTranslateContainer(dataPE.getContainer(), baseIndexURL));
         final Collection<ExternalData> parents = new HashSet<ExternalData>();
         externalData.setParents(parents);
@@ -181,7 +178,7 @@ public class DataSetTranslator
         setProperties(dataPE, externalData);
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
-
+        externalData.setInvalidation(InvalidationTranslator.translate(dataPE.getInvalidation()));
         return externalData;
     }
 
@@ -228,60 +225,11 @@ public class DataSetTranslator
         }
     }
 
-    private static Invalidation tryToGetInvalidation(SamplePE sampleOrNull, ExperimentPE experiment)
-    {
-        InvalidationPE invalidationOrNull;
-        if (sampleOrNull != null)
-        {
-            invalidationOrNull = tryToGetInvalidationPE(sampleOrNull);
-        } else
-        {
-            invalidationOrNull = tryToGetInvalidationPE(experiment);
-        }
-        return translateInvalidation(invalidationOrNull);
-    }
-
-    private static InvalidationPE tryToGetInvalidationPE(SamplePE sampleOrNull)
-    {
-        if (sampleOrNull != null)
-        {
-            return sampleOrNull.getInvalidation();
-        } else
-        {
-            return null;
-        }
-    }
-
-    private static InvalidationPE tryToGetInvalidationPE(ExperimentPE experiment)
-    {
-        if (experiment != null)
-        {
-            return experiment.getInvalidation();
-        } else
-        {
-            return null;
-        }
-    }
-
-    private static Invalidation translateInvalidation(InvalidationPE invalidationPE)
-    {
-        if (invalidationPE == null)
-        {
-            return null;
-        }
-        Invalidation result = new Invalidation();
-        result.setReason(invalidationPE.getReason());
-        result.setRegistrationDate(invalidationPE.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translate(invalidationPE.getRegistrator()));
-        return result;
-    }
-
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
         sample.setId(HibernateUtils.getId(samplePE));
         sample.setPermId(samplePE.getPermId());
         SampleTranslator.setCodes(sample, samplePE);
-        sample.setInvalidation(translateInvalidation(samplePE.getInvalidation()));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
         sample.setIdentifier(samplePE.getSampleIdentifier().toString());
         sample.setRegistrationDate(samplePE.getRegistrationDate());

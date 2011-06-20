@@ -123,6 +123,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
     /**
+     * Invalidation information.
+     * <p>
+     * If not <code>null</code>, then this data set is considered as <i>invalid</i>.
+     * </p>
+     */
+    private InvalidationPE invalidation;
+
+    /**
      * the index of this {@link DataPE} within its virtual parent; null if there is virtual parent
      */
     private Integer orderInContainer;
@@ -667,5 +675,17 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public SpacePE getSpace()
     {
         return getExperiment().getProject().getSpace();
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
+    public InvalidationPE getInvalidation()
+    {
+        return invalidation;
+    }
+
+    public void setInvalidation(final InvalidationPE invalidation)
+    {
+        this.invalidation = invalidation;
     }
 }
