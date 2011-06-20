@@ -116,13 +116,15 @@ public class SampleProviderTest extends AbstractProviderTest
         final DetailedSearchCriteria criteria = new DetailedSearchCriteria();
         ListSampleDisplayCriteria2 listCriteria = new ListSampleDisplayCriteria2(criteria);
         SampleProvider sampleProvider = new SampleProvider(server, SESSION_TOKEN, listCriteria);
-        final SampleBuilder s1 = new SampleBuilder("DB:/S1").id(1).type("ALPHA");
+        final SampleBuilder s1 = new SampleBuilder("DB:/S1").id(1).type("ALPHA").permID("123-45");
         s1.registrator(new PersonBuilder().name("Albert", "Einstein").getPerson());
         s1.invalidate().date(new Date(4711));
         Sample p1 = new SampleBuilder("/AB/CD").getSample();
-        s1.property("NAME", "hello").permID("123").permLink("http").childOf(p1);
-        final SampleBuilder s2 = new SampleBuilder("DB:/MY-SPACE/S:2").id(2).type("BETA");
-        s2.experiment(new ExperimentBuilder().identifier("DB:/SPACE1/P1/EXP1").getExperiment());
+        s1.property("NAME", "hello").permLink("http").childOf(p1);
+        final SampleBuilder s2 =
+                new SampleBuilder("DB:/MY-SPACE/S:2").id(2).type("BETA").permID("234-56");
+        s2.experiment(new ExperimentBuilder().identifier("DB:/SPACE1/P1/EXP1").permID("e-123")
+                .getExperiment());
         Sample p2 = new SampleBuilder("/DE/FG").getSample();
         s2.partOf(new SampleBuilder("DB:/A/B").getSample()).childOf(p1, p2);
         context.checking(new Expectations()
@@ -143,8 +145,8 @@ public class SampleProviderTest extends AbstractProviderTest
                         + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
         assertEquals(
-                "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
-                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
+                "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, null, null, VARCHAR, "
                         + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals(
@@ -154,12 +156,12 @@ public class SampleProviderTest extends AbstractProviderTest
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals("[S1, S1, DB, , DB:/S1, ALPHA, yes, yes, Einstein, Albert, "
-                + "Thu Jan 01 01:00:04 CET 1970, , , , 123, http, /AB/CD, , hello, , , ]", rows
+                + "Thu Jan 01 01:00:04 CET 1970, , , , 123-45, http, /AB/CD, , hello, , , ]", rows
                 .get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals("[S:2, 2, DB, MY-SPACE, DB:/MY-SPACE/S:2, BETA, no, no, , , EXP1, "
-                + "DB:/SPACE1/P1/EXP1, P1, , , /AB/CD\n/DE/FG\n, DB:/A/B, , , , ]", rows.get(1)
-                .getValues().toString());
+                + "DB:/SPACE1/P1/EXP1, P1, 234-56, , /AB/CD\n/DE/FG\n, DB:/A/B, , , , ]",
+                rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }
