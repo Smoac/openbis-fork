@@ -152,8 +152,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         dssComponent = context.mock(IDssComponent.class);
         ds1Proxy = context.mock(IDataSetDss.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
-        i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null, null, null);
-        i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null, null, null);
+        i1id = new ImageDatasetReference(DATA_SET1, null, URL1, null, null, null, null, null, null);
+        i2id = new ImageDatasetReference(DATA_SET2, null, URL2, null, null, null, null, null, null);
         f1id = context.mock(IFeatureVectorDatasetIdentifier.class, "f1id");
         f2id = context.mock(IFeatureVectorDatasetIdentifier.class, "f2id");
         dssService1 = context.mock(IDssServiceRpcScreening.class, "dss1");
@@ -231,11 +231,11 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     {
         final List<String> featureNames = Arrays.asList("A", "B");
         final FeatureVectorDatasetReference r1 =
-                new FeatureVectorDatasetReference(DATA_SET1, URL1, null, null, null, null, i1id,
-                        null);
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, null, null, null, null,
+                        i1id, null);
         final FeatureVectorDatasetReference r2 =
-                new FeatureVectorDatasetReference(DATA_SET2, URL2, null, null, null, null, i2id,
-                        null);
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, null, null, null, null,
+                        i2id, null);
         final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null, null);
         final FeatureVectorDataset ds2 = new FeatureVectorDataset(r2, null, null, null);
         final FeatureVectorDataset ds3 = new FeatureVectorDataset(r2, null, null, null);
@@ -599,8 +599,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
-        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject()
-                .getDataSetFolderName());
+        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject().getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
                 .getType());
         assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
@@ -649,8 +648,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         assertSame(ds1Proxy, dataSet);
         assertEquals("MY-TYPE", dataSetMatcher.recordedObject().tryDataSetType());
-        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject()
-                .getDataSetFolderName());
+        assertEquals(dataSetRoot.getName(), dataSetMatcher.recordedObject().getDataSetFolderName());
         assertEquals(DataSetOwnerType.SAMPLE, dataSetMatcher.recordedObject().getDataSetOwner()
                 .getType());
         assertEquals("/S/abc", dataSetMatcher.recordedObject().getDataSetOwner().getIdentifier());
