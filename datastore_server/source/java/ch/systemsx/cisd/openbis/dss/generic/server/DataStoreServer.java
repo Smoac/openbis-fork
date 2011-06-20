@@ -62,13 +62,13 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IInitializable;
-import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
@@ -131,17 +131,20 @@ public class DataStoreServer
 
     private static final String UPLOAD_GUI_SERVING_SERVLET_PATH = "/dss_upload_gui";
 
+    private static ConfigParameters configParameters;
+
     public static final void start()
     {
         assert server == null : "Server already started";
-        final ConfigParameters configParameters = getConfigParameters();
+        ConfigParameters configParams = getConfigParameters();
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext =
                 new ApplicationContext(openBISService, ServiceProvider.getShareIdManager(),
-                        ServiceProvider.getHierarchicalContentProvider(), configParameters);
-        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParameters
-                .getAuthCacheExpirationTimeMins(), configParameters
+                        ServiceProvider.getHierarchicalContentProvider(), configParams);
+        DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParams
+                .getAuthCacheExpirationTimeMins(), configParams
                 .getAuthCacheCleanupTimerPeriodMins()));
+        configParams.log();
         server = createServer(applicationContext);
         try
         {
@@ -184,32 +187,32 @@ public class DataStoreServer
 
     private final static Server createServer(final ApplicationContext applicationContext)
     {
-        final ConfigParameters configParameters = applicationContext.getConfigParameters();
-        final int port = configParameters.getPort();
+        final ConfigParameters configParams = applicationContext.getConfigParameters();
+        final int port = configParams.getPort();
         final Server thisServer = new Server();
-        initializeServer(configParameters, port, thisServer);
-        initializeContext(applicationContext, configParameters, thisServer);
+        initializeServer(configParams, port, thisServer);
+        initializeContext(applicationContext, configParams, thisServer);
         return thisServer;
     }
 
-    private static void initializeServer(final ConfigParameters configParameters, final int port,
+    private static void initializeServer(final ConfigParameters configParams, final int port,
             final Server thisServer)
     {
-        final Connector socketConnector = createSocketConnector(configParameters);
+        final Connector socketConnector = createSocketConnector(configParams);
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
         thisServer.addConnector(socketConnector);
     }
 
     private static void initializeContext(final ApplicationContext applicationContext,
-            final ConfigParameters configParameters, final Server thisServer)
+            final ConfigParameters configParams, final Server thisServer)
     {
         // Create a handler collection for grouping together the handlers
         ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
         thisServer.setHandler(contextHandlers);
 
         // Register the handler that returns the webstart jars
-        registerDssUploadClientHandler(thisServer, contextHandlers, configParameters);
+        registerDssUploadClientHandler(thisServer, contextHandlers, configParams);
 
         ServletContextHandler servletContextHandler =
                 new ServletContextHandler(contextHandlers, "/", ServletContextHandler.SESSIONS);
@@ -220,12 +223,12 @@ public class DataStoreServer
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         servletContextHandler.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
-        DatasetDownloadServlet.setDownloadUrl(configParameters.getDownloadURL());
+        DatasetDownloadServlet.setDownloadUrl(configParams.getDownloadURL());
         servletContextHandler.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
-        initializeRpcServices(servletContextHandler, applicationContext, configParameters);
-        registerPluginServlets(servletContextHandler, configParameters.getPluginServlets());
-        registerImageOverviewServlet(servletContextHandler, configParameters);
+        initializeRpcServices(servletContextHandler, applicationContext);
+        registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
+        registerImageOverviewServlet(servletContextHandler, configParams);
     }
 
     /**
@@ -235,7 +238,7 @@ public class DataStoreServer
     // Perhaps by using Spring and the dssApplicationContext.xml more effectively, or perhaps by
     // using annotations and reflection.
     private static void initializeRpcServices(final ServletContextHandler context,
-            final ApplicationContext applicationContext, final ConfigParameters configParameters)
+            final ApplicationContext applicationContext)
     {
         // Get the spring bean and do some additional configuration
         StreamSupportingHttpInvokerServiceExporter v1ServiceExporter =
@@ -278,9 +281,9 @@ public class DataStoreServer
 
     @SuppressWarnings("unchecked")
     private static void registerPluginServlets(ServletContextHandler context,
-            List<PluginServlet> pluginServlets)
+            List<PluginServletConfig> pluginServlets)
     {
-        for (PluginServlet pluginServlet : pluginServlets)
+        for (PluginServletConfig pluginServlet : pluginServlets)
         {
             Class<? extends Servlet> classInstance;
             try
@@ -307,15 +310,15 @@ public class DataStoreServer
     }
 
     private static void registerImageOverviewServlet(ServletContextHandler context,
-            ConfigParameters configParameters)
+            ConfigParameters configParams)
     {
-        DatasetImageOverviewServlet.initConfiguration(configParameters.getProperties());
+        DatasetImageOverviewServlet.initConfiguration(configParams.getProperties());
         context.addServlet(DatasetImageOverviewServlet.class, "/"
                 + DatasetImageOverviewUtilities.SERVLET_NAME + "/*");
     }
 
     private static void registerDssUploadClientHandler(Server thisServer,
-            ContextHandlerCollection context, ConfigParameters configParameters)
+            ContextHandlerCollection context, ConfigParameters configParams)
     {
         String servletPathSuffix = UPLOAD_GUI_SERVING_SERVLET_PATH;
         // Map this resource to a name that is accessible from outside
@@ -327,28 +330,28 @@ public class DataStoreServer
         // client.
         // This is the value assigned to the ${dss_upload_gui} variable in dss/build.xml .
         // We have set this up to be the same as the servletPathSuffix.
-        webstartContextHandler.setResourceBase(configParameters.getWebstartJarPath()
+        webstartContextHandler.setResourceBase(configParams.getWebstartJarPath()
                 + servletPathSuffix);
         // Add a resource handler to the webstart jar path to serve files from the file system.
         ResourceHandler webstartJarHandler = new ResourceHandler();
         webstartContextHandler.setHandler(webstartJarHandler);
     }
 
-    private static Connector createSocketConnector(ConfigParameters configParameters)
+    private static Connector createSocketConnector(ConfigParameters configParams)
     {
-        if (configParameters.isUseSSL())
+        if (configParams.isUseSSL())
         {
             final SslConnector socketConnector =
-                    configParameters.isUseNIO() ? new SslSelectChannelConnector()
+                    configParams.isUseNIO() ? new SslSelectChannelConnector()
                             : new SslSocketConnector();
-            socketConnector.setKeystore(configParameters.getKeystorePath());
-            socketConnector.setPassword(configParameters.getKeystorePassword());
-            socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
+            socketConnector.setKeystore(configParams.getKeystorePath());
+            socketConnector.setPassword(configParams.getKeystorePassword());
+            socketConnector.setKeyPassword(configParams.getKeystoreKeyPassword());
             return socketConnector;
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");
-            return configParameters.isUseNIO() ? new SelectChannelConnector()
+            return configParams.isUseNIO() ? new SelectChannelConnector()
                     : new SocketConnector();
         }
     }
@@ -369,30 +372,31 @@ public class DataStoreServer
         }
     }
 
-    final static ConfigParameters getConfigParameters()
+    public static ConfigParameters getConfigParameters()
     {
-        Properties properties;
-        try
+        if (configParameters == null)
         {
-            properties = DssPropertyParametersUtil.loadServiceProperties();
-        } catch (ConfigurationFailureException ex)
-        {
-            properties = new Properties();
-        }
-        final Properties systemProperties = System.getProperties();
-        final Enumeration<?> propertyNames = systemProperties.propertyNames();
-        while (propertyNames.hasMoreElements())
-        {
-            final String name = (String) propertyNames.nextElement();
-            if (name.startsWith(PREFIX))
+            Properties properties;
+            try
             {
-                final String value = systemProperties.getProperty(name);
-                properties.setProperty(name.substring(PREFIX_LENGTH), value);
+                properties = DssPropertyParametersUtil.loadServiceProperties();
+            } catch (ConfigurationFailureException ex)
+            {
+                properties = new Properties();
             }
+            final Properties systemProperties = System.getProperties();
+            final Enumeration<?> propertyNames = systemProperties.propertyNames();
+            while (propertyNames.hasMoreElements())
+            {
+                final String name = (String) propertyNames.nextElement();
+                if (name.startsWith(PREFIX))
+                {
+                    final String value = systemProperties.getProperty(name);
+                    properties.setProperty(name.substring(PREFIX_LENGTH), value);
+                }
+            }
+            configParameters = new ConfigParameters(ExtendedProperties.createWith(properties));
         }
-        final ConfigParameters configParameters =
-                new ConfigParameters(ExtendedProperties.createWith(properties));
-        configParameters.log();
         return configParameters;
     }
 }

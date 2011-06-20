@@ -22,6 +22,8 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
+import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
@@ -55,10 +57,12 @@ public class PluginTaskProviders
     /** for external injections */
     public static PluginTaskProviders create()
     {
+        IServletPropertiesManager servletPropertiesManager = DataStoreServer.getConfigParameters();
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         String property = properties.getProperty(STOREROOT_DIR_KEY);
         File storeRoot = new File(property);
-        PluginTaskProviders providers = new PluginTaskProviders(properties, storeRoot);
+        PluginTaskProviders providers =
+                new PluginTaskProviders(properties, servletPropertiesManager, storeRoot);
         providers.check();
         providers.logConfigurations();
         return providers;
@@ -66,14 +70,17 @@ public class PluginTaskProviders
 
     @Private
     // public only for tests
-    public PluginTaskProviders(Properties serviceProperties, File storeRoot)
+    public PluginTaskProviders(Properties serviceProperties,
+            IServletPropertiesManager servletPropertiesManager, File storeRoot)
     {
         this.storeRoot = storeRoot;
         String datastoreCode = DssPropertyParametersUtil.getDataStoreCode(serviceProperties);
         this.reportingPlugins =
-                createReportingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
+                createReportingPluginsFactories(serviceProperties, servletPropertiesManager,
+                        datastoreCode, storeRoot);
         this.processingPlugins =
-                createProcessingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
+                createProcessingPluginsFactories(serviceProperties, servletPropertiesManager,
+                        datastoreCode, storeRoot);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
@@ -112,7 +119,7 @@ public class PluginTaskProviders
 
     @Private
     static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
-            Properties serviceProperties, String datastoreCode, File storeRoot)
+            Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, REPORTING_PLUGIN_NAMES);
@@ -121,14 +128,14 @@ public class PluginTaskProviders
         for (int i = 0; i < factories.length; i++)
         {
             factories[i] =
-                    new ReportingPluginTaskFactory(sectionsProperties[i], datastoreCode, storeRoot);
+                    new ReportingPluginTaskFactory(configParameters, sectionsProperties[i], datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IReportingPluginTask>(factories);
     }
 
     @Private
     static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
-            Properties serviceProperties, String datastoreCode, File storeRoot)
+            Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, PROCESSING_PLUGIN_NAMES);
@@ -137,7 +144,7 @@ public class PluginTaskProviders
         for (int i = 0; i < factories.length; i++)
         {
             factories[i] =
-                    new ProcessingPluginTaskFactory(sectionsProperties[i], datastoreCode, storeRoot);
+                    new ProcessingPluginTaskFactory(configParameters, sectionsProperties[i], datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IProcessingPluginTask>(factories);
     }

@@ -32,6 +32,6 @@ public class PluginUtilTest
     {
         Properties serviceProperties = new Properties();
         serviceProperties.put(DssPropertyParametersUtil.DSS_CODE_KEY, "dss");
-        return new PluginTaskProviders(serviceProperties, storeRoot);
+        return new PluginTaskProviders(serviceProperties, null, storeRoot);
     }
 }

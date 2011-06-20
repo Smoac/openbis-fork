@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 
 /**
  * Factory of Reporting Plugin Tasks.
@@ -34,10 +35,11 @@ public class ReportingPluginTaskFactory extends AbstractPluginTaskFactory<IRepor
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ProcessingPluginTaskFactory.class);
 
-    public ReportingPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode,
-            File storeRoot)
+    public ReportingPluginTaskFactory(IServletPropertiesManager servletPropertiesManager,
+            SectionProperties sectionProperties, String datastoreCode, File storeRoot)
     {
-        super(sectionProperties, datastoreCode, IReportingPluginTask.class, storeRoot);
+        super(servletPropertiesManager, sectionProperties, datastoreCode, IReportingPluginTask.class,
+                storeRoot);
     }
 
     @Override

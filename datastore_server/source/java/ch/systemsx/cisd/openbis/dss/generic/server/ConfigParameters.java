@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -29,13 +31,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 
 /**
  * Configuration parameters for the Data Set Download Server.
  * 
  * @author Franz-Josef Elmer
  */
-public final class ConfigParameters
+public final class ConfigParameters implements IServletPropertiesManager
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -61,12 +64,12 @@ public final class ConfigParameters
 
     static final String AUTH_CACHE_EXPIRATION_TIME = "authorization-cache-expiration-time";
 
-    private static final int DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS = 5;
+    static final int DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS = 5;
 
     static final String AUTH_CACHE_CLEANUP_TIMER_PERIOD =
             "authorization-cache-cleanup-timer-period";
 
-    private static final int DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS = 3 * 60;
+    static final int DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS = 3 * 60;
 
     public static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
 
@@ -88,7 +91,7 @@ public final class ConfigParameters
      */
     static final String WEBSTART_JAR_PATH = "webstart-jar-path";
 
-    private static final String WEBSTART_JAR_PATH_DEFAULT = "lib";
+    static final String WEBSTART_JAR_PATH_DEFAULT = "lib";
 
     // PropertyParametersUtil
 
@@ -118,51 +121,11 @@ public final class ConfigParameters
 
     private final int authCacheCleanupTimerPeriodMins;
 
-    private final List<PluginServlet> pluginServlets;
+    private final Map<String, PluginServletConfig> pluginServlets;
 
     private final Properties properties;
 
     private final String webstartJarPath;
-
-    static final class PluginServlet
-    {
-        private final String servletClass;
-
-        private final String servletPath;
-
-        private final Properties servletProperties;
-
-        public PluginServlet(String servletClass, String servletPath, Properties servletProperties)
-        {
-            this.servletClass = servletClass;
-            this.servletPath = servletPath;
-            this.servletProperties = servletProperties;
-        }
-
-        public String getServletClass()
-        {
-            return servletClass;
-        }
-
-        /** URL path at which the servlet will be deployed */
-        public String getServletPath()
-        {
-            return servletPath;
-        }
-
-        /** Any additional properties specified in the properties file */
-        public Properties getServletProperties()
-        {
-            return servletProperties;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "class = " + servletClass + ", path = " + servletPath;
-        }
-
-    }
 
     /**
      * Creates an instance based on the specified properties.
@@ -197,7 +160,11 @@ public final class ConfigParameters
         authCacheCleanupTimerPeriodMins =
                 PropertyUtils.getInt(properties, AUTH_CACHE_CLEANUP_TIMER_PERIOD,
                         DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS);
-        pluginServlets = extractPluginServletsProperties(properties);
+        pluginServlets = new LinkedHashMap<String, PluginServletConfig>();
+        SectionProperties[] pluginServicesProperties =
+            PropertyParametersUtil.extractSectionProperties(properties,
+                    PLUGIN_SERVICES_LIST_KEY, false);
+        addServletsProperties("", pluginServicesProperties);
 
         webstartJarPath =
                 PropertyUtils.getProperty(properties, WEBSTART_JAR_PATH, WEBSTART_JAR_PATH_DEFAULT);
@@ -215,22 +182,31 @@ public final class ConfigParameters
         }
     }
 
-    private static List<PluginServlet> extractPluginServletsProperties(Properties properties)
+    public void addServletsProperties(String keyPrefix, SectionProperties[] servletsProperties)
     {
-        List<PluginServlet> servlets = new ArrayList<PluginServlet>();
-        SectionProperties[] pluginServicesProperties =
-                PropertyParametersUtil.extractSectionProperties(properties,
-                        PLUGIN_SERVICES_LIST_KEY, false);
-        for (SectionProperties sectionProperties : pluginServicesProperties)
+        for (SectionProperties sectionProperties : servletsProperties)
         {
             Properties servletProps = sectionProperties.getProperties();
-            String servletClass =
-                    PropertyUtils.getMandatoryProperty(servletProps, PLUGIN_SERVICE_CLASS_KEY);
-            String servletPath =
-                    PropertyUtils.getMandatoryProperty(servletProps, PLUGIN_SERVICE_PATH_KEY);
-            servlets.add(new PluginServlet(servletClass, servletPath, servletProps));
+            String key = keyPrefix + sectionProperties.getKey();
+            addServletProperties(key, servletProps);
         }
-        return servlets;
+    }
+
+    public void addServletProperties(String propertiesName, Properties servletProperties)
+    {
+        String servletClass =
+                PropertyUtils.getMandatoryProperty(servletProperties, PLUGIN_SERVICE_CLASS_KEY);
+        String servletPath =
+                PropertyUtils.getMandatoryProperty(servletProperties, PLUGIN_SERVICE_PATH_KEY);
+        PluginServletConfig servletConfig =
+                new PluginServletConfig(servletClass, servletPath, servletProperties);
+        if (pluginServlets.containsKey(servletPath))
+        {
+            throw new ConfigurationFailureException("Servlet configuration [" + propertiesName
+                    + "]: There has already been a servlet configured for the path '" + servletPath
+                    + "'.");
+        }
+        pluginServlets.put(servletPath, servletConfig);
     }
 
     private final static int getMandatoryIntegerProperty(final Properties properties,
@@ -292,9 +268,9 @@ public final class ConfigParameters
         return keystoreKeyPassword;
     }
 
-    public final List<PluginServlet> getPluginServlets()
+    public final List<PluginServletConfig> getPluginServlets()
     {
-        return pluginServlets;
+        return new ArrayList<PluginServletConfig>(pluginServlets.values());
     }
 
     public boolean isUseSSL()
@@ -344,7 +320,7 @@ public final class ConfigParameters
                     "Authorization cache cleanup timer period (minutes): %s",
                     authCacheCleanupTimerPeriodMins));
             operationLog.info(String.format("Keystore path: '%s'.", keystorePath));
-            for (PluginServlet pluginServlet : pluginServlets)
+            for (PluginServletConfig pluginServlet : getPluginServlets())
             {
                 operationLog.info("Plugin servlet: " + pluginServlet);
             }

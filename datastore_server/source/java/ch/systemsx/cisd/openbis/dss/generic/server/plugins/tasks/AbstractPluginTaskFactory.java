@@ -35,9 +35,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
@@ -66,6 +68,12 @@ public abstract class AbstractPluginTaskFactory<T>
     @Private
     public final static String CLASS_PROPERTY_NAME = "class";
 
+    @Private
+    public static final String SERVLET_PROPERTY_NAME = "servlet";
+    
+    @Private
+    public static final String SERVLETS_PROPERTY_NAME = "servlets";
+    
     /**
      * Property name which stores a file path. The file should contain properties which are plugin
      * parameters.
@@ -84,12 +92,28 @@ public abstract class AbstractPluginTaskFactory<T>
 
     private final T pluginInstance;
 
-    protected AbstractPluginTaskFactory(SectionProperties sectionProperties, String datastoreCode,
-            Class<T> clazz, File storeRoot)
+    protected AbstractPluginTaskFactory(IServletPropertiesManager servletPropertiesManager,
+            SectionProperties sectionProperties, String datastoreCode, Class<T> clazz,
+            File storeRoot)
     {
         Properties pluginProperties = sectionProperties.getProperties();
-        String pluginKey = sectionProperties.getKey();
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
+        Properties props =
+                ExtendedProperties.getSubset(pluginProperties, SERVLET_PROPERTY_NAME + ".", true);
+        if (props.isEmpty())
+        {
+            SectionProperties[] servletsProperties =
+                    PropertyParametersUtil.extractSectionProperties(pluginProperties,
+                            SERVLETS_PROPERTY_NAME, false);
+            if (servletsProperties.length > 0)
+            {
+                servletPropertiesManager.addServletsProperties(label + ", ", servletsProperties);
+            }
+        } else
+        {
+            servletPropertiesManager.addServletProperties(label, props);
+        }
+        String pluginKey = sectionProperties.getKey();
         String[] datasetCodes = extractDatasetCodes(pluginProperties);
 
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);

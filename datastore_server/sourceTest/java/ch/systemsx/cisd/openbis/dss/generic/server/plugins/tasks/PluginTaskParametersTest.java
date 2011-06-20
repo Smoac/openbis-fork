@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -38,7 +39,10 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -65,10 +69,13 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
     private IHierarchicalContentProvider contentProvider;
 
+    private IServletPropertiesManager servletPropertiesManager;
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
+        servletPropertiesManager = context.mock(IServletPropertiesManager.class);
         contentProvider = new IHierarchicalContentProvider()
             {
 
@@ -111,6 +118,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     public void afterTest()
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -120,22 +128,49 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         String plugin1 = "plugin1";
         String plugin2 = "plugin2";
 
-        props.put(PluginTaskProviders.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
+        props.setProperty(PluginTaskProviders.REPORTING_PLUGIN_NAMES, plugin1 + ", " + plugin2);
         String pluginLabel1 = "Demo Reporting 1";
         String datasetCodes1 = "MZXML, EICML";
-        putPluginProperties(props, plugin1, pluginLabel1, datasetCodes1, DemoReportingPlugin.class);
+        setPluginProperties(props, plugin1, pluginLabel1, datasetCodes1, DemoReportingPlugin.class);
 
-        String pluginLabel2 = "Demo Reporting 2";
+        final String pluginLabel2 = "Demo Reporting 2";
         String datasetCodes2 = "EICML";
-        putPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
+        setPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
+        setPluginProperty(props, plugin2, AbstractPluginTaskFactory.SERVLETS_PROPERTY_NAME,
+                "s1, s2");
+        setPluginProperty(props, plugin2, "s1.a", "alpha");
+        setPluginProperty(props, plugin2, "s2.b", "beta");
+        final RecordingMatcher<SectionProperties[]> sectionPropertiesMatcher =
+                new RecordingMatcher<SectionProperties[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(servletPropertiesManager).addServletsProperties(with(pluginLabel2 + ", "),
+                            with(sectionPropertiesMatcher));
+                }
+            });
 
         PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
+        
         factories.check(false);
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.createReport(createDatasetDescriptions(), new DataSetProcessingContext(
                 null, null, null, null));
 
+        SectionProperties[] sectionProperties = sectionPropertiesMatcher.recordedObject();
+        Arrays.sort(sectionProperties, new Comparator<SectionProperties>()
+            {
+                public int compare(SectionProperties sp1, SectionProperties sp2)
+                {
+                    return sp1.getKey().compareTo(sp2.getKey());
+                }
+            });
+        assertEquals("s1", sectionProperties[0].getKey());
+        assertEquals("{a=alpha}", sectionProperties[0].getProperties().toString());
+        assertEquals("s2", sectionProperties[1].getKey());
+        assertEquals("{b=beta}", sectionProperties[1].getProperties().toString());
+        assertEquals(2, sectionProperties.length);
         List<DatastoreServiceDescription> descriptions = factories.getPluginDescriptions();
         assertEquals(2, descriptions.size());
         for (DatastoreServiceDescription desc : descriptions)
@@ -151,26 +186,29 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 assertEquals(plugin1, key);
             }
         }
+        context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)
     public void testMissingPluginSpecFails() throws Exception
     {
         Properties props = new Properties();
-        props.put(PluginTaskProviders.REPORTING_PLUGIN_NAMES, "plugin1");
+        props.setProperty(PluginTaskProviders.REPORTING_PLUGIN_NAMES, "plugin1");
         createReportingPluginsFactories(props);
     }
 
-    private static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
+    private PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createReportingPluginsFactories(props, "dss", STORE_ROOT);
+        return PluginTaskProviders.createReportingPluginsFactories(props, servletPropertiesManager,
+                "dss", STORE_ROOT);
     }
 
-    private static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
+    private PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createProcessingPluginsFactories(props, "dss", STORE_ROOT);
+        return PluginTaskProviders.createProcessingPluginsFactories(props,
+                servletPropertiesManager, "dss", STORE_ROOT);
     }
 
     @Test
@@ -193,16 +231,28 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         Properties props = new Properties();
         String plugin1 = "plugin1";
 
-        props.put(PluginTaskProviders.PROCESSING_PLUGIN_NAMES, plugin1);
-        putPluginProperties(props, plugin1, "pluginLabel1", "datasetCodes1",
+        props.setProperty(PluginTaskProviders.PROCESSING_PLUGIN_NAMES, plugin1);
+        setPluginProperties(props, plugin1, "pluginLabel1", "datasetCodes1",
                 DemoProcessingPlugin.class);
+        setPluginProperty(props, plugin1, AbstractPluginTaskFactory.SERVLET_PROPERTY_NAME + ".a",
+                "alpha");
+        context.checking(new Expectations()
+            {
+                {
+                    Properties properties = new Properties();
+                    properties.setProperty("a", "alpha");
+                    one(servletPropertiesManager).addServletProperties("pluginLabel1", properties);
+                }
+            });
 
         PluginTaskProvider<IProcessingPluginTask> factories =
                 createProcessingPluginsFactories(props);
+        
         factories.check(true);
         factories.logConfigurations();
         IProcessingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.process(createDatasetDescriptions(), null);
+        context.assertIsSatisfied();
     }
 
     private static List<DatasetDescription> createDatasetDescriptions()
@@ -219,19 +269,19 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         return Arrays.asList(description);
     }
 
-    private void putPluginProperties(Properties props, String pluginId, String pluginLabel,
+    private void setPluginProperties(Properties props, String pluginId, String pluginLabel,
             String datasetCodes, Class<?> pluginClass) throws IOException, FileNotFoundException
     {
-        putPluginProperty(props, pluginId, AbstractPluginTaskFactory.LABEL_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.LABEL_PROPERTY_NAME,
                 pluginLabel);
-        putPluginProperty(props, pluginId, AbstractPluginTaskFactory.DATASET_CODES_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.DATASET_CODES_PROPERTY_NAME,
                 datasetCodes);
-        putPluginProperty(props, pluginId, AbstractPluginTaskFactory.CLASS_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.CLASS_PROPERTY_NAME,
                 pluginClass.getName());
         String[] pluginParams = new String[]
             { "param1 = X", "param2 = Y" };
         File paramsFile = createPluginPropertiesFile(pluginParams);
-        putPluginProperty(props, pluginId,
+        setPluginProperty(props, pluginId,
                 AbstractPluginTaskFactory.PARAMS_FILE_PATH_PROPERTY_NAME, paramsFile.getPath());
     }
 
@@ -244,10 +294,10 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         return paramsFile;
     }
 
-    private static void putPluginProperty(Properties props, String pluginKey, String propertyName,
+    private static void setPluginProperty(Properties props, String pluginKey, String propertyName,
             String value)
     {
-        props.put(pluginKey + "." + propertyName, value);
+        props.setProperty(pluginKey + "." + propertyName, value);
 
     }
 }
