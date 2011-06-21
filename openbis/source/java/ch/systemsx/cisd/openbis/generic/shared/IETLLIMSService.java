@@ -471,7 +471,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER })
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier projectIdentifier);
