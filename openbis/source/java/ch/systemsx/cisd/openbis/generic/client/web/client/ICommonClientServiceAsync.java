@@ -541,16 +541,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateEntityType(EntityKind entityKind, EntityType entityType,
             AsyncCallback<Void> callback);
 
-    /** @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String) */
+    /**
+     * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String,
+     *      DeletionType)
+     */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
+            DeletionType deletionType, AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType) */
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteDataSet(String, String) */
-    public void deleteDataSet(String singleData, String reason, AsyncCallback<Void> asyncCallback);
-
     /** @see ICommonClientService#deleteSamples(List, String, DeletionType) */
-    public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType type,
+    public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType,
             AsyncCallback<Void> asyncCallback);
 
     /**
@@ -558,10 +562,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      *      DeletionType)
      */
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
-            String reason, DeletionType type, AsyncCallback<Void> asyncCallback);
+            String reason, DeletionType deletionType, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSample(TechId, String, DeletionType) */
-    public void deleteSample(TechId sampleIs, String reason, DeletionType type,
+    public void deleteSample(TechId sampleIs, String reason, DeletionType deletionType,
             AsyncCallback<Void> asyncCallback);
 
     /**

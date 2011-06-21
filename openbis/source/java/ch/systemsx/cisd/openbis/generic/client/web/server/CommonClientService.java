@@ -1549,14 +1549,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteDataSet(String singleData, String reason)
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> dataSetCodes = Collections.singletonList(singleData);
-            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason);
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1564,14 +1564,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void deleteDataSets(
-            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason)
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
+            DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason);
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

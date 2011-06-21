@@ -576,10 +576,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "update_data_set_type", "CODE(%s)", entityType.getCode());
     }
 
-    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType)
     {
-        logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)",
-                abbreviate(dataSetCodes), reason);
+        logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s)",
+                deletionType, abbreviate(dataSetCodes), reason);
     }
 
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,

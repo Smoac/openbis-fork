@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -36,9 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public interface IDataSetTypeSlaveServerPlugin
 {
     /**
-     * Deletes the specified data sets for the specified reason.
+     * Deletes/Invalidates the specified data sets for the specified reason.
      */
-    public void deleteDataSets(Session session, List<DataPE> dataSets, String reason);
+    public void deleteDataSets(Session session, List<DataPE> dataSets, String reason,
+            DeletionType deletionType);
 
     /**
      * Updates properties of given data sets.

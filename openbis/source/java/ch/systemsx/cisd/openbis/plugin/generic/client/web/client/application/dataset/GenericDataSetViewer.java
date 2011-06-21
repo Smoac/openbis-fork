@@ -118,7 +118,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     @Override
     protected void fillBreadcrumbWidgets(List<Widget> widgets)
     {
-        Widget spaceBreadcrumb = createSpaceLink(originalData.getExperiment().getProject().getSpace());
+        Widget spaceBreadcrumb =
+                createSpaceLink(originalData.getExperiment().getProject().getSpace());
         Widget projectBreadcrumb = createProjectLink(originalData.getExperiment().getProject());
         Widget experimentBreadcrumb = createEntityLink(originalData.getExperiment());
         widgets.add(spaceBreadcrumb);
@@ -145,7 +146,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                 public void execute()
                 {
                     new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalData(), createDeletionCallback()).show();
+                            createDeletionCallback(), createInvalidationCallback(),
+                            getOriginalData()).show();
                 }
 
             }));
@@ -298,7 +300,11 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM), };
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE), };
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)

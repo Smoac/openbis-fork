@@ -636,13 +636,14 @@ public interface ICommonClientService extends IClientService
      */
     public Date updateProject(ProjectUpdates updates) throws UserFailureException;
 
-    /** Deletes the specified data sets. */
+    /** Deletes/Invalidates the specified data sets. */
     public void deleteDataSets(
-            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason)
-            throws UserFailureException;
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
+            DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes the specified data set. */
-    public void deleteDataSet(String singleData, String reason) throws UserFailureException;
+    /** Deletes/Invalidates the specified data set. */
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
+            throws UserFailureException;
 
     /**
      * Deletes/Invalidates the specified samples. NOTE: this is a stale version used only for

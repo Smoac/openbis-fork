@@ -435,8 +435,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     // assumes that the connection to the sample has been already established and sample has the
-    // id set. Should be called after enrichWithParents to ensure that parents invalidation field
-    // will be properly set.
+    // id set.
     private void enrichWithSamples(Long2ObjectMap<ExternalData> datasetMap)
     {
         LongSet ids = extractSampleIds(datasetMap);
@@ -448,24 +447,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 long sampleId = dataset.getSample().getId();
                 Sample sample = samples.get(sampleId);
                 dataset.setSample(sample);
-                enrichWithInvalidation(dataset, sample);
-            } else
-            {
-                enrichWithInvalidation(dataset, dataset.getExperiment());
             }
         }
-    }
-
-    private void enrichWithInvalidation(ExternalData dataset, Sample sample)
-    {
-        Invalidation invalidation = sample.getInvalidation();
-        dataset.setInvalidation(invalidation);
-    }
-
-    private void enrichWithInvalidation(ExternalData dataset, Experiment experiment)
-    {
-        Invalidation invalidation = experiment.getInvalidation();
-        dataset.setInvalidation(invalidation);
     }
 
     private static LongSet extractSampleIds(Long2ObjectMap<ExternalData> datasetMap)
@@ -650,18 +633,35 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         for (DatasetRecord record : records)
         {
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
+            ExternalData dataSetOrNull = null;
             if (record.is_placeholder)
             {
                 // placeholder data sets are filtered out
             } else if (dsType.isContainerType())
             {
-                datasets.put(record.id, convertToContainerDataSet(record));
+                dataSetOrNull = convertToContainerDataSet(record);
             } else if (record.location != null)
             {
-                datasets.put(record.id, convertToDataSet(record));
+                dataSetOrNull = convertToDataSet(record);
+            }
+
+            if (dataSetOrNull != null)
+            {
+                enrichWithInvalidation(dataSetOrNull, record);
+                datasets.put(record.id, dataSetOrNull);
             }
         }
         return datasets;
+    }
+
+    // NOTE: this just marks the data set as invalid without loading any details
+    private void enrichWithInvalidation(final ExternalData dataSet, DatasetRecord row)
+    {
+        if (row.inva_id != null)
+        {
+            final Invalidation invalidation = new Invalidation();
+            dataSet.setInvalidation(invalidation);
+        }
     }
 
     private DataSet convertToDataSet(DatasetRecord record)

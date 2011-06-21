@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -463,6 +464,22 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             flush();
         }
         super.delete(entity);
+    }
+
+    @Override
+    public void invalidate(List<DataPE> dataSets, InvalidationPE invalidation)
+            throws DataAccessException
+    {
+        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.getInvalidation() == null)
+            {
+                dataSet.setInvalidation(invalidation);
+            }
+        }
+
+        getHibernateTemplate().flush();
     }
 
     @SuppressWarnings("unchecked")

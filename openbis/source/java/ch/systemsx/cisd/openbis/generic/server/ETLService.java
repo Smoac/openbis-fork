@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -689,7 +690,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         {
             DataSetTypePE dataSetType = dataSet.getDataSetType();
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.deleteDataSets(session, Collections.singletonList(dataSet), reason);
+            plugin.deleteDataSets(session, Collections.singletonList(dataSet), reason,
+                    DeletionType.PERMANENT);
         }
     }
 

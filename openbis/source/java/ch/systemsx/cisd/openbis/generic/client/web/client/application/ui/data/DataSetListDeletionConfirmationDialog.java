@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
@@ -48,6 +50,7 @@ public final class DataSetListDeletionConfirmationDialog extends
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback);
+        this.withInvalidation();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleData = null;
@@ -55,10 +58,15 @@ public final class DataSetListDeletionConfirmationDialog extends
     }
 
     public DataSetListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, ExternalData data,
-            AbstractAsyncCallback<Void> callback)
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            AbstractAsyncCallback<Void> deletionCallback,
+            AbstractAsyncCallback<Void> invalidationCallback, ExternalData data)
     {
-        super(viewContext, Collections.singletonList(data), callback);
+        super(viewContext, Collections.singletonList(data), deletionCallback);
+        if (InvalidationUtils.isInvalid(data) == false)
+        {
+            this.withInvalidation(invalidationCallback);
+        }
         this.viewContext = viewContext;
         this.singleData = data;
         this.selectedAndDisplayedItemsOrNull = null;
@@ -67,16 +75,17 @@ public final class DataSetListDeletionConfirmationDialog extends
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
+        final DeletionType deletionType = getDeletionType();
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
-                    deletionCallback);
+                    deletionType, deletionCallback);
         } else
         {
             viewContext.getCommonService().deleteDataSet(singleData.getCode(), reason.getValue(),
-                    deletionCallback);
+                    deletionType, deletionCallback);
         }
     }
 

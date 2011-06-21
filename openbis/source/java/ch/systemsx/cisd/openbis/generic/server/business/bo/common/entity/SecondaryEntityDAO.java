@@ -114,12 +114,7 @@ public class SecondaryEntityDAO
         experiment.setPermId(record.e_permid);
         experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
-        if (record.inva_id != null)
-        {
-            // NOTE: this just marks the experiment as invalid without any details
-            final Invalidation invalidation = new Invalidation();
-            experiment.setInvalidation(invalidation);
-        }
+        experiment.setInvalidation(createInvalidation(record.inva_id));
         final Project project = new Project();
         project.setId(record.p_id);
         project.setCode(record.p_code);

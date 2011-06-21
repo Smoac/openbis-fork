@@ -1133,12 +1133,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
         try
         {
             IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+            // TODO 2011-06-21, Piotr Buczek: loading less for invalidation would probably be faster
             dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
             List<DataPE> dataSets = dataSetTable.getDataSets();
             Map<DataSetTypePE, List<DataPE>> groupedDataSets =
@@ -1158,7 +1160,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             {
                 DataSetTypePE dataSetType = entry.getKey();
                 IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-                plugin.deleteDataSets(session, entry.getValue(), reason);
+                plugin.deleteDataSets(session, entry.getValue(), reason, deletionType);
             }
         } catch (final DataAccessException ex)
         {

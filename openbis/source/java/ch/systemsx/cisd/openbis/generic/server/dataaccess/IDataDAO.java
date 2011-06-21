@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -118,5 +119,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<DataPE> listByCode(Set<String> values);
 
     public void updateDataSets(List<DataPE> externalData);
+
+    /**
+     * Invalidate given data sets using specified invalidation.
+     */
+    public void invalidate(List<DataPE> dataSets, InvalidationPE invalidation)
+            throws DataAccessException;
 
 }

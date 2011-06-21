@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
@@ -1346,6 +1347,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testDeleteDataSets()
     {
+        // TODO write invalidation test
+        final DeletionType deletionType = DeletionType.PERMANENT;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
@@ -1362,13 +1365,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
                     one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), "reason");
+                            Arrays.asList(ds1, ds2), "reason", deletionType);
                     one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
-                            "reason");
+                            "reason", deletionType);
                 }
             });
 
-        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason");
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType);
 
         context.assertIsSatisfied();
     }

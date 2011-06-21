@@ -740,14 +740,14 @@ public interface ICommonServer extends IServer
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
     /**
-     * Deletes specified data sets.
+     * Deletes/Invalidates specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
-            String reason);
+            String reason, DeletionType type);
 
     /**
      * Deletes/Invalidates specified samples.

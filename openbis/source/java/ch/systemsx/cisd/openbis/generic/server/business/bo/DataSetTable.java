@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -232,6 +233,22 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
         dataSets = new ArrayList<DataPE>();
         dataSets.addAll(getDataDAO().listDataSets(experiment));
+    }
+
+    public void invalidateLoadedDataSets(String reason)
+    {
+        InvalidationPE invalidation = new InvalidationPE();
+        invalidation.setReason(reason);
+        invalidation.setRegistrator(session.tryGetPerson());
+        getInvalidationDAO().create(invalidation);
+
+        try
+        {
+            getDataDAO().invalidate(dataSets, invalidation);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Data Set", EntityKind.DATA_SET);
+        }
     }
 
     public void deleteLoadedDataSets(String reason)

@@ -39,15 +39,17 @@ public class DatasetRecord extends CodeRecord
 
     public Long ctnr_id;
 
+    public Long inva_id;
+
     // ---- from external_data table
     // ---- can be NULL in case of container(virtual) data sets
 
     public String share_id;
 
     public String location;
-    
+
     public Long size;
-    
+
     public Long ffty_id;
 
     public Long loty_id;
@@ -55,6 +57,6 @@ public class DatasetRecord extends CodeRecord
     public String is_complete; // maps to BooleanOrUnknown
 
     public String status;
-    
+
     public Integer speed_hint;
 }

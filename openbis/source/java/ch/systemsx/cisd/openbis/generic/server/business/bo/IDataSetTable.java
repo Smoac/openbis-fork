@@ -69,6 +69,11 @@ public interface IDataSetTable
     void setDataSets(List<DataPE> dataSets);
 
     /**
+     * Invalidates loaded data sets for specified reason.
+     */
+    void invalidateLoadedDataSets(String reason);
+
+    /**
      * Deletes loaded data sets for specified reason.
      */
     void deleteLoadedDataSets(String reason);
