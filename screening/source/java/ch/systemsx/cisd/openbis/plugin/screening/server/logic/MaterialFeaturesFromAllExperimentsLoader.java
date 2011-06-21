@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
  * 
  * @author Tomasz Pylak
  */
-public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContentLoader
+public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoader
 {
     public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             Session session, IScreeningBusinessObjectFactory businessObjectFactory,
@@ -64,7 +64,7 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
         List<ExperimentReference> experiments =
                 fetchExperiments(materialId, projectTechIdOrNull, dao);
 
-        return new MaterialAllAssaysFeatureVectorSummaryLoader(session, businessObjectFactory,
+        return new MaterialFeaturesFromAllExperimentsLoader(session, businessObjectFactory,
                 daoFactory, dao, settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
                 experiments);
     }
@@ -110,7 +110,7 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
 
     private final IScreeningQuery screeningQuery;
 
-    private MaterialAllAssaysFeatureVectorSummaryLoader(Session session,
+    private MaterialFeaturesFromAllExperimentsLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {

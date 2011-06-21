@@ -72,7 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQue
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.LogicalImageLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialAllAssaysFeatureVectorSummaryLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeaturesFromAllExperimentsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
@@ -320,7 +320,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         MaterialSummarySettings settings = createDefaultSettings();
 
         TechId projectTechIdOrNull = tryFetchProjectId(sessionToken, experimentCriteria);
-        return MaterialAllAssaysFeatureVectorSummaryLoader.loadMaterialFeatureVectorsFromAllAssays(
+        return MaterialFeaturesFromAllExperimentsLoader.loadMaterialFeatureVectorsFromAllAssays(
                 session, businessObjectFactory, getDAOFactory(), materialId, projectTechIdOrNull,
                 settings);
     }
