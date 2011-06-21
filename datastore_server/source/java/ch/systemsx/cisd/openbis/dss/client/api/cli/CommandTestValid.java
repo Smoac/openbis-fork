@@ -242,15 +242,15 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
         parser.printUsage(out);
         out.println("  Examples : ");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " EXPERIMENT <experiment identifier> <path> <script>");
+                + " EXPERIMENT <experiment identifier> <path> <script(s)>");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
-                + " SAMPLE <sample identifier> <path> <script>");
+                + " SAMPLE <sample identifier> <path> <script(s)>");
     }
 
     @Override
     protected String getRequiredArgumentsString()
     {
-        return "<owner type> <owner> <path> [<script>]";
+        return "<owner type> <owner> <path> [<script(s)>]";
     }
 
     /**
