@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTabl
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
-import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
@@ -81,14 +80,13 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
             TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary> builder,
             List<MaterialSimpleFeatureVectorSummary> summaries)
     {
-        IColumnGroup columnGroup = builder.columnGroup("FEATURES");
         for (MaterialSimpleFeatureVectorSummary summary : summaries)
         {
             for (CodeAndLabel codeAndLabel : summary.getFeatureDescriptions())
             {
-                columnGroup.column(getFeatureValueColumnId(codeAndLabel)).withTitle(
+                builder.column(getFeatureValueColumnId(codeAndLabel)).withTitle(
                         codeAndLabel.getLabel());
-                columnGroup.column(getFeatureRankColumnId(codeAndLabel)).withTitle(
+                builder.column(getFeatureRankColumnId(codeAndLabel)).withTitle(
                         ScreeningProviderMessages.RANK_COLUMN_MSG);
 
             }
