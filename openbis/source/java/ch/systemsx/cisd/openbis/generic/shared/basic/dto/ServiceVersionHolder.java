@@ -23,5 +23,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public final class ServiceVersionHolder
 {
-    public static final int VERSION = 27; // for S108
+    public static final int VERSION = 28; // for S109
 }
