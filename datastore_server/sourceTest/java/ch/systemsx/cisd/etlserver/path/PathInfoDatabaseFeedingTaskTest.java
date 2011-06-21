@@ -240,6 +240,9 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(node).isDirectory();
                     will(returnValue(false));
 
+                    one(node).getLastModified();
+                    will(returnValue(42L));
+                    
                     one(dao).createDataSetFile(101L, null, "", "ds1-root", 12345L, false, new Date(42));
                     will(returnValue(102L));
 

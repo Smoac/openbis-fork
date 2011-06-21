@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Date;
 
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -79,23 +80,29 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                 {
                     one(dao).createDataSet("ds-1", "a/b/c/");
                     will(returnValue(42L));
-                    
-                    one(dao).createDataSetFile(42L, null, "", ROOT_PATH, 38, true, new Date(1));
+
+                    one(dao).createDataSetFile(with(42L), with(new IsNull<Long>()), with(""),
+                            with(ROOT_PATH), with(38L), with(true), with(any(Date.class)));
                     will(returnValue(100L));
-                    
-                    one(dao).createDataSetFile(42L, 100L, "dir", "dir", 26, true, new Date(2));
+
+                    one(dao).createDataSetFile(with(42L), with(100L), with("dir"), with("dir"),
+                            with(26L), with(true), with(any(Date.class)));
                     will(returnValue(101L));
-                    
-                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", "hello.txt", 11, false, new Date(3));
+
+                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/hello.txt"),
+                            with("hello.txt"), with(11L), with(false), with(any(Date.class)));
                     will(returnValue(102L));
-                    
-                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", "read.me", 15, false, new Date(4));
+
+                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/read.me"),
+                            with("read.me"), with(15L), with(false), with(any(Date.class)));
                     will(returnValue(103L));
-                    
-                    one(dao).createDataSetFile(42L, 101L, "dir/dir", "dir", 0, true, new Date(5));
+
+                    one(dao).createDataSetFile(with(42L), with(101L), with("dir/dir"), with("dir"),
+                            with(0L), with(true), with(any(Date.class)));
                     will(returnValue(104L));
-                    
-                    one(dao).createDataSetFile(42L, 100L, "read.me", "read.me", 12, false, new Date(6));
+
+                    one(dao).createDataSetFile(with(42L), with(100L), with("read.me"),
+                            with("read.me"), with(12L), with(false), with(any(Date.class)));
                     will(returnValue(105L));
                 }
             });
