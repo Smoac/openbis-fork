@@ -697,7 +697,7 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Load all data sets of plate P005 in space SPACE
-     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005', '.*', '')
+     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', '/mount/openbis-store')
      * % Get the data set codes
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
