@@ -18,6 +18,10 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -29,6 +33,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
  */
 public class TopLevelDataSetRegistratorGlobalState
 {
+    // can be used from dropboxes
+    public static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TopLevelDataSetRegistratorGlobalState.class);
+
     private final String dssCode;
 
     private final String shareId;
@@ -77,7 +85,6 @@ public class TopLevelDataSetRegistratorGlobalState
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
                         .tryGetPostRegistrationScript(), threadParameters.tryGetValidationScripts());
-
     }
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
