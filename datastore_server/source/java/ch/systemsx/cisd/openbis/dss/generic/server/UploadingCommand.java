@@ -444,6 +444,12 @@ class UploadingCommand implements IDataSetCommand
                     notificationLog.error("Couldn't add data set '" + externalData.getCode()
                             + "' to zip file.", ex);
                     return false;
+                } finally
+                {
+                    if (root != null)
+                    {
+                        root.close();
+                    }
                 }
             }
             return true;
