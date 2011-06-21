@@ -208,9 +208,10 @@ public interface IScreeningQuery extends BaseQuery
             + "     join sample_properties well_props on well_props.samp_id = well.id "
             + "     join materials well_material on well_props.mate_prop_id = well_material.id "
             + "     join material_types well_material_type on well_material.maty_id = well_material_type.id "
-            + "where pl.samp_id_part_of is null and exp.id = ?{1} "
-            + "      and well_material_type.code similar to ?{2}", fetchSize = FETCH_SIZE)
-    public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long experimentId,
+            + "where pl.samp_id_part_of is null and exp.id = any(?{1}) "
+            + "      and well_material_type.code similar to ?{2}", parameterBindings =
+        { LongArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long[] experimentId,
             String materialTypesPattern);
 
     /**
