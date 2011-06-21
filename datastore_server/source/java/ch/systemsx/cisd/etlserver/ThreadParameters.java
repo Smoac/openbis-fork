@@ -115,7 +115,7 @@ public final class ThreadParameters
 
     private final String postRegistrationScript;
 
-    private final String validationScript;
+    private final String[] validationScripts;
 
     private final boolean useIsFinishedMarkerFile;
 
@@ -151,7 +151,7 @@ public final class ThreadParameters
         this.groupCode = tryGetGroupCode(threadProperties);
         this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
-        this.validationScript = tryValidationScript(threadProperties);
+        this.validationScripts = tryGetValidationScripts(threadProperties);
         String completenessCondition =
                 PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
                         INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
@@ -247,9 +247,30 @@ public final class ThreadParameters
     }
 
     @Private
-    static final String tryValidationScript(final Properties properties)
+    static final String[] tryGetValidationScripts(final Properties properties)
     {
-        return nullIfEmpty(PropertyUtils.getProperty(properties, VALIDATION_SCRIPT_KEY));
+        String pathsString =
+                nullIfEmpty(PropertyUtils.getProperty(properties, VALIDATION_SCRIPT_KEY));
+        if (pathsString == null)
+        {
+            return null;
+        }
+
+        String[] paths = pathsString.split(",");
+        for (int i = 0; i < paths.length; i++)
+        {
+            String path = paths[i].trim();
+            if (StringUtils.isBlank(path))
+            {
+                throw new ConfigurationFailureException(i
+                        + "-th path to validation script (property '" + VALIDATION_SCRIPT_KEY
+                        + "') is blank.");
+            } else
+            {
+                paths[i] = path;
+            }
+        }
+        return paths;
     }
 
     private static String nullIfEmpty(String value)
@@ -275,9 +296,9 @@ public final class ThreadParameters
         return postRegistrationScript;
     }
 
-    public String tryValidationScript()
+    public String[] tryGetValidationScripts()
     {
-        return validationScript;
+        return validationScripts;
     }
 
     public boolean useIsFinishedMarkerFile()

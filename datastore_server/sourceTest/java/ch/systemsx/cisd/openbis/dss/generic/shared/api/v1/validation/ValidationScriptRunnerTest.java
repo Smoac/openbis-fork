@@ -44,7 +44,8 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     public void testBasicValidationOnValidDataSet()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.createValidatorFromScriptPath(BASIC_VALIDATION_SCRIPT);
+                ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
+                    { BASIC_VALIDATION_SCRIPT });
         List<ValidationError> errors = scriptRunner.validate(new File(VALID_DATA_SET));
 
         assertTrue("The valid data set should have no errors", errors.isEmpty());
@@ -54,7 +55,8 @@ public class ValidationScriptRunnerTest extends AssertJUnit
     public void testBasicValidationOnInvalidDataSet()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.createValidatorFromScriptPath(BASIC_VALIDATION_SCRIPT);
+                ValidationScriptRunner.createValidatorFromScriptPaths(new String[]
+                    { BASIC_VALIDATION_SCRIPT });
         List<ValidationError> errors = scriptRunner.validate(new File(INVALID_DATA_SET));
 
         assertEquals(1, errors.size());

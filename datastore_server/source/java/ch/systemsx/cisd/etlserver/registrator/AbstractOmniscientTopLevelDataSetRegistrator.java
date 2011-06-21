@@ -122,8 +122,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             storageProcessor);
             this.homeDatabaseInstance = globalState.getOpenBisService().getHomeDatabaseInstance();
             this.validationScriptRunner =
-                    ValidationScriptRunner.createValidatorFromScriptPath(globalState
-                            .getValidationScriptOrNull());
+                    ValidationScriptRunner.createValidatorFromScriptPaths(globalState
+                            .getValidationScriptsOrNull());
             this.onErrorActionDecision = onErrorActionDecision;
         }
 
@@ -324,8 +324,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         try
         {
             ValidationScriptRunner validationScriptRunner =
-                    ValidationScriptRunner.createValidatorFromScriptPath(getGlobalState()
-                            .getValidationScriptOrNull());
+                    ValidationScriptRunner.createValidatorFromScriptPaths(getGlobalState()
+                            .getValidationScriptsOrNull());
 
             List<ValidationError> validationErrors =
                     validationScriptRunner.validate(incomingDataSetFile);
@@ -367,7 +367,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         StringBuilder sb = new StringBuilder();
         sb.append("Validation script [");
-        sb.append(getGlobalState().getValidationScriptOrNull());
+        sb.append(getGlobalState().getValidationScriptsOrNull());
         sb.append("] found errors in incoming data set [");
         sb.append(incomingDataSetFile);
         sb.append("]:\n");

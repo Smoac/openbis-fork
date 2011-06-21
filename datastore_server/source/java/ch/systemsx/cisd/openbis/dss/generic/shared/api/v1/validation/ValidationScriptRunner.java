@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
@@ -40,20 +41,32 @@ public class ValidationScriptRunner
     /**
      * Factory method for creating a ValidationScriptRunner given a path to a script.
      */
-    public static ValidationScriptRunner createValidatorFromScriptPath(String scriptPath)
+    public static ValidationScriptRunner createValidatorFromScriptPaths(String[] scriptPaths)
     {
-        if (scriptPath == null)
+        if (scriptPaths == null)
         {
             return new NullValidationScriptRunner();
         }
-        File scriptFile = new File(scriptPath);
-        if (false == scriptFile.exists())
+
+        StringBuilder concatenatedScripts = new StringBuilder();
+
+        for (String scriptPath : scriptPaths)
+        {
+            File scriptFile = new File(scriptPath);
+            if (scriptFile.exists())
+            {
+                String fileString = FileUtilities.loadToString(scriptFile);
+                concatenatedScripts.append(fileString).append("\n");
+            }
+        }
+
+        String scriptString = concatenatedScripts.toString();
+        if (StringUtils.isBlank(scriptString))
         {
             return new NullValidationScriptRunner();
         }
-        String fileString = FileUtilities.loadToString(scriptFile);
-        String scriptString = getValidationScriptString(fileString);
-        return new ValidationScriptRunner(scriptString);
+
+        return new ValidationScriptRunner(getValidationScriptString(scriptString));
     }
 
     /**

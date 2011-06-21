@@ -53,7 +53,7 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final String postRegistrationScriptOrNull;
 
-    private final String validationScriptOrNull;
+    private final String[] validationScriptsOrNull;
 
     /**
      * Constructor that takes some values from the thread parameters.
@@ -76,7 +76,7 @@ public class TopLevelDataSetRegistratorGlobalState
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
-                        .tryGetPostRegistrationScript(), threadParameters.tryValidationScript());
+                        .tryGetPostRegistrationScript(), threadParameters.tryGetValidationScripts());
 
     }
 
@@ -85,7 +85,7 @@ public class TopLevelDataSetRegistratorGlobalState
             IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters, boolean useIsFinishedMarkerFile,
             boolean deleteUnidentified, String preRegistrationScriptOrNull,
-            String postRegistrationScriptOrNull, String validationScriptOrNull)
+            String postRegistrationScriptOrNull, String[] validationScriptsOrNull)
     {
         this.dssCode = dssCode;
         this.shareId = shareId;
@@ -99,7 +99,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.deleteUnidentified = deleteUnidentified;
         this.preRegistrationScriptOrNull = preRegistrationScriptOrNull;
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
-        this.validationScriptOrNull = validationScriptOrNull;
+        this.validationScriptsOrNull = validationScriptsOrNull;
     }
 
     public String getDssCode()
@@ -162,8 +162,8 @@ public class TopLevelDataSetRegistratorGlobalState
         return postRegistrationScriptOrNull;
     }
 
-    public String getValidationScriptOrNull()
+    public String[] getValidationScriptsOrNull()
     {
-        return validationScriptOrNull;
+        return validationScriptsOrNull;
     }
 }

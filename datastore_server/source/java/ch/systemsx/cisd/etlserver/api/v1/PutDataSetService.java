@@ -207,20 +207,26 @@ public class PutDataSetService
         ITopLevelDataSetRegistrator registrator =
                 registratorMap.getRegistratorForType(dataSetTypeOrNull);
         TopLevelDataSetRegistratorGlobalState globalState = registrator.getGlobalState();
-        String scriptPath = globalState.getValidationScriptOrNull();
-        if (scriptPath == null)
+        String[] scriptPaths = globalState.getValidationScriptsOrNull();
+        if (scriptPaths == null)
         {
             return null;
         }
 
-        File scriptFile = new File(scriptPath);
-        if (false == scriptFile.exists())
+        StringBuilder concatenatedScripts = new StringBuilder();
+        for (String scriptPath : scriptPaths)
         {
-            operationLog.warn("Data set type [" + dataSetTypeOrNull
-                    + "] refers to a validation script [" + scriptPath + "] which does not exist.");
-            return null;
+            File scriptFile = new File(scriptPath);
+            if (false == scriptFile.exists())
+            {
+                operationLog.warn("Data set type [" + dataSetTypeOrNull
+                        + "] refers to a validation script [" + scriptPath
+                        + "] which does not exist.");
+                return null;
+            }
+            concatenatedScripts.append(FileUtilities.loadToString(scriptFile)).append("\n");
         }
-        return FileUtilities.loadToString(scriptFile);
+        return concatenatedScripts.toString();
     }
 
     private void doInitialization()

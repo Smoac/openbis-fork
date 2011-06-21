@@ -30,14 +30,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
  */
 public class OD600ValidatorTest extends AssertJUnit
 {
-    private static final String VALIDATION_SCRIPT_PATH =
-            "dist/etc/growth-profiles/data-set-validator.py";
+    private static final String[] VALIDATION_SCRIPT_PATH = new String[]
+        { "dist/etc/growth-profiles/data-set-validator.py" };
 
     @Test
     public void testGoodData()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.createValidatorFromScriptPath(VALIDATION_SCRIPT_PATH);
+                ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/OD600-Example.xlsx"));
         assertTrue("The example should have no errors", errors.isEmpty());
@@ -47,7 +47,7 @@ public class OD600ValidatorTest extends AssertJUnit
     public void testTemplate()
     {
         ValidationScriptRunner scriptRunner =
-                ValidationScriptRunner.createValidatorFromScriptPath(VALIDATION_SCRIPT_PATH);
+                ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/OD600-Template.xlsx"));
         if (errors.size() > 0)

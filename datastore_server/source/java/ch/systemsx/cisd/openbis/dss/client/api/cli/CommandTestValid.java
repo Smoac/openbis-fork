@@ -47,12 +47,17 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
 {
     static class CommandTestValidArguments extends CommandPut.CommandPutArguments
     {
-
-        public String getScriptPathOrNull()
+        public String[] getScriptPathsOrNull()
         {
-            if (getArguments().size() > 3)
+            if (arguments.size() > 3)
             {
-                return getArguments().get(3);
+                String[] paths = new String[arguments.size() - 3];
+
+                for (int i = 3; i < arguments.size(); i++)
+                {
+                    paths[i - 3] = arguments.get(i);
+                }
+                return paths;
             } else
             {
                 return null;
@@ -71,23 +76,25 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
 
             try
             {
-                String path = getScriptPathOrNull();
-                if (null == path)
+                String[] paths = getScriptPathsOrNull();
+                if (null == paths)
                 {
                     return false;
                 }
 
-                File scriptFile = new File(path);
-                if (false == scriptFile.exists())
+                for (String path : paths)
                 {
-                    System.err.println("\n" + path
-                            + " does not exist. Please specify a python (jython) script.");
-                    return false;
+                    File scriptFile = new File(path);
+                    if (false == scriptFile.exists())
+                    {
+                        System.err.println("\n" + path
+                                + " does not exist. Please specify a python (jython) script(s).");
+                        return false;
+                    }
                 }
-
             } catch (Exception e)
             {
-                System.err.println("\nThe script must be a valid python (jython) script.");
+                System.err.println("\nThe script(s) must be a valid python (jython) script(s).");
             }
 
             if (false == super.isComplete())
@@ -131,14 +138,14 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
 
                 // If no script was provided, validate against the server's script
                 List<ValidationError> errors;
-                if (null == arguments.getScriptPathOrNull())
+                if (null == arguments.getScriptPathsOrNull())
                 {
                     errors = component.validateDataSet(newDataSet, arguments.getFile());
                 } else
                 {
                     ValidationScriptRunner scriptRunner =
-                            ValidationScriptRunner.createValidatorFromScriptPath(arguments
-                                    .getScriptPathOrNull());
+                            ValidationScriptRunner.createValidatorFromScriptPaths(arguments
+                                    .getScriptPathsOrNull());
 
                     errors = scriptRunner.validate(arguments.getFile());
                 }
