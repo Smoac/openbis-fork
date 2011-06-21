@@ -144,6 +144,9 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
         StopWatch globalWatch = createWatchAndStart();
+        int totalWellsLoaded = 0;
+        int totalFeatureVectorsLoaded = 0;
+
         for (ExperimentReference experiment : experiments)
         {
             StopWatch watch = createWatchAndStart();
@@ -154,6 +157,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
             } else
             {
                 List<BasicWellContentQueryResult> allWells = fetchWellLocations(experiment);
+                totalWellsLoaded += allWells.size();
                 Set<PlateIdentifier> plates = extractPlates(allWells);
                 WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
                         tryLoadWellSingleFeatureVectors(plates);
@@ -162,7 +166,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                     summaries.add(new MaterialSimpleFeatureVectorSummary(experiment));
                 } else
                 {
-                    StopWatch internalWatch = createWatchAndStart();
+                    totalFeatureVectorsLoaded += allWellFeaturesOrNull.getFeatures().size();
                     Map<WellReference, Long/* material id */> wellToMaterialMap =
                             createWellToMaterialMap(allWells);
 
@@ -172,15 +176,15 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                     summaries.add(summary);
                     operationLog.info("[" + watch.getTime()
                             + " msec] Fetching analysis summary for experiment " + experiment
-                            + " done. Internal computing took " + internalWatch.getTime()
-                            + " msec.");
+                            + " done.");
 
                 }
             }
         }
-        operationLog.info(String.format(
-                "Fetching all experiment analysis summary for material %d took %d msec",
-                materialId.getId(), globalWatch.getTime()));
+        operationLog
+                .info(String
+                        .format("Fetching all experiment analysis summary took %d msec. Total wells loaded: %d, feature vectors: %d.",
+                                globalWatch.getTime(), totalWellsLoaded, totalFeatureVectorsLoaded));
         return summaries;
     }
 
