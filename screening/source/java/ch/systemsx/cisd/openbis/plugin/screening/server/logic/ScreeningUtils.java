@@ -64,9 +64,15 @@ public class ScreeningUtils
                 dataStore.getHostUrl(), experiment.getPermId(), experiment.getIdentifier());
     }
 
-    public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)
+    public static List<ExternalDataPE> filterImageAnalysisDatasetsPE(List<ExternalDataPE> datasets)
     {
         return filterDatasetsByTypePattern(datasets,
+                ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
+    }
+
+    public static List<ExternalData> filterImageAnalysisDatasets(List<ExternalData> datasets)
+    {
+        return filterExternalDataByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
     }
 

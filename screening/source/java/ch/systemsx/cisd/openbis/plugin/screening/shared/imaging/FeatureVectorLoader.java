@@ -336,7 +336,6 @@ public class FeatureVectorLoader
      */
     void addFeatureVectorsOfDataSets(List<ImgDatasetDTO> datasets)
     {
-        long start = System.currentTimeMillis();
         DatasetFeatureDefinitionCachedLister lister =
                 new DatasetFeatureDefinitionCachedLister(datasets, featureCodes, useAllFeatures,
                         dao);
@@ -360,8 +359,6 @@ public class FeatureVectorLoader
                             bundle.featureDefToValuesMap.keySet(), lister);
             bundles.add(bundle);
         }
-        operationLog.info(String.format("[%d msec] Fetching %d features from %d datasets.",
-                (System.currentTimeMillis() - start), featureCodes.size(), datasets.size()));
     }
 
     private void assignIndicesToFeatures(final Map<String, ImgFeatureDefDTO> featureCodeToDefMap)

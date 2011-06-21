@@ -197,7 +197,7 @@ public class PlateContentLoader
     private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<ExternalDataPE> datasets)
     {
         List<ExternalDataPE> analysisDatasets =
-                ScreeningUtils.filterImageAnalysisDatasets(datasets);
+                ScreeningUtils.filterImageAnalysisDatasetsPE(datasets);
         List<DatasetReference> featureVectorDatasetReferences =
                 createDatasetReferences(analysisDatasets);
         return fetchFeatureVectors(featureVectorDatasetReferences);

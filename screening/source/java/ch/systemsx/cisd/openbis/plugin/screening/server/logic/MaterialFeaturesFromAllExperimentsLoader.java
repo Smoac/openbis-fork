@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,8 +28,10 @@ import org.apache.commons.lang.time.StopWatch;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.BasicWellContentQueryResult;
@@ -121,11 +124,15 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
 
     private List<BasicWellContentQueryResult> fetchWellLocations(ExperimentReference experiment)
     {
+        StopWatch watch = createWatchAndStart();
         String materialTypePattern =
                 PatternMatchingUtils.asPostgresSimilarExpression(settings
                         .getReplicaMatrialTypeSubstrings());
-        return screeningQuery.getPlateLocationsForExperiment(experiment.getId(),
-                materialTypePattern);
+        List<BasicWellContentQueryResult> wells =
+                screeningQuery.getPlateLocationsForExperiment(experiment.getId(),
+                        materialTypePattern);
+        operationLog.info("[" + watch.getTime() + " msec] Fetching " + wells.size() + " wells.");
+        return wells;
     }
 
     /**
@@ -136,35 +143,60 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     {
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
-        StopWatch watch = new StopWatch();
-        watch.start();
+        StopWatch globalWatch = createWatchAndStart();
         for (ExperimentReference experiment : experiments)
         {
-            operationLog.info("Fetching analysis summary for experiment " + experiment);
-            List<BasicWellContentQueryResult> allWells = fetchWellLocations(experiment);
-
-            Set<PlateIdentifier> plates = extractPlates(allWells);
-            WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
-                    tryLoadWellSingleFeatureVectors(plates);
-            if (allWellFeaturesOrNull == null)
+            StopWatch watch = createWatchAndStart();
+            if (hasAnalysisDatasets(experiment) == false)
             {
+                // avoid loading all the wells if there are no analysis datasets
                 summaries.add(new MaterialSimpleFeatureVectorSummary(experiment));
             } else
             {
+                List<BasicWellContentQueryResult> allWells = fetchWellLocations(experiment);
+                Set<PlateIdentifier> plates = extractPlates(allWells);
+                WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
+                        tryLoadWellSingleFeatureVectors(plates);
+                if (allWellFeaturesOrNull == null)
+                {
+                    summaries.add(new MaterialSimpleFeatureVectorSummary(experiment));
+                } else
+                {
+                    StopWatch internalWatch = createWatchAndStart();
+                    Map<WellReference, Long/* material id */> wellToMaterialMap =
+                            createWellToMaterialMap(allWells);
 
-                Map<WellReference, Long/* material id */> wellToMaterialMap =
-                        createWellToMaterialMap(allWells);
+                    MaterialSimpleFeatureVectorSummary summary =
+                            calculateExperimentFeatureVectorSummary(materialId, experiment,
+                                    allWellFeaturesOrNull, wellToMaterialMap);
+                    summaries.add(summary);
+                    operationLog.info("[" + watch.getTime()
+                            + " msec] Fetching analysis summary for experiment " + experiment
+                            + " done. Internal computing took " + internalWatch.getTime()
+                            + " msec.");
 
-                MaterialSimpleFeatureVectorSummary summary =
-                        calculateExperimentFeatureVectorSummary(materialId, experiment,
-                                allWellFeaturesOrNull, wellToMaterialMap);
-                summaries.add(summary);
+                }
             }
         }
         operationLog.info(String.format(
                 "Fetching all experiment analysis summary for material %d took %d msec",
-                materialId.getId(), watch.getTime()));
+                materialId.getId(), globalWatch.getTime()));
         return summaries;
+    }
+
+    private boolean hasAnalysisDatasets(ExperimentReference experiment)
+    {
+        List<TechId> experiments = Arrays.asList(new TechId(experiment.getId()));
+        IDatasetLister lister = businessObjectFactory.createDatasetLister(session);
+        List<ExternalData> datasets = lister.listByExperimentTechIds(experiments);
+        return ScreeningUtils.filterImageAnalysisDatasets(datasets).size() > 0;
+    }
+
+    private StopWatch createWatchAndStart()
+    {
+        StopWatch watch = new StopWatch();
+        watch.start();
+        return watch;
     }
 
     private static Map<WellReference, Long/* material id */> createWellToMaterialMap(

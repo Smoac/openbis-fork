@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.time.StopWatch;
+
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.common.collections.GroupByMap;
@@ -56,6 +58,8 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
     public WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
             Set<PlateIdentifier> plates, List<String> featureCodes)
     {
+        StopWatch watch = new StopWatch();
+        watch.start();
         FeatureVectorDatasetLoader datasetsRetriever = createFeatureVectorDatasetsRetriever(plates);
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
@@ -64,8 +68,15 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
             return null;
         }
         List<DatasetReference> datasetPerPlate = chooseSingleDatasetForPlate(featureVectorDatasets);
-        return FeatureVectorRetriever
-                .tryFetch(datasetPerPlate, featureCodes, businessObjectFactory);
+        WellFeatureCollection<FeatureVectorValues> features =
+                FeatureVectorRetriever.tryFetch(datasetPerPlate, featureCodes,
+                        businessObjectFactory);
+
+        operationLog.info(String.format("[%d msec] Fetching %d feature vectors from %d datasets.",
+                watch.getTime(), (features == null ? 0 : features.getFeatures().size()),
+                featureVectorDatasets.size()));
+
+        return features;
     }
 
     // TODO 2011-04-04, Tomasz Pylak: here if the plate has more than one dataset assigned, we
