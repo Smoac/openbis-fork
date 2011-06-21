@@ -19,15 +19,20 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.python.core.Py;
+import org.python.core.PyDictionary;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.JythonUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,6 +40,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class ValidationScriptRunner
 {
     private final static String FILE_VALIDATION_FUNCTION_NAME = "validate_data_set_file";
+
+    private final static String EXTRACT_METADATA_FUNCTION_NAME = "extract_metadata";
 
     // Factory methods
 
@@ -131,6 +138,28 @@ public class ValidationScriptRunner
         return errors;
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, String> extractMetadata(File dataSetFile)
+    {
+        Map<String, String> metadata = new HashMap<String, String>();
+        PyFunction function = tryJythonFunction(EXTRACT_METADATA_FUNCTION_NAME);
+        PyObject result = function.__call__(Py.java2py(dataSetFile));
+        if (null != result)
+        {
+            Map<String, String> javaResult = null;
+            if (result instanceof PyDictionary)
+            {
+                javaResult = JythonUtils.convertPyDictToMap((PyDictionary) result);
+            } else
+            {
+                javaResult = (Map<String, String>) result;
+            }
+            metadata.putAll(javaResult);
+        }
+
+        return metadata;
+    }
+
     public String getScriptString()
     {
         return scriptString;
@@ -147,19 +176,27 @@ public class ValidationScriptRunner
             return null;
         }
     }
-}
 
-class NullValidationScriptRunner extends ValidationScriptRunner
-{
-    protected NullValidationScriptRunner()
+    public static class NullValidationScriptRunner extends ValidationScriptRunner
     {
-        super(true);
+        public NullValidationScriptRunner()
+        {
+            super(true);
+        }
+
+        @Override
+        public List<ValidationError> validate(File dataSetFile)
+        {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Map<String, String> extractMetadata(File dataSetFile)
+        {
+            return Collections.emptyMap();
+        }
+
     }
 
-    @Override
-    public List<ValidationError> validate(File dataSetFile)
-    {
-        ArrayList<ValidationError> errors = new ArrayList<ValidationError>();
-        return errors;
-    }
 }
+

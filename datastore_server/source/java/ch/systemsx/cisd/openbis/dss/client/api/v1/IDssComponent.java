@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -93,6 +94,21 @@ public interface IDssComponent
      */
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Tries to extract the data set property key-values (metadata) from the data. The extracted
+     * metadata can be used by clients to minimize the input needed when uploading data sets.
+     * 
+     * @param newDataset The new data set that should be registered
+     * @param dataSetFile A file or folder containing the data
+     * @return A map of extracted property-key values
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException,
+            EnvironmentFailureException;
 
     /**
      * Logs the current user out.

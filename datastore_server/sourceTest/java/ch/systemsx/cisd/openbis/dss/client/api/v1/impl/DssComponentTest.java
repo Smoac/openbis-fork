@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
@@ -307,6 +308,24 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         // Against an earlier version of the server, an invalid script will pass validation.
         assertEquals(0, result.size());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testExtractMetadata() throws IOException
+    {
+        setupExpectations(null, 1);
+
+        dssComponent.login("foo", "bar");
+        File dataSetFile = new File(ValidationScriptRunnerTest.INVALID_DATA_SET);
+        NewDataSetDTOBuilder builder = new NewDataSetDTOBuilder();
+        builder.setFile(dataSetFile);
+        Map<String, String> result =
+                dssComponent.extractMetadata(builder.asNewDataSetDTO(), dataSetFile);
+
+        assertEquals(1, result.size());
+        assertEquals("test-value", result.get("test-prop"));
 
         context.assertIsSatisfied();
     }

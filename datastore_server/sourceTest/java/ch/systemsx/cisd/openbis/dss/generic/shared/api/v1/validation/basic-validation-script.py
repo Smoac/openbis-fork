@@ -11,3 +11,6 @@ def validate_data_set_file(file):
 		result.append(createFileValidationError("No file named valid-file.txt was found in " + file.getName()))
 		
 	return result
+
+def extract_metadata(file):
+	return { "test-prop" : "test-value" }

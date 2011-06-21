@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -302,6 +304,12 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                         File dataSetFile) throws IllegalStateException, EnvironmentFailureException
                 {
                     return new ArrayList<ValidationError>();
+                }
+
+                public Map<String, String> extractMetadata(NewDataSetDTO newDataset,
+                        File dataSetFile) throws IllegalStateException, EnvironmentFailureException
+                {
+                    return new HashMap<String, String>();
                 }
 
             };
