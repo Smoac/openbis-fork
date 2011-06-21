@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -209,7 +210,8 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
         public long getLastModified()
         {
-            return System.currentTimeMillis();
+            Date lastModified = pathInfo.getLastModified();
+            return lastModified == null ? System.currentTimeMillis() : lastModified.getTime();
         }
 
         @Override

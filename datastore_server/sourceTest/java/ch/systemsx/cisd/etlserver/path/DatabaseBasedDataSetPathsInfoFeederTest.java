@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -79,22 +80,22 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     one(dao).createDataSet("ds-1", "a/b/c/");
                     will(returnValue(42L));
                     
-                    one(dao).createDataSetFile(42L, null, "", ROOT_PATH, 38, true);
+                    one(dao).createDataSetFile(42L, null, "", ROOT_PATH, 38, true, new Date(1));
                     will(returnValue(100L));
                     
-                    one(dao).createDataSetFile(42L, 100L, "dir", "dir", 26, true);
+                    one(dao).createDataSetFile(42L, 100L, "dir", "dir", 26, true, new Date(2));
                     will(returnValue(101L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", "hello.txt", 11, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/hello.txt", "hello.txt", 11, false, new Date(3));
                     will(returnValue(102L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", "read.me", 15, false);
+                    one(dao).createDataSetFile(42L, 101L, "dir/read.me", "read.me", 15, false, new Date(4));
                     will(returnValue(103L));
                     
-                    one(dao).createDataSetFile(42L, 101L, "dir/dir", "dir", 0, true);
+                    one(dao).createDataSetFile(42L, 101L, "dir/dir", "dir", 0, true, new Date(5));
                     will(returnValue(104L));
                     
-                    one(dao).createDataSetFile(42L, 100L, "read.me", "read.me", 12, false);
+                    one(dao).createDataSetFile(42L, 100L, "read.me", "read.me", 12, false, new Date(6));
                     will(returnValue(105L));
                 }
             });

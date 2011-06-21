@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import java.util.Date;
+
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
@@ -33,8 +35,8 @@ public interface IPathsInfoDAO extends TransactionQuery
     public long createDataSet(String code, String location);
     
     @Select("insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
-            + "size_in_bytes, is_directory) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}) returning id")
+            + "size_in_bytes, is_directory, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}) returning id")
     public long createDataSetFile(long dataSetId, Long parentId, String relativePath,
-            String fileName, long sizeInBytes, boolean directory);
+            String fileName, long sizeInBytes, boolean directory, Date lastModifiedDate);
     
 }

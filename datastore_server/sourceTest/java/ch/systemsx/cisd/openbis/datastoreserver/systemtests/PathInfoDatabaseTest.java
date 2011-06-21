@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -129,7 +130,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
         try
         {
             long id = dao.createDataSet("ds-1", "a/b/c/");
-            long parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true);
+            long parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true, new Date(4711));
             numberOfEntries += feedDataBase(dao, id, parentId, 3, "");
             dao.commit();
         } catch (Exception ex)
@@ -151,7 +152,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
             String fileName = "file-" + i + "-" + (i * i) + (directory ? "" : "-xyz.xml");
             long id =
                     dao.createDataSetFile(dataSetId, parentId, prefix + fileName, fileName, level
-                            * 100 + i, directory);
+                            * 100 + i, directory, new Date(4711));
             numberOfEntries++;
             if (directory)
             {

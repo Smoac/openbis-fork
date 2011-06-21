@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,6 +32,8 @@ public class DataSetPathInfo
     private String relativePath;
 
     private boolean directory;
+    
+    private Date lastModified;
 
     private long sizeInBytes;
 
@@ -76,6 +79,16 @@ public class DataSetPathInfo
     public void setSizeInBytes(long sizeInBytes)
     {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public Date getLastModified()
+    {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified)
+    {
+        this.lastModified = lastModified;
     }
 
     @Deprecated

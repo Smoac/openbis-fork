@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,13 +54,15 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public long size_in_bytes;
 
         public boolean is_directory;
+        
+        public Date last_modified;
     }
 
     @Private
     static interface IPathInfoDAO extends BaseQuery
     {
         static String SELECT_DATA_SET_FILES =
-                "SELECT id, parent_id, relative_path, file_name, size_in_bytes, is_directory FROM data_set_files ";
+                "SELECT id, parent_id, relative_path, file_name, size_in_bytes, is_directory, last_modified FROM data_set_files ";
 
         @Select("SELECT id FROM data_sets WHERE code = ?{1}")
         public Long tryToGetDataSetId(String dataSetCode);
@@ -245,6 +248,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
             result.setRelativePath(record.relative_path);
             result.setDirectory(record.is_directory);
             result.setSizeInBytes(record.size_in_bytes);
+            result.setLastModified(record.last_modified);
             return result;
         }
 
@@ -281,6 +285,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                     dataSetPathInfo.setRelativePath(dataSetFileRecord.relative_path);
                     dataSetPathInfo.setDirectory(dataSetFileRecord.is_directory);
                     dataSetPathInfo.setSizeInBytes(dataSetFileRecord.size_in_bytes);
+                    dataSetPathInfo.setLastModified(dataSetFileRecord.last_modified);
                     idToInfoMap.put(dataSetFileRecord.id, dataSetPathInfo);
                     Long parentId = dataSetFileRecord.parent_id;
                     if (parentId == null)

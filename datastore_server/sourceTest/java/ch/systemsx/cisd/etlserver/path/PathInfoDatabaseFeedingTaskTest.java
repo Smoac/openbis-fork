@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.common.utilities.IDelegatedAction.DO_NOTHING;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -239,7 +240,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     one(node).isDirectory();
                     will(returnValue(false));
 
-                    one(dao).createDataSetFile(101L, null, "", "ds1-root", 12345L, false);
+                    one(dao).createDataSetFile(101L, null, "", "ds1-root", 12345L, false, new Date(42));
                     will(returnValue(102L));
 
                     one(dao).commit();

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
@@ -41,6 +42,7 @@ final class PathInfo
         }
         PathInfo pathInfo = new PathInfo();
         pathInfo.fileName = node.getName();
+        pathInfo.lastModifiedDate = new Date(node.getLastModified());
         pathInfo.directory = node.isDirectory();
         if (pathInfo.directory)
         {
@@ -90,6 +92,8 @@ final class PathInfo
     private boolean directory;
     
     private List<PathInfo> children;
+    
+    private Date lastModifiedDate;
 
     public String getFileName()
     {
@@ -109,6 +113,11 @@ final class PathInfo
     public boolean isDirectory()
     {
         return directory;
+    }
+
+    public Date getLastModifiedDate()
+    {
+        return lastModifiedDate;
     }
 
     public List<PathInfo> getChildren()

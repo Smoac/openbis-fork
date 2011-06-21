@@ -62,7 +62,7 @@ public class DatabaseBasedDataSetPathsInfoFeeder implements IDataSetPathsInfoFee
         String relativePath = parentId == null ? "" : pathPrefix + fileName;
         long id =
                 dao.createDataSetFile(dataSetId, parentId, relativePath, fileName,
-                        pathInfo.getSizeInBytes(), directory);
+                        pathInfo.getSizeInBytes(), directory, pathInfo.getLastModifiedDate());
         if (relativePath.length() > 0)
         {
             relativePath += '/';
