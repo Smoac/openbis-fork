@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -84,4 +85,9 @@ public interface IGenericBusinessObjectFactory
      * Creates a {@link ISampleLister} <i>Business Object</i>.
      */
     public ISampleLister createSampleLister(Session session);
+
+    /**
+     * Creates a {@link IInvalidationBO} <i>Business Object</i>.
+     */
+    public IInvalidationBO createInvalidationBO(final Session session);
 }

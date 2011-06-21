@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -182,7 +183,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -1174,14 +1174,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         try
         {
-            ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
             switch (deletionType)
             {
                 case PERMANENT:
+                    ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
                     sampleTableBO.deleteByTechIds(sampleIds, reason);
                     break;
                 case INVALIDATION:
-                    sampleTableBO.invalidateByTechIds(sampleIds, reason);
+                    IInvalidationBO invalidationBO =
+                            businessObjectFactory.createInvalidationBO(session);
+                    invalidationBO.createInvalidation(reason);
+                    invalidationBO.invalidateSamples(sampleIds);
                     break;
             }
         } catch (final DataAccessException ex)
@@ -1203,23 +1206,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     experimentBO.deleteByTechIds(experimentIds, reason);
                     break;
                 case INVALIDATION:
-                    InvalidationPE invalidation = createInvalidation(reason, session);
-                    experimentBO.invalidateByTechIds(experimentIds, invalidation);
+                    IInvalidationBO invalidationBO =
+                            businessObjectFactory.createInvalidationBO(session);
+                    invalidationBO.createInvalidation(reason);
+                    invalidationBO.invalidateExperiments(experimentIds);
                     break;
             }
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
-    }
-
-    private InvalidationPE createInvalidation(String reason, Session session)
-    {
-        InvalidationPE invalidation = new InvalidationPE();
-        invalidation.setReason(reason);
-        invalidation.setRegistrator(session.tryGetPerson());
-        getDAOFactory().getInvalidationDAO().create(invalidation);
-        return invalidation;
     }
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)

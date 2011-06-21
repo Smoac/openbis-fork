@@ -75,6 +75,8 @@ public interface ICommonBusinessObjectFactory
 
     public IGridCustomFilterOrColumnBO createGridCustomColumnBO(final Session session);
 
+    public IInvalidationBO createInvalidationBO(final Session session);
+
     // Fast listing operations
 
     public ISampleLister createSampleLister(Session session);

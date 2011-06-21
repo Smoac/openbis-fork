@@ -341,18 +341,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public void invalidateByTechIds(List<TechId> sampleIds, String reason)
+    public void invalidateByTechIds(List<TechId> sampleIds, InvalidationPE invalidation)
             throws UserFailureException
     {
         try
         {
             getSessionFactory().getCurrentSession().flush();
             getSessionFactory().getCurrentSession().clear();
-
-            InvalidationPE invalidation = new InvalidationPE();
-            invalidation.setReason(reason);
-            invalidation.setRegistrator(session.tryGetPerson());
-            getInvalidationDAO().create(invalidation);
 
             getSampleDAO().invalidate(sampleIds, invalidation);
         } catch (final DataAccessException ex)

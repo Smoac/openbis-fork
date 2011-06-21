@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.InvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
@@ -210,5 +212,10 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IGridCustomFilterOrColumnBO createGridCustomColumnBO(Session session)
     {
         return new GridCustomColumnBO(getDaoFactory(), session);
+    }
+
+    public IInvalidationBO createInvalidationBO(Session session)
+    {
+        return new InvalidationBO(getDaoFactory(), session, this);
     }
 }

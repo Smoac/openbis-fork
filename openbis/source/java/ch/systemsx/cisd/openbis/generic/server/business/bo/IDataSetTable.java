@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 
 /**
  * A <i>Business Object</i> to load a list of {@link DataPE}-s.
@@ -71,7 +72,7 @@ public interface IDataSetTable
     /**
      * Invalidates loaded data sets for specified reason.
      */
-    void invalidateLoadedDataSets(String reason);
+    void invalidateLoadedDataSets(InvalidationPE invalidation);
 
     /**
      * Deletes loaded data sets for specified reason.

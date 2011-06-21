@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -50,15 +51,18 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     public void deleteDataSets(Session session, List<DataPE> dataSets, String reason,
             DeletionType deletionType)
     {
-        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        dataSetTable.setDataSets(dataSets);
         switch (deletionType)
         {
-            case INVALIDATION:
-                dataSetTable.invalidateLoadedDataSets(reason);
-                break;
             case PERMANENT:
+                IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+                dataSetTable.setDataSets(dataSets);
                 dataSetTable.deleteLoadedDataSets(reason);
+                break;
+            case INVALIDATION:
+                IInvalidationBO invalidationBO =
+                        businessObjectFactory.createInvalidationBO(session);
+                invalidationBO.createInvalidation(reason);
+                invalidationBO.invalidateDataSets(dataSets);
                 break;
         }
     }

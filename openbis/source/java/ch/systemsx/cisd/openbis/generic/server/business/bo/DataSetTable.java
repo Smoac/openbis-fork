@@ -235,13 +235,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
-    public void invalidateLoadedDataSets(String reason)
+    public void invalidateLoadedDataSets(InvalidationPE invalidation)
     {
-        InvalidationPE invalidation = new InvalidationPE();
-        invalidation.setReason(reason);
-        invalidation.setRegistrator(session.tryGetPerson());
-        getInvalidationDAO().create(invalidation);
-
         try
         {
             getDataDAO().invalidate(dataSets, invalidation);
@@ -422,7 +417,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                             + unknownDataSets);
         }
     }
-    
+
     private List<ExternalDataPE> filterRealDataSets(List<? extends DataPE> mixedDataSets)
     {
         List<ExternalDataPE> realDataSets = new ArrayList<ExternalDataPE>();
@@ -439,8 +434,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     /** groups data sets by data stores */
     private Map<DataStorePE, List<DataPE>> groupDataByDataStores()
     {
-        Map<DataStorePE, List<DataPE>> map =
-                new LinkedHashMap<DataStorePE, List<DataPE>>();
+        Map<DataStorePE, List<DataPE>> map = new LinkedHashMap<DataStorePE, List<DataPE>>();
         for (DataPE dataSet : dataSets)
         {
             DataStorePE dataStore = dataSet.getDataStore();
@@ -459,7 +453,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     private Map<DataStorePE, List<ExternalDataPE>> groupExternalDataByDataStores()
     {
         Map<DataStorePE, List<ExternalDataPE>> map =
-            new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
+                new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
         for (DataPE dataSet : dataSets)
         {
             if (dataSet.isExternalData())
@@ -476,7 +470,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         return map;
     }
-    
+
     /** groups all data sets (both virtual and non-virtual) by data stores */
     private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
     {
