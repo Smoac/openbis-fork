@@ -173,4 +173,19 @@ public class ScreeningDAOTest extends AbstractScreeningDAOTest
 
     }
 
+    @Test
+    public void testGetGlobalBasicPlateLocations()
+    {
+        List<BasicWellContentQueryResult> locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForExperiment(1, "%GENE%"));
+        AssertJUnit.assertEquals(0, locations.size());
+
+        List<ExperimentReferenceQueryResult> experiments = query.getExperimentsWithMaterial(1);
+        AssertJUnit.assertEquals(0, experiments.size());
+
+        experiments = query.getExperimentsWithMaterial(1, 1);
+        AssertJUnit.assertEquals(0, experiments.size());
+
+    }
+
 }

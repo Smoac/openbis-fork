@@ -86,7 +86,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         }
 
         MaterialIdFeatureVectorSummary generalSummary = backendResult.getGeneralSummary();
-        float[] featureVectorDeviatons = generalSummary.getFeatureVectorDeviations();
+        float[] featureVectorDeviatons = generalSummary.tryGetFeatureVectorDeviations();
         float[] featureVectorSummaries = generalSummary.getFeatureVectorSummary();
         int[] featureVectorRanks = generalSummary.getFeatureVectorRanks();
 
@@ -98,7 +98,9 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             MaterialReplicaFeatureSummary replicaRow = new MaterialReplicaFeatureSummary();
             replicaRows.add(replicaRow);
 
-            replicaRow.setFeatureVectorDeviation(featureVectorDeviatons[i]);
+            double deviation =
+                    featureVectorDeviatons == null ? Double.NaN : featureVectorDeviatons[i];
+            replicaRow.setFeatureVectorDeviation(deviation);
             replicaRow.setFeatureVectorSummary(featureVectorSummaries[i]);
             replicaRow.setFeatureVectorRank(featureVectorRanks[i]);
             replicaRow.setFeatureDescription(featureDescriptions.get(i));
@@ -261,7 +263,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     {
         List<MaterialIdFeatureVectorSummary> featureSummaries =
                 WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
-                        experimentWellDataList, settings.getAggregationType());
+                        experimentWellDataList, settings.getAggregationType(), true);
         return tryFindMaterialSummary(materialId, featureSummaries);
     }
 

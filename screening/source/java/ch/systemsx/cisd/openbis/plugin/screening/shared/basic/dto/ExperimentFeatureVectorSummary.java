@@ -33,6 +33,7 @@ public class ExperimentFeatureVectorSummary implements ISerializable
 
     private ExperimentReference experiment;
 
+    // summaries without computed deviation
     private List<MaterialFeatureVectorSummary> materialsSummary;
 
     // has the same length as feature vectors in all material summaries

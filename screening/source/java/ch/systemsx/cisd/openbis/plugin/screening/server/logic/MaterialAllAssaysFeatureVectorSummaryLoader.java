@@ -23,22 +23,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.time.StopWatch;
+
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
-import ch.systemsx.cisd.common.collections.GroupByMap;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.BasicWellContentQueryResult;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.ExperimentReferenceQueryResult;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PatternMatchingUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 
@@ -55,146 +60,191 @@ public class MaterialAllAssaysFeatureVectorSummaryLoader extends AbstractContent
             IDAOFactory daoFactory, TechId materialId, TechId projectTechIdOrNull,
             MaterialSummarySettings settings)
     {
-        List<WellContent> assayWellsForMaterial = null;
+        IScreeningQuery dao = createDAO(daoFactory);
+        List<ExperimentReference> experiments =
+                fetchExperiments(materialId, projectTechIdOrNull, dao);
+
+        return new MaterialAllAssaysFeatureVectorSummaryLoader(session, businessObjectFactory,
+                daoFactory, dao, settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
+                experiments);
+    }
+
+    private static List<ExperimentReference> fetchExperiments(TechId materialId,
+            TechId projectTechIdOrNull, IScreeningQuery dao)
+    {
+        List<ExperimentReferenceQueryResult> experimentRefs;
         if (projectTechIdOrNull == null)
         {
-            // load results from all experiments
-            assayWellsForMaterial =
-                    WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
-                            materialId);
+            experimentRefs = dao.getExperimentsWithMaterial(materialId.getId());
         } else
         {
             // load results only for experiments within a given project
-            assayWellsForMaterial =
-                    WellContentLoader.loadOnlyMetadataForProject(session, businessObjectFactory,
-                            daoFactory, materialId, projectTechIdOrNull);
+            experimentRefs =
+                    dao.getExperimentsWithMaterial(materialId.getId(), projectTechIdOrNull.getId());
         }
-        return new MaterialAllAssaysFeatureVectorSummaryLoader(session, businessObjectFactory,
-                daoFactory, settings).loadMaterialFeatureVectorsFromAllAssays(materialId,
-                assayWellsForMaterial);
+        return asExperimentReferences(experimentRefs);
+    }
+
+    private static List<ExperimentReference> asExperimentReferences(
+            List<ExperimentReferenceQueryResult> experiments)
+    {
+        return CollectionUtils
+                .map(experiments,
+                        new ICollectionMappingFunction<ExperimentReference, ExperimentReferenceQueryResult>()
+                            {
+                                public ExperimentReference map(
+                                        ExperimentReferenceQueryResult experiment)
+                                {
+                                    return createExperimentReference(experiment);
+                                }
+                            });
+    }
+
+    private static ExperimentReference createExperimentReference(ExperimentReferenceQueryResult exp)
+    {
+        return new ExperimentReference(exp.exp_id, exp.exp_perm_id, exp.exp_code,
+                exp.exp_type_code, exp.proj_code, exp.space_code);
     }
 
     private final MaterialSummarySettings settings;
 
+    private final IScreeningQuery screeningQuery;
+
     private MaterialAllAssaysFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            MaterialSummarySettings settings)
+            IScreeningQuery screeningQuery, MaterialSummarySettings settings)
     {
         super(session, businessObjectFactory, daoFactory);
         this.settings = settings;
+        this.screeningQuery = screeningQuery;
+    }
+
+    private List<BasicWellContentQueryResult> fetchWellLocations(ExperimentReference experiment)
+    {
+        String materialTypePattern =
+                PatternMatchingUtils.asPostgresSimilarExpression(settings
+                        .getReplicaMatrialTypeSubstrings());
+        return screeningQuery.getPlateLocationsForExperiment(experiment.getId(),
+                materialTypePattern);
     }
 
     /**
      * Note that different experiments can have different set of features!
      */
     private List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
-            TechId materialId, List<WellContent> allAssayWellsForMaterial)
+            TechId materialId, List<ExperimentReference> experiments)
     {
-        Set<PlateIdentifier> plates = extractPlates(allAssayWellsForMaterial);
-        WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
-                tryLoadWellSingleFeatureVectors(plates);
-
-        Map<ExperimentReference, Set<WellReference>> wellsForExperimentMap =
-                groupWellsByExperiment(allAssayWellsForMaterial);
-
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
-        for (ExperimentReference experiment : wellsForExperimentMap.keySet())
+        StopWatch watch = new StopWatch();
+        watch.start();
+        for (ExperimentReference experiment : experiments)
         {
-            Set<WellReference> experimentWells = wellsForExperimentMap.get(experiment);
+            operationLog.info("Fetching analysis summary for experiment " + experiment);
+            List<BasicWellContentQueryResult> allWells = fetchWellLocations(experiment);
 
-            MaterialSimpleFeatureVectorSummary summary =
-                    calculateExperimentFeatureVectorSummary(materialId, experiment,
-                            experimentWells, allWellFeaturesOrNull);
-            summaries.add(summary);
+            Set<PlateIdentifier> plates = extractPlates(allWells);
+            WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
+                    tryLoadWellSingleFeatureVectors(plates);
+            if (allWellFeaturesOrNull == null)
+            {
+                summaries.add(new MaterialSimpleFeatureVectorSummary(experiment));
+            } else
+            {
+
+                Map<WellReference, Long/* material id */> wellToMaterialMap =
+                        createWellToMaterialMap(allWells);
+
+                MaterialSimpleFeatureVectorSummary summary =
+                        calculateExperimentFeatureVectorSummary(materialId, experiment,
+                                allWellFeaturesOrNull, wellToMaterialMap);
+                summaries.add(summary);
+            }
         }
+        operationLog.info(String.format(
+                "Fetching all experiment analysis summary for material %d took %d msec",
+                materialId.getId(), watch.getTime()));
         return summaries;
     }
 
-    private MaterialSimpleFeatureVectorSummary calculateExperimentFeatureVectorSummary(
-            TechId materialId, ExperimentReference experiment, Set<WellReference> experimentWells,
-            WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull)
+    private static Map<WellReference, Long/* material id */> createWellToMaterialMap(
+            List<BasicWellContentQueryResult> wells)
     {
-        if (allWellFeaturesOrNull == null)
+        Map<WellReference, Long> wellToMaterialMap = new HashMap<WellReference, Long>();
+        for (BasicWellContentQueryResult well : wells)
         {
-            return new MaterialSimpleFeatureVectorSummary(experiment);
+            WellReference wellReference = createWellReference(well);
+            wellToMaterialMap.put(wellReference, well.material_content_id);
         }
-
-        List<IWellData> experimentWellData =
-                selectExperimentWellData(experimentWells, allWellFeaturesOrNull, materialId);
-        float[] summaryFeatureVector =
-                WellReplicaSummaryCalculator.calculateSummaryFeatureVector(experimentWellData,
-                        settings.getAggregationType());
-        return new MaterialSimpleFeatureVectorSummary(experiment,
-                allWellFeaturesOrNull.getFeatureCodesAndLabels(), summaryFeatureVector);
+        return wellToMaterialMap;
     }
 
-    private static List<IWellData> selectExperimentWellData(Set<WellReference> experimentWells,
-            WellFeatureCollection<FeatureVectorValues> allWellFeatures, TechId materialId)
+    private static WellReference createWellReference(BasicWellContentQueryResult well)
+    {
+        WellLocation wellLocation = WellLocation.parseLocationStr(well.well_code);
+        return new WellReference(wellLocation, well.plate_perm_id);
+    }
+
+    private MaterialSimpleFeatureVectorSummary calculateExperimentFeatureVectorSummary(
+            TechId materialId, ExperimentReference experiment,
+            WellFeatureCollection<FeatureVectorValues> experimentFeatures,
+            Map<WellReference, Long> wellToMaterialMap)
+    {
+        // we have to calculate summaries for all materials in the experiment to get the right
+        // ranking of the specified material
+        List<IWellData> experimentWellData =
+                createWellData(wellToMaterialMap, experimentFeatures.getFeatures());
+        List<MaterialIdFeatureVectorSummary> experimentSummaries =
+                WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
+                        experimentWellData, settings.getAggregationType(), false);
+
+        // select the summary of the right material
+        MaterialIdFeatureVectorSummary materialSummary =
+                findMaterialSummary(materialId, experimentSummaries);
+        return new MaterialSimpleFeatureVectorSummary(experiment,
+                experimentFeatures.getFeatureCodesAndLabels(),
+                materialSummary.getFeatureVectorSummary(), materialSummary.getFeatureVectorRanks());
+    }
+
+    private MaterialIdFeatureVectorSummary findMaterialSummary(TechId materialId,
+            List<MaterialIdFeatureVectorSummary> summaries)
+    {
+        for (MaterialIdFeatureVectorSummary summary : summaries)
+        {
+            if (summary.getMaterial().equals(materialId.getId()))
+            {
+                return summary;
+            }
+        }
+        throw new IllegalStateException("It should not happen: no summary found for material "
+                + materialId);
+    }
+
+    // connects each well with a material with its feature vector
+    private static List<IWellData> createWellData(
+            Map<WellReference, Long/* material id */> wellToMaterialMap,
+            List<FeatureVectorValues> features)
     {
         List<IWellData> experimentWellDataList = new ArrayList<IWellData>();
-        List<FeatureVectorValues> features = allWellFeatures.getFeatures();
         for (FeatureVectorValues feature : features)
         {
-            if (experimentWells.contains(feature.getWellReference()))
+            Long materialId = wellToMaterialMap.get(feature.getWellReference());
+            if (materialId != null)
             {
                 float[] values = WellFeatureCollectionLoader.asFeatureVectorValues(feature);
-                IWellData wellData = new WellData(materialId.getId(), values);
+                IWellData wellData = new WellData(materialId, values);
                 experimentWellDataList.add(wellData);
             }
         }
         return experimentWellDataList;
     }
 
-    private static Map<ExperimentReference, Set<WellReference>> groupWellsByExperiment(
-            List<WellContent> allAssayWellsForMaterial)
-    {
-        GroupByMap<ExperimentReference, WellContent> expToWellContentMap =
-                GroupByMap.create(allAssayWellsForMaterial,
-                        new IKeyExtractor<ExperimentReference, WellContent>()
-                            {
-                                public ExperimentReference getKey(WellContent wellContent)
-                                {
-                                    return wellContent.getExperiment();
-                                }
-                            });
-        return convertToWellReferences(expToWellContentMap);
-    }
-
-    private static Map<ExperimentReference, Set<WellReference>> convertToWellReferences(
-            GroupByMap<ExperimentReference, WellContent> expToWellContentMap)
-    {
-        Map<ExperimentReference, Set<WellReference>> map =
-                new HashMap<ExperimentReference, Set<WellReference>>();
-        for (ExperimentReference exp : expToWellContentMap.getKeys())
-        {
-            List<WellContent> wellContents = expToWellContentMap.getOrDie(exp);
-            map.put(exp, asWellReferences(wellContents));
-        }
-        return map;
-    }
-
-    private static Set<WellReference> asWellReferences(List<WellContent> wellContents)
-    {
-        List<WellReference> wells =
-                CollectionUtils.map(wellContents,
-                        new ICollectionMappingFunction<WellReference, WellContent>()
-                            {
-                                public WellReference map(WellContent wellContent)
-                                {
-                                    return new WellReference(wellContent.tryGetLocation(),
-                                            wellContent.getPlate().getPermId());
-                                }
-                            });
-        return new HashSet<WellReference>(wells);
-    }
-
-    private static Set<PlateIdentifier> extractPlates(List<WellContent> wells)
+    private static Set<PlateIdentifier> extractPlates(List<BasicWellContentQueryResult> allWells)
     {
         Set<PlateIdentifier> plates = new HashSet<PlateIdentifier>();
-        for (WellContent well : wells)
+        for (BasicWellContentQueryResult well : allWells)
         {
-            String platePermId = well.getPlate().getPermId();
+            String platePermId = well.plate_perm_id;
             PlateIdentifier plateIdent = PlateIdentifier.createFromPermId(platePermId);
             plates.add(plateIdent);
         }

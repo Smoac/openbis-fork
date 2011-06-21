@@ -738,12 +738,11 @@ public class WellContentLoader extends AbstractContentLoader
         MaterialSearchCriteria materialSearchCriteria =
                 materialCriteria.getMaterialSearchCriteria();
 
-        ExperimentSearchCriteria experimentCriteria =
-                materialCriteria.getExperimentCriteria();
+        ExperimentSearchCriteria experimentCriteria = materialCriteria.getExperimentCriteria();
         SingleExperimentSearchCriteria experimentOrNull = experimentCriteria.tryGetExperiment();
         BasicProjectIdentifier projectOrNull = experimentCriteria.tryGetProjectIdentifier();
 
-        IScreeningQuery dao = createDAO(daoFactory);
+        IScreeningQuery dao = createDAO();
         if (materialSearchCriteria.tryGetMaterialCodesOrProperties() != null)
         {
             MaterialSearchCodesCriteria codesCriteria =
@@ -882,7 +881,7 @@ public class WellContentLoader extends AbstractContentLoader
     private List<WellContent> loadLocations(TechId geneMaterialId, TechId experimentId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId(),
+                createDAO().getPlateLocationsForMaterialId(geneMaterialId.getId(),
                         experimentId.getId());
 
         return convert(locations);
@@ -891,16 +890,21 @@ public class WellContentLoader extends AbstractContentLoader
     private List<WellContent> loadLocations(TechId geneMaterialId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO(daoFactory).getPlateLocationsForMaterialId(geneMaterialId.getId());
+                createDAO().getPlateLocationsForMaterialId(geneMaterialId.getId());
         return convert(locations);
     }
 
     private List<WellContent> loadLocationsForProject(TechId geneMaterialId, TechId projectId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO(daoFactory).getPlateLocationsForMaterialAndProjectIds(
-                        geneMaterialId.getId(), projectId.getId());
+                createDAO().getPlateLocationsForMaterialAndProjectIds(geneMaterialId.getId(),
+                        projectId.getId());
         return convert(locations);
+    }
+
+    private IScreeningQuery createDAO()
+    {
+        return createDAO(daoFactory);
     }
 
     private List<WellContent> convert(Iterable<WellContentQueryResult> queryResults)

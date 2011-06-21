@@ -66,13 +66,13 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
         assertArraysEqual(new float[]
             { 1.5f, 6 }, repl1.getFeatureVectorSummary());
         assertArraysEqual(new float[]
-            { 0.5f, 2 }, repl1.getFeatureVectorDeviations());
+            { 0.5f, 2 }, repl1.tryGetFeatureVectorDeviations());
 
         MaterialIdFeatureVectorSummary repl2 = summary.get(1 - replica1Ix);
         assertArraysEqual(new float[]
             { 1, 100 }, repl2.getFeatureVectorSummary());
         assertArraysEqual(new float[]
-            { 0, 90 }, repl2.getFeatureVectorDeviations());
+            { 0, 90 }, repl2.tryGetFeatureVectorDeviations());
 
         assertArraysEqual(new int[]
             { 1, 2 }, repl1.getFeatureVectorRanks());
@@ -212,6 +212,6 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
     private List<MaterialIdFeatureVectorSummary> calculate(List<IWellData> wellDataList)
     {
         return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
-                MaterialReplicaSummaryAggregationType.MEDIAN);
+                MaterialReplicaSummaryAggregationType.MEDIAN, true);
     }
 }

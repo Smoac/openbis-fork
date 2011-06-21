@@ -41,20 +41,26 @@ public class WellReplicaSummaryCalculator
     /**
      * Calculates summaries and ranks for each group of well replicas (biological or technical).
      * Usually a replica is determined by the material in the well, e.g. gene or compound.
+     * 
+     * @param calculateDeviations if true then deviations for each aggregation will be calculated as
+     *            well
      */
     public static List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
             List<? extends IWellData> wellDataList,
-            MaterialReplicaSummaryAggregationType aggregationType)
+            MaterialReplicaSummaryAggregationType aggregationType, boolean calculateDeviations)
     {
         validate(wellDataList);
         WellReplicaSummaryCalculator calculator =
                 new WellReplicaSummaryCalculator(wellDataList, aggregationType);
         List<MaterialIdFeatureVectorSummary> summaries =
-                calculator.calculateReplicasFeatureVectorSummaries();
+                calculator.calculateReplicasFeatureVectorSummaries(calculateDeviations);
         return summaries;
     }
 
-    /** Calculates one aggregated number for each feature, taking all specified wells into account. */
+    /**
+     * Calculates one aggregated number for each feature, taking all specified wells (which should b
+     * technical replicates) into account.
+     */
     public static float[] calculateSummaryFeatureVector(
             List<? extends IWellData> techicalReplicaWells,
             MaterialReplicaSummaryAggregationType aggregationType)
@@ -62,7 +68,7 @@ public class WellReplicaSummaryCalculator
         validate(techicalReplicaWells);
         int numberOfFeatures = getNumberOfFeatures(techicalReplicaWells);
         return calculateSummaryFeatureVector(techicalReplicaWells, aggregationType,
-                numberOfFeatures).getAggregates();
+                numberOfFeatures, false).getAggregates();
     }
 
     private static void validate(List<? extends IWellData> wellDataList)
@@ -108,10 +114,11 @@ public class WellReplicaSummaryCalculator
                     });
     }
 
-    private List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries()
+    private List<MaterialIdFeatureVectorSummary> calculateReplicasFeatureVectorSummaries(
+            boolean calculateDeviations)
     {
         Map<Long/* replica id */, SummaryFeatureVector> replicaToSummaryMap =
-                calculateSummaryFeatures();
+                calculateSummaryFeatures(calculateDeviations);
         Map<Long/* replica id */, int[]/* ranks for each feature */> ranks =
                 calculateRanks(replicaToSummaryMap, numberOfFeatures);
 
@@ -125,7 +132,8 @@ public class WellReplicaSummaryCalculator
             // array not empty, all materials are the same
             MaterialIdFeatureVectorSummary summary =
                     new MaterialIdFeatureVectorSummary(replicaId, summaryFeatures.getAggregates(),
-                            summaryFeatures.getDeviation(), ranks.get(replicaId), numberOfReplicas);
+                            summaryFeatures.tryGetDeviations(), ranks.get(replicaId),
+                            numberOfReplicas);
             summaries.add(summary);
         }
         return summaries;
@@ -206,7 +214,7 @@ public class WellReplicaSummaryCalculator
         return ranks;
     }
 
-    private Map<Long, SummaryFeatureVector> calculateSummaryFeatures()
+    private Map<Long, SummaryFeatureVector> calculateSummaryFeatures(boolean calculateDeviations)
     {
         Map<Long/* replica id */, SummaryFeatureVector> replicaToSummaryMap =
                 new HashMap<Long, SummaryFeatureVector>();
@@ -215,7 +223,8 @@ public class WellReplicaSummaryCalculator
         {
             List<IWellData> replicaWells = replicaToWellDataMap.getOrDie(replicaId);
             SummaryFeatureVector summary =
-                    calculateSummaryFeatureVector(replicaWells, aggregationType, numberOfFeatures);
+                    calculateSummaryFeatureVector(replicaWells, aggregationType, numberOfFeatures,
+                            calculateDeviations);
             replicaToSummaryMap.put(replicaId, summary);
         }
         return replicaToSummaryMap;
@@ -226,12 +235,12 @@ public class WellReplicaSummaryCalculator
     {
         private final float[] aggregate;
 
-        private final float[] deviation;
+        private final float[] deviationsOrNull;
 
-        public SummaryFeatureVector(float[] aggregate, float[] deviation)
+        public SummaryFeatureVector(float[] aggregate, float[] deviationsOrNull)
         {
             this.aggregate = aggregate;
-            this.deviation = deviation;
+            this.deviationsOrNull = deviationsOrNull;
         }
 
         public float[] getAggregates()
@@ -239,38 +248,55 @@ public class WellReplicaSummaryCalculator
             return aggregate;
         }
 
-        public float[] getDeviation()
+        /** null if not calculated */
+        public float[] tryGetDeviations()
         {
-            return deviation;
+            return deviationsOrNull;
         }
     }
 
     private static SummaryFeatureVector calculateSummaryFeatureVector(
             List<? extends IWellData> replicaWells,
-            MaterialReplicaSummaryAggregationType aggregationType, int numberOfFeatures)
+            MaterialReplicaSummaryAggregationType aggregationType, int numberOfFeatures,
+            boolean calculateDeviations)
     {
         switch (aggregationType)
         {
             case MEDIAN:
-                return calculateMedianVector(replicaWells, numberOfFeatures);
+                return calculateMedianVector(replicaWells, numberOfFeatures, calculateDeviations);
             default:
                 throw new IllegalStateException("Unhandled aggregation type: " + aggregationType);
         }
     }
 
     private static SummaryFeatureVector calculateMedianVector(
-            List<? extends IWellData> replicaWells, int numberOfFeatures)
+            List<? extends IWellData> replicaWells, int numberOfFeatures,
+            boolean calculateDeviations)
     {
         float[] medians = new float[numberOfFeatures];
+        for (int featureIx = 0; featureIx < numberOfFeatures; featureIx++)
+        {
+            medians[featureIx] = calculateMedian(replicaWells, featureIx);
+        }
+        float[] deviations = null;
+        if (calculateDeviations)
+        {
+            deviations = calculateDeviations(replicaWells, numberOfFeatures, medians);
+        }
+        return new SummaryFeatureVector(medians, deviations);
+    }
+
+    private static float[] calculateDeviations(List<? extends IWellData> replicaWells,
+            int numberOfFeatures, float[] medians)
+    {
         float[] deviations = new float[numberOfFeatures];
         for (int featureIx = 0; featureIx < numberOfFeatures; featureIx++)
         {
-            float median = calculateMedian(replicaWells, featureIx);
-            medians[featureIx] = median;
+            float median = medians[featureIx];
             deviations[featureIx] =
                     calculateMedianAbsoluteDeviation(median, replicaWells, featureIx);
         }
-        return new SummaryFeatureVector(medians, deviations);
+        return deviations;
     }
 
     private static void sortBySelectedFeature(List<IWellData> replicaWells, int featureIx)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,41 +19,18 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 import ch.rinn.restrictions.Private;
 
 /**
+ * Basic information about well content which allows to compute rankings.
+ * 
  * @author Tomasz Pylak
  */
 @Private
-public class WellContentQueryResult extends ExperimentReferenceQueryResult
+public class BasicWellContentQueryResult
 {
-    // well pointer
-
-    public long well_id;
-
     public String well_code;
-
-    public String well_type_code;
-
-    public String well_perm_id;
-
-    // pointer to a plate to which a well belongs
-
-    public long plate_id;
-
-    public String plate_code;
-
-    public String plate_type_code;
 
     public String plate_perm_id;
 
-    // a pointer to a material which was being searched for inside a well
+    public String exp_perm_id;
 
-    // NOTE: this information is filled just in few queries.
-    @Deprecated
     public long material_content_id;
-
-    @Deprecated
-    public String material_content_code;
-
-    @Deprecated
-    public String material_content_type_code;
-
 }

@@ -41,6 +41,8 @@ public class MaterialSimpleFeatureVectorSummary implements ISerializable
 
     private float[] featureVectorSummary;
 
+    private int[] featureVectorRanks;
+
     // GTW
     @SuppressWarnings("unused")
     private MaterialSimpleFeatureVectorSummary()
@@ -53,15 +55,17 @@ public class MaterialSimpleFeatureVectorSummary implements ISerializable
      */
     public MaterialSimpleFeatureVectorSummary(ExperimentReference experiment)
     {
-        this(experiment, new ArrayList<CodeAndLabel>(), new float[0]);
+        this(experiment, new ArrayList<CodeAndLabel>(), new float[0], new int[0]);
     }
 
     public MaterialSimpleFeatureVectorSummary(ExperimentReference experiment,
-            List<CodeAndLabel> featureDescriptions, float[] featureVectorSummary)
+            List<CodeAndLabel> featureDescriptions, float[] featureVectorSummary,
+            int[] featureVectorRanks)
     {
         this.experiment = experiment;
         this.featureDescriptions = featureDescriptions;
         this.featureVectorSummary = featureVectorSummary;
+        this.featureVectorRanks = featureVectorRanks;
     }
 
     public ExperimentReference getExperiment()
@@ -79,4 +83,8 @@ public class MaterialSimpleFeatureVectorSummary implements ISerializable
         return featureVectorSummary;
     }
 
+    public int[] getFeatureVectorRanks()
+    {
+        return featureVectorRanks;
+    }
 }

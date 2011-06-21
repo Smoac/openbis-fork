@@ -36,10 +36,10 @@ public class MaterialFeatureVectorSummary extends
     }
 
     public MaterialFeatureVectorSummary(Material material, float[] featureVectorSummary,
-            float[] featureVectorDeviations, int[] featureVectorRanks,
+            float[] featureVectorDeviationsOrNull, int[] featureVectorRanks,
             int numberOfMaterialsInExperiment)
     {
-        super(material, featureVectorSummary, featureVectorDeviations, featureVectorRanks,
+        super(material, featureVectorSummary, featureVectorDeviationsOrNull, featureVectorRanks,
                 numberOfMaterialsInExperiment);
     }
 }

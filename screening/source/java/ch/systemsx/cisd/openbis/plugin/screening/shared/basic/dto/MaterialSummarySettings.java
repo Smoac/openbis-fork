@@ -37,8 +37,10 @@ public class MaterialSummarySettings implements ISerializable
 
     private List<String> featureCodes;
 
-    private String replicaMatrialTypePattern;
+    private String[] replicaMatrialTypeSubstrings;
 
+    // well property codes which links to the material which determins which biological replicate it
+    // is, e.g. siRNA or compound
     private List<String> biologicalReplicatePropertyTypeCodes;
 
     private MaterialReplicaSummaryAggregationType aggregationType;
@@ -53,14 +55,14 @@ public class MaterialSummarySettings implements ISerializable
         this.featureCodes = featureCodes;
     }
 
-    public String getReplicaMatrialTypePattern()
+    public String[] getReplicaMatrialTypeSubstrings()
     {
-        return replicaMatrialTypePattern;
+        return replicaMatrialTypeSubstrings;
     }
 
-    public void setReplicaMatrialTypePatterns(String replicaMatrialTypePattern)
+    public void setReplicaMatrialTypePatterns(String[] replicaMatrialTypeSubstrings)
     {
-        this.replicaMatrialTypePattern = replicaMatrialTypePattern;
+        this.replicaMatrialTypeSubstrings = replicaMatrialTypeSubstrings;
     }
 
     public List<String> getBiologicalReplicatePropertyTypeCodes()

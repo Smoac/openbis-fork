@@ -31,13 +31,17 @@ public class MaterialFeatureVectorSummaryParametrized<T> implements ISerializabl
 
     private T material;
 
+    private int numberOfMaterialsInExperiment;
+
+    // --- one element for each feature: summary, deviation and rank
+
     private float[] featureVectorSummary;
 
-    private float[] featureVectorDeviations;
+    private float[] featureVectorDeviationsOrNull;
 
     private int[] featureVectorRanks;
 
-    private int numberOfMaterialsInExperiment;
+    // ---
 
     // GTW
     protected MaterialFeatureVectorSummaryParametrized()
@@ -45,12 +49,12 @@ public class MaterialFeatureVectorSummaryParametrized<T> implements ISerializabl
     }
 
     public MaterialFeatureVectorSummaryParametrized(T material, float[] featureVectorSummary,
-            float[] featureVectorDeviations, int[] featureVectorRanks,
+            float[] featureVectorDeviationsOrNull, int[] featureVectorRanks,
             int numberOfMaterialsInExperiment)
     {
         this.material = material;
         this.featureVectorSummary = featureVectorSummary;
-        this.featureVectorDeviations = featureVectorDeviations;
+        this.featureVectorDeviationsOrNull = featureVectorDeviationsOrNull;
         this.featureVectorRanks = featureVectorRanks;
         this.numberOfMaterialsInExperiment = numberOfMaterialsInExperiment;
     }
@@ -65,9 +69,9 @@ public class MaterialFeatureVectorSummaryParametrized<T> implements ISerializabl
         return featureVectorSummary;
     }
 
-    public float[] getFeatureVectorDeviations()
+    public float[] tryGetFeatureVectorDeviations()
     {
-        return featureVectorDeviations;
+        return featureVectorDeviationsOrNull;
     }
 
     public int[] getFeatureVectorRanks()

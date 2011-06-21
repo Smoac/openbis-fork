@@ -76,7 +76,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             ExperimentSearchByProjectCriteria experimentSearchCriteria)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
-                DisplayTypeIDGenerator.MATERIAL_REPLICA_FEATURE_SUMMARY_SECTION);
+                DisplayTypeIDGenerator.MATERIAL_REPLICA_SUMMARY_SECTION);
         this.screeningViewContext = viewContext;
         this.material = material;
         this.experimentSearchCriteria = experimentSearchCriteria;

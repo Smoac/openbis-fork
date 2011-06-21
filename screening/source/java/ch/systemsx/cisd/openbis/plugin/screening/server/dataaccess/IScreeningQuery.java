@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
+import java.util.List;
+
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
@@ -32,7 +34,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
  * @author Tomasz Pylak
  */
 @Private
-@Friend(toClasses = WellContentQueryResult.class)
+@Friend(toClasses =
+    { WellContentQueryResult.class, BasicWellContentQueryResult.class })
 public interface IScreeningQuery extends BaseQuery
 {
 
@@ -61,7 +64,8 @@ public interface IScreeningQuery extends BaseQuery
                     + "      join samples pl on well.samp_id_part_of = pl.id"
                     + "      join experiments exp on pl.expe_id = exp.id  "
                     + "      join experiment_types exp_type on exp.exty_id = exp_type.id  "
-                    + "      join projects on exp.proj_id = projects.id   join spaces on projects.space_id = spaces.id  "
+                    + "      join projects on exp.proj_id = projects.id     "
+                    + "      join spaces on projects.space_id = spaces.id  "
                     + "      join sample_types pl_type on pl.saty_id = pl_type.id   "
                     + "      join sample_types well_type on well.saty_id = well_type.id  "
                     + "      join material_types well_material_type on well_material.maty_id = well_material_type.id";
@@ -189,6 +193,27 @@ public interface IScreeningQuery extends BaseQuery
             String plateCode, String materialTypeCode);
 
     /**
+     * @param materialTypesPattern only materials with a type matching to this pattern will be
+     *            considered
+     * @return the material to well plate mapping for all the wells of the specified experiment.
+     */
+    @Select(sql = "select "
+            + "     well.code as well_code, "
+            + "     pl.perm_id as plate_perm_id, "
+            + "     exp.perm_id as exp_perm_id, "
+            + "     well_props.mate_prop_id as material_content_id "
+            + "from experiments exp "
+            + "     join samples pl on pl.expe_id = exp.id "
+            + "     join samples well on well.samp_id_part_of = pl.id "
+            + "     join sample_properties well_props on well_props.samp_id = well.id "
+            + "     join materials well_material on well_props.mate_prop_id = well_material.id "
+            + "     join material_types well_material_type on well_material.maty_id = well_material_type.id "
+            + "where pl.samp_id_part_of is null and exp.id = ?{1} "
+            + "      and well_material_type.code similar to ?{2}", fetchSize = FETCH_SIZE)
+    public List<BasicWellContentQueryResult> getPlateLocationsForExperiment(long experimentId,
+            String materialTypesPattern);
+
+    /**
      * @return the material to well plate mapping for the given <var>spaceCode</var> and
      *         <var>plateCode</var>. Consider all material types. Only fills <var>well_code</var>,
      *         <var>material_content_code</var> and <var>material_content_code</var>. Note that this
@@ -248,5 +273,34 @@ public interface IScreeningQuery extends BaseQuery
             + "     WHERE pl.expe_id = ?{1}                   "
             + "       AND well_material.maty_id = ?{2}", fetchSize = FETCH_SIZE)
     public DataIterator<Long> getMaterialsForExperimentWells(long experimentId, long materialTypeId);
+
+    static final String EXPERIMENTS_WITH_MATERIAL_SELECT =
+            "         select distinct                 "
+                    + "      exp.id as exp_id,                        "
+                    + "      exp.code as exp_code,                    "
+                    + "      exp.perm_id as exp_perm_id,              "
+                    + "      exp_type.code as exp_type_code,          "
+                    + "      projects.code as proj_code,              "
+                    + "      spaces.code as space_code               "
+                    + " from materials well_material"
+                    + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id "
+                    + "      join samples well on well_props.samp_id = well.id"
+                    + "      join experiments exp on well.expe_id = exp.id "
+                    + "      join experiment_types exp_type on exp.exty_id = exp_type.id "
+                    + "      join projects on exp.proj_id = projects.id     "
+                    + "      join spaces on projects.space_id = spaces.id  ";
+
+    /** @returns experiments in which a given material has been screened */
+    @Select(sql = EXPERIMENTS_WITH_MATERIAL_SELECT + " where well_material.id = ?{1}")
+    public List<ExperimentReferenceQueryResult> getExperimentsWithMaterial(long materialId);
+
+    /**
+     * @returns experiments restricted to the specified project in which a given material has been
+     *          screened
+     */
+    @Select(sql = EXPERIMENTS_WITH_MATERIAL_SELECT
+            + " where well_material.id = ?{1} and exp.proj_id = ?{2}")
+    public List<ExperimentReferenceQueryResult> getExperimentsWithMaterial(long materialId,
+            long projectId);
 
 }

@@ -190,6 +190,8 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         }
     }
 
+    // TODO 2011-06-21, Tomasz Pylak: this looks pretty unefficient. Could we do this erlier,
+    // avoiding converting these objects?
     public static float[] asFeatureVectorValues(FeatureVectorValues featureVector)
     {
         FeatureValue[] featureValues = featureVector.getFeatureValues();

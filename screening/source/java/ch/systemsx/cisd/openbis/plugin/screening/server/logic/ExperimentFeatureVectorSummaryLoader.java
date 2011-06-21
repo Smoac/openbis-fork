@@ -113,7 +113,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             List<? extends IWellData> wellDataList)
     {
         return WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(wellDataList,
-                settings.getAggregationType());
+                settings.getAggregationType(), false);
     }
 
     private static List<MaterialFeatureVectorSummary> enrichWithMaterial(
@@ -270,7 +270,8 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 
     private static Material tryFindReplicaMaterial(Sample well, MaterialSummarySettings settings)
     {
-        String replicaMatrialTypePattern = settings.getReplicaMatrialTypePattern();
+        String replicaMatrialTypePattern =
+                ScreeningUtils.asJavaRegExpr(settings.getReplicaMatrialTypeSubstrings());
         if (replicaMatrialTypePattern == null)
         {
             return null;

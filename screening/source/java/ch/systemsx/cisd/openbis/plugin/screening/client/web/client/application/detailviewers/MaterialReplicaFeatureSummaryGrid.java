@@ -64,7 +64,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
             TechId experimentId, TechId materialId)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
-                DisplayTypeIDGenerator.MATERIAL_REPLICA_FEATURE_SUMMARY_SECTION);
+                DisplayTypeIDGenerator.MATERIAL_REPLICA_SUMMARY_SECTION);
         this.specificViewContext = viewContext;
         this.experimentId = experimentId;
         this.materialId = materialId;

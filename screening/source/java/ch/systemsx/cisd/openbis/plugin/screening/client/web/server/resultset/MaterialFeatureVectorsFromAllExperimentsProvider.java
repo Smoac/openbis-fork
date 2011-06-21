@@ -86,7 +86,11 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
         {
             for (CodeAndLabel codeAndLabel : summary.getFeatureDescriptions())
             {
-                columnGroup.column(codeAndLabel.getCode()).withTitle(codeAndLabel.getLabel());
+                columnGroup.column(getFeatureValueColumnId(codeAndLabel)).withTitle(
+                        codeAndLabel.getLabel());
+                columnGroup.column(getFeatureRankColumnId(codeAndLabel)).withTitle(
+                        ScreeningProviderMessages.RANK_COLUMN_MSG);
+
             }
         }
     }
@@ -100,11 +104,24 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
         builder.column(EXPERIMENT).addString(experiment.getCode());
 
         float[] features = row.getFeatureVectorSummary();
+        int[] ranks = row.getFeatureVectorRanks();
         List<CodeAndLabel> descriptions = row.getFeatureDescriptions();
         for (int i = 0; i < features.length; i++)
         {
             CodeAndLabel description = descriptions.get(i);
-            builder.column(description.getCode()).addDouble((double) features[i]);
+            builder.column(getFeatureValueColumnId(description)).addDouble((double) features[i]);
+            builder.column(getFeatureRankColumnId(description)).addInteger(new Long(ranks[i]));
         }
     }
+
+    private String getFeatureValueColumnId(CodeAndLabel codeAndLabel)
+    {
+        return "value-" + codeAndLabel.getCode();
+    }
+
+    private String getFeatureRankColumnId(CodeAndLabel codeAndLabel)
+    {
+        return "rank-" + codeAndLabel.getCode();
+    }
+
 }

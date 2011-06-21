@@ -39,7 +39,7 @@ class MaterialReplicaSummarySection extends TabContent
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
 
         setHeaderVisible(false);
-        setIds(DisplayTypeIDGenerator.REPLICA_SUMMARY_MATERIAL_SECTION);
+        setIds(DisplayTypeIDGenerator.MATERIAL_REPLICA_SUMMARY_SECTION);
     }
 
     @Override

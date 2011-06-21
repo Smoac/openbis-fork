@@ -32,17 +32,17 @@ public class MaterialIdFeatureVectorSummary extends MaterialFeatureVectorSummary
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public MaterialIdFeatureVectorSummary(Long materialId, float[] featureVectorSummary,
-            float[] featureVectorDeviations, int[] featureVectorRanks,
+            float[] featureVectorDeviationsOrNull, int[] featureVectorRanks,
             int numberOfMaterialsInExperiment)
     {
-        super(materialId, featureVectorSummary, featureVectorDeviations, featureVectorRanks,
+        super(materialId, featureVectorSummary, featureVectorDeviationsOrNull, featureVectorRanks,
                 numberOfMaterialsInExperiment);
     }
 
     public MaterialFeatureVectorSummary createWithMaterial(Material material)
     {
         return new MaterialFeatureVectorSummary(material, getFeatureVectorSummary(),
-                getFeatureVectorDeviations(), getFeatureVectorRanks(),
+                tryGetFeatureVectorDeviations(), getFeatureVectorRanks(),
                 getNumberOfMaterialsInExperiment());
     }
 }
