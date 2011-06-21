@@ -89,4 +89,14 @@ public class SampleImmutable implements ISampleImmutable
         return null;
     }
 
+    public String getSpace()
+    {
+        return sample.getSpace().getCode();
+    }
+
+    public String getCode()
+    {
+        return sample.getCode();
+    }
+
 }

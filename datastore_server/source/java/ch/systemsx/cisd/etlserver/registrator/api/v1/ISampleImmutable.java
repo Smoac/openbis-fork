@@ -29,6 +29,16 @@ public interface ISampleImmutable
     String getSampleIdentifier();
 
     /**
+     * Return the space code for this sample.
+     */
+    String getSpace();
+
+    /**
+     * Return the code for this sample.
+     */
+    String getCode();
+
+    /**
      * Return the experiment for this sample. May be null.
      */
     IExperimentImmutable getExperiment();
