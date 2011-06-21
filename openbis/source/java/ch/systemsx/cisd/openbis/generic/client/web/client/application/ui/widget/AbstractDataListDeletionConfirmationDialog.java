@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 
 /**
  * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
@@ -174,6 +175,11 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected final boolean isPermanentDeletion()
     {
         return permanentCheckBoxOrNull == null || permanentCheckBoxOrNull.getValue();
+    }
+
+    protected final DeletionType getDeletionType()
+    {
+        return isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.INVALIDATION;
     }
 
     /**
