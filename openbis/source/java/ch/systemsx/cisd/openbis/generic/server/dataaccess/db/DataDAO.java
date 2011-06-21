@@ -466,7 +466,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         super.delete(entity);
     }
 
-    @Override
     public void invalidate(List<DataPE> dataSets, InvalidationPE invalidation)
             throws DataAccessException
     {
