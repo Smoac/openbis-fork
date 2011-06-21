@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -215,6 +216,12 @@ public class DssComponent implements IDssComponent
     {
         return state.validateDataSet(newDataset, dataSetFile);
     }
+
+    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        return state.extractMetadata(newDataset, dataSetFile);
+    }
 }
 
 /**
@@ -251,6 +258,12 @@ abstract class AbstractDssComponentState implements IDssComponent
     }
 
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -535,6 +548,7 @@ class AuthenticatedState extends AbstractDssComponentState
 
         return outputDir;
     }
+
     /**
      * Create a connection to the DSS server referenced by url
      */
@@ -609,47 +623,13 @@ class AuthenticatedState extends AbstractDssComponentState
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
-        IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
-
-        // Validation script support was introduced in minor version 2. Skip validating if the
-        // server doesn't support it.
-        if (dssService.getMinorVersion() < 2)
+        ValidationScriptRunner runner = null;
+        try
         {
-            return new ArrayList<ValidationError>();
-        }
-
-        String dataSetTypeOrNull = newDataset.tryDataSetType();
-        ValidationScriptRunner runner;
-
-        // Check if the script is in the cache
-        if (validationScriptRunnerCache.containsKey(dataSetTypeOrNull))
+            runner = getValidationScriptRunner(newDataset.tryDataSetType());
+        } catch (Throwable ex)
         {
-            runner = validationScriptRunnerCache.get(dataSetTypeOrNull);
-        } else
-        {
-
-            String validationScript =
-                    dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
-            try
-            {
-                runner = ValidationScriptRunner.createValidatorFromScriptString(validationScript);
-                validationScriptRunnerCache.put(dataSetTypeOrNull, runner);
-            } catch (PyException ex)
-            {
-                System.err.println("Could not create validation script ");
-                System.err.println(validationScript);
-                System.err.println(ex);
-                ex.printStackTrace(System.err);
-                System.err.println(Py.getSystemState().modules);
-                return createValidationError("Script error", ex);
-            } catch (Throwable ex)
-            {
-                System.err.println("Could not create validation script ");
-                System.err.println(validationScript);
-                System.err.println(ex);
-                ex.printStackTrace(System.err);
-                return createValidationError("Script error", ex);
-            }
+            return createValidationError("Script error", ex);
         }
 
         try
@@ -662,6 +642,72 @@ class AuthenticatedState extends AbstractDssComponentState
             ex.printStackTrace(System.err);
             return createValidationError("Script execution error", ex);
         }
+    }
+
+    @Override
+    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        ValidationScriptRunner runner = null;
+        try
+        {
+            runner = getValidationScriptRunner(newDataset.tryDataSetType());
+        } catch (Throwable t)
+        {
+            // ignore the error here since, if it is significant, it will appear again in
+            // validation.
+            return new HashMap<String, String>();
+        }
+
+        try
+        {
+            return runner.extractMetadata(dataSetFile);
+        } catch (Throwable t)
+        {
+            System.err.println("Could not run metadata extraction script: ");
+            System.err.println(runner.getScriptString());
+            t.printStackTrace(System.err);
+            return new HashMap<String, String>();
+        }
+    }
+
+    private ValidationScriptRunner getValidationScriptRunner(String dataSetTypeOrNull)
+            throws PyException, Throwable
+    {
+        IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+
+        // Validation script support was introduced in minor version 2. Skip validating if the
+        // server doesn't support it.
+        if (dssService.getMinorVersion() < 2)
+        {
+            return new ValidationScriptRunner.NullValidationScriptRunner();
+        }
+
+        ValidationScriptRunner runner;
+
+        // Check if the script is in the cache
+        if (validationScriptRunnerCache.containsKey(dataSetTypeOrNull))
+        {
+            runner = validationScriptRunnerCache.get(dataSetTypeOrNull);
+        } else
+        {
+            String validationScript =
+                    dssService.getValidationScript(sessionToken, dataSetTypeOrNull);
+            try
+            {
+                runner = ValidationScriptRunner.createValidatorFromScriptString(validationScript);
+                validationScriptRunnerCache.put(dataSetTypeOrNull, runner);
+            } catch (Throwable ex)
+            {
+                System.err.println("Could not create validation script ");
+                System.err.println(validationScript);
+                System.err.println(ex);
+                ex.printStackTrace(System.err);
+                System.err.println(Py.getSystemState().modules);
+                throw ex;
+            }
+        }
+        return runner;
     }
 
     private List<ValidationError> createValidationError(String messagePrefix, Throwable throwable)
