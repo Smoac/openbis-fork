@@ -187,6 +187,11 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             return true;
         }
 
+        public long getLastModified()
+        {
+            return file.lastModified();
+        }
+
         public File getFile() throws UnsupportedOperationException
         {
             throw new UnsupportedOperationException("This is not a normal directory node.");
@@ -265,6 +270,11 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         public boolean isDirectory()
         {
             return false;
+        }
+
+        public long getLastModified()
+        {
+            return file.lastModified();
         }
 
         public File getFile() throws UnsupportedOperationException

@@ -391,6 +391,11 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             return lastNode().isDirectory();
         }
 
+        public long getLastModified()
+        {
+            return lastNode().getLastModified();
+        }
+
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
             IVirtualNodeListMerger listMerger = nodeMergerFactory.createNodeListMerger();

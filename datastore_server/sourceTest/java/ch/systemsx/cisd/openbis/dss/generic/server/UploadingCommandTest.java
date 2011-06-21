@@ -47,9 +47,13 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -74,11 +78,48 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 @Friend(toClasses = UploadingCommand.class)
 public class UploadingCommandTest extends AssertJUnit
 {
+
     private static final File TEST_FOLDER = new File("targets/upload-test");
 
     private static final File STORE = new File(TEST_FOLDER, "store");
 
     private static final String SHARE_ID = "share-id";
+    
+    private static final String LOCATION_PREFIX = "ds";
+
+    private static final IHierarchicalContentProvider HIERARCHICAL_CONTENT_PROVIDER =
+            new IHierarchicalContentProvider()
+                {
+                    private DefaultFileBasedHierarchicalContentFactory hierarchicalContentFactory =
+                            new DefaultFileBasedHierarchicalContentFactory();
+
+                    public IHierarchicalContent asContent(File datasetDirectory)
+                    {
+                        return hierarchicalContentFactory.asHierarchicalContent(datasetDirectory,
+                                IDelegatedAction.DO_NOTHING);
+                    }
+
+                    public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+                    {
+                        return getContent(datasetLocation.getDataSetLocation());
+                    }
+
+                    public IHierarchicalContent getContent(String location)
+                    {
+                        return asContent(new File(new File(STORE, SHARE_ID), location));
+                    }
+
+                    public IHierarchicalContent asContent(ExternalData dataSet)
+                    {
+                        return getContent(dataSet.getCode());
+                    }
+
+                    public IHierarchicalContent asContent(String dataSetCode)
+                            throws IllegalArgumentException
+                    {
+                        return getContent(LOCATION_PREFIX + dataSetCode);
+                    }
+                };
 
     private static final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
     {
@@ -110,9 +151,9 @@ public class UploadingCommandTest extends AssertJUnit
 
     private static final File EMAILS = new File(TEST_FOLDER, "emails");
 
-    private static final String LOCATION1 = "ds1";
+    private static final String LOCATION1 = LOCATION_PREFIX + "1";
 
-    private static final String LOCATION2 = "ds2";
+    private static final String LOCATION2 = LOCATION_PREFIX + "2";
 
     private static final String SESSION_TOKEN = "session42";
 
@@ -183,33 +224,36 @@ public class UploadingCommandTest extends AssertJUnit
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
         ExternalData dataSet1 =
-                DataSetTranslator.translate(createDataSet("1", LOCATION1), "?",
+                DataSetTranslator.translate(createDataSet("1"), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         System.out.println("ds1:" + dataSet1.getExperiment().getProperties());
         ExternalData dataSet2 =
-                DataSetTranslator.translate(createDataSet("2", LOCATION2), "?",
+                DataSetTranslator.translate(createDataSet("2"), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
         command =
                 new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext, null,
                         null);
+        command.hierarchicalContentProvider = HIERARCHICAL_CONTENT_PROVIDER;
         commandAdminSession =
                 new UploadingCommand(factory, mailClientParameters, dataSets,
                         uploadContextNoPasswordAuthenticated, "admin", "admpwd");
+        commandAdminSession.hierarchicalContentProvider = HIERARCHICAL_CONTENT_PROVIDER;
         commandAdminSessionNotAuthenticated =
                 new UploadingCommand(factory, mailClientParameters, dataSets,
                         uploadContextNoPasswordNotAuthenticated, "admin", "admpwd");
+        commandAdminSessionNotAuthenticated.hierarchicalContentProvider = HIERARCHICAL_CONTENT_PROVIDER;
         command.deleteAfterUploading = false;
         commandAdminSession.deleteAfterUploading = false;
         commandAdminSessionNotAuthenticated.deleteAfterUploading = false;
     }
 
-    private ExternalDataPE createDataSet(String code, String location)
+    private ExternalDataPE createDataSet(String code)
     {
         ExternalDataPE externalData = new ExternalDataPE();
         externalData.setCode(code);
         externalData.setShareId(SHARE_ID);
-        externalData.setLocation(location);
+        externalData.setLocation(LOCATION_PREFIX + code);
         externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
@@ -283,7 +327,8 @@ public class UploadingCommandTest extends AssertJUnit
 
     private String getNormalizedLogContent()
     {
-        return logRecorder.getLogContent().replaceAll(" [^ ]*\\.zip", " <zipfile>");
+        return logRecorder.getLogContent().replaceAll(" [^ ]*\\.zip", " <zipfile>")
+                .replaceAll("\n\ta.*\\)", "").replaceAll("[^:]*" + TEST_FOLDER.getPath(), "");
     }
 
     @AfterMethod
@@ -438,8 +483,9 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(directoryProvider);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("ERROR NOTIFY.UploadingCommand"
-                + " - Data set 'targets/upload-test/store/share-id/ds2' does not exist."
+        assertEquals("ERROR NOTIFY.UploadingCommand - Data set 2 does not exist."
+                + OSUtilities.LINE_SEPARATOR
+                + "java.lang.IllegalArgumentException:/store/share-id/ds2 doesn't exist"
                 + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());

@@ -152,6 +152,11 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                     return false;
                 }
 
+                public long getLastModified()
+                {
+                    return 0;
+                }
+
                 @Override
                 protected InputStream doGetInputStream()
                 {
@@ -207,6 +212,11 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 public boolean exists()
                 {
                     return false;
+                }
+
+                public long getLastModified()
+                {
+                    return 0;
                 }
 
                 @Override

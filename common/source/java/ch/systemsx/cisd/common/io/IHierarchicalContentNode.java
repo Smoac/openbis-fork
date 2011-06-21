@@ -51,6 +51,14 @@ public interface IHierarchicalContentNode
      * otherwise.
      */
     boolean isDirectory();
+    
+    /**
+     * Returns the time this node or the persistent object containing this node has been modified.
+     * 
+     * @return A long value representing the time of last modification, measured in milliseconds
+     *         since the epoch (00:00:00 GMT, January 1, 1970).
+     */
+    long getLastModified();
 
     /**
      * List of child nodes of this node.

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -129,7 +128,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         List<String> notAvailableDatasets = new ArrayList<String>();
         for (DataPE dataSet : datasets)
         {
-            if (dataSet.isAvailable() == false)
+            if (dataSet.isExternalData() && dataSet.isAvailable() == false)
             {
                 notAvailableDatasets.add(dataSet.getCode());
             }
@@ -327,21 +326,20 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     public String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext)
     {
         assertDatasetsAreAvailable(dataSets);
-        Map<DataStorePE, List<ExternalDataPE>> map = groupExternalDataByDataStores();
+        Map<DataStorePE, List<DataPE>> map = groupDataByDataStores();
         assertDataSetsAreKnown(map);
-        assertNoContainerDataSets(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
         {
             uploadContext.setComment(createUploadComment(dataSets));
         }
-        List<ExternalDataPE> dataSetsWithUnknownDSS = new ArrayList<ExternalDataPE>();
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        List<DataPE> dataSetsWithUnknownDSS = new ArrayList<DataPE>();
+        for (Map.Entry<DataStorePE, List<DataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> externalDatas = entry.getValue();
-            for (ExternalDataPE dataSet : externalDatas)
+            List<DataPE> dataSetsOfStore = entry.getValue();
+            for (DataPE dataSet : dataSetsOfStore)
             {
                 HibernateUtils.initialize(dataSet.getParents());
                 HibernateUtils.initialize(dataSet.getProperties());
@@ -359,35 +357,35 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
             if (StringUtils.isBlank(dataStore.getRemoteUrl()))
             {
-                dataSetsWithUnknownDSS.addAll(externalDatas);
+                dataSetsWithUnknownDSS.addAll(dataSetsOfStore);
             } else
             {
-                uploadDataSetsToCIFEX(dataStore, externalDatas, uploadContext);
+                uploadDataSetsToCIFEX(dataStore, dataSetsOfStore, uploadContext);
             }
         }
         StringBuilder builder = new StringBuilder();
         if (dataSetsWithUnknownDSS.isEmpty() == false)
         {
             builder.append("The following data sets couldn't been uploaded because of unkown data store:");
-            for (ExternalDataPE externalDataPE : dataSetsWithUnknownDSS)
+            for (DataPE dataSet : dataSetsWithUnknownDSS)
             {
-                builder.append(' ').append(externalDataPE.getCode());
+                builder.append(' ').append(dataSet.getCode());
             }
         }
         return builder.toString();
     }
 
-    private void assertDataSetsAreKnown(Map<DataStorePE, List<ExternalDataPE>> map)
+    private <D extends DataPE> void assertDataSetsAreKnown(Map<DataStorePE, List<D>> map)
     {
         // Set<String> knownLocations = new LinkedHashSet<String>();
         List<String> unknownDataSets = new ArrayList<String>();
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        for (Map.Entry<DataStorePE, List<D>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> externalDatas = entry.getValue();
+            List<ExternalDataPE> externalDatas = filterRealDataSets(entry.getValue());
             Set<String> knownLocations =
                     getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas));
-            for (ExternalDataPE dataSet : entry.getValue())
+            for (ExternalDataPE dataSet : externalDatas)
             {
                 if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
                 {
@@ -407,34 +405,44 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                             + unknownDataSets);
         }
     }
-
-    private void assertNoContainerDataSets(Map<DataStorePE, List<ExternalDataPE>> map)
+    
+    private List<ExternalDataPE> filterRealDataSets(List<? extends DataPE> mixedDataSets)
     {
-        Set<String> containerDataSets = new LinkedHashSet<String>();
-        for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
+        List<ExternalDataPE> realDataSets = new ArrayList<ExternalDataPE>();
+        for (DataPE dataSet : mixedDataSets)
         {
-            for (ExternalDataPE dataSet : entry.getValue())
+            if (dataSet instanceof ExternalDataPE)
             {
-                if (dataSet.isContainer())
-                {
-                    containerDataSets.add(dataSet.getCode());
-                }
+                realDataSets.add((ExternalDataPE) dataSet);
             }
         }
-
-        if (false == containerDataSets.isEmpty())
-        {
-            throw new UserFailureException(
-                    "The following data sets are container data sets and cannot be uploaded to CIFEX. "
-                            + containerDataSets);
-        }
+        return realDataSets;
     }
 
-    /** groups data sets by data stores filtering out virtual data sets */
+    /** groups data sets by data stores */
+    private Map<DataStorePE, List<DataPE>> groupDataByDataStores()
+    {
+        Map<DataStorePE, List<DataPE>> map =
+                new LinkedHashMap<DataStorePE, List<DataPE>>();
+        for (DataPE dataSet : dataSets)
+        {
+            DataStorePE dataStore = dataSet.getDataStore();
+            List<DataPE> list = map.get(dataStore);
+            if (list == null)
+            {
+                list = new ArrayList<DataPE>();
+                map.put(dataStore, list);
+            }
+            list.add(dataSet);
+        }
+        return map;
+    }
+
+    /** groups data sets by data stores filtering out container data sets */
     private Map<DataStorePE, List<ExternalDataPE>> groupExternalDataByDataStores()
     {
         Map<DataStorePE, List<ExternalDataPE>> map =
-                new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
+            new LinkedHashMap<DataStorePE, List<ExternalDataPE>>();
         for (DataPE dataSet : dataSets)
         {
             if (dataSet.isExternalData())
@@ -451,7 +459,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         return map;
     }
-
+    
     /** groups all data sets (both virtual and non-virtual) by data stores */
     private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
     {
@@ -470,7 +478,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return map;
     }
 
-    private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<ExternalDataPE> list,
+    private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<DataPE> list,
             DataSetUploadContext context)
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());

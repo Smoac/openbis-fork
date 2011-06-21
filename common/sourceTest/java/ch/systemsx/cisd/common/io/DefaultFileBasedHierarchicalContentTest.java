@@ -491,8 +491,9 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
             assertEquals("This is not a normal file node.", ex.getMessage());
         }
         // file info access
-        assertEquals(expectedFile.getName(), fileNode.getName());
-        assertEquals(expectedFile.length(), fileNode.getFileLength());
+        assertEquals("File: " + expectedFile, expectedFile.getName(), fileNode.getName());
+        assertEquals("File: " + expectedFile, expectedFile.length(), fileNode.getFileLength());
+        assertEquals("File: " + expectedFile, expectedFile.lastModified(), fileNode.getLastModified());
 
         final String expectedFileData = expectedFile.getName() + " data";
         // check random access to file content
@@ -569,6 +570,11 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                 public boolean exists()
                 {
                     return file.exists();
+                }
+
+                public long getLastModified()
+                {
+                    return file.lastModified();
                 }
 
                 public long getFileLength() throws UnsupportedOperationException

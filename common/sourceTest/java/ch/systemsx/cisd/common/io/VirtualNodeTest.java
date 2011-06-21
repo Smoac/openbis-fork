@@ -271,6 +271,23 @@ public class VirtualNodeTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testLastModified()
+    {
+        final IHierarchicalContentNode virtualNode = createVirtualNode();
+        context.checking(new Expectations()
+            {
+                {
+                    one(node1).getLastModified();
+                    will(returnValue(42L));
+                }
+            });
+        
+        assertEquals(42, virtualNode.getLastModified());
+        
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testGetChildNodes()

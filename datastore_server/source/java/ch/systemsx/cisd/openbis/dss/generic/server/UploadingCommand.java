@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +39,8 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -48,7 +49,8 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -57,8 +59,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipOutputStream;
@@ -285,6 +285,8 @@ class UploadingCommand implements IDataSetCommand
     @Private
     boolean deleteAfterUploading = true;
 
+    @Private transient IHierarchicalContentProvider hierarchicalContentProvider;
+
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
             DataSetUploadContext context, String cifexAdminUserOrNull,
@@ -412,37 +414,34 @@ class UploadingCommand implements IDataSetCommand
             zipOutputStream = new ZipOutputStream(outputStream);
             for (ExternalData externalData : dataSets)
             {
-                DataSet dataSet = externalData.tryGetAsDataSet();
-                assert dataSet != null : "container datasets are currently not supported by DSS client";
-
-                DatasetDescription dataSetDescription =
-                        DataSetTranslator.translateToDescription(dataSet);
-                File dataSetFile = dataSetDirectoryProvider.getDataSetDirectory(dataSetDescription);
-                if (dataSetFile.exists() == false)
-                {
-                    notificationLog.error("Data set '" + dataSetFile + "' does not exist.");
-                    return false;
-                }
-                String newRootPath = createRootPath(dataSet);
+                String newRootPath = createRootPath(externalData) + "/";
                 try
                 {
-                    addEntry(zipOutputStream, newRootPath + "/meta-data.tsv",
+                    addEntry(zipOutputStream, newRootPath + "meta-data.tsv",
                             System.currentTimeMillis(),
-                            new ByteArrayInputStream(createMetaData(dataSet).getBytes()));
+                            new ByteArrayInputStream(createMetaData(externalData).getBytes()));
                 } catch (IOException ex)
                 {
                     notificationLog.error(
-                            "Couldn't add meta date for data set '" + dataSet.getCode()
+                            "Couldn't add meta date for data set '" + externalData.getCode()
                                     + "' to zip file.", ex);
+                    return false;
+                }
+                IHierarchicalContent root = null;
+                try
+                {
+                    root = getHierarchicalContentProvider().asContent(externalData.getCode());
+                } catch (Exception ex)
+                {
+                    notificationLog.error("Data set " + externalData.getCode() + " does not exist.", ex);
                     return false;
                 }
                 try
                 {
-                    addTo(zipOutputStream, dataSetFile.getCanonicalPath().length(), newRootPath,
-                            dataSetFile);
+                    addTo(zipOutputStream, newRootPath, root.getRootNode());
                 } catch (IOException ex)
                 {
-                    notificationLog.error("Couldn't add data set '" + dataSetFile
+                    notificationLog.error("Couldn't add data set '" + externalData.getCode()
                             + "' to zip file.", ex);
                     return false;
                 }
@@ -466,8 +465,35 @@ class UploadingCommand implements IDataSetCommand
             }
         }
     }
+    
+    private IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (hierarchicalContentProvider == null)
+        {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
+    }
+    
+    private void addTo(ZipOutputStream zipOutputStream, String newRootPath,
+            IHierarchicalContentNode node) throws IOException
+    {
+        if (node.isDirectory())
+        {
+            List<IHierarchicalContentNode> childNodes = node.getChildNodes();
+            for (IHierarchicalContentNode childNode : childNodes)
+            {
+                addTo(zipOutputStream, newRootPath, childNode);
+            }
+        } else
+        {
+            addEntry(zipOutputStream, newRootPath + node.getRelativePath(), node.getLastModified(),
+                    node.getInputStream());
+        }
+    }
 
-    private String createMetaData(DataSet dataSet)
+    @SuppressWarnings("deprecation")
+    private String createMetaData(ExternalData dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
         builder.dataSet("code", dataSet.getCode());
@@ -523,24 +549,6 @@ class UploadingCommand implements IDataSetCommand
         Project project = experiment.getProject();
         return project.getSpace().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
                 + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
-    }
-
-    private void addTo(ZipOutputStream zipOutputStream, int oldRootPathLength, String newRootPath,
-            File file) throws IOException
-    {
-        if (file.isFile())
-        {
-            String zipEntryPath =
-                    newRootPath + file.getCanonicalPath().substring(oldRootPathLength);
-            addEntry(zipOutputStream, zipEntryPath, file.lastModified(), new FileInputStream(file));
-        } else
-        {
-            File[] files = file.listFiles();
-            for (File childFile : files)
-            {
-                addTo(zipOutputStream, oldRootPathLength, newRootPath, childFile);
-            }
-        }
     }
 
     private void addEntry(ZipOutputStream zipOutputStream, String zipEntryPath, long lastModified,

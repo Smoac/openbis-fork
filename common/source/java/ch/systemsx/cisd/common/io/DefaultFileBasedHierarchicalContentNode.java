@@ -83,6 +83,11 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
         return file.isDirectory();
     }
 
+    public long getLastModified()
+    {
+        return file.lastModified();
+    }
+
     @Override
     public List<IHierarchicalContentNode> doGetChildNodes()
     {

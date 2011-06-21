@@ -207,6 +207,11 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             return pathInfo.isDirectory();
         }
 
+        public long getLastModified()
+        {
+            return System.currentTimeMillis();
+        }
+
         @Override
         protected String doGetRelativePath()
         {
