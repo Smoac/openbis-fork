@@ -324,7 +324,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         propertyTypesAndCriteriaProvider = criteriaProvider;
         // NOTE: links to sample, container and experiment are handled by EntityTableCell
         linkProject();
-        linkParent();
     }
 
     @Override
@@ -374,45 +373,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                             return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
                         }
                     });
-    }
-
-    private void linkParent()
-    {
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.PARENTS,
-                new ICellListenerAndLinkGenerator<Sample>()
-                    {
-                        public void handle(TableModelRowWithObject<Sample> rowItem,
-                                boolean specialKeyPressed)
-                        {
-                            Sample parent = getParentOrNull(rowItem.getObjectOrNull());
-                            if (parent != null)
-                            {
-                                showEntityInformationHolderViewer(parent, false, specialKeyPressed);
-                            }
-                        }
-
-                        public String tryGetLink(Sample entity,
-                                ISerializableComparable comparableValue)
-                        {
-                            Sample parent = getParentOrNull(entity);
-                            return LinkExtractor.tryExtract(parent);
-                        }
-
-                        private Sample getParentOrNull(Sample entity)
-                        {
-                            if (entity.getParents().size() == 1)
-                            {
-                                return entity.getGeneratedFrom();
-                            }
-                            return null;
-                        }
-                    });
-    }
-
-    @Override
-    protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
-    {
-        return LinkRenderer.createLinkRenderer(true);
     }
 
     @Override

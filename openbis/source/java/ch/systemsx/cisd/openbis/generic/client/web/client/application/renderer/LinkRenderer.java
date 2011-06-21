@@ -53,9 +53,11 @@ public class LinkRenderer
 
     private static final String LINK_STYLE = "link-style";
 
-    @Deprecated 
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(
-            final boolean renderOriginalValueForEmptyToken)
+    /**
+     * @deprecated doesn't support invalidation; use {@link #createLinkRenderer(boolean, int)}
+     */
+    @Deprecated
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
@@ -70,9 +72,7 @@ public class LinkRenderer
                     {
                         String originalValue = model.get(property).toString();
                         String tokenOrNull = model.tryGetLink(property);
-                        if (tokenOrNull == null
-                                && (renderOriginalValueForEmptyToken || ClientStaticState
-                                        .isSimpleMode()))
+                        if (tokenOrNull == null && ClientStaticState.isSimpleMode())
                         {
                             return new MultilineHTML(originalValue).toString();
                         } else
@@ -145,11 +145,6 @@ public class LinkRenderer
                     }
                 }
             };
-    }
-
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
-    {
-        return createLinkRenderer(false);
     }
 
     public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer(

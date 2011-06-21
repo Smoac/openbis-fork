@@ -576,6 +576,7 @@ final class SampleListingWorker extends AbstractLister
                 return null;
             }
         }
+        enrichWithInvalidation(sample, row); // this is cheap even for dependent samples
         // set properties needed for primary samples
         // (dependent samples too if they need to be enriched e.g. for entity tracking)
         if (primarySample || enrichDependentSamples)
@@ -586,12 +587,6 @@ final class SampleListingWorker extends AbstractLister
                     row.perm_id));
             sample.setRegistrationDate(row.registration_timestamp);
             sample.setModificationDate(row.modification_timestamp);
-            if (row.inva_id != null)
-            {
-                // NOTE: this just marks the sample as invalid without any details
-                final Invalidation invalidation = new Invalidation();
-                sample.setInvalidation(invalidation);
-            }
             sample.setRegistrator(getOrCreateRegistrator(row.pers_id_registerer));
             if (row.expe_id != null)
             {
@@ -619,6 +614,16 @@ final class SampleListingWorker extends AbstractLister
         }
 
         return sample;
+    }
+
+    // NOTE: this just marks the sample as invalid without loading any details
+    private void enrichWithInvalidation(final Sample sample, SampleRecord row)
+    {
+        if (row.inva_id != null)
+        {
+            final Invalidation invalidation = new Invalidation();
+            sample.setInvalidation(invalidation);
+        }
     }
 
     private void setSpace(final Sample sample, final Space space)

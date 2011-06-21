@@ -447,8 +447,10 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         for (TechId sampleId : sampleIds)
         {
             SamplePE sample = loadByTechId(sampleId);
-            sample.setInvalidation(invalidation);
-            getHibernateTemplate().update(sample);
+            if (sample.getInvalidation() == null)
+            {
+                sample.setInvalidation(invalidation);
+            }
         }
 
         getHibernateTemplate().flush();

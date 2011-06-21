@@ -37,6 +37,8 @@ public class EntityTableCell implements ISerializableComparable
 
     private boolean invalid = false;
 
+    private boolean fake = false;
+
     public EntityTableCell(EntityKind entityKind, String permId)
     {
         this(entityKind, permId, permId);
@@ -122,6 +124,16 @@ public class EntityTableCell implements ISerializableComparable
     public void setInvalid(boolean invalid)
     {
         this.invalid = invalid;
+    }
+
+    public boolean isFake()
+    {
+        return fake;
+    }
+
+    public void setFake(boolean fake)
+    {
+        this.fake = fake;
     }
 
     @Override

@@ -39,7 +39,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
 {
     private final static String LEFT_PANEL_PREFIX = "left_panel_";
 
-    private final static int INITIAL_LEFT_PANEL_SIZE = 300;
+    private final static int INITIAL_LEFT_PANEL_SIZE = 330;
 
     protected AbstractViewerWithVerticalSplit(IViewContext<?> viewContext, String id)
     {

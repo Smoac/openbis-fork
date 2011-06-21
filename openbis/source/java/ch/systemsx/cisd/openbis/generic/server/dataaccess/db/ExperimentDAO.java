@@ -307,8 +307,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         for (TechId experimentId : experimentIds)
         {
             ExperimentPE experiment = loadByTechId(experimentId);
-            experiment.setInvalidation(invalidation);
-            getHibernateTemplate().update(experiment);
+            if (experiment.getInvalidation() == null)
+            {
+                experiment.setInvalidation(invalidation);
+            }
         }
 
         getHibernateTemplate().flush();

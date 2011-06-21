@@ -131,7 +131,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
             if (value instanceof EntityTableCell)
             {
                 EntityTableCell entityTableCell = (EntityTableCell) value;
-                if (entityTableCell.isMissing())
+                if (entityTableCell.isMissing() || entityTableCell.isFake())
                 {
                     return null;
                 }
