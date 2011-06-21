@@ -9,7 +9,7 @@ function relocate(expPermId) {
   // -- For testing on the sprint server:
   //var host = "https://sprint-openbis.ethz.ch:8446/openbis/index.html"
 
-  url = host + "?viewMode=embedded#action=FEATURE_VECTOR_SUMMARY&experimentPermId="+expPermId
+  url = host + "?viewMode=embedded#action=FEATURE_VECTOR_SUMMARY&restrictGlobalSearchToProject=true&experimentPermId="+expPermId
   
   queryDiv = document.getElementById('query')
   queryDiv.style.display = "none" 
