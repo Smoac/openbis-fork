@@ -656,7 +656,7 @@ class AuthenticatedState extends AbstractDssComponentState
         {
             // ignore the error here since, if it is significant, it will appear again in
             // validation.
-            return new HashMap<String, String>();
+            return Collections.emptyMap();
         }
 
         try
@@ -667,7 +667,7 @@ class AuthenticatedState extends AbstractDssComponentState
             System.err.println("Could not run metadata extraction script: ");
             System.err.println(runner.getScriptString());
             t.printStackTrace(System.err);
-            return new HashMap<String, String>();
+            return Collections.emptyMap();
         }
     }
 

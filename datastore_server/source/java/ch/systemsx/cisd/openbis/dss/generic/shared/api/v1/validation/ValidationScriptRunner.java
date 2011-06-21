@@ -143,6 +143,11 @@ public class ValidationScriptRunner
     {
         Map<String, String> metadata = new HashMap<String, String>();
         PyFunction function = tryJythonFunction(EXTRACT_METADATA_FUNCTION_NAME);
+        if (function == null)
+        {
+            return Collections.emptyMap();
+        }
+
         PyObject result = function.__call__(Py.java2py(dataSetFile));
         if (null != result)
         {
