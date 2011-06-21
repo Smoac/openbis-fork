@@ -56,6 +56,7 @@ public class ScreeningUtils
     {
         DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
+        @SuppressWarnings("deprecation")
         String fileTypeCode = dataset.getFileFormatType().getCode();
         Experiment experiment = dataset.getExperiment();
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
@@ -221,4 +222,24 @@ public class ScreeningUtils
         return businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
     }
 
+    public static String asJavaRegExpr(String[] substrings)
+    {
+        return asSubstringExpression(substrings, ".*");
+    }
+
+    public static String asSubstringExpression(String[] substrings, String starExpr)
+    {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < substrings.length; i++)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append("|");
+            }
+            sb.append(starExpr);
+            sb.append(substrings[i]);
+            sb.append(starExpr);
+        }
+        return sb.toString();
+    }
 }
