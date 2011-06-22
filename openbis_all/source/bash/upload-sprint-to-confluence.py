@@ -1,5 +1,8 @@
 #!/usr/bin/python
- 
+#
+#
+# @author:  Kaloyan Enimanev
+#
 from __future__ import with_statement
 from datetime import date
 import sys, string, xmlrpclib, re, os, getpass
@@ -52,16 +55,17 @@ def fetchBinaries(version):
   print "Fetching {0} binaries from server ...".format(version)
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
-  os.system("scp sprint:~/fileserver/sprint_builds/openBIS/*-{0}*/*.zip {1}".format(version, DOWNLOAD_FOLDER))
+  os.system("scp sprint:~/fileserver/sprint_builds/openBIS/*-{0}*/*.* {1}".format(version, DOWNLOAD_FOLDER))
 
 def printVersion(version):
   today = date.today().strftime("%d %B %Y")
   printWiki("h2. Version {0} ({1})".format(version, today))
   
-def processFile(linkName, filePattern, version):
+def processFile(linkName, filePattern, version, listNestedLevels=1):
   fileName = findFile(filePattern + "-" + version)
   uploadReleaseBinaryToConfluence(fileName)
-  printWiki("* [{0}|^{1}] ".format(linkName, fileName))
+  nestedPrefix="*"*listNestedLevels
+  printWiki("{0} [{1}|^{2}] ".format(nestedPrefix, linkName, fileName))
   
 def uploadToConfluenceAndPrintPageText(version):
   printVersion(version)
@@ -75,8 +79,12 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki()
   printWiki('h5. openBIS for High Content Screening')
   printWiki()
-  processFile("Application Server (AS)", "openBIS-server-screening", version)
-  processFile("Data Store Server (DSS)", "datastore_server-screening", version)
+  printWiki("* Command Line Installation")
+  processFile("Application Server (AS)", "openBIS-server-screening", version, 2)
+  processFile("Data Store Server (DSS)", "datastore_server-screening", version, 2)
+
+  processFile("Installation Wizard (AS+DSS)", "openBIS-installer-screening", version)
+
   processFile("API", "screening-api", version)
 
 def findFile(filePattern):
