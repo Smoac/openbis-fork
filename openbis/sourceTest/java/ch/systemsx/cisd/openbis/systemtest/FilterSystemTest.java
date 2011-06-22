@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
@@ -100,23 +101,28 @@ public class FilterSystemTest extends SystemTestCase
         logIntoCommonClientService();
         commonClientService.registerFilter(createFilter());
 
-        DefaultResultSetConfig<String, GridCustomFilter> config = createConfig("24");
-        assertEquals(1, commonClientService.listFilters(GRID_ID, config).getList().size());
+        DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> config =
+                createConfig("24");
+        assertEquals(1, commonClientService.listFilters(GRID_ID, config).getResultSet().getList()
+                .size());
 
         config = createConfig("43");
-        assertEquals(0, commonClientService.listFilters(GRID_ID, config).getList().size());
+        assertEquals(0, commonClientService.listFilters(GRID_ID, config).getResultSet().getList()
+                .size());
 
         Long id = commonClientService.listFilters(GRID_ID).get(0).getId();
         commonClientService.deleteFilters(Arrays.asList(new TechId(id)));
     }
 
-    private DefaultResultSetConfig<String, GridCustomFilter> createConfig(String thresholdValue)
+    private DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> createConfig(
+            String thresholdValue)
     {
-        DefaultResultSetConfig<String, GridCustomFilter> config =
-                new DefaultResultSetConfig<String, GridCustomFilter>();
-        config.setAvailableColumns(Collections.<IColumnDefinition<GridCustomFilter>> emptySet());
-        CustomFilterInfo<GridCustomFilter> customFilterInfo =
-                new CustomFilterInfo<GridCustomFilter>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> config =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>>();
+        config.setAvailableColumns(Collections
+                .<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>> emptySet());
+        CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>> customFilterInfo =
+                new CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>>();
         customFilterInfo.setExpression("${threshold} < 42");
         ParameterWithValue parameterWithValue = new ParameterWithValue();
         parameterWithValue.setParameter("threshold");

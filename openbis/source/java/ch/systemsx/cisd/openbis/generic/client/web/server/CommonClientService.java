@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeP
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.GridCustomFilterProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
@@ -2478,23 +2479,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<GridCustomFilter> listFilters(final String gridId,
-            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
+    public TypedTableResultSet<GridCustomFilter> listFilters(
+            final String gridId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig,
-                new AbstractOriginalDataProviderWithoutHeaders<GridCustomFilter>()
-                    {
-                        @Override
-                        public List<GridCustomFilter> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listFilters(gridId);
-                        }
-                    });
+        return listEntities(new GridCustomFilterProvider(commonServer, getSessionToken(), gridId),
+                resultSetConfig);
     }
 
-    public String prepareExportFilters(TableExportCriteria<GridCustomFilter> criteria)
+    public String prepareExportFilters(
+            TableExportCriteria<TableModelRowWithObject<GridCustomFilter>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);

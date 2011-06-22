@@ -17,60 +17,43 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.DESCRIPTION;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.EXPRESSION;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.IS_PUBLIC;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.NAME;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.REGISTRATION_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.REGISTRATOR;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
+ * Provider of {@link GridCustomColumn} instances.
  *
  * @author Franz-Josef Elmer
  */
-public class CustomGridColumnProvider extends AbstractCommonTableModelProvider<GridCustomColumn>
+public class CustomGridColumnProvider extends AbstractExpressionProvider<GridCustomColumn>
 {
-    private final String gridId;
 
     public CustomGridColumnProvider(ICommonServer commonServer, String sessionToken, String gridId)
     {
-        super(commonServer, sessionToken);
-        this.gridId = gridId;
+        super(commonServer, sessionToken, gridId);
     }
 
     @Override
-    protected TypedTableModel<GridCustomColumn> createTableModel()
+    protected List<GridCustomColumn> listExpressions()
     {
-        List<GridCustomColumn> customColumns = commonServer.listGridCustomColumns(sessionToken, gridId);
-        TypedTableModelBuilder<GridCustomColumn> builder = new TypedTableModelBuilder<GridCustomColumn>();
+        return commonServer.listGridCustomColumns(sessionToken, gridId);
+    }
+
+    @Override
+    protected void addAdditionalColumn(TypedTableModelBuilder<GridCustomColumn> builder)
+    {
         builder.addColumn(CODE);
-        builder.addColumn(NAME);
-        builder.addColumn(DESCRIPTION);
-        builder.addColumn(EXPRESSION).hideByDefault();
-        builder.addColumn(IS_PUBLIC).hideByDefault();
-        builder.addColumn(REGISTRATOR).hideByDefault();
-        builder.addColumn(REGISTRATION_DATE).hideByDefault();
-        for (GridCustomColumn gridCustomColumn : customColumns)
-        {
-            builder.addRow(gridCustomColumn);
-            builder.column(CODE).addString(gridCustomColumn.getCode());
-            builder.column(NAME).addString(gridCustomColumn.getName());
-            builder.column(DESCRIPTION).addString(gridCustomColumn.getDescription());
-            builder.column(EXPRESSION).addString(gridCustomColumn.getExpression());
-            builder.column(IS_PUBLIC).addString(SimpleYesNoRenderer.render(gridCustomColumn.isPublic()));
-            builder.column(REGISTRATOR).addPerson(gridCustomColumn.getRegistrator());
-            builder.column(REGISTRATION_DATE).addDate(gridCustomColumn.getRegistrationDate());
-        }
-        return builder.getModel();
+    }
+
+    @Override
+    protected void addAdditionalColumnValue(TypedTableModelBuilder<GridCustomColumn> builder,
+            GridCustomColumn expression)
+    {
+        builder.column(CODE).addString(expression.getCode());
     }
 
 }

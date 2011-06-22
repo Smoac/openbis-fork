@@ -955,14 +955,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link GridCustomFilter}s for given grid and display criteria.
      */
-    public ResultSet<GridCustomFilter> listFilters(String gridId,
-            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
+    public TypedTableResultSet<GridCustomFilter> listFilters(
+            String gridId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for custom grid filters.
      */
-    public String prepareExportFilters(final TableExportCriteria<GridCustomFilter> criteria)
+    public String prepareExportFilters(
+            final TableExportCriteria<TableModelRowWithObject<GridCustomFilter>> criteria)
             throws UserFailureException;
 
     /**

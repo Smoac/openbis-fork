@@ -861,14 +861,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#listFilters(String, DefaultResultSetConfig)
      */
-    public void listFilters(String gridId,
-            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig,
-            AsyncCallback<ResultSet<GridCustomFilter>> callback);
+    public void listFilters(
+            String gridId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<GridCustomFilter>> callback);
 
     /**
      * @see ICommonClientService#prepareExportFilters(TableExportCriteria)
      */
-    public void prepareExportFilters(final TableExportCriteria<GridCustomFilter> criteria,
+    public void prepareExportFilters(
+            final TableExportCriteria<TableModelRowWithObject<GridCustomFilter>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /** @see ICommonClientService#registerFilter(NewColumnOrFilter) */
