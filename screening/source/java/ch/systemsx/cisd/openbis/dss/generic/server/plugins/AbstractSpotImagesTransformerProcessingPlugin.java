@@ -62,7 +62,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
 
     private static final String CHANNEL_CODE_PROPERTY = "channel";
 
-    private final static IImagingReadonlyQueryDAO query = DssScreeningUtils.getQuery();
+    private static IImagingReadonlyQueryDAO query;
 
     private final String channelCode;
 
@@ -103,6 +103,15 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     {
         IImageTransformerFactory tryGetTransformationFactory(ImgImageEnrichedDTO image);
     }
+    
+    private static IImagingReadonlyQueryDAO getQuery()
+    {
+        if (query == null)
+        {
+            query = DssScreeningUtils.getQuery();
+        }
+        return query;
+    }
 
     private void calculateAndSetImageTransformation(List<ImgImageEnrichedDTO> spotImages,
             IContentRepository contentRepository, IImagingTransformerDAO transformerDAO)
@@ -133,7 +142,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     private GroupByMap<Long, ImgImageEnrichedDTO> fetchImages(DatasetDescription dataset)
     {
         List<ImgImageEnrichedDTO> allImages =
-                query.listHCSImages(dataset.getDataSetCode(), channelCode);
+                getQuery().listHCSImages(dataset.getDataSetCode(), channelCode);
         GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot =
                 GroupByMap.create(allImages, new IKeyExtractor<Long, ImgImageEnrichedDTO>()
                     {
