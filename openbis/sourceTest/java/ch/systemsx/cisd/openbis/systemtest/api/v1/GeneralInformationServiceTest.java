@@ -382,7 +382,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchForDataSetByCode()
+    public void testSearchForDataSetsByCode()
     {
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));

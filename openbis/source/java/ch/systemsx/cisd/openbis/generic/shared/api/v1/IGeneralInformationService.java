@@ -201,7 +201,7 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
-     * Return all data sets matching a specified search criteria. Available since minor version 1.
+     * Return all data sets matching a specified search criteria. Available since minor version 8.
      * 
      * @param searchCriteria the criteria used for searching.
      * @since 1.8
@@ -212,7 +212,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return all experiments matching a specified set of identifiers. Available since minor version
-     * 1.
+     * 9.
      * 
      * @param experimentIdentifiers the identifiers of the experiments to be returned.
      * @since 1.9
