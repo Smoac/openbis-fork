@@ -28,11 +28,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
@@ -51,6 +52,8 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String SELECTED = " selected ";
 
+    private final IViewContext<?> viewContext;
+
     private final AbstractAsyncCallback<Void> deletionCallback;
 
     private boolean withRadio = false;
@@ -65,10 +68,11 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     protected ReasonField reason;
 
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback)
+    public AbstractDataListDeletionConfirmationDialog(IViewContext<?> viewContext, List<T> data,
+            AbstractAsyncCallback<Void> deletionCallback)
     {
-        super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+        super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+        this.viewContext = viewContext;
         this.deletionCallback = deletionCallback;
     }
 
@@ -89,8 +93,16 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     /** adds invalidation option to the dialog with fiven callback */
     protected void withInvalidation(AbstractAsyncCallback<Void> invalidationCallback)
     {
-        this.withInvalidationOption = true;
-        this.invalidationCallbackOrNull = invalidationCallback;
+        if (getWebClientConfiguration().getEnableInvalidation())
+        {
+            this.withInvalidationOption = true;
+            this.invalidationCallbackOrNull = invalidationCallback;
+        }
+    }
+
+    private WebClientConfiguration getWebClientConfiguration()
+    {
+        return viewContext.getModel().getApplicationInfo().getWebClientConfiguration();
     }
 
     //

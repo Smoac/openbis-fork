@@ -53,6 +53,8 @@ public class WebClientConfiguration implements ISerializable
 
     private int maxEntityVisits;
 
+    private boolean enableInvalidation;
+
     private boolean allowAddingUnofficielTerms;
 
     public String getPropertyOrNull(String technology, String key)
@@ -126,17 +128,28 @@ public class WebClientConfiguration implements ISerializable
         this.maxEntityVisits = maxEntityVisits;
     }
 
-    public void setAllowAddingUnofficialTerms(boolean allowAddingUnofficialTerms)
-    {
-        this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
-    }
-
     public boolean getAllowAddingUnofficialTerms()
     {
         return allowAddingUnofficielTerms;
     }
 
+    public void setAllowAddingUnofficialTerms(boolean allowAddingUnofficialTerms)
+    {
+        this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
+    }
+
+    public boolean getEnableInvalidation()
+    {
+        return enableInvalidation;
+    }
+
+    public void setEnableInvalidation(boolean enableInvalidation)
+    {
+        this.enableInvalidation = enableInvalidation;
+    }
+
     public WebClientConfiguration()
     {
     }
+
 }

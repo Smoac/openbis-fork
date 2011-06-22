@@ -72,7 +72,11 @@ public class WebClientConfigurationProvider
 
     private static final String ALLOW_ADDING_UNOFFICIAL_TERMS = "allow-adding-unofficial-terms";
 
+    private static final String ENABLE_INVALIDATION = "enable-invalidation";
+
     private static final boolean DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS = false;
+
+    private static final boolean DEFAULT_ENABLE_INVALIDATION = false;
 
     static final String TECHNOLOGIES = "technologies";
 
@@ -101,6 +105,7 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
         webClientConfiguration.setMaxEntityVisits(DEFAULT_MAX_ENTITY_VISITS);
         webClientConfiguration.setAllowAddingUnofficialTerms(DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
+        webClientConfiguration.setEnableInvalidation(DEFAULT_ENABLE_INVALIDATION);
     }
 
     private void init(Properties properties)
@@ -110,6 +115,7 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
         webClientConfiguration
                 .setAllowAddingUnofficialTerms(extractAllowAddingUnofficialTerms(properties));
+        webClientConfiguration.setEnableInvalidation(extractEnableInvalidation(properties));
         webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
                 MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
         webClientConfiguration
@@ -219,6 +225,12 @@ public class WebClientConfigurationProvider
     {
         return PropertyUtils.getBoolean(properties, ALLOW_ADDING_UNOFFICIAL_TERMS,
                 DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
+    }
+
+    private boolean extractEnableInvalidation(Properties properties)
+    {
+        return PropertyUtils.getBoolean(properties, ENABLE_INVALIDATION,
+                DEFAULT_ENABLE_INVALIDATION);
     }
 
     public WebClientConfiguration getWebClientConfiguration()
