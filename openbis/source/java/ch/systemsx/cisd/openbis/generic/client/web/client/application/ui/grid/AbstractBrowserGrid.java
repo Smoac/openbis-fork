@@ -836,7 +836,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             {
                                 tableModificationsManager.saveModifications(new IDelegatedAction()
                                     {
-                                        @Override
                                         public void execute()
                                         {
                                             // ignore this callback and refresh the table
