@@ -47,6 +47,14 @@ public final class StringUtils
     }
 
     /**
+     * Whether given <var>value</var> is blank or not.
+     */
+    public static final boolean isBlank(final Object value)
+    {
+        return value == null || value.toString().trim().length() == 0;
+    }
+
+    /**
      * Whether given <var>value</var> is not blank.
      */
     public static final boolean isNotBlank(final String value)
