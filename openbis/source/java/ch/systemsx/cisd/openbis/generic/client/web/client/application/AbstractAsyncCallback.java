@@ -306,7 +306,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     {
         performSuccessActionOrIgnore(new IDelegatedAction()
             {
-                @Override
                 public void execute()
                 {
                     doOnSuccess(result);

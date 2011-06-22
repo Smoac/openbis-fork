@@ -78,6 +78,8 @@ var common = {
   // Table Modifications
   //
   
+  confirm_save_table_modifications_dialog_title: "Save Table Modifications?"
+  confirm_save_table_modifications_dialog_message: "There are modifications in the table that you didn't save. If you don't save them now they will be lost.</br></br>Would you like to save your changes?"
   table_modifications: "Table Modifications:",
   table_modifications_info_title: "Table Modification Mode On",
   table_modifications_info_text: "Use <i>Table Modifications</i> toolbar below the table to <b>save</b> or <b>cancel</b> the changes made in table cells.",

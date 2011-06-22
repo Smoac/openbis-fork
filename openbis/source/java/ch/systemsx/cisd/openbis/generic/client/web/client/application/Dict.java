@@ -84,6 +84,12 @@ public abstract class Dict
     // Table Modifications
     //
 
+    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_TITLE =
+            "confirm_save_table_modifications_dialog_title";
+
+    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_MESSAGE =
+            "confirm_save_table_modifications_dialog_message";
+
     public static final String TABLE_MODIFICATIONS = "table_modifications";
 
     public static final String TABLE_MODIFICATIONS_INFO_TITLE = "table_modifications_info_title";

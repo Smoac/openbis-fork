@@ -851,10 +851,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             }
                         }
                     };
-                MessageBox.confirm("Save Table Modifications?",
-                        "There are modifications in the table that you didn't save. "
-                                + "If you don't save them now they will be lost.</br></br>"
-                                + "Would you like to save your changes?", listener);
+                final String title =
+                        viewContext.getMessage(Dict.CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_TITLE);
+                final String msg =
+                        viewContext
+                                .getMessage(Dict.CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_MESSAGE);
+                MessageBox.confirm(title, msg, listener);
             } else
             {
                 successAction.execute();
