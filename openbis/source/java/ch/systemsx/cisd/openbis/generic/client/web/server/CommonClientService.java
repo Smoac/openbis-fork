@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataP
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AttachmentVersionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CustomGridColumnProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
@@ -2551,23 +2552,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<GridCustomColumn> listGridCustomColumns(final String gridId,
-            DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
+    public TypedTableResultSet<GridCustomColumn> listGridCustomColumns(
+            final String gridId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomColumn>> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig,
-                new AbstractOriginalDataProviderWithoutHeaders<GridCustomColumn>()
-                    {
-                        @Override
-                        public List<GridCustomColumn> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return listGridCustomColumns(gridId);
-                        }
-                    });
+        return listEntities(new CustomGridColumnProvider(commonServer, getSessionToken(), gridId),
+                resultSetConfig);
     }
 
-    public String prepareExportColumns(TableExportCriteria<GridCustomColumn> criteria)
+    public String prepareExportColumns(
+            TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);

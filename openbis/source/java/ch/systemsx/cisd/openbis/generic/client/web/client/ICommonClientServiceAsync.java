@@ -891,13 +891,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listGridCustomColumns(String, DefaultResultSetConfig)
      */
     public void listGridCustomColumns(String gridId,
-            DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig,
-            AsyncCallback<ResultSet<GridCustomColumn>> callback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomColumn>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<GridCustomColumn>> callback);
 
     /**
      * @see ICommonClientService#prepareExportColumns(TableExportCriteria)
      */
-    public void prepareExportColumns(final TableExportCriteria<GridCustomColumn> criteria,
+    public void prepareExportColumns(final TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /** @see ICommonClientService#registerColumn(NewColumnOrFilter) */
