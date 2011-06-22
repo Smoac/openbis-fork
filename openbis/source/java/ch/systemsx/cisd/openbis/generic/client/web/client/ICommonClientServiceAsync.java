@@ -695,7 +695,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#getMaterialInfo(TechId)
      */
-    public Material getMaterialInfo(TechId techId, AsyncCallback<Material> callback);
+    public void getMaterialInfo(TechId techId, AsyncCallback<Material> callback);
 
     /**
      * @see ICommonClientService#getMaterialInformationHolder(MaterialIdentifier)
