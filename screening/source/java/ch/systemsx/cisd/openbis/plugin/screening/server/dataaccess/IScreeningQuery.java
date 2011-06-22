@@ -286,7 +286,8 @@ public interface IScreeningQuery extends BaseQuery
                     + " from materials well_material"
                     + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id "
                     + "      join samples well on well_props.samp_id = well.id"
-                    + "      join experiments exp on well.expe_id = exp.id "
+                    + "      join samples plate on well.samp_id_part_of = plate.id"
+                    + "      join experiments exp on plate.expe_id = exp.id" 
                     + "      join experiment_types exp_type on exp.exty_id = exp_type.id "
                     + "      join projects on exp.proj_id = projects.id     "
                     + "      join spaces on projects.space_id = spaces.id  ";
