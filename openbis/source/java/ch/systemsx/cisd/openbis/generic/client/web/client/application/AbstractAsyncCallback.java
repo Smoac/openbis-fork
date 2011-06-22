@@ -231,6 +231,11 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         if (caught instanceof InvalidSessionException)
         {
             handleSessionTerminated(msg);
+            // only for tests
+            if (staticCallbackListener != DEFAULT_CALLBACK_LISTENER)
+            {
+                callbackListener.onFailureOf(viewContext, this, msg, caught);
+            }
         } else
         {
             callbackListener.onFailureOf(viewContext, this, msg, caught);
@@ -274,6 +279,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     private void showSessionTerminated(String msg)
     {
+        System.err.println("Session terminated"); // only for tests
         Dialog dialog = new Dialog();
         GWTUtils.setToolTip(dialog, getMessage(Dict.MESSAGEBOX_WARNING));
 
