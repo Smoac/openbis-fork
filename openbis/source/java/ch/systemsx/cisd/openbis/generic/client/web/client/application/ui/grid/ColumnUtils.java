@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.google.gwt.event.dom.client.KeyCodes;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -195,9 +196,9 @@ public class ColumnUtils
         @Override
         public Object preProcessValue(Object value)
         {
-            if (value == null)
+            if (StringUtils.isBlank(value))
             {
-                return value;
+                return null;
             }
             return getField().getPropertyEditor().convertStringValue(value.toString());
         }
@@ -206,9 +207,9 @@ public class ColumnUtils
         @SuppressWarnings("unchecked")
         public Object postProcessValue(Object value)
         {
-            if (value == null)
+            if (StringUtils.isBlank(value))
             {
-                return value;
+                return null;
             }
             return getField().getPropertyEditor().getStringValue(value);
         }

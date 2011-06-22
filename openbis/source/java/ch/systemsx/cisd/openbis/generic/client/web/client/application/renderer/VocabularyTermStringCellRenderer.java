@@ -44,17 +44,20 @@ public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEn
             {
                 return "";
             }
-            ISerializableComparable cell = values.get(columnIndex);
+
+            ISerializableComparable cell = null;
+            if (obj instanceof VocabularyTerm)
+            {
+                cell = new VocabularyTermTableCell((VocabularyTerm) obj);
+                values.set(columnIndex, cell);
+            }
+
+            cell = values.get(columnIndex);
             if (cell instanceof VocabularyTermTableCell == false)
             {
                 return cell.toString();
             } else
             {
-                if (obj instanceof VocabularyTerm)
-                {
-                    cell = new VocabularyTermTableCell((VocabularyTerm) obj);
-                    values.set(columnIndex, cell);
-                }
 
                 VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) cell;
                 VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
