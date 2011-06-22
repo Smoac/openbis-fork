@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -283,27 +284,8 @@ public final class DataSet implements Serializable
         builder.append(getDataSetTypeCode());
 
         // Append properties alphabetically for consistency
-        HashMap<String, String> props = getProperties();
-        ArrayList<String> sortedKeys = new ArrayList<String>(props.size());
-        sortedKeys.addAll(props.keySet());
-        Collections.sort(sortedKeys);
-        StringBuilder propString = new StringBuilder();
-        propString.append("{");
-        for (String key : sortedKeys)
-        {
-            propString.append(key);
-            propString.append("=");
-            propString.append(props.get(key));
-            propString.append(", ");
-        }
-        if (sortedKeys.size() > 0)
-        {
-            // Get rid of the trailing ,
-            propString.deleteCharAt(propString.length() - 1);
-            propString.deleteCharAt(propString.length() - 1);
-        }
-        propString.append("}");
-        builder.append(propString);
+        TreeMap<String, String> sortedProps = new TreeMap<String, String>(getProperties());
+        builder.append(sortedProps.toString());
         if (retrievedConnections.contains(Connections.PARENTS))
         {
             builder.append(getParentCodes());

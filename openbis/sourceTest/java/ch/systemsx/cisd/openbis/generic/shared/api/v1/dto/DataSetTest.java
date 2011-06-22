@@ -40,6 +40,7 @@ public class DataSetTest extends AssertJUnit
         initializer.setCode(DATA_SET_CODE);
         initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
+        initializer.putProperty("PROP2", "value2");
         initializer.putProperty("PROP1", "value1");
         dataSet = new DataSet(initializer);
     }
@@ -60,7 +61,6 @@ public class DataSetTest extends AssertJUnit
         initializer.setCode(DATA_SET_CODE);
         initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
-        initializer.putProperty("PROP1", "value1");
         DataSet myDataSet = new DataSet(initializer);
         assertTrue("Data sets with the same code should be equal.", dataSet.equals(myDataSet));
         assertEquals(dataSet.hashCode(), myDataSet.hashCode());
@@ -87,7 +87,8 @@ public class DataSetTest extends AssertJUnit
     public void testToString()
     {
         String stringRepresentation = dataSet.toString();
-        assertEquals("DataSet[dataSet-code,/SPACE/PROJECT/EXP,<null>,dataSet-type,{PROP1=value1}]",
+        assertEquals(
+                "DataSet[dataSet-code,/SPACE/PROJECT/EXP,<null>,dataSet-type,{PROP1=value1, PROP2=value2}]",
                 stringRepresentation);
     }
 }
