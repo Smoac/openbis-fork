@@ -19,10 +19,13 @@ package ch.systemsx.cisd.common.utilities;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
 
 /**
  * Test cases for the {@link StringUtilities}.
@@ -99,5 +102,30 @@ public class StringUtilitiesTest
         assertEquals("[]", StringUtilities.tokenize(", ,").toString());
         assertEquals("[abc]", StringUtilities.tokenize("abc").toString());
         assertEquals("[a, b, c, d]", StringUtilities.tokenize(" a,b c\n d ").toString());
+    }
+
+    @Test
+    public void testCreateUniqueString()
+    {
+        final String PATTERN_PREFIX = "email";
+        final List<String> existing = new ArrayList<String>();
+        existing.add(PATTERN_PREFIX);
+        for (int i = 0; i < 20; i++)
+        {
+            existing.add(PATTERN_PREFIX + i);
+        }
+
+        String nextUnique =
+                StringUtilities.createUniqueString(PATTERN_PREFIX, new IUniquenessChecker()
+                    {
+
+                        public boolean isUnique(String str)
+                        {
+                            return false == existing.contains(str);
+                        }
+                    });
+
+        // assertEquals("email20", nextUnique);
+        assertEquals("email110", nextUnique);
     }
 }
