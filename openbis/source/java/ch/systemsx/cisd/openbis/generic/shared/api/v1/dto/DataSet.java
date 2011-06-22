@@ -296,9 +296,12 @@ public final class DataSet implements Serializable
             propString.append(props.get(key));
             propString.append(", ");
         }
-        // Get rid of the trailing ,
-        propString.deleteCharAt(propString.length() - 1);
-        propString.deleteCharAt(propString.length() - 1);
+        if (sortedKeys.size() > 0)
+        {
+            // Get rid of the trailing ,
+            propString.deleteCharAt(propString.length() - 1);
+            propString.deleteCharAt(propString.length() - 1);
+        }
         propString.append("}");
         builder.append(propString);
         if (retrievedConnections.contains(Connections.PARENTS))
