@@ -128,9 +128,6 @@
     		<include name="ch/systemsx/cisd/hdf5/**/*"/>
     		<include name="ncsa/**/*"/>
     	</zipfileset>
-    	<fileset dir="${lib}/hdf5">
-    		<include name="native/**/*"/>
-    	</fileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
     	</fileset>
