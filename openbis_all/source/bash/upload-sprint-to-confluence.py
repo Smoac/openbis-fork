@@ -1,5 +1,7 @@
 #!/usr/bin/python
 #
+# Kaloyan: this script was created under time pressure, so its implementation is not optimal.
+# Feel free to improve it.
 #
 # @author:  Kaloyan Enimanev
 #
