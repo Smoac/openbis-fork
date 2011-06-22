@@ -1955,6 +1955,21 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public Material getMaterialInfo(TechId techId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        try
+        {
+            final Material material = commonServer.getMaterialInfo(sessionToken, techId);
+            transformXML(material);
+            return material;
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
             boolean withExperiments, BatchOperationKind operationKind)
     {

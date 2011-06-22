@@ -264,7 +264,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
-        return genericServer.getMaterialInfo(sessionToken, materialId);
+        return commonServer.getMaterialInfo(sessionToken, materialId);
     }
 
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException

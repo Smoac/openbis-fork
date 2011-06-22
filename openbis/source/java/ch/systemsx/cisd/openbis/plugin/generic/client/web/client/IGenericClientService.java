@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -106,11 +105,6 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
             final String sessionKey) throws UserFailureException;
-
-    /**
-     * For given {@link TechId} returns corresponding {@link Material}.
-     */
-    public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link ExternalData}.

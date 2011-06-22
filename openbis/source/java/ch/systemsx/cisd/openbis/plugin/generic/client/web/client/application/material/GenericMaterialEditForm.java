@@ -132,7 +132,7 @@ public final class GenericMaterialEditForm extends
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getMaterialInfo(techIdOrNull,
+        viewContext.getCommonService().getMaterialInfo(techIdOrNull,
                 new MaterialInfoCallback(viewContext));
     }
 

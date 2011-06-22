@@ -785,6 +785,11 @@ public interface ICommonClientService extends IClientService
     public Material getMaterialInfo(MaterialIdentifier identifier) throws UserFailureException;
 
     /**
+     * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
+     */
+    public Material getMaterialInfo(TechId techId) throws UserFailureException;
+
+    /**
      * For given {@link MaterialIdentifier} returns the corresponding
      * {@link IEntityInformationHolderWithPermId}.
      */

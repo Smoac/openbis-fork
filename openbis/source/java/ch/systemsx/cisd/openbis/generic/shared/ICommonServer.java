@@ -1021,6 +1021,13 @@ public interface ICommonServer extends IServer
     public Material getMaterialInfo(String sessionToken, MaterialIdentifier identifier);
 
     /**
+     * For given {@link TechId} returns the corresponding {@link Material}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Material getMaterialInfo(String sessionToken, TechId materialId);
+
+    /**
      * For given {@link MaterialIdentifier} returns the corresponding
      * {@link IEntityInformationHolder}.
      */

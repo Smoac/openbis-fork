@@ -188,7 +188,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
             IEntityInformationHolderWithPermId m =
                     commonClientService.getMaterialInformationHolder(new MaterialIdentifier(code,
                             MATERIAL_TYPE));
-            Material materialInfo = genericClientService.getMaterialInfo(new TechId(m.getId()));
+            Material materialInfo = commonClientService.getMaterialInfo(new TechId(m.getId()));
             assertEquals(code, materialInfo.getCode());
             Collections.sort(materialInfo.getProperties(), new Comparator<IEntityProperty>()
                 {

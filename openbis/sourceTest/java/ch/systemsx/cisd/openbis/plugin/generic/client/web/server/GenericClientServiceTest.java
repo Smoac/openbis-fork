@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -204,31 +203,6 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
 
         ExternalData info = genericClientService.getDataSetInfo(id);
-
-        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
-                transformedXMLProperty.tryGetAsString());
-        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testGetMaterialInfo()
-    {
-        final TechId id = new TechId(4711L);
-        context.checking(new Expectations()
-            {
-                {
-                    prepareGetSessionToken(this);
-
-                    one(genericServer).getMaterialInfo(SESSION_TOKEN, id);
-                    Material material = new Material();
-                    material.setProperties(Arrays.asList(createXmlProperty()));
-                    will(returnValue(material));
-                }
-            });
-
-        Material info = genericClientService.getMaterialInfo(id);
 
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",

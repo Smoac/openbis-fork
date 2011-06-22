@@ -183,6 +183,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -1584,6 +1585,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         materialBO.loadByMaterialIdentifier(identifier);
         materialBO.enrichWithProperties();
         return MaterialTranslator.translate(materialBO.getMaterial());
+    }
+
+    public Material getMaterialInfo(final String sessionToken, final TechId materialId)
+    {
+        final Session session = getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.loadDataByTechId(materialId);
+        materialBO.enrichWithProperties();
+        final MaterialPE material = materialBO.getMaterial();
+        return MaterialTranslator.translate(material, true);
     }
 
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,

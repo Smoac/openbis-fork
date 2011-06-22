@@ -767,6 +767,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public Material getMaterialInfo(final String sessionToken, final TechId materialId)
+    {
+        logAccess(sessionToken, "get_material_info", "ID(%s)", materialId);
+        return null;
+    }
+
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {

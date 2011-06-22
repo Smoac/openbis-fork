@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
@@ -185,20 +184,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             throw UserFailureExceptionTranslator.translate(e);
         }
 
-    }
-
-    public final Material getMaterialInfo(final TechId materialId)
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Material material = genericServer.getMaterialInfo(sessionToken, materialId);
-            transformXML(material);
-            return material;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
     }
 
     public final ExternalData getDataSetInfo(final TechId datasetId)

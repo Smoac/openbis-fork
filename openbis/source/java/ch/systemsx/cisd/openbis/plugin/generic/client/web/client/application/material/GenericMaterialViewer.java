@@ -83,7 +83,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
                 protected void loadMaterialInfo(TechId materialTechId,
                         AsyncCallback<Material> material)
                 {
-                    viewContext.getService().getMaterialInfo(materialTechId, material);
+                    viewContext.getCommonService().getMaterialInfo(materialTechId, material);
                 }
             };
         viewer.reloadAllData();

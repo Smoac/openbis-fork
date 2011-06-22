@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -89,12 +88,6 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void updateExperiments(final ExperimentType experimentType, final String sessionKey,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
-
-    /**
-     * @see IGenericClientService#getMaterialInfo(TechId)
-     */
-    public void getMaterialInfo(TechId materialId,
-            final AsyncCallback<Material> materialInfoCallback);
 
     /**
      * @see IGenericClientService#getDataSetInfo(TechId)

@@ -693,6 +693,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Material> callback);
 
     /**
+     * @see ICommonClientService#getMaterialInfo(TechId)
+     */
+    public Material getMaterialInfo(TechId techId, AsyncCallback<Material> callback);
+
+    /**
      * @see ICommonClientService#getMaterialInformationHolder(MaterialIdentifier)
      */
     public void getMaterialInformationHolder(MaterialIdentifier materialIdentifier,
