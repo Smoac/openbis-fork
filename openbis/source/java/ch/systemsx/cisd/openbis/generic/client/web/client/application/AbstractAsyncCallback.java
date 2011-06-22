@@ -42,9 +42,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
 
-    List<IOnSuccessAction<T>> successActions = new ArrayList<IOnSuccessAction<T>>();
+    private List<IOnSuccessAction<T>> successActions = new ArrayList<IOnSuccessAction<T>>();
 
-    List<IDelegatedAction> failureActions = new ArrayList<IDelegatedAction>();
+    private List<IDelegatedAction> failureActions = new ArrayList<IDelegatedAction>();
 
     public void addOnSuccessAction(IOnSuccessAction<T> action)
     {
@@ -304,12 +304,36 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onSuccess(final T result)
     {
+        performSuccessActionOrIgnore(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    doOnSuccess(result);
+                }
+            });
+    }
+
+    private void doOnSuccess(final T result)
+    {
         process(result);
         for (IOnSuccessAction<T> a : successActions)
         {
             a.execute(result);
         }
         callbackListener.finishOnSuccessOf(this, result);
+    }
+
+    /**
+     * This method should be overriden if callback should be ignored on success. By default
+     * <var>successAction</var> is always executed.
+     * <p>
+     * In overriden method one should ignore the callback with {@link #ignore()}. Otherwise the
+     * <var>successAction</var> should be executed.
+     */
+    protected void performSuccessActionOrIgnore(IDelegatedAction successAction)
+    {
+        successAction.execute();
     }
 
     /**

@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -809,12 +810,56 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         @Override
         public final void finishOnFailure(final Throwable caught)
         {
-            grid.el().unmask();
-            onComplete(false);
-            pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
+            reenableAfterFailure();
             // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
             caught.printStackTrace();
             delegate.onFailure(caught);
+        }
+
+        public final void reenableAfterFailure()
+        {
+            grid.el().unmask();
+            onComplete(false);
+            pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
+        }
+
+        @Override
+        protected void performSuccessActionOrIgnore(final IDelegatedAction successAction)
+        {
+            if (tableModificationsManager.isTableDirty())
+            {
+                final Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>()
+                    {
+                        public void handleEvent(MessageBoxEvent me)
+                        {
+                            if (me.getButtonClicked().getItemId().equals(Dialog.YES))
+                            {
+                                tableModificationsManager.saveModifications(new IDelegatedAction()
+                                    {
+                                        @Override
+                                        public void execute()
+                                        {
+                                            // ignore this callback and refresh the table
+                                            ignore();
+                                            reenableAfterFailure();
+                                            refresh();
+                                        }
+                                    });
+                            } else
+                            {
+                                tableModificationsManager.cancelModifications();
+                                successAction.execute();
+                            }
+                        }
+                    };
+                MessageBox.confirm("Save Table Modifications?",
+                        "There are modifications in the table that you didn't save. "
+                                + "If you don't save them now they will be lost.</br></br>"
+                                + "Would you like to save your changes?", listener);
+            } else
+            {
+                successAction.execute();
+            }
         }
 
         @Override
@@ -852,7 +897,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                 resultSetConfig.tryGetGridDisplayId());
                 resultSetConfig.setCacheConfig(ResultSetFetchConfig
                         .createFetchFromCacheAndRecompute(key));
-                // this.reuse(); // FIXME PTR has to be done?
+                this.reuse();
                 listEntities(resultSetConfig, this);
             }
             List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
@@ -1956,10 +2001,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         /** @return <code>true</code> iff there are any uncommitted modifications */
         boolean isTableDirty();
 
-        /** save all modifications made in the table to the DB and refresh the table */
+        /** save all modifications made in the table to the DB */
         void saveModifications();
 
-        /** cancel all modifications made in the table and refresh the table */
+        /** save all modifications made in the table to the DB and call the after save action */
+        void saveModifications(IDelegatedAction afterSaveAction);
+
+        /** cancel all modifications made in the table */
         void cancelModifications();
 
         /** handle cell editing event */
@@ -2011,6 +2059,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         private int finishedModifications = 0;
 
+        private IDelegatedAction afterSaveActionOrNull;
+
         //
         // ITableModificationsManager
         //
@@ -2023,6 +2073,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         public void saveModifications()
         {
+            saveModifications(null);
+        }
+
+        private void setAfterSaveAction(IDelegatedAction afterSaveAction)
+        {
+            this.afterSaveActionOrNull = afterSaveAction;
+        }
+
+        public void saveModifications(IDelegatedAction afterSaveAction)
+        {
+            setAfterSaveAction(afterSaveAction);
             finishedModifications = 0;
             for (Entry<M, List<IModification>> entry : modificationsByModel.entrySet())
             {
@@ -2108,6 +2169,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 grid.getStore().commitChanges(); // no need to refresh - everything should be valid
             }
             clearModifications();
+            if (afterSaveActionOrNull != null)
+            {
+                afterSaveActionOrNull.execute();
+            }
         }
 
         private String createFailedModificationsReport()
