@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,12 +33,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -146,7 +145,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                     List<Project> projects = new ArrayList<Project>();
                     for (String stringId : identifiers)
                     {
-                        ProjectIdentifier id = new ProjectIdentifierFactory(stringId).createIdentifier();
+                        ProjectIdentifier id =
+                                new ProjectIdentifierFactory(stringId).createIdentifier();
                         projects.add(new Project(id.getSpaceCode(), id.getProjectCode()));
                     }
                     one(service).listExperiments(SESSION_TOKEN, projects, null);
@@ -260,7 +260,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     public final void testGetDataSets()
     {
         final List<String> codes = unmodifiableList("DATA-SET-1", "DATA-SET-2");
-        final List<DataSet> dataSets =
+        final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
                 unmodifiableList(createDataSet("DATA-SET-1", experimentIdentifier("E1"), null),
                         createDataSet("DATA-SET-2", experimentIdentifier("E2"), null));
 
@@ -276,7 +276,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
             });
 
         List<DataSet> result = openbisFacade.getDataSets(codes);
-        assertEquals(dataSets, result);
+        // dataSets and result do not have the same type, but should have the same string
+        // representation.
+        assertEquals(dataSets.toString(), result.toString());
         SearchCriteria criteria = criteriaMatcher.recordedObject();
         assertNotNull(criteria);
         assertEquals(SearchOperator.MATCH_ANY_CLAUSES, criteria.getOperator());
@@ -290,7 +292,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         final List<String> identifiers =
                 unmodifiableList(experimentIdentifier("E1"), experimentIdentifier("E2"));
-        final List<DataSet> dataSets =
+        final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
                 unmodifiableList(createDataSet("DATA-SET-1", identifiers.get(0), null),
                         createDataSet("DATA-SET-2", identifiers.get(1), null));
 
@@ -306,7 +308,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
             });
 
         List<DataSet> result = openbisFacade.listDataSetsForExperiments(identifiers);
-        assertEquals(dataSets, result);
+        // dataSets and result do not have the same type, but should have the same string
+        // representation.
+        assertEquals(dataSets.toString(), result.toString());
         SearchCriteria criteria = criteriaMatcher.recordedObject();
         assertNotNull(criteria);
         assertEquals(SearchOperator.MATCH_ANY_CLAUSES, criteria.getOperator());
@@ -324,7 +328,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         final List<String> identifiers =
                 unmodifiableList(sampleIdentifier("S1"), sampleIdentifier("S2"));
-        final List<DataSet> dataSets =
+        final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
                 unmodifiableList(
                         createDataSet("DATA-SET-1", experimentIdentifier("E1"), identifiers.get(0)),
                         createDataSet("DATA-SET-2", experimentIdentifier("E2"), identifiers.get(1)));
@@ -341,7 +345,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
             });
 
         List<DataSet> result = openbisFacade.listDataSetsForSamples(identifiers);
-        assertEquals(dataSets, result);
+        // dataSets and result do not have the same type, but should have the same string
+        // representation.
+        assertEquals(dataSets.toString(), result.toString());
         SearchCriteria criteria = criteriaMatcher.recordedObject();
         assertNotNull(criteria);
         assertEquals(SearchOperator.MATCH_ANY_CLAUSES, criteria.getOperator());
@@ -362,12 +368,27 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
+                            unmodifiableList(createDataSet("dataSetCode",
+                                    experimentIdentifier("E1"), null));
+
+                    final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                            new RecordingMatcher<SearchCriteria>();
+                    context.checking(new Expectations()
+                        {
+                            {
+                                one(service).searchForDataSets(with(equal(SESSION_TOKEN)),
+                                        with(criteriaMatcher));
+                                will(returnValue(dataSets));
+                            }
+                        });
+
                     one(dssComponent).getDataSet(dataSetCode);
                     will(returnValue(dataSet));
                 }
             });
 
-        assertEquals(dataSet, openbisFacade.getDataSetDss(dataSetCode));
+        assertEquals(dataSet, openbisFacade.getDataSet(dataSetCode).getDataSetDss());
     }
 
     @Test
@@ -377,14 +398,14 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         final File file = new File("");
         final IDataSetDss dataSet = context.mock(IDataSetDss.class);
         context.checking(new Expectations()
-        {
             {
-                    one(dssComponent).putDataSet(dataSetDTO, file);
+                {
+                    oneOf(dssComponent).putDataSet(dataSetDTO, file);
                     will(returnValue(dataSet));
-            }
-        });
+                }
+            });
 
-        assertEquals(dataSet, openbisFacade.putDataSet(dataSetDTO, file));
+        assertEquals(dataSet, openbisFacade.putDataSet(dataSetDTO, file).getDataSetDss());
     }
 
     @Test
@@ -406,12 +427,12 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         final SearchCriteria sc = new SearchCriteria();
         final List<Sample> result = unmodifiableList();
         context.checking(new Expectations()
-        {
             {
+                {
                     one(service).searchForSamples(SESSION_TOKEN, sc);
                     will(returnValue(result));
-            }
-        });
+                }
+            });
 
         assertEquals(result, openbisFacade.searchForSamples(sc));
     }
@@ -437,7 +458,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         final List<Sample> samples = Arrays.asList(createSample("S1", null));
         final EnumSet<Connections> connections = EnumSet.allOf(Connections.class);
-        final List<DataSet> result = unmodifiableList(createDataSet("dataset", "E1", "S1"));
+        final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> result =
+                unmodifiableList(createDataSet("dataset", "E1", "S1"));
         context.checking(new Expectations()
             {
                 {
@@ -446,7 +468,9 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                 }
             });
 
-        assertEquals(result, openbisFacade.listDataSets(samples, connections));
+        // dataSets and result do not have the same type, but should have the same string
+        // representation.
+        assertEquals(result.toString(), openbisFacade.listDataSets(samples, connections).toString());
     }
 
     private String projectIdentifier(String code)
@@ -458,7 +482,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         return "/DB/PROJECT/" + code;
     }
-    
+
     private String sampleIdentifier(String code)
     {
         return "/DB/" + code;
@@ -474,7 +498,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setIdentifier(experimentIdentifier(code));
         return new Experiment(init);
     }
-    
+
     private Sample createSample(String code, String experimentIdentifierOrNull)
     {
         SampleInitializer init = new SampleInitializer();
@@ -488,7 +512,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         return new Sample(init);
     }
 
-    private DataSet createDataSet(String code, String exprimentId, String sampleIdOrNull)
+    private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createDataSet(String code,
+            String exprimentId, String sampleIdOrNull)
     {
         DataSetInitializer init = new DataSetInitializer();
         init.setCode(code);
@@ -496,7 +521,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setRegistrationDate(new Date());
         init.setExperimentIdentifier(exprimentId);
         init.setSampleIdentifierOrNull(sampleIdOrNull);
-        return new DataSet(init);
+        return new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(init);
     }
 
     private <E> List<E> unmodifiableList(E... args)

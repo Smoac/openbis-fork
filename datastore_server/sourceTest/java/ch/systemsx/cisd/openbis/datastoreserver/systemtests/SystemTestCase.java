@@ -42,20 +42,23 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
     private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
+
     private static final String TARGETS_DIRECTORY = "targets";
-    private static final File UNIT_TEST_ROOT_DIRECTORY =
-            new File(TARGETS_DIRECTORY + File.separator + UNIT_TEST_WORKING_DIRECTORY);
+
+    private static final File UNIT_TEST_ROOT_DIRECTORY = new File(TARGETS_DIRECTORY
+            + File.separator + UNIT_TEST_WORKING_DIRECTORY);
+
     private static final String ROOT_DIR_KEY = "root-dir";
+
     private static final String ROOT_DIR_PREFIX = "${" + ROOT_DIR_KEY + "}/";
-    
+
     protected File workingDirectory;
+
     protected File rootDir;
 
     SystemTestCase()
@@ -69,7 +72,7 @@ public abstract class SystemTestCase extends AssertJUnit
     @BeforeSuite
     public void beforeSuite() throws Exception
     {
-        TestInitializer.init();
+        TestInitializer.initWithIndex();
         Server server = new Server();
         Connector connector = new SelectChannelConnector();
         connector.setPort(8888);
@@ -95,7 +98,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
         sch.addServlet(new ServletHolder(dispatcherServlet), "/*");
         server.start();
-        
+
         List<String> serviceProperties =
                 FileUtilities.loadToStringList(new File(SERVICE_PROPERTIES_FILE));
         for (String property : serviceProperties)
@@ -120,5 +123,5 @@ public abstract class SystemTestCase extends AssertJUnit
         DataStoreServer.main(new String[0]);
         ETLDaemon.runForTesting(new String[0]);
     }
-    
+
 }

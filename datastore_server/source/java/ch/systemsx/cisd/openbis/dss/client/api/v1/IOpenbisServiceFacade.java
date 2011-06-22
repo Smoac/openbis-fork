@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 import java.util.EnumSet;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;

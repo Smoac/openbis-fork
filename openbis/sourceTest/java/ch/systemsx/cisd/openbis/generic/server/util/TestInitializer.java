@@ -28,22 +28,36 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TestInitializer
 {
     public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/sourceTest/lucene/indices";
+
     public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
-    
+
     public static void init()
+    {
+        initWithoutIndex();
+    }
+
+    public static void initWithoutIndex()
+    {
+        init("NO_INDEX");
+    }
+
+    public static void initWithIndex()
+    {
+        init("SKIP_IF_MARKER_FOUND");
+    }
+
+    private static void init(String hibernateIndexMode)
     {
         LogInitializer.init();
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
         System.setProperty("script-folder", "../openbis/sourceTest");
-        System.setProperty("hibernate.search.index-mode", "NO_INDEX");
+        System.setProperty("hibernate.search.index-mode", hibernateIndexMode);
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
         System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
@@ -76,6 +90,5 @@ public class TestInitializer
             throw new IOExceptionUnchecked(ex);
         }
     }
-
 
 }

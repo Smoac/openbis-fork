@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -26,13 +27,13 @@ import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -60,8 +61,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
     @Private
     public static OpenbisServiceFacade tryCreate(String username, String password,
-            String openbisUrl,
-            long timeoutInMillis)
+            String openbisUrl, long timeoutInMillis)
     {
         ServiceFinder generalInformationServiceFinder =
                 new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
@@ -138,20 +138,19 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         for (SampleIdentifier sampleIdentifier : parseSampleIdentifiers(sampleIdentifiers))
         {
             searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.CODE,
-                    sampleIdentifier.getSampleCode()));
+                    MatchClauseAttribute.CODE, sampleIdentifier.getSampleCode()));
         }
 
         List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
         List<Sample> filteredSamples =
                 CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
-            {
-                public boolean isPresent(Sample element)
-                {
-                    String identifier = element.getIdentifier();
-                    return identifier != null && sampleIdentifiers.contains(identifier);
-                }
-            });
+                    {
+                        public boolean isPresent(Sample element)
+                        {
+                            String identifier = element.getIdentifier();
+                            return identifier != null && sampleIdentifiers.contains(identifier);
+                        }
+                    });
         return filteredSamples;
     }
 
@@ -181,12 +180,17 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         for (ProjectIdentifier projectIdentifier : parseProjectIdentifiers(projectIdentifiers))
         {
             searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.PROJECT,
-                    projectIdentifier.getProjectCode()));
+                    MatchClauseAttribute.PROJECT, projectIdentifier.getProjectCode()));
         }
 
         List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
         return samples;
+    }
+
+    public DataSet getDataSet(String dataSetCode) throws EnvironmentFailureException
+    {
+        List<DataSet> dataSets = getDataSets(Collections.singletonList(dataSetCode));
+        return (dataSets.size() > 0) ? dataSets.get(0) : null;
     }
 
     public List<DataSet> getDataSets(List<String> dataSetCodes) throws EnvironmentFailureException
@@ -200,8 +204,24 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                     MatchClauseAttribute.CODE, dataSetCode));
         }
 
-        List<DataSet> samples = service.searchForDataSets(sessionToken, searchCriteria);
-        return samples;
+        return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
+    }
+
+    /**
+     * Internal method used by the {@link DataSet} object to initialize an ivar if necessary.
+     */
+    public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet tryRawDataSet(
+            String dataSetCode) throws EnvironmentFailureException
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                dataSetCode));
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> matches =
+                service.searchForDataSets(sessionToken, searchCriteria);
+
+        // Codes are guaranteed to be unique, so there is either 1 or 0 matches
+        return (matches.size() > 0) ? matches.get(0) : null;
     }
 
     public List<DataSet> listDataSetsForExperiments(final List<String> experimentIdentifiers)
@@ -210,34 +230,44 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         SearchCriteria searchCriteria =
                 searchCriteriaForExperimentIdentifiers(experimentIdentifiers);
 
-        List<DataSet> dataSets = service.searchForDataSets(sessionToken, searchCriteria);
-        List<DataSet> filteredSamples =
-                CollectionUtils.filter(dataSets, new CollectionUtils.ICollectionFilter<DataSet>()
-                    {
-                        public boolean isPresent(DataSet dataSet)
-                        {
-                            String identifier = dataSet.getExperimentIdentifier();
-                            return identifier != null && experimentIdentifiers.contains(identifier);
-                        }
-                    });
-        return filteredSamples;
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
+                service.searchForDataSets(sessionToken, searchCriteria);
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> filteredDataSets =
+                CollectionUtils
+                        .filter(dataSets,
+                                new CollectionUtils.ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet>()
+                                    {
+                                        public boolean isPresent(
+                                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet)
+                                        {
+                                            String identifier = dataSet.getExperimentIdentifier();
+                                            return identifier != null
+                                                    && experimentIdentifiers.contains(identifier);
+                                        }
+                                    });
+        return convertDataSets(filteredDataSets);
     }
 
     public List<DataSet> listDataSetsForSamples(final List<String> sampleIdentifiers)
             throws EnvironmentFailureException
     {
         SearchCriteria searchCriteria = searchCriteriaForSampleIdentifiers(sampleIdentifiers);
-        List<DataSet> dataSets = service.searchForDataSets(sessionToken, searchCriteria);
-        List<DataSet> filteredSamples =
-                CollectionUtils.filter(dataSets, new CollectionUtils.ICollectionFilter<DataSet>()
-                    {
-                        public boolean isPresent(DataSet dataSet)
-                        {
-                            String identifier = dataSet.getSampleIdentifierOrNull();
-                            return identifier != null && sampleIdentifiers.contains(identifier);
-                        }
-                    });
-        return filteredSamples;
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
+                service.searchForDataSets(sessionToken, searchCriteria);
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> filteredDataSets =
+                CollectionUtils
+                        .filter(dataSets,
+                                new CollectionUtils.ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet>()
+                                    {
+                                        public boolean isPresent(
+                                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet)
+                                        {
+                                            String identifier = dataSet.getSampleIdentifierOrNull();
+                                            return identifier != null
+                                                    && sampleIdentifiers.contains(identifier);
+                                        }
+                                    });
+        return convertDataSets(filteredDataSets);
     }
 
     public IDataSetDss getDataSetDss(String code) throws EnvironmentFailureException
@@ -245,10 +275,11 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return dssComponent.getDataSet(code);
     }
 
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
+    public DataSet putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws EnvironmentFailureException
     {
-        return dssComponent.putDataSet(newDataset, dataSetFile);
+        IDataSetDss dataSetDss = dssComponent.putDataSet(newDataset, dataSetFile);
+        return new DataSet(this, null, dataSetDss);
     }
 
     public synchronized void logout()
@@ -337,11 +368,24 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
     public List<DataSet> searchForDataSets(SearchCriteria searchCriteria)
     {
-        return service.searchForDataSets(sessionToken, searchCriteria);
+        return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
     }
 
     public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet)
     {
-        return service.listDataSets(sessionToken, samples, connectionsToGet);
+        return convertDataSets(service.listDataSets(sessionToken, samples, connectionsToGet));
+    }
+
+    private List<DataSet> convertDataSets(
+            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> internalDataSets)
+    {
+        ArrayList<DataSet> convertedDataSets = new ArrayList<DataSet>(internalDataSets.size());
+        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : internalDataSets)
+        {
+            DataSet converted = new DataSet(this, dataSet, null);
+            convertedDataSets.add(converted);
+        }
+
+        return convertedDataSets;
     }
 }

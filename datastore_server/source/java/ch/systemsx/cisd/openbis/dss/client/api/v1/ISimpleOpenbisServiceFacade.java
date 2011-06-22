@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -74,6 +73,14 @@ public interface ISimpleOpenbisServiceFacade
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers);
 
     /**
+     * Return a {@link DataSet} object for for the given code. If some of the specified data set
+     * code does not exist in openBIS, null will be returned.
+     * 
+     * @return The requested data set, or null if it does not exist.
+     */
+    DataSet getDataSet(String dataSetCodes);
+
+    /**
      * Return {@link DataSet} objects for given a set of codes. If some of the specified data set
      * codes does not exist in openBIS it will be silently ignored.
      */
@@ -92,18 +99,13 @@ public interface ISimpleOpenbisServiceFacade
     List<DataSet> listDataSetsForSamples(List<String> sampleIdentifiers);
 
     /**
-     * Get a proxy to the data set designated by the given data set code.
-     */
-    public IDataSetDss getDataSetDss(String code);
-
-    /**
      * Upload a new data set to the DSS.
      * 
      * @param newDataset The new data set that should be registered
      * @param dataSetFile A file or folder containing the data
      * @return A proxy to the newly added data set
      */
-    public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile);
+    public DataSet putDataSet(NewDataSetDTO newDataset, File dataSetFile);
 
     /**
      * Logs out from openBIS and frees all associated resources on the server.
