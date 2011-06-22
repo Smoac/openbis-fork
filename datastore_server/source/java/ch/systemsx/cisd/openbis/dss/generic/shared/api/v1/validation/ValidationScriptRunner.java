@@ -31,7 +31,6 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.JythonUtils;
 
 /**
@@ -50,30 +49,13 @@ public class ValidationScriptRunner
      */
     public static ValidationScriptRunner createValidatorFromScriptPaths(String[] scriptPaths)
     {
-        if (scriptPaths == null)
+        String scriptStringOrNull = ValidationScriptReader.tryReadValidationScript(scriptPaths);
+        if (StringUtils.isBlank(scriptStringOrNull))
         {
             return new NullValidationScriptRunner();
         }
 
-        StringBuilder concatenatedScripts = new StringBuilder();
-
-        for (String scriptPath : scriptPaths)
-        {
-            File scriptFile = new File(scriptPath);
-            if (scriptFile.exists())
-            {
-                String fileString = FileUtilities.loadToString(scriptFile);
-                concatenatedScripts.append(fileString).append("\n");
-            }
-        }
-
-        String scriptString = concatenatedScripts.toString();
-        if (StringUtils.isBlank(scriptString))
-        {
-            return new NullValidationScriptRunner();
-        }
-
-        return new ValidationScriptRunner(getValidationScriptString(scriptString));
+        return new ValidationScriptRunner(scriptStringOrNull);
     }
 
     /**
@@ -85,17 +67,7 @@ public class ValidationScriptRunner
         {
             return new NullValidationScriptRunner();
         }
-        String theScriptString = getValidationScriptString(scriptString);
-        return new ValidationScriptRunner(theScriptString);
-    }
-
-    private static String getValidationScriptString(String scriptString)
-    {
-        String standardImports = "from " + ValidationError.class.getCanonicalName() + " import *";
-        return standardImports + "\n" + scriptString;
-
-        // String scriptString = FileUtilities.loadToString(validationScriptFile);
-        // return scriptString;
+        return new ValidationScriptRunner(scriptString);
     }
 
     private final PythonInterpreter interpreter;

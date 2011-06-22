@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
@@ -41,6 +40,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptReader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -213,20 +213,7 @@ public class PutDataSetService
             return null;
         }
 
-        StringBuilder concatenatedScripts = new StringBuilder();
-        for (String scriptPath : scriptPaths)
-        {
-            File scriptFile = new File(scriptPath);
-            if (false == scriptFile.exists())
-            {
-                operationLog.warn("Data set type [" + dataSetTypeOrNull
-                        + "] refers to a validation script [" + scriptPath
-                        + "] which does not exist.");
-                return null;
-            }
-            concatenatedScripts.append(FileUtilities.loadToString(scriptFile)).append("\n");
-        }
-        return concatenatedScripts.toString();
+        return ValidationScriptReader.tryReadValidationScript(scriptPaths);
     }
 
     private void doInitialization()
