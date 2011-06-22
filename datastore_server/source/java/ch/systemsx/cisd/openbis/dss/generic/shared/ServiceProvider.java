@@ -39,6 +39,8 @@ public class ServiceProvider
 
     // applicationContex it lazily initialized
     private static BeanFactory applicationContext = null;
+    
+    private static boolean buildingApplicationContext;
 
     /**
      * @deprecated This method should only be used from {@link ServiceProviderTestWrapper} to avoid
@@ -64,8 +66,16 @@ public class ServiceProvider
             {
                 if (applicationContext == null)
                 {
+                    if (buildingApplicationContext)
+                    {
+                        throw new IllegalStateException("Building application context. "
+                                + "Application context hasn't been built completely. "
+                                + "Beans should access other beans lazily.");
+                    }
+                    buildingApplicationContext = true;
                     applicationContext = new ClassPathXmlApplicationContext(new String[]
                         { "dssApplicationContext.xml" }, true);
+                    buildingApplicationContext = false;
                 }
             }
         }
