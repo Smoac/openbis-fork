@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 /**
  * Holds the actual version of the pathinfo database which stores path information of data sets.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PathInfoDatabaseVersionHolder implements IDatabaseVersionHolder
 {
     public String getDatabaseVersion()
     {
-        return "002"; // S109
+        return "003"; // S109
     }
 
 }

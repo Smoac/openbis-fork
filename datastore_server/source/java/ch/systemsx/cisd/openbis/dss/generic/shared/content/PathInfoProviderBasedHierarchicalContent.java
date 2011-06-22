@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -210,8 +209,7 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
         public long getLastModified()
         {
-            Date lastModified = pathInfo.getLastModified();
-            return lastModified == null ? System.currentTimeMillis() : lastModified.getTime();
+            return pathInfo.getLastModified().getTime();
         }
 
         @Override
@@ -311,7 +309,8 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             IHierarchicalContentNode node = containerNode.getChildNode(relativePath);
             return asFileContentProvider(node);
         }
-        throw new IllegalArgumentException("Resource '" + FileUtilities.getRelativeFilePath(root, file)
+        throw new IllegalArgumentException("Resource '"
+                + FileUtilities.getRelativeFilePath(root, file)
                 + "' is currently unavailable. It might be in an archive.");
     }
 
