@@ -125,8 +125,7 @@
 			</fileset>
     	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
     		<exclude name="META_INF/*"/>
-    		<include name="ch/systemsx/cisd/hdf5/**/*"/>
-    		<include name="ncsa/**/*"/>
+    		<include name="**/*"/>
     	</zipfileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
@@ -160,15 +159,11 @@
     <jar update="true" destfile="${dss-jar.file}">
     	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
     		<exclude name="META_INF/*"/>
-    		<include name="ch/systemsx/cisd/hdf5/**/*"/>
-    		<include name="ncsa/**/*"/>
+    		<include name="**/*"/>
     	</zipfileset>
       <fileset dir="source">
         <include name="**/*.sql" />
       </fileset>
-    	<fileset dir="${lib}/hdf5">
-    		<include name="native/**/*"/>
-    	</fileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
     	</fileset>
