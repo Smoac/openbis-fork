@@ -1,7 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -276,14 +275,6 @@ public class DetailedSearchWindow extends Dialog
 
     private static List<AssociatedEntityKind> getAssociatedEntityKinds(final EntityKind sourceEntity)
     {
-        // TODO 2011-05-06, Piotr Buczek: after extending data set search use the following
-        // return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity)
-        if (sourceEntity == EntityKind.SAMPLE)
-        {
-            return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity);
-        } else
-        {
-            return Collections.emptyList();
-        }
+        return AssociatedEntityKind.getAssociatedEntityKinds(sourceEntity);
     }
 }
