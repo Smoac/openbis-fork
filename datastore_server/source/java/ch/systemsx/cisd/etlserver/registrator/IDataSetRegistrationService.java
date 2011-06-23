@@ -19,8 +19,11 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSourceQueryService;
 
 /**
+ * Functionality used in registering data sets.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IDataSetRegistrationService
@@ -50,5 +53,10 @@ public interface IDataSetRegistrationService
      *            default this value.
      */
     public File moveIncomingToError(String dataSetTypeCodeOrNull);
+
+    /**
+     * Return a service that can be used to query data sources.
+     */
+    public IDataSourceQueryService getDataSourceQueryService();
 
 }
