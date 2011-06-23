@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -40,11 +41,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.XmlField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -52,25 +51,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying property types.
  * 
  * @author Tomasz Pylak
  */
-public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
+public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "property-type-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -82,7 +82,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
 
     private PropertyTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -104,14 +104,17 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                             });
         addButton(addButton);
 
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<PropertyType>>()
+        addButton(createSelectedItemButton(
+                viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<PropertyType>>>()
                     {
 
-                        public void invoke(BaseEntityModel<PropertyType> selectedItem,
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<PropertyType>> selectedItem,
                                 boolean keyPressed)
                         {
-                            final PropertyType propertyType = selectedItem.getBaseObject();
+                            final PropertyType propertyType =
+                                    selectedItem.getBaseObject().getObjectOrNull();
                             if (propertyType.isManagedInternally())
                             {
                                 final String errorMsg =
@@ -129,7 +132,8 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                     {
 
                         @Override
-                        protected Dialog createDialog(List<PropertyType> propertyTypes,
+                        protected Dialog createDialog(
+                                List<TableModelRowWithObject<PropertyType>> propertyTypes,
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new PropertyTypeListDeletionConfirmationDialog(viewContext,
@@ -137,13 +141,14 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                         }
 
                         @Override
-                        protected boolean validateSelectedData(List<PropertyType> data)
+                        protected boolean validateSelectedData(
+                                List<TableModelRowWithObject<PropertyType>> data)
                         {
                             String errorMsg =
                                     "Internally managed property types cannot be deleted.";
-                            for (PropertyType propertyType : data)
+                            for (TableModelRowWithObject<PropertyType> propertyType : data)
                             {
-                                if (propertyType.isManagedInternally())
+                                if (propertyType.getObjectOrNull().isManagedInternally())
                                 {
                                     MessageBox.alert("Error", errorMsg, null);
                                     return false;
@@ -229,47 +234,48 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     }
 
     @Override
-    protected IColumnDefinitionKind<PropertyType>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return PropertyTypeColDefKind.values();
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected List<IColumnDefinition<PropertyType>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new PropertyTypeColDefKind[]
-            { PropertyTypeColDefKind.LABEL, PropertyTypeColDefKind.CODE,
-                    PropertyTypeColDefKind.DATA_TYPE });
+        return Arrays.asList(PropertyTypeGridColumnIDs.LABEL, PropertyTypeGridColumnIDs.CODE,
+                PropertyTypeGridColumnIDs.DATA_TYPE);
     }
 
     @Override
-    protected ColumnDefsAndConfigs<PropertyType> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<PropertyType> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> schema = super.createColumnsDefinition();
         GridCellRenderer<BaseEntityModel<?>> multilineCellRenderer =
                 createMultilineStringCellRenderer();
-        schema.setGridCellRendererFor(PropertyTypeColDefKind.DESCRIPTION.id(),
+        schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.DESCRIPTION,
                 multilineCellRenderer);
-        schema.setGridCellRendererFor(PropertyTypeColDefKind.SCHEMA.id(), multilineCellRenderer);
-        schema.setGridCellRendererFor(PropertyTypeColDefKind.TRANSFORMATION.id(),
-                multilineCellRenderer);
+        schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XML_SCHEMA, multilineCellRenderer);
+        schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XSLT, multilineCellRenderer);
         return schema;
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, PropertyType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<PropertyType>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<PropertyType>> callback)
     {
         viewContext.getService().listPropertyTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<PropertyType> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<PropertyType>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportPropertyTypes(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

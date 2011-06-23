@@ -308,13 +308,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a chunk of the property types list.
      */
-    public ResultSet<PropertyType> listPropertyTypes(
-            DefaultResultSetConfig<String, PropertyType> criteria) throws UserFailureException;
+    public TypedTableResultSet<PropertyType> listPropertyTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> criteria)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types.
      */
-    public String prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria)
+    public String prepareExportPropertyTypes(
+            final TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria)
             throws UserFailureException;
 
     /**

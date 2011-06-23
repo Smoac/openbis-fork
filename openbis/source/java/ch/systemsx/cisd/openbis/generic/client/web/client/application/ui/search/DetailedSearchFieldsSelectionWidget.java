@@ -34,15 +34,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link ComboBox} containing list of detailed search fields loaded from the server (property
@@ -135,7 +136,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
     }
 
     private final class ListPropertyTypesCallback extends
-            AbstractAsyncCallback<ResultSet<PropertyType>>
+            AbstractAsyncCallback<TypedTableResultSet<PropertyType>>
     {
         ListPropertyTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
@@ -143,9 +144,14 @@ public final class DetailedSearchFieldsSelectionWidget extends
         }
 
         @Override
-        protected void process(final ResultSet<PropertyType> result)
+        protected void process(final TypedTableResultSet<PropertyType> result)
         {
-            propertyTypes = result.getList().extractOriginalObjects();
+            List<TableModelRowWithObject<PropertyType>> rows = result.getResultSet().getList().extractOriginalObjects();
+            propertyTypes = new ArrayList<PropertyType>();
+            for (TableModelRowWithObject<PropertyType> row : rows)
+            {
+                propertyTypes.add(row.getObjectOrNull());
+            }
 
             final ListStore<DetailedSearchFieldComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
@@ -297,7 +303,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
     {
         if (dataLoaded == false)
         {
-            DefaultResultSetConfig<String, PropertyType> config =
+            DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> config =
                     DefaultResultSetConfig.createFetchAll();
             viewContext.getService().listPropertyTypes(config,
                     new ListPropertyTypesCallback(viewContext));

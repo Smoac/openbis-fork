@@ -257,13 +257,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<PropertyType>> asyncCallback);
 
     /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
-    public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
-            final AsyncCallback<ResultSet<PropertyType>> asyncCallback);
+    public void listPropertyTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> criteria,
+            final AsyncCallback<TypedTableResultSet<PropertyType>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportPropertyTypes(TableExportCriteria)
      */
-    public void prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria,
+    public void prepareExportPropertyTypes(
+            final TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /**

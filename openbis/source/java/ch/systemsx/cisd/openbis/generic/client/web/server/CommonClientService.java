@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PersonsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PropertyTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.RoleAssignmentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleTypeProvider;
@@ -451,7 +452,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportPropertyTypes(TableExportCriteria<PropertyType> criteria)
+    public String prepareExportPropertyTypes(
+            TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -598,18 +600,10 @@ public final class CommonClientService extends AbstractClientService implements
                 listCriteria);
     }
 
-    public ResultSet<PropertyType> listPropertyTypes(
-            DefaultResultSetConfig<String, PropertyType> criteria)
+    public TypedTableResultSet<PropertyType> listPropertyTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> criteria)
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
-                    {
-                        @Override
-                        public List<PropertyType> getFullOriginalData() throws UserFailureException
-                        {
-                            return listPropertyTypes(true);
-                        }
-                    });
+        return listEntities(new PropertyTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
     public final TypedTableResultSet<MatchingEntity> listMatchingEntities(

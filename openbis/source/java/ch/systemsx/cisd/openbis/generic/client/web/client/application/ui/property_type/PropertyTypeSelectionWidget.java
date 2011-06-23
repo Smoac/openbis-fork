@@ -32,10 +32,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link ComboBox} containing list of property type codes loaded from the server.
@@ -92,7 +93,7 @@ public final class PropertyTypeSelectionWidget extends
     }
 
     private final class ListPropertyTypesCallback extends
-            AbstractAsyncCallback<ResultSet<PropertyType>>
+            AbstractAsyncCallback<TypedTableResultSet<PropertyType>>
     {
         ListPropertyTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
@@ -100,11 +101,18 @@ public final class PropertyTypeSelectionWidget extends
         }
 
         @Override
-        protected void process(final ResultSet<PropertyType> result)
+        protected void process(final TypedTableResultSet<PropertyType> result)
         {
             final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convertItems(result.getList().extractOriginalObjects()));
+            List<TableModelRowWithObject<PropertyType>> rows =
+                    result.getResultSet().getList().extractOriginalObjects();
+            ArrayList<PropertyType> types = new ArrayList<PropertyType>();
+            for (TableModelRowWithObject<PropertyType> row : rows)
+            {
+                types.add(row.getObjectOrNull());
+            }
+            propertyTypeStore.add(convertItems(types));
             if (propertyTypeStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -132,7 +140,7 @@ public final class PropertyTypeSelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<PropertyType>> callback)
     {
-        DefaultResultSetConfig<String, PropertyType> config =
+        DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> config =
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getService().listPropertyTypes(config,
                 new ListPropertyTypesCallback(viewContext));

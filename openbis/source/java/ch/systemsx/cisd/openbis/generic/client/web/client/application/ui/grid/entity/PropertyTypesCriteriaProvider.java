@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -8,11 +9,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * The provider which is able to load and reload property types. When property types are loaded the
@@ -37,13 +39,13 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
 
     private void loadPropertyTypes(IDataRefreshCallback dataRefreshCallback)
     {
-        DefaultResultSetConfig<String, PropertyType> config =
+        DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> config =
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listPropertyTypes(config,
                 new ListPropertyTypesCallback(viewContext, dataRefreshCallback));
     }
 
-    private class ListPropertyTypesCallback extends AbstractAsyncCallback<ResultSet<PropertyType>>
+    private class ListPropertyTypesCallback extends AbstractAsyncCallback<TypedTableResultSet<PropertyType>>
     {
         private final IDataRefreshCallback dataRefreshCallback;
 
@@ -55,16 +57,22 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
         }
 
         @Override
-        protected void process(ResultSet<PropertyType> result)
+        protected void process(TypedTableResultSet<PropertyType> result)
         {
-            List<PropertyType> properties = result.getList().extractOriginalObjects();
+            List<TableModelRowWithObject<PropertyType>> rows =
+                    result.getResultSet().getList().extractOriginalObjects();
+            List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+            for (TableModelRowWithObject<PropertyType> row : rows)
+            {
+                propertyTypes.add(row.getObjectOrNull());
+            }
             if (propertiesFilterOrNull != null)
             {
-                properties =
-                        PropertyTypesFilterUtil.filterPropertyTypesForEntityKind(properties,
+                propertyTypes =
+                        PropertyTypesFilterUtil.filterPropertyTypesForEntityKind(propertyTypes,
                                 propertiesFilterOrNull);
             }
-            criteria.setPropertyTypes(properties);
+            criteria.setPropertyTypes(propertyTypes);
             dataRefreshCallback.postRefresh(true);
         }
     }
