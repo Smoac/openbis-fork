@@ -158,12 +158,13 @@ public final class SqlUnitMigrationTest
         }
 
         // NOTE: the following methods are needed because we compile with JDK 6 on Hudson
-
+        @SuppressWarnings("unused")
         public boolean isWrapperFor(Class<?> arg0) throws SQLException
         {
             return false;
         }
 
+        @SuppressWarnings("unused")
         public <T> T unwrap(Class<T> arg0) throws SQLException
         {
             return null;
