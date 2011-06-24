@@ -39,6 +39,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransac
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterialImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProjectImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
@@ -53,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -275,6 +278,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space spaceOrNull =
                 openBisService.tryGetSpace(spaceIdentifier);
         return (null == spaceOrNull) ? null : new SpaceImmutable(spaceOrNull);
+    }
+
+    public IMaterialImmutable getMaterial(String materialCode, String materialType)
+    {
+        MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, materialType);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialOrNull =
+                openBisService.tryGetMaterial(materialIdentifier);
+        return (null == materialOrNull) ? null : new MaterialImmutable(materialOrNull);
+    }
+
+    public IMaterial createNewMaterial(String materialCode, String materialType)
+    {
+        return getStateAsLiveState().createNewMaterial(materialCode, materialType);
     }
 
     public String moveFile(String src, IDataSet dst)

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -220,6 +221,15 @@ public class ConversionUtils
         dataSetUpdate.setModifiedParentDatasetCodesOrNull(parentCodes);
 
         return dataSetUpdate;
+    }
+
+    public static NewMaterial convertToNewMaterial(Material material)
+    {
+        NewMaterial newMaterial = new NewMaterial(material.getCode());
+        IEntityProperty[] properties =
+                material.getMaterial().getProperties().toArray(new IEntityProperty[0]);
+        newMaterial.setProperties(properties);
+        return newMaterial;
     }
 
 }

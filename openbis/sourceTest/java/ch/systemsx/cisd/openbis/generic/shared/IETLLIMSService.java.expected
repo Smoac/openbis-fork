@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -120,20 +122,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Gets a sample with the specified identifier. Sample is enriched with properties and the
-     * experiment with properties.
-     * 
-     * @param sessionToken the user authentication token. Must not be <code>null</code>.
-     * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no sample attached to an experiment could be found for given
-     *         <var>sampleIdentifier</var>.
+     * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Sample tryGetSampleWithExperiment(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
-            throws UserFailureException;
+    public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier);
 
     /**
      * Tries to get the identifier of sample with specified permanent ID.
@@ -152,6 +145,22 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
+            throws UserFailureException;
+
+    /**
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the
+     * experiment with properties.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param sampleIdentifier an identifier which uniquely identifies the sample.
+     * @return <code>null</code> if no sample attached to an experiment could be found for given
+     *         <var>sampleIdentifier</var>.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Sample tryGetSampleWithExperiment(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
     /**

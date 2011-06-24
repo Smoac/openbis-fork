@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -41,6 +43,16 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         ArrayList<NewSpace> spaceRegistrations = new ArrayList<NewSpace>();
         spaceRegistrations.add(new NewSpace("SPACE1", "description", "adminUser1"));
         spaceRegistrations.add(new NewSpace("SPACE2", "description", "adminUser2"));
+
+        Map<String, List<NewMaterial>> materialRegistrations =
+                new HashMap<String, List<NewMaterial>>();
+        List<NewMaterial> newMaterials1 = new ArrayList<NewMaterial>();
+        newMaterials1.add(new NewMaterial("material-one"));
+        newMaterials1.add(new NewMaterial("material-two"));
+        List<NewMaterial> newMaterials2 = new ArrayList<NewMaterial>();
+        newMaterials2.add(new NewMaterial("material-three"));
+        materialRegistrations.put("material-type-1", newMaterials1);
+        materialRegistrations.put("material-type-2", newMaterials2);
 
         ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
         projectRegistrations.add(new NewProject("/SPACE/P1", "description"));
@@ -73,7 +85,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, spaceRegistrations, projectRegistrations,
                         experimentRegistrations, sampleUpdates, sampleRegistrations,
-                        dataSetRegistrations, dataSetUpdates);
+                        materialRegistrations, dataSetRegistrations, dataSetUpdates);
 
         assertEquals(
                 "AtomicEntityOperationDetails[userIdOrNull=<null>"
@@ -83,6 +95,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",experimentRegistrations=[/SPACE/PROJECT/EXP-ID1, /SPACE/PROJECT/EXP-ID2]"
                         + ",sampleUpdates=[]"
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"
+                        + ",materialRegistrations={material-type-1=[material-one, material-two], material-type-2=[material-three]}"
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
                         + ",dataSetUpdates=[1]]",
                 details.toString());

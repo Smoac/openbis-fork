@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -28,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Tomasz Pylak
  */
-public interface ICommonBusinessObjectFactory
+public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFactory
 {
     public IAttachmentBO createAttachmentBO(final Session session);
 
@@ -63,11 +62,7 @@ public interface ICommonBusinessObjectFactory
 
     public IProjectBO createProjectBO(final Session session);
 
-    public IMaterialTable createMaterialTable(Session session);
-
     public IEntityTypeBO createEntityTypeBO(Session session);
-
-    public IMaterialBO createMaterialBO(Session session);
 
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session);
 
@@ -78,10 +73,8 @@ public interface ICommonBusinessObjectFactory
     public IInvalidationBO createInvalidationBO(final Session session);
 
     // Fast listing operations
-
     public ISampleLister createSampleLister(Session session);
 
     public IDatasetLister createDatasetLister(Session session);
 
-    public IMaterialLister createMaterialLister(Session session);
 }

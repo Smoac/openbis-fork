@@ -23,6 +23,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -48,6 +49,8 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final ArrayList<Sample> samplesCreated;
 
+    private final ArrayList<Material> materialsCreated;
+
     private final ArrayList<ExternalData> dataSetsCreated;
 
     private final ArrayList<ExternalData> dataSetsUpdated;
@@ -56,13 +59,15 @@ public class AtomicEntityOperationResult implements Serializable
     {
         this(Collections.<Space> emptyList(), Collections.<Project> emptyList(),
                 Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
-                .<Sample> emptyList(), Collections.<ExternalData> emptyList(), Collections
+                .<Sample> emptyList(), Collections.<Material> emptyList(), Collections
+                .<ExternalData> emptyList(), Collections
                 .<ExternalData> emptyList());
     }
 
     public AtomicEntityOperationResult(List<Space> spacesCreated, List<Project> projectsCreated,
             List<Experiment> experimentsCreated, List<Sample> samplesUpdated,
-            List<Sample> samplesCreated, List<ExternalData> dataSetsCreated,
+            List<Sample> samplesCreated, List<Material> materialsCreated,
+            List<ExternalData> dataSetsCreated,
             List<ExternalData> dataSetsUpdated)
     {
         this.spacesCreated = new ArrayList<Space>(spacesCreated);
@@ -71,6 +76,7 @@ public class AtomicEntityOperationResult implements Serializable
         this.experimentsCreated = new ArrayList<Experiment>(experimentsCreated);
         this.samplesUpdated = new ArrayList<Sample>(samplesUpdated);
         this.samplesCreated = new ArrayList<Sample>(samplesCreated);
+        this.materialsCreated = new ArrayList<Material>(materialsCreated);
         this.dataSetsCreated = new ArrayList<ExternalData>(dataSetsCreated);
         this.dataSetsUpdated = new ArrayList<ExternalData>(dataSetsUpdated);
     }
@@ -113,6 +119,11 @@ public class AtomicEntityOperationResult implements Serializable
     public ArrayList<Project> getProjectsCreated()
     {
         return projectsCreated;
+    }
+
+    public ArrayList<Material> getMaterialsCreated()
+    {
+        return materialsCreated;
     }
 
 }

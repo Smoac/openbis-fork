@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -53,6 +56,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<NewSample> sampleRegistrations;
 
+    private final Map<String /* material type */, List<NewMaterial>> materialRegistrations;
+
     private final List<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
     private final List<DataSetUpdatesDTO> dataSetUpdates;
@@ -62,6 +67,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
+            Map<String, List<NewMaterial>> materialRegistrations,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
             List<DataSetUpdatesDTO> dataSetUpdates)
     {
@@ -72,6 +78,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
+        this.materialRegistrations = new HashMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
@@ -120,6 +127,11 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     public List<NewProject> getProjectRegistrations()
     {
         return projectRegistrations;
+    }
+
+    public Map<String, List<NewMaterial>> getMaterialRegistrations()
+    {
+        return materialRegistrations;
     }
 
 }

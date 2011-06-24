@@ -23,9 +23,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
@@ -57,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -81,6 +84,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -93,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -914,6 +920,17 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
                         sampleIdentifier, null, null);
 
+        final MaterialPE material = new MaterialPE();
+        material.setCode("new-material");
+        final MaterialTypePE materialType = new MaterialTypePE();
+        materialType.setCode("new-material-type");
+        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("db")
+                .getDatabaseInstance());
+        final NewMaterial newMaterial = new NewMaterial(material.getCode());
+        Map<String, List<NewMaterial>> materialRegistrations =
+                new HashMap<String, List<NewMaterial>>();
+        materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
+
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
         newSamplePE.setCode("sample code new");
         final SampleIdentifier newSampleIdentifier = newSamplePE.getSampleIdentifier();
@@ -931,6 +948,30 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
             { "c1", "c2" });
+
+        context.checking(new Expectations()
+            {
+            {
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    will(returnValue(entityTypeDAO));
+
+                    allowing(entityTypeDAO).tryToFindEntityTypeByCode(
+                            materialType.getCode());
+                    will(returnValue(materialType));
+
+                    final List<NewMaterial> newMaterials = Arrays.asList(newMaterial);
+                    one(propertiesBatchManager).manageProperties(materialType, newMaterials, null);
+
+                    one(boFactory).createMaterialTable(SESSION);
+                    will(returnValue(materialTable));
+
+                    one(materialTable).add(newMaterials, materialType);
+                    one(materialTable).save();
+                    one(materialTable).getMaterials();
+                    will(returnValue(Arrays.asList(material)));
+
+                }
+            });
 
         context.checking(new Expectations()
             {
@@ -998,7 +1039,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new AtomicEntityOperationDetails(null, new ArrayList<NewSpace>(),
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
-                        Collections.singletonList(newSample),
+                        Collections.singletonList(newSample), materialRegistrations,
                         Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate));
 

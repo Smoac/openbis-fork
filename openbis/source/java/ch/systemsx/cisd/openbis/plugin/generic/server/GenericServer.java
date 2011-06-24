@@ -20,38 +20,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -60,10 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -83,12 +73,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithT
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -105,7 +93,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -120,9 +107,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            GenericServer.class);
-
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -516,46 +500,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewMaterial> newMaterials)
     {
         assert sessionToken != null : "Unspecified session token.";
-        assert materialTypeCode != null : "Unspecified material type.";
-        assert newMaterials != null : "Unspecified new materials.";
+        Session session = getSession(sessionToken);
+        getMaterialHelper(session).registerMaterials(materialTypeCode, newMaterials);
 
-        // Does nothing if material list is empty.
-        if (newMaterials.size() == 0)
-        {
-            return;
-        }
-        ServerUtils.prevalidate(newMaterials, "material");
-        final Session session = getSession(sessionToken);
-        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
-        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials,
-                session.tryGetPerson());
-        IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
-            {
-
-                public void execute(List<NewMaterial> entities)
-                {
-                    final IMaterialTable materialTable =
-                            businessObjectFactory.createMaterialTable(session);
-                    materialTable.add(entities, materialTypePE);
-                    materialTable.save();
-                }
-
-                public List<NewMaterial> getAllEntities()
-                {
-                    return newMaterials;
-                }
-
-                public String getEntityName()
-                {
-                    return "material";
-                }
-
-                public String getOperationName()
-                {
-                    return "register";
-                }
-            };
-        BatchOperationExecutor.executeInBatches(strategy);
     }
 
     public int updateMaterials(String sessionToken, String materialTypeCode,
@@ -563,81 +510,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
-        assert materialTypeCode != null : "Unspecified material type.";
-        assert newMaterials != null : "Unspecified new materials.";
-
-        // Does nothing if material list is empty.
-        if (newMaterials.size() == 0)
-        {
-            return 0;
-        }
-        class Counter
-        {
-            int count;
-        }
-        final Counter counter = new Counter();
-        ServerUtils.prevalidate(newMaterials, "material");
-        final Map<String/* code */, Material> existingMaterials =
-                listMaterials(sessionToken, materialTypeCode);
-        final Session session = getSession(sessionToken);
-
-        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
-        getPropertiesBatchManager().manageProperties(materialTypePE, newMaterials,
-                session.tryGetPerson());
-        IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
-            {
-                public void execute(List<NewMaterial> entities)
-                {
-                    List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
-                    for (NewMaterial material : entities)
-                    {
-                        Material existingMaterial =
-                                existingMaterials.get(CodeConverter.tryToDatabase(material
-                                        .getCode()));
-                        if (existingMaterial != null)
-                        {
-                            materialUpdates.add(createMaterialUpdate(existingMaterial, material));
-                            counter.count++;
-                        } else if (ignoreUnregisteredMaterials == false)
-                        {
-                            throw new UserFailureException("Can not update unregistered material '"
-                                    + material.getCode()
-                                    + "'. Please use checkbox for ignoring unregistered materials.");
-                        }
-                    }
-                    updateMaterials(session.getSessionToken(), materialUpdates);
-                }
-
-                public List<NewMaterial> getAllEntities()
-                {
-                    return newMaterials;
-                }
-
-                public String getEntityName()
-                {
-                    return "material";
-                }
-
-                public String getOperationName()
-                {
-                    return "update";
-                }
-            };
-        BatchOperationExecutor.executeInBatches(strategy);
-        return counter.count;
-    }
-
-    private MaterialTypePE findMaterialType(String materialTypeCode)
-    {
-        final MaterialTypePE materialTypePE =
-                (MaterialTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode(materialTypeCode);
-        if (materialTypePE == null)
-        {
-            throw UserFailureException.fromTemplate("Material type with code '%s' does not exist.",
-                    materialTypeCode);
-        }
-        return materialTypePE;
+        Session session = getSession(sessionToken);
+        return getMaterialHelper(session).updateMaterials(materialTypeCode, newMaterials,
+                ignoreUnregisteredMaterials);
     }
 
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
@@ -707,71 +582,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
             List<NewMaterial> materials)
     {
-        Map<String/* code */, Material> existingMaterials =
-                listMaterials(sessionToken, materialTypeCode);
-        List<NewMaterial> materialsToRegister = new ArrayList<NewMaterial>();
-        List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
-        for (NewMaterial material : materials)
-        {
-            Material existingMaterial =
-                    existingMaterials.get(CodeConverter.tryToDatabase(material.getCode()));
-            if (existingMaterial != null)
-            {
-                materialUpdates.add(createMaterialUpdate(existingMaterial, material));
-            } else
-            {
-                materialsToRegister.add(material);
-            }
-        }
-        registerMaterials(sessionToken, materialTypeCode, materialsToRegister);
-        updateMaterials(sessionToken, materialUpdates);
-        operationLog.info(String.format("Number of newly registered materials: %d, "
-                + "number of existing materials which have been updated: %d",
-                materialsToRegister.size(), materialUpdates.size()));
-
-    }
-
-    private static MaterialUpdateDTO createMaterialUpdate(Material existingMaterial,
-            NewMaterial material)
-    {
-        return new MaterialUpdateDTO(new TechId(existingMaterial.getId()), Arrays.asList(material
-                .getProperties()), existingMaterial.getModificationDate());
-    }
-
-    private void updateMaterials(String sessionToken, List<MaterialUpdateDTO> updates)
-    {
-        if (updates.size() == 0)
-        {
-            return;
-        }
+        assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
-        IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
-        materialTable.update(updates);
-        materialTable.save();
-    }
-
-    private Map<String/* code */, Material> listMaterials(String sessionToken,
-            String materialTypeCode)
-    {
-        checkSession(sessionToken);
-        EntityTypePE entityTypePE =
-                getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
-                        materialTypeCode);
-        MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
-        List<Material> materials =
-                commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType),
-                        false);
-        return asCodeToMaterialMap(materials);
-    }
-
-    private static Map<String, Material> asCodeToMaterialMap(List<Material> materials)
-    {
-        Map<String, Material> map = new HashMap<String, Material>();
-        for (Material material : materials)
-        {
-            map.put(material.getCode(), material);
-        }
-        return map;
+        getMaterialHelper(session).registerOrUpdateMaterials(materialTypeCode, materials);
     }
 
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
@@ -886,6 +699,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     isProjectUpdateRequested));
         }
         return experiments;
+    }
+
+    private MaterialHelper getMaterialHelper(final Session session)
+    {
+        final MaterialHelper materialHelper =
+                new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
+                        getPropertiesBatchManager());
+        return materialHelper;
     }
 
 }

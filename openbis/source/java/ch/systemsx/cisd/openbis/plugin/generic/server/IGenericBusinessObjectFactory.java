@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAbstractBussinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public interface IGenericBusinessObjectFactory
+public interface IGenericBusinessObjectFactory extends IAbstractBussinessObjectFactory
 {
     /**
      * Creates a {@link ISampleBO} <i>Business Object</i>.
@@ -57,11 +56,6 @@ public interface IGenericBusinessObjectFactory
     public IExperimentBO createExperimentBO(final Session session);
 
     /**
-     * Creates a {@link IMaterialBO} <i>Business Object</i>.
-     */
-    public IMaterialBO createMaterialBO(final Session session);
-
-    /**
      * Creates a {@link IDataBO} <i>Business Object</i>.
      */
     public IDataBO createDataBO(final Session session);
@@ -70,11 +64,6 @@ public interface IGenericBusinessObjectFactory
      * Creates a {@link ISampleTable} <i>Business Object</i>.
      */
     public ISampleTable createSampleTable(final Session session);
-
-    /**
-     * Creates a {@link IMaterialTable} <i>Business Object</i>.
-     */
-    public IMaterialTable createMaterialTable(Session session);
 
     /**
      * Creates a {@link IDataSetTable} <i>Business Object</i>.

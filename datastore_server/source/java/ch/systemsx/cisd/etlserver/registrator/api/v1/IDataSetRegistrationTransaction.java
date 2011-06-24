@@ -129,6 +129,21 @@ public interface IDataSetRegistrationTransaction
      */
     ISpaceImmutable getSpace(String spaceCode);
 
+    /**
+     * Get a material from the openBIS AS. Returns null if the space does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterialImmutable getMaterial(String materialCode, String materialType);
+
+    /**
+     * Create a new space to register with the openBIS AS.
+     * 
+     * @param materialCode the code of the material
+     * @param materialType the type of the material
+     */
+    IMaterial createNewMaterial(String materialCode, String materialType);
+
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
 

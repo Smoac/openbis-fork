@@ -18,7 +18,9 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
@@ -42,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -111,6 +115,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Sample> samplesToBeRegistered = new ArrayList<Sample>();
 
         private final List<Sample> samplesToBeUpdated = new ArrayList<Sample>();
+
+        private final List<Material> materialsToBeRegistered = new ArrayList<Material>();
 
         private String userIdOrNull = null;
 
@@ -301,6 +307,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return project;
         }
 
+        public IMaterial createNewMaterial(String materialCode, String materialType)
+        {
+            Material material = new Material(materialCode, materialType);
+            materialsToBeRegistered.add(material);
+            return material;
+        }
+
         public String moveFile(String src, IDataSet dst)
         {
             File srcFile = new File(src);
@@ -436,6 +449,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
+            Map<String, List<NewMaterial>> materialRegistrations = convertMaterialsToBeRegistered();
             List<DataSetUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
 
             // experiment updates not yet supported
@@ -444,8 +458,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(getUserId(), spaceRegistrations,
                             projectRegistrations, experimentUpdates, experimentRegistrations,
-                            sampleUpdates, sampleRegistrations, dataSetRegistrations,
-                            dataSetUpdates);
+                            sampleUpdates, sampleRegistrations, materialRegistrations,
+                            dataSetRegistrations, dataSetUpdates);
             return registrationDetails;
         }
 
@@ -505,6 +519,24 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
             {
                 result.add(ConversionUtils.convertToDataSetUpdatesDTO(dataSet));
+            }
+            return result;
+        }
+
+        private Map<String, List<NewMaterial>> convertMaterialsToBeRegistered()
+        {
+            Map<String, List<NewMaterial>> result = new HashMap<String, List<NewMaterial>>();
+            for (Material material : materialsToBeRegistered)
+            {
+                NewMaterial converted = ConversionUtils.convertToNewMaterial(material);
+                String materialType = material.getMaterialType();
+                List<NewMaterial> materialsOfSameType = result.get(materialType);
+                if (materialsOfSameType == null)
+                {
+                    materialsOfSameType = new ArrayList<NewMaterial>();
+                    result.put(materialType, materialsOfSameType);
+                }
+                materialsOfSameType.add(converted);
             }
             return result;
         }

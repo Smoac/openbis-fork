@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -161,6 +164,7 @@ public class EncapsulatedOpenBISServiceTest
                 new AtomicEntityOperationDetails(null, Arrays.<NewSpace> asList(),
                         Arrays.<NewProject> asList(), Arrays.<NewExperiment> asList(),
                         Arrays.<SampleUpdatesDTO> asList(), Arrays.<NewSample> asList(),
+                        Collections.<String, List<NewMaterial>> emptyMap(),
                         Arrays.asList(data), Arrays.<DataSetUpdatesDTO> asList());
         context.checking(new Expectations()
         {

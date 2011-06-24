@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -152,6 +154,12 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
             throws UserFailureException;
+
+    /**
+     * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
+     */
+    @ManagedAuthentication
+    public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
 
     /**
      * Lists vocabulary terms.

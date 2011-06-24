@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -461,6 +462,7 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(materialTable).add(newMaterials, materialTypePE);
                     one(materialTable).save();
+                    one(materialTable).getMaterials();
                 }
             });
         createServer().registerMaterials(SESSION_TOKEN, typeCode, newMaterials);
@@ -564,8 +566,10 @@ public final class GenericServerTest extends AbstractServerTestCase
                     }
                     existingMaterials.add(createMaterial(createNewMaterial("A")));
 
-                    one(commonServer).listMaterials(with(SESSION_TOKEN),
-                            with(new BaseMatcher<ListMaterialCriteria>()
+                    one(genericBusinessObjectFactory)
+                            .createMaterialLister(with(any(Session.class)));
+                    will(returnValue(materialLister));
+                    one(materialLister).list(with(new BaseMatcher<ListMaterialCriteria>()
                                 {
                                     public boolean matches(Object item)
                                     {

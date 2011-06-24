@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -76,7 +79,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -143,6 +149,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
@@ -1070,7 +1077,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             // space does not exist
             return null;
         }
-
     }
 
     public Project tryGetProject(String sessionToken, ProjectIdentifier projectIdentifier)
@@ -1089,12 +1095,29 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
     }
 
+    public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier)
+    {
+        final Session session = getSession(sessionToken);
+        final IMaterialBO bo = businessObjectFactory.createMaterialBO(session);
+        try
+        {
+            bo.loadByMaterialIdentifier(materialIdentifier);
+            return MaterialTranslator.translate(bo.getMaterial());
+        } catch (UserFailureException ufe)
+        {
+            // material does not exist
+            return null;
+        }
+    }
+
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
     {
         final Session session = getSession(sessionToken);
 
         List<Space> spacesCreated = createSpaces(session, operationDetails);
+
+        List<Material> materialsCreated = createMaterials(session, operationDetails);
 
         List<Project> projectsCreated = createProjects(session, operationDetails);
 
@@ -1109,7 +1132,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         List<ExternalData> dataSetsUpdated = updateDataSets(session, operationDetails);
 
         return new AtomicEntityOperationResult(spacesCreated, projectsCreated, experimentsCreated,
-                samplesUpdated, samplesCreated, dataSetsCreated, dataSetsUpdated);
+                samplesUpdated, samplesCreated, materialsCreated, dataSetsCreated, dataSetsUpdated);
     }
 
     private List<Space> createSpaces(Session session, AtomicEntityOperationDetails operationDetails)
@@ -1123,6 +1146,24 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             spacePEsCreated.add(spacePE);
         }
         return GroupTranslator.translate(spacePEsCreated);
+    }
+
+    private List<Material> createMaterials(Session session,
+            AtomicEntityOperationDetails operationDetails)
+    {
+        MaterialHelper materialHelper =
+                new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
+                        getPropertiesBatchManager());
+        Map<String, List<NewMaterial>> materialRegs = operationDetails.getMaterialRegistrations();
+        List<Material> registeredMaterials = new ArrayList<Material>();
+        for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
+        {
+            String materialType = newMaterialsEntry.getKey();
+            List<NewMaterial> newMaterials = newMaterialsEntry.getValue();
+            List<Material> materials = materialHelper.registerMaterials(materialType, newMaterials);
+            registeredMaterials.addAll(materials);
+        }
+        return registeredMaterials;
     }
 
     private SpacePE registerSpaceInternal(Session session, NewSpace newSpace,

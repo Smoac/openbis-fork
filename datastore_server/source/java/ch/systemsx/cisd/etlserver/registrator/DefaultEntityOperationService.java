@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDeta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -78,6 +80,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         List<NewExperiment> experimentRegistrations = details.getExperimentRegistrations();
         List<SampleUpdatesDTO> sampleUpdates = details.getSampleUpdates();
         List<NewSample> sampleRegistrations = details.getSampleRegistrations();
+        Map<String, List<NewMaterial>> materialRegistrations = details.getMaterialRegistrations();
         List<DataSetUpdatesDTO> dataSetUpdates = details.getDataSetUpdates();
 
         List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
@@ -89,8 +92,8 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
 
         return new ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails(
                 details.tryUserIdOrNull(), spaceRegistrations, projectRegistrations,
-                experimentRegistrations, sampleUpdates, sampleRegistrations, dataSetRegistrations,
-                dataSetUpdates);
+                experimentRegistrations, sampleUpdates, sampleRegistrations, materialRegistrations,
+                dataSetRegistrations, dataSetUpdates);
     }
 
 }

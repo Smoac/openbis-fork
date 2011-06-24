@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -55,6 +58,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<NewSample> sampleRegistrations;
 
+    private final Map<String /* material type */, List<NewMaterial>> materialRegistrations;
+
     private final List<? extends NewExternalData> dataSetRegistrations;
 
     private final List<DataSetUpdatesDTO> dataSetUpdates;
@@ -62,6 +67,7 @@ public class AtomicEntityOperationDetails implements Serializable
     public AtomicEntityOperationDetails(String userIdOrNull, List<NewSpace> spaceRegistrations,
             List<NewProject> projectRegistrations, List<NewExperiment> experimentRegistrations,
             List<SampleUpdatesDTO> sampleUpdates, List<NewSample> sampleRegistrations,
+            Map<String, List<NewMaterial>> materialRegistrations,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetUpdatesDTO> dataSetUpdates)
     {
@@ -72,6 +78,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
+        this.materialRegistrations = new TreeMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetUpdatesDTO>(dataSetUpdates);
     }
@@ -121,6 +128,11 @@ public class AtomicEntityOperationDetails implements Serializable
         return projectRegistrations;
     }
 
+    public Map<String, List<NewMaterial>> getMaterialRegistrations()
+    {
+        return materialRegistrations;
+    }
+
     @Override
     public String toString()
     {
@@ -132,8 +144,10 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("experimentRegistrations", experimentRegistrations);
         sb.append("sampleUpdates", sampleUpdates);
         sb.append("sampleRegistrations", sampleRegistrations);
+        sb.append("materialRegistrations", materialRegistrations);
         sb.append("dataSetRegistrations", dataSetRegistrations);
         sb.append("dataSetUpdates", dataSetUpdates);
         return sb.toString();
     }
+
 }

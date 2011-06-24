@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -485,6 +487,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "searchForDataSets", "%s", searchCriteria);
+        return null;
+    }
+
+    public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier)
+    {
+        logAccess(sessionToken, "tryGetMaterial", "%s", materialIdentifier);
         return null;
     }
 }
