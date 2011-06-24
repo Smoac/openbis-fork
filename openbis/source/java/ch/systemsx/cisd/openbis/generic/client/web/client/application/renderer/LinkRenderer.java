@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
@@ -158,7 +159,8 @@ public class LinkRenderer
                         Grid<BaseEntityModel<?>> grid)
                 {
                     String originalValue =
-                            StringEscapeUtils.unescapeHtml(String.valueOf(model.get(property)));
+                            StringEscapeUtils.unescapeHtml(StringUtils.toStringEmptyIfNull(model
+                                    .get(property)));
                     String linkText =
                             overridenLinkTextOrNull != null ? overridenLinkTextOrNull
                                     : originalValue;
