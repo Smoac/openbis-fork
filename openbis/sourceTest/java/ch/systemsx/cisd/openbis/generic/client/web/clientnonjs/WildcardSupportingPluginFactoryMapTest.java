@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
+package ch.systemsx.cisd.openbis.generic.client.web.clientnonjs;
 
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.WildcardSupportingPluginFactoryMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 
