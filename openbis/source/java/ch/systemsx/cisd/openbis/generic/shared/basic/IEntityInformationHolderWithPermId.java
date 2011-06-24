@@ -22,8 +22,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-10-11, Piotr Buczek: this interface could be removed
-// (move permId to IEntityInformationHolder)
 public interface IEntityInformationHolderWithPermId extends IEntityInformationHolder, IPermIdHolder
 {
 }
