@@ -180,7 +180,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
             return ResultCode.OK;
         }
 
-        // TODO 2011-31-05, Piotr Buczek: support for creating new data set attached to a container
+        // TODO 2011-05-31, Piotr Buczek: support for creating new data set attached to a container
         private NewDataSetDTO getNewDataSet() throws IOException
         {
             // Get the owner
