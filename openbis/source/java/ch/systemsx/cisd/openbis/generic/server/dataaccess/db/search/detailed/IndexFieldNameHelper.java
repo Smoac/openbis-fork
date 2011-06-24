@@ -65,6 +65,13 @@ class IndexFieldNameHelper
                 }
                 throw createAssociationNotHandledException(entityKind, associationKind);
 
+            case DATA_SET_CONTAINER:
+                if (entityKind == EntityKind.DATA_SET)
+                {
+                    return SearchFieldConstants.CONTAINER_ID;
+                }
+                throw createAssociationNotHandledException(entityKind, associationKind);
+
             case DATA_SET_PARENT:
             case DATA_SET_CHILD:
             case SAMPLE_PARENT:

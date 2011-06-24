@@ -499,4 +499,25 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 "[DataSet[20081105092259000-9,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=no comment},[]]]",
                 result.toString());
     }
+
+    @Test(groups = "broken")
+    // FIXME rebuild test DB index and commit it to SVN
+    public void testSearchForDataSetsByContainer()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria containerCriteria = new SearchCriteria();
+
+        containerCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, "20110509092359990-10"));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createDataSetContainerCriteria(containerCriteria));
+
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(2, result.size());
+        assertEquals(
+                "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment},[]], "
+                        + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment},[]]]",
+                result.toString());
+    }
 }

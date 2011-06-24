@@ -62,6 +62,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
         translators.put(SearchableEntityKind.DATA_SET, new DataSetAttributeTranslator());
         translators.put(SearchableEntityKind.DATA_SET_PARENT, new DataSetAttributeTranslator());
         translators.put(SearchableEntityKind.DATA_SET_CHILD, new DataSetAttributeTranslator());
+        translators.put(SearchableEntityKind.DATA_SET_CONTAINER, new DataSetAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_PARENT, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CHILD, new SampleAttributeTranslator());
         translators.put(SearchableEntityKind.SAMPLE_CONTAINER, new SampleAttributeTranslator());
@@ -88,6 +89,8 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 return AssociatedEntityKind.EXPERIMENT;
             case DATA_SET:
                 return AssociatedEntityKind.DATA_SET;
+            case DATA_SET_CONTAINER:
+                return AssociatedEntityKind.DATA_SET_CONTAINER;
             case DATA_SET_PARENT:
                 return AssociatedEntityKind.DATA_SET_PARENT;
             case DATA_SET_CHILD:

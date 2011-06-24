@@ -446,6 +446,21 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.container = container;
     }
 
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
+    private Long getContainerId()
+    {
+        Long result = null;
+        if (getContainer() != null)
+        {
+            result = HibernateUtils.getId(getContainerInternal());
+            assert result != null;
+        }
+        return result;
+    }
+
     public void addComponent(final DataPE component)
     {
         assert component != null;

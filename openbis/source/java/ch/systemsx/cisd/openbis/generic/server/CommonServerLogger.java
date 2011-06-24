@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -471,21 +470,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
-        logAccess(sessionToken, "search_for_datasets");
+        logAccess(sessionToken, "search_for_datasets", "criteria(%s)", criteria);
         return null;
     }
 
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_samples", "criteria(%s)", criteria);
-        return null;
-    }
-
-    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria,
-            List<DetailedSearchSubCriteria> subCriterias)
-    {
-        logAccess(sessionToken, "search_for_samples", "criteria(%s) subCriterias(%s)", criteria,
-                subCriterias);
         return null;
     }
 

@@ -11,5 +11,5 @@ public enum SearchableEntityKind
     // sample subcriteria
     SAMPLE_CONTAINER, SAMPLE_PARENT, SAMPLE_CHILD,
     // data set subcriteria
-    DATA_SET_PARENT, DATA_SET_CHILD
+    DATA_SET_CONTAINER, DATA_SET_PARENT, DATA_SET_CHILD
 }

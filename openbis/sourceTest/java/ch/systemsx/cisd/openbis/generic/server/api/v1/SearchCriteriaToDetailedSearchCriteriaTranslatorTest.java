@@ -175,11 +175,43 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     }
 
     @Test
+    public void testBasicSampleChildSubCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        SearchSubCriteria subCriteria = SearchSubCriteria.createSampleChildCriteria(criteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CHILD, subCriteria);
+    }
+
+    @Test
     public void testBasicSampleContainerSubCriteriaTranslator()
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchSubCriteria subCriteria = SearchSubCriteria.createSampleContainerCriteria(criteria);
         testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CONTAINER, subCriteria);
+    }
+
+    @Test
+    public void testBasicDataSetParentSubCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        SearchSubCriteria subCriteria = SearchSubCriteria.createDataSetParentCriteria(criteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_PARENT, subCriteria);
+    }
+
+    @Test
+    public void testBasicDataSetChildSubCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        SearchSubCriteria subCriteria = SearchSubCriteria.createDataSetChildCriteria(criteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CHILD, subCriteria);
+    }
+
+    @Test
+    public void testBasicDataSetContainerSubCriteriaTranslator()
+    {
+        SearchCriteria criteria = createBasicSearchCriteria();
+        SearchSubCriteria subCriteria = SearchSubCriteria.createDataSetContainerCriteria(criteria);
+        testConvertToDetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CONTAINER, subCriteria);
     }
 
     @Test
