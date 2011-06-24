@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +77,7 @@ public class DataSetUploadClientModel
     // Track which files a user selected to make share the list of files in the selection combo box.
     // The list is reverse-ordered according to selection made by user. There are no duplictes on
     // the list.
-    private final LinkedList<File> userSelectedFiles = new LinkedList<File>();
+    private final LinkedList<ValidatedFile> userSelectedFiles = new LinkedList<ValidatedFile>();
 
     // Generic validator for property values.
     private final SimplePropertyValidator simplePropertyValidator = new SimplePropertyValidator();
@@ -395,7 +394,7 @@ public class DataSetUploadClientModel
 
     }
 
-    public void userDidSelectFile(File selectedFile)
+    public void userDidSelectFile(ValidatedFile selectedFile)
     {
         userSelectedFiles.remove(selectedFile);
         userSelectedFiles.addFirst(selectedFile);
@@ -419,7 +418,7 @@ public class DataSetUploadClientModel
         return null;
     }
 
-    public List<File> getUserSelectedFiles()
+    public List<ValidatedFile> getUserSelectedFiles()
     {
         return userSelectedFiles;
     }

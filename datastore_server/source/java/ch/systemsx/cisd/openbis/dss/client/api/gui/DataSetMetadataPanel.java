@@ -72,7 +72,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             {
                 try
                 {
-                    if (validationQueue.take() != null)
+                    if (validationQueue.take())
                     {
                         // empty the queue
                         validationQueue.clear();
@@ -88,11 +88,55 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         }
     }
 
+    private class ModificationDateChecker implements Runnable
+    {
+        private ValidatedFile file = null;
+
+        public void run()
+        {
+            while (true)
+            {
+                try
+                {
+                    if (isVisible() && validationRequired())
+                    {
+                        validationQueue.add(Boolean.TRUE);
+                    }
+                    Thread.sleep(1000l);
+                } catch (Throwable t)
+                {
+                    // ignore the error, thread cannot die
+                }
+            }
+        }
+
+        private synchronized boolean validationRequired()
+        {
+            if (file != null)
+            {
+                if (file.getFile().exists() && file.validationRequired())
+                {
+                    file.markValidation();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public synchronized void observeFile(@SuppressWarnings("hiding") ValidatedFile file)
+        {
+            this.file = file;
+        }
+
+    }
+
     private static final String EMPTY_FILE_SELECTION = "";
 
     private static final long serialVersionUID = 1L;
 
     private final BlockingQueue<Boolean> validationQueue = new LinkedBlockingQueue<Boolean>();
+
+    private final ModificationDateChecker modificationDateChecker = new ModificationDateChecker();
 
     private final JFrame mainWindow;
 
@@ -114,6 +158,8 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
     private final JButton dataSetFileButton;
 
+    private final JButton dataSetFileRefreshButton;
+
     private final JRadioButton experimentButton;
 
     private final JRadioButton sampleButton;
@@ -130,6 +176,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         super();
 
         new Thread(new AsynchronousValidator()).start();
+        new Thread(modificationDateChecker).start();
 
         setLayout(new GridBagLayout());
 
@@ -153,6 +200,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             { EMPTY_FILE_SELECTION };
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
+        dataSetFileRefreshButton = new JButton("Refresh");
         dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
 
         validationErrors = new ErrorsPanel(mainWindow);
@@ -262,9 +310,12 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                         if (null == selectedItem || EMPTY_FILE_SELECTION == selectedItem)
                         {
                             newDataSetInfo.getNewDataSetBuilder().setFile(null);
+                            modificationDateChecker.observeFile(null);
                         } else
                         {
-                            newDataSetInfo.getNewDataSetBuilder().setFile((File) selectedItem);
+                            newDataSetInfo.getNewDataSetBuilder().setFile(
+                                    ((ValidatedFile) selectedItem).getFile());
+                            modificationDateChecker.observeFile((ValidatedFile) selectedItem);
                         }
 
                         validationQueue.add(Boolean.TRUE);
@@ -272,7 +323,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                 }
 
             });
-        dataSetFileButton.setPreferredSize(new Dimension(40, BUTTON_HEIGHT));
+        dataSetFileButton.setPreferredSize(new Dimension(90, BUTTON_HEIGHT));
         dataSetFileButton.setToolTipText("The file to upload.");
         dataSetFileButton.addActionListener(new ActionListener()
             {
@@ -289,15 +340,29 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                     if (newDirOrNull != null)
                     {
                         newDataSetInfo.getNewDataSetBuilder().setFile(newDirOrNull);
-                        clientModel.userDidSelectFile(newDirOrNull);
+                        clientModel.userDidSelectFile(new ValidatedFile(newDirOrNull));
                         updateFileComboBoxList();
                         updateFileLabel();
                         validationQueue.add(Boolean.TRUE);
                     }
                 }
-
             });
-        addRow(1, dataSetFileLabel, dataSetFileComboBox, dataSetFileButton);
+        dataSetFileRefreshButton.setPreferredSize(new Dimension(90, BUTTON_HEIGHT));
+        dataSetFileRefreshButton.setToolTipText("File will be refreshed and revalidated");
+        dataSetFileRefreshButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    if (null == newDataSetInfo
+                            || newDataSetInfo.getNewDataSetBuilder().getFile() == null)
+                    {
+                        return;
+                    }
+                    validationQueue.add(Boolean.TRUE);
+                }
+            });
+        addRow(1, dataSetFileLabel, dataSetFileComboBox, dataSetFileButton,
+                dataSetFileRefreshButton);
 
         // The owner row
         ownerIdLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
@@ -388,8 +453,9 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     private void updateFileComboBoxList()
     {
         dataSetFileComboBox.removeAllItems();
-        ArrayList<File> files = new ArrayList<File>(clientModel.getUserSelectedFiles());
-        for (File file : files)
+        ArrayList<ValidatedFile> files =
+                new ArrayList<ValidatedFile>(clientModel.getUserSelectedFiles());
+        for (ValidatedFile file : files)
         {
             dataSetFileComboBox.addItem(file);
         }
@@ -407,7 +473,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         File file = newDataSetInfo.getNewDataSetBuilder().getFile();
         if (null != file)
         {
-            dataSetFileComboBox.setSelectedItem(file);
+            dataSetFileComboBox.setSelectedItem(new ValidatedFile(file));
         } else
         {
             dataSetFileComboBox.setSelectedItem(EMPTY_FILE_SELECTION);
@@ -454,7 +520,8 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         }
     }
 
-    private void addRow(int rowy, Component label, Component field, Component button)
+    private void addRow(int rowy, Component label, Component field, Component button,
+            Component refreshButton)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -471,8 +538,13 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
         ++c.gridx;
         c.weightx = 0;
-        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 0);
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
         add(button, c);
+
+        ++c.gridx;
+        c.weightx = 0;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 0);
+        add(refreshButton, c);
     }
 
     private void addRow(int rowy, Component label, Component field)
