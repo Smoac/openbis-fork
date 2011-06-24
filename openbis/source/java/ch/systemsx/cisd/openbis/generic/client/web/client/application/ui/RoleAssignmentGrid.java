@@ -114,7 +114,6 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
         addEntityOperationsSeparator();
     }
 
-    // TODO 2009-02-20, Piotr Buczek: no event is created in DB
     class RemoveRoleDialog extends ConfirmationDialog
     {
 
@@ -179,7 +178,8 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportRoleAssignments(exportCriteria, callback);

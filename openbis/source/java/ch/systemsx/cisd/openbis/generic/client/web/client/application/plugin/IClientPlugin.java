@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2010-10-11, Piotr Buczek: change I to IEntityInformationHolderWithPermId
 public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHolder>
 {
     /**
