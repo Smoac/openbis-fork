@@ -37,6 +37,9 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.AndDataSetFilter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.PropertiesBasedDataSetFilter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -685,7 +688,7 @@ public class OpenBISScreeningML
         }
         return result;
     }
-
+    
     /**
      * Loads data sets for specified plate code. For each data set the path to the root of the data
      * set is returned. If it is possible the path points directly into the data set store. No data
@@ -717,10 +720,52 @@ public class OpenBISScreeningML
     public static Object[][] loadDataSets(String augmentedPlateCode, String dataSetTypeCodePattern,
             String overrideStoreRootPathOrNull)
     {
+        return loadDataSets(augmentedPlateCode, dataSetTypeCodePattern, new Object[0][],
+                overrideStoreRootPathOrNull);
+    }
+
+    /**
+     * Loads data sets for specified plate code. For each data set the path to the root of the data
+     * set is returned. If it is possible the path points directly into the data set store. No data
+     * is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately
+     * returned from the local cache.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Load all data sets of plate P005 in space SPACE
+     * properties = {'ANALYSIS_PROCEDURE' AX87}
+     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', properties, '/mount/openbis-store')
+     * % Get the data set codes
+     * dsinfo(:,1)
+     * % Get root path of first data set (assuming there is at least one)
+     * dsginfo(1,2)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
+     *            will be returned. To fetch all data sets specify ".*".
+     * @param properties Only data set with specified property values will be returned. This is a
+     *            two dimensional array where the first column contains the property codes and the
+     *            second column the corresponding property values.
+     * @return Each row contains information about one data set:
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
+     *         <p>
+     *         <code>{ data set code, data set root path  }</code>
+     */
+    public static Object[][] loadDataSets(String augmentedPlateCode,
+            final String dataSetTypeCodePattern, final Object[][] properties,
+            String overrideStoreRootPathOrNull)
+    {
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
-
-        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, dataSetTypeCodePattern);
+        List<IDataSetDss> dataSets =
+                openbis.getDataSets(plateIdentifier, new AndDataSetFilter(new TypeBasedDataSetFilter(
+                        dataSetTypeCodePattern), new PropertiesBasedDataSetFilter(
+                        createMap(properties))));
         Object[][] result = new Object[dataSets.size()][];
         try
         {
@@ -805,7 +850,9 @@ public class OpenBISScreeningML
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
 
-        List<IDataSetDss> dataSets = openbis.getDataSets(plateIdentifier, dataSetTypeCodePattern);
+        List<IDataSetDss> dataSets =
+                openbis.getDataSets(plateIdentifier, new TypeBasedDataSetFilter(
+                        dataSetTypeCodePattern));
         Object[][][] result = new Object[dataSets.size()][][];
         for (int i = 0; i < dataSets.size(); i++)
         {

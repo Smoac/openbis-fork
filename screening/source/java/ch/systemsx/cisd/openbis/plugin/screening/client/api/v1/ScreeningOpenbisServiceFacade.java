@@ -39,6 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangin
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.CachedImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -63,6 +69,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMate
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * A client side facade of openBIS and Datastore Server API.
@@ -89,7 +96,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 return new DssServiceRpcScreeningHolder(serverUrl);
             }
         };
-
+        
     private final IScreeningApiServer openbisScreeningServer;
 
     private final IGeneralInformationService generalInformationService;
@@ -118,6 +125,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final WellImageCache imageCache = new WellImageCache();
 
     private IDssServiceFactory dssServiceCache;
+
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
@@ -243,7 +251,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         checkASMinimalMinorVersion("logoutScreening");
         openbisScreeningServer.logoutScreening(sessionToken);
     }
-
+    
     public void clearWellImageCache()
     {
         imageCache.clear();
@@ -409,11 +417,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException
     {
-        final Sample wellSample = getWellSample(wellIdentifier);
-        return getDataSets(wellSample, datasetTypeCodePattern);
+        return getDataSets(wellIdentifier, new TypeBasedDataSetFilter(datasetTypeCodePattern));
     }
-    
-    
+
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier, IDataSetFilter dataSetFilter)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        final Sample wellSample = getWellSample(wellIdentifier);
+        return getDataSets(wellSample, dataSetFilter);
+    }
 
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException
@@ -429,22 +441,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      *             the server.
      */
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
-            String datasetTypeCodePattern) throws IllegalStateException,
+            final String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException
+    {
+        return getDataSets(plateIdentifier, new TypeBasedDataSetFilter(datasetTypeCodePattern));
+    }
+
+    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException
     {
         checkASMinimalMinorVersion("getPlateSample", PlateIdentifier.class);
         Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
-        return getDataSets(sample, datasetTypeCodePattern);
+        return getDataSets(sample, dataSetFilter);
     }
 
-    private List<IDataSetDss> getDataSets(final Sample sample, final String datasetTypeCodePattern)
+    private List<IDataSetDss> getDataSets(final Sample sample, IDataSetFilter filter)
     {
         final List<DataSet> dataSets =
                 generalInformationService.listDataSetsForSample(sessionToken, sample, true);
         final List<IDataSetDss> result = new ArrayList<IDataSetDss>();
         for (DataSet dataSet : dataSets)
         {
-            if (dataSet.getDataSetTypeCode().matches(datasetTypeCodePattern))
+            if (filter.pass(dataSet))
             {
                 result.add(dssComponent.getDataSet(dataSet.getCode()));
             }
@@ -1378,6 +1396,33 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 materialTypeIdentifierOrNull);
     }
 
+    public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, experimentIdentifier.getExperimentCode()));
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PROJECT, experimentIdentifier.getProjectCode()));
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.SPACE, experimentIdentifier.getSpaceCode()));
+        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
+        List<DataSet> dataSets = generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        Set<String> procedures = new HashSet<String>();
+        for (DataSet dataSet : dataSets)
+        {
+            HashMap<String, String> properties = dataSet.getProperties();
+            String analysisProcedure = properties.get(ScreeningConstants.ANALYSIS_PROCEDURE);
+            if (analysisProcedure != null)
+            {
+                procedures.add(analysisProcedure);
+            }
+        }
+        ArrayList<String> result = new ArrayList<String>(procedures);
+        Collections.sort(result);
+        return result;
+    }
+    
     // --------- helpers -----------
 
     private static final class WrappedIOException extends RuntimeException

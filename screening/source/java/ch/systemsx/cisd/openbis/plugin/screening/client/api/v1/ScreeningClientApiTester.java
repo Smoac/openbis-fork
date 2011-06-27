@@ -54,6 +54,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -163,6 +164,15 @@ public class ScreeningClientApiTester
                         loadOverlays();
                     }
                 });
+            JMenuItem listAnalysisProceduresMenuItem = new JMenuItem("List Analysis Procedures...");
+            callApiMenu.add(listAnalysisProceduresMenuItem);
+            listAnalysisProceduresMenuItem.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        listAnalysisProcedures();
+                    }
+                });
         }
         
         void setUp(String[] args)
@@ -259,6 +269,20 @@ public class ScreeningClientApiTester
                 panel.add(button);
             }
             validate(panel);
+        }
+        
+        private void listAnalysisProcedures()
+        {
+            Form form = new Form(this, "Analysis Procedures for an Experiment");
+            List<ExperimentIdentifier> experiments = facade.listExperiments();
+            JComboBox experimentComboBox =
+                    new JComboBox(experiments.toArray(new ExperimentIdentifier[0]));
+            form.addField("Experiment", experimentComboBox);
+            form.showForm();
+            List<String> analysisProcedures =
+                    facade.listAnalysisProcedures((ExperimentIdentifier) experimentComboBox
+                            .getSelectedItem());
+            JOptionPane.showMessageDialog(this, "Analysis Procedures: " + analysisProcedures);
         }
         
         private void loadImagesByDataSetCode()

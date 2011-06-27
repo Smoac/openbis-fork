@@ -54,6 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -74,6 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -120,7 +123,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
     private IDssServiceFactory dssServiceFactory;
 
-    private ScreeningOpenbisServiceFacade facade;
+    private IScreeningOpenbisServiceFacade facade;
 
     private ImageDatasetReference i1id;
 
@@ -142,6 +145,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
     private IDataSetDss ds1Proxy;
 
+    private IDataSetFilter filter;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -152,6 +157,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         dssComponent = context.mock(IDssComponent.class);
         ds1Proxy = context.mock(IDataSetDss.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
+        filter = context.mock(IDataSetFilter.class);
         i1id = new ImageDatasetReference(DATA_SET1, null, URL1, null, null, null, null, null, null);
         i2id = new ImageDatasetReference(DATA_SET2, null, URL2, null, null, null, null, null, null);
         f1id = context.mock(IFeatureVectorDatasetIdentifier.class, "f1id");
@@ -508,6 +514,42 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testListAnalysisProcedures()
+    {
+        final ExperimentIdentifier experimentIdentifier = ExperimentIdentifier.createFromAugmentedCode("/S/P/E");
+        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher = new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(generalInformationService).searchForDataSets(with(SESSION_TOKEN),
+                            with(searchCriteriaMatcher));
+                    DataSetInitializer ds1 = new DataSetInitializer();
+                    ds1.setCode("ds1");
+                    ds1.getProperties().put(ScreeningConstants.ANALYSIS_PROCEDURE, "FZ-87");
+                    ds1.setExperimentIdentifier(experimentIdentifier.toString());
+                    ds1.setDataSetTypeCode("my-type");
+                    DataSetInitializer ds2 = new DataSetInitializer();
+                    ds2.setCode("ds2");
+                    ds2.getProperties().put(ScreeningConstants.ANALYSIS_PROCEDURE, "ALPHA-42");
+                    ds2.setExperimentIdentifier(experimentIdentifier.toString());
+                    ds2.setDataSetTypeCode("my-type");
+                    will(returnValue(Arrays.asList(new DataSet(ds1), new DataSet(ds2))));
+                }
+            });
+        
+        List<String> procedures = facade.listAnalysisProcedures(experimentIdentifier);
+        
+        assertEquals("[ALPHA-42, FZ-87]", procedures.toString());
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
+                + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S]],[]]]]]",
+                searchCriteriaMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testGetDataSetsOfAWell()
@@ -523,15 +565,18 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample,
                             true);
                     DataSetInitializer initializer1 = dataSetInitializer(DATA_SET1);
-                    will(returnValue(Arrays.asList(new DataSet(initializer1))));
+                    DataSet dataSet = new DataSet(initializer1);
+                    will(returnValue(Arrays.asList(dataSet)));
 
                     one(dssComponent).getDataSet(DATA_SET1);
                     will(returnValue(ds1Proxy));
+                    
+                    one(filter).pass(dataSet);
+                    will(returnValue(true));
                 }
             });
 
-        List<IDataSetDss> dataSets =
-                facade.getDataSets(wellIdentifier, ".*" + MY_DATA_SET_TYPE + ".*");
+        List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier, filter);
 
         assertSame(ds1Proxy, dataSets.get(0));
         assertEquals(1, dataSets.size());
@@ -552,14 +597,18 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(generalInformationService).listDataSetsForSample(SESSION_TOKEN, sample,
                             true);
                     DataSetInitializer initializer1 = dataSetInitializer(DATA_SET1);
-                    will(returnValue(Arrays.asList(new DataSet(initializer1))));
+                    DataSet dataSet = new DataSet(initializer1);
+                    will(returnValue(Arrays.asList(dataSet)));
 
                     one(dssComponent).getDataSet(DATA_SET1);
                     will(returnValue(ds1Proxy));
+                    
+                    one(filter).pass(dataSet);
+                    will(returnValue(true));
                 }
             });
 
-        List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier, MY_DATA_SET_TYPE);
+        List<IDataSetDss> dataSets = facade.getDataSets(plateIdentifier, filter);
 
         assertSame(ds1Proxy, dataSets.get(0));
         assertEquals(1, dataSets.size());

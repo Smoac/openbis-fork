@@ -93,7 +93,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     /**
      * ctor.
      */
-    OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
+    public OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
             IDssComponent dssComponent)
     {
         this.sessionToken = sessionToken;

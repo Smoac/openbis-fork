@@ -130,6 +130,8 @@ public class ScreeningConstants
 
     /** Used to import Qiagen siRNA libraries. */
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
+    
+    public static final String ANALYSIS_PROCEDURE = "ANALYSIS_PROCEDURE";
 
     // --- !!!!!! It's discouraged to use this constant, try hard not to do that !!!!!!!! ---
 

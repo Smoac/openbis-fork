@@ -25,6 +25,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -62,7 +64,7 @@ public interface IScreeningOpenbisServiceFacade
 
     /** Closes connection with the server. After calling this method this facade cannot be used. */
     public void logout();
-
+    
     /**
      * Removes all images loaded by {@link #loadImageWellCaching(PlateImageReference, ImageSize)}
      * and {@link #loadThumbnailImageWellCaching(PlateImageReference)} from the image cache, thus
@@ -162,16 +164,30 @@ public interface IScreeningOpenbisServiceFacade
     public void updateWellProperties(WellIdentifier wellIdentifier, Map<String, String> properties);
 
     /**
-     * Get proxies to the data sets owned by specified well.
+     * Gets proxies to the data sets owned by specified well.
      * 
+     * @deprecated use {@link #getDataSets(WellIdentifier, IDataSetFilter)} with
+     *             {@link TypeBasedDataSetFilter}.
      * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
      *            will be returned. To fetch all datasets specify ".*".
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Deprecated
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
+            EnvironmentFailureException;
+    
+    /**
+     * Gets proxies to the data sets owned by specified well and passing specified filter..
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException,
             EnvironmentFailureException;
     
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
@@ -195,18 +211,32 @@ public interface IScreeningOpenbisServiceFacade
             EnvironmentFailureException, IOException;
 
     /**
-     * Get proxies to the data sets of the specified type owned by specified plate.
+     * Gets proxies to the data sets of the specified type owned by specified plate.
      * 
+     * @deprecated use {@link #getDataSets(PlateIdentifier, IDataSetFilter)} with
+     *             {@link TypeBasedDataSetFilter}.
      * @param datasetTypeCodePattern only datasets of the type which matche the specified pattern
      *            will be returned. To fetch all datasets specify ".*".
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
+    @Deprecated
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException;
 
+    /**
+     * Gets proxies to the data sets owned by specified plate and passing specified filter.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException,
+            EnvironmentFailureException;
+    
     /**
      * Upload a new data set to the DSS for a plate.
      * 
@@ -575,5 +605,11 @@ public interface IScreeningOpenbisServiceFacade
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
+    
+    /**
+     * Returns an alphabetically sorted list of analysis procedure codes of all data sets of the
+     * specified experiment.
+     */
+    public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier);
 
 }
