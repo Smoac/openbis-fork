@@ -23,11 +23,44 @@ import net.lemnik.eodsql.DataSet;
 /**
  * A service that supports executing queries on a data source configured in the DSS
  * service.properties.
+ * <p>
+ * Jython usage example:
+ * 
+ * <pre>
+ * results = query_service.select("data-source-name", "SELECT * FROM table_name WHERE id > 1") 
+ * [... do stuff with results]
+ * results.close()
+ * </pre>
+ * <p>
+ * If you need to do this frequently, you may want to extract this into a function
+ * 
+ * <pre>
+ * def execute_query(query_service, block, query, params=None):
+ *     if params is None:
+ *         result = query_service.select("data-source-name", query)
+ *     else:
+ *         result = query_service.select("data-source-name", query, params)
+ *     block(result)
+ *     result.close()
+ * </pre>
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IDataSourceQueryService
 {
+
+    /**
+     * Execute a query against the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?'.
+     * @return A List of Maps with the data. Do not forget to close the result when done!
+     * @throw IllegalArgumentException Throws if there is no data source with the given name.
+     */
+    DataSet<Map<String, Object>> select(String dataSourceName, String query)
+            throws IllegalArgumentException;
+
     /**
      * Execute a query against the data source with the specified name.
      * 

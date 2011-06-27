@@ -46,4 +46,10 @@ public class DataSourceQueryService implements IDataSourceQueryService
         return QueryTool.select(dataSource, query, parameters);
     }
 
+    public DataSet<Map<String, Object>> select(String dataSourceName, String query)
+            throws IllegalArgumentException
+    {
+        return select(dataSourceName, query, new Object[0]);
+    }
+
 }
