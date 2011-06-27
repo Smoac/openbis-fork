@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
+import java.util.List;
+
 /**
  * Provides required information about entities.
  * 
@@ -31,15 +33,30 @@ public interface IEntityInformationProvider
     String getIdentifier(IEntityLinkElement entityLink);
 
     /**
-     * @return permId of entity specified by given space and sample, <code>null</code> if such an
-     *         entity doesn't exist
+     * @return permId of sample specified by given space and code, <code>null</code> if such a
+     *         sample doesn't exist
      */
     String getSamplePermId(String spaceCode, String sampleCode);
 
     /**
-     * @return permId of entity specified by given identifier, <code>null</code> if such an entity
+     * @return permId of sample specified by given identifier, <code>null</code> if such a sample
      *         doesn't exist
      */
     String getSamplePermId(String sampleIdentifier);
 
+    /**
+     * @return list of permIds of parents of a sample with given space and code
+     */
+    List<String> getSampleParentPermIds(String spaceCode, String sampleCode);
+
+    /**
+     * @return list of permIds of parents of a sample with given permId
+     */
+    List<String> getSampleParentPermIds(String permId);
+
+    /**
+     * @return value of a property with given code of a sample with given permIds, <code>null</code>
+     *         if the property is empty
+     */
+    String getSamplePropertyValue(String permId, String propertyCode);
 }
