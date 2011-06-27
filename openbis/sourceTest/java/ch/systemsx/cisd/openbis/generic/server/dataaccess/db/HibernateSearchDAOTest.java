@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -48,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -239,7 +239,11 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (Long datasetId : datasetIds)
         {
-            result.add(getDataSetById(datasetId));
+            ExternalDataPE dataSet = tryGetDataSetById(datasetId);
+            if (dataSet != null)
+            {
+                result.add(dataSet);
+            }
         }
         return result;
     }
@@ -250,7 +254,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // content and should not be directly tested in asserts. Using ExternalDataDAO we can check
     // if dataset with given id is in fact in the DB and use dataset attributes in asserts instead
     // of using ids.
-    private ExternalDataPE getDataSetById(Long datasetId)
+    private ExternalDataPE tryGetDataSetById(Long datasetId)
     {
         return daoFactory.getDataDAO().getByTechId(new TechId(datasetId)).tryAsExternalData();
     }
@@ -267,6 +271,32 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         for (ExternalDataPE dataSet : dataSets)
         {
             assertContains(expectedLocations, dataSet.getLocation());
+        }
+    }
+
+    /**
+     * a more loose check for the database contents, where we expect to know only part of the
+     * resutls.
+     */
+    private void assertAtLeastDatasetsFound(DetailedSearchCriteria criteria,
+            DSLoc... expectedLocations)
+    {
+        List<ExternalDataPE> dataSets =
+                searchForDatasets(criteria,
+                        Collections.<DetailedSearchAssociationCriteria> emptyList());
+        AssertJUnit.assertTrue(expectedLocations.length <= dataSets.size());
+        for (DSLoc expectedLocation : expectedLocations)
+        {
+            boolean found = false;
+            for (ExternalDataPE dataSet : dataSets)
+            {
+                if (expectedLocation.location.equals(dataSet.getLocation()))
+                {
+                    found = true;
+                }
+            }
+            AssertJUnit.assertTrue("Expected dataset location " + expectedLocation
+                    + " not found in database.", found);
         }
     }
 
@@ -344,7 +374,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         DetailedSearchCriterion criterion = createAnyFieldCriterion();
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
+        assertAtLeastDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
                 DSLoc.LOC6);
     }
 
@@ -384,7 +414,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
         DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
+        assertAtLeastDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
                 DSLoc.LOC5, DSLoc.LOC6);
     }
 

@@ -500,8 +500,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 result.toString());
     }
 
-    @Test(groups = "broken")
-    // FIXME rebuild test DB index and commit it to SVN
     public void testSearchForDataSetsByContainer()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
