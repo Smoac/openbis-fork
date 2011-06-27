@@ -767,8 +767,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
-        assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
-
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
