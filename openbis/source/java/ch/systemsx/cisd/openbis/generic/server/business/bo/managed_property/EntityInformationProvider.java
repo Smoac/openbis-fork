@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -133,4 +135,21 @@ public class EntityInformationProvider implements IEntityInformationProvider
         }
     }
 
+    public List<String> getSampleParentPermIds(String spaceCode, String sampleCode)
+    {
+        // TODO 2011-06-27, Pawel Glyzewski: implement
+        return null;
+    }
+
+    public List<String> getSampleParentPermIds(String permId)
+    {
+        // TODO 2011-06-27, Pawel Glyzewski: implement
+        return null;
+    }
+
+    public String getSamplePropertyValue(String permId, String propertyCode)
+    {
+        // TODO 2011-06-27, Pawel Glyzewski: implement
+        return null;
+    }
 }
