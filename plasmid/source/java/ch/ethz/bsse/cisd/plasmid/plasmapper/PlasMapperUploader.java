@@ -95,7 +95,7 @@ public class PlasMapperUploader
         result.setProperty("imageSize", "900 x 900");
         result.setProperty("backbone", "medium");
         result.setProperty("arc", "medium");
-        // special: result of request == relative path to the PNG/GB file
+        // special: result of request == relative path to the SVG/GB file
         result.setProperty("biomoby", "true");
         return result;
     }
