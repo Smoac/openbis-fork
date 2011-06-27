@@ -403,4 +403,25 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals("42", property.getValue());
     }
 
+    @Test
+    public void testUpdateFromBatchInputWithAccessToOriginalColumns()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['BC1', 'BC2']\n"
+                        + "def updateFromBatchInput(bindings):\n"
+                        + "  property.setValue(bindings.get('BC1') + ' ' + "
+                        + "bindings.get('BC2') + ' ' + "
+                        + "bindings.get(originalColumnNameBindingKey('OC')))");
+        ManagedProperty property = new ManagedProperty();
+        property.setPropertyTypeCode("p");
+        Map<String, String> bindings = new HashMap<String, String>();
+        bindings.put("BC1", "b1");
+        bindings.put("BC2", "b2");
+        bindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey("OC"), "original");
+
+        evaluator.updateFromBatchInput(property, bindings);
+
+        assertEquals("b1 b2 original", property.getValue());
+    }
+
 }

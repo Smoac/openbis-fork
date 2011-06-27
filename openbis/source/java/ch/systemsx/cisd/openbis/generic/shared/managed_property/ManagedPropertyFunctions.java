@@ -28,6 +28,8 @@ public class ManagedPropertyFunctions
     private static final IManagedInputWidgetDescriptionFactory INPUT_WIDGET_FACTORY_INSTANCE =
             new ManagedUiActionDescriptionFactory();
 
+    private static final String ORIGINAL_COLUMN_NAME_BINDING_KEY_PREFIX = "$ORIGINAL-COLUMN-NAME$";
+
     private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
 
     private static final IStructuredPropertyConverter STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
@@ -101,6 +103,22 @@ public class ManagedPropertyFunctions
     public static IEntityInformationProvider entityInformationProvider()
     {
         return entityInformationProvider;
+    }
+
+    /**
+     * @return name of the given original column name (from the batch file) as stored in binding map
+     */
+    public static String originalColumnNameBindingKey(String originalColumnName)
+    {
+        return ORIGINAL_COLUMN_NAME_BINDING_KEY_PREFIX + originalColumnName;
+    }
+
+    /**
+     * @return true if the binding key is of a managed property
+     */
+    public static boolean isOriginalColumnNameBindingKey(String bindingKey)
+    {
+        return bindingKey.startsWith(ORIGINAL_COLUMN_NAME_BINDING_KEY_PREFIX);
     }
 
 }

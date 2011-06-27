@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,7 +74,14 @@ public class ManagedPropertyEvaluator
     public static void assertBatchColumnNames(String propertyTypeCode, List<String> columnNames,
             Map<String, String> bindings)
     {
-        Set<String> names = bindings.keySet();
+        Set<String> names = new HashSet<String>();
+        for (String name : bindings.keySet())
+        {
+            if (false == ManagedPropertyFunctions.isOriginalColumnNameBindingKey(name))
+            {
+                names.add(name);
+            }
+        }
         if (columnNames.isEmpty())
         {
             if (names.contains("") == false)

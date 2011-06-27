@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 
 /**
  * Handles Managed Properties of batch uploads/updates.
@@ -195,9 +196,15 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     {
         Map<String, Map<String, String>> subColumnBindings =
                 new HashMap<String, Map<String, String>>();
+
+        Map<String, String> originalColumnBindings = new HashMap<String, String>();
         for (IEntityProperty property : properties)
         {
-            String code = property.getPropertyType().getCode().toUpperCase();
+            final String code = property.getPropertyType().getCode().toUpperCase();
+            final String value = property.getValue();
+            originalColumnBindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey(code),
+                    value);
+
             int indexOfColon = code.indexOf(':');
             String propertyCode = code;
             String subColumn = "";
@@ -212,7 +219,15 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 bindings = new HashMap<String, String>();
                 subColumnBindings.put(propertyCode, bindings);
             }
-            bindings.put(subColumn, property.getValue());
+            bindings.put(subColumn, value);
+        }
+        // add original column bindings to all bindings
+        for (Map<String, String> bindings : subColumnBindings.values())
+        {
+            for (Entry<String, String> originalColumnEntry : originalColumnBindings.entrySet())
+            {
+                bindings.put(originalColumnEntry.getKey(), originalColumnEntry.getValue());
+            }
         }
         return subColumnBindings;
     }

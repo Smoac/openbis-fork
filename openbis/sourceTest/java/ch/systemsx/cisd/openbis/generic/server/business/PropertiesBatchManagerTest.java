@@ -45,6 +45,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
 
     private static final String MANAGED_NO_SUBCOLUMNS_NO_UPDATE = "MANAGED-NO-SUBCOLUMNS";
 
+    private static final String MANAGED_ACCESS_OTHER_COLUMNS = "MANAGED_ACCESS_OTHER_COLUMNS";
+
     private static final String UN_MANAGED = "UN-MANAGED";
 
     @Test
@@ -77,6 +79,27 @@ public class PropertiesBatchManagerTest extends AssertJUnit
 
         assertProperties("UN-MANAGED:hello, MANAGED-NO-SUBCOLUMNS:hi", e1);
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha, MANAGED_SUBCOLUMNS:ab12", e2);
+    }
+
+    @Test
+    public void testAccessToNonManagedColumns()
+    {
+        ExperimentTypePEBuilder builder = new ExperimentTypePEBuilder();
+        builder.assign(UN_MANAGED);
+        builder.assign(MANAGED_ACCESS_OTHER_COLUMNS).script(
+                ScriptType.MANAGED_PROPERTY,
+                "def updateFromBatchInput(columnValues):\n"
+                        + "  property.setValue(columnValues.get(originalColumnNameBindingKey('"
+                        + UN_MANAGED + "')) + ' ' + columnValues.get(''))");
+        NewBasicExperiment e1 = new NewBasicExperiment();
+        PropertyBuilder p1 = new PropertyBuilder(UN_MANAGED).value("hello");
+        PropertyBuilder p2 = new PropertyBuilder(MANAGED_ACCESS_OTHER_COLUMNS).value("ptr");
+        addProperties(e1, p1, p2);
+
+        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
+                Arrays.asList(e1), null);
+
+        assertProperties("UN-MANAGED:hello, MANAGED_ACCESS_OTHER_COLUMNS:hello ptr", e1);
     }
 
     @Test
