@@ -32,6 +32,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -45,7 +46,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -158,6 +158,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         didDataSetRollbackHappen = false;
         didServiceRollbackHappen = false;
+    }
+
+    @AfterMethod
+    public void tearDown() throws IOException
+    {
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -628,16 +634,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     @Test
     public void testScriptDies()
     {
-        setUpOpenBisExpectations();
+        setUpHomeDataBaseExpectations();
 
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("dying-script.py");
 
         createHandler(threadProperties, false);
         createData();
-
-        setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
 
         handler.handle(markerFile);
 
@@ -664,7 +667,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     @Test
     public void testRollbackService()
     {
-        setUpOpenBisExpectations();
+        setUpHomeDataBaseExpectations();
 
         // Create a handler that throws an exception during registration
         Properties threadProperties =
@@ -672,9 +675,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         createHandler(threadProperties, false);
 
         createData();
-
-        setUpDataSetValidatorExpectations();
-        setUpMailClientExpectations();
 
         handler.handle(markerFile);
 
@@ -737,6 +737,30 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         createData();
 
         setUpSearchExpectations();
+
+        handler.handle(markerFile);
+
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+
+        assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
+
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
+        assertFalse(theHandler.didRollbackServiceFunctionRun);
+    }
+
+    @Test
+    public void testQuerying()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties threadProperties =
+                createThreadPropertiesRelativeToScriptsFolder("query-interface-test.py");
+        createHandler(threadProperties, false);
+
+        createData();
+
+        setUpQueryExpectations();
 
         handler.handle(markerFile);
 
@@ -843,59 +867,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             });
     }
 
-    private void setUpOpenBisExpectations()
-    {
-        setUpHomeDataBaseExpectations();
-        context.checking(new Expectations()
-            {
-                {
-                    oneOf(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE + 1));
-
-                    oneOf(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE + 2));
-
-                    Experiment experiment = new Experiment();
-                    experiment.setIdentifier("/SPACE/PROJECT/EXP-CODE");
-                    experiment.setCode("EXP-CODE");
-                    Person registrator = new Person();
-                    registrator.setEmail("email@email.com");
-                    experiment.setRegistrator(registrator);
-
-                    exactly(3).of(openBisService).tryToGetExperiment(
-                            new ExperimentIdentifierFactory("/SPACE/PROJECT/EXP-CODE")
-                                    .createIdentifier());
-                    will(returnValue(experiment));
-
-                    exactly(2).of(openBisService).registerDataSet(
-                            with(any(DataSetInformation.class)), with(any(NewExternalData.class)));
-                }
-            });
-    }
-
-    private void setUpDataSetValidatorExpectations()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, subDataSet1);
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, subDataSet2);
-                }
-            });
-    }
-
-    private void setUpMailClientExpectations()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    exactly(2).of(mailClient).sendMessage(with(any(String.class)),
-                            with(any(String.class)), with(aNull(String.class)),
-                            with(aNull(From.class)), with(any(String[].class)));
-                }
-            });
-    }
-
     private void setUpSearchExpectations()
     {
         context.checking(new Expectations()
@@ -920,6 +891,16 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
                     oneOf(openBisService).searchForSamples(searchCriteria);
                     will(returnValue(Collections.EMPTY_LIST));
+                }
+            });
+    }
+
+    private void setUpQueryExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+
                 }
             });
     }
