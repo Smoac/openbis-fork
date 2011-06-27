@@ -91,7 +91,7 @@ public class PlasMapperUploader
         result.setProperty("tickMark", "0");
         result.setProperty("mapTitle", "");
         result.setProperty("comment", "Created using PlasMapper");
-        result.setProperty("imageFormat", "PNG");
+        result.setProperty("imageFormat", "SVG");
         result.setProperty("imageSize", "900 x 900");
         result.setProperty("backbone", "medium");
         result.setProperty("arc", "medium");
