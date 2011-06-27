@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
@@ -97,6 +100,21 @@ public class SampleImmutable implements ISampleImmutable
     public String getCode()
     {
         return sample.getCode();
+    }
+
+    public List<ISampleImmutable> getContainedSamples()
+    {
+        List<ISampleImmutable> result = new ArrayList<ISampleImmutable>();
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> containedSamples =
+                sample.tryGetContainedSamples();
+        if (containedSamples != null)
+        {
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample contained : containedSamples)
+            {
+                result.add(new SampleImmutable(contained));
+            }
+        }
+        return result;
     }
 
 }

@@ -54,6 +54,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private Set<Sample> parents = new TreeSet<Sample>();
 
+    private List<Sample> containedSamples = new ArrayList<Sample>();
+
     private List<IEntityProperty> properties;
 
     private Invalidation invalidation;
@@ -171,6 +173,16 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     public void addParent(final Sample parent)
     {
         parents.add(parent);
+    }
+
+    public List<Sample> tryGetContainedSamples()
+    {
+        return containedSamples;
+    }
+
+    public void setContainedSample(List<Sample> containedSamples)
+    {
+        this.containedSamples = containedSamples;
     }
 
     public Sample getGeneratedFrom()

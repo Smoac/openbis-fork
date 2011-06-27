@@ -59,11 +59,11 @@ public final class SampleTranslator
 
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL)
     {
-        return translate(samplePE, baseIndexURL, true);
+        return translate(samplePE, baseIndexURL, true, false);
     }
 
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL,
-            final boolean withDetails)
+            final boolean withDetails, boolean withContainedSamples)
     {
         if (samplePE == null)
         {
@@ -74,12 +74,14 @@ public final class SampleTranslator
                 getPositiveIntegerValue(samplePE.getSampleType().getContainerHierarchyDepth());
         final int generatedFromDep =
                 getPositiveIntegerValue(samplePE.getSampleType().getGeneratedFromHierarchyDepth());
-        return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails);
+        return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails,
+                withContainedSamples);
 
     }
 
     private final static Sample translate(final SamplePE samplePE, String baseIndexURL,
-            final int containerDep, final int generatedFromDep, final boolean withDetails)
+            final int containerDep, final int generatedFromDep, final boolean withDetails,
+            final boolean withContainedSamples)
     {
         final Sample result = new Sample();
         setCodes(result, samplePE);
@@ -120,8 +122,8 @@ public final class SampleTranslator
         {
             if (HibernateUtils.isInitialized(samplePE.getContainer()))
             {
-                result.setContainer(SampleTranslator.translate(samplePE.getContainer(),
-                        baseIndexURL, containerDep - 1, 0, false));
+                result.setContainer(translate(samplePE.getContainer(), baseIndexURL,
+                        containerDep - 1, 0, false, false));
             }
         }
         if (generatedFromDep > 0 && samplePE.getParentRelationships() != null)
@@ -130,10 +132,22 @@ public final class SampleTranslator
             {
                 for (SamplePE parent : samplePE.getParents())
                 {
-                    result.addParent(SampleTranslator.translate(parent, baseIndexURL, 0,
-                            generatedFromDep - 1, false));
+                    result.addParent(translate(parent, baseIndexURL, 0, generatedFromDep - 1,
+                            false, false));
                 }
             }
+        }
+
+        if (withContainedSamples && samplePE.getContained() != null)
+        {
+            ArrayList<Sample> containedSamples = new ArrayList<Sample>();
+            for (SamplePE containedPE : samplePE.getContained())
+            {
+                Sample containedSample = translate(containedPE, baseIndexURL, 0, 0, false, false);
+                containedSamples.add(containedSample);
+
+            }
+            result.setContainedSample(containedSamples);
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         return result;
@@ -169,7 +183,7 @@ public final class SampleTranslator
         final List<Sample> generated = new ArrayList<Sample>();
         for (SamplePE samplePE : sampleGenerationDTO.getDerived())
         {
-            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false));
+            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false));
         }
         sampleGeneration.setDerived(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;

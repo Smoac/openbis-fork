@@ -24,6 +24,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -70,7 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLServiceLogger extends AbstractServerLogger implements IETLService
+public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSService
 {
 
     public ETLServiceLogger(final ISessionManager<Session> sessionManager,
@@ -493,6 +495,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier)
     {
         logAccess(sessionToken, "tryGetMaterial", "%s", materialIdentifier);
+        return null;
+    }
+
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
+            boolean withProperties)
+    {
+        logAccess(sessionToken, "listMaterials", "CRITERIA(%s), WITH_PROPERTIES(%s)", criteria,
+                withProperties);
         return null;
     }
 }

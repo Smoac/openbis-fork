@@ -976,13 +976,16 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(boFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
+                    one(boFactory).createSampleTable(SESSION);
+                    will(returnValue(sampleTable));
 
-                    one(sampleBO).define(newSample);
-                    one(sampleBO).save();
-                    exactly(1).of(sampleBO).getSample();
-                    will(returnValue(newSamplePE));
+                    one(sampleTable).prepareForRegistration(Arrays.asList(newSample), null);
+                    one(sampleTable).save();
+                    one(sampleTable).getSamples();
+                    will(returnValue(Arrays.asList(newSamplePE)));
+                    
+                    one(boFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
 
                     one(sampleBO).update(sampleUpdate);
                     one(sampleBO).save();

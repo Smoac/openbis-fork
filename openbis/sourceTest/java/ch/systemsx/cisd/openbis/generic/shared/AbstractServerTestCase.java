@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -125,6 +126,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected IGroupBO groupBO;
 
     protected ISampleBO sampleBO;
+
+    protected ISampleTable sampleTable;
 
     protected IMaterialBO materialBO;
 
@@ -220,6 +223,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         dataBO = context.mock(IDataBO.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);
+        sampleTable = context.mock(ISampleTable.class);
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
         experimentTable = context.mock(IExperimentTable.class);

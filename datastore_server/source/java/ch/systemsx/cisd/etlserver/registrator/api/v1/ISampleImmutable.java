@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import java.util.List;
+
 /**
  * An interface for samples from the database that should not be altered.
  * 
@@ -58,5 +60,11 @@ public interface ISampleImmutable
      * code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
+
+    /**
+     * Return the contained sample objects. Only available for samples existing prior the
+     * transaction start.
+     */
+    List<ISampleImmutable> getContainedSamples();
 
 }

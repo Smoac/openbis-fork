@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -545,6 +546,65 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"), incomingDir);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTransactionWithNewMaterial()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("transaction-with-new-material.py");
+        final File stagingDir = new File(workingDirectory, "staging");
+        properties.setProperty(DataSetRegistrationService.STAGING_DIR, stagingDir.getPath());
+        createHandler(properties, false, true);
+        createData();
+
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
+        final Experiment experiment = builder.getExperiment();
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
+
+                    atLeast(1).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment.getIdentifier())
+                                    .createIdentifier());
+                    will(returnValue(experiment));
+
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
+                            new File(new File(stagingDir, DATA_SET_CODE), "sub_data_set_1"));
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+        ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails operations =
+                atomicatOperationDetails.recordedObject();
+
+        assertEquals(1, operations.getDataSetRegistrations().size());
+        assertEquals(0, operations.getExperimentUpdates().size());
+        assertEquals(0, operations.getSampleUpdates().size());
+        assertEquals(0, operations.getSampleRegistrations().size());
+        assertEquals(0, operations.getExperimentRegistrations().size());
+        assertEquals(1, operations.getMaterialRegistrations().size());
+
+        NewMaterial newMaterial =
+                operations.getMaterialRegistrations().get("new-material-type").get(0);
+        assertEquals("new-material", newMaterial.getCode());
+        assertEquals("[material-prop: material-prop-value]",
+                Arrays.asList(newMaterial.getProperties()).toString());
+
+        NewExternalData dataSet = operations.getDataSetRegistrations().get(0);
+        assertEquals(DATA_SET_CODE, dataSet.getCode());
+        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+
         context.assertIsSatisfied();
     }
 

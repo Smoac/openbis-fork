@@ -80,6 +80,10 @@ public class ConversionUtils
         {
             newSample.setExperimentIdentifier(sample.getExperiment().getIdentifier());
         }
+        if (sample.getContainer() != null)
+        {
+            newSample.setContainerIdentifier(sample.getContainer().getIdentifier());
+        }
         newSample.setSampleType(sample.getSampleType());
 
         IEntityProperty[] properties = sample.getProperties().toArray(new IEntityProperty[0]);

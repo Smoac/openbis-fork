@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -493,6 +494,17 @@ public interface IETLLIMSService extends IServer, ISessionProvider
         { RoleWithHierarchy.SPACE_OBSERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken);
+
+    /**
+     * Lists materials using given criteria.
+     * 
+     * @return a sorted list of {@link Material}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
+            boolean withProperties);
 
     /**
      * Adds specified properties of given data set. Properties defined before will not be updated.

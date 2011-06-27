@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -160,6 +161,14 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
+
+    /**
+     * Lists materials using given criteria.
+     * 
+     * @return a sorted list of {@link Material}.
+     */
+    @ManagedAuthentication
+    public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties);
 
     /**
      * Lists vocabulary terms.

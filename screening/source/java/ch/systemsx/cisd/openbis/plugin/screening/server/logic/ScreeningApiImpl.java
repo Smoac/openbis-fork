@@ -432,7 +432,7 @@ public class ScreeningApiImpl
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadBySampleIdentifier(sampleIdentifier);
-            sample = SampleTranslator.translate(sampleBO.getSample(), "", true);
+            sample = SampleTranslator.translate(sampleBO.getSample(), "");
         }
         return sample;
     }

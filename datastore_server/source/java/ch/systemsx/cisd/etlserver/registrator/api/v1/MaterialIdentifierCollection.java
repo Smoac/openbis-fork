@@ -16,31 +16,30 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+
 /**
- * @author Chandrasekhar Ramakrishnan
+ * A collection of material identifiers.
+ * 
+ * @author Kaloyan Enimanev
  */
-public interface ISample extends ISampleImmutable
+public class MaterialIdentifierCollection
 {
 
-    /**
-     * Set the experiment for this sample. The experiment need not be immutable, but the immutable
-     * one is the superclass.
-     */
-    void setExperiment(IExperimentImmutable experiment);
+    private List<String> materialIdentifiers = new ArrayList<String>();
 
+    public void addIdentifier(String type, String code)
+    {
+        String identifier = new MaterialIdentifier(code, type).print();
+        materialIdentifiers.add(identifier);
+    }
 
-    /**
-     * Set the type for this sample.
-     */
-    void setSampleType(String type);
-
-    /**
-     * Set the container for this sample.
-     */
-    void setContainer(ISampleImmutable container);
-
-    /**
-     * Set the value for a property.
-     */
-    void setPropertyValue(String propertyCode, String propertyValue);
+    public List<String> getIdentifiers()
+    {
+        return Collections.unmodifiableList(materialIdentifiers);
+    }
 }

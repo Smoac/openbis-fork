@@ -17,18 +17,28 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterialImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISearchService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.MaterialIdentifierCollection;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -106,6 +116,66 @@ class SearchService implements ISearchService
             samples.add(new SampleImmutable(sample));
         }
         return samples;
+    }
+
+    public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection)
+    {
+        final Set<String> identifiers = new HashSet<String>(identifierCollection.getIdentifiers());
+        Set<String> searchedTypes = extractMaterialTypes(identifierCollection);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> accumulatedResults =
+                findAllMaterials(searchedTypes);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> filteredByIdentifier =
+                CollectionUtils
+                        .filter(accumulatedResults,
+                new ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material>()
+                    {
+
+                        public boolean isPresent(Material element)
+                        {
+                            return identifiers.contains(element.getIdentifier());
+                        }
+            
+        });
+        return translate(filteredByIdentifier);
+    }
+
+    private Set<String> extractMaterialTypes(MaterialIdentifierCollection identifierCollection)
+    {
+        Set<String> searchedTypes = new HashSet<String>();
+        for (String stringIdentifier : identifierCollection.getIdentifiers())
+        {
+            MaterialIdentifier identifier = MaterialIdentifier.tryParseIdentifier(stringIdentifier);
+            searchedTypes.add(identifier.getTypeCode());
+        }
+        return searchedTypes;
+    }
+
+    private List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> findAllMaterials(
+            Set<String> searchedTypes)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> accumulatedResults =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material>();
+        for (String typeCode : searchedTypes)
+        {
+            MaterialType materialType = new MaterialType();
+            materialType.setCode(typeCode);
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materialsOfType =
+                    openBisService.listMaterials(new ListMaterialCriteria(materialType), true);
+            accumulatedResults.addAll(materialsOfType);
+        }
+        return accumulatedResults;
+    }
+
+    private List<IMaterialImmutable> translate(List<Material> materials)
+    {
+        List<IMaterialImmutable> result = new ArrayList<IMaterialImmutable>();
+        for (Material material : materials)
+        {
+            result.add(new MaterialImmutable(material));
+        }
+        return result;
     }
 
 }

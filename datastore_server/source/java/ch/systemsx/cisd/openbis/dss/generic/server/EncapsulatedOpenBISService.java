@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -563,6 +564,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public Material tryGetMaterial(MaterialIdentifier materialIdentifier)
     {
         return service.tryGetMaterial(session.getToken(), materialIdentifier);
+    }
+
+    public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties)
+    {
+        return service.listMaterials(session.getToken(), criteria, withProperties);
     }
 
 }

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -47,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
@@ -57,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
@@ -77,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -161,7 +166,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLService extends AbstractCommonServer<IETLService> implements IETLService
+public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
 {
     private final IDAOFactory daoFactory;
 
@@ -184,7 +189,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         this.dssFactory = dssFactory;
     }
 
-    public IETLService createLogger(IInvocationLoggerContext context)
+    public IETLLIMSService createLogger(IInvocationLoggerContext context)
     {
         return new ETLServiceLogger(getSessionManager(), context);
     }
@@ -398,7 +403,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             HibernateUtils.initialize(sample.getProperties());
             enrichWithProperties(sample.getExperiment());
         }
-        return SampleTranslator.translate(sample, session.getBaseIndexURL());
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true);
     }
 
     public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
@@ -956,20 +961,27 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail)
     {
         checkSession(sessionToken);
+
+        PersonPE personPE = tryFindPersonForUserIdOrEmail(useridOrEmail);
+        return (null != personPE) ? PersonTranslator.translate(personPE) : null;
+    }
+
+    private PersonPE tryFindPersonForUserIdOrEmail(String userIdOrEmail)
+    {
+        if (userIdOrEmail == null)
+        {
+            return null;
+        }
+
         // First search for a userId match
         IPersonDAO personDao = getDAOFactory().getPersonDAO();
-        PersonPE person = personDao.tryFindPersonByUserId(useridOrEmail);
+        PersonPE person = personDao.tryFindPersonByUserId(userIdOrEmail);
         if (null != person)
         {
-            return PersonTranslator.translate(person);
+            return person;
         }
         // Didn't find one -- try email
-        person = personDao.tryFindPersonByEmail(useridOrEmail);
-        if (null != person)
-        {
-            return PersonTranslator.translate(person);
-        }
-        return null;
+        return personDao.tryFindPersonByEmail(userIdOrEmail);
     }
 
     public Sample registerSampleAndDataSet(String sessionToken, NewSample newSample,
@@ -1043,6 +1055,20 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         dataBO.save();
         final String dataSetCode = dataBO.getData().getCode();
         assert dataSetCode != null : "Data set code not specified.";
+    }
+
+    private List<SamplePE> registerSamplesInternal(Session session, List<NewSample> newSamples,
+            String userIdOrNull)
+    {
+        if (newSamples.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
+        sampleTable.prepareForRegistration(newSamples, registratorOrNull);
+        sampleTable.save();
+        return sampleTable.getSamples();
     }
 
     private SamplePE registerSampleInternal(Session session, NewSample newSample,
@@ -1232,14 +1258,28 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     private List<Sample> createSamples(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
-        ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
+        List<NewSample> containerSamples = new ArrayList<NewSample>();
+        List<NewSample> containedSamples = new ArrayList<NewSample>();
         for (NewSample newSample : newSamples)
         {
-            SamplePE samplePE =
-                    registerSampleInternal(session, newSample, operationDetails.tryUserIdOrNull());
-            samplePEsCreated.add(samplePE);
+            if (StringUtils.isEmpty(newSample.getContainerIdentifier()))
+            {
+                containerSamples.add(newSample);
+            } else
+            {
+                containedSamples.add(newSample);
+            }
         }
+
+        String userIdOrNull = operationDetails.tryUserIdOrNull();
+        ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
+        // in the first pass register samples without container to avoid dependency inversion
+        samplePEsCreated.addAll(registerSamplesInternal(session, containerSamples, userIdOrNull));
+        // register samples with a container identifier
+        // (container should have been created in the first pass)
+        samplePEsCreated.addAll(registerSamplesInternal(session, containedSamples, userIdOrNull));
+
         return SampleTranslator.translate(samplePEsCreated, session.getBaseIndexURL());
     }
 
@@ -1417,6 +1457,14 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
         return searchHelper.searchForDataSets(detailedSearchCriteria);
+    }
+
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
+            boolean withProperties)
+    {
+        Session session = getSession(sessionToken);
+        IMaterialLister lister = businessObjectFactory.createMaterialLister(session);
+        return lister.list(criteria, withProperties);
     }
 
 }

@@ -68,4 +68,11 @@ public interface ISearchService
      * @return A list of matching samples.
      */
     public List<ISampleImmutable> searchForSamples(SearchCriteria searchCriteria);
+
+    /**
+     * @param identifierCollection a collection containing the identifiers of the matching
+     *            materials. Identifiers that do not exist in the openBIS database are ignored.
+     * @return a list of materials matching the specified collection.
+     */
+    public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection);
 }
