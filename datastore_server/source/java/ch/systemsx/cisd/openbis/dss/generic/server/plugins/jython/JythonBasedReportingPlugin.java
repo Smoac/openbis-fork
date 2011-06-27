@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
  * Reporting plugin which delegates the creation of report to a Jython script.
@@ -39,48 +39,38 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
 {
     private static final long serialVersionUID = 1L;
 
+    private static final String SCRIPT_PATH = "script-path";
+
+    private final IReportingPluginScriptRunner scriptRunner;
+
     public JythonBasedReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
+        final String scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+        scriptRunner = PluginScriptRunner.createReportingPluginFromScriptPath(scriptPath);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets,
+    public TableModel createReport(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        operationLog.info("Reporting for the following datasets has been requested: " + datasets);
-        IHierarchicalContentProvider contentProvider =
+        operationLog.info("Reporting for the following datasets has been requested: " + dataSets);
+        final IHierarchicalContentProvider contentProvider =
                 ServiceProvider.getHierarchicalContentProvider();
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-
-        for (DatasetDescription dataset : datasets)
-        {
-            describe(builder, dataset, contentProvider);
-        }
-        return builder.getTableModel();
-    }
-
-    private void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            IHierarchicalContentProvider contentProvider)
-    {
-        String dataSetCode = dataset.getDataSetCode();
-        IHierarchicalContent content = null;
+        final List<IDataSet> iDataSets = JythonBasedPluginUtils.convert(dataSets, contentProvider);
         try
         {
-            content = contentProvider.asContent(dataSetCode);
-            IDataSet iDataSet = JythonBasedPluginUtils.createDataSet(dataset, content);
-            delegateDescribe(builder, iDataSet);
+            final ISimpleTableModelBuilderAdaptor builder = SimpleTableModelBuilderAdaptor.create();
+            delegateDescribe(iDataSets, builder);
+            return (TableModel) builder.getTableModel();
         } finally
         {
-            if (content != null)
-            {
-                content.close();
-            }
+            JythonBasedPluginUtils.closeContent(iDataSets);
         }
     }
 
-    private void delegateDescribe(SimpleTableModelBuilder builder, IDataSet iDataSet)
+    private void delegateDescribe(List<IDataSet> dataSets,
+            ISimpleTableModelBuilderAdaptor tableBuilder)
     {
-        // TODO Auto-generated method stub
+        scriptRunner.describe(dataSets, tableBuilder);
     }
-
 }

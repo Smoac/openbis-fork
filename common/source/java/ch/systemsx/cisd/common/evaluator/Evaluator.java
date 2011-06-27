@@ -77,7 +77,7 @@ public final class Evaluator
     }
 
     /**
-     * Creates a new {@link Evaluator}.
+     * Creates a new {@link Evaluator} with file system access blocked.
      * 
      * @param expression The expression to evaluate.
      */
@@ -87,7 +87,7 @@ public final class Evaluator
     }
 
     /**
-     * Creates a new {@link Evaluator}.
+     * Creates a new {@link Evaluator} with file system access blocked.
      * 
      * @param expression The expression to evaluate.
      * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
@@ -99,6 +99,23 @@ public final class Evaluator
     public Evaluator(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
             throws EvaluatorException
     {
+        this(expression, supportFunctionsOrNull, initialScriptOrNull, true);
+    }
+
+    /**
+     * Creates a new {@link Evaluator}.
+     * 
+     * @param expression The expression to evaluate.
+     * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
+     *            given class will be available to the evaluator as "supporting functions".
+     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script
+     *            which is evaluated initially, e.g. to define some new functions. Note: this script
+     *            is trusted, so don't run any unvalidated code here!
+     * @param blockFileAccess If <code>true</code> the script will not be able to open files.
+     */
+    public Evaluator(String expression, Class<?> supportFunctionsOrNull,
+            String initialScriptOrNull, boolean blockFileAccess) throws EvaluatorException
+    {
         if (isMultiline(expression))
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
@@ -108,7 +125,10 @@ public final class Evaluator
 
         try
         {
-            interpreter.exec("def open():\n   pass");
+            if (blockFileAccess)
+            {
+                interpreter.exec("def open():\n   pass");
+            }
             if (supportFunctionsOrNull != null)
             {
                 interpreter.exec("from " + supportFunctionsOrNull.getCanonicalName() + " import *");

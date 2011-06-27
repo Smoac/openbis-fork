@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -129,5 +133,32 @@ public class JythonBasedPluginUtils
                 }
 
             };
+    }
+
+    static List<IDataSet> convert(List<DatasetDescription> dataSets,
+            IHierarchicalContentProvider contentProvider)
+    {
+        List<IDataSet> result = new ArrayList<IDataSet>();
+        try
+        {
+            for (DatasetDescription dataSet : dataSets)
+            {
+                IHierarchicalContent content = contentProvider.asContent(dataSet.getDataSetCode());
+                result.add(JythonBasedPluginUtils.createDataSet(dataSet, content));
+            }
+            return result;
+        } catch (RuntimeException ex)
+        {
+            closeContent(result);
+            throw ex;
+        }
+    }
+
+    static void closeContent(List<IDataSet> dataSets)
+    {
+        for (IDataSet dataSet : dataSets)
+        {
+            dataSet.getContent().close();
+        }
     }
 }

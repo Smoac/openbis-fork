@@ -200,11 +200,24 @@ public class EvaluatorTest extends AssertJUnit
         try
         {
             eval.evalAsString();
+            fail("expected EvaluatorException");
         } catch (EvaluatorException ex)
         {
             // expected
         }
         assertFalse(tagFile.exists());
+    }
+
+    @Test
+    public void testWriteSucceeds()
+    {
+        final File tagFile = new File("targets/newfile");
+        tagFile.delete();
+        final Evaluator eval =
+                new Evaluator("open('targets/newfile', 'w').write('Should work')", null, null,
+                        false);
+        eval.evalAsString();
+        assertTrue(tagFile.exists());
     }
 
     @Test

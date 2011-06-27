@@ -23,9 +23,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -43,46 +43,44 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
+    private static final String SCRIPT_PATH = "script-path";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonBasedProcessingPlugin.class);
 
+    private final IProcessingPluginScriptRunner scriptRunner;
+
     public JythonBasedProcessingPlugin(Properties properties, File storeRoot)
     {
+        final String scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+        scriptRunner = PluginScriptRunner.createProcessingPluginFromScriptPath(scriptPath);
     }
 
-    public ProcessingStatus process(List<DatasetDescription> datasets,
+    public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        operationLog.info("Processing of the following datasets has been requested: " + datasets);
+        operationLog.info("Processing of the following datasets has been requested: " + dataSets);
         final IHierarchicalContentProvider contentProvider =
                 ServiceProvider.getHierarchicalContentProvider();
-
-        ProcessingStatus result = new ProcessingStatus();
-
-        for (DatasetDescription dataset : datasets)
+        final List<IDataSet> iDataSets = JythonBasedPluginUtils.convert(dataSets, contentProvider);
+        try
         {
-            String dataSetCode = dataset.getDataSetCode();
-            IHierarchicalContent content = null;
-            try
+            ProcessingStatus result = new ProcessingStatus();
+            for (IDataSet dataSet : iDataSets)
             {
-                content = contentProvider.asContent(dataSetCode);
-                IDataSet iDataSet = JythonBasedPluginUtils.createDataSet(dataset, content);
-                result.addDatasetStatus(dataSetCode, delegateProcessing(iDataSet));
-            } finally
-            {
-                if (content != null)
-                {
-                    content.close();
-                }
+                result.addDatasetStatus(dataSet.getDataSetCode(), delegateProcessing(dataSet));
             }
+            operationLog.info("Processing done.");
+            return result;
+        } finally
+        {
+            JythonBasedPluginUtils.closeContent(iDataSets);
         }
-        operationLog.info("Processing done.");
-        return null;
     }
 
-    private Status delegateProcessing(IDataSet iDataSet)
+    private Status delegateProcessing(IDataSet dataSet)
     {
-        return Status.OK; // TODO
+        return scriptRunner.process(dataSet);
     }
 
 }
