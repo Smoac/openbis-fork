@@ -279,12 +279,13 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
      * resutls.
      */
     private void assertAtLeastDatasetsFound(DetailedSearchCriteria criteria,
+            int expectedTotalResults,
             DSLoc... expectedLocations)
     {
         List<ExternalDataPE> dataSets =
                 searchForDatasets(criteria,
                         Collections.<DetailedSearchAssociationCriteria> emptyList());
-        AssertJUnit.assertTrue(expectedLocations.length <= dataSets.size());
+        AssertJUnit.assertEquals(expectedTotalResults, dataSets.size());
         for (DSLoc expectedLocation : expectedLocations)
         {
             boolean found = false;
@@ -374,7 +375,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         DetailedSearchCriterion criterion = createAnyFieldCriterion();
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertAtLeastDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
+        assertAtLeastDatasetsFound(criteria, 7, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
                 DSLoc.LOC6);
     }
 
@@ -414,7 +415,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
         DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertAtLeastDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
+        assertAtLeastDatasetsFound(criteria, 8, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
                 DSLoc.LOC5, DSLoc.LOC6);
     }
 
