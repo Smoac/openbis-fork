@@ -132,7 +132,7 @@ public class ScreeningClientApiTest
         print("Image datasets: " + imageDatasets.subList(0, Math.min(5, imageDatasets.size())));
 
         List<FeatureVectorDatasetReference> featureVectorDatasets =
-                facade.listFeatureVectorDatasets(plates);
+                facade.listFeatureVectorDatasets(plates, null);
         Collections.sort(featureVectorDatasets, new Comparator<FeatureVectorDatasetReference>()
             {
                 public int compare(FeatureVectorDatasetReference r1,

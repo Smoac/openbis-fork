@@ -67,6 +67,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdenti
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -237,6 +239,350 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     }
 
     @Test
+    public void testListFeatureVectorDataSetsWithUnspecifiedAnalysisProcedure()
+    {
+        final PlateIdentifier plate = new PlateIdentifier("p1", "s", "s-12");
+        final List<PlateIdentifier> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, null, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, null, null, null, null,
+                        i1id, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listFeatureVectorDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        List<FeatureVectorDatasetReference> dataSets =
+                facade.listFeatureVectorDatasets(plates, null);
+
+        assertSame(r1, dataSets.get(0));
+        assertSame(r2, dataSets.get(1));
+        assertEquals(2, dataSets.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListFeatureVectorDataSets()
+    {
+        final PlateIdentifier plate = new PlateIdentifier("p1", "s", "s-12");
+        final List<PlateIdentifier> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, null, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, null, null, null, null,
+                        i1id, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listFeatureVectorDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        List<FeatureVectorDatasetReference> dataSets =
+                facade.listFeatureVectorDatasets(plates, "AP-42");
+
+        assertSame(r1, dataSets.get(0));
+        assertEquals(1, dataSets.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadFeaturesForPlatesWithUnspecifiedAnalysisProcedure()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final PlateIdentifier plate = new PlateIdentifier("p1", "s", "s-12");
+        final List<PlateIdentifier> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null, null);
+        final FeatureVectorDataset ds2 = new FeatureVectorDataset(r2, null, null, null);
+        final FeatureVectorDataset ds3 = new FeatureVectorDataset(r2, null, null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listFeatureVectorDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+
+                    one(dssService1).loadFeatures(SESSION_TOKEN, Arrays.asList(r1), featureNames);
+                    will(returnValue(Arrays.asList(ds1)));
+
+                    one(dssService2).loadFeatures(SESSION_TOKEN, Arrays.asList(r2), featureNames);
+                    will(returnValue(Arrays.asList(ds2, ds3)));
+                }
+            });
+
+        List<FeatureVectorDataset> features =
+                facade.loadFeaturesForPlates(plates, featureNames, null);
+
+        assertSame(ds1, features.get(0));
+        assertSame(ds2, features.get(1));
+        assertSame(ds3, features.get(2));
+        assertEquals(3, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadFeaturesForPlates()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final PlateIdentifier plate = new PlateIdentifier("p1", "s", "s-12");
+        final List<PlateIdentifier> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listFeatureVectorDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+
+                    one(dssService1).loadFeatures(SESSION_TOKEN, Arrays.asList(r1), featureNames);
+                    will(returnValue(Arrays.asList(ds1)));
+                }
+            });
+
+        List<FeatureVectorDataset> features =
+                facade.loadFeaturesForPlates(plates, featureNames, "AP-42");
+
+        assertSame(ds1, features.get(0));
+        assertEquals(1, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadFeaturesForPlateWellsByMaterial()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(new MaterialTypeIdentifier("my-type"), "m1");
+        final Plate plate =
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDatasetWellReference fvWellRef1 =
+                new FeatureVectorDatasetWellReference(r1, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv1 =
+                new FeatureVectorWithDescription(fvWellRef1, featureNames, new double[0]);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listPlateWells(SESSION_TOKEN, materialIdentifier, true);
+                    will(returnValue(Arrays.asList(new PlateWellReferenceWithDatasets(plate,
+                            new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
+                                    .asList(r1, r2)))));
+
+                    one(dssService1).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef1), featureNames);
+                    will(returnValue(Arrays.asList(fv1)));
+                }
+            });
+
+        List<FeatureVectorWithDescription> features =
+                facade.loadFeaturesForPlateWells(materialIdentifier, "AP-42", featureNames);
+
+        assertSame(fv1, features.get(0));
+        assertEquals(1, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testLoadFeaturesForPlateWellsByMaterialAndUnspecifiedAnalysisProcedure()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(new MaterialTypeIdentifier("my-type"), "m1");
+        final Plate plate =
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDatasetWellReference fvWellRef1 =
+                new FeatureVectorDatasetWellReference(r1, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv1 =
+                new FeatureVectorWithDescription(fvWellRef1, featureNames, new double[0]);
+        final FeatureVectorDatasetWellReference fvWellRef2 =
+                new FeatureVectorDatasetWellReference(r2, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv2 =
+                new FeatureVectorWithDescription(fvWellRef2, featureNames, new double[0]);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listPlateWells(SESSION_TOKEN, materialIdentifier, true);
+                    will(returnValue(Arrays.asList(new PlateWellReferenceWithDatasets(plate,
+                            new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
+                                    .asList(r1, r2)))));
+
+                    one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r1));
+                    will(returnValue(featureNames));
+
+                    one(dssService1).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef1), featureNames);
+                    will(returnValue(Arrays.asList(fv1)));
+
+                    one(dssService2).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r2));
+                    will(returnValue(featureNames));
+
+                    one(dssService2).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef2), featureNames);
+                    will(returnValue(Arrays.asList(fv2)));
+
+                }
+            });
+
+        List<FeatureVectorWithDescription> features =
+                facade.loadFeaturesForPlateWells(materialIdentifier, null, null);
+
+        assertSame(fv1, features.get(0));
+        assertSame(fv2, features.get(1));
+        assertEquals(2, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testLoadFeaturesForPlateWellsByExperimentAndMaterialAndUnspecifiedAnalysisProcedure()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(new MaterialTypeIdentifier("my-type"), "m1");
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier("E", "P", "S", null);
+        final Plate plate =
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDatasetWellReference fvWellRef1 =
+                new FeatureVectorDatasetWellReference(r1, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv1 =
+                new FeatureVectorWithDescription(fvWellRef1, featureNames, new double[0]);
+        final FeatureVectorDatasetWellReference fvWellRef2 =
+                new FeatureVectorDatasetWellReference(r2, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv2 =
+                new FeatureVectorWithDescription(fvWellRef2, featureNames, new double[0]);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listPlateWells(SESSION_TOKEN, experimentIdentifier,
+                            materialIdentifier, true);
+                    will(returnValue(Arrays.asList(new PlateWellReferenceWithDatasets(plate,
+                            new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
+                                    .asList(r1, r2)))));
+
+                    one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r1));
+                    will(returnValue(featureNames));
+
+                    one(dssService1).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef1), featureNames);
+                    will(returnValue(Arrays.asList(fv1)));
+
+                    one(dssService2).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r2));
+                    will(returnValue(featureNames));
+
+                    one(dssService2).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef2), featureNames);
+                    will(returnValue(Arrays.asList(fv2)));
+
+                }
+            });
+
+        List<FeatureVectorWithDescription> features =
+                facade.loadFeaturesForPlateWells(experimentIdentifier, materialIdentifier, null,
+                        null);
+
+        assertSame(fv1, features.get(0));
+        assertSame(fv2, features.get(1));
+        assertEquals(2, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadFeaturesForPlateWellsByExperimentAndMaterial()
+    {
+        final List<String> featureNames = Arrays.asList("A", "B");
+        final MaterialIdentifier materialIdentifier =
+                new MaterialIdentifier(new MaterialTypeIdentifier("my-type"), "m1");
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier("E", "P", "S", null);
+        final Plate plate =
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final FeatureVectorDatasetReference r1 =
+                new FeatureVectorDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        i1id, properties);
+        final FeatureVectorDatasetReference r2 =
+                new FeatureVectorDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        i2id, null);
+        final FeatureVectorDatasetWellReference fvWellRef1 =
+                new FeatureVectorDatasetWellReference(r1, new WellPosition(1, 2));
+        final FeatureVectorWithDescription fv1 =
+                new FeatureVectorWithDescription(fvWellRef1, featureNames, new double[0]);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listPlateWells(SESSION_TOKEN, experimentIdentifier,
+                            materialIdentifier, true);
+                    will(returnValue(Arrays.asList(new PlateWellReferenceWithDatasets(plate,
+                            new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
+                                    .asList(r1, r2)))));
+
+                    one(dssService1).loadFeaturesForDatasetWellReferences(SESSION_TOKEN,
+                            Arrays.asList(fvWellRef1), featureNames);
+                    will(returnValue(Arrays.asList(fv1)));
+                }
+            });
+
+        List<FeatureVectorWithDescription> features =
+                facade.loadFeaturesForPlateWells(experimentIdentifier, materialIdentifier, "AP-42",
+                        featureNames);
+
+        assertSame(fv1, features.get(0));
+        assertEquals(1, features.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testLoadFeatures()
     {
         final List<String> featureNames = Arrays.asList("A", "B");
@@ -271,6 +617,65 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListSegmentationImageDataSets()
+    {
+        final Plate plate =
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        final List<Plate> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final ImageDatasetReference r1 =
+                new ImageDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        properties, null);
+        final ImageDatasetReference r2 =
+                new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                        null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listSegmentationImageDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+
+        List<ImageDatasetReference> dataSets = facade.listSegmentationImageDatasets(plates, "AP-42");
+
+        assertSame(r1, dataSets.get(0));
+        assertEquals(1, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListSegmentationImageDataSetsWithUnspecifiedAnalysisProcedure()
+    {
+        final Plate plate =
+            new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+        final List<Plate> plates = Arrays.asList(plate);
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
+        final ImageDatasetReference r1 =
+            new ImageDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                    properties, null);
+        final ImageDatasetReference r2 =
+            new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
+                    null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningService).listSegmentationImageDatasets(SESSION_TOKEN, plates);
+                    will(returnValue(Arrays.asList(r1, r2)));
+                }
+            });
+        
+        List<ImageDatasetReference> dataSets = facade.listSegmentationImageDatasets(plates, null);
+        
+        assertSame(r1, dataSets.get(0));
+        assertSame(r2, dataSets.get(1));
+        assertEquals(2, dataSets.size());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testListPlateWells()
     {
@@ -439,7 +844,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     @Test
     public void testListPlates()
     {
-        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher = new RecordingMatcher<SearchCriteria>();
+        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
         context.checking(new Expectations()
             {
                 {
@@ -450,7 +856,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                                     .type("s").typeID(42).permID("s-1").experiment("/S/P/E")
                                     .getSample());
                     will(returnValue(samples));
-                    
+
                     one(generalInformationService).listDataSets(SESSION_TOKEN, samples, null);
                     DataSetBuilder ds1 = new DataSetBuilder().experiment("/S/P/E").type("M");
                     ds1.code("ds1").sample("/s/p1");
@@ -458,14 +864,14 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     ds2.code("ds2").sample("/s/p1").property(ANALYSIS_PROCEDURE, "ap-42");
                     DataSetBuilder ds3 = new DataSetBuilder().experiment("/S/P/E").type("M");
                     ds3.code("ds3").sample("/s/p2").property(ANALYSIS_PROCEDURE, "ap-42");
-                    will(returnValue(Arrays
-                            .asList(ds1.getDataSet(), ds2.getDataSet(), ds3.getDataSet())));
-                    
+                    will(returnValue(Arrays.asList(ds1.getDataSet(), ds2.getDataSet(),
+                            ds3.getDataSet())));
+
                 }
             });
         List<Plate> plates =
                 facade.listPlates(new ExperimentIdentifier("E", "P", "S", null), "ap-42");
-        
+
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
                 + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE]],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -477,7 +883,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals(1, plates.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetImageTransformerFactoryOrNull()
     {
@@ -560,12 +966,14 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListAnalysisProcedures()
     {
-        final ExperimentIdentifier experimentIdentifier = ExperimentIdentifier.createFromAugmentedCode("/S/P/E");
-        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher = new RecordingMatcher<SearchCriteria>();
+        final ExperimentIdentifier experimentIdentifier =
+                ExperimentIdentifier.createFromAugmentedCode("/S/P/E");
+        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
         context.checking(new Expectations()
             {
                 {
@@ -584,9 +992,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     will(returnValue(Arrays.asList(new DataSet(ds1), new DataSet(ds2))));
                 }
             });
-        
+
         List<String> procedures = facade.listAnalysisProcedures(experimentIdentifier);
-        
+
         assertEquals("[ALPHA-42, FZ-87]", procedures.toString());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -616,7 +1024,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     one(dssComponent).getDataSet(DATA_SET1);
                     will(returnValue(ds1Proxy));
-                    
+
                     one(filter).pass(dataSet);
                     will(returnValue(true));
                 }
@@ -648,7 +1056,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     one(dssComponent).getDataSet(DATA_SET1);
                     will(returnValue(ds1Proxy));
-                    
+
                     one(filter).pass(dataSet);
                     will(returnValue(true));
                 }

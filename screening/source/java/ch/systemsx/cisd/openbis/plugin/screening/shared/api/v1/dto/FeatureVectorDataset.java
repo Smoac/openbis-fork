@@ -77,9 +77,12 @@ public class FeatureVectorDataset implements Serializable, IFeatureCodesProvider
         sb.append(", storeUrl: " + dataset.getDatastoreServerUrl());
         sb.append("\n\tfeatures codes: " + getFeatureCodes());
         sb.append("\n\tfeatures labels: " + getFeatureLabels());
-        for (int i = 0; i < featureVectors.size(); i++)
+        if (featureVectors != null)
         {
-            sb.append("\n\t" + featureVectors.get(i));
+            for (int i = 0; i < featureVectors.size(); i++)
+            {
+                sb.append("\n\t" + featureVectors.get(i));
+            }
         }
         return sb.toString();
     }
