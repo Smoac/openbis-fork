@@ -69,7 +69,6 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
             {
                 { "Property", "Value" },
                 { "Experiment", "/TEST/TEST/TEST" },
-                { "Strain", "strain1" },
                 { "Timepoint Type", "IN" },
                 { "Cell Location", "ES" },
                 { "Value Type", "Value" },
@@ -81,8 +80,11 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         assertTrue("Data lines should not be empty", dataLines.size() > 0);
         String[][] expectedData =
             {
-                { "Abs", "HumanReadable", "-19020.0", "-17220.0" },
-                { "OD600", "OD600", "0.05", "0.064" } };
+                { "Strain", "HumanReadable", "-19020.0", "-17220.0" },
+                { "MGP1", "OD600", "0.05", "0.064" },
+                { "MGP100", "OD600", "0.05", "0.064" },
+                { "MGP20", "OD600", "0.05", "0.064" },
+                { "MGP999", "OD600", "0.05", "0.064" }};
         assertLinesAreEqual(dataLines, expectedData);
     }
 
