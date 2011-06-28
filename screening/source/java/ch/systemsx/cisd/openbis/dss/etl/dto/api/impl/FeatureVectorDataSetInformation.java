@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ANALYSIS_PROCEDURE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
 /**
@@ -36,10 +39,15 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
     private static final long serialVersionUID = IServer.VERSION;
 
     private List<FeatureDefinition> features;
-
+    
     public FeatureVectorDataSetInformation()
     {
         this.features = new ArrayList<FeatureDefinition>();
+    }
+
+    public void setAnalysisProcedure(String analysisProcedure)
+    {
+        getDataSetProperties().add(new NewProperty(ANALYSIS_PROCEDURE, analysisProcedure));
     }
 
     public List<FeatureDefinition> getFeatures()
