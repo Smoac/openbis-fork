@@ -32,17 +32,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  */
 public class DataSourceQueryService implements IDataSourceQueryService
 {
-    private final DataSourceProvider dataSourceProvider;
 
-    public DataSourceQueryService()
+    private DataSourceProvider getDataSourceProvider()
     {
-        dataSourceProvider = ServiceProvider.getDataSourceProvider();
+        return ServiceProvider.getDataSourceProvider();
     }
 
     public DataSet<Map<String, Object>> select(String dataSourceName, String query,
             Object... parameters)
     {
-        DataSource dataSource = dataSourceProvider.getDataSource(dataSourceName);
+        DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
         return QueryTool.select(dataSource, query, parameters);
     }
 

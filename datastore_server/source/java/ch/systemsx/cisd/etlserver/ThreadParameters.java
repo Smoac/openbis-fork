@@ -59,7 +59,7 @@ public final class ThreadParameters
      * A path to a script which should be invoked to validate the data set.
      */
     @Private
-    static final String VALIDATION_SCRIPT_KEY = "validation-script-path";
+    public static final String VALIDATION_SCRIPT_KEY = "validation-script-path";
 
     @Private
     static final String GROUP_CODE_KEY = "group-code";
