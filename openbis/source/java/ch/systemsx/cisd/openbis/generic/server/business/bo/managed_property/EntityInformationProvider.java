@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.managed_property;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -103,7 +105,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
         return identifierHolderOrNull == null ? null : identifierHolderOrNull.getIdentifier();
     }
 
-    public String getSamplePermId(String spaceCode, String sampleCode)
+    private SpacePE tryGetSpaceByCode(String spaceCode)
     {
         DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
         SpacePE space =
@@ -113,6 +115,13 @@ public class EntityInformationProvider implements IEntityInformationProvider
         {
             throw UserFailureException.fromTemplate("space '%s' doesn't exist ", spaceCode);
         }
+
+        return space;
+    }
+
+    public String getSamplePermId(String spaceCode, String sampleCode)
+    {
+        SpacePE space = tryGetSpaceByCode(spaceCode);
         SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
         return (sample != null) ? sample.getPermId() : null;
     }
@@ -135,21 +144,64 @@ public class EntityInformationProvider implements IEntityInformationProvider
         }
     }
 
+    private List<String> getSamplesPermIds(List<SamplePE> samples)
+    {
+        if (samples == null)
+        {
+            return new ArrayList<String>(0);
+        }
+
+        List<String> samplePermIds = new ArrayList<String>(samples.size());
+        for (SamplePE sample : samples)
+        {
+            samplePermIds.add(sample.getPermId());
+        }
+        return samplePermIds;
+    }
+
+    private SamplePE getSampleByPermId(String permId)
+    {
+        SamplePE sample = daoFactory.getSampleDAO().tryToFindByPermID(permId);
+
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate("sample '%s' doesn't exist", permId);
+        }
+
+        return sample;
+    }
+
     public List<String> getSampleParentPermIds(String spaceCode, String sampleCode)
     {
-        // TODO 2011-06-27, Pawel Glyzewski: implement
-        return null;
+        SpacePE space = tryGetSpaceByCode(spaceCode);
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, space);
+
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate("sample '%s' doesn't exist in space %s",
+                    sampleCode, spaceCode);
+        }
+
+        return getSamplesPermIds(sample.getParents());
     }
 
     public List<String> getSampleParentPermIds(String permId)
     {
-        // TODO 2011-06-27, Pawel Glyzewski: implement
-        return null;
+        return getSamplesPermIds(getSampleByPermId(permId).getParents());
     }
 
     public String getSamplePropertyValue(String permId, String propertyCode)
     {
-        // TODO 2011-06-27, Pawel Glyzewski: implement
+        SamplePE sample = getSampleByPermId(permId);
+
+        for (SamplePropertyPE property : sample.getProperties())
+        {
+            if (propertyCode.equals(property.getEntityTypePropertyType().getEntityType().getCode()))
+            {
+                return property.getValue();
+            }
+        }
+
         return null;
     }
 }
