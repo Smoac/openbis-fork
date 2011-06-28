@@ -55,8 +55,8 @@ public interface IEntityInformationProvider
     List<String> getSampleParentPermIds(String permId);
 
     /**
-     * @return value of a property with given code of a sample with given permIds, <code>null</code>
-     *         if the property is empty
+     * @return value of a property with given code of a sample with given permIds, empty string if
+     *         the property doesn't exist
      */
     String getSamplePropertyValue(String permId, String propertyCode);
 }

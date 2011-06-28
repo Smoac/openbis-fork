@@ -196,12 +196,12 @@ public class EntityInformationProvider implements IEntityInformationProvider
 
         for (SamplePropertyPE property : sample.getProperties())
         {
-            if (propertyCode.equals(property.getEntityTypePropertyType().getEntityType().getCode()))
+            if (propertyCode.equalsIgnoreCase(property.getEntityTypePropertyType().getEntityType()
+                    .getCode()))
             {
                 return property.getValue();
             }
         }
-
-        return null;
+        return "";
     }
 }
