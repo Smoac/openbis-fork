@@ -109,7 +109,11 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
+     * 
+     * @deprecated use {@link #listFeatureVectorDatasets(List, String)} with second argument set to
+     *             <code>null</code>.
      */
+    @Deprecated
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates);
 

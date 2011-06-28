@@ -473,7 +473,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P], "
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S]],[]]]]]",
                 searchCriteriaMatcher.recordedObject().toString());
-        assertEquals("/S/p1 [s-1] { Experiment: /S/P/E }", plates.get(0).toString());
+        assertEquals("/s/p1 [s-1] { Experiment: /S/P/E }", plates.get(0).toString());
         assertEquals(1, plates.size());
         context.assertIsSatisfied();
     }

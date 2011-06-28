@@ -320,7 +320,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(openbis).listFeatureVectorDatasets(Arrays.asList(p1));
+                    one(openbis).listFeatureVectorDatasets(Arrays.asList(p1), null);
                     List<FeatureVectorDatasetReference> list =
                             Arrays.asList((FeatureVectorDatasetReference) null);
                     will(returnValue(list));
@@ -346,7 +346,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(openbis).loadFeaturesForPlateWells(gene, null);
+                    one(openbis).loadFeaturesForPlateWells(gene, null, null);
                     FeatureVectorDatasetReference fds1 =
                             new FeatureVectorDatasetReference("ds1", "MY-TYPE", "", p1,
                                     ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
@@ -411,7 +411,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 {
                     one(openbis).loadFeaturesForPlates(
                             Arrays.asList(PlateIdentifier.createFromAugmentedCode(p1
-                                    .getAugmentedCode())), null);
+                                    .getAugmentedCode())), null, null);
                 }
             });
 
@@ -430,8 +430,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(openbis).loadFeaturesForPlates(Arrays.asList(PLATE_1),
-                            Arrays.asList("F1", "F2", "F3"));
+                    one(openbis).loadFeaturesForPlates(Arrays.asList(PLATE_1), 
+                            Arrays.asList("F1", "F2", "F3"), null);
                     FeatureVectorDatasetReference ref =
                             new FeatureVectorDatasetReference("ds1", "MY-TYPE", "", PLATE_1,
                                     ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
