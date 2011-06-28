@@ -47,10 +47,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.CachedImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -333,8 +333,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             if (sampleIdentifiers.contains(sampleIdentifier))
             {
                 String spaceCode =
-                        SampleIdentifierFactory.parse(sampleIdentifier).getSpaceLevel()
-                                .getSpaceCode();
+                        PlateIdentifier.createFromAugmentedCode(sampleIdentifier).tryGetSpaceCode();
                 String permID = sample.getPermId();
                 String experimentIdentifierOrNull = sample.getExperimentIdentifierOrNull();
                 ExperimentIdentifier expermientIdentifier =
@@ -367,6 +366,32 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         checkASMinimalMinorVersion("listFeatureVectorDatasets", List.class);
         return openbisScreeningServer.listFeatureVectorDatasets(sessionToken, plates);
+    }
+
+    public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
+            List<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
+    {
+        List<FeatureVectorDatasetReference> dataSets = listFeatureVectorDatasets(plates);
+        return filterByAnalysisProcedure(dataSets, analysisProcedureOrNull);
+    }
+
+    private <T extends DatasetReference> List<T> filterByAnalysisProcedure(
+            List<T> dataSets, String analysisProcedureOrNull)
+    {
+        if (analysisProcedureOrNull == null)
+        {
+            return dataSets;
+        }
+        List<T> filteredDataSets = new ArrayList<T>();
+        for (T dataSet : dataSets)
+        {
+            if (analysisProcedureOrNull.equals(dataSet.getProperties().get(
+                    ScreeningConstants.ANALYSIS_PROCEDURE)))
+            {
+                filteredDataSets.add(dataSet);
+            }
+        }
+        return filteredDataSets;
     }
 
     /**
@@ -407,6 +432,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             return openbisScreeningServer.listSegmentationImageDatasets(sessionToken, plates);
         }
         return Collections.emptyList();
+    }
+    
+    public List<ImageDatasetReference> listSegmentationImageDatasets(
+            List<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
+    {
+        List<ImageDatasetReference> dataSets = listSegmentationImageDatasets(plates);
+        return filterByAnalysisProcedure(dataSets, analysisProcedureOrNull);
     }
 
     /**
@@ -665,6 +697,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return loadFeatures(datasets, featureCodesOrNull);
     }
 
+    public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
+            List<String> featureCodesOrNull, String analysisProcedureOrNull)
+    {
+        List<FeatureVectorDatasetReference> datasets =
+                listFeatureVectorDatasets(plates, analysisProcedureOrNull);
+        return loadFeatures(datasets, featureCodesOrNull);
+    }
+
     /**
      * For a given set of data sets and a set of features (given by their code), provide all the
      * feature vectors.
@@ -760,27 +800,44 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             List<String> featureCodesOrNull)
     {
+        return loadFeaturesForPlateWells(experimentIdentifer, materialIdentifier, null,
+                featureCodesOrNull);
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
+            String analysisProcedureOrNull, List<String> featureCodesOrNull)
+    {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(experimentIdentifer, materialIdentifier, true);
-        return loadFeatureVectors(featureCodesOrNull, plateWellRefs);
+        return loadFeatureVectors(featureCodesOrNull, analysisProcedureOrNull, plateWellRefs);
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull)
     {
+        return loadFeaturesForPlateWells(materialIdentifier, null, featureCodesOrNull);
+    }
+
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            MaterialIdentifier materialIdentifier, String analysisProcedureOrNull,
+            List<String> featureCodesOrNull)
+    {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(materialIdentifier, true);
-        return loadFeatureVectors(featureCodesOrNull, plateWellRefs);
+        return loadFeatureVectors(featureCodesOrNull, analysisProcedureOrNull, plateWellRefs);
     }
 
     private List<FeatureVectorWithDescription> loadFeatureVectors(List<String> featureCodesOrNull,
-            final List<PlateWellReferenceWithDatasets> plateWellRefs)
+            String analysisProcedureOrNull, final List<PlateWellReferenceWithDatasets> plateWellRefs)
     {
         final List<String> featureCodes =
                 isEmpty(featureCodesOrNull) ? listAvailableFeatureCodesForPlateWells(plateWellRefs)
                         : featureCodesOrNull;
         final List<FeatureVectorDatasetWellReference> datasetWellReferences =
-                convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
+                filterByAnalysisProcedure(
+                        convertToFeatureVectorDatasetWellIdentifier(plateWellRefs),
+                        analysisProcedureOrNull);
         final List<FeatureVectorWithDescription> featureVectors =
                 loadFeaturesForDatasetWellReferences(datasetWellReferences, featureCodes);
         return featureVectors;

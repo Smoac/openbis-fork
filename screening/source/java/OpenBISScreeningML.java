@@ -71,7 +71,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * multi-dimensional arrays. For the <code>get...</code> and <code>load...</code> methods the first
  * index will contain the actual data, while the second index will contain per-row annotations. For
  * <code>getFeatureMatrix</code>, the third index contains per-column annotations. This allows
- * simple access with Matlab's slicing operator, see doc of e.g. {@link #getFeatureMatrix(String)}.
+ * simple access with Matlab's slicing operator, see doc of e.g.
+ * {@link #getFeatureMatrix(String, String, String[])}.
  * <p>
  * A typical Matlab session looks like:
  * 
@@ -644,13 +645,16 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Lists all features computed for <var>experiment</var>.
+     * Lists all features computed for <var>experiment</var> using specified analysis procedure.
      * <p>
      * Matlab example:
      * 
      * <pre>
      * % Get the features of experiment MYEXP in project PROJ of space SPACE
-     * features = OpenBISScreeningML.listFeatures('/SPACE/PROJ/MYEXP');
+     * features = OpenBISScreeningML.listFeatures('/SPACE/PROJ/MYEXP', []);
+     * % Get the features of experiment MYEXP in project PROJ of space SPACE which are computed
+     * % with analysis procedure AP-4711
+     * features = OpenBISScreeningML.listFeatures('/SPACE/PROJ/MYEXP', 'AP-4711');
      * % How many features do we have?
      * length(features)
      * % What is the name of features 1?
@@ -658,10 +662,14 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param experiment The augmented code of the experiment to list the features for
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
+     *            result is restricted to feature vector data sets with a value of property
+     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
      * @return Each row contains information about one feature. Currently the only information
      *         available is the feature name.
      */
-    public static Object[][] listFeatures(String experiment)
+    public static Object[][] listFeatures(String experiment, String analysisProcedureOrNull)
     {
         checkLoggedIn();
         final List<Plate> experimentPlates = experimentToPlateMap.get(experiment);
@@ -674,7 +682,7 @@ public class OpenBISScreeningML
             return new Object[0][];
         }
         final List<FeatureVectorDatasetReference> featureDatasets =
-                openbis.listFeatureVectorDatasets(experimentPlates);
+                openbis.listFeatureVectorDatasets(experimentPlates, analysisProcedureOrNull);
         if (featureDatasets.isEmpty())
         {
             return new Object[0][];
@@ -804,7 +812,7 @@ public class OpenBISScreeningML
      * files = OpenBISScreeningML.listDataSetsFiles('/SPACE/P005', 'HCS_IMAGE.*')
      * % Load from the first data set (assuming at least one data set found) the third file/folder 
      * % (assuming at least three files/folders)
-     * file = OpenBISScreeningML.loadDataSetFile(files(1,1), files(1,2,3), '')
+     * file = OpenBISScreeningML.loadDataSetFile(files(1,1), files(1,2,3), [])
      * </pre>
      * 
      * @param dataSetCode The code of the data set.
@@ -1042,12 +1050,18 @@ public class OpenBISScreeningML
      * Has the same effect as {@link #loadImages(String, int, int, String[])}, but instead of
      * loading raw images loads their segmentation results if available.
      * 
-     * @param objectNames The names of the segmentation objects to get the images for
+     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If
+     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
+     *            result is restricted to feature vector data sets with a value of property
+     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
-            String[] objectNames)
+            String[] objectNamesOrNull, String analysisProcedureOrNull)
     {
-        return loadSegmentationImages(plate, row, col, objectNames, createAllTilesIterator());
+        return loadSegmentationImages(plate, row, col, objectNamesOrNull, createAllTilesIterator(),
+                analysisProcedureOrNull);
     }
 
     private static ITileNumberIterable createAllTilesIterator()
@@ -1133,12 +1147,18 @@ public class OpenBISScreeningML
      * Has the same effect as {@link #loadImages(String, int, int, int, String[])}, but instead of
      * loading raw images loads their segmentation results if available.
      * 
-     * @param objectNames The names of the segmentation objects to get the images for
+     * @param objectNamesOrNull The names of the segmentation objects to get the images for. If
+     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
+     *            result is restricted to feature vector data sets with a value of property
+     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
      */
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
-            final int tile, String[] objectNames)
+            final int tile, String[] objectNamesOrNull, String analysisProcedureOrNull)
     {
-        return loadSegmentationImages(plate, row, col, objectNames, createSingleTileIterator(tile));
+        return loadSegmentationImages(plate, row, col, objectNamesOrNull, createSingleTileIterator(tile),
+                analysisProcedureOrNull);
     }
 
     private static ITileNumberIterable createSingleTileIterator(final int tile)
@@ -1192,7 +1212,10 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Get the segmentation objects of plate P005 in space SPACE.
-     * segmentationObjects = OpenBISScreeningML.listSegmentationObjects('/SPACE/P005');
+     * segmentationObjects = OpenBISScreeningML.listSegmentationObjects('/SPACE/P005', []);
+     * % Get the segmentation objects of plate P005 in space SPACE for data sets calculated 
+     * % with analysis procedure AP-42.
+     * segmentationObjects = OpenBISScreeningML.listSegmentationObjects('/SPACE/P005', 'AP-42');
      * % How many segmentation objects do we have?
      * length(segmentationObjects)
      * % What is the name of segmentation objects 1?
@@ -1200,14 +1223,19 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param plate augmented code of the plate
+     * @param analysisProcedureOrNull The analysis procedure used to filter the result. That is, the
+     *            result is restricted to feature vector data sets with a value of property
+     *            <code>ANALYSIS_PROCEDURE</code> as specified. If <code>null</code> (or
+     *            <code>[]</code> in MatLab) no restriction applies.
      * @return Each row contains information about one segmentation object. Currently the only
      *         information available is the segmentation object name.
      */
-    public static Object[][] listSegmentationObjects(String plate)
+    public static Object[][] listSegmentationObjects(String plate, String analysisProcedureOrNull)
     {
         checkLoggedIn();
         Plate plateId = getPlate(plate);
-        final List<ImageDatasetReference> imageDatasets = listSegmentationImageDatasets(plateId);
+        final List<ImageDatasetReference> imageDatasets =
+                listSegmentationImageDatasets(plateId, analysisProcedureOrNull);
         if (imageDatasets.isEmpty())
         {
             return new Object[0][];
@@ -1242,16 +1270,18 @@ public class OpenBISScreeningML
     }
 
     private static Object[][][] loadSegmentationImages(String plate, int row, int col,
-            String[] channels, ITileNumberIterable tileNumberIterable)
+            String[] channelsOrNull, ITileNumberIterable tileNumberIterable,
+            String analysisProcedureOrNull)
     {
         checkLoggedIn();
         final Plate plateId = getPlate(plate);
-        final List<ImageDatasetReference> imageDatasets = listSegmentationImageDatasets(plateId);
-        return loadImages(plateId, imageDatasets, row, col, channels, tileNumberIterable);
+        final List<ImageDatasetReference> imageDatasets =
+                listSegmentationImageDatasets(plateId, analysisProcedureOrNull);
+        return loadImages(plateId, imageDatasets, row, col, channelsOrNull, tileNumberIterable);
     }
 
     private static Object[][][] loadImages(Plate plate, List<ImageDatasetReference> imageDatasets,
-            int row, int col, String[] channels, ITileNumberIterable tileNumberIterable)
+            int row, int col, String[] channelsOrNull, ITileNumberIterable tileNumberIterable)
     {
         final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
         if (meta.isEmpty())
@@ -1260,12 +1290,12 @@ public class OpenBISScreeningML
                 { new Object[0][], new Object[0][] };
         }
         final List<String> imageChannels;
-        if (channels == null || channels.length == 0)
+        if (channelsOrNull == null || channelsOrNull.length == 0)
         {
             imageChannels = getChannelCodes(meta);
         } else
         {
-            imageChannels = Arrays.asList(channels);
+            imageChannels = Arrays.asList(channelsOrNull);
         }
         final List<ImageReferenceAndFile> imageReferencesAndFiles =
                 new ArrayList<ImageReferenceAndFile>(imageDatasets.size());
@@ -1322,9 +1352,10 @@ public class OpenBISScreeningML
         return openbis.listRawImageDatasets(Arrays.asList(plateId));
     }
 
-    private static List<ImageDatasetReference> listSegmentationImageDatasets(final Plate plateId)
+    private static List<ImageDatasetReference> listSegmentationImageDatasets(final Plate plateId,
+            String analysisProcedureOrNull)
     {
-        return openbis.listSegmentationImageDatasets(Arrays.asList(plateId));
+        return openbis.listSegmentationImageDatasets(Arrays.asList(plateId), analysisProcedureOrNull);
     }
 
     /**
@@ -1389,53 +1420,6 @@ public class OpenBISScreeningML
     //
 
     /**
-     * Returns the feature matrix of all features for all locations in <var>experiment</var> (a
-     * location is one well position in one feature vector data set) connected to <var>gene</var> in
-     * <code>[0]</code>, location annotations in <code>[1]</code> and feature annotation in
-     * <code>[2]</code>.
-     * <p>
-     * Matlab example:
-     * 
-     * <pre>
-     * % Get feature matrix for experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
-     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME');
-     * % Get the feature vector for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,:,2,3)
-     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,4,:,3)
-     * % Get code of the fourth feature (assuming that there are at least 4 features)
-     * fmatrix(3,4)
-     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(2,2,3,:)
-     * </pre>
-     * 
-     * @param experiment The augmented experiment code
-     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
-     *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
-     *         </ol>
-     */
-    public static Object[][][] getFeatureMatrix(String experiment, String gene)
-    {
-        return getFeatureMatrix(experiment, gene, (String[]) null);
-    }
-
-    /**
      * Returns the feature matrix of the specified features for all locations in
      * <var>experiment</var> (a location is one well position in one feature vector data set) in
      * <var>experiment</var> connected to <var>gene</var> in <code>[0]</code>, location annotations
@@ -1444,9 +1428,14 @@ public class OpenBISScreeningML
      * Matlab example:
      * 
      * <pre>
-     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for 
+     * % Get feature matrix for experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', [], []);
+     * % Get feature matrix for features F1, F2 and F3 for 
      * % experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
-     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', [], {'F1' 'F2' 'F3'));
+     * % Get feature matrix for features F1 and F2 for experiment /SPACE/PROJ/MYEXP for locations 
+     * % connected to GENENAME calculated with analysis procedure AP-42.
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', 'AP-42', {'F1' 'F2'));
      * % Get the feature vector for the second location (assuming that there are at least two locations) 
      * % of third data set (assuming that there are at least three data sets)
      * fmatrix(1,:,2,3)
@@ -1462,7 +1451,13 @@ public class OpenBISScreeningML
      * 
      * @param experiment The augmented experiment code
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @param features The names of the features to contain the feature matrix
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
+     *            features. That is, the result is restricted to feature vector data sets with a
+     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. 
+     *            If <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
+     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
+     *            all features are returned.
      * @return a four dimensional matrix. The first dimension denotes the type in the following
      *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
      *         other dimensions depend on the value of the first dimension:
@@ -1479,7 +1474,8 @@ public class OpenBISScreeningML
      *         dimension are meaningless (i.e. they have length one) 
      *         </ol>
      */
-    public static Object[][][][] getFeatureMatrix(String experiment, String gene, String[] features)
+    public static Object[][][][] getFeatureMatrix(String experiment, String gene,
+            String analysisProcedureOrNull, String[] featuresOrNull)
     {
         checkLoggedIn();
         final ExperimentIdentifier experimentId = experimentCodeToExperimentMap.get(experiment);
@@ -1495,54 +1491,9 @@ public class OpenBISScreeningML
         }
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(experimentId, new MaterialIdentifier(
-                        MaterialTypeIdentifier.GENE, gene),
-                        (features == null) ? null : Arrays.asList(features));
+                        MaterialTypeIdentifier.GENE, gene), analysisProcedureOrNull, 
+                        (featuresOrNull == null) ? null : Arrays.asList(featuresOrNull));
         return getFeatureMatrix(featureVectors);
-    }
-    
-    /**
-     * Returns the feature matrix of all features for all locations (a location is one well position
-     * in one feature vector data set) connected to <var>gene</var> in <code>[0]</code>, location
-     * annotations in <code>[1]</code> and feature annotation in <code>[2]</code>.
-     * <p>
-     * Matlab example:
-     * 
-     * <pre>
-     * % Get feature matrix for GENENAME
-     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME');
-     * % Get the feature vector for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,:,2,3)
-     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,4,:,3)
-     * % Get code of the fourth feature (assuming that there are at least 4 features)
-     * fmatrix(3,4)
-     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(2,2,3,:)
-     * </pre>
-     * 
-     * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
-     *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
-     *         </ol>
-     */
-    public static Object[][][][] getFeatureMatrix(String gene)
-    {
-        return getFeatureMatrix(gene, (String[]) null);
     }
 
     /**
@@ -1554,8 +1505,13 @@ public class OpenBISScreeningML
      * Matlab example:
      * 
      * <pre>
+     * % Get feature matrix for GENENAME
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', [], []);
      * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for GENENAME
-     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', [], {'FEATURE1' 'FEATURE2' 'FEATURE3'});
+     * % Get feature matrix for features FEATURE1 and FEATURE2 for GENENAME 
+     * % computed with analysis procedure AP-42
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', 'AP-42', {'FEATURE1' 'FEATURE2'});
      * % Get the feature vector for the second location (assuming that there are at least two locations) 
      * % of third data set (assuming that there are at least three data sets)
      * fmatrix(1,:,2,3)
@@ -1570,30 +1526,37 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
-     * @param features The names of the features to contain the feature matrix
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
+     *            features. That is, the result is restricted to feature vector data sets with a
+     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
+     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
+     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
+     *            all features are returned.
      * @return a four dimensional matrix. The first dimension denotes the type in the following
      *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
      *         other dimensions depend on the value of the first dimension:
      *         <ol>
      *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
      *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
+     *         set the corresponding feature value does not exists <code>NaN</code> will be
+     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
+     *         number, 4. dimension is location annotations in the following order: <code>{plate
+     *         well description, plate augmented code, plate perm id, plate space code, plate code,
+     *         row, column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code, data set type}</code> <li>
+     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one)
      *         </ol>
      */
-    public static Object[][][][] getFeatureMatrix(String gene, String[] features)
+    public static Object[][][][] getFeatureMatrix(String gene, String analysisProcedureOrNull,
+            String[] featuresOrNull)
     {
         checkLoggedIn();
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(new MaterialIdentifier(
-                        MaterialTypeIdentifier.GENE, gene),
-                        (features == null) ? null : Arrays.asList(features));
+                        MaterialTypeIdentifier.GENE, gene), analysisProcedureOrNull,
+                        (featuresOrNull == null) ? null : Arrays.asList(featuresOrNull));
         return getFeatureMatrix(featureVectors);
     }
 
@@ -1639,15 +1602,20 @@ public class OpenBISScreeningML
     }
 
     /**
-     * Returns the feature matrix of all available features for all locations (a location is one
-     * well position in one feature vector data set) of all feature vector data sets of the given
-     * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
-     * annotation in <code>[2]</code>.
+     * Returns the feature matrix of the specified features for all locations (a location is one
+     * well position in one feature vector data set) of all feature vector data sets created by
+     * specified analysis procedure of the given <var>plate</var> in <code>[0]</code>, location
+     * annotations in <code>[1]</code> and feature annotation in <code>[2]</code>.
      * <p>
      * Matlab example:
+     * 
      * <pre>
      * % Get feature matrix for PLATECODE
-     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE');
+     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', [], []);
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for PLATECODE.
+     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', [], {'FEATURE1' 'FEATURE2' 'FEATURE3'});
+     * % Get feature matrix for features FEATURE1 and FEATURE2 for PLATECODE calculated by analysis procedure AP-42.
+     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', 'AP-42', {'FEATURE1' 'FEATURE2'});
      * % Get the feature vector for the second location (assuming that there are at least two locations) 
      * % of third data set (assuming that there are at least three data sets)
      * fmatrix(1,:,2,3)
@@ -1662,76 +1630,38 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param plate augmented code of the plate for which features should be loaded
+     * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
+     *            features. That is, the result is restricted to feature vector data sets with a
+     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. 
+     *            If <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
+     *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
+     *            all features are returned.
      * @return a four dimensional matrix. The first dimension denotes the type in the following
      *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
      *         other dimensions depend on the value of the first dimension:
      *         <ol>
      *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
      *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
+     *         set the corresponding feature value does not exists <code>NaN</code> will be
+     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
+     *         number, 4. dimension is location annotations in the following order: <code>{plate
+     *         well description, plate augmented code, plate perm id, plate space code, plate code,
+     *         row, column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code, data set type}</code> <li>
+     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one)
      *         </ol>
      */
-    public static Object[][][][] getFeatureMatrixForPlate(String plate)
-    {
-        return getFeatureMatrixForPlate(plate, (String[]) null);
-    }
-
-    /**
-     * Returns the feature matrix of the specified features for all locations (a location is one
-     * well position in one feature vector data set) of all feature vector data sets of the given
-     * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
-     * annotation in <code>[2]</code>.
-     * <p>
-     * Matlab example:
-     * <pre>
-     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE3 for PLATECODE
-     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', ('FEATURE1','FEATURE2','FEATURE3'));
-     * % Get the feature vector for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,:,2,3)
-     * % Get the values of the fourth feature for all locations (assuming that there are at least 4 features) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(1,4,:,3)
-     * % Get code of the fourth feature (assuming that there are at least 4 features)
-     * fmatrix(3,4)
-     * % Get the plate-well descriptions for the second location (assuming that there are at least two locations) 
-     * % of third data set (assuming that there are at least three data sets)
-     * fmatrix(2,2,3,:)
-     * </pre>
-     * 
-     * @param plate augmented code of the plate for which features should be loaded
-     * @param features The codes of the features to contain the feature matrix. 
-     *         Unknown feature codes will be ignored.
-     * @return a four dimensional matrix. The first dimension denotes the type in the following
-     *         order: <code>{feature matrix, annotations per location, feature codes}</code>. The
-     *         other dimensions depend on the value of the first dimension:
-     *         <ol>
-     *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
-     *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
-     *         </ol>
-     */
-    public static Object[][][][] getFeatureMatrixForPlate(String plate, String[] features)
+    public static Object[][][][] getFeatureMatrixForPlate(String plate,
+            String analysisProcedureOrNull, String[] featuresOrNull)
     {
         checkLoggedIn();
         final List<FeatureVectorDataset> dataSets =
                 openbis.loadFeaturesForPlates(
                         Arrays.asList(PlateIdentifier.createFromAugmentedCode(plate)),
-                        (features == null) ? null : Arrays.asList(features));
+                        (featuresOrNull == null) ? null : Arrays.asList(featuresOrNull),
+                        analysisProcedureOrNull);
         final Object[][][][] result = new Object[3][][][];
         if (dataSets.isEmpty())
         {

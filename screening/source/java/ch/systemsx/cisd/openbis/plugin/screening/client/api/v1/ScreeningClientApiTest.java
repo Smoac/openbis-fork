@@ -98,7 +98,7 @@ public class ScreeningClientApiTest
             print(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
                     experimentIdentifer, plateWells));
             featuresForPlateWells =
-                    facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
+                    facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null, null);
             print("Features for wells: " + featuresForPlateWells);
             featuresForPlateWellsCheck =
                     facade.loadFeaturesForDatasetWellReferences(

@@ -445,12 +445,7 @@
 			     	<include name="ch/systemsx/cisd/common/api/client/**/*.class" />
   		</fileset> 
       <fileset dir="../common/targets/classes">
-            <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
-		        <include name="ch/systemsx/cisd/common/api/*.class" />
-            <include name="ch/systemsx/cisd/common/io/ConcatenatedFileOutputStreamWriter.class" />
-            <include name="ch/systemsx/cisd/common/io/ConcatenatedContentInputStream.class" />
-            <include name="ch/systemsx/cisd/common/io/FileBasedContent.class" />
-            <include name="ch/systemsx/cisd/common/io/IContent.class" />
+            <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
     </jar>
 		<zip update="true" destfile="${dist.screening-api.jar}">
@@ -518,13 +513,8 @@
   		<fileset dir="${classes.common-server}">
   		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
   		</fileset> 
-      <fileset dir="${classes.common}">
-            <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
-		        <include name="ch/systemsx/cisd/common/api/*.class" />
-            <include name="ch/systemsx/cisd/common/io/ConcatenatedFileOutputStreamWriter.class" />
-            <include name="ch/systemsx/cisd/common/io/ConcatenatedContentInputStream.class" />
-            <include name="ch/systemsx/cisd/common/io/FileBasedContent.class" />
-            <include name="ch/systemsx/cisd/common/io/IContent.class" />
+      <fileset dir="../common/targets/classes">
+            <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
     </jar>
 		<zip update="true" destfile="${dist.screening-api.jar}">

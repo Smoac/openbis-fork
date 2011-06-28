@@ -330,7 +330,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 }
             });
         
-        Object[][] features = OpenBISScreeningML.listFeatures("/S/P/E1");
+        Object[][] features = OpenBISScreeningML.listFeatures("/S/P/E1", null);
         
         assertEquals("F1", features[0][0]);
         assertEquals("F2", features[1][0]);
@@ -373,7 +373,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 }
             });
 
-        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrix("GEN1");
+        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrix("GEN1", null, null);
 
         assertEquals(Double.NaN, matrix[0][0][0][0]);
         assertEquals(1.5,        matrix[0][0][1][0]);
@@ -415,7 +415,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 }
             });
 
-        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrixForPlate(p1.getAugmentedCode());
+        Object[][][][] matrix =
+                OpenBISScreeningML.getFeatureMatrixForPlate(p1.getAugmentedCode(), null, null);
 
         assertEquals(0, matrix[0].length);
         assertEquals(0, matrix[1].length);
@@ -449,7 +450,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 }
             });
 
-        Object[][][][] matrix = OpenBISScreeningML.getFeatureMatrixForPlate("/S/PLATE-1", new String[] {"F1", "F2", "F3"});
+        Object[][][][] matrix =
+                OpenBISScreeningML.getFeatureMatrixForPlate("/S/PLATE-1", null, new String[]
+                    { "F1", "F2", "F3" });
         
         assertPlateFeatures("[a, 1.5]", matrix[0][0]);
         assertPlateFeatures("[42.5, 42.0]", matrix[0][1]);

@@ -229,7 +229,7 @@ public class ScreeningClientApiTester
             List<ImageDatasetReference> rawImageDatasets = facade.listRawImageDatasets(plates);
             panel.add(new JLabel(rawImageDatasets.size() + " raw image data sets", JLabel.LEFT));
             validate(panel);
-            List<ImageDatasetReference> overlays = facade.listSegmentationImageDatasets(plates);
+            List<ImageDatasetReference> overlays = facade.listSegmentationImageDatasets(plates, null);
             panel.add(new JLabel(overlays.size() + " overlay data sets:", JLabel.LEFT));
             StringBuilder builder = new StringBuilder();
             for (ImageDatasetReference overlay : overlays)

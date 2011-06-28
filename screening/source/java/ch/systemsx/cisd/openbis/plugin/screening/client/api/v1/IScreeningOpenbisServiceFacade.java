@@ -114,6 +114,16 @@ public interface IScreeningOpenbisServiceFacade
             List<? extends PlateIdentifier> plates);
 
     /**
+     * For a given set of plates provides the list of all connected data sets containing feature
+     * vectors and having specified analysis procedure property.
+     * 
+     * @param analysisProcedureOrNull If <code>null</code> returned list isn't filtered on analysis
+     *            procedure property.
+     */
+    public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
+            List<? extends PlateIdentifier> plates, String analysisProcedureOrNull);
+    
+    /**
      * For a given set of plates provides the list of all connected data sets containing images
      * which are not segmentation images.
      * 
@@ -130,9 +140,22 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * For a given set of plates provides the list of all connected data sets containing
      * segmentation images (overlays).
+     * 
+     * @deprecated use {@link #listSegmentationImageDatasets(List, String)} with second argument set
+     *             to <code>null</code>.
      */
+    @Deprecated
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates);
+    
+    /**
+     * For a given set of plates provides the list of all connected data sets containing
+     * segmentation images (overlays) and calculated by specified analysis procedure.
+     * 
+     * @param analysisProcedureOrNull If <code>null</code> no restriction applies.
+     */
+    public List<ImageDatasetReference> listSegmentationImageDatasets(
+            List<? extends PlateIdentifier> plates, String analysisProcedureOrNull);
 
     /**
      * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
@@ -304,14 +327,32 @@ public interface IScreeningOpenbisServiceFacade
      * For a given set of plates and a set of features (given by their code), provide all the
      * feature vectors.
      * 
+     * @deprecated use {@link #loadFeaturesForPlates(List, List, String)} with <code>null</code> as
+     *             third argument.
      * @param plates The plates to get the feature vectors for
      * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
+    @Deprecated
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull);
+
+    /**
+     * For a given set of plates and a set of features (given by their code), provide all the
+     * feature vectors created by specified analysis procedure.
+     * 
+     * @param plates The plates to get the feature vectors for
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
+     *            available features should be loaded.
+     * @param analysisProcedureOrNull If <code>null</code> result isn't restricted to any analysis
+     *            procedure.
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
+     *         <var>featureDatasets</var>.
+     */
+    public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
+            final List<String> featureCodesOrNull, String analysisProcedureOrNull);
 
     /**
      * For a given set of data sets and a set of features (given by their code), provide all the
@@ -355,6 +396,9 @@ public interface IScreeningOpenbisServiceFacade
      * the specified <var>materialIdentifier</var> and load the feature vectors for the given
      * feature code if not <code>null</code>, or all available features otherwise.
      * 
+     * @deprecated use
+     *             {@link #loadFeaturesForPlateWells(ExperimentIdentifier, MaterialIdentifier, String, List)}
+     *             with third argument set to <code>null</code>.
      * @param experimentIdentifer The identifier of the experiment to get the feature vectors for
      * @param materialIdentifier The identifier of the material contained in the wells to get the
      *            feature vectors for.
@@ -365,15 +409,41 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>experimentIdentifer</var> and connected with the given
      *         <var>materialIdentifier</var>.
      */
+    @Deprecated
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             List<String> featureCodesOrNull);
 
     /**
+     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
+     * the specified <var>materialIdentifier</var> and load the feature vectors for the given
+     * feature code if not <code>null</code>, or all available features otherwise. Do this only for
+     * data sets with specified value of property <code>ANALYSIS_PROCEDURE</code>, if not
+     * <code>null</code>.
+     * 
+     * @param experimentIdentifer The identifier of the experiment to get the feature vectors for
+     * @param materialIdentifier The identifier of the material contained in the wells to get the
+     *            feature vectors for.
+     * @param analysisProcedureOrNull If not <code>null</code> result is restricted to data sets
+     *            with property <code>ANALYSIS_PROCEDURE</code> set to this value.
+     * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
+     *            <code>null</code>, if all available features should be included. Note that for an
+     *            empty list as well all features will be included.
+     * @return The list of {@link FeatureVectorWithDescription}s found in the given
+     *         <var>experimentIdentifer</var> and connected with the given
+     *         <var>materialIdentifier</var>.
+     */
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
+            String analysisProcedureOrNull, List<String> featureCodesOrNull);
+    
+    /**
      * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
      * and load the feature vectors for the given feature code if not <code>null</code>, or all
      * available features otherwise.
      * 
+     * @deprecated use {@link #loadFeaturesForPlateWells(MaterialIdentifier, String, List)} with
+     *             second argument set to <code>null</code>.
      * @param materialIdentifier The identifier of the material contained in the wells to get the
      *            feature vectors for.
      * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
@@ -383,9 +453,31 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>experimentIdentifer</var> and connected with the given
      *         <var>materialIdentifier</var>.
      */
+    @Deprecated
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull);
 
+    /**
+     * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
+     * and load the feature vectors for the given feature code if not <code>null</code>, or all
+     * available features otherwise. Do this only for data sets with specified value of property
+     * <code>ANALYSIS_PROCEDURE</code>, if not <code>null</code>.
+     * 
+     * @param materialIdentifier The identifier of the material contained in the wells to get the
+     *            feature vectors for.
+     * @param analysisProcedureOrNull If not <code>null</code> result is restricted to data sets
+     *            with property <code>ANALYSIS_PROCEDURE</code> set to this value.
+     * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
+     *            <code>null</code>, if all available features should be included. Note that for an
+     *            empty list as well all features will be included.
+     * @return The list of {@link FeatureVectorWithDescription}s found in the given
+     *         <var>experimentIdentifer</var> and connected with the given
+     *         <var>materialIdentifier</var>.
+     */
+    public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
+            MaterialIdentifier materialIdentifier, String analysisProcedureOrNull,
+            List<String> featureCodesOrNull);
+    
     /**
      * Converts the given <var>WellIdentifiers</var> to <var>WellPositions</var>
      */

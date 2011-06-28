@@ -59,16 +59,16 @@ public class BiozentrumMatLabApiTest
 
     private static void testLoadFeatures(String chosenPlate, String experiment)
     {
-        Object[][] features = OpenBISScreeningML.listFeatures(experiment);
+        Object[][] features = OpenBISScreeningML.listFeatures(experiment, null);
         print2DArray(features);
 
-        Object[][][] featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate);
+        Object[][][] featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, null);
         System.out.println("per plate features -------------------------------");
         print3DArray(featureMatrix);
 
         String[] featureNames = new String[]
             { "OOF" };
-        featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, featureNames);
+        featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, featureNames);
         System.out.println("one per plate feature -------------------------------");
         print3DArray(featureMatrix);
 
