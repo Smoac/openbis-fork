@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 public class OD600ValidatorTest extends AssertJUnit
 {
     private static final String[] VALIDATION_SCRIPT_PATH = new String[]
-        { "dist/etc/growth-profiles/data-set-validator.py" };
+        { "dist/etc/shared/shared-classes.py", "dist/etc/growth-profiles/data-set-validator.py" };
 
     @Test
     public void testGoodData()
@@ -44,17 +44,27 @@ public class OD600ValidatorTest extends AssertJUnit
     }
 
     @Test
+    public void testBadData()
+    {
+        ValidationScriptRunner scriptRunner =
+                ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
+        List<ValidationError> errors =
+                scriptRunner.validate(new File("sourceTest/examples/OD600-BadData.xlsx"));
+        assertEquals("The bad data should have two errors", 2, errors.size());
+        assertEquals("Line 2, column 1 must be MGP[0-999] (instead of OD600).", errors.get(0)
+                .getErrorMessage());
+        assertEquals("Line 3, column 1 must be MGP[0-999] (instead of MGP1000).", errors.get(1)
+                .getErrorMessage());
+    }
+
+    @Test
     public void testTemplate()
     {
         ValidationScriptRunner scriptRunner =
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/OD600-Template.xlsx"));
-        if (errors.size() > 0)
-        {
-            System.out.println(errors);
-        }
-        assertEquals("The template should have five errors", 5, errors.size());
+        assertEquals("The template should have five errors", 4, errors.size());
     }
 
 }

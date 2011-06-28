@@ -9,10 +9,19 @@ def retrieve_experiment(tr, exp_id):
 		exp = tr.getExperiment(exp_id)
 	return exp
 
+def extract_strains():
+	"""Extract the strains from the data sheet"""
+	strains = []
+	lines = timeSeriesData.getRawDataLines()
+	for i in range(1, len(lines)):
+		line = lines[i]
+		strains.append(line[0])
+	return ",".join(strains)
+
 def assign_properties(dataset, metadata):
 	"""Assign properties to the data set from information in the data."""
 	propertyNameMap = {
-		"STRAIN":"STRAIN", 
+		"STRAIN_NAMES": "STRAIN_NAMES",
 		"TIMEPOINT TYPE": "TIMEPOINT_TYPE", 
 		"CELL LOCATION": "CELL_LOCATION", 
 		"VALUE TYPE": "VALUE_TYPE", 
@@ -53,6 +62,8 @@ timeSeriesData = TimeSeriesDataExcel.createTimeSeriesDataExcel(incoming.getAbsol
 # create the data set and assign the metadata from the file
 dataset = tr.createNewDataSet("OD600")
 metadata = timeSeriesData.getMetadataMap()
+# Strains are not in the metadata, but in the data, so extract them
+metadata["STRAIN_NAMES"] = extract_strains()
 assign_properties(dataset, metadata)
 		
 # Convert the data into a tsv file, and put that and the original data into the data set
