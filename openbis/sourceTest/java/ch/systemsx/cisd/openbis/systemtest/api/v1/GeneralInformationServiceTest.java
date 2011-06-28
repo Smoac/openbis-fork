@@ -500,6 +500,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 result.toString());
     }
 
+    @Test
     public void testSearchForDataSetsByContainer()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
