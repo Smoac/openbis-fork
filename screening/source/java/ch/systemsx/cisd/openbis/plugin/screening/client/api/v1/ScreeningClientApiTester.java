@@ -53,6 +53,7 @@ import javax.swing.text.JTextComponent;
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -173,6 +174,15 @@ public class ScreeningClientApiTester
                         listAnalysisProcedures();
                     }
                 });
+            JMenuItem listPlatesMenuItem = new JMenuItem("List Plates...");
+            callApiMenu.add(listPlatesMenuItem);
+            listPlatesMenuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    listPlates();
+                }
+            });
         }
         
         void setUp(String[] args)
@@ -256,7 +266,9 @@ public class ScreeningClientApiTester
                             }
                             for (WellIdentifier wellIdentifier : listPlateWells)
                             {
-                                List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier, ".*");
+                                List<IDataSetDss> dataSets =
+                                        facade.getDataSets(wellIdentifier,
+                                                new TypeBasedDataSetFilter(".*"));
                                 if (dataSets.isEmpty() == false)
                                 {
                                     JOptionPane.showMessageDialog(TesterFrame.this, "Well "
@@ -283,6 +295,21 @@ public class ScreeningClientApiTester
                     facade.listAnalysisProcedures((ExperimentIdentifier) experimentComboBox
                             .getSelectedItem());
             JOptionPane.showMessageDialog(this, "Analysis Procedures: " + analysisProcedures);
+        }
+        
+        private void listPlates()
+        {
+            Form form = new Form(this, "Plates for an Experiment");
+            List<ExperimentIdentifier> experiments = facade.listExperiments();
+            JComboBox experimentComboBox =
+                    new JComboBox(experiments.toArray(new ExperimentIdentifier[0]));
+            form.addField("Experiment", experimentComboBox);
+            JTextField analysisProcedureField = new JTextField();
+            form.addField("Analysis Procedure", analysisProcedureField);
+            form.showForm();
+            List<Plate> plates = facade.listPlates((ExperimentIdentifier) experimentComboBox
+                            .getSelectedItem(), analysisProcedureField.getText());
+            JOptionPane.showMessageDialog(this, "Plates: " + plates);
         }
         
         private void loadImagesByDataSetCode()

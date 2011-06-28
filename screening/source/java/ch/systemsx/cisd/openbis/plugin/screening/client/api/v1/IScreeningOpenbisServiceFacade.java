@@ -84,6 +84,12 @@ public interface IScreeningOpenbisServiceFacade
     public List<Plate> listPlates(ExperimentIdentifier experiment);
 
     /**
+     * Return the list of all plates for the given <var>experiment</var> and analysis procedure.
+     * Each returned plate has at least one data set with the specified analysis procedure.
+     */
+    public List<Plate> listPlates(ExperimentIdentifier experiment, String analysisProcedure);
+    
+    /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
      */

@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.CachedImage;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -125,6 +128,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final WellImageCache imageCache = new WellImageCache();
 
     private IDssServiceFactory dssServiceCache;
+
+    private final IOpenbisServiceFacade openbisServiceFacade;
 
 
     /**
@@ -209,6 +214,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         this.generalInformationChangingService = generalInformationChangingService;
         this.dssComponent = dssComponent;
         this.sessionToken = sessionToken;
+        openbisServiceFacade = new OpenbisServiceFacade(sessionToken, generalInformationService, dssComponent);
+
         this.minorVersionApplicationServer = minorVersion;
         dssServiceCache = new IDssServiceFactory()
             {
@@ -290,6 +297,53 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             }
             return result;
         }
+    }
+
+    public List<Plate> listPlates(ExperimentIdentifier experiment, String analysisProcedure)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                ScreeningConstants.DEFAULT_PLATE_SAMPLE_TYPE_CODE));
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, experiment.getExperimentCode()));
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PROJECT, experiment.getProjectCode()));
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.SPACE, experiment.getSpaceCode()));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createExperimentCriteria(experimentCriteria));
+        List<Sample> samples = openbisServiceFacade.searchForSamples(searchCriteria);
+        List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> dataSets =
+                openbisServiceFacade.listDataSets(samples, null);
+        Set<String> sampleIdentifiers = new HashSet<String>();
+        for (ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet : dataSets)
+        {
+            if (analysisProcedure.equals(dataSet.getProperties().get(
+                    ScreeningConstants.ANALYSIS_PROCEDURE)))
+            {
+                sampleIdentifiers.add(dataSet.getSampleIdentifierOrNull());
+            }
+        }
+
+        List<Plate> plates = new ArrayList<Plate>();
+        for (Sample sample : samples)
+        {
+            String sampleIdentifier = sample.getIdentifier();
+            if (sampleIdentifiers.contains(sampleIdentifier))
+            {
+                String spaceCode =
+                        SampleIdentifierFactory.parse(sampleIdentifier).getSpaceLevel()
+                                .getSpaceCode();
+                String permID = sample.getPermId();
+                String experimentIdentifierOrNull = sample.getExperimentIdentifierOrNull();
+                ExperimentIdentifier expermientIdentifier =
+                        experimentIdentifierOrNull == null ? null : ExperimentIdentifier
+                                .createFromAugmentedCode(experimentIdentifierOrNull);
+                plates.add(new Plate(sample.getCode(), spaceCode, permID, expermientIdentifier));
+            }
+        }
+        return plates;
     }
 
     public List<ExperimentIdentifier> listExperiments()

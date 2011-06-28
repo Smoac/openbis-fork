@@ -16,49 +16,60 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 
 /**
- * Builder of {@link DataSet} instances.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class DataSetBuilder
+public class SampleBuilder
 {
-    private DataSetInitializer initializer = new DataSetInitializer();
+    private SampleInitializer initializer = new SampleInitializer();
     
-    public DataSet getDataSet()
+    public SampleBuilder(long id)
     {
-        return new DataSet(initializer);
+        initializer.setId(id);
     }
     
-    public DataSetBuilder code(String code)
+    public Sample getSample()
+    {
+        return new Sample(initializer);
+    }
+    
+    public SampleBuilder code(String code)
     {
         initializer.setCode(code);
         return this;
     }
     
-    public DataSetBuilder type(String type)
+    public SampleBuilder type(String type)
     {
-        initializer.setDataSetTypeCode(type);
+        initializer.setSampleTypeCode(type);
         return this;
     }
     
-    public DataSetBuilder experiment(String experimentIdentifier)
+    public SampleBuilder typeID(long typeId)
     {
-        initializer.setExperimentIdentifier(experimentIdentifier);
+        initializer.setSampleTypeId(typeId);
         return this;
     }
     
-    public DataSetBuilder sample(String sampleIdentifier)
+    public SampleBuilder identifier(String identifier)
     {
-        initializer.setSampleIdentifierOrNull(sampleIdentifier);
+        initializer.setIdentifier(identifier);
         return this;
     }
     
-    public DataSetBuilder property(String key, String value)
+    public SampleBuilder permID(String permId)
     {
-        initializer.getProperties().put(key, value);
+        initializer.setPermId(permId);
+        return this;
+    }
+    
+    public SampleBuilder experiment(String experimentIdentifier)
+    {
+        initializer.setExperimentIdentifierOrNull(experimentIdentifier);
         return this;
     }
     

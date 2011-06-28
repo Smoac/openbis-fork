@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ANALYSIS_PROCEDURE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -52,8 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangin
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -432,6 +436,48 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListPlates()
+    {
+        final RecordingMatcher<SearchCriteria> searchCriteriaMatcher = new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(generalInformationService).searchForSamples(with(SESSION_TOKEN),
+                            with(searchCriteriaMatcher));
+                    List<Sample> samples =
+                            Arrays.asList(new SampleBuilder(1).code("p1").identifier("/s/p1")
+                                    .type("s").typeID(42).permID("s-1").experiment("/S/P/E")
+                                    .getSample());
+                    will(returnValue(samples));
+                    
+                    one(generalInformationService).listDataSets(SESSION_TOKEN, samples, null);
+                    DataSetBuilder ds1 = new DataSetBuilder().experiment("/S/P/E").type("M");
+                    ds1.code("ds1").sample("/s/p1");
+                    DataSetBuilder ds2 = new DataSetBuilder().experiment("/S/P/E").type("M");
+                    ds2.code("ds2").sample("/s/p1").property(ANALYSIS_PROCEDURE, "ap-42");
+                    DataSetBuilder ds3 = new DataSetBuilder().experiment("/S/P/E").type("M");
+                    ds3.code("ds3").sample("/s/p2").property(ANALYSIS_PROCEDURE, "ap-42");
+                    will(returnValue(Arrays
+                            .asList(ds1.getDataSet(), ds2.getDataSet(), ds3.getDataSet())));
+                    
+                }
+            });
+        List<Plate> plates =
+                facade.listPlates(new ExperimentIdentifier("E", "P", "S", null), "ap-42");
+        
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,PLATE]],"
+                + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,E], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PROJECT,P], "
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,SPACE,S]],[]]]]]",
+                searchCriteriaMatcher.recordedObject().toString());
+        assertEquals("/S/p1 [s-1] { Experiment: /S/P/E }", plates.get(0).toString());
+        assertEquals(1, plates.size());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testGetImageTransformerFactoryOrNull()
     {
