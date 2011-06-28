@@ -56,7 +56,7 @@ abstract public class SimpleImageDataConfig
      * 
      * @param imageIdentifiers Identifiers of all images contained in the image file.
      */
-    public ImageMetadata[] extractImageMetadata(String imagePath,
+    public ImageMetadata[] extractImagesMetadata(String imagePath,
             List<ImageIdentifier> imageIdentifiers)
     {
         return new ImageMetadata[]

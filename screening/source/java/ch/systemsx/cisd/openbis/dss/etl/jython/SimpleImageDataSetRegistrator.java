@@ -176,7 +176,7 @@ public class SimpleImageDataSetRegistrator
             List<ImageIdentifier> identifiers = getImageIdentifiers(readerOrNull, file);
             String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
             ImageMetadata[] imageTokens =
-                    simpleImageConfig.extractImageMetadata(imageRelativePath, identifiers);
+                    simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
             for (ImageMetadata imageToken : imageTokens)
             {
                 imageToken.ensureValid(simpleImageConfig.isMicroscopyData());

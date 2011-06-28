@@ -37,7 +37,7 @@ public class SimpleImageContainerDataConfig extends SimpleImageDataConfig
 {
 
     @Override
-    public ImageMetadata[] extractImageMetadata(String imagePath,
+    public ImageMetadata[] extractImagesMetadata(String imagePath,
             List<ImageIdentifier> imageIdentifiers)
     {
         ImageMetadata[] metaData = new ImageMetadata[imageIdentifiers.size()];
