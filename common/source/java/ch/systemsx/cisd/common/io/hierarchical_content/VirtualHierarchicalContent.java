@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,6 +27,8 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Simple {@link IHierarchicalContent} implementation for virtual data sets with dynamic behavior

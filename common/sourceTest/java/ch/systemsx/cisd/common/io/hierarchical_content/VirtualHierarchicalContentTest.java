@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,9 +27,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.IVirtualNodeListMerger;
-import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.IVirtualNodeMerger;
-import ch.systemsx.cisd.common.io.VirtualHierarchicalContent.IVirtualNodeMergerFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.VirtualHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.VirtualHierarchicalContent.IVirtualNodeListMerger;
+import ch.systemsx.cisd.common.io.hierarchical_content.VirtualHierarchicalContent.IVirtualNodeMerger;
+import ch.systemsx.cisd.common.io.hierarchical_content.VirtualHierarchicalContent.IVirtualNodeMergerFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Unit tests for {@link VirtualHierarchicalContent}

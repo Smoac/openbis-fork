@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.InputStream;
 

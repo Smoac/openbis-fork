@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * File content. Wraps an instance of {@link IHierarchicalContentNode}.

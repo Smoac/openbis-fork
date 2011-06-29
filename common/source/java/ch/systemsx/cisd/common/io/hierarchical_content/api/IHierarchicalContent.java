@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content.api;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ import java.util.List;
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Hierarchical Content API.
 public interface IHierarchicalContent
 {
     /** Returns root node. */

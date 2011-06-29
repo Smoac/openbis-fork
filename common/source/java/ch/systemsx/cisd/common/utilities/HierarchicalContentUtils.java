@@ -24,8 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Utility methods for working with abstraction of hierarchical content.

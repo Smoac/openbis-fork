@@ -30,9 +30,9 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ftpserver.ftplet.FtpFile;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.io.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.Template;

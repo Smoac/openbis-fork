@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.io.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentTraverseUtil;
@@ -97,20 +97,12 @@ public class DemoReportingPlugin extends AbstractTableModelReportingPlugin
             IHierarchicalContentNode fileNode)
     {
         ISerializableComparable image = createPathOrImageCell(dataset, fileNode);
-        long lastModified = 0;
-        try
-        {
-            lastModified = fileNode.getFile().lastModified();
-        } catch (UnsupportedOperationException uoe)
-        {
-            // ignore exceptions
-        }
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(
                         new StringTableCell(dataset.getDataSetCode()), image, new StringTableCell(
                                 fileNode.getName()),
                         new StringTableCell(fileNode.getRelativePath()), new DateTableCell(
-                                new Date(lastModified)),
+                                new Date(fileNode.getLastModified())),
                         new DoubleTableCell(fileNode.getFileLength()));
         builder.addRow(row);
     }

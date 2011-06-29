@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,9 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
+import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 

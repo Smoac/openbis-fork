@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;

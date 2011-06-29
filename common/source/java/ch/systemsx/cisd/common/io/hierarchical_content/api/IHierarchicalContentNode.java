@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.io;
+package ch.systemsx.cisd.common.io.hierarchical_content.api;
 
 import java.io.File;
 import java.io.InputStream;
@@ -30,6 +30,7 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
  * @author Chandrasekhar Ramakrishnan
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Hierarchical Content API.
 public interface IHierarchicalContentNode
 {
     /** Returns name of this node/file. */
@@ -51,7 +52,7 @@ public interface IHierarchicalContentNode
      * otherwise.
      */
     boolean isDirectory();
-    
+
     /**
      * Returns the time this node or the persistent object containing this node has been modified.
      * 
