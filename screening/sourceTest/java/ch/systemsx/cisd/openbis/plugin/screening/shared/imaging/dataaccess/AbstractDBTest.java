@@ -52,7 +52,7 @@ public abstract class AbstractDBTest
         context.setDatabaseEngineCode("postgresql");
         context.setBasicDatabaseName("imaging");
         context.setDatabaseKind("dev");
-        context.setScriptFolder("source/sql");
+        context.setScriptFolder("source/sql/imaging");
         return context;
     }
 
