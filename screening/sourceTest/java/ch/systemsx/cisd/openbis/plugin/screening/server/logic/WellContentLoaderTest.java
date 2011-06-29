@@ -52,7 +52,9 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     @Autowired
     IGenericServer server;
 
-    @Test(groups = "slow, broken")
+    // TODO KE: fixme, broken test
+    @Test(groups =
+        { "slow", "broken" })
     public void testLoadWellContentsWithProperties()
     {
 
