@@ -55,9 +55,14 @@ def convert_data_to_tsv(tr, start_row, start_col, dataset, location):
 	tr.createNewDirectory(dataset, location)
 	tsvFileName = tr.createNewFile(dataset, location, incoming.getName() + ".tsv")
 	tsv = open(tsvFileName, 'w')
-	for line in timeSeriesData.getRawDataLines():
-		for i in range(start_row, len(line) - 1):
-			tsv.write(line[i])
+	raw_data = timeSeriesData.getRawDataLines()
+	for i in range(start_row, len(raw_data)):
+		line = raw_data[i]
+		# write the metabolite id
+		tsv.write(line[0])
+		tsv.write("\t")
+		for j in range(start_col, len(line) - 1):
+			tsv.write(line[j])
 			tsv.write("\t")
 		tsv.write(line[len(line) - 1])
 		tsv.write("\n")

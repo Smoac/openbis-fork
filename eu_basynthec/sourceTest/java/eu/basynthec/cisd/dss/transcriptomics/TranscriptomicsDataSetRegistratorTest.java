@@ -16,10 +16,12 @@
 
 package eu.basynthec.cisd.dss.transcriptomics;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -64,6 +66,12 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         assertNotNull(strainProperty);
         assert null != strainProperty;
         assertEquals("MGP253,MGP776", strainProperty.getValue());
+
+        String location = dataSet.getLocation();
+        File tsvFile =
+                new File(new File(workingDirectory, "/1/" + location),
+                        "tsv/Transcriptomics-Example.xlsx.tsv");
+        checkTsvContent(tsvFile);
         context.assertIsSatisfied();
     }
 
@@ -71,5 +79,24 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
     protected String getRegistrationScriptsFolderPath()
     {
         return "dist/etc/transcriptomics/";
+    }
+
+    private void checkTsvContent(File tsvFile) throws IOException
+    {
+        String content = FileUtils.readFileToString(tsvFile);
+        assertEquals("Locustag\tMGP253-1 66687802\tMGP776-2 66730002\n"
+                + "BSU00010\t13.7953\t13.5517\n" + "BSU00020\t13.5907\t13.3277\n"
+                + "BSU00030\t13.8489\t13.6306\n" + "BSU00040\t14.3564\t14.1073\n"
+                + "BSU00050\t14.5239\t14.1992\n" + "BSU00060\t14.3293\t13.933\n"
+                + "BSU00070\t14.481\t14.1348\n" + "BSU00090\t15.474\t15.2813\n"
+                + "BSU00100\t14.4332\t14.1945\n" + "BSU00110\t15.2669\t14.9582\n"
+                + "BSU00120\t15.3344\t15.112\n" + "BSU_misc_RNA_1\t15.4497\t15.2485\n"
+                + "BSU00130\t13.6604\t13.5385\n" + "BSU00180\t9.8208\t9.971\n"
+                + "BSU_misc_RNA_2\t13.6614\t14.0933\n" + "BSU00190\t13.464\t13.1213\n"
+                + "BSU00200\t14.6102\t14.4169\n" + "BSU00210\t13.5285\t13.2043\n"
+                + "BSU00220\t13.1007\t12.8862\n" + "BSU00230\t11.8547\t11.6761\n"
+                + "BSU00240\t10.8623\t11.1397\n" + "BSU00250\t11.6694\t11.429\n"
+                + "BSU00260\t11.7669\t11.4658\n" + "BSU00270\t12.2675\t11.8745\n"
+                + "BSU00280\t12.5574\t12.1608\n", content);
     }
 }
