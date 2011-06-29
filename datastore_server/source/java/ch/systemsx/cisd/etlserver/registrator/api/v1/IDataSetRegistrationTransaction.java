@@ -16,6 +16,14 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IProjectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISpaceImmutable;
+
 /**
  * Interface for a data set registration transaction. All actions that go through the transaction
  * are committed atomically or rolledback.

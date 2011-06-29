@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 /**
  * @author Kaloyan Enimanev
  */
-class Space extends SpaceImmutable implements ISpace
+public class Space extends SpaceImmutable implements ISpace
 {
     public Space(String code, String spaceAdminUserIdOrNull)
     {

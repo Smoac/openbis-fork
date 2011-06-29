@@ -28,13 +28,11 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISearchService;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
@@ -140,8 +138,7 @@ class PluginScriptRunner
 
     private static ISearchService createSearchService()
     {
-        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        return new SearchService(openBISService);
+        return ServiceProvider.getSearchServiceProvider();
     }
 
     private static IMailService createMailService(DataSetProcessingContext context)

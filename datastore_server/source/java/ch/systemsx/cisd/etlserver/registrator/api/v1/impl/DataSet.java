@@ -24,9 +24,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;

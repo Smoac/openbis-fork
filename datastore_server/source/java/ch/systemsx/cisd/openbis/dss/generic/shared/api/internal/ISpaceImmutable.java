@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
 
 /**
- * Read-only interface to an existing experiment.
+ * An interface for spaces from the database that should not be altered.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Kaloyan Enimanev
  */
-public interface IExperimentImmutable
+public interface ISpaceImmutable
 {
-    /**
-     * Return the experiment identifier of this experiment.
-     */
-    String getExperimentIdentifier();
 
     /**
-     * Return true if the experiment is in openBIS.
+     * Return the code for this space.
      */
-    boolean isExistingExperiment();
+    String getSpaceCode();
 
     /**
-     * Return the type for this experiment. May be null.
+     * Return the description for this space.
      */
-    String getExperimentType();
+    String getDescription();
 
     /**
-     * Return the value of a property specified by a code. May return null of no such property with
-     * code <code>propertyCode</code> is found.
+     * Return true if the space exists in the database.
      */
-    String getPropertyValue(String propertyCode);
+    boolean isExistingSpace();
+
+
 }

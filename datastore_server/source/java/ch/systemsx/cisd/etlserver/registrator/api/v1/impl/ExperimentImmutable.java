@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class ExperimentImmutable implements IExperimentImmutable
+public class ExperimentImmutable implements IExperimentImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment;
 

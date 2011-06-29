@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+
+
 /**
  * Interface to specify an experiment to be created. 
  * 

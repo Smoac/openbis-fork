@@ -30,16 +30,16 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
@@ -100,8 +100,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
 
-        private final List<DataSet<T>> registeredDataSets =
-                new ArrayList<DataSet<T>>();
+        private final List<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
 
         private final List<DataSetUpdatable> dataSetsToBeUpdated =
                 new ArrayList<DataSetUpdatable>();

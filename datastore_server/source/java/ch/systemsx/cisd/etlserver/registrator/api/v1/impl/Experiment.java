@@ -26,12 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * Implementation of {@link IExperiment}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 class Experiment extends ExperimentImmutable implements IExperiment
 {
-    Experiment(String identifier, String permID)
+    public Experiment(String identifier, String permID)
     {
         super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment());
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment = getExperiment();

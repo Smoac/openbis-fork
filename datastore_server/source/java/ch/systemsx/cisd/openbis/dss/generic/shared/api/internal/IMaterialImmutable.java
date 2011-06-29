@@ -14,26 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
 
 /**
  * @author Kaloyan Enimanev
  */
-public interface IProjectImmutable
+public interface IMaterialImmutable
 {
 
     /**
-     * Return the identifier for this project.
+     * Return the code for this material.
      */
-    String getProjectIdentifier();
+    String getCode();
 
     /**
-     * Return the description for this project.
+     * Return the type for this material. May be null.
      */
-    String getDescription();
+    String getMaterialType();
 
     /**
-     * Return true if the project exists in the database.
+     * Return true if the material exists in the database.
      */
-    boolean isExistingProject();
+    boolean isExistingMaterial();
+
+    /**
+     * Return the value of a property specified by a code. May return null of no such property with
+     * code <code>propertyCode</code> is found.
+     */
+    String getPropertyValue(String propertyCode);
+
 }

@@ -23,13 +23,13 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterialImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISampleImmutable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISearchService;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.MaterialIdentifierCollection;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.MaterialIdentifierCollection;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class SearchService implements ISearchService
+class SearchService implements ISearchService
 {
     private final IEncapsulatedOpenBISService openBisService;
 

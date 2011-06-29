@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISpaceImmutable;
 
 /**
  * @author Kaloyan Enimanev
  */
-class SpaceImmutable implements ISpaceImmutable
+public class SpaceImmutable implements ISpaceImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space space;
 
@@ -71,6 +71,5 @@ class SpaceImmutable implements ISpaceImmutable
     {
         return space;
     }
-
 
 }

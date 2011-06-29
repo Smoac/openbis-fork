@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IProjectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IProjectImmutable;
 
 /**
  * @author Kaloyan Enimanev
  */
-class ProjectImmutable implements IProjectImmutable
+public class ProjectImmutable implements IProjectImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project;
 

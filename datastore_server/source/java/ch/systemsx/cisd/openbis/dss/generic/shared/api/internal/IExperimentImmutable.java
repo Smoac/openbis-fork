@@ -14,57 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
-
-import java.util.List;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
 
 /**
- * An interface for samples from the database that should not be altered.
+ * Read-only interface to an existing experiment.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface ISampleImmutable
+public interface IExperimentImmutable
 {
     /**
-     * Return the identifier for this sample.
+     * Return the experiment identifier of this experiment.
      */
-    String getSampleIdentifier();
+    String getExperimentIdentifier();
 
     /**
-     * Return the space code for this sample.
+     * Return true if the experiment is in openBIS.
      */
-    String getSpace();
+    boolean isExistingExperiment();
 
     /**
-     * Return the code for this sample.
+     * Return the type for this experiment. May be null.
      */
-    String getCode();
-
-    /**
-     * Return the experiment for this sample. May be null.
-     */
-    IExperimentImmutable getExperiment();
-
-    /**
-     * Return the type for this sample. May be null.
-     */
-    String getSampleType();
-
-    /**
-     * Return true if the sample exists in the database.
-     */
-    boolean isExistingSample();
+    String getExperimentType();
 
     /**
      * Return the value of a property specified by a code. May return null of no such property with
      * code <code>propertyCode</code> is found.
      */
     String getPropertyValue(String propertyCode);
-
-    /**
-     * Return the contained sample objects. Only available for samples existing prior the
-     * transaction start.
-     */
-    List<ISampleImmutable> getContainedSamples();
-
 }

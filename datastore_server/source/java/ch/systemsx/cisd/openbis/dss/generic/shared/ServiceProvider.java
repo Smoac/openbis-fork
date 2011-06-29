@@ -26,6 +26,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
 
 /**
  * Provider of remote service onto openBIS.
@@ -39,7 +40,7 @@ public class ServiceProvider
 
     // applicationContex it lazily initialized
     private static BeanFactory applicationContext = null;
-    
+
     private static boolean buildingApplicationContext;
 
     /**
@@ -97,11 +98,16 @@ public class ServiceProvider
     {
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
-    
+
+    public static ISearchService getSearchServiceProvider()
+    {
+        return ((ISearchService) getApplicationContext().getBean("search-service"));
+    }
+
     public static IDataSetPathInfoProvider getDataSetPathInfoProvider()
     {
-        return ((IDataSetPathInfoProvider) getApplicationContext().getBean("data-set-path-infos-provider"));
-        
+        return ((IDataSetPathInfoProvider) getApplicationContext().getBean(
+                "data-set-path-infos-provider"));
     }
 
     public static IShareIdManager getShareIdManager()
