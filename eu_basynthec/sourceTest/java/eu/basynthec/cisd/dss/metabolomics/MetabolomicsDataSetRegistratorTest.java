@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.basynthec.cisd.dss.growthprofiles;
+package eu.basynthec.cisd.dss.metabolomics;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,9 +32,9 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
+public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("OD600");
+    private static final DataSetType DATA_SET_TYPE = new DataSetType("METABOLITE_INTENSITIES");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -42,7 +42,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadProperties();
         createHandler(properties, false, true);
-        createData("OD600-Example.xlsx");
+        createData("Metabolomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 setUpDataSetRegistrationExpectations(DATA_SET_TYPE);
@@ -63,13 +63,13 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("MGP1,MGP100,MGP20,MGP999", strainProperty.getValue());
+        assertEquals("MGP9", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 
     @Override
     protected String getRegistrationScriptsFolderPath()
     {
-        return "dist/etc/growth-profiles/";
+        return "dist/etc/metabolomics/";
     }
 }

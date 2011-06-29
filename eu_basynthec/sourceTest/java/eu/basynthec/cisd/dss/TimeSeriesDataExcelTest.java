@@ -38,8 +38,8 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
         String[][] expectedMetadata =
             {
                 { "Property", "Value" },
-                { "Experiment", "BLANK" },
-                { "Strain", "strain1" },
+                { "Experiment", "/TEST/TEST/TEST" },
+                { "Strain", "MGP9" },
                 { "Timepoint Type", "EX" },
                 { "Cell Location", "CE" },
                 { "Value Type", "Std" },
@@ -55,6 +55,27 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
                 { "CHEBI:15521", "phosphate1", "0.095157063", "0.083137933" },
                 { "CHEBI:18311", "phosphate2", "0.059749697", "0.044605606" } };
         assertLinesAreEqual(dataLines, expectedData);
+    }
+
+    @Test
+    public void testReadingMetaboliteTemplate()
+    {
+        TimeSeriesDataExcel data =
+                TimeSeriesDataExcel
+                        .createTimeSeriesDataExcel("sourceTest/examples/Metabolomics-Template.xlsx");
+        List<String[]> metadataLines = data.getRawMetadataLines();
+        assertTrue("Metadata lines should not be empty", metadataLines.size() > 0);
+        String[][] expectedMetadata =
+            {
+                { "Property", "Value" },
+                { "Experiment", "BLANK" },
+                { "Strain", null },
+                { "Timepoint Type", null },
+                { "Cell Location", null },
+                { "Value Type", null },
+                { "Value Unit", null },
+                { "Scale", null } };
+        assertLinesAreEqual(metadataLines, expectedMetadata);
     }
 
     @Test
@@ -84,7 +105,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
                 { "MGP1", "OD600", "0.05", "0.064" },
                 { "MGP100", "OD600", "0.05", "0.064" },
                 { "MGP20", "OD600", "0.05", "0.064" },
-                { "MGP999", "OD600", "0.05", "0.064" }};
+                { "MGP999", "OD600", "0.05", "0.064" } };
         assertLinesAreEqual(dataLines, expectedData);
     }
 
@@ -102,7 +123,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
             String[] expectedLine = expected[i];
             for (int j = 0; j < expectedLine.length; ++j)
             {
-                assertEquals(expectedLine[j], actualLine[j]);
+                assertEquals("Line " + i, expectedLine[j], actualLine[j]);
             }
         }
     }

@@ -60,6 +60,6 @@ public class MetabolomicsValidatorTest extends AssertJUnit
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/Metabolomics-BadData.xlsx"));
-        assertEquals("The bad data should have 7 errors", 7, errors.size());
+        assertEquals("The bad data should have 8 errors", 8, errors.size());
     }
 }

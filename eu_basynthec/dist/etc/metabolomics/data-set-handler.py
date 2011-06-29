@@ -12,7 +12,7 @@ def retrieve_experiment(tr, exp_id):
 def assign_properties(dataset, metadata):
 	"""Assign properties to the data set from information in the data."""
 	propertyNameMap = {
-		"STRAIN":"STRAIN", 
+		"STRAIN":"STRAIN_NAMES", 
 		"TIMEPOINT TYPE": "TIMEPOINT_TYPE", 
 		"CELL LOCATION": "CELL_LOCATION", 
 		"VALUE TYPE": "VALUE_TYPE", 
@@ -24,8 +24,6 @@ def assign_properties(dataset, metadata):
 		key = propertyNameMap.get(prop)
 		if key is not None:
 			value = metadata.get(prop)
-			if (key == "STRAIN"):
-				value = value + " (STRAIN)"
 			dataset.setPropertyValue(key, value.upper())
 			
 def convert_data_to_tsv(tr, dataset, location):

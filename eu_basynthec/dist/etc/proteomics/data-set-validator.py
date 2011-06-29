@@ -32,27 +32,26 @@ def validate_metadata(time_series_data, errors):
 	validationHelper = ValidationHelper(metadata, errors)
 	
 	# validate the strain
-	validationHelper.checkIsSpecified("STRAIN", "strain")
+	validationHelper.validateStrain()
+	
+	# validate the header format
+	validationHelper.validateExplicitHeaderFormat("TIME::VALUE_TYPE")
 	
 	# validate the timepoint type
-	if validationHelper.checkIsSpecified("TIMEPOINT TYPE", "time point type"):
-		if metadata.get("TIMEPOINT TYPE").upper() not in ['EX', 'IN', 'SI']:
-			errors.append(createFileValidationError("The timepoint type must be one of 'EX', 'IN', 'SI'"))
-			
-	# validate the cell location
-	if validationHelper.checkIsSpecified("CELL LOCATION", "cell location"):
-		if metadata.get("CELL LOCATION").upper() not in ['CE', 'ES', 'ME', 'CY', 'NC']:
-			errors.append(createFileValidationError("The cell location must be one of 'CE', 'ES', 'ME', 'CY', 'NC'"))
+	validationHelper.validateControlledVocabularyProperty("TIMEPOINT TYPE", 
+		"time point type", ['EX', 'IN', 'SI'], "'EX', 'IN', 'SI'")
+
+	# validate the cell location		
+	validationHelper.validateControlledVocabularyProperty("CELL LOCATION",
+		 "cell location", ['CE', 'ES', 'ME', 'CY', 'NC'], "'CE', 'ES', 'ME', 'CY', 'NC'")
 
 	# validate the value unit
-	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'percent', 'ratiot1', 'ratiocs', 'au', 'dimensionless']:
-			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'"))
+	validationHelper.validateControlledVocabularyProperty("VALUE UNIT", 
+		"value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'")
 	
-	# validate the value type
-	if validationHelper.checkIsSpecified("SCALE", "scale"):
-		if metadata.get("SCALE").lower() not in ['lin', 'log2', 'log10', 'ln']:
-			errors.append(createFileValidationError("The scale must be one of 'lin', 'log2', 'log10', 'ln'"))
+	# validate the scale
+	validationHelper.validateControlledVocabularyProperty("SCALE", "scale",
+		['LIN', 'LOG2', 'LOG10', 'LN'], "'lin', 'log2', 'log10', 'ln'")
 
 def validate_data_set_file(file):
 	errors = []

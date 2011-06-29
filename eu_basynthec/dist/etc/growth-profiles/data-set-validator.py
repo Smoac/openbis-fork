@@ -20,30 +20,29 @@ def validate_metadata(time_series_data, errors):
 	metadata = time_series_data.getMetadataMap()
 	validationHelper = ValidationHelper(metadata, errors)
 	
+	# validate the header format
+	validationHelper.validateDefaultHeaderFormat()
+	
 	# validate the timepoint type
-	if validationHelper.checkIsSpecified("TIMEPOINT TYPE", "time point type"):
-		if metadata.get("TIMEPOINT TYPE").upper() not in ['EX', 'IN', 'SI']:
-			errors.append(createFileValidationError("The timepoint type must be one of 'EX', 'IN', 'SI'"))
-			
-	# validate the cell location
-	if validationHelper.checkIsSpecified("CELL LOCATION", "cell location"):
-		if metadata.get("CELL LOCATION").upper() not in ['CE', 'ES', 'ME', 'CY', 'NC']:
-			errors.append(createFileValidationError("The cell location must be one of 'CE', 'ES', 'ME', 'CY', 'NC'"))
-		
-	# validate the value type
-	if validationHelper.checkIsSpecified("VALUE TYPE", "value type"):
-		if metadata.get("VALUE TYPE").lower() not in ['value', 'mean', 'median', 'std', 'var', 'error', 'iqr']:
-			errors.append(createFileValidationError("The value type must be one of 'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'"))
+	validationHelper.validateControlledVocabularyProperty("TIMEPOINT TYPE", 
+		"time point type", ['EX', 'IN', 'SI'], "'EX', 'IN', 'SI'")
+
+	# validate the cell location		
+	validationHelper.validateControlledVocabularyProperty("CELL LOCATION",
+		 "cell location", ['CE', 'ES', 'ME', 'CY', 'NC'], "'CE', 'ES', 'ME', 'CY', 'NC'")
+
+	# validate the value type		
+	validationHelper.validateControlledVocabularyProperty("VALUE TYPE",
+		 "value type", ['VALUE', 'MEAN', 'MEDIAN', 'STD', 'VAR', 'ERROR', 'IQR'], 
+		"'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'")
 
 	# validate the value unit
-	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() != 'dimensionless':
-			errors.append(createFileValidationError("The value unit must be 'DIMENSIONLESS'"))
+	validationHelper.validateControlledVocabularyProperty("VALUE UNIT", 
+		"value unit", ['DIMENSIONLESS'], "'DIMENSIONLESS'")
 	
-	# validate the value type
-	if validationHelper.checkIsSpecified("SCALE", "scale"):
-		if metadata.get("SCALE").lower() not in ['lin', 'log2', 'log10', 'ln']:
-			errors.append(createFileValidationError("The scale must be one of 'lin', 'log2', 'log10', 'ln'"))
+	# validate the scale
+	validationHelper.validateControlledVocabularyProperty("SCALE", "scale",
+		['LIN', 'LOG2', 'LOG10', 'LN'], "'lin', 'log2', 'log10', 'ln'")
 
 def validate_data_set_file(file):
 	errors = []

@@ -90,7 +90,54 @@ class ValidationHelper:
 					+ " must be specified."))
 			return False
 		return True
-		
+	
+	def validateStrain(self):
+		"""Verify that the strain is specified and of the correct format"""
+		if not self.checkIsSpecified("STRAIN", "strain"):
+			return
+		strain = self.metadataMap.get("STRAIN")
+		if not isStrainIdValid(strain):
+			self.errors.append(createFileValidationError("Strain must be MGP[0-999] (instead of " + strain + ")."))
+			
+	def validateDefaultHeaderFormat(self):
+		"""Validate that header format is either not specified or matches default (TIME)"""
+		if self.metadataMap.get("HEADER FORMAT") is None:
+			return
+		format = self.metadataMap.get("HEADER FORMAT")
+		expected_format = "TIME"
+		if expected_format != format:
+			self.errors.append(createFileValidationError("Header format must be " + expected_format + " (not " + format + ")."))
+			
+	def validateExplicitHeaderFormat(self, expected_format):
+		"""Validate that header format is specified and matches the expected_format argument"""
+		if not self.checkIsSpecified("HEADER FORMAT", "header format"):
+			return
+		format = self.metadataMap.get("HEADER FORMAT")
+		if expected_format != format:
+			self.errors.append(createFileValidationError("Header format must be " + expected_format + " (not " + format + ")."))
+			
+	def validateControlledVocabularyProperty(self, property, displayName, allowedValues, allowedValuesDisplay):
+		"""Validate that the property is specified and in the list of allowed values"""
+		if not self.checkIsSpecified(property, displayName):
+			return
+		value = self.metadataMap.get(property).upper()
+		if value not in allowedValues:
+			if len(allowedValues) > 1:
+				self.errors.append(createFileValidationError("The " + displayName + " must be one of " + allowedValuesDisplay + " (not " + value + ")."))
+			else:
+				self.errors.append(createFileValidationError("The " + displayName + " must be " + allowedValuesDisplay + " (not " + value + ")."))
+				
+	def validateStartDataRowCol(self):
+		if self.checkIsSpecified("START DATA ROW", "Start Data Row"):
+			value = self.metadataMap.get("START DATA ROW")
+			match = re.match("[0-9]+", value)
+			if match is None:
+				self.errors.append(createFileValidationError("The Start Data Row must be a number (not " + value + ")."))
+		if self.checkIsSpecified("START DATA COL", "Start Data Col"):
+			value = self.metadataMap.get("START DATA COL")
+			match = re.match("[A-Z]", value)
+			if match is None:
+				self.errors.append(createFileValidationError("The Start Data Col must be a letter between A and Z (not " + value + ")."))
 	
 strainIdRegex = re.compile("^MGP[0-9]{1,3}")
 def isStrainIdValid(strainId):

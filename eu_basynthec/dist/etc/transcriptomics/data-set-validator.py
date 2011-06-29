@@ -1,53 +1,64 @@
-def validate_data(time_series_data, errors):
+def validate_header(line, first_data_col, errors):
+	"""Validate the header, returning False if there is no point in continuing validation"""
+	if line[0] != "Locustag":
+		errors.append(createFileValidationError("The first data column must be 'Locustag' (not " + line[0] + ")."))
+		return False
+	header_regex = re.compile("^MGP[0-9]{1,3}-[0-9] [0-9]+")
+	for i in range(first_data_col, len(line)):
+		match = header_regex.match(strainId)
+		if match is None:
+			errors.append(createFileValidationError("The column header + " + str(i) + "must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]"))
+
+
+def validate_data(time_series_data, first_data_row, first_data_col, errors):
 	gene_locus_regex = re.compile("^BSU[0-9]+|^BSU_misc_RNA_[0-9]+|^VMG_[0-9]+_[0-9]+(_c)?")
 	dataLines = time_series_data.getRawDataLines()
-	lineCount = 0
-	for line in dataLines:
+	for i in range(first_data_row, len(dataLines)):
+		line = dataLines[i]
 		# The header needs to be CompoundID
-		if lineCount is 0:
-			if line[0] != "GeneLocus":
-				errors.append(createFileValidationError("The first data column must be 'GeneLocus'"))
+		if i is first_data_row:
+			if not validate_header(line, first_data_col, errors):
 				break
-			lineCount = lineCount + 1
 			continue
 
 		# The compound id should be one of these forms
 		gene_locus = line[0]
 		if not gene_locus_regex.match(gene_locus):
-			errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
-		lineCount = lineCount + 1
+			errors.append(createFileValidationError("Line " + str(i + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
 		
 def validate_metadata(time_series_data, errors):
 	metadata = time_series_data.getMetadataMap()
 	validationHelper = ValidationHelper(metadata, errors)
 	
 	# validate the strain
-	validationHelper.checkIsSpecified("STRAIN", "strain")
+	validationHelper.validateStrain()
+	
+	# validate the header format
+	validationHelper.validateExplicitHeaderFormat("STRAIN-BIOREP HYBRID")
 	
 	# validate the timepoint type
-	if validationHelper.checkIsSpecified("TIMEPOINT TYPE", "time point type"):
-		if metadata.get("TIMEPOINT TYPE").upper() not in ['EX', 'IN', 'SI']:
-			errors.append(createFileValidationError("The timepoint type must be one of 'EX', 'IN', 'SI'"))
-			
-	# validate the cell location
-	if validationHelper.checkIsSpecified("CELL LOCATION", "cell location"):
-		if metadata.get("CELL LOCATION").upper() not in ['CE', 'ES', 'ME', 'CY', 'NC']:
-			errors.append(createFileValidationError("The cell location must be one of 'CE', 'ES', 'ME', 'CY', 'NC'"))
-		
-	# validate the value type
-	if validationHelper.checkIsSpecified("VALUE TYPE", "value type"):
-		if metadata.get("VALUE TYPE").lower() not in ['value', 'mean', 'median', 'std', 'var', 'error', 'iqr']:
-			errors.append(createFileValidationError("The value type must be one of 'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'"))
+	validationHelper.validateControlledVocabularyProperty("TIMEPOINT TYPE", 
+		"time point type", ['EX', 'IN', 'SI'], "'EX', 'IN', 'SI'")
+
+	# validate the cell location		
+	validationHelper.validateControlledVocabularyProperty("CELL LOCATION",
+		 "cell location", ['CE', 'ES', 'ME', 'CY', 'NC'], "'CE', 'ES', 'ME', 'CY', 'NC'")
+
+	# validate the value type		
+	validationHelper.validateControlledVocabularyProperty("VALUE TYPE",
+		 "value type", ['VALUE', 'MEAN', 'MEDIAN', 'STD', 'VAR', 'ERROR', 'IQR'], 
+		"'Value', 'Mean', 'Median', 'Std', 'Var', 'Error', 'Iqr'")
 
 	# validate the value unit
-	if validationHelper.checkIsSpecified("VALUE UNIT", "value unit"):
-		if metadata.get("VALUE UNIT").lower() not in ['mm', 'um', 'percent', 'ratiot1', 'ratiocs', 'au', 'dimensionless']:
-			errors.append(createFileValidationError("The value unit must be one of 'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'"))
+	validationHelper.validateControlledVocabularyProperty("VALUE UNIT", 
+		"value unit", ['MM', 'UM', 'PERCENT', 'RATIOT1', 'RATIOCS', 'AU', 'DIMENSIONLESS'], "'mM', 'uM', 'Percent', 'RatioT1', 'RatioCs', 'AU', 'Dimensionless'")
 	
-	# validate the value type
-	if validationHelper.checkIsSpecified("SCALE", "scale"):
-		if metadata.get("SCALE").lower() not in ['lin', 'log2', 'log10', 'ln']:
-			errors.append(createFileValidationError("The scale must be one of 'lin', 'log2', 'log10', 'ln'"))
+	# validate the scale
+	validationHelper.validateControlledVocabularyProperty("SCALE", "scale",
+		['LIN', 'LOG2', 'LOG10', 'LN'], "'lin', 'log2', 'log10', 'ln'")
+		
+	# validate the data position specification
+	validationHelper.validateStartDataRowCol()
 
 def validate_data_set_file(file):
 	errors = []
@@ -58,8 +69,28 @@ def validate_data_set_file(file):
 		
 	# validate the metadata
 	validate_metadata(time_series_data, errors)
+	
+	# Figure out where data starts
+	
+	# get the raw value from the map
+	metadata = time_series_data.getMetadataMap()
+	first_data_row = metadata.get("START DATA ROW")
+	first_data_col = metadata.get("START DATA COL")
+
+	# convert the row numeric string to an int
+	if first_data_row is None:
+		first_data_row = 0
+	else:
+		first_data_row = int(float(first_data_row))
+
+	# convert the column spreadsheet value to an int
+	if first_data_col is None:
+		first_data_col = 0
+	else:
+		# columns start at A
+		first_data_col = ord(first_data_col) - ord('A')
 			
 	# validate the data
-	validate_data(time_series_data, errors)
+	validate_data(time_series_data, first_data_row, first_data_col, errors)
 	
 	return errors
