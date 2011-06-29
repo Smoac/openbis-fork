@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 import org.testng.annotations.AfterMethod;
@@ -132,6 +133,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
     private BufferedAppender logAppender;
 
+    private IThrowableHandler throwableHandler;
+
     @BeforeTest
     public void init()
     {
@@ -153,6 +156,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
         dataSetValidator = context.mock(IDataSetValidator.class);
+        throwableHandler = context.mock(IThrowableHandler.class);
         mailClient = context.mock(IMailClient.class);
 
         logAppender = new BufferedAppender();
@@ -695,6 +699,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testScriptDies()
     {
         setUpHomeDataBaseExpectations();
+        prepareThrowableHandling(PyException.class);
 
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("dying-script.py");
@@ -728,6 +733,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testRollbackService()
     {
         setUpHomeDataBaseExpectations();
+        prepareThrowableHandling(PyException.class);
 
         // Create a handler that throws an exception during registration
         Properties threadProperties =
@@ -752,6 +758,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testScriptPathDeletedLater()
     {
         setUpHomeDataBaseExpectations();
+        prepareThrowableHandling(PyException.class);
         String scriptPath = "foo.py";
         Properties threadProperties = createThreadProperties(scriptPath);
 
@@ -814,6 +821,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     public void testQuerying()
     {
         setUpHomeDataBaseExpectations();
+        prepareThrowableHandling(PyException.class);
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("query-interface-test.py");
         createHandler(threadProperties, false);
@@ -831,7 +839,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
     }
-
+    
     private Properties createThreadProperties(String scriptPath)
     {
         Properties threadProperties = new Properties();
@@ -953,6 +961,16 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
             });
     }
 
+    private void prepareThrowableHandling(final Class<? extends Throwable> throwableClass)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(throwableHandler).handle(with(any(throwableClass)));
+                }
+            });
+    }
+    
     private void setUpQueryExpectations()
     {
         context.checking(new Expectations()
@@ -1077,7 +1095,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
-            super(globalState);
+            super(globalState, throwableHandler);
             this.shouldRegistrationFail = shouldRegistrationFail;
             this.shouldReThrowRollbackException = shouldReThrowRollbackException;
         }

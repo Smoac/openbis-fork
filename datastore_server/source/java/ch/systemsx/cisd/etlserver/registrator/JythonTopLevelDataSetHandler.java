@@ -103,7 +103,13 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     public JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
-        super(globalState, FINAL_THROWABLE_HANDLER);
+        this(globalState, FINAL_THROWABLE_HANDLER);
+    }
+    
+    JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
+            IThrowableHandler handler)
+    {
+        super(globalState, handler);
 
         String path =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
