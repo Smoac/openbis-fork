@@ -1,0 +1,21 @@
+register-type SAMPLE POSITIVE_CONTROL listable=false show-container=true show-parents=false
+register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-parents=false
+register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
+
+register-type MATERIAL COMPOUND_BATCH
+
+set type = concentration
+register-property-type ${type} with data type REAL
+assign-to SAMPLE:COMPOUND_WELL ${type}
+
+set type = compound_batch
+register-property-type ${type} with data type MATERIAL(COMPOUND_BATCH)
+assign-to SAMPLE:COMPOUND_WELL ${type}
+
+set type = observer-emails
+register-property-type ${type} with data type VARCHAR
+assign-to EXPERIMENT:HCS_COMPOUND ${type}
+
+set type = library-template
+register-property-type ${type} with data type MULTILINE_VARCHAR
+assign-to EXPERIMENT:HCS_COMPOUND ${type}
