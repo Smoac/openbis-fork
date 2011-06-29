@@ -22,21 +22,22 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class RegisterType implements ICommand
 {
     private final Map<String, ICommand> commands;
-    
+
     RegisterType()
     {
         commands = new HashMap<String, ICommand>();
         commands.put("DATA_SET", new RegisterDataSetType());
+        commands.put("SAMPLE", new RegisterSampleType());
+        commands.put("MATERIAL", new RegisterMaterialType());
     }
 
-    public void execute(ICommonServer server, String sessionToken, ScriptContext context, String argument)
+    public void execute(ICommonServer server, String sessionToken, ScriptContext context,
+            String argument)
     {
         int indexOfSpace = argument.indexOf(' ');
         String command = indexOfSpace < 0 ? argument : argument.substring(0, indexOfSpace);
@@ -45,7 +46,7 @@ class RegisterType implements ICommand
         {
             throw new IllegalArgumentException("Unkown register command: " + command);
         }
-        cmd.execute(server, sessionToken, null, indexOfSpace < 0 ? "" : argument.substring(indexOfSpace).trim());
+        cmd.execute(server, sessionToken, null,
+                indexOfSpace < 0 ? "" : argument.substring(indexOfSpace).trim());
     }
-
 }

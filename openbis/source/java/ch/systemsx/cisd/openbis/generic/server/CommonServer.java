@@ -646,6 +646,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    public MaterialType getMaterialType(String sessionToken, String code)
+    {
+        final EntityTypePE materialType = findEntityType(EntityKind.MATERIAL, code);
+        return MaterialTypeTranslator.translateSimple(materialType);
+    }
+
     private <T extends EntityTypePE> List<T> listEntityTypes(String sessionToken,
             EntityKind entityKind)
     {

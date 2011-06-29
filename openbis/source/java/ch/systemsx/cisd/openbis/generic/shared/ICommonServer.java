@@ -658,6 +658,15 @@ public interface ICommonServer extends IServer
     public List<MaterialType> listMaterialTypes(String sessionToken);
 
     /**
+     * Returns material type for given code.
+     * 
+     * @return {@link MaterialType} for given code.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public MaterialType getMaterialType(String sessionToken, String code);
+
+    /**
      * Lists materials using given criteria.
      * 
      * @return a sorted list of {@link Material}.

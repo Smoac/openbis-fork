@@ -17,25 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.console;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-class RegisterDataSetType implements ICommand
+class RegisterDataSetType extends AbstractRegisterEntityType<DataSetType> implements ICommand
 {
-    private static interface AttributeSetter<T>
-    {
-        public String getAttributeName();
-        public void setAttributeFor(T object, String value);
-    }
-    
     private enum DataSetTypeAttributeSetter implements AttributeSetter<DataSetType>
     {
         DESCRIPTION("description")
@@ -51,7 +42,7 @@ class RegisterDataSetType implements ICommand
             public void setAttributeFor(DataSetType type, String value)
             {
                 type.setMainDataSetPattern(value);
-                
+
             }
         },
         PATH("main-path")
@@ -62,23 +53,28 @@ class RegisterDataSetType implements ICommand
 
             }
         };
-        
+
         private final String attributeName;
+
         private DataSetTypeAttributeSetter(String attributeName)
         {
             this.attributeName = attributeName;
         }
-        
+
         public String getAttributeName()
         {
             return attributeName;
         }
+
+        public void setDefaultFor(DataSetType type)
+        {
+        }
     }
 
-    private final Map<String, AttributeSetter<DataSetType>> attributeSetters =
+    private static final Map<String, AttributeSetter<DataSetType>> attributeSetters =
             new HashMap<String, AttributeSetter<DataSetType>>();
 
-    RegisterDataSetType()
+    static
     {
         for (DataSetTypeAttributeSetter attributeSetter : DataSetTypeAttributeSetter.values())
         {
@@ -86,28 +82,15 @@ class RegisterDataSetType implements ICommand
         }
     }
 
-    public void execute(ICommonServer server, String sessionToken, ScriptContext context, String argument)
+    @Override
+    protected Map<String, AttributeSetter<DataSetType>> attributeSetters()
     {
-        List<String> tokens = Lexer.extractTokens(argument);
-        DataSetType dataSetType = new DataSetType(tokens.get(0));
-        for (int i = 1; i < tokens.size(); i++)
-        {
-            String token = tokens.get(i);
-            int indexOfEqualSign = token.indexOf('=');
-            if (indexOfEqualSign < 0)
-            {
-                throw new IllegalArgumentException("Missing '=': " + token);
-            }
-            String key = token.substring(0, indexOfEqualSign);
-            String value = token.substring(indexOfEqualSign + 1);
-            AttributeSetter<DataSetType> attributeSetter = attributeSetters.get(key);
-            if (attributeSetter == null)
-            {
-                throw new IllegalArgumentException("Unknown attribute '" + key + "': " + token);
-            }
-            attributeSetter.setAttributeFor(dataSetType, value);
-        }
-        server.registerDataSetType(sessionToken, dataSetType);
+        return attributeSetters;
     }
 
+    public void execute(ICommonServer server, String sessionToken, ScriptContext context,
+            String argument)
+    {
+        server.registerDataSetType(sessionToken, prepareEntityType(new DataSetType(), argument));
+    }
 }

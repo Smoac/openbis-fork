@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.console;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -26,30 +29,54 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public class RegisterPropertyType implements ICommand
 {
+    private static final String WITH = "with";
 
-    private static final String WITH_DATA_TYPE = " with data type ";
+    private static final String DATA = "data";
+
+    private final static String TYPE = "type";
 
     @SuppressWarnings("unused")
     private static final String LABEL = ", label = ";
 
+    private static boolean validated(List<String> tokens)
+    {
+        return tokens.size() > 4 && tokens.get(1).equals(WITH) && tokens.get(2).equals(DATA)
+                && tokens.get(3).equals(TYPE);
+    }
+
     public void execute(ICommonServer server, String sessionToken, ScriptContext context,
             String argument)
     {
-        PropertyType propertyType = new PropertyType();
-        int indexOfWithDataType = argument.indexOf(WITH_DATA_TYPE);
-        if (indexOfWithDataType < 0)
+        List<String> tokens = Lexer.extractTokens(argument);
+
+        if (false == validated(tokens))
         {
-            throw new IllegalArgumentException("'with data type' misspelled");
+            throw new IllegalArgumentException(
+                    "syntax error: expected '{property} with data type {data-type}', got: "
+                            + argument);
         }
-        String propertyCode = argument.substring(0, indexOfWithDataType);
-        propertyType.setCode(propertyCode);
-        String dataTypeCode = argument.substring(indexOfWithDataType + WITH_DATA_TYPE.length());
-        propertyType.setLabel(propertyCode);
+
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(tokens.get(0));
+        propertyType.setLabel(tokens.get(0));
         propertyType.setDescription(" ");
-        DataTypeCode dataType = DataTypeCode.valueOf(dataTypeCode);
-        propertyType.setDataType(new DataType(dataType));
+
+        if (tokens.get(4).startsWith(DataTypeCode.MATERIAL.name()))
+        {
+            propertyType.setDataType(new DataType(DataTypeCode.MATERIAL));
+            if (DataTypeCode.MATERIAL.name().length() < tokens.get(4).length())
+            {
+                String materialCode =
+                        tokens.get(4).replaceAll(DataTypeCode.MATERIAL.name() + "\\((.*)\\)", "$1");
+                MaterialType materialType = server.getMaterialType(sessionToken, materialCode);
+                propertyType.setMaterialType(materialType);
+            }
+        } else
+        {
+            DataTypeCode dataTypeCode = DataTypeCode.valueOf(tokens.get(4));
+            propertyType.setDataType(new DataType(dataTypeCode));
+        }
+
         server.registerPropertyType(sessionToken, propertyType);
-
     }
-
 }
