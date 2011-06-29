@@ -713,6 +713,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+        context.assertIsSatisfied();
     }
 
     private void createData()
@@ -752,6 +753,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertTrue(theHandler.didRollbackServiceFunctionRun);
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -774,6 +776,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         assertFalse(didDataSetRollbackHappen);
         assertTrue(didServiceRollbackHappen);
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -792,6 +795,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         {
             assertEquals(ex.getMessage(), "Script file 'foo.py' does not exist!");
         }
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -815,13 +819,19 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
+        context.assertIsSatisfied();
     }
 
     @Test
     public void testQuerying()
     {
         setUpHomeDataBaseExpectations();
-        prepareThrowableHandling(PyException.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(throwableHandler).handle(with(any(Exception.class)));
+                }
+            });
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("query-interface-test.py");
         createHandler(threadProperties, false);
@@ -838,6 +848,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
+        context.assertIsSatisfied();
     }
     
     private Properties createThreadProperties(String scriptPath)
@@ -882,6 +893,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     "Given key 'script-path' not found in properties '[delete-unidentified, storage-processor, incoming-data-completeness-condition, incoming-dir]'",
                     ex.getMessage());
         }
+        context.assertIsSatisfied();
     }
 
     private File createDirectory(File parentDir, String directoryName)
