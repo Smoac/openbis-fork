@@ -41,6 +41,11 @@ public class MaterialImmutable implements IMaterialImmutable
         this.existingMaterial = existingMaterial;
     }
 
+    public String getMaterialIdentifier()
+    {
+        return material.getIdentifier();
+    }
+
     public String getCode()
     {
         return material.getCode();
@@ -80,4 +85,5 @@ public class MaterialImmutable implements IMaterialImmutable
     {
         return EntityHelper.tryFindPropertyValue(material, propertyCode);
     }
+
 }

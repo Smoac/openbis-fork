@@ -23,6 +23,11 @@ public interface IMaterialImmutable
 {
 
     /**
+     * Return the identifier for this material.
+     */
+    String getMaterialIdentifier();
+
+    /**
      * Return the code for this material.
      */
     String getCode();
