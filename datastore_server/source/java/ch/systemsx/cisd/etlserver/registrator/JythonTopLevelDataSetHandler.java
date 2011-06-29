@@ -19,10 +19,12 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 
 import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -70,6 +72,27 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     // The key for the script in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
+    
+    private static final IThrowableHandler FINAL_THROWABLE_HANDLER = new IThrowableHandler()
+        {
+            public void handle(Throwable throwable)
+            {
+                if (throwable instanceof PyException)
+                {
+                    throw new RuntimeException(throwable.toString());
+                } 
+                if (throwable instanceof UserFailureException)
+                {
+                    throw new RuntimeException(throwable.getMessage());
+                }
+                Throwable cause = throwable;
+                while (cause.getCause() != null)
+                {
+                    cause = cause.getCause();
+                }
+                throw new RuntimeException(cause.toString());
+            }
+        };
 
     private final File scriptFile;
 
@@ -80,7 +103,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     public JythonTopLevelDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
-        super(globalState);
+        super(globalState, FINAL_THROWABLE_HANDLER);
 
         String path =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()

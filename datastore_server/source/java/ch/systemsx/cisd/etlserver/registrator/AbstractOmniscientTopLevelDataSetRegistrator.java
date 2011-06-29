@@ -201,6 +201,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     private final OmniscientTopLevelDataSetRegistratorState state;
+    
+    private final IThrowableHandler finalThrowableHandler;
 
     private boolean stopped;
 
@@ -212,7 +214,24 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     protected AbstractOmniscientTopLevelDataSetRegistrator(
             TopLevelDataSetRegistratorGlobalState globalState)
     {
+        this(globalState, new IThrowableHandler()
+            {
+                public void handle(Throwable throwable)
+                {
+                }
+            });
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param globalState
+     */
+    protected AbstractOmniscientTopLevelDataSetRegistrator(
+            TopLevelDataSetRegistratorGlobalState globalState, IThrowableHandler finalThrowableHandler)
+    {
         super(globalState);
+        this.finalThrowableHandler = finalThrowableHandler;
 
         IStorageProcessorTransactional storageProcessor =
                 PropertiesBasedETLServerPlugin.create(IStorageProcessorTransactional.class,
@@ -352,7 +371,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
-
+            finalThrowableHandler.handle(ex);
         }
 
         return service;
