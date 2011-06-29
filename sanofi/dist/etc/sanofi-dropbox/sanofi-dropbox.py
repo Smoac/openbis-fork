@@ -2,6 +2,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.MaterialIdentifierCollectio
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria as SearchCriteria 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause as MatchClause 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute as MatchClauseAttribute 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants as ScreeningConstants
 
 PLATE_TYPE = "PLATE"
 
@@ -76,11 +77,17 @@ class PlateInitializer:
         return chr(ord('A') + x) + str(y)
     
     def getPlateDimensions(self):
-        # TODO KE: implement me
-        return (2, 2)
+        """
+          parses the plate geometry property from the form "384_WELLS_16X24" 
+          to a tuple of integers (plateHeight, plateWidth) 
+        """
+        plateGeometryString = plate.getPropertyValue(ScreeningConstants.PLATE_GEOMETRY)
+        widthByHeight = plateGeometryString.split("_")[-1]
+        dimensions = map(int, widthByHeight.split("X"))
+        return (dimensions[0], dimensions[1])
     
     def validateLibraryDimensions(self, csvLists):
-        (plateWidth, plateHeight) = self.getPlateDimensions()
+        (plateHeight, plateWidth) = self.getPlateDimensions()
         
         assert plateHeight == len(csvLists), \
             "Plate geometry (height=%i) does not agree with LIBRARY_TEMPLATE (height=%i)." % (plateHeight, len(csvLists))
@@ -198,8 +205,7 @@ class PlateInitializer:
                well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
                materialCode = self.getByWellCode(wellCode, sanofiMaterials).materialCode
                material = openbisMaterials[materialCode]
-               # TODO KE: make material property creation possible
-               #well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material)
+               well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
         
 
     def createWellsAndMaterials(self):

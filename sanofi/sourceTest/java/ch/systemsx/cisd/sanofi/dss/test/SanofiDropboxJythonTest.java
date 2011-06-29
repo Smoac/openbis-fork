@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * <pre>
@@ -81,8 +83,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION";
 
-    // TODO KE: implement me
-    // private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH";
+    private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH";
 
     private static final String DATASET_DIR_NAME = "batchNr_plateCode.variant_2011.06.28";
 
@@ -111,14 +112,16 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createHandler(properties, false, true, queryService);
         createData();
 
-        final String libraryTemplate = "1.45, H\n0.12, L";
-        final Sample plate = createPlate(libraryTemplate);
+        final String libraryTemplate = "1.45, 20.701, H\n0.12, 0.002, L";
+        final Sample plate = createPlate(libraryTemplate, "6_WELLS_2X3");
         setUpPlateSearchExpectations(plate);
         setUpLibraryTemplateExpectations(plate);
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A0"));
+        queryResult.add(createQueryResult("A1"));
         queryResult.add(createQueryResult("B0"));
+        queryResult.add(createQueryResult("B1"));
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
@@ -134,7 +137,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
                     will(returnValue(Collections.emptyList()));
                     
-                    exactly(4).of(openBisService).createPermId();
+                    exactly(6).of(openBisService).createPermId();
                     will(returnValue("well-permId"));
 
                     one(openBisService).createDataSetCode();
@@ -164,12 +167,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         List<NewSample> registeredSamples =
                 atomicatOperationDetails.recordedObject().getSampleRegistrations();
-        
+
+        assertEquals(6, registeredSamples.size());
         assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
         assertCompoundWell(registeredSamples, "A0", "1.45");
-        assertPositiveControl(registeredSamples, "A1");
+        assertCompoundWell(registeredSamples, "A1", "20.701");
+        assertPositiveControl(registeredSamples, "A2");
         assertCompoundWell(registeredSamples, "B0", "0.12");
-        assertNegativeControl(registeredSamples, "B1");
+        assertCompoundWell(registeredSamples, "B1", "0.002");
+        assertNegativeControl(registeredSamples, "B2");
 
         List<? extends NewExternalData> dataSetsRegistered =
                 atomicatOperationDetails.recordedObject().getDataSetRegistrations();
@@ -222,12 +228,24 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         NewSample newSample = findByWellCode(newSamples, wellCode);
         assertEquals(COMPOUND_WELL_TYPE, newSample.getSampleType().getCode());
+
         IEntityProperty concentrationProp =
                 EntityHelper.tryFindProperty(newSample.getProperties(),
                         COMPOUND_WELL_CONCENTRATION_PROPNAME);
         assertNotNull(concentrationProp);
         assertEquals("Invalid concentration value for well '" + wellCode + "': ", concentration,
                 concentrationProp.tryGetAsString());
+
+        String materialCode = getMaterialCodeByWellCode(wellCode);
+        MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, MATERIAL_TYPE);
+
+        IEntityProperty wellMaterialProp =
+                EntityHelper.tryFindProperty(newSample.getProperties(),
+                        COMPOUND_WELL_MATERIAL_PROPNAME);
+        assertNotNull(wellMaterialProp);
+        assertEquals("Invalid material found in well '" + wellCode + "': ",
+                materialIdentifier.print(), wellMaterialProp.tryGetAsString());
+
     }
 
     private void setUpPlateSearchExpectations(final Sample plate)
@@ -271,16 +289,17 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         FileUtilities.writeToFile(markerFile, "");
     }
 
-    private Sample createPlate(String libraryTemplate)
+    private Sample createPlate(String libraryTemplate, String plateGeometry)
     {
-        ExperimentBuilder experimentBuilder =
-                new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).property(
-                        LIBRARY_TEMPLATE_PROPNAME,
-                        libraryTemplate);
+        ExperimentBuilder experimentBuilder = new ExperimentBuilder();
+        experimentBuilder.identifier(EXPERIMENT_IDENTIFIER);
+        experimentBuilder.property(LIBRARY_TEMPLATE_PROPNAME, libraryTemplate);
 
-        SampleBuilder sampleBuilder =
-                new SampleBuilder().identifier(PLATE_IDENTIFIER).experiment(
-                        experimentBuilder.getExperiment());
+        SampleBuilder sampleBuilder = new SampleBuilder();
+        sampleBuilder.experiment(experimentBuilder.getExperiment());
+        sampleBuilder.identifier(PLATE_IDENTIFIER);
+        sampleBuilder.property(ScreeningConstants.PLATE_GEOMETRY, plateGeometry);
+
         final Sample plate = sampleBuilder.getSample();
         return plate;
     }
@@ -289,10 +308,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("WELL_CODE", wellCode);
-        result.put("MATERIAL_CODE", wellCode + "_material_code");
+        result.put("MATERIAL_CODE", getMaterialCodeByWellCode(wellCode));
         result.put("ABASE_COMPOUND_ID", wellCode + "_compound_id");
         result.put("ABASE_COMPOUND_BATCH_ID", wellCode + "_compound_batch_id");
         return result;
+    }
+
+    private String getMaterialCodeByWellCode(String wellCode)
+    {
+        return wellCode + "_material_code";
     }
 
     @Override
