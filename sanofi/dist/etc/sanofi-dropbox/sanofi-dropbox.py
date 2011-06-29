@@ -57,9 +57,12 @@ class PlateInitializer:
     
     LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE"
     
-    WELL_TYPE = "COMPOUND_WELL"
-    WELL_CONCENTRATION_PROPNAME = "CONCENTRATION"
-    WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH"
+    POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL"
+    NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL"
+    
+    COMPOUND_WELL_TYPE = "COMPOUND_WELL"
+    COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION"
+    COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH"
     
     MATERIAL_TYPE = "COMPOUND_BATCH"
     MATERIAL_ID_PROPNAME = "COMPOUND_ID"
@@ -116,8 +119,8 @@ class PlateInitializer:
         
         sanofiMaterials = []
         for materialMap in list(queryResult):
-            wellCode = str(materialMap['WELLCODE'])
-            materialCode = str(materialMap['MATERIALCODE'])
+            wellCode = str(materialMap['WELL_CODE'])
+            materialCode = str(materialMap['MATERIAL_CODE'])
             sanofiId = str(materialMap['ABASE_COMPOUND_ID'])
             sanofiBatchId = str(materialMap['ABASE_COMPOUND_BATCH_ID'])
             material = SanofiMaterial(wellCode, materialCode, sanofiId, sanofiBatchId)
@@ -170,22 +173,33 @@ class PlateInitializer:
         raise RuntimeError("No material found for wellCode " + wellCode)
     
     def createWells(self, library, sanofiMaterials, openbisMaterials):
-        controlWellTypes = { "H" : "posti", "L" : "negative"};
+        controlWellTypes = { "H" : self.POSITIVE_CONTROL_TYPE, \
+                             "L" : self.NEGATIVE_CONTROL_TYPE};
+                             
         for wellCode in library:    
-           libraryValue = library[wellCode].uppercase()
+           libraryValue = library[wellCode].upper()
+           prefixedWellCode = plate.code + ":" + wellCode
+           
            if libraryValue in controlWellTypes:
-               pass
-           else:
-               try 
-               except ValueError:
-                   raise RuntimeError("TODO...")
-               well = transaction.createNewSample(plate.code +":" + wellCode, self.WELL_TYPE)
+               # CONTROL_WELL
+               wellType = controlWellTypes[libraryValue]
+               well = transaction.createNewSample(prefixedWellCode, wellType)
                well.setContainer(plate)
-               concentration = library[wellCode]
-               well.setPropertyValue(self.WELL_CONCENTRATION_PROPNAME, concentration)
+               pass
+           else: 
+               # COMPOUND_WELL
+               concentration = libraryValue
+               try:
+                   float(concentration)
+               except ValueError:
+                   raise RuntimeError("A non-numeric value '%s' detected in well '%s'" % (libraryValue, wellCode))
+               well = transaction.createNewSample(prefixedWellCode, self.COMPOUND_WELL_TYPE)
+               well.setContainer(plate)
+               well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
                materialCode = self.getByWellCode(wellCode, sanofiMaterials).materialCode
                material = openbisMaterials[materialCode]
-               well.setMaterialPropertyValue(self.WELL_MATERIAL_PROPNAME, material)
+               # TODO KE: make material property creation possible
+               #well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material)
         
 
     def createWellsAndMaterials(self):

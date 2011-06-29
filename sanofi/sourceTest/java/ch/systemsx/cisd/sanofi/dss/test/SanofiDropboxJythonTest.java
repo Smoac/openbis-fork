@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * <pre>
@@ -69,12 +72,23 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE";
 
     private static final String MATERIAL_TYPE = "COMPOUND_BATCH";
+    
+    private static final String POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL";
+
+    private static final String NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL";
+
+    private static final String COMPOUND_WELL_TYPE = "COMPOUND_WELL";
+
+    private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION";
+
+    // TODO KE: implement me
+    // private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH";
 
     private static final String DATASET_DIR_NAME = "batchNr_plateCode.variant_2011.06.28";
 
     private static final String DATA_SET_CODE = "data-set-code";
 
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("DATA_SET_TYPE");
+    private static final DataSetType DATA_SET_TYPE = new DataSetType("HCS_IMAGE_RAW");
 
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
@@ -89,8 +103,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryService = context.mock(IDataSourceQueryService.class);
     }
 
-    @Test(enabled = false)
-    public void testSimpleTransaction() throws IOException
+    @Test
+    public void testHappyCaseWithLibraryCreation() throws IOException
     {
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadPropertiesRelativeToScriptsFolder("sanofi-dropbox.py");
@@ -120,11 +134,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
                     will(returnValue(Collections.emptyList()));
                     
-                    one(openBisService).createPermId();
-                    will(returnValue("A0-permId"));
-
-                    one(openBisService).createPermId();
-                    will(returnValue("B0-permId"));
+                    exactly(4).of(openBisService).createPermId();
+                    will(returnValue("well-permId"));
 
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
@@ -147,18 +158,66 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         handler.handle(markerFile);
 
-        assertEquals(MATERIAL_TYPE, materialCriteria.recordedObject().tryGetMaterialType());
+        assertEquals(MATERIAL_TYPE, materialCriteria.recordedObject().tryGetMaterialType()
+                .getCode());
         assertEquals(true, queryResult.hasCloseBeenInvoked());
 
-        assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
+        List<NewSample> registeredSamples =
+                atomicatOperationDetails.recordedObject().getSampleRegistrations();
+        
+        assertCompoundWell(registeredSamples, "A0", "1.45");
+        assertPositiveControl(registeredSamples, "A1");
+        assertCompoundWell(registeredSamples, "B0", "0.13");
+        assertNegativeControl(registeredSamples, "B1");
 
-        NewExternalData dataSet =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+        List<? extends NewExternalData> dataSetsRegistered =
+                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
+        assertEquals(1, dataSetsRegistered.size());
 
+        NewExternalData dataSet = dataSetsRegistered.get(0);
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
 
         context.assertIsSatisfied();
+    }
+
+    private NewSample findByWellCode(List<NewSample> newSamples, String wellCode)
+    {
+        for (NewSample newSample : newSamples)
+        {
+            if (newSample.getIdentifier().endsWith(":" + wellCode))
+            {
+                return newSample;
+            }
+        }
+        throw new RuntimeException("Failed to find sample registration for well " + wellCode);
+    }
+
+    private void assertNegativeControl(List<NewSample> newSamples, String wellCode)
+    {
+        NewSample newSample = findByWellCode(newSamples, wellCode);
+        assertEquals(NEGATIVE_CONTROL_TYPE, newSample.getSampleType().getCode());
+        assertEquals(0, newSample.getProperties().length);
+    }
+
+    private void assertPositiveControl(List<NewSample> newSamples, String wellCode)
+    {
+        NewSample newSample = findByWellCode(newSamples, wellCode);
+        assertEquals(POSITIVE_CONTROL_TYPE, newSample.getSampleType().getCode());
+        assertEquals(0, newSample.getProperties().length);
+    }
+
+    private void assertCompoundWell(List<NewSample> newSamples, String wellCode,
+            String concentration)
+    {
+        NewSample newSample = findByWellCode(newSamples, wellCode);
+        assertEquals(COMPOUND_WELL_TYPE, newSample.getSampleType().getCode());
+        IEntityProperty concentrationProp =
+                EntityHelper.tryFindProperty(newSample.getProperties(),
+                        COMPOUND_WELL_CONCENTRATION_PROPNAME);
+        assertNotNull(concentrationProp);
+        assertEquals("Invalid concentration value for well '" + wellCode + "': ", concentration,
+                concentrationProp.tryGetAsString());
     }
 
     private void setUpPlateSearchExpectations(final Sample plate)
