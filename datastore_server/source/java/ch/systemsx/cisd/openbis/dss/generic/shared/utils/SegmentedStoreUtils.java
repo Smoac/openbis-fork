@@ -261,6 +261,10 @@ public class SegmentedStoreUtils
                 dataSetDirInStore.getParentFile().getParentFile().getParentFile().getParentFile()
                         .getParentFile();
         String relativePath = FileUtilities.getRelativeFilePath(oldShare, dataSetDirInStore);
+        if (share.getName().equals(oldShare.getName()))
+        {
+            return;
+        }
         File dataSetDirInNewShare = new File(share, relativePath);
         dataSetDirInNewShare.mkdirs();
         copyToShare(dataSetDirInStore, dataSetDirInNewShare);
