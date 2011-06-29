@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -165,11 +166,17 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected void createHandler(Properties threadProperties, final boolean registrationShouldFail,
             boolean shouldReThrowException)
     {
+        createHandler(threadProperties, registrationShouldFail, shouldReThrowException, null);
+    }
+
+    protected void createHandler(Properties threadProperties, final boolean registrationShouldFail,
+            boolean shouldReThrowException, IDataSourceQueryService queryServiceOrNull)
+    {
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
 
         handler =
                 new TestingDataSetHandler(globalState, registrationShouldFail,
-                        shouldReThrowException);
+                        shouldReThrowException, queryServiceOrNull);
     }
 
     private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
@@ -292,14 +299,18 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     {
         private final boolean shouldRegistrationFail;
 
+        private final IDataSourceQueryService queryServiceOrNull;
+
         private final boolean shouldReThrowRollbackException;
 
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
-                boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
+                boolean shouldRegistrationFail, boolean shouldReThrowRollbackException,
+                IDataSourceQueryService queryServiceOrNull)
         {
             super(globalState);
             this.shouldRegistrationFail = shouldRegistrationFail;
             this.shouldReThrowRollbackException = shouldReThrowRollbackException;
+            this.queryServiceOrNull = queryServiceOrNull;
         }
 
         @Override
@@ -355,7 +366,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             JythonDataSetRegistrationService<DataSetInformation> service =
                     new TestDataRegistrationService(this, aDataSetFile,
                             userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
-                            interpreter, shouldRegistrationFail);
+                            interpreter, queryServiceOrNull, shouldRegistrationFail);
             return service;
         }
 
@@ -366,6 +377,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     {
         private final boolean shouldRegistrationFail;
 
+        private final IDataSourceQueryService queryServiceOrNull;
+
         /**
          * @param registrator
          * @param globalCleanAfterwardsAction
@@ -375,18 +388,32 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                PythonInterpreter interpreter, boolean shouldRegistrationFail)
+                PythonInterpreter interpreter, IDataSourceQueryService queryServiceOrNull,
+                boolean shouldRegistrationFail)
         {
             super(registrator, aDataSetFile, userProvidedDataSetInformationOrNull,
                     globalCleanAfterwardsAction,
                     new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter);
             this.shouldRegistrationFail = shouldRegistrationFail;
+            this.queryServiceOrNull = queryServiceOrNull;
         }
 
         @Override
         public IEntityOperationService<DataSetInformation> getEntityRegistrationService()
         {
             return new TestEntityOperationService(getRegistrator(), shouldRegistrationFail);
+        }
+
+        @Override
+        public IDataSourceQueryService getDataSourceQueryService()
+        {
+            if (queryServiceOrNull == null)
+            {
+                return super.getDataSourceQueryService();
+            } else
+            {
+                return queryServiceOrNull;
+            }
         }
 
     }
