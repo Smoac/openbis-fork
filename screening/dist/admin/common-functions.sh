@@ -37,6 +37,6 @@ executeScriptHooks()
 copyIfExists() 
 {
   if [ -f "$1" ]; then
-      cp "$1" "$2"
+      cp -R "$1" "$2"
   fi
 }

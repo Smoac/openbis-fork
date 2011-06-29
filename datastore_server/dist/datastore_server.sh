@@ -107,6 +107,8 @@ LOGFILE=log/datastore_server_log.txt
 STARTUPLOG=log/startup_log.txt
 SUCCESS_MSG="Data Store Server ready and waiting for data"
 LIB_FOLDER=lib
+# contains custom libraries e.g. JDBC drivers for external databases
+EXT_LIB_FOLDER=ext-lib
 MAX_LOOPS=10
 
 #
@@ -133,8 +135,8 @@ fi
 command=$1
 ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore -Dpython.path=lib/jython-lib $JAVA_OPTS"
 
-# Build classpath from $LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
-CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar | sed 's/ /:/g'`
+# Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
+CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
 
 CMD="${JAVA_BIN} ${ALL_JAVA_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 

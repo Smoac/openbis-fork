@@ -44,5 +44,7 @@ cp $CONF/dss-log.xml $ROOT/datastore_server/etc/log.xml
 cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
 copyIfExists $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
+copyIfExists $CONF/ext-lib $ROOT/datastore_server 
+
 # screening-specific
 cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/
