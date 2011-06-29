@@ -5,9 +5,9 @@ def validate_header(line, first_data_col, errors):
 		return False
 	header_regex = re.compile("^MGP[0-9]{1,3}-[0-9] [0-9]+")
 	for i in range(first_data_col, len(line)):
-		match = header_regex.match(strainId)
+		match = header_regex.match(line[i])
 		if match is None:
-			errors.append(createFileValidationError("The column header + " + str(i) + "must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]"))
+			errors.append(createFileValidationError("The column header + " + str(i) + " must be of the form [STRAIN]-[BIOLOGICAL REPLICATE] [HYBRIDIZATION NUMBER]"))
 
 
 def validate_data(time_series_data, first_data_row, first_data_col, errors):
@@ -29,9 +29,6 @@ def validate_data(time_series_data, first_data_row, first_data_col, errors):
 def validate_metadata(time_series_data, errors):
 	metadata = time_series_data.getMetadataMap()
 	validationHelper = ValidationHelper(metadata, errors)
-	
-	# validate the strain
-	validationHelper.validateStrain()
 	
 	# validate the header format
 	validationHelper.validateExplicitHeaderFormat("STRAIN-BIOREP HYBRID")
@@ -70,27 +67,9 @@ def validate_data_set_file(file):
 	# validate the metadata
 	validate_metadata(time_series_data, errors)
 	
-	# Figure out where data starts
-	
-	# get the raw value from the map
-	metadata = time_series_data.getMetadataMap()
-	first_data_row = metadata.get("START DATA ROW")
-	first_data_col = metadata.get("START DATA COL")
-
-	# convert the row numeric string to an int
-	if first_data_row is None:
-		first_data_row = 0
-	else:
-		first_data_row = int(float(first_data_row))
-
-	# convert the column spreadsheet value to an int
-	if first_data_col is None:
-		first_data_col = 0
-	else:
-		# columns start at A
-		first_data_col = ord(first_data_col) - ord('A')
+	data_start = getInitialDataRowAndCol(time_series_data.getMetadataMap())
 			
 	# validate the data
-	validate_data(time_series_data, first_data_row, first_data_col, errors)
+	validate_data(time_series_data, data_start[0], data_start[1], errors)
 	
 	return errors

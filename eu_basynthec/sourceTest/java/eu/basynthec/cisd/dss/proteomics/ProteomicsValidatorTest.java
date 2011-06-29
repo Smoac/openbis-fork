@@ -60,7 +60,6 @@ public class ProteomicsValidatorTest extends AssertJUnit
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/Proteomics-BadHeader.xlsx"));
-        System.out.println(errors);
         assertEquals("The bad data should have three errors", 3, errors.size());
     }
 }

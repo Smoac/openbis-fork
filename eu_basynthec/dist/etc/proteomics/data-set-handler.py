@@ -12,7 +12,7 @@ def retrieve_experiment(tr, exp_id):
 def assign_properties(dataset, metadata):
 	"""Assign properties to the data set from information in the data."""
 	propertyNameMap = {
-		"STRAIN":"STRAIN", 
+		"STRAIN":"STRAIN_NAMES", 
 		"TIMEPOINT TYPE": "TIMEPOINT_TYPE", 
 		"CELL LOCATION": "CELL_LOCATION",
 		"VALUE UNIT": "VALUE_UNIT", 

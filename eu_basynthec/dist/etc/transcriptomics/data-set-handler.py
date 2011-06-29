@@ -1,5 +1,27 @@
 from datetime import datetime
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel
+import re
+
+def getInitialDataRowAndCol(metadata):
+	"""Extract the initial row and column as specified in the metadata. Returns an array with [row, col]."""
+	# get the raw value from the map
+	first_data_row = metadata.get("START DATA ROW")
+	first_data_col = metadata.get("START DATA COL")
+
+	# convert the row numeric string to an int
+	if first_data_row is None:
+		first_data_row = 0
+	else:
+		first_data_row = int(float(first_data_row)) - 1
+
+	# convert the column spreadsheet value to an int
+	if first_data_col is None:
+		first_data_col = 0
+	else:
+		# columns start at A
+		first_data_col = ord(first_data_col) - ord('A')
+	return [first_data_row, first_data_col]
+
 
 def retrieve_experiment(tr, exp_id):
 	"""Get the specified experiment form the server. Return the experiment."""
@@ -12,7 +34,7 @@ def retrieve_experiment(tr, exp_id):
 def assign_properties(dataset, metadata):
 	"""Assign properties to the data set from information in the data."""
 	propertyNameMap = {
-		"STRAIN":"STRAIN", 
+		"STRAIN_NAMES": "STRAIN_NAMES",
 		"TIMEPOINT TYPE": "TIMEPOINT_TYPE", 
 		"CELL LOCATION": "CELL_LOCATION", 
 		"VALUE TYPE": "VALUE_TYPE", 
@@ -28,13 +50,13 @@ def assign_properties(dataset, metadata):
 				value = value + " (STRAIN)"
 			dataset.setPropertyValue(key, value.upper())
 			
-def convert_data_to_tsv(tr, dataset, location):
+def convert_data_to_tsv(tr, start_row, start_col, dataset, location):
 	"""Create a tsv file containing the data and add it to the data set."""
 	tr.createNewDirectory(dataset, location)
 	tsvFileName = tr.createNewFile(dataset, location, incoming.getName() + ".tsv")
 	tsv = open(tsvFileName, 'w')
 	for line in timeSeriesData.getRawDataLines():
-		for i in range(0, len(line) - 1):
+		for i in range(start_row, len(line) - 1):
 			tsv.write(line[i])
 			tsv.write("\t")
 		tsv.write(line[len(line) - 1])
@@ -46,17 +68,30 @@ def store_original_data(tr, dataset, location):
 	tr.createNewDirectory(dataset, location)
 	tr.moveFile(incoming.getAbsolutePath(), dataset, location + "/" + incoming.getName())
 
+def extract_strains(start_row, start_col):
+	"""Extract the strain names from the header."""
+	strains = []
+	line = timeSeriesData.getRawDataLines()[start_row]
+	header_regex = re.compile("^(MGP[0-9]{1,3})-([0-9]) ([0-9]+)")
+	for i in range(start_col, len(line)):
+		match = header_regex.match(line[i])
+		strains.append(match.group(1))
+	return ",".join(strains)
+
+		
 
 tr = service.transaction(incoming)
 timeSeriesData = TimeSeriesDataExcel.createTimeSeriesDataExcel(incoming.getAbsolutePath())
+dataStart = getInitialDataRowAndCol(timeSeriesData.getMetadataMap())
 
 # create the data set and assign the metadata from the file
 dataset = tr.createNewDataSet("TRANSCRIPTOMICS")
 metadata = timeSeriesData.getMetadataMap()
+metadata["STRAIN_NAMES"] = extract_strains(dataStart[0], dataStart[1])
 assign_properties(dataset, metadata)
 		
 # Convert the data into a tsv file, and put that and the original data into the data set
-convert_data_to_tsv(tr, dataset, "data/tsv")
+convert_data_to_tsv(tr, dataStart[0], dataStart[1], dataset, "data/tsv")
 store_original_data(tr, dataset, "data/xls")
 
 # If no experiment has been set, then get the experiment from the excel file

@@ -146,3 +146,23 @@ def isStrainIdValid(strainId):
 	if match is None:
 		return False
 	return match.end() == len(strainId)
+	
+def getInitialDataRowAndCol(metadata):
+	"""Extract the initial row and column as specified in the metadata. Returns an array with [row, col]."""
+	# get the raw value from the map
+	first_data_row = metadata.get("START DATA ROW")
+	first_data_col = metadata.get("START DATA COL")
+
+	# convert the row numeric string to an int
+	if first_data_row is None:
+		first_data_row = 0
+	else:
+		first_data_row = int(float(first_data_row)) - 1
+
+	# convert the column spreadsheet value to an int
+	if first_data_col is None:
+		first_data_col = 0
+	else:
+		# columns start at A
+		first_data_col = ord(first_data_col) - ord('A')
+	return [first_data_row, first_data_col]

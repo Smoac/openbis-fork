@@ -40,7 +40,6 @@ public class TranscriptomicsValidatorTest extends AssertJUnit
                 ValidationScriptRunner.createValidatorFromScriptPaths(VALIDATION_SCRIPT_PATH);
         List<ValidationError> errors =
                 scriptRunner.validate(new File("sourceTest/examples/Transcriptomics-Example.xlsx"));
-        System.out.println(errors);
         assertTrue("The example should have no errors", errors.isEmpty());
     }
 
@@ -52,7 +51,6 @@ public class TranscriptomicsValidatorTest extends AssertJUnit
         List<ValidationError> errors =
                 scriptRunner
                         .validate(new File("sourceTest/examples/Transcriptomics-Template.xlsx"));
-        System.out.println(errors);
         assertEquals("The template should have seven errors", 7, errors.size());
     }
 }

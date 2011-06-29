@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.basynthec.cisd.dss.metabolomics;
+package eu.basynthec.cisd.dss.transcriptomics;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,9 +32,9 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
+public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("PROTEIN_QUANTIFICATIONS");
+    private static final DataSetType DATA_SET_TYPE = new DataSetType("TRANSCRIPTOMICS");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -42,7 +42,7 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadProperties();
         createHandler(properties, false, true);
-        createData("Proteomics-Example.xlsx");
+        createData("Transcriptomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 setUpDataSetRegistrationExpectations(DATA_SET_TYPE);
@@ -63,13 +63,13 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("MGP90", strainProperty.getValue());
+        assertEquals("MGP253,MGP776", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 
     @Override
     protected String getRegistrationScriptsFolderPath()
     {
-        return "dist/etc/proteomics/";
+        return "dist/etc/transcriptomics/";
     }
 }
