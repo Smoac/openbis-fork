@@ -62,7 +62,13 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
     public TableModel createReport(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        operationLog.info("Reporting for the following datasets has been requested: " + dataSets);
+        return createReport(dataSets, context, scriptPath);
+    }
+
+    public static TableModel createReport(List<DatasetDescription> dataSets,
+            DataSetProcessingContext context, String scriptPath)
+    {
+        operationLog.info("Report for the following datasets has been requested: " + dataSets);
         try
         {
             final IReportingPluginScriptRunner scriptRunner =
@@ -90,7 +96,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
         }
     }
 
-    private void delegateDescribe(IReportingPluginScriptRunner scriptRunner,
+    private static void delegateDescribe(IReportingPluginScriptRunner scriptRunner,
             List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
     {
         scriptRunner.describe(dataSets, tableBuilder);

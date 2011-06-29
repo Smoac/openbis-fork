@@ -36,9 +36,9 @@ import de.schlichtherle.io.FileInputStream;
  */
 public class MailService implements IMailService
 {
-    private static String DEFAULT_SUBJECT = "";
+    static String DEFAULT_SUBJECT = "";
 
-    private static String DEFAULT_BODY_TEXT = "";
+    static String DEFAULT_BODY_TEXT = "";
 
     private final IMailClient mailClient;
 

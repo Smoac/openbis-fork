@@ -17,11 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Properties;
 
+import com.csvreader.CsvWriter;
+
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -55,6 +64,30 @@ public abstract class AbstractTableModelReportingPlugin extends AbstractDatastor
     {
         throw new IllegalArgumentException(
                 "The method createLink is not supported by TABLE_MODEL tasks");
+    }
+
+    public static String convertTableToCsvString(TableModel table) throws IOException
+    {
+        StringWriter writer = new StringWriter();
+        CsvWriter csvWriter = new CsvWriter(writer, ',');
+        List<TableModelColumnHeader> headers = table.getHeader();
+        String[] stringArray = new String[headers.size()];
+        for (int i = 0; i < stringArray.length; i++)
+        {
+            stringArray[i] = headers.get(i).getTitle();
+        }
+        csvWriter.writeRecord(stringArray);
+        List<TableModelRow> rows = table.getRows();
+        for (TableModelRow row : rows)
+        {
+            List<ISerializableComparable> values = row.getValues();
+            for (int i = 0; i < stringArray.length; i++)
+            {
+                stringArray[i] = values.get(i).toString();
+            }
+            csvWriter.writeRecord(stringArray);
+        }
+        return writer.toString();
     }
 
 }

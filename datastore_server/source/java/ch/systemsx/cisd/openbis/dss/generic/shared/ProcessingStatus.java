@@ -64,6 +64,14 @@ public class ProcessingStatus
         addDatasetStatus(dataset.getDataSetCode(), status);
     }
 
+    public void addDatasetStatuses(List<DatasetDescription> datasets, Status status)
+    {
+        for (DatasetDescription dataset : datasets)
+        {
+            addDatasetStatus(dataset, status);
+        }
+    }
+
     public Status tryGetStatusByDataset(String datasetCode)
     {
         for (Entry<Status, List<String>> entry : datasetByStatus.entrySet())

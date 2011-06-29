@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.phosphonetx.server.plugins;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +36,6 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.commons.io.IOUtils;
 
 import com.csvreader.CsvReader;
-import com.csvreader.CsvWriter;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -62,8 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -71,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
  * Creates an APMS report from proteins.csv
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class APMSReport extends AbstractTableModelReportingPlugin implements IProcessingPluginTask
@@ -79,9 +75,11 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
     private static final class Header
     {
         private final boolean abundanceHeader;
+
         private final String header;
-        
+
         private String biologicalSample;
+
         private String protein;
 
         Header(String header, String newHeader)
@@ -123,25 +121,27 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         @Override
         public String toString()
         {
-            return abundanceHeader ? header + " [" + biologicalSample + ", " + protein + ']' : header;
+            return abundanceHeader ? header + " [" + biologicalSample + ", " + protein + ']'
+                    : header;
         }
     }
-    
+
     private static final class Row
     {
         private final String[] values;
+
         private final Map<String, Integer> columnIndexMap;
-        
+
         Row(String[] values, Map<String, Integer> columnIndexMap)
         {
             this.values = values;
             this.columnIndexMap = columnIndexMap;
         }
-        
+
         public String getValue(String column)
         {
             Integer index = columnIndexMap.get(column);
-            return index == null ? "" :values[index];
+            return index == null ? "" : values[index];
         }
 
         @Override
@@ -150,12 +150,13 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
             return Arrays.asList(values).toString();
         }
     }
-    
+
     private static final class Table
     {
         private final List<Header> headers;
+
         private final Map<String, Integer> columnIndexMap = new HashMap<String, Integer>();
-        
+
         private final List<Row> rows = new ArrayList<Row>();
 
         Table(List<Header> headers)
@@ -166,7 +167,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                 columnIndexMap.put(headers.get(i).getHeader(), i);
             }
         }
-        
+
         void add(String[] row)
         {
             rows.add(new Row(row, columnIndexMap));
@@ -182,29 +183,36 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
             return rows;
         }
     }
-    
+
     private static final long serialVersionUID = 1L;
-    
-    @Private static final String PROTEIN_FILE_NAME = "proteins.csv";
+
+    @Private
+    static final String PROTEIN_FILE_NAME = "proteins.csv";
+
     private static final String PROTEIN_PROPERTY_CODE_KEY = "protein-property-code";
-    @Private static final String DEFAULT_PROTEIN_PROPERTY_CODE = "PROTEIN";
-    
-    private
-    static final Template E_MAIL_CONTENT_TEMPLATE = new Template("Dear User\n\n"
-            + "Enclosed you will find the Protein APMS report file for experiment ${experiment-identifier}.\n"
-            + "Data Set: ${data-set}");
-    
+
+    @Private
+    static final String DEFAULT_PROTEIN_PROPERTY_CODE = "PROTEIN";
+
+    private static final Template E_MAIL_CONTENT_TEMPLATE =
+            new Template(
+                    "Dear User\n\n"
+                            + "Enclosed you will find the Protein APMS report file for experiment ${experiment-identifier}.\n"
+                            + "Data Set: ${data-set}");
+
     private final String proteinPropertyCode;
-    
+
     private IEncapsulatedOpenBISService service;
 
     public APMSReport(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        proteinPropertyCode = properties.getProperty(PROTEIN_PROPERTY_CODE_KEY, DEFAULT_PROTEIN_PROPERTY_CODE);
+        proteinPropertyCode =
+                properties.getProperty(PROTEIN_PROPERTY_CODE_KEY, DEFAULT_PROTEIN_PROPERTY_CODE);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         if (datasets.size() != 1)
         {
@@ -213,7 +221,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         }
         return createTableModel(datasets.get(0), context.getDirectoryProvider());
     }
-    
+
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -233,40 +241,21 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         }
         return status;
     }
-    
+
     private void process(DatasetDescription datasetDescription, DataSetProcessingContext context)
     {
         try
         {
-            TableModel tableModel =
+            TableModel table =
                     createTableModel(datasetDescription, context.getDirectoryProvider());
-            StringWriter writer = new StringWriter();
-            CsvWriter csvWriter = new CsvWriter(writer, ',');
-            List<TableModelColumnHeader> headers = tableModel.getHeader();
-            String[] stringArray = new String[headers.size()];
-            for (int i = 0; i < stringArray.length; i++)
-            {
-                stringArray[i] = headers.get(i).getTitle();
-            }
-            csvWriter.writeRecord(stringArray);
-            List<TableModelRow> rows = tableModel.getRows();
-            for (TableModelRow row : rows)
-            {
-                List<ISerializableComparable> values = row.getValues();
-                for (int i = 0; i < stringArray.length; i++)
-                {
-                    stringArray[i] = values.get(i).toString();
-                }
-                csvWriter.writeRecord(stringArray);
-            }
+            String tableAsString = convertTableToCsvString(table);
             String experimentIdentifier =
                     datasetDescription.getSpaceCode() + '/' + datasetDescription.getProjectCode()
                             + '/' + datasetDescription.getExperimentCode();
             Template template = E_MAIL_CONTENT_TEMPLATE.createFreshCopy();
             template.bind("experiment-identifier", experimentIdentifier);
             template.bind("data-set", datasetDescription.getDataSetCode());
-            ByteArrayDataSource dataSource =
-                    new ByteArrayDataSource(writer.toString(), "text/plain");
+            ByteArrayDataSource dataSource = new ByteArrayDataSource(tableAsString, "text/plain");
             context.getMailClient().sendEmailMessageWithAttachment("Protein APMS Report",
                     template.createText(),
                     datasetDescription.getExperimentCode() + "-APMS-report.txt",
@@ -369,8 +358,8 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                     }
                 } catch (NumberFormatException ex)
                 {
-                    throw new UserFailureException((i + 5) + ". row has an invalid value ("
-                            + value + ") for column " + header.getHeader() + ": " + row);
+                    throw new UserFailureException((i + 5) + ". row has an invalid value (" + value
+                            + ") for column " + header.getHeader() + ": " + row);
                 }
             }
             double averagedAbundance = sum / headers.size();
@@ -406,8 +395,8 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
                     throw new UserFailureException("Unknown sample: " + sampleIdentifier);
                 }
                 List<Sample> parents =
-                    getService().listSamples(
-                            ListSampleCriteria.createForChild(new TechId(sample.getId())));
+                        getService().listSamples(
+                                ListSampleCriteria.createForChild(new TechId(sample.getId())));
                 if (parents.size() != 1)
                 {
                     throw new UserFailureException("Exactly one parent sample expected for "
@@ -423,7 +412,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
             }
         }
     }
-    
+
     private String tryToFindProteinProperty(Sample sample)
     {
         List<IEntityProperty> sampleProperties = sample.getProperties();
@@ -529,7 +518,8 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
         File dataSetDir = getDataSubDir(directoryProvider, datasetDescription);
         if (dataSetDir.isDirectory() == false)
         {
-            throw new EnvironmentFailureException("Data set folder is not a directory: " + dataSetDir);
+            throw new EnvironmentFailureException("Data set folder is not a directory: "
+                    + dataSetDir);
         }
         File[] files = dataSetDir.listFiles();
         if (files.length == 0)

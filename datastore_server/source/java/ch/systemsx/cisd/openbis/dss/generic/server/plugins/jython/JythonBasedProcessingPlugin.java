@@ -43,10 +43,10 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
-    private static final String SCRIPT_PATH = "script-path";
-
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonBasedProcessingPlugin.class);
+
+    private static final String SCRIPT_PATH = "script-path";
 
     private final String scriptPath;
 
@@ -59,7 +59,6 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
             DataSetProcessingContext context)
     {
         operationLog.info("Processing of the following datasets has been requested: " + dataSets);
-        // FIXME handle exceptions
         final IProcessingPluginScriptRunner scriptRunner =
                 PluginScriptRunner.createProcessingPluginRunnerFromScriptPath(scriptPath, context);
         final IHierarchicalContentProvider contentProvider =
