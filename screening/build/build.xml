@@ -513,7 +513,7 @@
   		<fileset dir="${classes.common-server}">
   		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
   		</fileset> 
-      <fileset dir="../common/targets/classes">
+      <fileset dir="${classes.common}">
             <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
     </jar>
