@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
-
-public interface IProcessingPluginScriptRunner
+/**
+ * Service for sending emails with attachments
+ * 
+ * @author Piotr Buczek
+ */
+// NOTE: All methods of this interface are part of the Reporting and Processing Plugin API.
+public interface IMailService
 {
-    Status process(IDataSet dataSet);
+    /** sends an email created by given email builder */
+    void sendEmail(IEmailBuilder emailBuilder);
+
+    /** @return an email builder */
+    IEmailBuilder createEmailBuilder();
 }

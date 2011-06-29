@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  * 
  * @author Piotr Buczek
  */
-public class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderAdaptor
+class SimpleTableModelBuilderAdaptor implements ISimpleTableModelBuilderAdaptor
 {
 
     private final SimpleTableModelBuilder builder;

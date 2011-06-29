@@ -16,21 +16,23 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api;
 
-import ch.systemsx.cisd.common.io.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 
 /**
+ * Abstraction of a data set with both content and metadata.
+ * 
  * @author Piotr Buczek
  */
+// NOTE: All methods of this interface are part of the Reporting and Processing Plugin API.
 public interface IDataSet
 {
-    // TODO move IHierarchicalContent to an API package
     IHierarchicalContent getContent();
 
     // DatasetDescription
 
     String getDataSetCode();
 
-    String getDatasetTypeCode();
+    String getDataSetTypeCode();
 
     Long getDataSetSize();
 
@@ -57,7 +59,7 @@ public interface IDataSet
     String getExperimentTypeCode();
 
     /**
-     * NOTE: below methods may return null
+     * NOTE: methods below may return null
      */
 
     String getSampleCode();

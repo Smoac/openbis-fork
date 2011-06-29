@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class SearchService implements ISearchService
+public class SearchService implements ISearchService
 {
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -129,15 +129,15 @@ class SearchService implements ISearchService
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> filteredByIdentifier =
                 CollectionUtils
                         .filter(accumulatedResults,
-                new ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material>()
-                    {
+                                new ICollectionFilter<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material>()
+                                    {
 
-                        public boolean isPresent(Material element)
-                        {
-                            return identifiers.contains(element.getIdentifier());
-                        }
-            
-        });
+                                        public boolean isPresent(Material element)
+                                        {
+                                            return identifiers.contains(element.getIdentifier());
+                                        }
+
+                                    });
         return translate(filteredByIdentifier);
     }
 

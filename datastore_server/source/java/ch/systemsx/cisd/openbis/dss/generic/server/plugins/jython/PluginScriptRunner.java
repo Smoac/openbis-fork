@@ -28,27 +28,26 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISearchService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
  * @author Piotr Buczek
  */
-public class PluginScriptRunner
+class PluginScriptRunner
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PluginScriptRunner.class);
 
-    private final static String PROCESS_FUNCTION_NAME = "process";
+    private final static String SEARCH_SERVICE_VARIABLE_NAME = "searchService";
 
-    private final static String DESCRIBE_FUNCTION_NAME = "describe";
-
-    private final static String DESCRIBE_ALL_FUNCTION_NAME = "describeAll";
-
-    enum PluginScriptType
-    {
-        REPORTING, PROCESSING
-    }
+    private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
 
     /**
      * @return script string from file with given path
@@ -84,12 +83,13 @@ public class PluginScriptRunner
     /**
      * Factory method for creating an IReportingPluginScriptRunner given a path to a script.
      */
-    public static IReportingPluginScriptRunner createReportingPluginFromScriptPath(String scriptPath)
+    public static IReportingPluginScriptRunner createReportingPluginRunnerFromScriptPath(
+            String scriptPath, DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
         try
         {
-            return createReportingPluginFromScriptString(scriptString);
+            return createReportingPluginRunnerFromScriptString(scriptString, context);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -99,13 +99,13 @@ public class PluginScriptRunner
     /**
      * Factory method for creating an IProcessingPluginScriptRunner given a path to a script.
      */
-    public static IProcessingPluginScriptRunner createProcessingPluginFromScriptPath(
-            String scriptPath)
+    public static IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptPath(
+            String scriptPath, DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
         try
         {
-            return createProcessingPluginFromScriptString(scriptString);
+            return createProcessingPluginRunnerFromScriptString(scriptString, context);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -115,22 +115,38 @@ public class PluginScriptRunner
     /**
      * Factory method for creating an IReportingPluginScriptRunner given the script as a string.
      */
-    static IReportingPluginScriptRunner createReportingPluginFromScriptString(String scriptString)
+    static IReportingPluginScriptRunner createReportingPluginRunnerFromScriptString(
+            String scriptString, DataSetProcessingContext context)
     {
-        return new ReportingPluginScriptRunner(createEvaluator(scriptString));
+        return new ReportingPluginScriptRunner(createEvaluator(scriptString, context));
     }
 
     /**
      * Factory method for creating an IProcessingPluginScriptRunner given the script as a string.
      */
-    static IProcessingPluginScriptRunner createProcessingPluginFromScriptString(String scriptString)
+    static IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptString(
+            String scriptString, DataSetProcessingContext context)
     {
-        return new ProcessingPluginScriptRunner(createEvaluator(scriptString));
+        return new ProcessingPluginScriptRunner(createEvaluator(scriptString, context));
     }
 
-    private static Evaluator createEvaluator(String scriptString)
+    private static Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
     {
-        return new Evaluator("", null, scriptString, false);
+        final Evaluator evaluator = new Evaluator("", null, scriptString, false);
+        evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createSearchService());
+        evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
+        return evaluator;
+    }
+
+    private static ISearchService createSearchService()
+    {
+        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        return new SearchService(openBISService);
+    }
+
+    private static IMailService createMailService(DataSetProcessingContext context)
+    {
+        return new MailService(context.getMailClient(), context.getUserEmailOrNull());
     }
 
     protected final Evaluator evaluator;
@@ -143,48 +159,30 @@ public class PluginScriptRunner
     static class ReportingPluginScriptRunner extends PluginScriptRunner implements
             IReportingPluginScriptRunner
     {
+        private final static String DESCRIBE_FUNCTION_NAME = "describe";
 
-        private final boolean isDescribeAllDefined;
-
-        private final boolean isDescribeDefined;
+        private static final long serialVersionUID = 1L;
 
         ReportingPluginScriptRunner(Evaluator evaluator)
         {
             super(evaluator);
-            this.isDescribeAllDefined = evaluator.hasFunction(DESCRIBE_ALL_FUNCTION_NAME);
-            this.isDescribeDefined = evaluator.hasFunction(DESCRIBE_FUNCTION_NAME);
-            String failMessagePrefix =
-                    "Either '" + DESCRIBE_FUNCTION_NAME + "' or '" + DESCRIBE_ALL_FUNCTION_NAME
-                            + "' " + "' funciton should be defined in the reporting plugin script";
-            if (isDescribeAllDefined && isDescribeDefined)
+            if (false == evaluator.hasFunction(DESCRIBE_FUNCTION_NAME))
             {
-                throw new EvaluatorException(failMessagePrefix + " but both were defined.");
-            }
-            if (false == (isDescribeAllDefined || isDescribeDefined))
-            {
-                throw new EvaluatorException(failMessagePrefix + " but neither was defined.");
+                throw new EvaluatorException("Function '" + DESCRIBE_FUNCTION_NAME
+                        + "' was not defined in the reporting plugin script");
             }
         }
 
         public void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
         {
-            if (isDescribeAllDefined)
-            {
-                evaluator.evalFunction(DESCRIBE_ALL_FUNCTION_NAME, tableBuilder, dataSets);
-            } else
-            {
-                assert isDescribeDefined;
-                for (IDataSet dataSet : dataSets)
-                {
-                    evaluator.evalFunction(DESCRIBE_FUNCTION_NAME, tableBuilder, dataSet);
-                }
-            }
+            evaluator.evalFunction(DESCRIBE_FUNCTION_NAME, dataSets, tableBuilder);
         }
     }
 
     static class ProcessingPluginScriptRunner extends PluginScriptRunner implements
             IProcessingPluginScriptRunner
     {
+        private final static String PROCESS_FUNCTION_NAME = "process";
 
         ProcessingPluginScriptRunner(Evaluator evaluator)
         {
@@ -192,7 +190,7 @@ public class PluginScriptRunner
             if (false == evaluator.hasFunction(PROCESS_FUNCTION_NAME))
             {
                 throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME
-                        + "' was not defined in the script reporting script");
+                        + "' was not defined in the processing plugin script");
             }
         }
 

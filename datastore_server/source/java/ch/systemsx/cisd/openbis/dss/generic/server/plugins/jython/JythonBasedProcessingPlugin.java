@@ -48,18 +48,20 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonBasedProcessingPlugin.class);
 
-    private final IProcessingPluginScriptRunner scriptRunner;
+    private final String scriptPath;
 
     public JythonBasedProcessingPlugin(Properties properties, File storeRoot)
     {
-        final String scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
-        scriptRunner = PluginScriptRunner.createProcessingPluginFromScriptPath(scriptPath);
+        this.scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
     }
 
     public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
         operationLog.info("Processing of the following datasets has been requested: " + dataSets);
+        // FIXME handle exceptions
+        final IProcessingPluginScriptRunner scriptRunner =
+                PluginScriptRunner.createProcessingPluginRunnerFromScriptPath(scriptPath, context);
         final IHierarchicalContentProvider contentProvider =
                 ServiceProvider.getHierarchicalContentProvider();
         final List<IDataSet> iDataSets = JythonBasedPluginUtils.convert(dataSets, contentProvider);
@@ -68,7 +70,8 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
             ProcessingStatus result = new ProcessingStatus();
             for (IDataSet dataSet : iDataSets)
             {
-                result.addDatasetStatus(dataSet.getDataSetCode(), delegateProcessing(dataSet));
+                result.addDatasetStatus(dataSet.getDataSetCode(),
+                        delegateProcessing(scriptRunner, dataSet));
             }
             operationLog.info("Processing done.");
             return result;
@@ -78,7 +81,7 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
         }
     }
 
-    private Status delegateProcessing(IDataSet dataSet)
+    private Status delegateProcessing(IProcessingPluginScriptRunner scriptRunner, IDataSet dataSet)
     {
         return scriptRunner.process(dataSet);
     }
