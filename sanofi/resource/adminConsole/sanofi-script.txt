@@ -1,3 +1,9 @@
+-- 
+-- Creating data for Sanofi
+--
+
+-- LMS-2348
+
 register-type SAMPLE POSITIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
