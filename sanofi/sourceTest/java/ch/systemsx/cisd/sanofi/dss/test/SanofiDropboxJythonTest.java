@@ -165,9 +165,10 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         List<NewSample> registeredSamples =
                 atomicatOperationDetails.recordedObject().getSampleRegistrations();
         
+        assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
         assertCompoundWell(registeredSamples, "A0", "1.45");
         assertPositiveControl(registeredSamples, "A1");
-        assertCompoundWell(registeredSamples, "B0", "0.13");
+        assertCompoundWell(registeredSamples, "B0", "0.12");
         assertNegativeControl(registeredSamples, "B1");
 
         List<? extends NewExternalData> dataSetsRegistered =
@@ -179,6 +180,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
 
         context.assertIsSatisfied();
+    }
+
+    private void assertAllSamplesHaveContainer(List<NewSample> newSamples,
+            String containerIdentifier)
+    {
+        for (NewSample newSample : newSamples)
+        {
+            assertEquals(containerIdentifier, newSample.getContainerIdentifier());
+        }
     }
 
     private NewSample findByWellCode(List<NewSample> newSamples, String wellCode)
