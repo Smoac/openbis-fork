@@ -162,7 +162,7 @@
     		<include name="**/*"/>
     	</zipfileset>
       <fileset dir="source">
-        <include name="**/*.sql" />
+        <include name="sql/imaging/**/*.sql" />
       </fileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
