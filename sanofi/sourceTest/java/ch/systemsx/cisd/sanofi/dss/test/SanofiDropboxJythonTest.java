@@ -28,12 +28,15 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.mail.From;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -71,6 +74,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String PLATE_CODE = "plateCode";
 
     private static final String LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE";
+
+    private static final String EXPERIMENT_RECIPIENTS_PROPNAME = "EMAIL_RECIPIENTS";
+
+    private static final String[] EXPERIMENT_RECIPIENTS = new String[]
+        { "admin@sanofi.com", "mickey@mouse.org" };
 
     private static final String MATERIAL_TYPE = "COMPOUND_BATCH";
     
@@ -123,6 +131,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         final RecordingMatcher<ListMaterialCriteria> materialCriteria =
                 new RecordingMatcher<ListMaterialCriteria>();
+        final RecordingMatcher<String> email = new RecordingMatcher<String>();
         context.checking(new Expectations()
             {
                 {
@@ -153,6 +162,10 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
                 }
             });
 
@@ -182,6 +195,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
 
+        AssertionUtil
+                .assertContains(
+                        "New data for the plate <a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE"
+                                + "&sample_type=PLATE&action=SEARCH&code=TEST-PLATE'>TEST-PLATE</a> has been registered.",
+                        email.recordedObject());
         context.assertIsSatisfied();
     }
 
@@ -291,6 +309,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         ExperimentBuilder experimentBuilder = new ExperimentBuilder();
         experimentBuilder.identifier(EXPERIMENT_IDENTIFIER);
         experimentBuilder.property(LIBRARY_TEMPLATE_PROPNAME, libraryTemplate);
+        String recipients = StringUtils.join(Arrays.asList(EXPERIMENT_RECIPIENTS), ",");
+        experimentBuilder.property(EXPERIMENT_RECIPIENTS_PROPNAME, recipients);
 
         SampleBuilder sampleBuilder = new SampleBuilder();
         sampleBuilder.experiment(experimentBuilder.getExperiment());

@@ -1,21 +1,60 @@
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.MaterialIdentifierCollection as MaterialIdentifierCollection
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria as SearchCriteria 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause as MatchClause 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute as MatchClauseAttribute 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants as ScreeningConstants
+from ch.systemsx.cisd.common.mail import From
+
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria 
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, MatchClauseAttribute
+from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import MaterialIdentifierCollection
+ 
+from ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto import ScreeningConstants
 
 PLATE_TYPE = "PLATE"
 
 DATA_SET_TYPE = "HCS_IMAGE_RAW"
 DATA_SET_BATCH_PROPNAME = "ACQUISITION_BATCH"
 
-registeredDataSets = []
+OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
 
-def rollback_transaction(service, tr, runner, ex):
-    pass
+EXPERIMENT_RECIPIENTS_PROPNAME = "EMAIL_RECIPIENTS"
+DEFAULT_RECIPIENT_LIST = "Matthew.Smicker@sanofi-aventis.com"
 
-def commit_transaction(service, tr):
-    pass
+def rollback_transaction(service, transaction, runner, ex):
+    plateLink = createPlateLink(OPENBIS_URL, plate.getCode())
+    errorMessage = ex.getMessage()
+    sendEmail("openBIS: Data registration failed", """
+    
+    Dear Mr./Mrs.
+    
+      Registering new data for plate %(plateLink)s has failed with error '%(errorMessage)s'.
+      
+    openBIS
+    """ % vars())
+
+def commit_transaction(service, transaction):
+    plateLink = createPlateLink(OPENBIS_URL, plate.getCode())
+    sendEmail("openBIS: New data registered", """
+    
+    Dear Mr./Mrs.
+    
+      New data for the plate %(plateLink)s has been registered.
+      
+      Have a nice day!
+      
+    openBIS
+    """ % vars())
+
+def sendEmail(title, content):
+    if experiment is not None:
+       recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPNAME)
+        
+    if not recipientsProp:
+        recipientsProp = DEFAULT_RECIPIENT_LIST
+    
+    recipients = [ email.strip() for email in recipientsProp.split(",") ]
+    fromAddress = From("openbis@sanofi-aventis.com")
+    replyTo = None
+    state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
+
+def createPlateLink(openbisUrl, code):
+    return "<a href='%(openbisUrl)s#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=%(code)s'>%(code)s</a>" % vars()
 
 def findPlateByCode(code):
     """
@@ -105,8 +144,6 @@ class PlateInitializer:
                 "Plate geometry (width=%i) does not agree with LIBRARY_TEMPLATE (line=%i,width=%i)." % (plateWidth, i, len(csvLists[i]))
         
     def parseLibraryTemplate(self):
-        experimentId = plate.getExperiment().getExperimentIdentifier()
-        experiment = transaction.getExperiment(experimentId)
         template = experiment.getPropertyValue(self.LIBRARY_TEMPLATE_PROPNAME)
         
         csvLists = [ line.split(",")  for line in template.splitlines() ]
@@ -231,6 +268,8 @@ dataSet = transaction.createNewDataSet(DATA_SET_TYPE)
 (batchName, barCode) = parseIncomingDirname(incoming.getName())
 dataSet.setPropertyValue(DATA_SET_BATCH_PROPNAME, batchName)
 plate = findPlateByCode(barCode)
+experimentId = plate.getExperiment().getExperimentIdentifier()
+experiment = transaction.getExperiment(experimentId)
 
 if len(plate.getContainedSamples()) == 0:
     plateInitializer = PlateInitializer(plate)
@@ -238,3 +277,5 @@ if len(plate.getContainedSamples()) == 0:
     
 dataSet.setSample(plate)
 transaction.moveFile(incoming.getAbsolutePath(), dataSet)
+
+commit_transaction(None, None)
