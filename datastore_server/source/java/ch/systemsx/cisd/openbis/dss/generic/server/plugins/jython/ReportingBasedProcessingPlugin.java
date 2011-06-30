@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IEmailBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IEmailSender;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
@@ -61,7 +61,7 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     private static final String ATTACHMENT_NAME = "attachment-name";
 
-    private static final String SINGLE_REPORT_FOR_ALL = "single-report-for-all";
+    private static final String SINGLE_REPORT = "single-report";
 
     private static final String DEFAULT_EMAIL_SUBJECT = MailService.DEFAULT_SUBJECT;
 
@@ -79,14 +79,13 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     private final String attachmentName;
 
-    private final boolean singleReportForAll;
+    private final boolean singleReport;
 
     public ReportingBasedProcessingPlugin(Properties properties, File storeRoot)
     {
         this.scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
-        this.singleReportForAll =
-                PropertyUtils.getBoolean(properties, SINGLE_REPORT_FOR_ALL,
-                        DEFAULT_SINGLE_REPORT_FOR_ALL);
+        this.singleReport =
+                PropertyUtils.getBoolean(properties, SINGLE_REPORT, DEFAULT_SINGLE_REPORT_FOR_ALL);
         this.emailSubject =
                 PropertyUtils.getProperty(properties, EMAIL_SUBJECT, DEFAULT_EMAIL_SUBJECT);
         this.emailBody = PropertyUtils.getProperty(properties, EMAIL_BODY, DEFAULT_EMAIL_BODY);
@@ -101,7 +100,7 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
                 new MailService(context.getMailClient(), context.getUserEmailOrNull(),
                         emailSubject, emailBody);
         ProcessingStatus status = new ProcessingStatus();
-        if (singleReportForAll)
+        if (singleReport)
         {
             try
             {
@@ -135,9 +134,9 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
     {
         TableModel table = createTableModel(dataSets, context);
         String tableAsString = AbstractTableModelReportingPlugin.convertTableToCsvString(table);
-        IEmailBuilder emailBuilder =
-                mailService.createEmailBuilder().withAttachedText(tableAsString, attachmentName);
-        mailService.sendEmail(emailBuilder);
+        IEmailSender emailBuilder =
+                mailService.createEmailSender().withAttachedText(tableAsString, attachmentName);
+        emailBuilder.send();
     }
 
     public TableModel createTableModel(List<DatasetDescription> dataSets,

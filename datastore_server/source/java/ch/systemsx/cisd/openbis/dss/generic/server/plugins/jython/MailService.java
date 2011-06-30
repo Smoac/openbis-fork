@@ -23,10 +23,9 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IEmailBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IEmailSender;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 
 import de.schlichtherle.io.FileInputStream;
@@ -40,93 +39,75 @@ public class MailService implements IMailService
 
     static String DEFAULT_BODY_TEXT = "";
 
-    private final IMailClient mailClient;
-
-    private final String recipientAddressOrNull;
+    private final IEmailSenderService senderService;
 
     private final String defaultSubject;
 
     private final String defaultBodyText;
 
-    public MailService(IMailClient mailClient, String recipientAddressOrNull)
+    public MailService(IMailClient mailClient, String recipientAddress)
     {
-        this(mailClient, recipientAddressOrNull, DEFAULT_SUBJECT, DEFAULT_BODY_TEXT);
+        this(mailClient, recipientAddress, DEFAULT_SUBJECT, DEFAULT_BODY_TEXT);
     }
 
-    public MailService(IMailClient mailClient, String recipientAddressOrNull,
-            String defaultSubject, String defaultBodyText)
+    public MailService(IMailClient mailClient, String recipientAddress, String defaultSubject,
+            String defaultBodyText)
     {
-        this.mailClient = mailClient;
-        this.recipientAddressOrNull = recipientAddressOrNull;
+        assert recipientAddress != null;
+        this.senderService = createEmailSenderService(mailClient, recipientAddress);
         this.defaultSubject = defaultSubject;
         this.defaultBodyText = defaultBodyText;
     }
 
-    public IEmailBuilder createEmailBuilder()
+    public IEmailSender createEmailSender()
     {
-        return new EmailBuilder(defaultSubject, defaultBodyText);
+        return new EmailSender(senderService, defaultSubject, defaultBodyText);
     }
 
-    public void sendEmail(IEmailBuilder emailBuilder)
+    static IEmailSenderService createEmailSenderService(final IMailClient mailClient,
+            final String recipientAddress)
     {
-        assert emailBuilder instanceof EmailBuilder;
+        final EMailAddress recipient = new EMailAddress(recipientAddress);
+        return new IEmailSenderService()
+            {
 
-        final EmailBuilder builder = (EmailBuilder) emailBuilder;
-        String subject = builder.getSubject();
-        String bodyText = builder.getBodyText();
-        String attachmentFileNameOrNull = builder.tryGetAttachmentName();
-        EMailAddress recipient = new EMailAddress(recipientAddressOrNull);
-        try
-        {
-            if (attachmentFileNameOrNull == null)
-            {
-                trySendEmail(subject, bodyText, recipient);
-            } else
-            {
-                String attachmentFilePathOrNull = builder.tryGetAttachmentFilePath();
-                String attachmentTextOrNull = builder.tryGetAttachmentText();
-                if (attachmentFilePathOrNull != null)
+                public void trySendEmail(String subject, String bodyText)
                 {
-                    trySendEmailWithFileAttachment(subject, bodyText, attachmentFileNameOrNull,
-                            attachmentFilePathOrNull, recipient);
-                } else if (attachmentTextOrNull != null)
-                {
-                    trySendEmailWithTextAttachment(subject, bodyText, attachmentFileNameOrNull,
-                            attachmentTextOrNull, recipient);
-                } else
-                {
-                    // in general it shouldn't happen unless the script put None as an argument
-                    throw new IllegalStateException(
-                            "Neither file path nor text of attachment was specified");
+                    mailClient.sendEmailMessage(subject, bodyText, null, null, recipient);
                 }
-            }
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+
+                public void trySendEmailWithTextAttachment(String subject, String bodyText,
+                        String attachmentFileName, String attachmentText) throws IOException
+                {
+                    DataSource dataSource = new ByteArrayDataSource(attachmentText, "text/plain");
+                    mailClient.sendEmailMessageWithAttachment(subject, bodyText,
+                            attachmentFileName, new DataHandler(dataSource), null, null, recipient);
+                }
+
+                public void trySendEmailWithFileAttachment(String subject, String bodyText,
+                        String attachmentFileName, String attachmentFilePath)
+                        throws FileNotFoundException, IOException
+                {
+                    DataSource dataSource =
+                            new ByteArrayDataSource(new FileInputStream(attachmentFilePath),
+                                    "text/plain");
+                    mailClient.sendEmailMessageWithAttachment(subject, bodyText,
+                            attachmentFileName, new DataHandler(dataSource), null, null, recipient);
+                }
+
+            };
     }
 
-    private void trySendEmail(String subject, String bodyText, EMailAddress recipient)
+    static interface IEmailSenderService
     {
-        mailClient.sendEmailMessage(subject, bodyText, null, null, recipient);
+        void trySendEmail(String subject, String bodyText);
+
+        void trySendEmailWithTextAttachment(String subject, String bodyText,
+                String attachmentFileName, String attachmentText) throws IOException;
+
+        void trySendEmailWithFileAttachment(String subject, String bodyText,
+                String attachmentFileName, String attachmentFilePath) throws FileNotFoundException,
+                IOException;
     }
 
-    private void trySendEmailWithTextAttachment(String subject, String bodyText,
-            String attachmentFileName, String attachmentText, EMailAddress recipient)
-            throws IOException
-    {
-        DataSource dataSource = new ByteArrayDataSource(attachmentText, "text/plain");
-        mailClient.sendEmailMessageWithAttachment(subject, bodyText, attachmentFileName,
-                new DataHandler(dataSource), null, null, recipient);
-    }
-
-    private void trySendEmailWithFileAttachment(String subject, String bodyText,
-            String attachmentFileName, String attachmentFilePath, EMailAddress recipient)
-            throws FileNotFoundException, IOException
-    {
-        DataSource dataSource =
-                new ByteArrayDataSource(new FileInputStream(attachmentFilePath), "text/plain");
-        mailClient.sendEmailMessageWithAttachment(subject, bodyText, attachmentFileName,
-                new DataHandler(dataSource), null, null, recipient);
-    }
 }

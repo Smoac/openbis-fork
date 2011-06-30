@@ -17,18 +17,20 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api;
 
 /**
- * Builder of emails with attachments.
+ * Builds and sender of an email with an optional attachment.
  * 
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Reporting and Processing Plugin API.
-public interface IEmailBuilder
+public interface IEmailSender
 {
-    IEmailBuilder withSubject(String subject);
+    IEmailSender withSubject(String subject);
 
-    IEmailBuilder withBody(String bodyText);
+    IEmailSender withBody(String bodyText);
 
-    IEmailBuilder withAttachedFile(String attachmentFilePath, String attachmentName);
+    IEmailSender withAttachedFile(String attachmentFilePath, String attachmentName);
 
-    IEmailBuilder withAttachedText(String attachmentText, String attachmentName);
+    IEmailSender withAttachedText(String attachmentText, String attachmentName);
+
+    void send();
 }

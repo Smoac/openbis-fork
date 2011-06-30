@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 /**
- * Service for creating and sending emails with attachments
+ * Builder of emails with attachments.
  * 
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Reporting and Processing Plugin API.
-public interface IMailService
+public interface IEmailBuilderWithGetters
 {
-    /** @return an email sender (statefull, create a new one for every email to be sent) */
-    IEmailSender createEmailSender();
+    IEmailBuilderWithGetters withSubject(String subject);
+
+    IEmailBuilderWithGetters withBody(String bodyText);
+
+    IEmailBuilderWithGetters withAttachedFile(String attachmentFilePath, String attachmentName);
+
+    IEmailBuilderWithGetters withAttachedText(String attachmentText, String attachmentName);
 }
