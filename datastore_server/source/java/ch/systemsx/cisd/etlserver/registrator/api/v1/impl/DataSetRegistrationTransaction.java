@@ -346,8 +346,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         // Advance to the committed state.
         state = new CommitedTransactionState<T>(liveState);
-        registrationService.didCommitTransaction(this);
+        invokeDidCommitTransaction();
         return datasetsCommited;
+    }
+
+    private void invokeDidCommitTransaction()
+    {
+        try {
+            registrationService.didCommitTransaction(this);
+        } catch (Throwable t)
+        {
+            operationLog.warn("Failed to invoke post transaction hook:" + t.getMessage(), t);
+        }
     }
 
     /**
