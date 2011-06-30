@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Tests for {@link SqlScriptExecutor}.
@@ -126,7 +127,7 @@ public class SqlScriptProviderTest
     @AfterClass
     public void deleteTestFiles()
     {
-        delete(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER);
+        delete(new File(BASE_FOLDER));
     }
 
     private void delete(File file)
@@ -236,6 +237,54 @@ public class SqlScriptProviderTest
     {
         dumpFile.delete();
         assertFalse(sqlScriptProvider.isDumpRestore(VERSION));
+    }
+    
+    @Test
+    public void testTwoRootFolders()
+    {
+        File root1 = new File(BASE_FOLDER, "root1");
+        root1.mkdirs();
+        File r1generic001 = new File(root1, SqlScriptProvider.GENERIC + "/001");
+        r1generic001.mkdirs();
+        File r1genericSchema001 = new File(r1generic001, "schema-001.sql");
+        FileUtilities.writeToFile(r1genericSchema001, "root 1 generic");
+        File r1specific001 = new File(root1, DB_ENGINE_CODE + "/001");
+        r1specific001.mkdirs();
+        File r1specificSchema001 = new File(r1specific001, "schema-001.sql");
+        FileUtilities.writeToFile(r1specificSchema001, "root 1 specific");
+        
+        File root2 = new File(BASE_FOLDER, "root2");
+        root2.mkdirs();
+        File r2generic001 = new File(root2, SqlScriptProvider.GENERIC + "/001");
+        r2generic001.mkdirs();
+        File r2genericSchema001 = new File(r2generic001, "schema-001.sql");
+        FileUtilities.writeToFile(r2genericSchema001, "root 2 generic");
+        File r2specific001 = new File(root2, DB_ENGINE_CODE + "/001");
+        r2specific001.mkdirs();
+        File r2specificSchema001 = new File(r2specific001, "schema-001.sql");
+        FileUtilities.writeToFile(r2specificSchema001, "root 2 specific");
+        
+        ISqlScriptProvider scriptProvider =
+                new SqlScriptProvider(Arrays.asList(root1.getPath(), root2.getPath()),
+                        DB_ENGINE_CODE);
+        
+        assertEquals("root 1 specific", scriptProvider.tryGetSchemaScript("001").getContent().trim());
+        
+        r1specificSchema001.delete();
+        
+        assertEquals("root 1 generic", scriptProvider.tryGetSchemaScript("001").getContent().trim());
+        
+        r1genericSchema001.delete();
+        
+        assertEquals("root 2 specific", scriptProvider.tryGetSchemaScript("001").getContent().trim());
+        
+        r2specificSchema001.delete();
+        
+        assertEquals("root 2 generic", scriptProvider.tryGetSchemaScript("001").getContent().trim());
+        
+        r2genericSchema001.delete();
+        
+        assertEquals(null, scriptProvider.tryGetSchemaScript("001"));
     }
 
 }
