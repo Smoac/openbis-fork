@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -99,6 +103,11 @@ public interface ISimpleOpenbisServiceFacade
     List<DataSet> listDataSetsForSamples(List<String> sampleIdentifiers);
 
     /**
+     * Returns all data set types available in openBIS.
+     */
+    List<DataSetType> listDataSetTypes();
+
+    /**
      * Upload a new data set to the DSS.
      * 
      * @param newDataset The new data set that should be registered
@@ -106,6 +115,26 @@ public interface ISimpleOpenbisServiceFacade
      * @return A proxy to the newly added data set
      */
     public DataSet putDataSet(NewDataSetDTO newDataset, File dataSetFile);
+
+    /**
+     * Validates a data set.
+     * 
+     * @param newDataset The new data set that should be registered
+     * @param dataSetFile A file or folder containing the data
+     * @return A list of validation errors. The list is empty if there were no validation errors.
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Checks whether the session is alive.
+     * 
+     * @throws InvalidSessionException If the session is not alive.
+     */
+    public void checkSession() throws InvalidSessionException;
 
     /**
      * Logs out from openBIS and frees all associated resources on the server.

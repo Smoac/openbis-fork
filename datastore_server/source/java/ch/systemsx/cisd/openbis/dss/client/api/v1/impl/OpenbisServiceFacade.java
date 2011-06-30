@@ -20,12 +20,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
@@ -33,8 +35,12 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -44,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -63,11 +71,10 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public static OpenbisServiceFacade tryCreate(String username, String password,
             String openbisUrl, long timeoutInMillis)
     {
-        ServiceFinder generalInformationServiceFinder =
-                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
         IGeneralInformationService service =
-                generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                        openbisUrl, timeoutInMillis);
+                createGeneralInformationService(openbisUrl, timeoutInMillis);
+        IGeneralInformationChangingService changingService =
+                createGeneralInformationChangingService(openbisUrl, timeoutInMillis);
 
         // TODO KE: wrap the facade into a re-authenticating java.lang.reflect.Proxy
         // this will hide any re-authentication complexity from the clients
@@ -81,12 +88,50 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
         IDssComponent dssComponent =
                 DssComponentFactory.tryCreate(token, openbisUrl, timeoutInMillis);
-        return new OpenbisServiceFacade(token, service, dssComponent);
+        return new OpenbisServiceFacade(token, service, changingService, dssComponent);
+    }
+
+    @Private
+    public static IOpenbisServiceFacade tryCreate(String sessionToken, String openbisUrl,
+            long timeoutInMillis)
+    {
+        IGeneralInformationService service =
+                createGeneralInformationService(openbisUrl, timeoutInMillis);
+        IGeneralInformationChangingService changingService =
+                createGeneralInformationChangingService(openbisUrl, timeoutInMillis);
+
+        IDssComponent dssComponent =
+                DssComponentFactory.tryCreate(sessionToken, openbisUrl, timeoutInMillis);
+        return new OpenbisServiceFacade(sessionToken, service, changingService, dssComponent);
+    }
+
+    private static IGeneralInformationService createGeneralInformationService(String openbisUrl,
+            long timeoutInMillis)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        IGeneralInformationService service =
+                generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                        openbisUrl, timeoutInMillis);
+        return service;
+    }
+
+    private static IGeneralInformationChangingService createGeneralInformationChangingService(
+            String openbisUrl, long timeoutInMillis)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationChangingService.SERVICE_URL);
+        IGeneralInformationChangingService service =
+                generalInformationServiceFinder.createService(
+                        IGeneralInformationChangingService.class, openbisUrl, timeoutInMillis);
+        return service;
     }
 
     private final String sessionToken;
 
     private final IGeneralInformationService service;
+
+    private final IGeneralInformationChangingService changingService;
 
     private final IDssComponent dssComponent;
 
@@ -94,10 +139,11 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
      * ctor.
      */
     public OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
-            IDssComponent dssComponent)
+            IGeneralInformationChangingService changingService, IDssComponent dssComponent)
     {
         this.sessionToken = sessionToken;
         this.service = service;
+        this.changingService = changingService;
         this.dssComponent = dssComponent;
     }
 
@@ -270,6 +316,11 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertDataSets(filteredDataSets);
     }
 
+    public List<DataSetType> listDataSetTypes()
+    {
+        return service.listDataSetTypes(sessionToken);
+    }
+
     public IDataSetDss getDataSetDss(String code) throws EnvironmentFailureException
     {
         return dssComponent.getDataSet(code);
@@ -280,6 +331,17 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     {
         IDataSetDss dataSetDss = dssComponent.putDataSet(newDataset, dataSetFile);
         return new DataSet(this, null, dataSetDss);
+    }
+
+    public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        return dssComponent.validateDataSet(newDataset, dataSetFile);
+    }
+
+    public void checkSession() throws InvalidSessionException
+    {
+        dssComponent.checkSession();
     }
 
     public synchronized void logout()
@@ -387,5 +449,17 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         }
 
         return convertedDataSets;
+    }
+
+    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+            String description, Long previousTermOrdinal)
+    {
+        changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,
+                description, previousTermOrdinal);
+    }
+
+    public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap()
+    {
+        return service.getVocabularyTermsMap(sessionToken);
     }
 }

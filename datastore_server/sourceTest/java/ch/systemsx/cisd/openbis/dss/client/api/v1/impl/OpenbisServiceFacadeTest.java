@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
@@ -69,6 +70,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
     private IGeneralInformationService service;
 
+    private IGeneralInformationChangingService changingService;
+
     private IDssComponent dssComponent;
 
     private IOpenbisServiceFacade openbisFacade;
@@ -78,9 +81,11 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
     {
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
+        changingService = context.mock(IGeneralInformationChangingService.class);
         dssComponent = context.mock(IDssComponent.class);
 
-        openbisFacade = new OpenbisServiceFacade(SESSION_TOKEN, service, dssComponent);
+        openbisFacade =
+                new OpenbisServiceFacade(SESSION_TOKEN, service, changingService, dssComponent);
     }
 
     @AfterMethod

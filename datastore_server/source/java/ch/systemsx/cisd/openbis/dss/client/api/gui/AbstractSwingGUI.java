@@ -33,15 +33,12 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -53,7 +50,7 @@ public abstract class AbstractSwingGUI
     /**
      * The interface for communicating with DSS
      */
-    protected final IDssComponent dssComponent;
+    protected final IOpenbisServiceFacade openBISService;
 
     protected final Thread shutdownHook;
 
@@ -70,7 +67,7 @@ public abstract class AbstractSwingGUI
      */
     protected AbstractSwingGUI(DssCommunicationState communicationState)
     {
-        dssComponent = communicationState.getDssComponent();
+        openBISService = communicationState.getOpenBISService();
 
         // create the window frame
         windowFrame = new JFrame(getTitle());
@@ -86,7 +83,7 @@ public abstract class AbstractSwingGUI
                     {
                         if (logoutOnClose)
                         {
-                            dssComponent.logout();
+                            openBISService.logout();
                         }
                     } catch (InvalidSessionException ex)
                     {
@@ -111,14 +108,9 @@ public abstract class AbstractSwingGUI
         logoutOnClose = communicationState.isLogoutOnClose();
     }
 
-    public String getSessionId()
+    public IOpenbisServiceFacade getOpenBISService()
     {
-        return dssComponent.getSessionToken();
-    }
-
-    public IDssComponent getDssComponent()
-    {
-        return dssComponent;
+        return openBISService;
     }
 
     /**
@@ -138,7 +130,7 @@ public abstract class AbstractSwingGUI
         {
             if (logoutOnClose)
             {
-                dssComponent.logout();
+                openBISService.logout();
             }
             System.exit(0);
         }
@@ -154,7 +146,7 @@ public abstract class AbstractSwingGUI
                 {
                     try
                     {
-                        dssComponent.checkSession();
+                        openBISService.checkSession();
                     } catch (RemoteAccessException ex)
                     {
                         System.err.println("Error connecting to the server");
@@ -369,37 +361,11 @@ public abstract class AbstractSwingGUI
 
 class DssCommunicationState
 {
-    private final IDssComponent dssComponent;
-
-    private final IGeneralInformationService generalInformationService;
-
-    private final IGeneralInformationChangingService generalInformationChangingService;
+    private final IOpenbisServiceFacade openBISService;
 
     private final boolean logoutOnClose;
 
     private static final long CONNECTION_TIMEOUT_MILLIS = 15 * DateUtils.MILLIS_PER_SECOND;
-
-    private static IGeneralInformationService createGeneralInformationService(String openBISURL)
-    {
-        ServiceFinder generalInformationServiceFinder =
-                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-        IGeneralInformationService service =
-                generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                        openBISURL);
-        return service;
-    }
-
-    private static IGeneralInformationChangingService createGeneralInformationChangingService(
-            String openBISURL)
-    {
-        ServiceFinder generalInformationServiceFinder =
-                new ServiceFinder("openbis", IGeneralInformationChangingService.SERVICE_URL);
-        IGeneralInformationChangingService service =
-                generalInformationServiceFinder.createService(
-                        IGeneralInformationChangingService.class, openBISURL);
-        return service;
-
-    }
 
     /**
      * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
@@ -418,10 +384,10 @@ class DssCommunicationState
         {
             case 2:
                 String sessionToken = args[1];
-                dssComponent =
-                        DssComponentFactory.tryCreate(sessionToken, openBisUrl,
+                openBISService =
+                        OpenbisServiceFacadeFactory.tryCreate(sessionToken, openBisUrl,
                                 CONNECTION_TIMEOUT_MILLIS);
-                if (null == dssComponent)
+                if (null == openBISService)
                 {
                     throw new ConfigurationFailureException(
                             "The openBIS File Upload Client was improperly configured -- the session token is not valid. Please talk to the openBIS administrator.");
@@ -432,10 +398,10 @@ class DssCommunicationState
             default:
                 String userName = args[1];
                 String passwd = args[2];
-                dssComponent =
-                        DssComponentFactory.tryCreate(userName, passwd, openBisUrl,
+                openBISService =
+                        OpenbisServiceFacadeFactory.tryCreate(userName, passwd, openBisUrl,
                                 CONNECTION_TIMEOUT_MILLIS);
-                if (null == dssComponent)
+                if (null == openBISService)
                 {
                     throw new ConfigurationFailureException(
                             "The user name / password combination is incorrect.");
@@ -443,24 +409,11 @@ class DssCommunicationState
                 // Do logout on close
                 logoutOnClose = true;
         }
-
-        generalInformationService = createGeneralInformationService(openBisUrl);
-        generalInformationChangingService = createGeneralInformationChangingService(openBisUrl);
     }
 
-    IDssComponent getDssComponent()
+    IOpenbisServiceFacade getOpenBISService()
     {
-        return dssComponent;
-    }
-
-    public IGeneralInformationService getGeneralInformationService()
-    {
-        return generalInformationService;
-    }
-
-    public IGeneralInformationChangingService getGeneralInformationChangingService()
-    {
-        return generalInformationChangingService;
+        return openBISService;
     }
 
     public boolean isLogoutOnClose()

@@ -57,7 +57,7 @@ final class DataSetUploadOperation implements Runnable
                 NewDataSetDTO cleanDto =
                         clientModel.cleanNewDataSetDTO(newDataSetInfo.getNewDataSetBuilder()
                                 .asNewDataSetDTO());
-                clientModel.getDssComponent().putDataSet(cleanDto,
+                clientModel.getOpenBISService().putDataSet(cleanDto,
                         newDataSetInfo.getNewDataSetBuilder().getFile());
             }
             newDataSetInfo.setStatus(Status.COMPLETED_UPLOAD);

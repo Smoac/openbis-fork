@@ -32,14 +32,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
@@ -62,11 +60,7 @@ public class DataSetUploadClientModel
     private static ExecutorService executor = new NamingThreadPoolExecutor("Data Set Upload", 1, 1,
             0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
 
-    private final IDssComponent dssComponent;
-
-    private final IGeneralInformationService generalInformationService;
-
-    private final IGeneralInformationChangingService generalInformationChangingService;
+    private final IOpenbisServiceFacade openBISService;
 
     private final ITimeProvider timeProvider;
 
@@ -92,13 +86,10 @@ public class DataSetUploadClientModel
 
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
-        this.dssComponent = commState.getDssComponent();
-        this.generalInformationService = commState.getGeneralInformationService();
-        this.generalInformationChangingService = commState.getGeneralInformationChangingService();
+        this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
-        dataSetTypes = generalInformationService.listDataSetTypes(dssComponent.getSessionToken());
-        vocabularyTerms =
-                generalInformationService.getVocabularyTermsMap(dssComponent.getSessionToken());
+        dataSetTypes = openBISService.listDataSetTypes();
+        vocabularyTerms = openBISService.getVocabularyTermsMap();
     }
 
     /**
@@ -289,9 +280,9 @@ public class DataSetUploadClientModel
         newDataSetInfos.remove(dataSetInfoToRemove);
     }
 
-    public IDssComponent getDssComponent()
+    public IOpenbisServiceFacade getOpenBISService()
     {
-        return dssComponent;
+        return openBISService;
     }
 
     /**
@@ -484,7 +475,7 @@ public class DataSetUploadClientModel
         if (errors.isEmpty())
         {
             List<ValidationError> scriptDetectedErrors =
-                    dssComponent.validateDataSet(builder.asNewDataSetDTO(), builder.getFile());
+                    openBISService.validateDataSet(builder.asNewDataSetDTO(), builder.getFile());
             errors.addAll(scriptDetectedErrors);
         }
 
@@ -522,12 +513,10 @@ public class DataSetUploadClientModel
     public void addUnofficialVocabularyTerm(Vocabulary vocabulary, String code, String label,
             String description, Long previousTermOrdinal)
     {
-        generalInformationChangingService.addUnofficialVocabularyTerm(
-                dssComponent.getSessionToken(), TechId.create(vocabulary), code, label,
+        openBISService.addUnofficialVocabularyTerm(TechId.create(vocabulary), code, label,
                 description, previousTermOrdinal);
-        dataSetTypes = generalInformationService.listDataSetTypes(dssComponent.getSessionToken());
-        vocabularyTerms =
-                generalInformationService.getVocabularyTermsMap(dssComponent.getSessionToken());
+        dataSetTypes = openBISService.listDataSetTypes();
+        vocabularyTerms = openBISService.getVocabularyTermsMap();
 
         notifyObservers(vocabulary, code);
     }

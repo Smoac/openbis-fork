@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Provides a fully-blown API for openBIS integration. The internals of the openBIS architecture are
@@ -58,4 +62,21 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      */
     public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet);
 
+    /**
+     * Adds new unofficial (ad-hoc) terms to a vocabulary starting from specified ordinal + 1.
+     * 
+     * @param vocabularyId The id of vocabulary which should be extended.
+     * @param code Code of new vocabulary term.
+     * @param label Label of new vocabulary term.
+     * @param description Free text describing new vocabulary term.
+     * @param previousTermOrdinal new vocabulary term will be placed right after vocabulary term
+     *            with given ordinal number.
+     */
+    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+            String description, Long previousTermOrdinal);
+
+    /**
+     * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     */
+    public HashMap<Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap();
 }

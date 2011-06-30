@@ -99,7 +99,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 return new DssServiceRpcScreeningHolder(serverUrl);
             }
         };
-        
+
     private final IScreeningApiServer openbisScreeningServer;
 
     private final IGeneralInformationService generalInformationService;
@@ -130,7 +130,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private IDssServiceFactory dssServiceCache;
 
     private final IOpenbisServiceFacade openbisServiceFacade;
-
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
@@ -214,7 +213,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         this.generalInformationChangingService = generalInformationChangingService;
         this.dssComponent = dssComponent;
         this.sessionToken = sessionToken;
-        openbisServiceFacade = new OpenbisServiceFacade(sessionToken, generalInformationService, dssComponent);
+        openbisServiceFacade =
+                new OpenbisServiceFacade(sessionToken, generalInformationService,
+                        generalInformationChangingService, dssComponent);
 
         this.minorVersionApplicationServer = minorVersion;
         dssServiceCache = new IDssServiceFactory()
@@ -258,7 +259,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         checkASMinimalMinorVersion("logoutScreening");
         openbisScreeningServer.logoutScreening(sessionToken);
     }
-    
+
     public void clearWellImageCache()
     {
         imageCache.clear();
@@ -375,8 +376,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return filterByAnalysisProcedure(dataSets, analysisProcedureOrNull);
     }
 
-    private <T extends DatasetReference> List<T> filterByAnalysisProcedure(
-            List<T> dataSets, String analysisProcedureOrNull)
+    private <T extends DatasetReference> List<T> filterByAnalysisProcedure(List<T> dataSets,
+            String analysisProcedureOrNull)
     {
         if (analysisProcedureOrNull == null)
         {
@@ -433,7 +434,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
         return Collections.emptyList();
     }
-    
+
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
     {
@@ -612,7 +613,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         : dataSetMetadataOrNull;
         final DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
-        final String dataSetFolderNameOrNull = dataSetFile.isDirectory() ? dataSetFile.getName() : null;
+        final String dataSetFolderNameOrNull =
+                dataSetFile.isDirectory() ? dataSetFile.getName() : null;
         final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
         final NewDataSetDTO newDataSet =
                 new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
@@ -759,7 +761,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private FeatureVectorDatasetWellReference createFVDatasetReference(
             FeatureVectorDatasetReference fvdr, WellPosition wellPosition)
     {
-        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr.getDataSetType(), 
+        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr.getDataSetType(),
                 fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(),
                 fvdr.getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
                 fvdr.getProperties(), wellPosition);
@@ -1517,8 +1519,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 MatchClauseAttribute.PROJECT, experimentIdentifier.getProjectCode()));
         experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
                 MatchClauseAttribute.SPACE, experimentIdentifier.getSpaceCode()));
-        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
-        List<DataSet> dataSets = generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createExperimentCriteria(experimentCriteria));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         Set<String> procedures = new HashSet<String>();
         for (DataSet dataSet : dataSets)
         {
@@ -1533,7 +1537,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         Collections.sort(result);
         return result;
     }
-    
+
     // --------- helpers -----------
 
     private static final class WrappedIOException extends RuntimeException
