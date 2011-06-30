@@ -30,11 +30,16 @@ values
 CREATE OR REPLACE FUNCTION assign_analysis_property() RETURNS integer AS $$
 DECLARE
     rec RECORD;
+    next_ordinal ordinal_int;
 BEGIN
     FOR rec IN select id from data_set_types where code = 'HCS_IMAGE_ANALYSIS_DATA' 
                                                 or code like 'HCS_ANALYSIS_WELL%' 
                                                 or code like 'HCS_IMAGE%OVERLAY%' 
                                                 or code like 'HCS_IMAGE_SEGMENTATION%' LOOP
+        next_ordinal = (select max(ordinal)+1 from data_set_type_property_types where id = rec.id);
+        if next_ordinal is null then
+            next_ordinal = 1;
+        end if;
 				insert into data_set_type_property_types
 				(   id
 				   ,dsty_id
@@ -51,7 +56,7 @@ BEGIN
 				   ,false
 				   ,false
 				   ,(select id from persons where user_id ='system')
-				   ,(select max(ordinal)+1 from data_set_type_property_types)
+				   ,next_ordinal
 				);
     END LOOP;
     RETURN 1;
