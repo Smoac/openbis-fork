@@ -216,6 +216,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didRollbackTransaction(this, transaction, algorithm, ex);
     }
 
+    public void didCommitTransaction(DataSetRegistrationTransaction<T> transaction)
+    {
+        registrator.didCommitTransaction(this, transaction);
+    }
+
     /**
      * Create a storage algorithm for storing an individual data set. This is internally used by
      * transactions. Other clients may find it useful as well.

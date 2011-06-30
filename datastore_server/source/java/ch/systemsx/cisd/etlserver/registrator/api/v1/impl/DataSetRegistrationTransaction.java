@@ -346,6 +346,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         // Advance to the committed state.
         state = new CommitedTransactionState<T>(liveState);
+        registrationService.didCommitTransaction(this);
         return datasetsCommited;
     }
 

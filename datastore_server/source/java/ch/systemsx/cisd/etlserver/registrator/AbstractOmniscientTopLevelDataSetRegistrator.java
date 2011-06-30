@@ -441,6 +441,16 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
+     * A method called after a successful commit of a transaction.
+     * <p>
+     * Subclasses can override and implement their own handling logic.
+     */
+    public void didCommitTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+    }
+
+    /**
      * Rollback a failure that occurs outside of any *particular* data set registration, but with
      * the whole processing of the incoming folder itself.
      * <p>

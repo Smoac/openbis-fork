@@ -205,6 +205,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         handler.handle(markerFile);
 
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        assertTrue(theHandler.didCommitTransactionFunctionRunHappen);
+        assertFalse(theHandler.didRollbackTransactionFunctionRunHappen);
+
         assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
         assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
 
@@ -1104,6 +1108,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
         private boolean didRollbackTransactionFunctionRunHappen = false;
 
+        private boolean didCommitTransactionFunctionRunHappen = false;
+
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
@@ -1200,6 +1206,20 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                             .getInterpreter();
             didRollbackTransactionFunctionRunHappen =
                     (Boolean) interpreter.get("didTransactionRollbackHappen", Boolean.class);
+        }
+
+        @Override
+        protected void invokeCommitTransactionFunction(PyFunction function,
+                DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationTransaction<DataSetInformation> transaction)
+        {
+            super.invokeCommitTransactionFunction(function, service, transaction);
+
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didCommitTransactionFunctionRunHappen =
+                    (Boolean) interpreter.get("didTransactionCommitHappen", Boolean.class);
         }
 
         @Override

@@ -52,6 +52,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      */
     private static final String ROLLBACK_TRANSACTION_FUNCTION_NAME = "rollback_transaction";
 
+    /**
+     * The name of the function being called after successful transaction commit.
+     */
+    private static final String COMMIT_TRANSACTION_FUNCTION_NAME = "commit_transaction";
+
     private static final String FACTORY_VARIABLE_NAME = "factory";
 
     /**
@@ -210,6 +215,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         super.didRollbackTransaction(service, transaction, algorithmRunner, ex);
     }
 
+    @Override
+    public void didCommitTransaction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        super.didCommitTransaction(service, transaction);
+        invokeCommitTransactionFunction(service, transaction);
+    }
+
     private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
@@ -228,6 +241,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             {
                 invokeRollbackServiceFunction(function, service, ex);
             }
+        }
+    }
+
+    private void invokeCommitTransactionFunction(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function = tryJythonFunction(interpreter, COMMIT_TRANSACTION_FUNCTION_NAME);
+        if (null != function)
+        {
+            invokeCommitTransactionFunction(function, service, transaction);
         }
     }
 
@@ -273,6 +297,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         function.__call__(Py.java2py(service), Py.java2py(registrationAlgorithm),
                 Py.java2py(throwable));
+    }
+
+    protected void invokeCommitTransactionFunction(PyFunction function,
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
+    {
+        function.__call__(Py.java2py(service), Py.java2py(transaction));
     }
 
     /**
