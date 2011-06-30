@@ -16,6 +16,12 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -44,6 +50,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String adminPassword;
 
     private String scriptFolder;
+    
+    private List<String> scriptFolders; 
 
     private String databaseKind;
 
@@ -589,6 +597,35 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setScriptFolder(final String scriptFolder)
     {
         this.scriptFolder = scriptFolder;
+    }
+
+    public List<String> getSqlScriptFolders()
+    {
+        if (scriptFolder != null && variablesResolved(scriptFolder))
+        {
+            return Arrays.asList(scriptFolder);
+        }
+        if (scriptFolders != null && scriptFolders.size() > 0
+                && variablesResolved(scriptFolders.get(0)))
+        {
+            return scriptFolders;
+        }
+        return Collections.emptyList();
+    }
+    
+    private boolean variablesResolved(String value)
+    {
+        return value.indexOf("${") < 0;
+    }
+
+    public void setScriptFolders(String scriptFolders)
+    {
+        this.scriptFolders = new ArrayList<String>();
+        StringTokenizer tokenizer = new StringTokenizer(scriptFolders, ",");
+        while (tokenizer.hasMoreTokens())
+        {
+            this.scriptFolders.add(tokenizer.nextToken().trim());
+        }
     }
 
     public final String getDatabaseInstance()

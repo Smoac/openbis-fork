@@ -58,7 +58,7 @@ public final class DBMigrationEngine
         }
         final String databaseEngineCode = context.getDatabaseEngineCode();
         final ISqlScriptProvider sqlScriptProvider =
-                new SqlScriptProvider(scriptFolder, databaseEngineCode);
+                new SqlScriptProvider(context.getSqlScriptFolders(), databaseEngineCode);
         final DBMigrationEngine migrationEngine =
                 new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context
                         .isCreateFromScratch());

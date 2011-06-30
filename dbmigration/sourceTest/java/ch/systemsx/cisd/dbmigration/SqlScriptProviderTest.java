@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.testng.annotations.AfterClass;
@@ -53,7 +54,7 @@ public class SqlScriptProviderTest
             new File(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME);
 
     private static final File TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER =
-            new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, "generic");
+            new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, SqlScriptProvider.GENERIC);
 
     private static final File TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER =
             new File(TEMP_SCHEMA_SCRIPT_ROOT_FOLDER, DB_ENGINE_CODE);
@@ -84,7 +85,8 @@ public class SqlScriptProviderTest
                 "code: migration");
         write(new File(specificSchemaVersionFolder, "data-" + VERSION + ".sql"), "code: data");
         sqlScriptProvider =
-                new SqlScriptProvider(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME, DB_ENGINE_CODE);
+                new SqlScriptProvider(Arrays.asList(TEMPORARY_SCHEMA_SCRIPT_FOLDER_NAME),
+                        DB_ENGINE_CODE);
         dumpFile = new File(sqlScriptProvider.getDumpFolder(VERSION), ".DUMP");
     }
 

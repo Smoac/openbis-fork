@@ -36,6 +36,7 @@
         <property name="databaseKind" value="${database.kind}" />
         <property name="databaseEngineCode" value="${database.engine}" />
         <property name="scriptFolder" value="${script-folder}/sql" />
+        <property name="scriptFolders" value="${script-folders}" />
         <property name="databaseInstance" value="${database-instance}" />
     </bean>
 

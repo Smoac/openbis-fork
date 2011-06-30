@@ -29,5 +29,4 @@ public interface IImageDataSet extends IDataSet
      * Sets the tile geometry by specified number of rows and columns.
      */
     public void setTileGeometry(int numberOfRows, int numberOfColumns);
-
 }

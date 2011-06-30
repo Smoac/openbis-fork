@@ -18,6 +18,7 @@ package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +38,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class SqlScriptProvider implements ISqlScriptProvider
 {
+    static final String GENERIC = "generic";
+
     private static final String DUMP_FILENAME = ".DUMP";
 
     private static final String SQL_FILE_TYPE = ".sql";
@@ -44,24 +47,28 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SqlScriptProvider.class);
 
-    private final String genericScriptFolder;
+    private final List<String> schemaScriptRootFolders;
 
-    private final String specificScriptFolder;
+    private final String databaseEngineCode;
 
     /**
      * Creates an instance for the specified script folders. They are either resource folders or
      * folders relative to the working directory.
      * 
-     * @param schemaScriptRootFolder Root folder of schema, migration and data scripts.
+     * @param schemaScriptRootFolders Root folders of schema, migration and data scripts.
      * @param databaseEngineCode The code of the database engine. Used to find the db engine
      *            specific schema script folder.
      */
-    public SqlScriptProvider(final String schemaScriptRootFolder, final String databaseEngineCode)
+    public SqlScriptProvider(final List<String> schemaScriptRootFolders, final String databaseEngineCode)
     {
-        this.genericScriptFolder = schemaScriptRootFolder + "/generic";
-        this.specificScriptFolder = schemaScriptRootFolder + "/" + databaseEngineCode;
+        if (schemaScriptRootFolders.isEmpty())
+        {
+            throw new IllegalArgumentException("Unspecified script root folders.");
+        }
+        this.schemaScriptRootFolders = schemaScriptRootFolders;
+        this.databaseEngineCode = databaseEngineCode;
     }
-
+    
     /**
      * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code>
      * otherwise.
@@ -92,7 +99,8 @@ public class SqlScriptProvider implements ISqlScriptProvider
      */
     public File getDumpFolder(final String version)
     {
-        return new File(specificScriptFolder, version);
+        return new File(getSpecificScriptFolder(schemaScriptRootFolders.get(schemaScriptRootFolders
+                .size() - 1)), version);
     }
 
     /**
@@ -197,14 +205,24 @@ public class SqlScriptProvider implements ISqlScriptProvider
     private Script tryLoadScript(final String scriptName, final String scriptVersion,
             final String prefix)
     {
-        Script script =
-                tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
-        if (script == null)
+        for (String rootFolder : schemaScriptRootFolders)
         {
+            Script script =
+                    tryPrimLoadScript(getSpecificScriptFolder(rootFolder) + "/" + prefix,
+                            scriptName, scriptVersion);
+            if (script != null)
+            {
+                return script;
+            }
             script =
-                    tryPrimLoadScript(genericScriptFolder + "/" + prefix, scriptName, scriptVersion);
+                    tryPrimLoadScript(getGenericScriptFolder(rootFolder) + "/" + prefix,
+                            scriptName, scriptVersion);
+            if (script != null)
+            {
+                return script;
+            }
         }
-        return script;
+        return null;
     }
 
     private Script tryPrimLoadScript(final String scriptFolder, final String scriptName,
@@ -234,4 +252,14 @@ public class SqlScriptProvider implements ISqlScriptProvider
         return new Script(scriptPath, script, scriptVersion);
     }
 
+    private String getGenericScriptFolder(String rootFolder)
+    {
+        return rootFolder + "/" + GENERIC;
+    }
+
+    private String getSpecificScriptFolder(String rootFolder)
+    {
+        return rootFolder + "/" + databaseEngineCode;
+    }
+    
 }
