@@ -116,7 +116,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createHandler(properties, false, true);
         createData();
 
-        final String libraryTemplate = "1.45, 20.701, H\n0.12, 0.002, L";
+        final String libraryTemplate = "1.45\t20.701\tH\n0.12\t0.002\tL";
         final Sample plate = createPlate(libraryTemplate, "6_WELLS_2X3");
         setUpPlateSearchExpectations(plate);
         setUpLibraryTemplateExpectations(plate);

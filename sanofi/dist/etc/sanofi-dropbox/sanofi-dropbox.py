@@ -14,6 +14,8 @@ DATA_SET_BATCH_PROPNAME = "ACQUISITION_BATCH"
 OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
 
 EXPERIMENT_RECIPIENTS_PROPNAME = "EMAIL_RECIPIENTS"
+
+# TODO KE: get all instance admin emails here
 DEFAULT_RECIPIENT_LIST = "Matthew.Smicker@sanofi-aventis.com"
 
 def rollback_transaction(service, transaction, runner, ex):
@@ -66,11 +68,11 @@ def findPlateByCode(code):
     
     searchService = transaction.getSearchService()
     platesFound = list(searchService.searchForSamples(criteria))
-
-    if len(platesFound) > 0:
-        return platesFound[0]
-    else:
-        return None      
+    
+    if not platesFound:
+        raise RuntimeError("No plate with code '%(code)s' found in the openBIS database" % vars())
+    
+    return platesFound[0]
 
 def parseIncomingDirname(dirName):
     """
@@ -78,7 +80,9 @@ def parseIncomingDirname(dirName):
        'AcquisitionBatch_BarCode_Timestamp' to a tuple (acquisitionBatch, barCode)
     """
     tokens = dirName.split("_")
-    assert len(tokens) >= 2, "Data set directory name does not match the pattern 'AcquisitionBatch_BarCode_Timestamp': " + dirName
+    if len(tokens) < 2:
+        raise RuntimeError("Data set directory name does not match the pattern 'AcquisitionBatch_BarCode_Timestamp': " + dirName)
+    
     acquisitionBatch = tokens[0]
     barCode = tokens[1].split('.')[0]
     return (acquisitionBatch, barCode)
@@ -116,9 +120,11 @@ class PlateInitializer:
     MATERIAL_ID_PROPNAME = "COMPOUND_ID"
     MATERIAL_BATCH_ID_PROPNAME = "COMPOUND_BATCH_ID"
             
-    def __init__(self, transaction):
+    def __init__(self, transaction, plate):
         self.transaction = transaction
         self.plate = plate
+        self.plateCode = plate.getCode()
+        self.experimentId = plate.getExperiment().getExperimentIdentifier()
         
     def getWellCode(self, x, y):
         return chr(ord('A') + x) + str(y)
@@ -128,32 +134,38 @@ class PlateInitializer:
           parses the plate geometry property from the form "384_WELLS_16X24" 
           to a tuple of integers (plateHeight, plateWidth) 
         """
-        plateGeometryString = plate.getPropertyValue(ScreeningConstants.PLATE_GEOMETRY)
+        plateGeometryString = self.plate.getPropertyValue(ScreeningConstants.PLATE_GEOMETRY)
         widthByHeight = plateGeometryString.split("_")[-1]
         dimensions = map(int, widthByHeight.split("X"))
         return (dimensions[0], dimensions[1])
     
-    def validateLibraryDimensions(self, csvLists):
+    def validateLibraryDimensions(self, tsvLines):
         (plateHeight, plateWidth) = self.getPlateDimensions()
         
-        assert plateHeight == len(csvLists), \
-            "Plate geometry (height=%i) does not agree with LIBRARY_TEMPLATE (height=%i)." % (plateHeight, len(csvLists))
+        numLines = len(tsvLines)
+        if plateHeight != len(tsvLines) :
+            raise RuntimeError("The geometry property of plate %(plateCode)s (height=%(plateHeight)s)"
+                               " does not agree with the value of the %(LIBRARY_TEMPLATE_PROPNAME)s"
+                               " property in experiment %(experimentId)s  (height=%(numLines)s)." % vars())
             
-        for i in range(0, len(csvLists)):
-            assert plateWidth == len(csvLists[i]), \
-                "Plate geometry (width=%i) does not agree with LIBRARY_TEMPLATE (line=%i,width=%i)." % (plateWidth, i, len(csvLists[i]))
+        for i in range(0, len(tsvLines)):
+            lineWidth = len(tsvLines[i])
+            if plateWidth != lineWidth:
+                raise RuntimeError("The geometry property of plate %(plateCode)s (width=%(plateWidth)s)"
+                                   " does not agree with the value of the %(LIBRARY_TEMPLATE_PROPNAME)s"
+                                   " property in experiment %(experimentId)s  (line=%(i)s, width=%(lineWidth)s)." % vars())
         
     def parseLibraryTemplate(self):
         template = experiment.getPropertyValue(self.LIBRARY_TEMPLATE_PROPNAME)
         
-        csvLists = [ line.split(",")  for line in template.splitlines() ]
-        self.validateLibraryDimensions(csvLists)
+        tsvLists = [ line.split("\t")  for line in template.splitlines() ]
+        self.validateLibraryDimensions(tsvLists)
         
         library = {}
-        for x in range(0, len(csvLists)):
-            for y in range(0, len(csvLists[0])):
+        for x in range(0, len(tsvLists)):
+            for y in range(0, len(tsvLists[0])):
                 wellCode = self.getWellCode(x,y)
-                library[wellCode] = csvLists[x][y].strip()
+                library[wellCode] = tsvLists[x][y].strip()
                  
         return library
     
@@ -183,7 +195,7 @@ class PlateInitializer:
         return sanofiMaterials
     
     def createMaterial(self, sanofiMaterial):
-        material = transaction.createNewMaterial(sanofiMaterial.materialCode, self.MATERIAL_TYPE)
+        material = self.transaction.createNewMaterial(sanofiMaterial.materialCode, self.MATERIAL_TYPE)
         material.setPropertyValue(self.MATERIAL_ID_PROPNAME, sanofiMaterial.sanofiId)
         material.setPropertyValue(self.MATERIAL_BATCH_ID_PROPNAME, sanofiMaterial.sanofiBatchId)
         return material
@@ -195,7 +207,7 @@ class PlateInitializer:
         materialIdentifiers = MaterialIdentifierCollection()
         for materialCode in materialCodes:
             materialIdentifiers.addIdentifier(self.MATERIAL_TYPE, materialCode)
-        searchService = transaction.getSearchService() 
+        searchService = self.transaction.getSearchService() 
         preExistingMaterials = list(searchService.listMaterials(materialIdentifiers))
         
         materialsByCode = {}
@@ -215,7 +227,7 @@ class PlateInitializer:
             if materialCode == sanofiMaterial.materialCode:
                 return sanofiMaterial
             
-        raise RuntimeError("No material found for materialCode " + wellCode)
+        raise RuntimeError("No material found for materialCode " + materialCode)
     
     def getByWellCode(self, wellCode, sanofiMaterials):
         for sanofiMaterial in sanofiMaterials:
@@ -230,23 +242,25 @@ class PlateInitializer:
                              
         for wellCode in library:    
            libraryValue = library[wellCode].upper()
-           prefixedWellCode = plate.code + ":" + wellCode
+           prefixedWellCode = self.plateCode + ":" + wellCode
            
            if libraryValue in controlWellTypes:
                # CONTROL_WELL
                wellType = controlWellTypes[libraryValue]
-               well = transaction.createNewSample(prefixedWellCode, wellType)
-               well.setContainer(plate)
-               pass
+               well = self.transaction.createNewSample(prefixedWellCode, wellType)
+               well.setContainer(self.plate)
            else: 
                # COMPOUND_WELL
                concentration = libraryValue
                try:
                    float(concentration)
                except ValueError:
-                   raise RuntimeError("A non-numeric value '%s' detected in well '%s'" % (libraryValue, wellCode))
-               well = transaction.createNewSample(prefixedWellCode, self.COMPOUND_WELL_TYPE)
-               well.setContainer(plate)
+                   raise RuntimeError("The specified value for well %(wellCode)s in the property "  
+                   " %(LIBRARY_TEMPLATE_PROPNAME)s of experiment %(experimentId)s is invalid. "
+                   "Allowed values are 'H', 'L' or number, but %(libraryValue)s' was found." % vars())
+                   
+               well = self.transaction.createNewSample(prefixedWellCode, self.COMPOUND_WELL_TYPE)
+               well.setContainer(self.plate)
                well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
                materialCode = self.getByWellCode(wellCode, sanofiMaterials).materialCode
                material = openbisMaterials[materialCode]
@@ -268,11 +282,13 @@ dataSet = transaction.createNewDataSet(DATA_SET_TYPE)
 (batchName, barCode) = parseIncomingDirname(incoming.getName())
 dataSet.setPropertyValue(DATA_SET_BATCH_PROPNAME, batchName)
 plate = findPlateByCode(barCode)
+if not plate.getExperiment():
+    raise RuntimeError("Plate with code '%(barCode)s' is not associated with experiment" % vars())
 experimentId = plate.getExperiment().getExperimentIdentifier()
 experiment = transaction.getExperiment(experimentId)
 
 if len(plate.getContainedSamples()) == 0:
-    plateInitializer = PlateInitializer(plate)
+    plateInitializer = PlateInitializer(transaction, plate)
     plateInitializer.createWellsAndMaterials()
     
 dataSet.setSample(plate)
