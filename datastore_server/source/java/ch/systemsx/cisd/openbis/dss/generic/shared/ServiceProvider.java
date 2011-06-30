@@ -99,7 +99,7 @@ public class ServiceProvider
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
 
-    public static ISearchService getSearchServiceProvider()
+    public static ISearchService getSearchService()
     {
         return ((ISearchService) getApplicationContext().getBean("search-service"));
     }
