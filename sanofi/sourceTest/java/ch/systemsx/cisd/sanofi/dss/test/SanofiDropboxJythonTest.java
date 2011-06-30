@@ -36,7 +36,6 @@ import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -94,14 +93,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
 
-    private IDataSourceQueryService queryService;
-
     @BeforeMethod
     @Override
     public void setUp() throws IOException
     {
         super.setUp();
-        queryService = context.mock(IDataSourceQueryService.class);
     }
 
     @Test
@@ -109,7 +105,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadPropertiesRelativeToScriptsFolder("sanofi-dropbox.py");
-        createHandler(properties, false, true, queryService);
+        createHandler(properties, false, true);
         createData();
 
         final String libraryTemplate = "1.45, 20.701, H\n0.12, 0.002, L";
@@ -130,7 +126,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         context.checking(new Expectations()
             {
                 {
-                    one(queryService).select(with(any(String.class)), with(any(String.class)),
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)),
                             with(anything()));
                     will(returnValue(queryResult));
 

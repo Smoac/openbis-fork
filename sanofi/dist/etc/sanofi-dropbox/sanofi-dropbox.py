@@ -1,4 +1,4 @@
-import ch.systemsx.cisd.etlserver.registrator.api.v1.MaterialIdentifierCollection as MaterialIdentifierCollection
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.MaterialIdentifierCollection as MaterialIdentifierCollection
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria as SearchCriteria 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause as MatchClause 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute as MatchClauseAttribute 
@@ -8,6 +8,14 @@ PLATE_TYPE = "PLATE"
 
 DATA_SET_TYPE = "HCS_IMAGE_RAW"
 DATA_SET_BATCH_PROPNAME = "ACQUISITION_BATCH"
+
+registeredDataSets = []
+
+def rollback_transaction(service, tr, runner, ex):
+    pass
+
+def commit_transaction(service, tr):
+    pass
 
 def findPlateByCode(code):
     """
@@ -121,7 +129,7 @@ class PlateInitializer:
                     (wellCode, openBisCompoundCode, abaseCompoundBatchId, abaseCompoundId). 
                     In case the plate is not found in Abase return None.
         """
-        queryService = service.getDataSourceQueryService()
+        queryService = state.getDataSourceQueryService()
         queryResult = queryService.select(self.ABASE_DATA_SOURCE, self.ABASE_QUERY, [plate.code])
         
         sanofiMaterials = []
@@ -228,8 +236,5 @@ if len(plate.getContainedSamples()) == 0:
     plateInitializer = PlateInitializer(plate)
     plateInitializer.createWellsAndMaterials()
     
-    
 dataSet.setSample(plate)
 transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-
-# TODO KE: send emails on ERROR/SUCCESS
