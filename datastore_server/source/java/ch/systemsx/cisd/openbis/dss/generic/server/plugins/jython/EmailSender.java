@@ -64,6 +64,10 @@ public class EmailSender implements IEmailSender
 
     public IEmailSender withAttachedFile(String filePath, String attachmentName)
     {
+        if (attachmentName == null)
+        {
+            throw new IllegalArgumentException("Unspecified attachment name.");
+        }
         if (attachmentTextOrNull != null)
         {
             throw new IllegalStateException("Attachment text was already set.");
@@ -75,6 +79,10 @@ public class EmailSender implements IEmailSender
 
     public IEmailSender withAttachedText(String text, String attachmentName)
     {
+        if (attachmentName == null)
+        {
+            throw new IllegalArgumentException("Unspecified attachment name.");
+        }
         if (attachmentFilePathOrNull != null)
         {
             throw new IllegalStateException("Attachment file path was already set.");
@@ -82,6 +90,14 @@ public class EmailSender implements IEmailSender
         this.attachmentTextOrNull = text;
         this.attachmentNameOrNull = attachmentName;
         return this;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "EmailSender [subject=" + subject + ", bodyText=" + bodyText
+                + ", attachmentNameOrNull=" + attachmentNameOrNull + ", attachmentFilePathOrNull="
+                + attachmentFilePathOrNull + ", attachmentTextOrNull=" + attachmentTextOrNull + "]";
     }
 
     // sender

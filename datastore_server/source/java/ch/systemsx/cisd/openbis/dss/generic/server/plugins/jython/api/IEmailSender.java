@@ -28,9 +28,9 @@ public interface IEmailSender
 
     IEmailSender withBody(String bodyText);
 
-    IEmailSender withAttachedFile(String attachmentFilePath, String attachmentName);
+    IEmailSender withAttachedFile(String attachmentFilePath, String attachmentFileName);
 
-    IEmailSender withAttachedText(String attachmentText, String attachmentName);
+    IEmailSender withAttachedText(String attachmentText, String attachmentFileName);
 
     void send();
 }

@@ -138,7 +138,7 @@ class PluginScriptRunner
 
     private static ISearchService createSearchService()
     {
-        return ServiceProvider.getSearchServiceProvider();
+        return ServiceProvider.getSearchService();
     }
 
     private static IMailService createMailService(DataSetProcessingContext context)
