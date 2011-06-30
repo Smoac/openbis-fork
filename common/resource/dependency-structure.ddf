@@ -43,4 +43,14 @@ layer layer3 = [db] [parser]
 
 check layeringOf layer0 layer1 layer2
 
-check [parser] independentOf ${package}.exceptions.UserFailureException 
+check [parser] independentOf ${package}.exceptions.UserFailureException
+
+##########################
+# Hierarchical Content API
+
+[hierarchical-content-api] = ${package}.io.hierarchical_content.api.*
+[java] = java* *.annotation.* *.exceptions.* ch.systemsx.cisd.base.io.IRandomAccessFile 
+[java-and-hierarchical-content-api] = [java] [hierarchical-content-api]
+ 
+check sets [hierarchical-content-api]
+check [hierarchical-content-api] dependentOnlyOn [java-and-hierarchical-content-api] 

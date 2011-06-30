@@ -35,7 +35,7 @@ public final class EMailAddress implements Serializable
     {
         this(emailAddressOrNull, null);
     }
-    
+
     public EMailAddress(String emailAddressOrNull, String personalNameOrNull)
     {
         this.emailAddressOrNull = emailAddressOrNull;
@@ -68,9 +68,60 @@ public final class EMailAddress implements Serializable
             return "EmailAddress{email=" + emailAddressOrNull + "}";
         } else
         {
-            return "EmailAddress{email=" + emailAddressOrNull + ", personalname='" + personalNameOrNull
-                    + "'}";
+            return "EmailAddress{email=" + emailAddressOrNull + ", personalname='"
+                    + personalNameOrNull + "'}";
         }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result =
+                prime * result + ((emailAddressOrNull == null) ? 0 : emailAddressOrNull.hashCode());
+        result =
+                prime * result + ((personalNameOrNull == null) ? 0 : personalNameOrNull.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (!(obj instanceof EMailAddress))
+        {
+            return false;
+        }
+        EMailAddress other = (EMailAddress) obj;
+        if (emailAddressOrNull == null)
+        {
+            if (other.emailAddressOrNull != null)
+            {
+                return false;
+            }
+        } else if (!emailAddressOrNull.equals(other.emailAddressOrNull))
+        {
+            return false;
+        }
+        if (personalNameOrNull == null)
+        {
+            if (other.personalNameOrNull != null)
+            {
+                return false;
+            }
+        } else if (!personalNameOrNull.equals(other.personalNameOrNull))
+        {
+            return false;
+        }
+        return true;
     }
 
 }
