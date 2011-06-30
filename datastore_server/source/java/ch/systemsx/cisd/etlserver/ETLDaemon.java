@@ -62,6 +62,7 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
@@ -69,6 +70,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
@@ -224,6 +226,7 @@ public final class ETLDaemon
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
+        final IDataSourceQueryService dataSourceQueryService = new DataSourceQueryService();
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
         File[] shares = SegmentedStoreUtils.getShares(storeRootDir);
         List<String> incomingShares = new ArrayList<String>();
@@ -235,7 +238,7 @@ public final class ETLDaemon
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share " + shareId + ".");
             createProcessingThread(parameters, threadParameters, shareId, openBISService,
-                    highwaterMarkWatcher, mailClient, dataSetValidator,
+                    highwaterMarkWatcher, mailClient, dataSetValidator, dataSourceQueryService,
                     notifySuccessfulRegistration);
         }
         IncomingShareIdProvider.add(incomingShares);
@@ -286,13 +289,15 @@ public final class ETLDaemon
             final ThreadParameters threadParameters, String shareId,
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
-            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
+            final IDataSetValidator dataSetValidator,
+            IDataSourceQueryService dataSourceQueryService,
+            final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final ITopLevelDataSetRegistrator pathHandler =
                 createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
                         shareId, authorizedLimsService, mailClient, dataSetValidator,
-                        notifySuccessfulRegistration);
+                        dataSourceQueryService, notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
                         incomingDataDirectory, threadParameters.reprocessFaultyDatasets());
@@ -314,15 +319,17 @@ public final class ETLDaemon
     public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
             final Properties properties, final ThreadParameters threadParameters, String shareId,
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
-            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
+            final IDataSetValidator dataSetValidator,
+            IDataSourceQueryService dataSourceQueryService,
+            final boolean notifySuccessfulRegistration)
     {
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        openBISService, mailClient, dataSetValidator, notifySuccessfulRegistration,
-                        threadParameters);
+                        openBISService, mailClient, dataSetValidator, dataSourceQueryService,
+                        notifySuccessfulRegistration, threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
@@ -338,7 +345,9 @@ public final class ETLDaemon
     public static ITopLevelDataSetRegistrator createTopLevelDataSetRegistrator(
             final Properties properties, final ThreadParameters threadParameters, String shareId,
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
-            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
+            final IDataSetValidator dataSetValidator,
+            IDataSourceQueryService dataSourceQueryService,
+            final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
             String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
             String[] validationScriptsOrNull, Class<?> defaultTopLevelDataSetRegistratorClass)
@@ -348,10 +357,10 @@ public final class ETLDaemon
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        openBISService, mailClient, dataSetValidator, notifySuccessfulRegistration,
-                        threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
-                        preRegistrationScriptOrNull, postRegistrationScriptOrNull,
-                        validationScriptsOrNull);
+                        openBISService, mailClient, dataSetValidator, dataSourceQueryService,
+                        notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
+                        deleteUnidentified, preRegistrationScriptOrNull,
+                        postRegistrationScriptOrNull, validationScriptsOrNull);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils

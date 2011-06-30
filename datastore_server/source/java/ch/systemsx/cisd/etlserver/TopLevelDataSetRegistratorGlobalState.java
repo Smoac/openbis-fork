@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 
 /**
  * Global state needed by top level data set registrators.
@@ -48,6 +49,8 @@ public class TopLevelDataSetRegistratorGlobalState
     private final IMailClient mailClient;
 
     private final IDataSetValidator dataSetValidator;
+
+    private final IDataSourceQueryService dataSourceQueryService;
 
     private final boolean notifySuccessfulRegistration;
 
@@ -77,10 +80,12 @@ public class TopLevelDataSetRegistratorGlobalState
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
-            IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
+            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
+            boolean notifySuccessfulRegistration,
             ThreadParameters threadParameters)
     {
         this(dssCode, shareId, storeRootDir, openBisService, mailClient, dataSetValidator,
+                dataSourceQueryService,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
@@ -89,10 +94,11 @@ public class TopLevelDataSetRegistratorGlobalState
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
-            IDataSetValidator dataSetValidator, boolean notifySuccessfulRegistration,
-            ThreadParameters threadParameters, boolean useIsFinishedMarkerFile,
-            boolean deleteUnidentified, String preRegistrationScriptOrNull,
-            String postRegistrationScriptOrNull, String[] validationScriptsOrNull)
+            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
+            boolean notifySuccessfulRegistration, ThreadParameters threadParameters,
+            boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
+            String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
+            String[] validationScriptsOrNull)
     {
         this.dssCode = dssCode;
         this.shareId = shareId;
@@ -100,6 +106,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
+        this.dataSourceQueryService = dataSourceQueryService;
         this.notifySuccessfulRegistration = notifySuccessfulRegistration;
         this.threadParameters = threadParameters;
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
@@ -137,6 +144,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public IDataSetValidator getDataSetValidator()
     {
         return dataSetValidator;
+    }
+
+    public IDataSourceQueryService getDataSourceQueryService()
+    {
+        return dataSourceQueryService;
     }
 
     public boolean isNotifySuccessfulRegistration()

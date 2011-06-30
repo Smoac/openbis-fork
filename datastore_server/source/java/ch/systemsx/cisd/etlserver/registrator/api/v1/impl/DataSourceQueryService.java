@@ -23,9 +23,9 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.QueryTool;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 
 /**
  * @author Chandrasekhar Ramakrishnan

@@ -286,7 +286,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
-                        true, threadParameters);
+                        null, true, threadParameters);
 
         context.checking(new Expectations()
             {
@@ -803,7 +803,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
-                        true, threadParameters);
+                        null, true, threadParameters);
         context.checking(new Expectations()
             {
                 {

@@ -155,15 +155,16 @@ class DataSetTypeToRegistratorMapper
             if (null == defaultThread)
             {
                 return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                        firstThread, shareId, openBISService, mailClient, dataSetValidator, false,
+                        firstThread, shareId, openBISService, mailClient, dataSetValidator, null,
+                        false,
                         false, false, firstThread.tryGetPreRegistrationScript(),
                         firstThread.tryGetPostRegistrationScript(),
                         firstThread.tryGetValidationScripts(), PutDataSetServerPluginHolder.class);
             }
 
             return ETLDaemon.createTopLevelDataSetRegistrator(params.getProperties(),
-                    defaultThread, shareId, openBISService, mailClient, dataSetValidator, false,
-                    false, false, defaultThread.tryGetPreRegistrationScript(),
+                    defaultThread, shareId, openBISService, mailClient, dataSetValidator, null,
+                    false, false, false, defaultThread.tryGetPreRegistrationScript(),
                     defaultThread.tryGetPostRegistrationScript(),
                     defaultThread.tryGetValidationScripts(), PutDataSetServerPluginHolder.class);
         }
@@ -184,7 +185,7 @@ class DataSetTypeToRegistratorMapper
                 {
                     map.put(key.toUpperCase(), ETLDaemon.createTopLevelDataSetRegistrator(
                             params.getProperties(), threadParams, shareId, openBISService,
-                            mailClient, dataSetValidator, false));
+                            mailClient, dataSetValidator, null, false));
                 }
             }
             return map;

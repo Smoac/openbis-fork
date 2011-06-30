@@ -38,9 +38,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -69,8 +67,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     private final File incomingDataSetFile;
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
-
-    private final IDataSourceQueryService queryService;
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationService.class);
@@ -116,8 +112,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
 
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
-
-        this.queryService = new DataSourceQueryService();
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
@@ -190,11 +184,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                         UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile,
                         dataSetTypeCodeOrNull, null);
         return rollbacker.doRollback();
-    }
-
-    public IDataSourceQueryService getDataSourceQueryService()
-    {
-        return queryService;
     }
 
     public void didRollbackTransaction(DataSetRegistrationTransaction<T> transaction,
