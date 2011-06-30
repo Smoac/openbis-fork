@@ -348,7 +348,7 @@
         -->
   <target name="war" depends="openbis.war" description="Creates project war file.">
     <war warfile="${webapp.file}" update="true">
-      <classes prefix="WEB-INF/classes/screening" dir="source">
+      <classes prefix="WEB-INF/screening" dir="source">
         <include name="**/*.sql" />
       </classes>
       <classes dir="../openbis/${sources}">
