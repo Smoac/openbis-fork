@@ -373,9 +373,9 @@
       </fileset>
     </copy>
     <war warfile="${webapp.file}">
-    	<fileset dir="${webapp.file}.unpacked"/>
-    	<delete dir="${webapp.file}.unpacked"/>
+      <fileset dir="${webapp.file}.unpacked"/>
     </war>
+    <delete dir="${webapp.file}.unpacked"/>
   </target>
 
   <target name="check-dictionary-syntax" description="Parse *-dictionary.js and check that the syntax is correct.">
