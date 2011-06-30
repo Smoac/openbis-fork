@@ -342,32 +342,39 @@
 		<copy file="${webapp.dist}/${jar}" todir="${targets.www.openbis}"/>
 	</target>
 
-
   <!--
-        // Creates WAR file.
-        -->
+  // Creates WAR file.
+  Note, that <war update="true"> doesn't work in case of overwriting files.
+  -->
   <target name="war" depends="openbis.war" description="Creates project war file.">
-    <war warfile="${webapp.file}" update="true">
-      <classes prefix="WEB-INF/classes" dir="source">
+    <unzip src="${webapp.file}" dest="${webapp.file}.unpacked"/>
+    <copy todir="${webapp.file}.unpacked/WEB-INF/classes" overwrite="true">
+      <fileset dir="source">
         <include name="**/*.sql" />
-      </classes>
-      <classes dir="../openbis/${sources}">
+      </fileset>
+      <fileset dir="../openbis/${sources}">
         <include name="**/*.xml" />
         <exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
-      </classes>
-      <lib dir="${lib}/jaxb">
+      </fileset>
+    </copy>
+    <copy todir="${webapp.file}.unpacked/WEB-INF/lib" overwrite="true">
+      <fileset dir="${lib}/jaxb">
         <include name="*.jar" />
-      </lib>
-      <lib dir="${lib}/eodsql">
+      </fileset>
+      <fileset dir="${lib}/eodsql">
         <include name="*.jar" />
-      </lib>
-      <lib dir="${lib}/fast-md5">
+      </fileset>
+      <fileset dir="${lib}/fast-md5">
         <include name="*.jar" />
-      </lib>
-      <lib dir="${lib}/csv">
+      </fileset>
+      <fileset dir="${lib}/csv">
         <include name="*.jar" />
-      </lib>
+      </fileset>
+    </copy>
+    <war warfile="${webapp.file}">
+    	<fileset dir="${webapp.file}.unpacked"/>
+    	<delete dir="${webapp.file}.unpacked"/>
     </war>
   </target>
 
