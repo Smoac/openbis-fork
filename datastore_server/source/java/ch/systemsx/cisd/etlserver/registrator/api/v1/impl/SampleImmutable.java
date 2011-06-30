@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**

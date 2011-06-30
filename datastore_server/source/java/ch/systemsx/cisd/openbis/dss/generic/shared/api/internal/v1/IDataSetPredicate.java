@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
-
+import java.util.List;
 
 /**
- * @author Kaloyan Enimanev
+ * Interface implemented by classes which are able to extract data set codes from a
+ * method argument of type <code>A</code>.
+ * <p>
+ * <i>This is an internal class. Do not use it as a user of the API.</i>
+ *
+ * @author Franz-Josef Elmer
  */
-public interface ISpace extends ISpaceImmutable
+public interface IDataSetPredicate<A>
 {
     /**
-     * Set the space description.
+     * Extracts from the specified argument data set codes. Returns an empty list if there is no
+     * data set code to extract.
      */
-    void setDescription(String description);
-
+    public List<String> getDataSetCodes(A argument);
 }

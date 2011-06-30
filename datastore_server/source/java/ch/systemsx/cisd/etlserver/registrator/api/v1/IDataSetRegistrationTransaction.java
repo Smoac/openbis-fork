@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IProjectImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
 
 /**
  * Interface for a data set registration transaction. All actions that go through the transaction

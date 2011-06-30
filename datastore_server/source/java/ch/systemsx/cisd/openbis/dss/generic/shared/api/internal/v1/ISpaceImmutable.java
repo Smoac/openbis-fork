@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 /**
+ * An interface for spaces from the database that should not be altered.
+ * 
  * @author Kaloyan Enimanev
  */
-public interface IProjectImmutable
+public interface ISpaceImmutable
 {
 
     /**
-     * Return the identifier for this project.
+     * Return the code for this space.
      */
-    String getProjectIdentifier();
+    String getSpaceCode();
 
     /**
-     * Return the description for this project.
+     * Return the description for this space.
      */
     String getDescription();
 
     /**
-     * Return true if the project exists in the database.
+     * Return true if the space exists in the database.
      */
-    boolean isExistingProject();
+    boolean isExistingSpace();
+
+
 }

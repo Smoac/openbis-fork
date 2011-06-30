@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 /**
  * Read-only interface to an existing experiment.

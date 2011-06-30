@@ -14,30 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 /**
- * An interface for spaces from the database that should not be altered.
- * 
  * @author Kaloyan Enimanev
  */
-public interface ISpaceImmutable
+public interface IMaterialImmutable
 {
 
     /**
-     * Return the code for this space.
+     * Return the identifier for this material.
      */
-    String getSpaceCode();
+    String getMaterialIdentifier();
 
     /**
-     * Return the description for this space.
+     * Return the code for this material.
      */
-    String getDescription();
+    String getCode();
 
     /**
-     * Return true if the space exists in the database.
+     * Return the type for this material. May be null.
      */
-    boolean isExistingSpace();
+    String getMaterialType();
 
+    /**
+     * Return true if the material exists in the database.
+     */
+    boolean isExistingMaterial();
+
+    /**
+     * Return the value of a property specified by a code. May return null of no such property with
+     * code <code>propertyCode</code> is found.
+     */
+    String getPropertyValue(String propertyCode);
 
 }

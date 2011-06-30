@@ -26,7 +26,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 
 /**
  * Provider of remote service onto openBIS.

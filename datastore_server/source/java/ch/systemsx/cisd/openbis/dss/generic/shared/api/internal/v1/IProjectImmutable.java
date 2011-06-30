@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
-
-import java.util.List;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 /**
- * Interface implemented by classes which are able to extract data set codes from a
- * method argument of type <code>A</code>.
- * <p>
- * <i>This is an internal class. Do not use it as a user of the API.</i>
- *
- * @author Franz-Josef Elmer
+ * @author Kaloyan Enimanev
  */
-public interface IDataSetPredicate<A>
+public interface IProjectImmutable
 {
+
     /**
-     * Extracts from the specified argument data set codes. Returns an empty list if there is no
-     * data set code to extract.
+     * Return the identifier for this project.
      */
-    public List<String> getDataSetCodes(A argument);
+    String getProjectIdentifier();
+
+    /**
+     * Return the description for this project.
+     */
+    String getDescription();
+
+    /**
+     * Return true if the project exists in the database.
+     */
+    boolean isExistingProject();
 }

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**

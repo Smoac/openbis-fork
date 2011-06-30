@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 
 
 /**

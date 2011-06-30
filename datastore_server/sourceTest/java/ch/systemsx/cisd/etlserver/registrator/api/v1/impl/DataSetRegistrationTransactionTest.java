@@ -49,7 +49,7 @@ import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;

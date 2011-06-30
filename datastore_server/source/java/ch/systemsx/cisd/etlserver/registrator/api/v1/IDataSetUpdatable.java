@@ -18,9 +18,9 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSetImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
