@@ -451,7 +451,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertedDataSets;
     }
 
-    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+    public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal)
     {
         changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,

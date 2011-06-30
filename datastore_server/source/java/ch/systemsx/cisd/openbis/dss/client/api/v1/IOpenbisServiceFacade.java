@@ -63,7 +63,7 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
     public List<DataSet> listDataSets(List<Sample> samples, EnumSet<Connections> connectionsToGet);
 
     /**
-     * Adds new unofficial (ad-hoc) terms to a vocabulary starting from specified ordinal + 1.
+     * Adds new ad-hoc terms to a vocabulary starting from specified ordinal + 1.
      * 
      * @param vocabularyId The id of vocabulary which should be extended.
      * @param code Code of new vocabulary term.
@@ -72,7 +72,7 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @param previousTermOrdinal new vocabulary term will be placed right after vocabulary term
      *            with given ordinal number.
      */
-    public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
+    public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal);
 
     /**

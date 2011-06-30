@@ -513,7 +513,7 @@ public class DataSetUploadClientModel
     public void addUnofficialVocabularyTerm(Vocabulary vocabulary, String code, String label,
             String description, Long previousTermOrdinal)
     {
-        openBISService.addUnofficialVocabularyTerm(TechId.create(vocabulary), code, label,
+        openBISService.addAdHocVocabularyTerm(TechId.create(vocabulary), code, label,
                 description, previousTermOrdinal);
         dataSetTypes = openBISService.listDataSetTypes();
         vocabularyTerms = openBISService.getVocabularyTermsMap();
