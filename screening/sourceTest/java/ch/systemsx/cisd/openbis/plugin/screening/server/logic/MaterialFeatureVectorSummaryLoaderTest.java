@@ -90,7 +90,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         assertArraysEqual(new float[]
             { 65, 650 }, generalSummary.getFeatureVectorSummary());
         assertArraysEqual(new int[]
-            { 2, 1 }, generalSummary.getFeatureVectorRanks());
+            { 2, 3 }, generalSummary.getFeatureVectorRanks());
         assertEquals(replId, generalSummary.getMaterial().longValue());
 
         assertEquals(featuresDesc, featureVectors.getFeatureDescriptions());
