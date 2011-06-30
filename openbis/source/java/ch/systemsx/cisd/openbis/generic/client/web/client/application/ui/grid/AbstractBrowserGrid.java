@@ -314,8 +314,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
         if (viewContext.getModel().isEmbeddedMode())
         {
-            removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.FILTERS,
-                    PagingToolBarButtonKind.REFRESH);
+            removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.REFRESH);
         }
     }
 

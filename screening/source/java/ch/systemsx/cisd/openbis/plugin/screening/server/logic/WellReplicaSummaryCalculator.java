@@ -301,7 +301,7 @@ public class WellReplicaSummaryCalculator
 
     private static void sortBySelectedFeature(List<IWellData> replicaWells, int featureIx)
     {
-        Collections.sort(replicaWells, createSelectedFeatureDescendingComparator(featureIx));
+        Collections.sort(replicaWells, createSelectedFeatureAscendingComparator(featureIx));
     }
 
     private static int getNumberOfFeatures(List<? extends IWellData> replicaWells)
@@ -379,7 +379,7 @@ public class WellReplicaSummaryCalculator
         return Float.isInfinite(value) == false && Float.isNaN(value) == false;
     }
 
-    private static Comparator<IWellData> createSelectedFeatureDescendingComparator(
+    private static Comparator<IWellData> createSelectedFeatureAscendingComparator(
             final int featureIx)
     {
         return new Comparator<IWellData>()
@@ -393,7 +393,7 @@ public class WellReplicaSummaryCalculator
                         // all non-numerical numbers are equal and should be at the end of the list
                         return isNumerical(v1) ? -1 : 1;
                     }
-                    return -Float.compare(v1, v2);
+                    return Float.compare(v1, v2);
                 }
             };
     }

@@ -163,6 +163,7 @@ public class MaterialReplicaSummaryComponent
     {
         LayoutContainer imagePanel = new LayoutContainer();
         boolean shouldDisplayLabels = orphanTechnicalReplicates.size() > 1;
+        int oneImageSizeFactorPx = getOneImageSizeFactorPx(1);
 
         for (WellReplicaImage image : orphanTechnicalReplicates)
         {
@@ -176,7 +177,8 @@ public class MaterialReplicaSummaryComponent
                 imageWithLabel.add(label);
             }
 
-            Widget imageViewer = createImageViewer(image.getWellImage(), channelChooser);
+            Widget imageViewer =
+                    createImageViewer(image.getWellImage(), channelChooser, oneImageSizeFactorPx);
             imageWithLabel.add(imageViewer);
 
             imagePanel.add(imageWithLabel);
@@ -214,7 +216,9 @@ public class MaterialReplicaSummaryComponent
                 if (i < sortedTechnicalReplicates.size())
                 {
                     WellImage wellImage = sortedTechnicalReplicates.get(i).getWellImage();
-                    Widget imageViewer = createImageViewer(wellImage, channelChooser);
+                    Widget imageViewer =
+                            createImageViewer(wellImage, channelChooser,
+                                    getOneImageSizeFactorPx(maxReplicaNumber));
                     imagePanel.add(imageViewer);
                 } else
                 {
@@ -223,6 +227,20 @@ public class MaterialReplicaSummaryComponent
             }
         }
         return imagePanel;
+    }
+
+    // The image size is dependent on number of replicas (each is displayed in one column) in a
+    // following way:
+    // replicas number -> magnification
+    // 1 -> 1.5
+    // 2 -> 1.25
+    // 3 -> 1
+    // other -> 0.75
+    private int getOneImageSizeFactorPx(int maxReplicaNumber)
+    {
+        double columnFactor = 1 + 0.25 * (3 - maxReplicaNumber);
+        columnFactor = Math.max(columnFactor, 0.75);
+        return (int) (ONE_IMAGE_SIZE_FACTOR_PX * columnFactor);
     }
 
     private static List<String> sortCopy(Set<String> values)
@@ -301,7 +319,8 @@ public class MaterialReplicaSummaryComponent
         }
     }
 
-    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser)
+    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser,
+            final int oneImageSizeFactorPx)
     {
         assert image.tryGetImageDataset() != null;
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
@@ -309,7 +328,7 @@ public class MaterialReplicaSummaryComponent
                 public Widget create(List<String> channels)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, ONE_IMAGE_SIZE_FACTOR_PX, channels);
+                            image, oneImageSizeFactorPx, channels);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);

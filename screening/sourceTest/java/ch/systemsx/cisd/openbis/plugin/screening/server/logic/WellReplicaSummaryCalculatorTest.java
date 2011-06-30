@@ -75,9 +75,9 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
             { 0, 90 }, repl2.tryGetFeatureVectorDeviations());
 
         assertArraysEqual(new int[]
-            { 1, 2 }, repl1.getFeatureVectorRanks());
+            { 2, 1 }, repl1.getFeatureVectorRanks());
         assertArraysEqual(new int[]
-            { 2, 1 }, repl2.getFeatureVectorRanks());
+            { 1, 2 }, repl2.getFeatureVectorRanks());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class WellReplicaSummaryCalculatorTest extends AssertJUnit
             { 2, 1, 1, 2, Float.NaN, 3, Float.POSITIVE_INFINITY };
         int[] ranks = calculateOneFeatureRanks(oneFeatureSummaryValues);
         assertArraysEqual(new int[]
-            { 2, 4, 4, 2, 6, 1, 6 }, ranks);
+            { 3, 1, 1, 3, 6, 5, 6 }, ranks);
     }
 
     private int[] calculateOneFeatureRanks(float[] oneFeatureSummaryValues)
