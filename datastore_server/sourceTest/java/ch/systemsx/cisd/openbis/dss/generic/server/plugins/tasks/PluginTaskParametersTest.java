@@ -259,7 +259,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     {
         DatasetDescription description = new DatasetDescription();
         final String dataSetCode = "dataset-1";
-        description.setDatasetCode(dataSetCode);
+        description.setDataSetCode(dataSetCode);
         description.setDataSetLocation(dataSetCode);
         description.setSampleCode("sampleCode");
         description.setSpaceCode("groupCode");

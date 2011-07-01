@@ -102,7 +102,7 @@ public class IterativeTableModelBuilderTest
     private DatasetDescription createDatasetDescription()
     {
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode("code");
+        description.setDataSetCode("code");
         description.setDataSetLocation("location");
         description.setSampleCode("sampleCode");
         description.setSpaceCode("groupCode");

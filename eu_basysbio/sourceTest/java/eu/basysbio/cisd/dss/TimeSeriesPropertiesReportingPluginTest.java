@@ -86,7 +86,7 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
         FileUtilities.writeToFile(file, header);
         DatasetDescription datasetDescription = new DatasetDescription();
         datasetDescription.setDataSetLocation(dataSetCode);
-        datasetDescription.setDatasetCode(dataSetCode);
+        datasetDescription.setDataSetCode(dataSetCode);
         return datasetDescription;
     }
 }

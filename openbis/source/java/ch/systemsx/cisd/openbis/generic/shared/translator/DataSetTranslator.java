@@ -60,7 +60,7 @@ public class DataSetTranslator
     public static DatasetDescription translateToDescription(ExternalData data)
     {
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode(data.getCode());
+        description.setDataSetCode(data.getCode());
 
         DataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)

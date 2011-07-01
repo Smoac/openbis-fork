@@ -624,7 +624,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         assert dataSet != null;
 
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode(dataSet.getCode());
+        description.setDataSetCode(dataSet.getCode());
         if (dataSet.isExternalData())
         {
             ExternalDataPE externalData = dataSet.tryAsExternalData();

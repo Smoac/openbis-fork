@@ -71,8 +71,6 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     private static final boolean DEFAULT_SINGLE_REPORT_FOR_ALL = false;
 
-    private final String scriptPath;
-
     private final String emailSubject;
 
     private final String emailBody;
@@ -81,9 +79,13 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     private final boolean singleReport;
 
+    private final IPluginScriptRunnerFactory scriptRunnerFactory;
+
     public ReportingBasedProcessingPlugin(Properties properties, File storeRoot)
     {
-        this.scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+        this.scriptRunnerFactory =
+                new PluginScriptRunnerFactory(PropertyUtils.getMandatoryProperty(properties,
+                        SCRIPT_PATH));
         this.singleReport =
                 PropertyUtils.getBoolean(properties, SINGLE_REPORT, DEFAULT_SINGLE_REPORT_FOR_ALL);
         this.emailSubject =
@@ -142,7 +144,8 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
     public TableModel createTableModel(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        return JythonBasedReportingPlugin.createReport(dataSets, context, scriptPath);
+        return JythonBasedReportingPlugin
+                .createReport(dataSets, context, scriptRunnerFactory, null);
     }
 
 }

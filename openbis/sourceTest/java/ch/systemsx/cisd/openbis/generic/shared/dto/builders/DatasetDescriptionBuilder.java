@@ -30,7 +30,7 @@ public class DatasetDescriptionBuilder
     public DatasetDescriptionBuilder(String code)
     {
         datasetDescription = new DatasetDescription();
-        datasetDescription.setDatasetCode(code);
+        datasetDescription.setDataSetCode(code);
     }
     
     public DatasetDescriptionBuilder type(String dataSetTypeCode)

@@ -77,7 +77,7 @@ public class SimpleDataSetHelper
         result.setSpeedHint(datasetDescription.getSpeedHint());
         result.setDataSetLocation(datasetDescription.getDataSetLocation());
         result.setDataSetSize(datasetDescription.getDataSetSize());
-        result.setDataSetType(datasetDescription.getDatasetTypeCode());
+        result.setDataSetType(datasetDescription.getDataSetTypeCode());
         result.setExperimentCode(datasetDescription.getExperimentCode());
         result.setGroupCode(datasetDescription.getSpaceCode());
         result.setProjectCode(datasetDescription.getProjectCode());

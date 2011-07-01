@@ -81,9 +81,9 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         task = context.mock(IProcessingPluginTask.class);
         mailClient = context.mock(IMailClient.class);
         ds1 = new DatasetDescription();
-        ds1.setDatasetCode("ds1");
+        ds1.setDataSetCode("ds1");
         ds2 = new DatasetDescription();
-        ds2.setDatasetCode("ds2");
+        ds2.setDataSetCode("ds2");
         parameterBindings = new HashMap<String, String>();
         dataSets = Arrays.<DatasetDescription> asList(ds1, ds2);
         command =

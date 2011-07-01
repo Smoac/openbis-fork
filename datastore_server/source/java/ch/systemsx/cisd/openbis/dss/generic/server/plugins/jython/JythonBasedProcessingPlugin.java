@@ -48,11 +48,31 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
 
     private static final String SCRIPT_PATH = "script-path";
 
-    private final String scriptPath;
+    private final IPluginScriptRunnerFactory scriptRunnerFactory;
+
+    transient IHierarchicalContentProvider hierarchicalContentProvider;
 
     public JythonBasedProcessingPlugin(Properties properties, File storeRoot)
     {
-        this.scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+        this(new PluginScriptRunnerFactory(PropertyUtils.getMandatoryProperty(properties,
+                SCRIPT_PATH)), null);
+    }
+
+    // for tests
+    JythonBasedProcessingPlugin(IPluginScriptRunnerFactory scriptRunnerFactory,
+            IHierarchicalContentProvider contentProvider)
+    {
+        this.scriptRunnerFactory = scriptRunnerFactory;
+        this.hierarchicalContentProvider = contentProvider;
+    }
+
+    private IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (hierarchicalContentProvider == null)
+        {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
     }
 
     public ProcessingStatus process(List<DatasetDescription> dataSets,
@@ -60,9 +80,8 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
     {
         operationLog.info("Processing of the following datasets has been requested: " + dataSets);
         final IProcessingPluginScriptRunner scriptRunner =
-                PluginScriptRunner.createProcessingPluginRunnerFromScriptPath(scriptPath, context);
-        final IHierarchicalContentProvider contentProvider =
-                ServiceProvider.getHierarchicalContentProvider();
+                scriptRunnerFactory.createProcessingPluginRunner(context);
+        final IHierarchicalContentProvider contentProvider = getHierarchicalContentProvider();
         final List<IDataSet> iDataSets = JythonBasedPluginUtils.convert(dataSets, contentProvider);
         try
         {

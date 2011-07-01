@@ -61,7 +61,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         dataSetInStore = new File(new File(store, SHARE_ID), "dataset");
         dataSetInStore.mkdirs();
         datasetDescription = new DatasetDescription();
-        datasetDescription.setDatasetCode("ds1");
+        datasetDescription.setDataSetCode("ds1");
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
         processingContext = new DataSetProcessingContext(

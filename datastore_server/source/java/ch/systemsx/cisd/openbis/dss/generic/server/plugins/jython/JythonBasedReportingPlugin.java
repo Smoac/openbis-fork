@@ -51,31 +51,51 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractDatastorePlugin.class);
 
-    private final String scriptPath;
+    private final IPluginScriptRunnerFactory scriptRunnerFactory;
+
+    transient IHierarchicalContentProvider hierarchicalContentProvider;
 
     public JythonBasedReportingPlugin(Properties properties, File storeRoot)
     {
+        this(properties, storeRoot, new PluginScriptRunnerFactory(
+                PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH)), null);
+    }
+
+    // for tests
+    JythonBasedReportingPlugin(Properties properties, File storeRoot,
+            IPluginScriptRunnerFactory scriptRunnerFactory,
+            IHierarchicalContentProvider contentProvider)
+    {
         super(properties, storeRoot);
-        this.scriptPath = PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+        this.scriptRunnerFactory = scriptRunnerFactory;
+        this.hierarchicalContentProvider = contentProvider;
     }
 
     public TableModel createReport(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        return createReport(dataSets, context, scriptPath);
+        return createReport(dataSets, context, scriptRunnerFactory,
+                getHierarchicalContentProvider());
+    }
+
+    private IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (hierarchicalContentProvider == null)
+        {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
     }
 
     public static TableModel createReport(List<DatasetDescription> dataSets,
-            DataSetProcessingContext context, String scriptPath)
+            DataSetProcessingContext context, IPluginScriptRunnerFactory scriptRunnerFactory,
+            IHierarchicalContentProvider contentProvider)
     {
         operationLog.info("Report for the following datasets has been requested: " + dataSets);
         try
         {
             final IReportingPluginScriptRunner scriptRunner =
-                    PluginScriptRunner.createReportingPluginRunnerFromScriptPath(scriptPath,
-                            context);
-            final IHierarchicalContentProvider contentProvider =
-                    ServiceProvider.getHierarchicalContentProvider();
+                    scriptRunnerFactory.createReportingPluginRunner(context);
             final List<IDataSet> iDataSets =
                     JythonBasedPluginUtils.convert(dataSets, contentProvider);
             try
@@ -101,4 +121,5 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
     {
         scriptRunner.describe(dataSets, tableBuilder);
     }
+
 }

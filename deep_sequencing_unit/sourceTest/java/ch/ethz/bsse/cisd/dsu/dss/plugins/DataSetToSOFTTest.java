@@ -126,7 +126,7 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
     public void test() throws IOException
     {
         DatasetDescription datasetDescription = new DatasetDescription();
-        datasetDescription.setDatasetCode(DATASET_CODE);
+        datasetDescription.setDataSetCode(DATASET_CODE);
         datasetDescription.setDataSetLocation(".");
         List<DatasetDescription> dataSets = Arrays.asList(datasetDescription);
         final Sample flowLaneSample = sample(42, FLOW_LANE_SAMPLE_CODE);

@@ -31,7 +31,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 {
     private static final long serialVersionUID = 20L;
 
-    private String datasetTypeCode;
+    private String dataSetTypeCode;
 
     private String datasetCode;
 
@@ -78,12 +78,12 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     public void setDatasetTypeCode(String datasetTypeCode)
     {
-        this.datasetTypeCode = datasetTypeCode;
+        this.dataSetTypeCode = datasetTypeCode;
     }
 
-    public String getDatasetTypeCode()
+    public String getDataSetTypeCode()
     {
-        return datasetTypeCode;
+        return dataSetTypeCode;
     }
 
     public Long getDataSetSize()
@@ -116,7 +116,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
         return datasetCode;
     }
 
-    public void setDatasetCode(String datasetCode)
+    public void setDataSetCode(String datasetCode)
     {
         this.datasetCode = datasetCode;
     }

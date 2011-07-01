@@ -201,7 +201,7 @@ public class DataSetFileOperationsManagerTest extends AbstractFileSystemTestCase
             boolean withSample)
     {
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode(dataSetCode);
+        description.setDataSetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
         description.setDatabaseInstanceCode("i");

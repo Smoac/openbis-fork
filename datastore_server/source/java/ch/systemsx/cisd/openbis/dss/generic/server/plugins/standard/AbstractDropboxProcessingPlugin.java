@@ -107,7 +107,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
             Status status, DataSetProcessingContext context)
     {
         String dataSet =
-                render(dataSetDescription.getDataSetCode(), dataSetDescription.getDatasetTypeCode());
+                render(dataSetDescription.getDataSetCode(), dataSetDescription.getDataSetTypeCode());
         String experiment =
                 render(dataSetDescription.getExperimentIdentifier(),
                         dataSetDescription.getExperimentTypeCode());
@@ -195,7 +195,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     private DataSetInformation createDatasetInfo(DatasetDescription dataset)
     {
         DataSetInformation datasetInfo = new DataSetInformation();
-        String datasetTypeCode = dataset.getDatasetTypeCode();
+        String datasetTypeCode = dataset.getDataSetTypeCode();
         datasetInfo.setDataSetType(new DataSetType(datasetTypeCode));
         datasetInfo.setSampleCode(dataset.getSampleCode());
         datasetInfo.setSpaceCode(dataset.getSpaceCode());

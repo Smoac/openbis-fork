@@ -38,14 +38,52 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
 /**
  * @author Piotr Buczek
  */
-class PluginScriptRunner
+class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PluginScriptRunner.class);
+            PluginScriptRunnerFactory.class);
 
     private final static String SEARCH_SERVICE_VARIABLE_NAME = "searchService";
 
     private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
+
+    private final String scriptPath;
+
+    public PluginScriptRunnerFactory(String scriptPath)
+    {
+        this.scriptPath = scriptPath;
+    }
+
+    /**
+     * Factory method for creating an IReportingPluginScriptRunner for a given processing context.
+     */
+    public IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context)
+    {
+        String scriptString = extractScriptFromPath(scriptPath);
+        try
+        {
+            return createReportingPluginRunnerFromScriptString(scriptString, context);
+        } catch (EvaluatorException ex)
+        {
+            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+        }
+    }
+
+    /**
+     * Factory method for creating an IProcessingPluginScriptRunner for a given processing context.
+     */
+    public IProcessingPluginScriptRunner createProcessingPluginRunner(
+            DataSetProcessingContext context)
+    {
+        String scriptString = extractScriptFromPath(scriptPath);
+        try
+        {
+            return createProcessingPluginRunnerFromScriptString(scriptString, context);
+        } catch (EvaluatorException ex)
+        {
+            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+        }
+    }
 
     /**
      * @return script string from file with given path
@@ -75,38 +113,6 @@ class PluginScriptRunner
                     throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
                 }
             }
-        }
-    }
-
-    /**
-     * Factory method for creating an IReportingPluginScriptRunner given a path to a script.
-     */
-    public static IReportingPluginScriptRunner createReportingPluginRunnerFromScriptPath(
-            String scriptPath, DataSetProcessingContext context)
-    {
-        String scriptString = extractScriptFromPath(scriptPath);
-        try
-        {
-            return createReportingPluginRunnerFromScriptString(scriptString, context);
-        } catch (EvaluatorException ex)
-        {
-            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
-        }
-    }
-
-    /**
-     * Factory method for creating an IProcessingPluginScriptRunner given a path to a script.
-     */
-    public static IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptPath(
-            String scriptPath, DataSetProcessingContext context)
-    {
-        String scriptString = extractScriptFromPath(scriptPath);
-        try
-        {
-            return createProcessingPluginRunnerFromScriptString(scriptString, context);
-        } catch (EvaluatorException ex)
-        {
-            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
         }
     }
 
@@ -146,23 +152,17 @@ class PluginScriptRunner
         return new MailService(context.getMailClient(), context.getUserEmailOrNull());
     }
 
-    protected final Evaluator evaluator;
-
-    PluginScriptRunner(Evaluator evaluator)
-    {
-        this.evaluator = evaluator;
-    }
-
-    static class ReportingPluginScriptRunner extends PluginScriptRunner implements
-            IReportingPluginScriptRunner
+    static class ReportingPluginScriptRunner implements IReportingPluginScriptRunner
     {
         private final static String DESCRIBE_FUNCTION_NAME = "describe";
+
+        private final Evaluator evaluator;
 
         private static final long serialVersionUID = 1L;
 
         ReportingPluginScriptRunner(Evaluator evaluator)
         {
-            super(evaluator);
+            this.evaluator = evaluator;
             if (false == evaluator.hasFunction(DESCRIBE_FUNCTION_NAME))
             {
                 throw new EvaluatorException("Function '" + DESCRIBE_FUNCTION_NAME
@@ -176,14 +176,15 @@ class PluginScriptRunner
         }
     }
 
-    static class ProcessingPluginScriptRunner extends PluginScriptRunner implements
-            IProcessingPluginScriptRunner
+    static class ProcessingPluginScriptRunner implements IProcessingPluginScriptRunner
     {
         private final static String PROCESS_FUNCTION_NAME = "process";
 
+        private final Evaluator evaluator;
+
         ProcessingPluginScriptRunner(Evaluator evaluator)
         {
-            super(evaluator);
+            this.evaluator = evaluator;
             if (false == evaluator.hasFunction(PROCESS_FUNCTION_NAME))
             {
                 throw new EvaluatorException("Function '" + PROCESS_FUNCTION_NAME

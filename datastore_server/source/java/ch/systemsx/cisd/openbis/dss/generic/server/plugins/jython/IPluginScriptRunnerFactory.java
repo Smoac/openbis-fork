@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
-import java.util.List;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
-
-public interface IReportingPluginScriptRunner
+/**
+ * @author Piotr Buczek
+ */
+public interface IPluginScriptRunnerFactory
 {
-    void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
-            throws EvaluatorException;
+    IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
+
+    IProcessingPluginScriptRunner createProcessingPluginRunner(DataSetProcessingContext context);
+
 }

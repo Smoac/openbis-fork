@@ -84,13 +84,13 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
     public final void test()
     {
         final DatasetDescription ds1 = new DatasetDescription();
-        ds1.setDatasetCode("ds1");
+        ds1.setDataSetCode("ds1");
         final ImgContainerDTO p1 = new ImgContainerDTO("p1", 3, 2, 0);
         p1.setId(101);
         final SampleIdentifier p1Identifier =
                 new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1");
         final DatasetDescription ds2 = new DatasetDescription();
-        ds2.setDatasetCode("ds2");
+        ds2.setDataSetCode("ds2");
         final ImgContainerDTO p2 = new ImgContainerDTO("p2", 2, 1, 0);
         p2.setId(102);
         final SampleIdentifier p2Identifier =

@@ -109,7 +109,7 @@ public class JythonBasedPluginUtils
 
                 public String getDataSetTypeCode()
                 {
-                    return description.getDatasetTypeCode();
+                    return description.getDataSetTypeCode();
                 }
 
                 public String getDatabaseInstanceCode()

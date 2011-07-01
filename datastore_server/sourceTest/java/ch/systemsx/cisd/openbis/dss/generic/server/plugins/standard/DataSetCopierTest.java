@@ -162,7 +162,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private DatasetDescription createDataSetDescription(String dataSetCode, String location, boolean withSample)
     {
         DatasetDescription description = new DatasetDescription();
-        description.setDatasetCode(dataSetCode);
+        description.setDataSetCode(dataSetCode);
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
         description.setDatabaseInstanceCode("i");
