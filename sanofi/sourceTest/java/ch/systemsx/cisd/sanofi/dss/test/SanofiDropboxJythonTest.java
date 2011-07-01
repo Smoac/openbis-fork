@@ -80,7 +80,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String[] EXPERIMENT_RECIPIENTS = new String[]
         { "admin@sanofi.com", "mickey@mouse.org" };
 
-    private static final String MATERIAL_TYPE = "COMPOUND_BATCH";
+    private static final String MATERIAL_TYPE = "COMPOUND";
     
     private static final String POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL";
 
@@ -88,9 +88,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String COMPOUND_WELL_TYPE = "COMPOUND_WELL";
 
-    private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION";
+    private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M";
 
-    private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH";
+    private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND";
 
     private static final String DATASET_DIR_NAME = "batchNr_plateCode.variant_2011.06.28";
 
@@ -116,16 +116,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createHandler(properties, false, true);
         createData();
 
-        final String libraryTemplate = "1.45\t20.701\tH\n0.12\t0.002\tL";
+        final String libraryTemplate = "1.45\t\tH\n0.12\t0.002\tL";
         final Sample plate = createPlate(libraryTemplate, "6_WELLS_2X3");
         setUpPlateSearchExpectations(plate);
         setUpLibraryTemplateExpectations(plate);
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
-        queryResult.add(createQueryResult("A0"));
         queryResult.add(createQueryResult("A1"));
-        queryResult.add(createQueryResult("B0"));
         queryResult.add(createQueryResult("B1"));
+        queryResult.add(createQueryResult("B2"));
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
@@ -143,7 +142,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
                     will(returnValue(Collections.emptyList()));
                     
-                    exactly(6).of(openBisService).createPermId();
+                    exactly(5).of(openBisService).createPermId();
                     will(returnValue("well-permId"));
 
                     one(openBisService).createDataSetCode();
@@ -178,14 +177,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         List<NewSample> registeredSamples =
                 atomicatOperationDetails.recordedObject().getSampleRegistrations();
 
-        assertEquals(6, registeredSamples.size());
+        assertEquals(5, registeredSamples.size());
         assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
-        assertCompoundWell(registeredSamples, "A0", "1.45");
-        assertCompoundWell(registeredSamples, "A1", "20.701");
-        assertPositiveControl(registeredSamples, "A2");
-        assertCompoundWell(registeredSamples, "B0", "0.12");
-        assertCompoundWell(registeredSamples, "B1", "0.002");
-        assertNegativeControl(registeredSamples, "B2");
+        assertCompoundWell(registeredSamples, "A1", "1.45");
+        assertPositiveControl(registeredSamples, "A3");
+        assertCompoundWell(registeredSamples, "B1", "0.12");
+        assertCompoundWell(registeredSamples, "B2", "0.002");
+        assertNegativeControl(registeredSamples, "B3");
 
         List<? extends NewExternalData> dataSetsRegistered =
                 atomicatOperationDetails.recordedObject().getDataSetRegistrations();

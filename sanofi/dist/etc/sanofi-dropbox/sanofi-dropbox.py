@@ -1,3 +1,5 @@
+import re
+
 from ch.systemsx.cisd.common.mail import From
 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria 
@@ -98,14 +100,25 @@ class SanofiMaterial:
        A data structure class holding compound materials as they exist in the Abase (Sanofi) database.
     """
     def __init__(self, wellCode, materialCode, sanofiId, sanofiBatchId):
-        self.wellCode = wellCode
+        self.wellCode = self.normalizeWellCode(wellCode)
         self.materialCode = materialCode
         self.sanofiId = sanofiId
         self.sanofiBatchId = sanofiBatchId
+    
+    def normalizeWellCode(self, wellCode):
+        """ normalizes Sanofi wellCodes openBIS wellCodes e.g. AB007 to AB7 """
+        return re.sub("(?<=\w)(0+)(?=\d)", "", wellCode)
             
 class PlateInitializer:
     ABASE_DATA_SOURCE = "abase-datasource"
-    ABASE_QUERY = "TODO: this a query provided by Matt"
+    ABASE_QUERY = """select
+                        ptodwellreference WELL_CODE,
+                        translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
+                        objdbatchref ABASE_COMPOUND_BATCH_ID,
+                        objdid ABASE_COMPOUND_ID,
+                        olptid ABASE_PLATE_CODE
+                        from sysadmin.plteobjd
+                        where olptid = ?{1}"""
     
     LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE"
     
@@ -113,10 +126,10 @@ class PlateInitializer:
     NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL"
     
     COMPOUND_WELL_TYPE = "COMPOUND_WELL"
-    COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION"
-    COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH"
+    COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M"
+    COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND"
     
-    MATERIAL_TYPE = "COMPOUND_BATCH"
+    MATERIAL_TYPE = "COMPOUND"
     MATERIAL_ID_PROPNAME = "COMPOUND_ID"
     MATERIAL_BATCH_ID_PROPNAME = "COMPOUND_BATCH_ID"
             
@@ -125,9 +138,16 @@ class PlateInitializer:
         self.plate = plate
         self.plateCode = plate.getCode()
         self.experimentId = plate.getExperiment().getExperimentIdentifier()
+    
+    def wellColumn(self, x):
+        numLetters = 26
+        if x < numLetters:
+            return chr(ord('A') + x)
+        else:
+            return self.wellColumn((x / numLetters) - 1) + self.wellColumn( x % numLetters) 
         
     def getWellCode(self, x, y):
-        return chr(ord('A') + x) + str(y)
+        return self.wellColumn(x) + str(y + 1)
     
     def getPlateDimensions(self):
         """
@@ -146,14 +166,15 @@ class PlateInitializer:
         if plateHeight != len(tsvLines) :
             raise RuntimeError("The geometry property of plate %(plateCode)s (height=%(plateHeight)s)"
                                " does not agree with the value of the %(LIBRARY_TEMPLATE_PROPNAME)s"
-                               " property in experiment %(experimentId)s  (height=%(numLines)s)." % vars())
+                               " property in experiment %(experimentId)s  (height=%(numLines)s)." % vars(self))
             
         for i in range(0, len(tsvLines)):
             lineWidth = len(tsvLines[i])
             if plateWidth != lineWidth:
-                raise RuntimeError("The geometry property of plate %(plateCode)s (width=%(plateWidth)s)"
-                                   " does not agree with the value of the %(LIBRARY_TEMPLATE_PROPNAME)s"
-                                   " property in experiment %(experimentId)s  (line=%(i)s, width=%(lineWidth)s)." % vars())
+                raise RuntimeError("The geometry property of plate %s (width=%s)"
+                                   " does not agree with the value of the %s"
+                                   " property in experiment %s  (line=%s, width=%s)." % \
+                                   (plateCode, plateWidth, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, i, lineWidth))
         
     def parseLibraryTemplate(self):
         template = experiment.getPropertyValue(self.LIBRARY_TEMPLATE_PROPNAME)
@@ -179,7 +200,7 @@ class PlateInitializer:
                     In case the plate is not found in Abase return None.
         """
         queryService = state.getDataSourceQueryService()
-        queryResult = queryService.select(self.ABASE_DATA_SOURCE, self.ABASE_QUERY, [plate.code])
+        queryResult = queryService.select(self.ABASE_DATA_SOURCE, self.ABASE_QUERY, [self.plateCode])
         
         sanofiMaterials = []
         for materialMap in list(queryResult):
@@ -240,7 +261,10 @@ class PlateInitializer:
         controlWellTypes = { "H" : self.POSITIVE_CONTROL_TYPE, \
                              "L" : self.NEGATIVE_CONTROL_TYPE};
                              
-        for wellCode in library:    
+        for wellCode in library:
+           if not library[wellCode]:
+               continue
+               
            libraryValue = library[wellCode].upper()
            prefixedWellCode = self.plateCode + ":" + wellCode
            
@@ -255,9 +279,10 @@ class PlateInitializer:
                try:
                    float(concentration)
                except ValueError:
-                   raise RuntimeError("The specified value for well %(wellCode)s in the property "  
-                   " %(LIBRARY_TEMPLATE_PROPNAME)s of experiment %(experimentId)s is invalid. "
-                   "Allowed values are 'H', 'L' or number, but %(libraryValue)s' was found." % vars())
+                   raise RuntimeError("The specified value for well %s in the property "  
+                                      " %s of experiment %s is invalid. Allowed values are 'H', 'L'"
+                                      " or number, but '%s' was found." % \
+                   (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, libraryValue))
                    
                well = self.transaction.createNewSample(prefixedWellCode, self.COMPOUND_WELL_TYPE)
                well.setContainer(self.plate)
