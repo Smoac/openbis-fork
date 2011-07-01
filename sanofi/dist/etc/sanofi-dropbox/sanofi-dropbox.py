@@ -115,16 +115,20 @@ class SanofiMaterial:
 class PlateInitializer:
     ABASE_DATA_SOURCE = "abase-datasource"
     ABASE_PRODUCTION_QUERY = """select
-                        ptodwellreference WELL_CODE,
-                        translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
-                        objdbatchref ABASE_COMPOUND_BATCH_ID,
-                        objdid ABASE_COMPOUND_ID,
-                        olptid ABASE_PLATE_CODE
-                        from sysadmin.plteobjd
-                        where olptid = ?{1}"""
+                                    ptodwellreference WELL_CODE,
+                                    translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
+                                    objdbatchref ABASE_COMPOUND_BATCH_ID,
+                                    objdid ABASE_COMPOUND_ID,
+                                    olptid ABASE_PLATE_CODE
+                                from sysadmin.plteobjd
+                                    where olptid = ?{1}"""
 
     # used for integration testing from openBIS team members    
-    ABASE_TEST_MODE_QUERY = "select * from plates where ABASE_PLATE_CODE = ?{1}"
+    ABASE_TEST_MODE_QUERY = """select 
+                                   WELL_CODE, MATERIAL_CODE, ABASE_COMPOUND_ID, 
+                                   ABASE_COMPOUND_BATCH_ID, ABASE_PLATE_CODE 
+                               from plates 
+                                   where ABASE_PLATE_CODE = ?{1}"""
                         
     LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE"
     
@@ -170,9 +174,10 @@ class PlateInitializer:
         
         numLines = len(tsvLines)
         if plateHeight != len(tsvLines) :
-            raise RuntimeError("The geometry property of plate %(plateCode)s (height=%(plateHeight)s)"
-                               " does not agree with the value of the %(LIBRARY_TEMPLATE_PROPNAME)s"
-                               " property in experiment %(experimentId)s  (height=%(numLines)s)." % vars(self))
+            raise RuntimeError("The geometry property of plate %s (height=%s)"
+                               " does not agree with the value of the %s"
+                               " property in experiment %s  (height=%s)." % \
+                               (self.plateCode, plateHeight, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, numLines))
             
         for i in range(0, len(tsvLines)):
             lineWidth = len(tsvLines[i])
@@ -180,10 +185,13 @@ class PlateInitializer:
                 raise RuntimeError("The geometry property of plate %s (width=%s)"
                                    " does not agree with the value of the %s"
                                    " property in experiment %s  (line=%s, width=%s)." % \
-                                   (plateCode, plateWidth, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, i, lineWidth))
+                                   (self.plateCode, plateWidth, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, i, lineWidth))
         
     def parseLibraryTemplate(self):
         template = experiment.getPropertyValue(self.LIBRARY_TEMPLATE_PROPNAME)
+        if not template:
+            raise RuntimeError("Experiment %s has no library template value in property %s" \
+                               % (self.experimentId, self.LIBRARY_TEMPLATE_PROPNAME))
         
         tsvLists = [ line.split("\t")  for line in template.splitlines() ]
         self.validateLibraryDimensions(tsvLists)
@@ -196,6 +204,11 @@ class PlateInitializer:
                  
         return library
     
+    def upperCaseKeys(self, map):
+        result = {}
+        for entry in map.entrySet():
+            result[entry.key.upper()] = entry.value
+        return result
     
     def fetchPlateCompounds(self):
         """
@@ -214,7 +227,8 @@ class PlateInitializer:
         queryResult = queryService.select(self.ABASE_DATA_SOURCE, query, [self.plateCode])
         
         sanofiMaterials = []
-        for materialMap in list(queryResult):
+        for resultMap in list(queryResult):
+            materialMap = self.upperCaseKeys(resultMap)
             wellCode = str(materialMap['WELL_CODE'])
             materialCode = str(materialMap['MATERIAL_CODE'])
             sanofiId = str(materialMap['ABASE_COMPOUND_ID'])
@@ -273,16 +287,16 @@ class PlateInitializer:
                              "L" : self.NEGATIVE_CONTROL_TYPE};
                              
         for wellCode in library:
-           if not library[wellCode]:
+           if library[wellCode] in ["", "-"]:
                continue
                
            libraryValue = library[wellCode].upper()
-           prefixedWellCode = self.plateCode + ":" + wellCode
+           wellIdentifier = self.plate.getSampleIdentifier() + ":" + wellCode
            
            if libraryValue in controlWellTypes:
                # CONTROL_WELL
                wellType = controlWellTypes[libraryValue]
-               well = self.transaction.createNewSample(prefixedWellCode, wellType)
+               well = self.transaction.createNewSample(wellIdentifier, wellType)
                well.setContainer(self.plate)
            else: 
                # COMPOUND_WELL
@@ -295,7 +309,7 @@ class PlateInitializer:
                                       " or number, but '%s' was found." % \
                    (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, libraryValue))
                    
-               well = self.transaction.createNewSample(prefixedWellCode, self.COMPOUND_WELL_TYPE)
+               well = self.transaction.createNewSample(wellIdentifier, self.COMPOUND_WELL_TYPE)
                well.setContainer(self.plate)
                well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
                materialCode = self.getByWellCode(wellCode, sanofiMaterials).materialCode
