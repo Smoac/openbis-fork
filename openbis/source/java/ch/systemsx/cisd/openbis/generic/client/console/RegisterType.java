@@ -31,8 +31,9 @@ class RegisterType implements ICommand
     RegisterType()
     {
         commands = new HashMap<String, ICommand>();
-        commands.put("DATA_SET", new RegisterDataSetType());
+        commands.put("EXPERIMENT", new RegisterExperimentType());
         commands.put("SAMPLE", new RegisterSampleType());
+        commands.put("DATA_SET", new RegisterDataSetType());
         commands.put("MATERIAL", new RegisterMaterialType());
     }
 
