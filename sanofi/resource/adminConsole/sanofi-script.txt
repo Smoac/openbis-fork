@@ -2,8 +2,6 @@
 -- Creating metadata for Sanofi
 --
 
-register-type EXPERIMENT HCS_COMPOUND
-
 register-type SAMPLE POSITIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
@@ -20,8 +18,8 @@ assign-to SAMPLE:COMPOUND_WELL ${type}
 
 set type = OBSERVER_EMAILS
 register-property-type ${type} with data type VARCHAR
-assign-to EXPERIMENT:HCS_COMPOUND ${type}
+assign-to EXPERIMENT:COMPOUND_HCS ${type}
 
 set type = LIBRARY_TEMPLATE
 register-property-type ${type} with data type MULTILINE_VARCHAR
-assign-to EXPERIMENT:HCS_COMPOUND ${type}
+assign-to EXPERIMENT:COMPOUND_HCS ${type}
