@@ -2,11 +2,23 @@
 -- Creating metadata for Sanofi
 --
 
+
+-- Experiment 
+
+set type = OBSERVER_EMAILS
+register-property-type ${type} with data type VARCHAR
+assign-to EXPERIMENT:COMPOUND_HCS ${type}
+
+set type = LIBRARY_TEMPLATE
+register-property-type ${type} with data type MULTILINE_VARCHAR
+assign-to EXPERIMENT:COMPOUND_HCS ${type}
+
+
+-- Sample 
+
 register-type SAMPLE POSITIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
-
-register-type MATERIAL COMPOUND
 
 set type = CONCENTRATION_M
 register-property-type ${type} with data type REAL
@@ -16,10 +28,22 @@ set type = COMPOUND
 register-property-type ${type} with data type MATERIAL(COMPOUND)
 assign-to SAMPLE:COMPOUND_WELL ${type}
 
-set type = OBSERVER_EMAILS
-register-property-type ${type} with data type VARCHAR
-assign-to EXPERIMENT:COMPOUND_HCS ${type}
 
-set type = LIBRARY_TEMPLATE
-register-property-type ${type} with data type MULTILINE_VARCHAR
-assign-to EXPERIMENT:COMPOUND_HCS ${type}
+--  Materials
+
+register-type MATERIAL COMPOUND
+
+set type = COMPOUND_ID
+register-property-type ${type} with data type VARCHAR
+assign-to MATERIAL:COMPOUND ${type}
+
+set type = COMPOUND_BATCH_ID
+register-property-type ${type} with data type VARCHAR
+assign-to MATERIAL:COMPOUND ${type}
+
+-- Data Sets
+
+set type = ACQUISITION_BATCH
+register-property-type ${type} with data type VARCHAR
+assign-to DATA_SET:HCS_IMAGE_RAW ${type}
+
