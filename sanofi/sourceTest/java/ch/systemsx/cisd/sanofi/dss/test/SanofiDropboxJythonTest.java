@@ -75,7 +75,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE";
 
-    private static final String EXPERIMENT_RECIPIENTS_PROPNAME = "EMAIL_RECIPIENTS";
+    private static final String EXPERIMENT_RECIPIENTS_PROPNAME = "OBSERVER_EMAILS";
 
     private static final String[] EXPERIMENT_RECIPIENTS = new String[]
         { "admin@sanofi.com", "mickey@mouse.org" };

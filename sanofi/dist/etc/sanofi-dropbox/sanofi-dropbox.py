@@ -8,6 +8,9 @@ from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import Material
  
 from ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto import ScreeningConstants
 
+# Switch to False for the Sanofi production environment
+TEST_MODE=True
+
 PLATE_TYPE = "PLATE"
 
 DATA_SET_TYPE = "HCS_IMAGE_RAW"
@@ -15,7 +18,7 @@ DATA_SET_BATCH_PROPNAME = "ACQUISITION_BATCH"
 
 OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
 
-EXPERIMENT_RECIPIENTS_PROPNAME = "EMAIL_RECIPIENTS"
+EXPERIMENT_RECIPIENTS_PROPNAME = "OBSERVER_EMAILS"
 
 # TODO KE: get all instance admin emails here
 DEFAULT_RECIPIENT_LIST = "Matthew.Smicker@sanofi-aventis.com"
@@ -111,7 +114,7 @@ class SanofiMaterial:
             
 class PlateInitializer:
     ABASE_DATA_SOURCE = "abase-datasource"
-    ABASE_QUERY = """select
+    ABASE_PRODUCTION_QUERY = """select
                         ptodwellreference WELL_CODE,
                         translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
                         objdbatchref ABASE_COMPOUND_BATCH_ID,
@@ -119,7 +122,10 @@ class PlateInitializer:
                         olptid ABASE_PLATE_CODE
                         from sysadmin.plteobjd
                         where olptid = ?{1}"""
-    
+
+    # used for integration testing from openBIS team members    
+    ABASE_TEST_MODE_QUERY = "select * from plates where ABASE_PLATE_CODE = ?{1}"
+                        
     LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE"
     
     POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL"
@@ -199,8 +205,13 @@ class PlateInitializer:
                     (wellCode, openBisCompoundCode, abaseCompoundBatchId, abaseCompoundId). 
                     In case the plate is not found in Abase return None.
         """
+        if TEST_MODE:
+            query = self.ABASE_TEST_MODE_QUERY
+        else:
+            query = self.ABASE_PRODUCTION_QUERY
+            
         queryService = state.getDataSourceQueryService()
-        queryResult = queryService.select(self.ABASE_DATA_SOURCE, self.ABASE_QUERY, [self.plateCode])
+        queryResult = queryService.select(self.ABASE_DATA_SOURCE, query, [self.plateCode])
         
         sanofiMaterials = []
         for materialMap in list(queryResult):
@@ -318,5 +329,3 @@ if len(plate.getContainedSamples()) == 0:
     
 dataSet.setSample(plate)
 transaction.moveFile(incoming.getAbsolutePath(), dataSet)
-
-commit_transaction(None, None)
