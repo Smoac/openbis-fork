@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -379,6 +380,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             return null;
         }
+        enrichWithProperties(experiment);
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
                 LoadableFields.PROPERTIES);
     }
@@ -1464,7 +1466,34 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         IMaterialLister lister = businessObjectFactory.createMaterialLister(session);
-        return lister.list(criteria, withProperties);
+        ListMaterialCriteria criteriaWithIds = populateMissingTypeId(criteria);
+        return lister.list(criteriaWithIds, withProperties);
+    }
+
+    private ListMaterialCriteria populateMissingTypeId(ListMaterialCriteria criteria)
+    {
+        MaterialType materialTypeOrNull = criteria.tryGetMaterialType();
+        if (materialTypeOrNull != null && materialTypeOrNull.getId() == null)
+        {
+            String materialTypeCode = materialTypeOrNull.getCode();
+            EntityTypePE typeWithId =
+                    daoFactory.getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
+                            materialTypeCode);
+            if (typeWithId == null)
+            {
+                throw UserFailureException.fromTemplate("Invalid material type '%s'",
+                        materialTypeCode);
+            } else
+            {
+                MaterialType materialTypeWithId = new MaterialType();
+                materialTypeWithId.setId(typeWithId.getId());
+                materialTypeWithId.setCode(materialTypeCode);
+                return new ListMaterialCriteria(materialTypeWithId);
+            }
+        }
+
+        return criteria;
+
     }
 
 }
