@@ -2,24 +2,26 @@
 -- Creating metadata for Sanofi
 --
 
+register-type EXPERIMENT HCS_COMPOUND
+
 register-type SAMPLE POSITIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-parents=false
 register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
 
-register-type MATERIAL COMPOUND_BATCH
+register-type MATERIAL COMPOUND
 
-set type = concentration
+set type = CONCENTRATION_M
 register-property-type ${type} with data type REAL
 assign-to SAMPLE:COMPOUND_WELL ${type}
 
-set type = compound_batch
-register-property-type ${type} with data type MATERIAL(COMPOUND_BATCH)
+set type = COMPOUND
+register-property-type ${type} with data type MATERIAL(COMPOUND)
 assign-to SAMPLE:COMPOUND_WELL ${type}
 
-set type = observer-emails
+set type = OBSERVER_EMAILS
 register-property-type ${type} with data type VARCHAR
 assign-to EXPERIMENT:HCS_COMPOUND ${type}
 
-set type = library-template
+set type = LIBRARY_TEMPLATE
 register-property-type ${type} with data type MULTILINE_VARCHAR
 assign-to EXPERIMENT:HCS_COMPOUND ${type}
