@@ -36,8 +36,8 @@
     <field type="radio" variable="INSTALLATION_TYPE">
       <description align="left" id="Installation type" />
       <spec>
-        <choice id="Server (accessed from other machines)" value="server" />
-        <choice id="Local (accessed from only from localhost)" value="local" />
+        <choice id="Server (accessed from other machines)" value="server"/>
+        <choice id="Local (accessed from only from localhost)" value="local" set="true"/>
       </spec>
     </field>
   </panel>

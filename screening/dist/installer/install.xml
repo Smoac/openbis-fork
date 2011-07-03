@@ -36,7 +36,7 @@
 
   <variables>
     <!-- suppress the "target directory will be created" message -->
-    <variable name="ShowCreateDirectoryMessage"  value="no" />
+    <variable name="ShowCreateDirectoryMessage"  value="false" />
     <variable name="data.validation.error.title"  value="Error" />
     <variable name="VERSION_NUMBER"  value="@{version.number}" />
   </variables>
@@ -45,6 +45,9 @@
       <variable name="INSTALL_BIN_PATH" value="$INSTALL_PATH/bin" />
       <variable name="INSTALL_OPENBIS_PATH" value="$INSTALL_PATH/servers/openBIS-server" />
       <variable name="INSTALL_DSS_PATH" value="$INSTALL_PATH/servers/datastore_server" />
+      <!-- the path where the openBIS-server installation is extracted.-->
+      <variable name="INSTALL_TMPEXTRACT" value="$INSTALL_PATH/tmp-extract" />
+      <variable name="INSTALL_OPENBIS_TMPEXTRACT" value="$INSTALL_TMPEXTRACT/openBIS-server" />
   </dynamicvariables>
 
   <conditions>
@@ -119,13 +122,20 @@
   <packs>
     <pack name="openBIS Server" required="yes" loose="yes">
       <description>The openBIS application server</description>
-      <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_PATH/servers" />
-      <parsable targetfile="$INSTALL_OPENBIS_PATH/service.properties" />
+      <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
+      <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
       <!-- run post installation script for the openBIS server -->
-      <executable targetfile="$INSTALL_OPENBIS_PATH/install.sh" stage="postinstall">
+      <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall">
         <args>
           <arg value="$INSTALL_OPENBIS_PATH" />
-          <arg value="$INSTALL_OPENBIS_PATH/service.properties" />
+          <arg value="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
+        </args>
+      </executable>
+      <!--  remove $INSTALL_OPENBIS_TMPEXTRACT -->
+      <executable targetfile="/bin/rm" stage="postinstall">
+        <args>
+          <arg value="-rf" />
+          <arg value="$INSTALL_TMPEXTRACT" />
         </args>
       </executable>
     </pack>
