@@ -139,7 +139,7 @@ def rollback_transaction(service, transaction, runner, ex):
       Registering new data for plate %(plateLink)s has failed with error '%(errorMessage)s'.
       
     openBIS
-    """ % vars())
+    """ % vars(), False)
 
 def commit_transaction(service, transaction):
     plateLink = createPlateLink(OPENBIS_URL, plate.getCode())
@@ -152,16 +152,22 @@ def commit_transaction(service, transaction):
       Have a nice day!
       
     openBIS
-    """ % vars())
+    """ % vars(), True)
 
-def sendEmail(title, content):
-    if experiment is not None:
-       recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
+def sendEmail(title, content, isError):
+    recipients = []
+    recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
+    if recipientsProp:
+       recipients = [ email.strip() for email in recipientsProp.split(",") ]
         
-    if not recipientsProp:
-        recipientsProp = DEFAULT_RECIPIENT_LIST
+    if not recipients and isError:
+       recipients = [ email.tryGetEmailAddress() for email in state.getErrorEmailRecipients() ]
+        
+    if not recipients:
+        state.operationLog.error("Failed to obtain e-mail recipients for experiment "
+                                 "'%s'. No e-mails will be sent." % (experiment.getExperimentIdentifier()))
+        return
     
-    recipients = [ email.strip() for email in recipientsProp.split(",") ]
     fromAddress = From("openbis@sanofi-aventis.com")
     replyTo = None
     state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
