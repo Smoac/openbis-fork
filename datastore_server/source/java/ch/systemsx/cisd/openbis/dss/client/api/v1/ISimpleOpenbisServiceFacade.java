@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 
@@ -41,6 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
  */
 public interface ISimpleOpenbisServiceFacade
 {
+
+    /**
+     * Returns all available projects.
+     */
+    List<Project> listProjects();
+
     /**
      * Return all spaces enriched with their projects and role assignments.
      */

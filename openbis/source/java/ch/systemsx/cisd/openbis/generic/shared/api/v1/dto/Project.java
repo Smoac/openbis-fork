@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 /**
- * Immutable value object representing a project. A project is specified by its code and the code
- * of the space to which it belongs.
- *
+ * Immutable value object representing a project. A project is specified by its code and the code of
+ * the space to which it belongs.
+ * 
  * @author Franz-Josef Elmer
  */
 public final class Project implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final String spaceCode;
-    
+
     private final String code;
 
     /**
@@ -51,7 +51,7 @@ public final class Project implements Serializable
         }
         this.code = code;
     }
-    
+
     /**
      * Returns the space code.
      */
@@ -59,7 +59,7 @@ public final class Project implements Serializable
     {
         return spaceCode;
     }
-    
+
     /**
      * Returns the project code.
      */

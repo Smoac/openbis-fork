@@ -151,6 +151,11 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     // ISimpleOpenbisServiceFacade
     //
 
+    public List<Project> listProjects()
+    {
+        return service.listProjects(sessionToken);
+    }
+
     public List<SpaceWithProjectsAndRoleAssignments> getSpacesWithProjects()
             throws EnvironmentFailureException
     {

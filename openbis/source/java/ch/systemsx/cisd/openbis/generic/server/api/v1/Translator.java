@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
@@ -63,6 +64,24 @@ public class Translator
     static Role translate(RoleCode roleCode, boolean spaceLevel)
     {
         return new Role(roleCode.name(), spaceLevel);
+    }
+
+    public static List<Project> translateProjects(
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project> projects)
+    {
+        ArrayList<Project> translated = new ArrayList<Project>();
+
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project : projects)
+        {
+            translated.add(translate(project));
+        }
+
+        return translated;
+    }
+
+    static Project translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
+    {
+        return new Project(project.getSpace().getCode(), project.getCode());
     }
 
     public static List<Sample> translateSamples(

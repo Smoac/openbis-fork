@@ -220,4 +220,11 @@ public interface IGeneralInformationService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
+
+    /**
+     * Returns all available projects.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Project> listProjects(String sessionToken);
 }

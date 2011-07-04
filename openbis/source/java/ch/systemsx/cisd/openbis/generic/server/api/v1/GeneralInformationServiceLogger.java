@@ -157,4 +157,9 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<Project> listProjects(String sessionToken)
+    {
+        logAccess(sessionToken, "list-projects");
+        return null;
+    }
 }

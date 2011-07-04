@@ -163,7 +163,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 9;
+        return 10;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -420,5 +420,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.listExperiments(sessionToken, parsedIdentifiers);
 
         return Translator.translateExperiments(experiments);
+    }
+
+    public List<Project> listProjects(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        return Translator.translateProjects(commonServer.listProjects(sessionToken));
     }
 }

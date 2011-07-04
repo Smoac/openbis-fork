@@ -40,11 +40,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 
 /**
@@ -84,12 +87,25 @@ public class DataSetUploadClientModel
 
     private HashMap<Vocabulary, List<VocabularyTerm>> vocabularyTerms;
 
+    private List<Project> projects;
+
+    private List<Experiment> experiments;
+
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
         this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
         dataSetTypes = openBISService.listDataSetTypes();
         vocabularyTerms = openBISService.getVocabularyTermsMap();
+        projects = openBISService.listProjects();
+
+        List<String> projectIds = new ArrayList<String>();
+        for (Project project : projects)
+        {
+            ProjectIdentifier id = new ProjectIdentifier(project.getSpaceCode(), project.getCode());
+            projectIds.add(id.toString());
+        }
+        experiments = openBISService.listExperimentsForProjects(projectIds);
     }
 
     /**
@@ -513,8 +529,8 @@ public class DataSetUploadClientModel
     public void addUnofficialVocabularyTerm(Vocabulary vocabulary, String code, String label,
             String description, Long previousTermOrdinal)
     {
-        openBISService.addAdHocVocabularyTerm(TechId.create(vocabulary), code, label,
-                description, previousTermOrdinal);
+        openBISService.addAdHocVocabularyTerm(TechId.create(vocabulary), code, label, description,
+                previousTermOrdinal);
         dataSetTypes = openBISService.listDataSetTypes();
         vocabularyTerms = openBISService.getVocabularyTermsMap();
 
@@ -537,5 +553,10 @@ public class DataSetUploadClientModel
     public List<VocabularyTerm> getVocabularyTerms(Vocabulary vocabulary)
     {
         return vocabularyTerms.get(vocabulary);
+    }
+
+    public List<Experiment> getExperiments()
+    {
+        return experiments;
     }
 }

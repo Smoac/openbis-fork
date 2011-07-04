@@ -1,0 +1,202 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.client.api.gui;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.JTableHeader;
+
+import ch.systemsx.cisd.openbis.dss.client.api.gui.table.SortButtonRenderer;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.table.SortableFilterableTableModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.table.TableHeaderMouseListener;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+
+/**
+ * @author Pawel Glyzewski
+ */
+public class ExperimentPickerDialog extends JDialog
+{
+    private static final long serialVersionUID = 6688336042860619854L;
+
+    private static String[] HEADERS = new String[]
+        { "Space code", "Project code", "Experiment code", "Experiment identifier" };
+
+    private final JFrame mainWindow;
+
+    private final JTable table;
+
+    final JTextField filterField;
+
+    private final JOptionPane optionPane;
+
+    public ExperimentPickerDialog(JFrame mainWindow, List<Experiment> experiments)
+    {
+        super(mainWindow, "Pick an experiment", true);
+
+        this.mainWindow = mainWindow;
+        table = createTable(prepareData(experiments));
+        filterField = createFilterField(table);
+        optionPane = createOptionPane(filterField, table, this);
+
+        this.setContentPane(optionPane);
+    }
+
+    private static JOptionPane createOptionPane(JTextField filterField, final JTable table,
+            final JDialog parent)
+    {
+        final JScrollPane scrollPane = new JScrollPane(table);
+
+        Object[] objects = new Object[]
+            { "Filter experiments: ", filterField, "Select Experiment:", scrollPane };
+        final JOptionPane optionPane =
+                new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        optionPane.addPropertyChangeListener(new PropertyChangeListener()
+            {
+                public void propertyChange(PropertyChangeEvent evt)
+                {
+                    if (evt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
+                            && evt.getNewValue() != null)
+                    {
+                        if (((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION
+                                && table.getSelectedRow() == -1)
+                        {
+                            JOptionPane.showMessageDialog(parent,
+                                    "Experiment needs to be selected!", "No experiment selected!",
+                                    JOptionPane.WARNING_MESSAGE);
+                            optionPane.setValue(optionPane.getInitialValue());
+                        } else
+                        {
+                            parent.setVisible(false);
+                        }
+                    }
+                }
+            });
+        return optionPane;
+    }
+
+    private static List<String[]> prepareData(List<Experiment> experiments)
+    {
+        List<String[]> data = new ArrayList<String[]>(experiments.size());
+        for (Experiment experiment : experiments)
+        {
+            ExperimentIdentifier expId =
+                    ExperimentIdentifierFactory.parse(experiment.getIdentifier());
+
+            data.add(new String[]
+                { expId.getSpaceCode(), expId.getProjectCode(), expId.getExperimentCode(),
+                        experiment.getIdentifier() });
+        }
+
+        return data;
+    }
+
+    private static JTable createTable(List<String[]> data)
+    {
+        final JTable table = new JTable(new SortableFilterableTableModel(data, HEADERS));
+
+        table.setPreferredScrollableViewportSize(new Dimension(500, 150));
+        table.setFillsViewportHeight(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JTableHeader header = table.getTableHeader();
+        for (int i = 0; i < table.getColumnModel().getColumnCount() - 1; i++)
+        {
+            table.getColumnModel().getColumn(i).setPreferredWidth(110);
+        }
+        table.getColumnModel().getColumn(3).setPreferredWidth(200);
+
+        header.addMouseListener(new TableHeaderMouseListener((SortableFilterableTableModel) table
+                .getModel()));
+        header.setDefaultRenderer(new SortButtonRenderer());
+
+        return table;
+    }
+
+    private static JTextField createFilterField(final JTable table)
+    {
+        final JTextField filterField = new JTextField();
+        filterField.setEditable(true);
+        filterField.getDocument().addDocumentListener(new DocumentListener()
+            {
+                public void removeUpdate(DocumentEvent e)
+                {
+                    SortableFilterableTableModel model =
+                            (SortableFilterableTableModel) table.getModel();
+                    model.filter(filterField.getText());
+                }
+
+                public void insertUpdate(DocumentEvent e)
+                {
+                    SortableFilterableTableModel model =
+                            (SortableFilterableTableModel) table.getModel();
+                    model.filter(filterField.getText());
+                }
+
+                public void changedUpdate(DocumentEvent e)
+                {
+                    SortableFilterableTableModel model =
+                            (SortableFilterableTableModel) table.getModel();
+                    model.filter(filterField.getText());
+                }
+            });
+
+        return filterField;
+    }
+
+    public String pickExperiment()
+    {
+        this.pack();
+
+        int height = this.getHeight() > 500 ? 500 : this.getHeight();
+        int width = this.getWidth() > 600 ? 600 : this.getWidth();
+        this.setSize(width, height);
+
+        Point mwLocation = mainWindow.getLocationOnScreen();
+        int x = mwLocation.x + (mainWindow.getWidth() / 2) - (this.getWidth() / 2);
+        int y = mwLocation.y + (mainWindow.getHeight() / 2) - (this.getHeight() / 2);
+
+        this.setLocation(x > 0 ? x : 0, y > 0 ? y : 0);
+
+        this.setVisible(true);
+
+        Object value = optionPane.getValue();
+        optionPane.setValue(optionPane.getInitialValue());
+        if (value == null || ((Integer) value).intValue() == JOptionPane.CANCEL_OPTION)
+        {
+            return null;
+        } else
+        {
+            return table.getValueAt(table.getSelectedRow(), 3).toString();
+        }
+    }
+}
