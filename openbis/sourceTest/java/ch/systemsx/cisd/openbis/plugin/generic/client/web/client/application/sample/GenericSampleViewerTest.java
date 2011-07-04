@@ -99,11 +99,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 checkSample.createComponentsTableCheck().expectedSize(2);
         final String sampleSubcodeFieldIdent = SampleGridColumnIDs.SUBCODE;
         checkComponentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A01", "WELL")
-                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
-                        sampleSubcodeFieldIdent, "A01"));
+                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID)
+                .withCell(sampleSubcodeFieldIdent, "A01"));
         checkComponentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A03", "WELL")
-                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
-                        sampleSubcodeFieldIdent, "A03"));
+                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID)
+                .withCell(sampleSubcodeFieldIdent, "A03"));
         remoteConsole.prepare(checkComponentsTable);
 
         activateTab(createSectionsTabPanelId(),
@@ -196,7 +196,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 {
                     String showOnlyDirectlyConnectedCheckBoxId =
                             GenericSampleViewer.createId(WILDCARD_ID)
-                                    + GenericSampleViewer.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
+                                    + SampleDataSetsSection.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
                     GWTTestUtil.clickCheckBoxWithID(showOnlyDirectlyConnectedCheckBoxId);
                 }
             });
@@ -205,9 +205,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final CheckTableCommand checkIndirectlyConnectedDataTable =
                 new CheckTableCommand(SampleDataSetBrowser.createGridId(WILDCARD_ID));
         checkIndirectlyConnectedDataTable.expectedSize(6);
-        checkIndirectlyConnectedDataTable.expectedRow(new DataSetRow(
-                DIRECTLY_CONNECTED_DATA_SET_CODE).invalid().withFileFormatType("TIFF").withSample(
-                CELL_PLATE_EXAMPLE_ID).withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
+        checkIndirectlyConnectedDataTable
+                .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                        .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID)
+                        .withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
         checkIndirectlyConnectedDataTable.expectedRow(new DataSetRow(
                 INDIRECTLY_CONNECTED_DATA_SET_CODE).valid().withLocation("analysis/result")
                 .withSample("").withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));

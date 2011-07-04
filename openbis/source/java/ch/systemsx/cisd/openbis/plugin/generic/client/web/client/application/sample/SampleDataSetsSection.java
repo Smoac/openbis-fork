@@ -37,19 +37,31 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  */
 public class SampleDataSetsSection extends AbstractDataSetsSection
 {
+    public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
+            "-show_only_directly_connected_checkbox";
+
     private final CheckBox showOnlyDirectlyConnectedCheckBox;
 
     private final TechId sampleId;
 
     private final SampleType sampleType;
 
-    public SampleDataSetsSection(final IViewContext<?> viewContext,
-            final CheckBox showOnlyDirectlyConnectedCheckBox, TechId sampleId, SampleType sampleType)
+    public SampleDataSetsSection(final IViewContext<?> viewContext, TechId sampleId,
+            SampleType sampleType)
     {
         super(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING), viewContext, sampleId);
-        this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
+        this.showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         this.sampleId = sampleId;
         this.sampleType = sampleType;
+    }
+
+    private CheckBox createShowOnlyDirectlyConnectedCheckBox()
+    {
+        CheckBox result = new CheckBox();
+        result.setId(getId() + SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX);
+        result.setBoxLabel(viewContext.getMessage(Dict.SHOW_ONLY_DIRECTLY_CONNECTED));
+        result.setValue(true);
+        return result;
     }
 
     @Override

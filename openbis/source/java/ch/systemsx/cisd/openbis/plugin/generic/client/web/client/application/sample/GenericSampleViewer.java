@@ -83,9 +83,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
             + "generic-sample-properties-viewer_";
 
-    public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
-            "-show_only_directly_connected_checkbox";
-
     private final IViewContext<?> viewContext;
 
     protected final TechId sampleId;
@@ -209,10 +206,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
         container.addSection(parentSamplesSection);
         // Data Sets
-        CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetSection =
-                new SampleDataSetsSection(viewContext, showOnlyDirectlyConnectedCheckBox, sampleId,
-                        generator.getSampleType());
+                new SampleDataSetsSection(viewContext, sampleId, generator.getSampleType());
         container.addSection(dataSetSection);
 
         // Attachments
@@ -235,15 +230,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     protected List<TabContent> createAdditionalSectionPanels()
     {
         return new ArrayList<TabContent>();
-    }
-
-    private CheckBox createShowOnlyDirectlyConnectedCheckBox()
-    {
-        CheckBox result = new CheckBox();
-        result.setId(getId() + SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX);
-        result.setBoxLabel(viewContext.getMessage(Dict.SHOW_ONLY_DIRECTLY_CONNECTED));
-        result.setValue(true);
-        return result;
     }
 
     private AttachmentVersionsSection createAttachmentsSection(final Sample sample)
