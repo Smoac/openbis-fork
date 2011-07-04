@@ -227,6 +227,9 @@ function run_lsof {
 # Tries to find PostgreSQL executable and returns its absolute path.
 # If not found, then exits the script with an appropriate error message.
 function run_psql {
+		# For local debugging:
+		#echo "/opt/local/lib/postgresql90/bin/psql"
+		#return
         for prg in psql psql84 psql83; do
                 exe=`locate_file $prg $BIN_PATHS`
                 if [ $exe ]; then
@@ -423,7 +426,6 @@ function install_openbis_server {
         unzip -q -d $openbis_server_dir $INSTALL/openBIS*.zip
 				$openbis_server_dir/openBIS-server/install.sh $PWD/$openbis_server_dir $openbis_server_dir/service.properties $openbis_server_dir/openbis.conf
         startup_openbis_server $openbis_server_dir
-				wait_for_server
     else
         copy_templates $openbis_server_name
         restart_openbis $openbis_server_dir
