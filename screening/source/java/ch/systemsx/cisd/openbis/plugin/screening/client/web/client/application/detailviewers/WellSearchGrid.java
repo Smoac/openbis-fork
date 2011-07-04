@@ -191,19 +191,32 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId)
+            ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId,
+            boolean restrictGlobalScopeLinkToProject)
     {
         return create(viewContext, experimentCriteriaOrNull,
-                MaterialSearchCriteria.createIdCriteria(materialId));
+                MaterialSearchCriteria.createIdCriteria(materialId),
+                restrictGlobalScopeLinkToProject);
     }
 
+    @Deprecated
+    // FIXME get rid of this method if possible
     private static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
             MaterialSearchCriteria materialCriteria)
     {
+        return create(viewContext, experimentCriteriaOrNull, materialCriteria, false);
+    }
+
+    private static IDisposableComponent create(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteria experimentCriteriaOrNull,
+            MaterialSearchCriteria materialCriteria, boolean restrictGlobalScopeLinkToProject)
+    {
         WellSearchGrid reviewer =
-                new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria);
+                new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria,
+                        restrictGlobalScopeLinkToProject);
         final ToolBar toolbar = reviewer.createToolbar();
         return reviewer.asDisposableWithToolbar(new IDisposableComponent()
             {
@@ -233,18 +246,19 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
 
-    // private ExperimentSearchCriteria experimentCriteriaOrNull;
+    private final boolean restrictGlobalScopeLinkToProject;
 
     private ChannelChooserPanel channelChooser;
 
     private WellSearchGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
-            MaterialSearchCriteria materialCriteria)
+            MaterialSearchCriteria materialCriteria, boolean restrictGlobalScopeLinkToProject)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, experimentCriteriaOrNull != null,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
 
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
         this.experimentCriteriaHolder =
                 new ExperimentSearchCriteriaHolder(experimentCriteriaOrNull);
         this.materialCriteria = materialCriteria;
@@ -507,7 +521,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     private Component createExperimentChooser()
     {
         return new SingleOrAllExperimentsChooser(viewContext, experimentCriteriaHolder,
-                createRefreshGridAction());
+                restrictGlobalScopeLinkToProject, createRefreshGridAction());
     }
 
     @Override

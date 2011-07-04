@@ -47,6 +47,7 @@ public class MaterialReplicaSummaryViewer
      * 
      * @param material should be enriched with properties
      */
+    // FIXME remove if not needed
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, boolean restrictGlobalScopeLinkToProject, Material material)
     {

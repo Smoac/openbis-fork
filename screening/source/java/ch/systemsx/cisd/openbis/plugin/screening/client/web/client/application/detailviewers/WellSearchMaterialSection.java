@@ -22,7 +22,8 @@ class WellSearchMaterialSection extends TabContent
 
     public WellSearchMaterialSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            final TechId materialId, ExperimentSearchCriteria experimentCriteriaOrNull)
+            final TechId materialId, ExperimentSearchCriteria experimentCriteriaOrNull,
+            boolean restrictGlobalScopeLinkToProject)
     {
         super(
                 screeningViewContext
@@ -30,7 +31,8 @@ class WellSearchMaterialSection extends TabContent
                 screeningViewContext, materialId);
         setHeaderVisible(false);
         this.reviewer =
-                WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull, materialId);
+                WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull, materialId,
+                        restrictGlobalScopeLinkToProject);
         setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }
 

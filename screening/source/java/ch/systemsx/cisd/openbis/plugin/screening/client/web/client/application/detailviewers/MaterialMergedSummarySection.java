@@ -65,9 +65,6 @@ class MaterialMergedSummarySection extends DisposableTabContent
                                         @Override
                                         protected void process(Experiment experiment)
                                         {
-                                            setHeading(screeningViewContext.getMessage(
-                                                    Dict.MATERIAL_REPLICA_SUMMARY_SECTION_TITLE,
-                                                    experiment.getCode()));
                                             replaceContent(MaterialReplicaSummaryComponent
                                                     .createViewer(screeningViewContext, experiment,
                                                             material,
@@ -94,11 +91,10 @@ class MaterialMergedSummarySection extends DisposableTabContent
     protected void showContent()
     {
         super.showContent();
-        // getHeader().setText("");
         setHeading("");
         getHeader().addTool(
                 new SingleOrAllExperimentsChooser(screeningViewContext,
-                        experimentSearchCriteriaHolder,
+                        experimentSearchCriteriaHolder, restrictGlobalScopeLinkToProject,
                         createRefreshAction(experimentSearchCriteriaHolder)));
     }
 

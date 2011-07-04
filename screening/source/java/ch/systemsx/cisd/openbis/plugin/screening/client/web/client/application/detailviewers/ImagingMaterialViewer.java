@@ -28,9 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * Material detail viewer in screening context.
@@ -39,8 +37,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  */
 public class ImagingMaterialViewer extends GenericMaterialViewer
 {
-
-    private static final boolean SUMMARY_SECTION_IMPLEMENTED = false; // FIXME
 
     /**
      * @param experimentCriteriaOrNull if the experiment criteria are specified, they will be chosen
@@ -80,42 +76,24 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 
         List<TabContent> sections = new ArrayList<TabContent>();
 
-        WellSearchMaterialSection wellSearchSection =
-                new WellSearchMaterialSection(screeningViewContext, materialId,
-                        initialExperimentCriteriaOrNull);
-        sections.add(wellSearchSection);
-
         boolean restrictGlobalScopeLinkToProject =
                 isRestrictGlobalScopeLinkToProject(initialExperimentCriteriaOrNull);
-        if (SUMMARY_SECTION_IMPLEMENTED)
-        {
-            MaterialMergedSummarySection summarySection =
-                    new MaterialMergedSummarySection(screeningViewContext, material,
-                            initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
-            sections.add(summarySection);
-        }
 
-        String experimentPermId = tryGetExperimentPermId(initialExperimentCriteriaOrNull);
-        if (experimentPermId != null)
-        {
-            MaterialReplicaSummarySection replicaSummarySection =
-                    new MaterialReplicaSummarySection(screeningViewContext, material,
-                            experimentPermId, restrictGlobalScopeLinkToProject);
-            sections.add(replicaSummarySection);
-        }
-        ExperimentSearchByProjectCriteria experimentCriteria =
-                tryConvert(initialExperimentCriteriaOrNull);
-        MaterialFeaturesFromAllExpermentsSection featuresFromAllExperimentsSection =
-                new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material,
-                        experimentCriteria);
-        sections.add(featuresFromAllExperimentsSection);
+        WellSearchMaterialSection wellSearchSection =
+                new WellSearchMaterialSection(screeningViewContext, materialId,
+                        initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
+        sections.add(wellSearchSection);
+
+        MaterialMergedSummarySection summarySection =
+                new MaterialMergedSummarySection(screeningViewContext, material,
+                        initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
+        sections.add(summarySection);
         return sections;
     }
 
     private static boolean isRestrictGlobalScopeLinkToProject(
             ExperimentSearchCriteria experimentCriteriaOrNull)
     {
-
         if (experimentCriteriaOrNull == null)
         {
             return false;
@@ -123,32 +101,6 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         {
             return experimentCriteriaOrNull.getRestrictGlobalSearchLinkToProject();
         }
-    }
-
-    private static ExperimentSearchByProjectCriteria tryConvert(
-            ExperimentSearchCriteria experimentCriteriaOrNull)
-    {
-        if (experimentCriteriaOrNull == null)
-        {
-            return null;
-        } else
-        {
-            return experimentCriteriaOrNull.tryAsSearchByProjectCriteria();
-        }
-    }
-
-    private static String tryGetExperimentPermId(ExperimentSearchCriteria experimentCriteriaOrNull)
-    {
-        if (experimentCriteriaOrNull != null)
-        {
-            SingleExperimentSearchCriteria experimentCriteria =
-                    experimentCriteriaOrNull.tryGetExperiment();
-            if (experimentCriteria != null)
-            {
-                return experimentCriteria.getExperimentPermId();
-            }
-        }
-        return null;
     }
 
 }

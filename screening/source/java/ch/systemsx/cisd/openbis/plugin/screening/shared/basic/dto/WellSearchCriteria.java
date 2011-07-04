@@ -152,12 +152,6 @@ public class WellSearchCriteria implements ISerializable
         }
 
         public static ExperimentSearchCriteria createExperiment(
-                SingleExperimentSearchCriteria experiment)
-        {
-            return createExperiment(experiment);
-        }
-
-        public static ExperimentSearchCriteria createExperiment(
                 SingleExperimentSearchCriteria experiment, boolean restrictGlobalScopeLinkToProject)
         {
             return new ExperimentSearchCriteria(experiment, restrictGlobalScopeLinkToProject);

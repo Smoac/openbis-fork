@@ -56,11 +56,15 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
 
     private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
 
+    private final boolean restrictGlobalScopeLinkToProject;
+
     public SingleOrAllExperimentsChooser(IViewContext<?> viewContext,
-            ExperimentSearchCriteriaHolder experimentCriteriaHolder, IDelegatedAction refreshAction)
+            ExperimentSearchCriteriaHolder experimentCriteriaHolder,
+            boolean restrictGlobalScopeLinkToProject, IDelegatedAction refreshAction)
     {
         this.viewContext = viewContext;
         this.experimentCriteriaHolder = experimentCriteriaHolder;
+        this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
         this.refreshAction = refreshAction;
         ExperimentChooserFieldAdaptor singleExperimentChooser = createSingleExperimentChooser();
         RadioGroup experimentRadioChooser = createExperimentRadio(singleExperimentChooser);
@@ -68,6 +72,13 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         setWidth(400);
         add(experimentRadioChooser);
         add(singleExperimentChooser.getField());
+    }
+
+    // without project restriction
+    public SingleOrAllExperimentsChooser(IViewContext<?> viewContext,
+            ExperimentSearchCriteriaHolder experimentCriteriaHolder, IDelegatedAction refreshAction)
+    {
+        this(viewContext, experimentCriteriaHolder, false, refreshAction);
     }
 
     private ExperimentSearchCriteria tryGetExperimentSearchCriteria()
@@ -162,7 +173,8 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
                         } else
                         {
                             experimentCriteriaHolder.setCriteria(ExperimentSearchCriteria
-                                    .createExperiment(singleExperimentChooserStateOrNull));
+                                    .createExperiment(singleExperimentChooserStateOrNull,
+                                            restrictGlobalScopeLinkToProject));
                             refreshAction.execute();
                         }
                     }
@@ -178,8 +190,8 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
                 new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
                         experiment.getIdentifier());
         updateSingleExperimentChooser(chooserField, singleExperiment);
-        experimentCriteriaHolder.setCriteria(ExperimentSearchCriteria
-                .createExperiment(singleExperiment));
+        experimentCriteriaHolder.setCriteria(ExperimentSearchCriteria.createExperiment(
+                singleExperiment, restrictGlobalScopeLinkToProject));
         refreshAction.execute();
     }
 
