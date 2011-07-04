@@ -90,6 +90,27 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
+    public static final class ExperimentSearchCriteriaHolder
+    {
+        private ExperimentSearchCriteria criteriaOrNull;
+
+        public ExperimentSearchCriteriaHolder(ExperimentSearchCriteria criteriaOrNull)
+        {
+            this.criteriaOrNull = criteriaOrNull;
+        }
+
+        public ExperimentSearchCriteria tryGetCriteria()
+        {
+            return criteriaOrNull;
+        }
+
+        public void setCriteria(ExperimentSearchCriteria criteria)
+        {
+            this.criteriaOrNull = criteria;
+        }
+
+    }
+
     /** Points to one experiment, all experiments of a project or all accessible experiments. */
     public static final class ExperimentSearchCriteria implements IsSerializable, Serializable
     {

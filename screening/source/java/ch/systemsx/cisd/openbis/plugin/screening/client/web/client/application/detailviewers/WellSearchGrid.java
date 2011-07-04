@@ -21,16 +21,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -50,15 +43,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -84,8 +73,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetPa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds;
 
 /**
@@ -97,12 +86,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             + "PlateMaterialReviewer2Grid";
 
     private static final String CHANNEL_CHOOSER_LABEL = "Channel:";
-
-    private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
-
-    private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
-
-    private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
 
     private static final int IMAGE_SIZE_PX = 80;
 
@@ -248,9 +231,9 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private final MaterialSearchCriteria materialCriteria;
 
-    private ExperimentSearchCriteria experimentCriteriaOrNull;
+    private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
 
-    private SingleExperimentSearchCriteria singleExperimentChooserStateOrNull;
+    // private ExperimentSearchCriteria experimentCriteriaOrNull;
 
     private ChannelChooserPanel channelChooser;
 
@@ -261,7 +244,9 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         super(viewContext.getCommonViewContext(), BROWSER_ID, experimentCriteriaOrNull != null,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
-        this.experimentCriteriaOrNull = experimentCriteriaOrNull;
+
+        this.experimentCriteriaHolder =
+                new ExperimentSearchCriteriaHolder(experimentCriteriaOrNull);
         this.materialCriteria = materialCriteria;
 
         final IDefaultChannelState defaultChannelState =
@@ -521,129 +506,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private Component createExperimentChooser()
     {
-        LayoutContainer container = new LayoutContainer();
-        container.setWidth(400);
-
-        ExperimentChooserFieldAdaptor singleExperimentChooser = createSingleExperimentChooser();
-        RadioGroup experimentRadioChooser = createExperimentRadio(singleExperimentChooser);
-
-        container.add(experimentRadioChooser);
-        container.add(singleExperimentChooser.getField());
-        return container;
-    }
-
-    private ExperimentChooserFieldAdaptor createSingleExperimentChooser()
-    {
-        ExperimentChooserFieldAdaptor experimentChooser =
-                ExperimentChooserField.create("", true, null, viewContext.getCommonViewContext());
-        final ExperimentChooserField chooserField = experimentChooser.getChooserField();
-        chooserField
-                .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
-                    {
-                        public void entityChosen(TableModelRowWithObject<Experiment> row)
-                        {
-                            if (row != null)
-                            {
-                                chooseSingleExperiment(chooserField, row.getObjectOrNull());
-                            }
-                        }
-                    });
-
-        chooserField.setEditable(false);
-        if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
-        {
-            // we search in a single experiment
-            updateSingleExperimentChooser(chooserField, experimentCriteriaOrNull.tryGetExperiment());
-        } else
-        {
-            // we search in all experiments or single experiment has not been chosen
-            this.singleExperimentChooserStateOrNull = null;
-            chooserField.reset();
-        }
-        if (experimentCriteriaOrNull == null || experimentCriteriaOrNull.tryGetExperiment() != null)
-        {
-            chooserField.setEmptyText(CHOOSE_ONE_EXPERIMENT_TEXT);
-        } else
-        {
-            chooserField.setEmptyText(ALL_EXPERIMENTS_TEXT);
-        }
-        return experimentChooser;
-    }
-
-    private void chooseSingleExperiment(final ExperimentChooserField chooserField,
-            Experiment experiment)
-    {
-        SingleExperimentSearchCriteria singleExperiment =
-                new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
-                        experiment.getIdentifier());
-        updateSingleExperimentChooser(chooserField, singleExperiment);
-        this.experimentCriteriaOrNull =
-                ExperimentSearchCriteria.createExperiment(singleExperiment);
-        refresh();
-    }
-
-    private void updateSingleExperimentChooser(ExperimentChooserField chooserField,
-            SingleExperimentSearchCriteria singleExperiment)
-    {
-        this.singleExperimentChooserStateOrNull = singleExperiment;
-        chooserField.updateValue(new ExperimentIdentifier(singleExperiment
-                .getExperimentIdentifier()));
-    }
-
-    private boolean isAllExperimentsChoosen()
-    {
-        return experimentCriteriaOrNull != null
-                && experimentCriteriaOrNull.tryGetExperiment() == null;
-    }
-
-    private RadioGroup createExperimentRadio(
-            final ExperimentChooserFieldAdaptor singleExperimentChooser)
-    {
-        final RadioGroup experimentRadio = new RadioGroup();
-        experimentRadio.setSelectionRequired(true);
-        experimentRadio.setOrientation(Orientation.HORIZONTAL);
-
-        final Radio allExps = new Radio();
-        allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
-        experimentRadio.add(allExps);
-
-        final Radio oneExps = new Radio();
-        oneExps.setBoxLabel(SINGLE_EXPERIMENT_TEXT);
-        experimentRadio.add(oneExps);
-
-        experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
-        experimentRadio.setAutoHeight(true);
-        experimentRadio.addListener(Events.Change, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    if (allExps.getValue())
-                    {
-                        singleExperimentChooser.getChooserField().setEnabled(false);
-                        singleExperimentChooser.getChooserField()
-                                .setEmptyText(ALL_EXPERIMENTS_TEXT);
-                        experimentCriteriaOrNull = ExperimentSearchCriteria.createAllExperiments();
-                        refresh();
-                    } else
-                    {
-                        singleExperimentChooser.getChooserField().setEmptyText(
-                                CHOOSE_ONE_EXPERIMENT_TEXT);
-
-                        singleExperimentChooser.getChooserField().setEnabled(true);
-                        if (singleExperimentChooserStateOrNull == null)
-                        {
-                            experimentCriteriaOrNull = null;
-                        } else
-                        {
-                            experimentCriteriaOrNull =
-                                    ExperimentSearchCriteria
-                                            .createExperiment(singleExperimentChooserStateOrNull);
-                            refresh();
-                        }
-                    }
-                }
-            });
-        return experimentRadio;
+        return new SingleOrAllExperimentsChooser(viewContext, experimentCriteriaHolder,
+                createRefreshGridAction());
     }
 
     @Override
@@ -714,6 +578,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             DefaultResultSetConfig<String, TableModelRowWithObject<WellContent>> resultSetConfig,
             final AsyncCallback<TypedTableResultSet<WellContent>> callback)
     {
+        ExperimentSearchCriteria experimentCriteriaOrNull =
+                experimentCriteriaHolder.tryGetCriteria();
         assert experimentCriteriaOrNull != null : "experiment not specified";
 
         WellSearchCriteria searchCriteria =

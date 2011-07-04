@@ -61,4 +61,5 @@ public class MaterialFeaturesFromAllExperimentsComponent
         return MaterialComponentUtils.createMaterialViewer(screeningViewContext, material,
                 headingText, gridComponent);
     }
+
 }

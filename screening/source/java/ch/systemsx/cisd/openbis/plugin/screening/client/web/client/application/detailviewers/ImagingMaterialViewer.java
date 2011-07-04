@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public class ImagingMaterialViewer extends GenericMaterialViewer
 {
 
+    private static final boolean SUMMARY_SECTION_IMPLEMENTED = false; // FIXME
+
     /**
      * @param experimentCriteriaOrNull if the experiment criteria are specified, they will be chosen
      *            automatically when the window opens.
@@ -56,14 +58,14 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final ExperimentSearchCriteria experimentCriteriaOrNull;
+    private final ExperimentSearchCriteria initialExperimentCriteriaOrNull;
 
     private ImagingMaterialViewer(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         super(viewContext, materialTechId);
         this.screeningViewContext = viewContext;
-        this.experimentCriteriaOrNull = experimentCriteriaOrNull;
+        this.initialExperimentCriteriaOrNull = experimentCriteriaOrNull;
     }
 
     @Override
@@ -80,20 +82,29 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 
         WellSearchMaterialSection wellSearchSection =
                 new WellSearchMaterialSection(screeningViewContext, materialId,
-                        experimentCriteriaOrNull);
+                        initialExperimentCriteriaOrNull);
         sections.add(wellSearchSection);
 
-        String experimentPermId = tryGetExperimentPermId();
+        boolean restrictGlobalScopeLinkToProject =
+                isRestrictGlobalScopeLinkToProject(initialExperimentCriteriaOrNull);
+        if (SUMMARY_SECTION_IMPLEMENTED)
+        {
+            MaterialMergedSummarySection summarySection =
+                    new MaterialMergedSummarySection(screeningViewContext, material,
+                            initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
+            sections.add(summarySection);
+        }
+
+        String experimentPermId = tryGetExperimentPermId(initialExperimentCriteriaOrNull);
         if (experimentPermId != null)
         {
-            boolean restrictGlobalScopeLinkToProject =
-                    isRestrictGlobalScopeLinkToProject(experimentCriteriaOrNull);
             MaterialReplicaSummarySection replicaSummarySection =
                     new MaterialReplicaSummarySection(screeningViewContext, material,
                             experimentPermId, restrictGlobalScopeLinkToProject);
             sections.add(replicaSummarySection);
         }
-        ExperimentSearchByProjectCriteria experimentCriteria = tryConvert(experimentCriteriaOrNull);
+        ExperimentSearchByProjectCriteria experimentCriteria =
+                tryConvert(initialExperimentCriteriaOrNull);
         MaterialFeaturesFromAllExpermentsSection featuresFromAllExperimentsSection =
                 new MaterialFeaturesFromAllExpermentsSection(screeningViewContext, material,
                         experimentCriteria);
@@ -126,7 +137,7 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         }
     }
 
-    private String tryGetExperimentPermId()
+    private static String tryGetExperimentPermId(ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         if (experimentCriteriaOrNull != null)
         {

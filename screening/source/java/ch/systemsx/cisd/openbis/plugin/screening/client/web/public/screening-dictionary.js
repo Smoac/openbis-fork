@@ -66,6 +66,7 @@ separator: "Separator",
 // Material Viewer
 //
 plate_locations: "Plate Locations",
+MATERIAL_MERGED_SUMMARY_SECTION_TITLE: "Summary",
 MATERIAL_REPLICA_SUMMARY_SECTION_TITLE: "{0} Summary",
 
 //

@@ -28,7 +28,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     PLATE_LAYOUT_SAMPLE_SECTION("plate-layout-sample-section"),
 
     LOGICAL_IMAGE_WELL_SECTION("logical-image-well-section"),
-    
+
     PLATE_LAYOUT_DATASET_SECTION("plate-layout-dataset-section"),
 
     LOGICAL_IMAGE_DATASET_SECTION("logical-image-dataset-section"),
@@ -40,9 +40,11 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     EXPERIMENT_WELL_MATERIALS_SECTION("experiment-well-materials-section"),
 
     EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION("experiment-feature-vector-summary-section"),
-    
+
+    MATERIAL_MERGED_SUMMARY_SECTION("material-merged-summary-section"),
+
     MATERIAL_REPLICA_SUMMARY_SECTION("material-replica-summary-section"),
-    
+
     MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION("material-features-all-experiments-section");
 
     private final String genericNameOrPrefix;
