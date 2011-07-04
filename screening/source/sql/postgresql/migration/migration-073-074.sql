@@ -50,7 +50,7 @@ BEGIN
 				   ,ordinal
 				   )
 				values 
-				   (nextval('STPT_ID_SEQ')
+				   (nextval('DSTPT_ID_SEQ')
 				   ,rec.id
 				   ,(select id from property_types where code = 'ANALYSIS_PROCEDURE' and is_internal_namespace = true)
 				   ,false
