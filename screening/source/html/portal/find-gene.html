@@ -17,7 +17,8 @@ function findGene()
   if (assay != "_all_") {
      url += "&experimentPermId=" + assay
   } else {
-   	 url += "&projectCode=50K&spaceCode=PELKMANS_PUBLIC"
+     //url += "&projectCode=50K&spaceCode=PELKMANS_PUBLIC"
+     url += "&projectCode=ENDOCYTIC_PATHWAYS&spaceCode=ENDOCYTOME"
   }
   queryDiv = document.getElementById('query')
   queryDiv.style.display = "none" 
