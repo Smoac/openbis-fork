@@ -168,7 +168,7 @@ function integration_tests_screening {
 }
 
 function assertSpotSizes {
-    answer=`psql -tA --field-separator='x' --record-separator=',' -U postgres -d imaging_integration_tests \
+    answer=`psql -tA --field-separator='x' --record-separator=',' -U postgres -d $IMAGING_DB \
             -c "select spots_width,spots_height from containers order by spots_width"`
     
     assert_equals "spot sizes" "$1" $answer 
