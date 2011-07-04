@@ -165,7 +165,8 @@ def sendEmail(title, content, isError):
         
     if not recipients:
         state.operationLog.error("Failed to obtain e-mail recipients for experiment "
-                                 "'%s'. No e-mails will be sent." % (experiment.getExperimentIdentifier()))
+                                 "'%s'. No e-mails will be sent. Please, set a value of the experiment's property '%s'" % 
+                                 (experiment.getExperimentIdentifier(), EXPERIMENT_RECIPIENTS_PROPCODE))
         return
     
     fromAddress = From("openbis@sanofi-aventis.com")
