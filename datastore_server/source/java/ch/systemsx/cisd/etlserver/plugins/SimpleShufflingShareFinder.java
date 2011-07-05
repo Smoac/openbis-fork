@@ -52,12 +52,17 @@ public class SimpleShufflingShareFinder extends AbstractShareFinder
             ISpeedChecker speedChecker)
     {
         Share shareWithMostFree = null;
+        Share homeShare = null;
         long maxFreeSpace = 0;
         for (Share share : shares)
         {
             if (speedChecker.check(dataSet, share) == false)
             {
                 continue;
+            }
+            if (share.getShareId().equals(dataSet.getDataSetShareId()))
+            {
+                homeShare = share;
             }
             long freeSpace = share.calculateFreeSpace();
             if (freeSpace > maxFreeSpace)
@@ -66,9 +71,13 @@ public class SimpleShufflingShareFinder extends AbstractShareFinder
                 shareWithMostFree = share;
             }
         }
+
         if (maxFreeSpace - dataSet.getDataSetSize() > minimumFreeSpace)
         {
-            return shareWithMostFree;
+            if (homeShare != shareWithMostFree)
+            {
+                return shareWithMostFree;
+            }
         }
         return null;
     }

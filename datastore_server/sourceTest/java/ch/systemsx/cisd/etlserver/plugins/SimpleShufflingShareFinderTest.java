@@ -101,7 +101,7 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
     {
         SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(new Properties());
         MockSpeedChecker speedChecker = new MockSpeedChecker(false);
-        Share share = share(0);
+        Share share = share("1", 0);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(share), speedChecker);
         
@@ -115,7 +115,7 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
     {
         SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(new Properties());
         MockSpeedChecker speedChecker = new MockSpeedChecker(true);
-        Share share = share(10 * FileUtils.ONE_MB);
+        Share share = share("1", 10 * FileUtils.ONE_MB);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(share), speedChecker);
         
@@ -131,9 +131,9 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
         properties.setProperty(MINIMUM_FREE_SPACE_KEY, Long.toString(2));
         SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(properties);
         MockSpeedChecker speedChecker = new MockSpeedChecker(true, false, true);
-        Share s1 = share(10 * FileUtils.ONE_MB);
-        Share s2 = share(0);
-        Share s3 = share(30 * FileUtils.ONE_MB);
+        Share s1 = share("1", 10 * FileUtils.ONE_MB);
+        Share s2 = share("2", 0);
+        Share s3 = share("3", 30 * FileUtils.ONE_MB);
         
         Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3), speedChecker);
         
@@ -142,9 +142,28 @@ public class SimpleShufflingShareFinderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
     
-    private Share share(final long freeSpace)
+    @Test
+    public void testDoNotFindHomeShare()
     {
-        final File file = new File("1");
+        Properties properties = new Properties();
+        properties.setProperty(MINIMUM_FREE_SPACE_KEY, Long.toString(2));
+        SimpleShufflingShareFinder finder = new SimpleShufflingShareFinder(properties);
+        MockSpeedChecker speedChecker = new MockSpeedChecker(true, false, true);
+        Share s1 = share("1", 10 * FileUtils.ONE_MB);
+        Share s2 = share("2", 0);
+        Share s3 = share("3", 30 * FileUtils.ONE_MB);
+
+        dataSet.setDataSetShareId(s3.getShareId());
+
+        Share foundShare = finder.tryToFindShare(dataSet, Arrays.asList(s1, s2, s3), speedChecker);
+
+        assertNull("Home share must never be found.", foundShare);
+        context.assertIsSatisfied();
+    }
+
+    private Share share(String id, final long freeSpace)
+    {
+        final File file = new File(id);
         if (freeSpace > 0)
         {
             context.checking(new Expectations()
