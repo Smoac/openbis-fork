@@ -138,7 +138,6 @@ function assert_datasets_in_store_number {
   assert_equals "Wrong number of registered datasets" $expected_number $datasets
 }
 
-# FIXME: change to False !!!!!!!!!!!!!!!!!!!!!!!!!!
 DEBUG=false
 
 function integration_tests_screening_biozentrum {

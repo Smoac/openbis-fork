@@ -44,10 +44,10 @@ function install_dss_screening {
 function install_screening {
 		local local_template=$1
 		
-		# FIXME uncomment !!!!!!!!!!!!!!!!!!!!
-		#rm -fr $INSTALL
-		#fetch_distributions datastore_server
-		#fetch_distributions screening
+		# DEBUG: comment 3 lines below for debugging after fetching the zips once
+		rm -fr $INSTALL
+		fetch_distributions datastore_server
+		fetch_distributions screening
 
 		echo Dropping imaging database: $IMAGING_DB
 		psql_cmd=`run_psql`
