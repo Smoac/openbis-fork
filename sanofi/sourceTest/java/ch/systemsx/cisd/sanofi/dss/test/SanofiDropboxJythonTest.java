@@ -33,12 +33,20 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -52,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -92,11 +101,27 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND";
 
-    private static final String DATASET_DIR_NAME = "batchNr_plateCode.variant_2011.06.28";
+    private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
 
-    private static final String DATA_SET_CODE = "data-set-code";
+    private static final String OVERLAYS_DATA_SET_DIR_NAME = "overlays";
 
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("HCS_IMAGE_RAW");
+    private static final String ANALYSIS_DATA_SET_FILE_NAME = "LC80463-RS101117.xml";
+
+    private static final String IMAGE_DATA_SET_CODE = "data-set-code";
+
+    private static final DataSetType IMAGE_DATA_SET_TYPE = new DataSetType("HCS_IMAGE_RAW");
+
+    private static final String IMAGE_DATA_SET_BATCH_PROP = "ACQUISITION_BATCH";
+
+    private static final String OVERLAY_DATA_SET_CODE = "overlay-data-set-code";
+
+    private static final DataSetType OVERLAY_DATA_SET_TYPE = new DataSetType(
+            "HCS_IMAGE_SEGMENTATION");
+
+    private static final String ANALYSIS_DATA_SET_CODE = "analysis-data-set-code";
+
+    private static final DataSetType ANALYSIS_DATA_SET_TYPE = new DataSetType(
+            "HCS_ANALYSIS_WELL_FEATURES");
 
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
@@ -112,7 +137,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     public void testHappyCaseWithLibraryCreation() throws IOException
     {
         setUpHomeDataBaseExpectations();
-        Properties properties = createThreadPropertiesRelativeToScriptsFolder("sanofi-dropbox.py");
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("dropbox-all-in-one-with-library.py");
         createHandler(properties, false, true);
         createData();
 
@@ -146,17 +172,36 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue("well-permId"));
 
                     one(openBisService).createDataSetCode();
-                    will(returnValue(DATA_SET_CODE));
+                    will(returnValue(IMAGE_DATA_SET_CODE));
 
-                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, DATA_SET_CODE), DATASET_DIR_NAME));
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(OVERLAY_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(ANALYSIS_DATA_SET_CODE));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            IMAGE_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE),
+                                    IMAGE_DATA_SET_DIR_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            OVERLAY_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
+                                    OVERLAYS_DATA_SET_DIR_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            ANALYSIS_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
+                                    ANALYSIS_DATA_SET_FILE_NAME));
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
-                    one(openBisService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
+                            sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
@@ -187,11 +232,20 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         List<? extends NewExternalData> dataSetsRegistered =
                 atomicatOperationDetails.recordedObject().getDataSetRegistrations();
-        assertEquals(1, dataSetsRegistered.size());
+        assertEquals(3, dataSetsRegistered.size());
 
-        NewExternalData dataSet = dataSetsRegistered.get(0);
-        assertEquals(DATA_SET_CODE, dataSet.getCode());
-        assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
+        NewExternalData imageDataSet = dataSetsRegistered.get(0);
+        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
+        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
+        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
+
+        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+
+        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
+        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
 
         AssertionUtil
                 .assertContains(
@@ -199,6 +253,22 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                                 + "&sample_type=PLATE&action=SEARCH&code=TEST-PLATE'>TEST-PLATE</a> has been registered.",
                         email.recordedObject());
         context.assertIsSatisfied();
+    }
+
+    private void assertHasProperty(NewExternalData dataSet, String propCode, String propValue)
+    {
+        for (NewProperty prop : dataSet.getDataSetProperties())
+        {
+            if (prop.getPropertyCode().equals(propCode))
+            {
+                assertEquals("Invalid value in property " + propCode, propValue, prop.getValue());
+                return;
+            }
+        }
+
+        fail(String.format("No property with code %s was found in data set %s", propCode,
+                dataSet.getCode()));
+
     }
 
     private void assertAllSamplesHaveContainer(List<NewSample> newSamples,
@@ -294,7 +364,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private void createData() throws IOException
     {
-        File dataDirectory = new File("./sourceTest/examples/" + DATASET_DIR_NAME);
+        File dataDirectory = new File("./sourceTest/resources/" + IMAGE_DATA_SET_DIR_NAME);
         FileUtils.copyDirectoryToDirectory(dataDirectory, workingDirectory);
         incomingDataSetFile = new File(workingDirectory, dataDirectory.getName());
 
@@ -339,4 +409,76 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         return "dist/etc/sanofi-dropbox/";
     }
+
+    @Override
+    protected void createHandler(Properties threadProperties, final boolean registrationShouldFail,
+            boolean shouldReThrowException)
+    {
+        TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
+
+        handler = new TestingPlateDataSetHandler(globalState, registrationShouldFail,
+                shouldReThrowException);
+    }
+    
+
+    private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler
+    {
+        private final boolean shouldRegistrationFail;
+
+        private final boolean shouldReThrowRollbackException;
+
+        public TestingPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
+                boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
+        {
+            super(globalState);
+            this.shouldRegistrationFail = shouldRegistrationFail;
+            this.shouldReThrowRollbackException = shouldReThrowRollbackException;
+        }
+
+        @Override
+        public void registerDataSetInApplicationServer(DataSetInformation dataSetInformation,
+                NewExternalData data) throws Throwable
+        {
+            if (shouldRegistrationFail)
+            {
+                throw new UserFailureException("Didn't work.");
+            } else
+            {
+                super.registerDataSetInApplicationServer(dataSetInformation, data);
+            }
+        }
+
+        @Override
+        public void rollback(DataSetRegistrationService<DataSetInformation> service,
+                Throwable throwable)
+        {
+            super.rollback(service, throwable);
+            if (shouldReThrowRollbackException)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+            } else
+            {
+                throwable.printStackTrace();
+            }
+        }
+
+        @Override
+        public void didRollbackTransaction(DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationTransaction<DataSetInformation> transaction,
+                DataSetStorageAlgorithmRunner<DataSetInformation> algorithmRunner,
+                Throwable throwable)
+        {
+            super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
+
+            if (shouldReThrowRollbackException)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+            } else
+            {
+                throwable.printStackTrace();
+            }
+        }
+
+    }
+
 }
