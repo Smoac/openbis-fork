@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
@@ -44,6 +45,8 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             PluginScriptRunnerFactory.class);
 
     private final static String SEARCH_SERVICE_VARIABLE_NAME = "searchService";
+
+    private final static String DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME = "queryService";
 
     private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
 
@@ -139,12 +142,18 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         final Evaluator evaluator = new Evaluator("", null, scriptString, false);
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createSearchService());
         evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
+        evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
         return evaluator;
     }
 
     private static ISearchService createSearchService()
     {
         return ServiceProvider.getSearchService();
+    }
+
+    private static IDataSourceQueryService createDataSourceQueryService()
+    {
+        return ServiceProvider.getDataSourceQueryService();
     }
 
     private static IMailService createMailService(DataSetProcessingContext context)
