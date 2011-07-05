@@ -189,10 +189,9 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         SingleExperimentSearchCriteria singleExperiment =
                 new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
                         experiment.getIdentifier());
-        updateSingleExperimentChooser(chooserField, singleExperiment);
         experimentCriteriaHolder.setCriteria(ExperimentSearchCriteria.createExperiment(
                 singleExperiment, restrictGlobalScopeLinkToProject));
-        refreshAction.execute();
+        updateSingleExperimentChooser(chooserField, singleExperiment);
     }
 
     private void updateSingleExperimentChooser(ExperimentChooserField chooserField,
@@ -201,6 +200,7 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         this.singleExperimentChooserStateOrNull = singleExperiment;
         chooserField.updateValue(new ExperimentIdentifier(singleExperiment
                 .getExperimentIdentifier()));
+        refreshAction.execute();
     }
 
 }
