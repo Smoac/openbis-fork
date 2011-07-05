@@ -179,8 +179,10 @@ public class SimpleImageDataSetRegistrator
                     simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
             for (ImageMetadata imageToken : imageTokens)
             {
-                imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
-                imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                if (imageToken != null) {
+                    imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
+                    imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                }
             }
         }
         if (imageTokensList.size() == 0)
