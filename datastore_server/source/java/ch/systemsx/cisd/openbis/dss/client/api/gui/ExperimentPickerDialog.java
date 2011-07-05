@@ -125,7 +125,6 @@ public class ExperimentPickerDialog extends JDialog
         final JTable table = new JTable(new SortableFilterableTableModel(data, HEADERS));
 
         table.setPreferredScrollableViewportSize(new Dimension(500, 150));
-        table.setFillsViewportHeight(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JTableHeader header = table.getTableHeader();
