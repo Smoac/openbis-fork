@@ -58,6 +58,12 @@
        <constructor-arg ref="sessionHolder"/>
     </bean>    
     
+	<bean id="query-service" class="ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService"/>
+    
+    <bean id="search-service" class="ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService">
+        <constructor-arg ref="openBIS-service"/>
+    </bean>
+        
     <bean id="share-id-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ShareIdManager">
         <constructor-arg ref="openBIS-service"/>
         <constructor-arg value="86400"/>

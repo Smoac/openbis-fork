@@ -62,7 +62,6 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
@@ -226,7 +225,8 @@ public final class ETLDaemon
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
-        final IDataSourceQueryService dataSourceQueryService = new DataSourceQueryService();
+        final IDataSourceQueryService dataSourceQueryService =
+                ServiceProvider.getDataSourceQueryService();
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
         File[] shares = SegmentedStoreUtils.getShares(storeRootDir);
         List<String> incomingShares = new ArrayList<String>();
@@ -347,10 +347,10 @@ public final class ETLDaemon
             final IEncapsulatedOpenBISService openBISService, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator,
             IDataSourceQueryService dataSourceQueryService,
-            final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
-            String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
-            String[] validationScriptsOrNull, Class<?> defaultTopLevelDataSetRegistratorClass)
+            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
+            boolean deleteUnidentified, String preRegistrationScriptOrNull,
+            String postRegistrationScriptOrNull, String[] validationScriptsOrNull,
+            Class<?> defaultTopLevelDataSetRegistratorClass)
     {
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());

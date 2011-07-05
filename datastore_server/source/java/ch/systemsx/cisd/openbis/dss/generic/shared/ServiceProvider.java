@@ -26,7 +26,6 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 
@@ -108,7 +107,7 @@ public class ServiceProvider
 
     public static IDataSourceQueryService getDataSourceQueryService()
     {
-        return new DataSourceQueryService();
+        return ((IDataSourceQueryService) getApplicationContext().getBean("query-service"));
     }
 
     public static IDataSetPathInfoProvider getDataSetPathInfoProvider()
