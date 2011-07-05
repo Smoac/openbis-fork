@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -101,7 +102,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 7;
+    public static final int MINOR_VERSION = 8;
 
     /**
      * NULL_SIZE encodes for "no thumbnails available"
@@ -197,6 +198,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
         try
         {
+            @SuppressWarnings("deprecation")
             Map<String, File> datasetRoots = getRootDirectories(sessionToken, datasetCodes);
             List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
             for (IImageDatasetIdentifier dataset : imageDatasets)
@@ -416,16 +418,26 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return loadImages(sessionToken, imageReferences, tryAsSize(thumbnailSizeOrNull), true);
     }
 
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            LoadImageConfiguration configuration)
+    {
+        final Map<String, IImagingDatasetLoader> imageLoadersMap =
+                getImageDatasetsMap(sessionToken, imageReferences);
+        return loadImages(imageReferences, tryAsSize(configuration.getDesiredImageSize()),
+                configuration.isDesiredImageFormatPng(),
+                configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
+    }
+
     private InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             final Size sizeOrNull, final boolean convertToPng)
     {
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        return loadImages(imageReferences, sizeOrNull, convertToPng, imageLoadersMap);
+        return loadImages(imageReferences, sizeOrNull, convertToPng, false, imageLoadersMap);
     }
 
     private InputStream loadImages(List<PlateImageReference> imageReferences,
-            final Size sizeOrNull, final boolean convertToPng,
+            final Size sizeOrNull, final boolean convertToPng, final boolean transform,
             final Map<String, IImagingDatasetLoader> imageLoadersMap)
     {
         final List<IContent> imageContents = new ArrayList<IContent>();
@@ -444,7 +456,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     public IContent getContent()
                     {
                         return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, convertToPng);
+                                sizeOrNull, convertToPng, transform);
                     }
                 }));
         }
@@ -494,7 +506,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 new HashMap<String, IImagingDatasetLoader>();
         imageLoadersMap.put(dataSetIdentifier.getDatasetCode(), imageAccessor);
 
-        return loadImages(imageReferences, size, true, imageLoadersMap);
+        return loadImages(imageReferences, size, true, false, imageLoadersMap);
     }
 
     public InputStream loadThumbnailImages(String sessionToken,
@@ -526,7 +538,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     public IContent getContent()
                     {
                         return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, true);
+                                sizeOrNull, true, false);
                     }
                 }));
         }
@@ -620,6 +632,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)
     {
         String datasetCode = dataSetIdentifier.getDatasetCode();
+        @SuppressWarnings("deprecation")
         File rootDir = getRootDirectory(datasetCode);
         IImagingDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
         return imageAccessor;
@@ -917,12 +930,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IContent tryGetImageContent(IImagingDatasetLoader imageAccessor,
             final ImageChannelStackReference channelStackReference, String channelCode,
-            Size thumbnailSizeOrNull, boolean convertToPng)
+            Size thumbnailSizeOrNull, boolean convertToPng, boolean transform)
     {
         try
         {
             return ImageChannelsUtils.getImage(imageAccessor, channelStackReference, channelCode,
-                    thumbnailSizeOrNull, convertToPng);
+                    thumbnailSizeOrNull, convertToPng, transform);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);
@@ -987,6 +1000,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IImagingDatasetLoader createImageLoader(String datasetCode)
     {
+        @SuppressWarnings("deprecation")
         File datasetRoot = getRootDirectory(datasetCode);
         return createImageLoader(datasetCode, datasetRoot);
     }

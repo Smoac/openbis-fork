@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -214,6 +215,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     {
         logAccess(sessionToken, "load_thumbnail_images microscopy ", "DATA_SET(%s) CHANNELS(%s)",
                 dataSetIdentifier, channels);
+        return null;
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            LoadImageConfiguration configuration)
+    {
+        logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
+                imageReferences, configuration);
         return null;
     }
 
