@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -629,8 +630,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 new ImageDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
                         properties, null);
         final ImageDatasetReference r2 =
-                new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
-                        null, null);
+                new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null, null,
+                        null);
         context.checking(new Expectations()
             {
                 {
@@ -639,27 +640,28 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 }
             });
 
-        List<ImageDatasetReference> dataSets = facade.listSegmentationImageDatasets(plates, "AP-42");
+        List<ImageDatasetReference> dataSets =
+                facade.listSegmentationImageDatasets(plates, "AP-42");
 
         assertSame(r1, dataSets.get(0));
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListSegmentationImageDataSetsWithUnspecifiedAnalysisProcedure()
     {
         final Plate plate =
-            new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
+                new Plate("p1", "s", "s-12", new ExperimentIdentifier("e", "p1", "s", "e-13"));
         final List<Plate> plates = Arrays.asList(plate);
         HashMap<String, String> properties = new HashMap<String, String>();
         properties.put(ScreeningConstants.ANALYSIS_PROCEDURE, "AP-42");
         final ImageDatasetReference r1 =
-            new ImageDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
-                    properties, null);
+                new ImageDatasetReference(DATA_SET1, null, URL1, plate, null, null, null,
+                        properties, null);
         final ImageDatasetReference r2 =
-            new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null,
-                    null, null);
+                new ImageDatasetReference(DATA_SET2, null, URL2, plate, null, null, null, null,
+                        null);
         context.checking(new Expectations()
             {
                 {
@@ -667,15 +669,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     will(returnValue(Arrays.asList(r1, r2)));
                 }
             });
-        
+
         List<ImageDatasetReference> dataSets = facade.listSegmentationImageDatasets(plates, null);
-        
+
         assertSame(r1, dataSets.get(0));
         assertSame(r2, dataSets.get(1));
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListPlateWells()
     {
@@ -734,6 +736,64 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
             });
 
         facade.loadImages(Arrays.asList(r1, r2), outputStreamProvider);
+
+        assertEquals("hello 1", stream1.toString());
+        assertEquals("hello 2", stream2.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadImagesUsingConfiguration() throws IOException
+    {
+        final LoadImageConfiguration config = new LoadImageConfiguration();
+        config.setDesiredImageFormatPng(true);
+
+        final PlateImageReference r1 = new PlateImageReference(1, 2, 1, "c1", i1id);
+        final PlateImageReference r2 = new PlateImageReference(12, 22, 1, "c1", i2id);
+        final ByteArrayOutputStream stream1 = new ByteArrayOutputStream();
+        final ByteArrayOutputStream stream2 = new ByteArrayOutputStream();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), config);
+                    ConcatenatedContentInputStream s1 =
+                            new ConcatenatedContentInputStream(true, Arrays
+                                    .<IContent> asList(new ByteArrayBasedContent("hello 1"
+                                            .getBytes(), "h1")));
+                    will(returnValue(s1));
+
+                    one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), config);
+                    ConcatenatedContentInputStream s2 =
+                            new ConcatenatedContentInputStream(true, Arrays
+                                    .<IContent> asList(new ByteArrayBasedContent("hello 2"
+                                            .getBytes(), "h2")));
+                    will(returnValue(s2));
+                }
+            });
+
+        IPlateImageHandler handler = new IPlateImageHandler()
+            {
+
+                public void handlePlateImage(PlateImageReference plateImageReference,
+                        byte[] imageFileBytes)
+                {
+
+                    try
+                    {
+                        if (r1.equals(plateImageReference))
+                        {
+                            stream1.write(imageFileBytes);
+                        } else if (r2.equals(plateImageReference))
+                        {
+                            stream2.write(imageFileBytes);
+                        }
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            };
+        facade.loadImages(Arrays.asList(r1, r2), config, handler);
 
         assertEquals("hello 1", stream1.toString());
         assertEquals("hello 2", stream2.toString());

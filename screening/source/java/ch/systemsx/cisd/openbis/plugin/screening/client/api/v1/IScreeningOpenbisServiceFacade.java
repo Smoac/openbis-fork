@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -64,7 +65,7 @@ public interface IScreeningOpenbisServiceFacade
 
     /** Closes connection with the server. After calling this method this facade cannot be used. */
     public void logout();
-    
+
     /**
      * Removes all images loaded by {@link #loadImageWellCaching(PlateImageReference, ImageSize)}
      * and {@link #loadThumbnailImageWellCaching(PlateImageReference)} from the image cache, thus
@@ -88,7 +89,7 @@ public interface IScreeningOpenbisServiceFacade
      * Each returned plate has at least one data set with the specified analysis procedure.
      */
     public List<Plate> listPlates(ExperimentIdentifier experiment, String analysisProcedure);
-    
+
     /**
      * Return the list of all visible experiments, along with their hierarchical context (space,
      * project).
@@ -126,7 +127,7 @@ public interface IScreeningOpenbisServiceFacade
      */
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates, String analysisProcedureOrNull);
-    
+
     /**
      * For a given set of plates provides the list of all connected data sets containing images
      * which are not segmentation images.
@@ -151,7 +152,7 @@ public interface IScreeningOpenbisServiceFacade
     @Deprecated
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates);
-    
+
     /**
      * For a given set of plates provides the list of all connected data sets containing
      * segmentation images (overlays) and calculated by specified analysis procedure.
@@ -211,7 +212,7 @@ public interface IScreeningOpenbisServiceFacade
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
             String datasetTypeCodePattern) throws IllegalStateException,
             EnvironmentFailureException;
-    
+
     /**
      * Gets proxies to the data sets owned by specified well and passing specified filter..
      * 
@@ -219,10 +220,9 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
-            IDataSetFilter dataSetFilter) throws IllegalStateException,
-            EnvironmentFailureException;
-    
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier, IDataSetFilter dataSetFilter)
+            throws IllegalStateException, EnvironmentFailureException;
+
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException;
 
@@ -267,9 +267,8 @@ public interface IScreeningOpenbisServiceFacade
      *             the server.
      */
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
-            IDataSetFilter dataSetFilter) throws IllegalStateException,
-            EnvironmentFailureException;
-    
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
+
     /**
      * Upload a new data set to the DSS for a plate.
      * 
@@ -440,7 +439,7 @@ public interface IScreeningOpenbisServiceFacade
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
             String analysisProcedureOrNull, List<String> featureCodesOrNull);
-    
+
     /**
      * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
      * and load the feature vectors for the given feature code if not <code>null</code>, or all
@@ -481,7 +480,7 @@ public interface IScreeningOpenbisServiceFacade
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             MaterialIdentifier materialIdentifier, String analysisProcedureOrNull,
             List<String> featureCodesOrNull);
-    
+
     /**
      * Converts the given <var>WellIdentifiers</var> to <var>WellPositions</var>
      */
@@ -632,6 +631,19 @@ public interface IScreeningOpenbisServiceFacade
             IPlateImageHandler plateImageHandler) throws IOException;
 
     /**
+     * Loads images where the desired properties of the images are specified by a
+     * LoadImageConfiguration. The options and their behavior are described in the
+     * {@link LoadImageConfiguration} documentation.
+     * 
+     * @param configuration The configuration of the images to load.
+     * @param plateImageHandler Handler for the delivered images.
+     * @see LoadImageConfiguration
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            LoadImageConfiguration configuration, IPlateImageHandler plateImageHandler)
+            throws IOException;
+
+    /**
      * Loads the PNG-encoded image for the specified <var>imageReference</var>.
      * <p>
      * This method triggers loading the thumbnail images for all tiles and all channels for the
@@ -707,7 +719,7 @@ public interface IScreeningOpenbisServiceFacade
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
             List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
-    
+
     /**
      * Returns an alphabetically sorted list of analysis procedure codes of all data sets of the
      * specified experiment.

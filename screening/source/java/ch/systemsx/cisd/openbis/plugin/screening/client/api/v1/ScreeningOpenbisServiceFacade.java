@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -1684,6 +1685,57 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             return minimalMinorVersion.value();
         }
+    }
+
+    public void loadImages(List<PlateImageReference> imageReferences,
+            final LoadImageConfiguration configuration, final IPlateImageHandler plateImageHandler)
+            throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
+                                    LoadImageConfiguration.class);
+                            final InputStream stream =
+                                    dssService.getService().loadImages(sessionToken, references,
+                                            configuration);
+                            try
+                            {
+                                final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                        new ConcatenatedFileOutputStreamWriter(stream);
+                                int index = 0;
+                                long size;
+                                do
+                                {
+                                    final ByteArrayOutputStream outputStream =
+                                            new ByteArrayOutputStream();
+                                    size = imagesWriter.writeNextBlock(outputStream);
+                                    if (size > 0)
+                                    {
+                                        plateImageHandler.handlePlateImage(references.get(index),
+                                                outputStream.toByteArray());
+                                    }
+                                    index++;
+                                } while (size >= 0);
+                            } catch (IOException ex)
+                            {
+                                throw new WrappedIOException(ex);
+                            } finally
+                            {
+                                try
+                                {
+                                    stream.close();
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                }
+                            }
+
+                        }
+                    });
     }
 
 }
