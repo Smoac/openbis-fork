@@ -364,6 +364,36 @@ public class ImageChannelsUtils
         return createPngContent(image, null);
     }
 
+    /**
+     * @return an image for the specified tile in the specified size and for the requested channel.
+     */
+    public static IContent getImage(IImagingDatasetLoader imageAccessor,
+            ImageChannelStackReference channelStackReference, String chosenChannelCode,
+            Size imageSizeLimitOrNull, boolean convertToPng, boolean transform)
+    {
+        String datasetCode = imageAccessor.getImageParameters().getDatasetCode();
+        boolean isMergedChannels =
+                ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode);
+        List<String> channelCodes = isMergedChannels ? null : Arrays.asList(chosenChannelCode);
+
+        DatasetAcquiredImagesReference imagesReference =
+                new DatasetAcquiredImagesReference(datasetCode, channelStackReference, channelCodes);
+
+        ImageChannelsUtils imageChannelsUtils =
+                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
+        boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
+        List<AbsoluteImageReference> imageContents =
+                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
+
+        IContent rawContent = tryGetRawContent(convertToPng, imageContents);
+        if (rawContent != null)
+        {
+            return rawContent;
+        }
+        BufferedImage image = mergeChannels(imageContents, transform, mergeAllChannels);
+        return createPngContent(image, null);
+    }
+
     // optimization: if there is exactly one image reference, maybe its original raw content is the
     // appropriate answer?
     private static IContent tryGetRawContent(boolean convertToPng,
