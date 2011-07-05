@@ -10,24 +10,24 @@ abase-datasource.database-driver = org.postgresql.Driver
 abase-datasource.database-url = jdbc:postgresql://localhost/abase_mock_db
 
 
-inputs= ..., sanofi-dropbox
+inputs= ..., dropbox-all-in-one-with-library
 
-sanofi-dropbox.incoming-dir = ${root-dir}/incoming-sanofi
-sanofi-dropbox.top-level-data-set-handler = ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler
-sanofi-dropbox.incoming-data-completeness-condition = auto-detection
-sanofi-dropbox.strip-file-extension = true
-sanofi-dropbox.script-path = /Users/kaloyane/cisd/modules/sanofi/dist/etc/sanofi-dropbox/sanofi-dropbox.py
+dropbox-all-in-one-with-library.incoming-dir = ${root-dir}/incoming-all-in-one-with-library
+dropbox-all-in-one-with-library.top-level-data-set-handler = ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler
+dropbox-all-in-one-with-library.incoming-data-completeness-condition = auto-detection
+dropbox-all-in-one-with-library.strip-file-extension = true
+dropbox-all-in-one-with-library.script-path = <path-to-the-script>/dropbox-all-in-one-with-library.py
 
-sanofi-dropbox.storage-processor = ch.systemsx.cisd.etlserver.DispatcherStorageProcessor
-sanofi-dropbox.storage-processor.processors = images, analysis
+dropbox-all-in-one-with-library.storage-processor = ch.systemsx.cisd.etlserver.DispatcherStorageProcessor
+dropbox-all-in-one-with-library.storage-processor.processors = images, analysis
 # --- images - accepts all image datasets registrations
-sanofi-dropbox.storage-processor.images = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
-sanofi-dropbox.storage-processor.images.data-source = imaging-db
+dropbox-all-in-one-with-library.storage-processor.images = ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor
+dropbox-all-in-one-with-library.storage-processor.images.data-source = imaging-db
 # --- analysis - accepts all other datasets (and assumes they are single CSV files)
-sanofi-dropbox.storage-processor.analysis = ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor
-sanofi-dropbox.storage-processor.analysis.processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
-sanofi-dropbox.storage-processor.analysis.data-source = imaging-db
-sanofi-dropbox.storage-processor.analysis.separator = ,
-sanofi-dropbox.storage-processor.analysis.well-name-row = Well
-sanofi-dropbox.storage-processor.analysis.well-name-col = Well
-sanofi-dropbox.storage-processor.analysis.well-name-col-is-alphanum = true 
+dropbox-all-in-one-with-library.storage-processor.analysis = ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorStorageProcessor
+dropbox-all-in-one-with-library.storage-processor.analysis.processor = ch.systemsx.cisd.etlserver.DefaultStorageProcessor
+dropbox-all-in-one-with-library.storage-processor.analysis.data-source = imaging-db
+dropbox-all-in-one-with-library.storage-processor.analysis.separator = ,
+dropbox-all-in-one-with-library.storage-processor.analysis.well-name-row = Well
+dropbox-all-in-one-with-library.storage-processor.analysis.well-name-col = Well
+dropbox-all-in-one-with-library.storage-processor.analysis.well-name-col-is-alphanum = true 
