@@ -70,7 +70,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     private static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
-    protected JythonTopLevelDataSetHandler<DataSetInformation> handler;
+    protected JythonTopLevelDataSetHandler<? extends DataSetInformation> handler;
 
     protected Mockery context;
 
@@ -172,10 +172,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         handler =
                 new TestingDataSetHandler(globalState, registrationShouldFail,
-                        shouldReThrowException);
+                shouldReThrowException);
     }
 
-    private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
+    protected TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
     {
         ThreadParameters threadParameters =
                 new ThreadParameters(threadProperties, "jython-handler-test");
@@ -253,14 +253,20 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
                     public void storeData(DataSetInformation dataSetInformation,
                             ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetDirectory, File rootDir)
+                            File incomingDataSetFile, File rootDir)
                     {
-                        incomingDirs.add(incomingDataSetDirectory);
+                        incomingDirs.add(incomingDataSetFile);
                         rootDirs.add(rootDir);
                         dataSetInfoString = dataSetInformation.toString();
                         try
                         {
-                            FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
+                            if (incomingDataSetFile.isDirectory())
+                            {
+                                FileUtils.copyDirectory(incomingDataSetFile, rootDir);
+                            } else
+                            {
+                                FileUtils.copyFileToDirectory(incomingDataSetFile, rootDir);
+                            }
                         } catch (IOException ex)
                         {
                             throw new IOExceptionUnchecked(ex);
