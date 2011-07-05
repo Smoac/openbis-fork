@@ -92,10 +92,17 @@ class MaterialMergedSummarySection extends DisposableTabContent
     {
         super.showContent();
         setHeading("");
-        getHeader().addTool(
-                new SingleOrAllExperimentsChooser(screeningViewContext,
-                        experimentSearchCriteriaHolder, restrictGlobalScopeLinkToProject,
-                        createRefreshAction(experimentSearchCriteriaHolder)));
+        final SingleOrAllExperimentsChooser experimentsChooser = createExperimentChooser();
+        getHeader().addTool(experimentsChooser);
+        // WORKAROUND to GXT private widgetPanel in Header with fixed "float: right" set onRender
+        experimentsChooser.getParent().addStyleName("force-float-left");
+    }
+
+    private SingleOrAllExperimentsChooser createExperimentChooser()
+    {
+        return new SingleOrAllExperimentsChooser(screeningViewContext,
+                experimentSearchCriteriaHolder, restrictGlobalScopeLinkToProject,
+                createRefreshAction(experimentSearchCriteriaHolder));
     }
 
 }
