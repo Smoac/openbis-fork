@@ -12,11 +12,12 @@ abase-datasource.database-url = jdbc:postgresql://localhost/abase_mock_db
 
 inputs= ..., dropbox-all-in-one-with-library
 
-dropbox-all-in-one-with-library.incoming-dir = ${root-dir}/incoming-all-in-one-with-library
+dropbox-all-in-one-with-library.incoming-dir = ${incoming-root-dir}/incoming-all-in-one-with-library
 dropbox-all-in-one-with-library.top-level-data-set-handler = ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler
 dropbox-all-in-one-with-library.incoming-data-completeness-condition = auto-detection
 dropbox-all-in-one-with-library.strip-file-extension = true
-dropbox-all-in-one-with-library.script-path = <path-to-the-script>/dropbox-all-in-one-with-library.py
+dropbox-all-in-one-with-library.script-path = ${root-dir}/scripts/dropbox-all-in-one-with-library.py
+dropbox-all-in-one-with-library.staging-dir = ${incoming-root-dir}
 
 dropbox-all-in-one-with-library.storage-processor = ch.systemsx.cisd.etlserver.DispatcherStorageProcessor
 dropbox-all-in-one-with-library.storage-processor.processors = images, analysis
