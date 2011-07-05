@@ -1651,7 +1651,7 @@ CREATE SEQUENCE property_type_id_seq
 -- Name: property_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('property_type_id_seq', 111, true);
+SELECT pg_catalog.setval('property_type_id_seq', 200, true);
 
 
 --
