@@ -8,6 +8,7 @@ if [ ${BASE#/} == ${BASE} ]; then
 fi
 
 source $BASE/env
+source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
 
@@ -36,12 +37,8 @@ $PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
 # screening-specific
 $PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
-echo Installing openBIS Datastore Server
-unzip $ROOT_DIR/datastore_server-screening*.zip -d $ROOT_DIR
-
-echo Installing openBIS Application Server
-unzip $ROOT_DIR/openBIS-server*.zip -d $ROOT_DIR
-$ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
+installOpenBisServer $ROOT_DIR
+installDataStoreServer $ROOT_DIR
 
 $BASE/restore-config-from-backup.sh $CONFIG
 cp -r $OLD_BIS/jetty/indices* $ROOT_DIR/openBIS-server/jetty/

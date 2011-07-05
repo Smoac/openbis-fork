@@ -40,3 +40,42 @@ copyIfExists()
       cp -R "$1" "$2"
   fi
 }
+
+#
+# Installs openBIS server to a given destination
+# The function assumes that the openBIS-server*.zip file is already present in the destination.  
+#
+installOpenBisServer() 
+{
+  if [ "$1" == "" ]; then 
+    echo "ERROR: You must specify a folder to install openBIS-server"
+    exit 1
+  fi
+  
+  INSTALL_DIR=$1
+	TMP_EXTRACT=$INSTALL_DIR/tmp-extract
+	echo Installing openBIS Application Server to $INSTALL_DIR
+	
+	mkdir -p "$TMP_EXTRACT"
+	mkdir $INSTALL_DIR/openBIS-server
+	unzip $INSTALL_DIR/openBIS-*.zip -d "$TMP_EXTRACT"
+	$TMP_EXTRACT/openBIS-server/install.sh $INSTALL_DIR/openBIS-server
+	
+	rm -rf "$TMP_EXTRACT"
+}
+
+#
+# Installs Data Store Server to a given destination
+# The function assumes that the datastore-server*.zip file is already present in the destination.  
+#
+installDataStoreServer() 
+{
+  if [ "$1" == "" ]; then 
+    echo "ERROR: You must specify a folder to install Data Store Server"
+    exit 1
+  fi
+  
+  INSTALL_DIR=$1
+	echo Installing openBIS Datastore Server to $INSTALL_DIR
+	unzip $INSTALL_DIR/datastore*.zip -d $INSTALL_DIR
+}

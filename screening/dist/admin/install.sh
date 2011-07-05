@@ -8,6 +8,7 @@ if [ ${BASE#/} == ${BASE} ]; then
 fi
 
 source $BASE/env
+source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
 BACKUP_DIR=$BASE/../backup
@@ -15,17 +16,9 @@ BACKUP_DIR=$BASE/../backup
 mkdir -p $ROOT_DIR
 mkdir -p $BACKUP_DIR
 
-echo Installing openBIS Datastore Server
-unzip $ROOT_DIR/datastore*.zip -d $ROOT_DIR
+installOpenBisServer $ROOT_DIR
+installDataStoreServer $ROOT_DIR
 
-echo Installing openBIS Application Server
-TMP_EXTRACT=$ROOT_DIR/tmp-extract
-mkdir -p "$TMP_EXTRACT"
-mkdir $ROOT_DIR/openBIS-server
-unzip $ROOT_DIR/openBIS-*.zip -d "$TMP_EXTRACT"
-$TMP_EXTRACT/openBIS-server/install.sh $ROOT_DIR/openBIS-server
-
-rm -rf "$TMP_EXTRACT"
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
 
 . $BASE/create-empty-screening-db.sh
