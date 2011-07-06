@@ -468,4 +468,16 @@ public class WellSearchCriteria implements ISerializable
     {
         return materialCriteria;
     }
+
+    public static boolean shouldRestrictScopeToProject(
+            ExperimentSearchCriteria searchCriteria)
+    {
+        return searchCriteria != null && searchCriteria.tryGetProjectIdentifier() != null;
+    }
+
+    public static boolean shouldRestrictScopeToProject(
+            ExperimentSearchByProjectCriteria searchCriteria)
+    {
+        return searchCriteria != null && searchCriteria.tryGetProjectIdentifier() != null;
+    }
 }

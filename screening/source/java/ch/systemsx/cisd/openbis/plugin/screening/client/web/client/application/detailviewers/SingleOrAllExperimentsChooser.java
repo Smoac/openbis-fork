@@ -46,6 +46,8 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
 
     private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
 
+    private static final String ALL_EXPERIMENTS_FROM_PROJECT_TEXT = "All experiments from ";
+
     private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
 
     private SingleExperimentSearchCriteria singleExperimentChooserStateOrNull;
@@ -140,6 +142,15 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         experimentRadio.setOrientation(Orientation.HORIZONTAL);
 
         final Radio allExps = new Radio();
+        if (restrictGlobalScopeLinkToProject)
+        {
+            String projectIdentifier =
+                    experimentCriteriaHolder.tryGetCriteria().tryGetProjectIdentifier().toString();
+            allExps.setBoxLabel(ALL_EXPERIMENTS_FROM_PROJECT_TEXT + projectIdentifier);
+        } else
+        {
+            allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
+        }
         allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
         experimentRadio.add(allExps);
 

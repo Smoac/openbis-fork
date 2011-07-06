@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
@@ -55,11 +56,32 @@ public class MaterialFeaturesFromAllExperimentsComponent
         final IDisposableComponent gridComponent =
                 MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
                         experimentSearchCriteria);
-        String headingText =
-                screeningViewContext.getMessage(Dict.MATERIAL_IN_ALL_ASSAYS,
-                        MaterialComponentUtils.getMaterialFullName(material, true));
+        String headingTextOtNull = tryCreateHeadingText(material, experimentSearchCriteria);
         return MaterialComponentUtils.createMaterialViewer(screeningViewContext, material,
-                headingText, gridComponent);
+                headingTextOtNull, gridComponent);
     }
 
+    private String tryCreateHeadingText(Material material,
+            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+    {
+        if (screeningViewContext.getModel().isEmbeddedMode())
+        {
+            BasicProjectIdentifier projectIdentifierOrNull =
+                    experimentSearchCriteria.tryGetProjectIdentifier();
+            if (projectIdentifierOrNull != null)
+            {
+                return screeningViewContext.getMessage(Dict.MATERIAL_IN_ALL_ASSAYS_OF_PROJECT,
+                        MaterialComponentUtils.getMaterialFullName(material, true),
+                        projectIdentifierOrNull);
+            } else
+            {
+                return screeningViewContext.getMessage(Dict.MATERIAL_IN_ALL_ASSAYS,
+                        MaterialComponentUtils.getMaterialFullName(material, true));
+            }
+        } else
+        {
+            // header is not needed in SIMPLE & NORMAL view mode because there the context is clear
+            return null;
+        }
+    }
 }

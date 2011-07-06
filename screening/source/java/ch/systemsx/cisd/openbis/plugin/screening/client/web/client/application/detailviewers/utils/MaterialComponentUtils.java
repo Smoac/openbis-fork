@@ -114,10 +114,13 @@ public class MaterialComponentUtils
         return additionalProperties;
     }
 
-    /** Creates a grid with some header on top containing the specified title and entity properties. */
+    /**
+     * Creates a grid with optional header on top containing the specified title and entity
+     * properties.
+     */
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithProperties entity, String headingText,
+            IEntityInformationHolderWithProperties entity, String headingTextOrNull,
             final IDisposableComponent gridComponent,
             Map<String/* label */, String/* value */> additionalPropertiesOrNull,
             String... excludedPropertyCodes)
@@ -125,8 +128,11 @@ public class MaterialComponentUtils
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new BorderLayout());
 
-        addHeader(panel, viewContext, headingText, entity, additionalPropertiesOrNull,
-                excludedPropertyCodes);
+        if (headingTextOrNull != null)
+        {
+            addHeader(panel, viewContext, headingTextOrNull, entity, additionalPropertiesOrNull,
+                    excludedPropertyCodes);
+        }
 
         panel.add(gridComponent.getComponent(), new BorderLayoutData(LayoutRegion.CENTER));
 
