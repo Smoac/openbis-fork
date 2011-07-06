@@ -23,9 +23,6 @@ OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
 
 EXPERIMENT_RECIPIENTS_PROPCODE = "OBSERVER_EMAILS"
 
-# TODO KE: get all instance admin emails here
-DEFAULT_RECIPIENT_LIST = "Matthew.Smicker@sanofi-aventis.com"
-
 """ the sample type identifying plates """
 PLATE_TYPE = "PLATE"
 
