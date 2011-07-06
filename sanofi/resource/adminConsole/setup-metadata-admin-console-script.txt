@@ -31,8 +31,6 @@ assign-to SAMPLE:COMPOUND_WELL ${type}
 
 --  Materials
 
-register-type MATERIAL COMPOUND
-
 set type = COMPOUND_ID
 register-property-type ${type} with data type VARCHAR
 assign-to MATERIAL:COMPOUND ${type}
