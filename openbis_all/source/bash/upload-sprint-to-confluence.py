@@ -7,7 +7,7 @@
 #
 from __future__ import with_statement
 from datetime import date
-import sys, string, xmlrpclib, re, os, getpass
+import sys, string, xmlrpclib, re, os, getpass, subprocess,  shutil
 
 DOWNLOAD_FOLDER="./tmp/"
 confluenceToken = None
@@ -23,21 +23,20 @@ def printWiki(text=""):
 def logIntoConfluence():
   global confluenceToken
   user = getpass.getuser()
-  print "Please speficy Confluence password for user ", user
+  print "Please specify Confluence password for user ", user
   password = getpass.getpass()
   confluenceToken = confluenceServer.confluence1.login(user, password)
   if confluenceToken is None:
       exit("Could not login page " + spacekey + ":" + pagetitle)
 
 
-def uploadReleaseBinaryToConfluence(filename):
+def uploadReleaseBinaryToConfluence(filename, pagetitle):
   # ugly, but I don't want to spend more time here
   filepath = DOWNLOAD_FOLDER + "/" + filename
   with open(filepath, 'rb') as f:
     data = f.read(); # slurp all the data
  
   spacekey="bis"
-  pagetitle="Sprint Releases"
   
   if confluenceToken is None:
       logIntoConfluence()
@@ -63,9 +62,9 @@ def printVersion(version):
   today = date.today().strftime("%d %B %Y")
   printWiki("h2. Version {0} ({1})".format(version, today))
   
-def processFile(linkName, filePattern, version, listNestedLevels=1):
+def processFile(linkName, filePattern, version, listNestedLevels=1, pagetitle="Sprint Releases"):
   fileName = findFile(filePattern + "-" + version)
-  uploadReleaseBinaryToConfluence(fileName)
+  uploadReleaseBinaryToConfluence(fileName, pagetitle)
   nestedPrefix="*"*listNestedLevels
   printWiki("{0} [{1}|^{2}] ".format(nestedPrefix, linkName, fileName))
   
@@ -89,6 +88,36 @@ def uploadToConfluenceAndPrintPageText(version):
 
   processFile("API", "screening-api", version)
 
+def uploadToConfluenceMetabolomicsAndPrintPageText(version):
+  wikiText = ""
+  printVersion(version)
+  printWiki()
+  printWiki("h5. openBIS for Metabolomics")
+  printWiki()
+  processFile("Application Server (AS)", "openBIS-server", version, 1, "openBIS Metabolomics")
+  processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version, 1, "openBIS Metabolomics")
+  processFile("DSS Client", "dss_client", version, 1, "openBIS Metabolomics")
+  printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
+  printWiki()
+  # datastore_server_plugin-yeastx
+
+def createMetabolomicsDssDist(version):
+  # find the files we want to work with
+  datastore_server = findFile("datastore_server" + "-" + version)
+  yeastx_plugin = findFile("datastore_server_plugin-yeastx" + "-" + version)
+
+  # unzip the yeastx plugin and set up the dir structure
+  datastore_dir = DOWNLOAD_FOLDER + "datastore_server/"
+  subprocess.call(["unzip", "-d" + datastore_dir, str(DOWNLOAD_FOLDER + yeastx_plugin)])
+  
+  # update the datastore_server zip
+  version_string = datastore_server[len("datastore_server"):len(datastore_server)]
+  metabolomics_zip = DOWNLOAD_FOLDER + "datastore_server_metabolomics" + version_string
+  shutil.copy(str(DOWNLOAD_FOLDER + datastore_server), metabolomics_zip)
+  file_to_update = datastore_dir + "lib/datastore_server_plugin-yeastx.jar"
+  subprocess.call(["zip", "-u", metabolomics_zip, file_to_update])
+
+
 def findFile(filePattern):
   for file in os.listdir(DOWNLOAD_FOLDER):
       if file.startswith(filePattern):
@@ -106,4 +135,12 @@ Example command: {0} S104
     print "===================================================================="
     print " Paste the following text on the Sprint Releases page in confluence "
     print "===================================================================="
+    print wikiText
+    
+    # Agios wants to access the yeastX version from this page
+    createMetabolomicsDssDist(version)
+    uploadToConfluenceMetabolomicsAndPrintPageText(version)
+    print "========================================================================="
+    print " Paste the following text on the openBIS Metabolomics page in confluence "
+    print "========================================================================="
     print wikiText
