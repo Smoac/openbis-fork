@@ -129,29 +129,31 @@ def findDir(incomingFile, dirNameMarker):
 # end generic utility functions 
 # ======================================
 
-def rollback_transaction(service, transaction, runner, ex):
-    plateLink = createPlateLink(OPENBIS_URL, plate.getCode())
+def rollback_service(service, ex):
+    plateCode = plate.getCode()
+    plateLink = createPlateLink(OPENBIS_URL, plateCode)
     errorMessage = ex.getMessage()
-    sendEmail("openBIS: Data registration failed", """
-    
-    Dear Mr./Mrs.
+    sendEmail("openBIS: Data registration failed for %s" % (plateCode), """
+    Dear openBIS user,
     
       Registering new data for plate %(plateLink)s has failed with error '%(errorMessage)s'.
+      This email has been generated automatically.
       
-    openBIS
+    Administrator
     """ % vars(), False)
 
 def commit_transaction(service, transaction):
-    plateLink = createPlateLink(OPENBIS_URL, plate.getCode())
-    sendEmail("openBIS: New data registered", """
-    
-    Dear Mr./Mrs.
+    plateCode = plate.getCode()
+    plateLink = createPlateLink(OPENBIS_URL, plateCode)
+    sendEmail("openBIS: New data registered for %s" % (plateCode), """
+    Dear openBIS user,
     
       New data for the plate %(plateLink)s has been registered.
+      This email has been generated automatically.
       
       Have a nice day!
       
-    openBIS
+    Administrator
     """ % vars(), True)
 
 def sendEmail(title, content, isError):
@@ -165,8 +167,10 @@ def sendEmail(title, content, isError):
         
     if not recipients:
         state.operationLog.error("Failed to obtain e-mail recipients for experiment "
-                                 "'%s'. No e-mails will be sent. Please, set a value of the experiment's property '%s'" % 
-                                 (experiment.getExperimentIdentifier(), EXPERIMENT_RECIPIENTS_PROPCODE))
+                                 "'%s'. No e-mails will be sent. Please, set a value of the experiment's property '%s'." 
+                                 "\nEmail title: %s" 
+                                 "\nEmail content: %s" % 
+                                 (experiment.getExperimentIdentifier(), EXPERIMENT_RECIPIENTS_PROPCODE, title, content))
         return
     
     fromAddress = From("openbis@sanofi-aventis.com")
@@ -515,54 +519,54 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         return Geometry.createFromRowColDimensions(cols, rows);
 
 
-
-transaction = service.transaction(incoming, factory)
-
-(batchName, barCode) = parseIncomingDirname(incoming.getName())
-plate = findPlateByCode(barCode)
-if not plate.getExperiment():
-    raise RuntimeError("Plate with code '%(barCode)s' is not associated with experiment" % vars())
-
-experimentId = plate.getExperiment().getExperimentIdentifier()
-experiment = transaction.getExperiment(experimentId)
-
-# reload the sample with all contained samples
-plate = transaction.getSample(plate.getSampleIdentifier())
-if len(plate.getContainedSamples()) == 0:
-    plateInitializer = PlateInitializer(transaction, plate)
-    plateInitializer.createWellsAndMaterials()
+if incoming.isDirectory():
+    transaction = service.transaction(incoming, factory)
     
-imageDatasetConfig = MyImageDataSetConfig(incoming, incoming)
-imageDatasetConfig.setRawImageDatasetType()
-imageDatasetConfig.setFileFormatType(IMAGE_DATASET_FILE_FORMAT)
-imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
-imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
-imageDataSet.setPropertyValue(IMAGE_DATASET_BATCH_PROPCODE, batchName)
-imageDataSet.setSample(plate)
-
-# check for overlays folder
-overlaysDir = findDir(incoming, OVERLAYS_DIR_PATTERN)
-if overlaysDir is not None:
-    convertToPng(overlaysDir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
-    overlayDatasetConfig = MyImageDataSetConfig(incoming, overlaysDir)
-    overlayDatasetConfig.setSegmentationImageDatasetType()
-    overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
-    overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, incoming)
-    overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
-    overlayDataset.setSample(imageDataSet.getSample())
-    overlayDataset.setParentDatasets([ imageDataSet.getDataSetCode() ])
-    transaction.moveFile(overlaysDir.getPath(), overlayDataset, "overlays")
-
-# transform and move analysis file
-analysisFile = findFileByExt(incoming, "xml")
-if analysisFile is not None:
-    analysisDataSet = transaction.createNewDataSet(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE)
-    analysisDataSet.setSample(imageDataSet.getSample())
-    analysisDataSet.setParentDatasets([ imageDataSet.getDataSetCode() ])
-    analysisDataSet.setFileFormatType(ANALYSIS_FILE_FORMAT)
-    analysisDataSet.setMeasuredData(False)
-    analysisDataSet.setPropertyValue(ANALYSIS_RUN_PROPCODE, extractFileBasename(analysisFile.getName()))
-    analysisDataSetFile = transaction.createNewFile(analysisDataSet, analysisFile.getName())
-    GEExplorerImageAnalysisResultParser(analysisFile.getPath()).writeCSV(File(analysisDataSetFile))
-
-imageDataSetFolder = transaction.moveFile(incoming.getPath(), imageDataSet)
+    (batchName, barCode) = parseIncomingDirname(incoming.getName())
+    plate = findPlateByCode(barCode)
+    if not plate.getExperiment():
+        raise RuntimeError("Plate with code '%(barCode)s' is not associated with experiment" % vars())
+    
+    experimentId = plate.getExperiment().getExperimentIdentifier()
+    experiment = transaction.getExperiment(experimentId)
+    
+    # reload the sample with all contained samples
+    plate = transaction.getSample(plate.getSampleIdentifier())
+    if len(plate.getContainedSamples()) == 0:
+        plateInitializer = PlateInitializer(transaction, plate)
+        plateInitializer.createWellsAndMaterials()
+        
+    imageDatasetConfig = MyImageDataSetConfig(incoming, incoming)
+    imageDatasetConfig.setRawImageDatasetType()
+    imageDatasetConfig.setFileFormatType(IMAGE_DATASET_FILE_FORMAT)
+    imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
+    imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
+    imageDataSet.setPropertyValue(IMAGE_DATASET_BATCH_PROPCODE, batchName)
+    imageDataSet.setSample(plate)
+    
+    # check for overlays folder
+    overlaysDir = findDir(incoming, OVERLAYS_DIR_PATTERN)
+    if overlaysDir is not None:
+        convertToPng(overlaysDir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
+        overlayDatasetConfig = MyImageDataSetConfig(incoming, overlaysDir)
+        overlayDatasetConfig.setSegmentationImageDatasetType()
+        overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
+        overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, incoming)
+        overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
+        overlayDataset.setSample(imageDataSet.getSample())
+        overlayDataset.setParentDatasets([ imageDataSet.getDataSetCode() ])
+        transaction.moveFile(overlaysDir.getPath(), overlayDataset, "overlays")
+    
+    # transform and move analysis file
+    analysisFile = findFileByExt(incoming, "xml")
+    if analysisFile is not None:
+        analysisDataSet = transaction.createNewDataSet(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE)
+        analysisDataSet.setSample(imageDataSet.getSample())
+        analysisDataSet.setParentDatasets([ imageDataSet.getDataSetCode() ])
+        analysisDataSet.setFileFormatType(ANALYSIS_FILE_FORMAT)
+        analysisDataSet.setMeasuredData(False)
+        analysisDataSet.setPropertyValue(ANALYSIS_RUN_PROPCODE, extractFileBasename(analysisFile.getName()))
+        analysisDataSetFile = transaction.createNewFile(analysisDataSet, analysisFile.getName())
+        GEExplorerImageAnalysisResultParser(analysisFile.getPath()).writeCSV(File(analysisDataSetFile))
+    
+    imageDataSetFolder = transaction.moveFile(incoming.getPath(), imageDataSet)
