@@ -8,7 +8,7 @@
             </run>
         </groups>
         <packages>
-            <package name="eu.basynthec.cisd.dss.*" />
+            <package name="ch.systemsx.cisd.sanofi.*" />
         </packages>
     </test>
 </suite>
