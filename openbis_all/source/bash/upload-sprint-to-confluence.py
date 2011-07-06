@@ -89,6 +89,7 @@ def uploadToConfluenceAndPrintPageText(version):
   processFile("API", "screening-api", version)
 
 def uploadToConfluenceMetabolomicsAndPrintPageText(version):
+  global wikiText
   wikiText = ""
   printVersion(version)
   printWiki()
@@ -97,9 +98,7 @@ def uploadToConfluenceMetabolomicsAndPrintPageText(version):
   processFile("Application Server (AS)", "openBIS-server", version, 1, "openBIS Metabolomics")
   processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version, 1, "openBIS Metabolomics")
   processFile("DSS Client", "dss_client", version, 1, "openBIS Metabolomics")
-  printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
   printWiki()
-  # datastore_server_plugin-yeastx
 
 def createMetabolomicsDssDist(version):
   # find the files we want to work with
