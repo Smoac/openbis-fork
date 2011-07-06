@@ -35,8 +35,7 @@ public class RegisterPropertyType implements ICommand
 
     private final static String TYPE = "type";
 
-    @SuppressWarnings("unused")
-    private static final String LABEL = ", label = ";
+    private static final String LABEL = "label";
 
     private static boolean validated(List<String> tokens)
     {
@@ -75,6 +74,23 @@ public class RegisterPropertyType implements ICommand
         {
             DataTypeCode dataTypeCode = DataTypeCode.valueOf(tokens.get(4));
             propertyType.setDataType(new DataType(dataTypeCode));
+        }
+
+        if (tokens.size() > 5)
+        {
+            String token = tokens.get(5);
+            int indexOfEqualSign = token.indexOf('=');
+            if (indexOfEqualSign < 0)
+            {
+                throw new IllegalArgumentException("Missing '=': " + token);
+            }
+            String key = token.substring(0, indexOfEqualSign);
+            String value = token.substring(indexOfEqualSign + 1);
+
+            if (LABEL.equalsIgnoreCase(key))
+            {
+                propertyType.setLabel(value);
+            }
         }
 
         server.registerPropertyType(sessionToken, propertyType);
