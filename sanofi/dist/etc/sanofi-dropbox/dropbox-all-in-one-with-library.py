@@ -45,7 +45,7 @@ OVERLAYS_TRANSPARENT_COLOR = "black"
 
 """ file format of the analysis dataset """
 ANALYSIS_FILE_FORMAT = "CSV"
-ANALYSIS_RUN_PROPCODE = "ANALYSIS_RUN"
+ANALYSIS_RUN_PROPCODE = "$ANALYSIS_PROCEDURE"
     
 """ should thumbnails be generated? """
 GENERATE_THUMBNAILS = True
