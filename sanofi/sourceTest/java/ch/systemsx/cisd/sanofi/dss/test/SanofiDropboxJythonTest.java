@@ -364,7 +364,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private void createData() throws IOException
     {
-        File dataDirectory = new File("./sourceTest/resources/" + IMAGE_DATA_SET_DIR_NAME);
+        File dataDirectory = new File("./sourceTest/examples/" + IMAGE_DATA_SET_DIR_NAME);
         FileUtils.copyDirectoryToDirectory(dataDirectory, workingDirectory);
         incomingDataSetFile = new File(workingDirectory, dataDirectory.getName());
 
