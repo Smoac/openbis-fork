@@ -466,7 +466,7 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         self.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
         if GENERATE_THUMBNAILS:
             self.setGenerateThumbnails(True)
-            self.setUseImageMagicToGenerateThumbnails(True)
+            #self.setUseImageMagicToGenerateThumbnails(True)
             self.setAllowedMachineLoadDuringThumbnailsGeneration(ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION)
             self.setMaxThumbnailWidthAndHeight(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
     
