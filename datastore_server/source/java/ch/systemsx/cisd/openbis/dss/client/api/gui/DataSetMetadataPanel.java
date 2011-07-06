@@ -114,7 +114,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         {
             if (file != null)
             {
-                if (file.getFile().exists() && file.validationRequired())
+                if (file.validationRequired())
                 {
                     file.markValidation();
                     return true;
@@ -162,7 +162,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
     private final JButton dataSetFileButton;
 
-    private final JButton dataSetFileRefreshButton;
+    private final JButton dataSetFileValidateButton;
 
     private final JRadioButton experimentButton;
 
@@ -211,7 +211,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             { EMPTY_FILE_SELECTION };
         dataSetFileComboBox = new JComboBox(initialOptions);
         dataSetFileButton = new JButton("Browse...");
-        dataSetFileRefreshButton = new JButton("Refresh");
+        dataSetFileValidateButton = new JButton("Validate");
         dataSetFileLabel = new JLabel("File:", JLabel.TRAILING);
 
         validationErrors = new ErrorsPanel(mainWindow);
@@ -362,9 +362,9 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                     }
                 }
             });
-        dataSetFileRefreshButton.setPreferredSize(new Dimension(90, BUTTON_HEIGHT));
-        dataSetFileRefreshButton.setToolTipText("File will be refreshed and revalidated");
-        dataSetFileRefreshButton.addActionListener(new ActionListener()
+        dataSetFileValidateButton.setPreferredSize(new Dimension(90, BUTTON_HEIGHT));
+        dataSetFileValidateButton.setToolTipText("File will be refreshed and revalidated");
+        dataSetFileValidateButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -377,7 +377,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                 }
             });
         addRow(1, dataSetFileLabel, dataSetFileComboBox, dataSetFileButton,
-                dataSetFileRefreshButton);
+                dataSetFileValidateButton);
 
         // The owner row
         ownerIdLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));

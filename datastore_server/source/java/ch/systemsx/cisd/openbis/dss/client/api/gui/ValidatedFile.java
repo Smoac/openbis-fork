@@ -27,6 +27,8 @@ public class ValidatedFile
 
     private long lastValidated;
 
+    private boolean fileExisted = true;
+
     public ValidatedFile(File file)
     {
         this.file = file;
@@ -45,11 +47,18 @@ public class ValidatedFile
 
     public boolean validationRequired()
     {
-        return lastValidated < file.lastModified();
+        if (fileExisted)
+        {
+            return false == file.exists() || lastValidated < file.lastModified();
+        } else
+        {
+            return file.exists();
+        }
     }
 
     public void markValidation()
     {
+        fileExisted = file.exists();
         this.lastValidated = file.lastModified();
     }
 

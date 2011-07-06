@@ -37,7 +37,19 @@ public class ExperimentPickerPanel extends JPanel
 {
     private static final long serialVersionUID = -8093481985680332715L;
 
-    private final JTextField textField = new JTextField();
+    private static class JTextFieldFireActionPerformedExposed extends JTextField
+    {
+        private static final long serialVersionUID = -7656053161479466883L;
+
+        @Override
+        public void fireActionPerformed()
+        {
+            super.fireActionPerformed();
+        }
+    }
+
+    private final JTextFieldFireActionPerformedExposed textField =
+            new JTextFieldFireActionPerformedExposed();
 
     private final JButton button = new JButton("...");
 
@@ -59,6 +71,7 @@ public class ExperimentPickerPanel extends JPanel
                     if (experimentId != null)
                     {
                         textField.setText(experimentId);
+                        textField.fireActionPerformed();
                     }
                 }
             });
@@ -86,6 +99,7 @@ public class ExperimentPickerPanel extends JPanel
     public void addFocusListener(FocusListener focusListener)
     {
         textField.addFocusListener(focusListener);
+        button.addFocusListener(focusListener);
     }
 
     @Override
