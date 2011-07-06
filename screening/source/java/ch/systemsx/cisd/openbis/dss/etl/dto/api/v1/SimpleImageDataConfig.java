@@ -59,8 +59,10 @@ abstract public class SimpleImageDataConfig
     public ImageMetadata[] extractImagesMetadata(String imagePath,
             List<ImageIdentifier> imageIdentifiers)
     {
-        return new ImageMetadata[]
-            { extractImageMetadata(imagePath) };
+
+        ImageMetadata imageMetadata = extractImageMetadata(imagePath);
+        return (imageMetadata != null) ? new ImageMetadata[]
+            { imageMetadata } : new ImageMetadata[0];
     }
 
     // --- methods which can be overridden -----------------
