@@ -1035,7 +1035,7 @@ CREATE SEQUENCE dstpt_id_seq
 -- Name: dstpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('dstpt_id_seq', 44, true);
+SELECT pg_catalog.setval('dstpt_id_seq', 200, true);
 
 
 --
