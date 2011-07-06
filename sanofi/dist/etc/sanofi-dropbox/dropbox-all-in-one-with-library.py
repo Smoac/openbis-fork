@@ -465,6 +465,8 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         self.setStoreChannelsOnExperimentLevel(STORE_CHANNELS_ON_EXPERIMENT_LEVEL)
         self.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
         if GENERATE_THUMBNAILS:
+            self.setGenerateThumbnails(True)
+            self.setUseImageMagicToGenerateThumbnails(True)
             self.setAllowedMachineLoadDuringThumbnailsGeneration(ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION)
             self.setMaxThumbnailWidthAndHeight(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
     
@@ -548,10 +550,10 @@ if incoming.isDirectory():
     overlaysDir = findDir(incoming, OVERLAYS_DIR_PATTERN)
     if overlaysDir is not None:
         convertToPng(overlaysDir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
-        overlayDatasetConfig = MyImageDataSetConfig(incoming, overlaysDir)
+        overlayDatasetConfig = MyImageDataSetConfig(overlaysDir, overlaysDir)
         overlayDatasetConfig.setSegmentationImageDatasetType()
         overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
-        overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, incoming)
+        overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
         overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
         overlayDataset.setSample(imageDataSet.getSample())
         overlayDataset.setParentDatasets([ imageDataSet.getDataSetCode() ])
