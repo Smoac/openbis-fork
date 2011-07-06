@@ -56,4 +56,9 @@ public class WellContentQueryResult extends ExperimentReferenceQueryResult
     @Deprecated
     public String material_content_type_code;
 
+    public static void main(String[] args)
+    {
+        System.out.println(IScreeningQuery.WELLS_FOR_MATERIAL_ID_SELECT);
+    }
+
 }
