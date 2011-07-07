@@ -224,6 +224,93 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     }
 
     @Test
+    public void testLibraryTemplateWithWellNotPresentInAbase() throws IOException
+    {
+        createDataSetHandler(false, false);
+
+        final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
+        queryResult.add(createQueryResult("A1"));
+
+        final Sample plate = plateWithLibTemplateAndGeometry("1.45\tH\n0.12\tL", "25_WELLS_5X5");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(returnValue(queryResult));
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+                }
+            });
+
+        try
+        {
+            handler.handle(markerFile);
+            fail("Registration should fail validation error");
+        } catch (RuntimeException rex)
+        {
+            assertContains(
+                    "Error registering library for plate 'TEST-PLATE'. The library template specified in "
+                            + "property 'LIBRARY_TEMPLATE' of experiment '/SANOFI/PROJECT/EXP' contains concentration value "
+                            + "for well 'B1', but no mapping to a material was found in the ABASE DB.",
+                    rex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLibraryTemplateIncompleteAccordingToAbase() throws IOException
+    {
+        createDataSetHandler(false, false);
+
+        final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
+        queryResult.add(createQueryResult("A1"));
+        queryResult.add(createQueryResult("A3"));
+
+        final Sample plate = plateWithLibTemplateAndGeometry("1.45\tH", "25_WELLS_5X5");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(returnValue(queryResult));
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+                }
+            });
+
+        try
+        {
+            handler.handle(markerFile);
+            fail("Registration should fail validation error");
+        } catch (RuntimeException rex)
+        {
+            assertContains(
+                    " Error registering library for plate 'TEST-PLATE'. The ABASE DB contains a material definition "
+                            + "for well 'A3', but no valid concentration was found in the library template of experiment "
+                            + "'/SANOFI/PROJECT/EXP'. The library template should contain a number for 'A3' but no value was found",
+                    rex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testHappyCaseWithLibraryCreation() throws IOException
     {
         createDataSetHandler(false, true);

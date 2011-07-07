@@ -236,12 +236,6 @@ def parseIncomingDirname(dirName):
     acquisitionBatch = tokens[0]
     plateCode = tokens[1].split('.')[0]
     return (acquisitionBatch, plateCode)
-
-def removeDuplicates(list):
-    dict = {}
-    for item in list:
-        dict[item] = item
-    return dict.keys()
     
 class SanofiMaterial:
     """
@@ -386,84 +380,109 @@ class PlateInitializer:
         material.setPropertyValue(self.MATERIAL_BATCH_ID_PROPNAME, sanofiMaterial.sanofiBatchId)
         return material
     
-    def getOrCreateMaterials(self, library, sanofiMaterials):
-        materialCodes = [sanofiMaterial.materialCode for sanofiMaterial in sanofiMaterials]
-        materialCodes = removeDuplicates(materialCodes)
-        
+    def getOrCreateMaterials(self, template, materialsByCode):
         materialIdentifiers = MaterialIdentifierCollection()
-        for materialCode in materialCodes:
+        for materialCode in materialsByCode:
             materialIdentifiers.addIdentifier(self.MATERIAL_TYPE, materialCode)
         searchService = self.transaction.getSearchService() 
-        preExistingMaterials = list(searchService.listMaterials(materialIdentifiers))
+        existingMaterials = list(searchService.listMaterials(materialIdentifiers))
         
-        materialsByCode = {}
-        for material in preExistingMaterials:
-            materialsByCode[ material.getCode() ] = material
+        existingMaterialsByCode = {}
+        for material in existingMaterials:
+            existingMaterialsByCode[ material.getCode() ] = material
             
-        for materialCode in materialCodes:
-            if not materialCode in materialsByCode:
-                sanofiMaterial = self.getByMaterialCode(materialCode, sanofiMaterials)
+        for materialCode in materialsByCode:
+            if not materialCode in existingMaterialsByCode:
+                sanofiMaterial = materialsByCode[materialCode]
                 openbisMaterial = self.createMaterial(sanofiMaterial)
-                materialsByCode[materialCode] = openbisMaterial 
+                existingMaterialsByCode[materialCode] = openbisMaterial 
         
-        return materialsByCode
-    
-    def getByMaterialCode(self, materialCode, sanofiMaterials):
-        for sanofiMaterial in sanofiMaterials:
-            if materialCode == sanofiMaterial.materialCode:
-                return sanofiMaterial
+        return existingMaterialsByCode
             
-        raise RuntimeError("No material found for materialCode " + materialCode)
     
-    def getByWellCode(self, wellCode, sanofiMaterials):
-        for sanofiMaterial in sanofiMaterials:
+    def getByWellCode(self, wellCode, materialsByCode):
+        for sanofiMaterial in materialsByCode.values():
             if wellCode == sanofiMaterial.wellCode:
                 return sanofiMaterial
             
-        raise RuntimeError("No material found for wellCode " + wellCode)
+        return None
     
-    def createWells(self, library, sanofiMaterials, openbisMaterials):
-        controlWellTypes = { "H" : self.POSITIVE_CONTROL_TYPE, \
+    def isCompoundWell(self, libraryValue):        
+       try:
+           float(libraryValue)
+           return True
+       except ValueError:
+           return False
+       
+    def createWells(self, template, sanofiMaterials, openbisMaterials):
+        controlWellTypes = { "H" : self.POSITIVE_CONTROL_TYPE, 
                              "L" : self.NEGATIVE_CONTROL_TYPE};
                              
-        for wellCode in library:
-           if library[wellCode] in ["", "-"]:
+        for wellCode in template:
+           if template[wellCode] in ["", "-"]:
                continue
                
-           libraryValue = library[wellCode].upper()
+           templateValue = template[wellCode].upper()
            wellIdentifier = self.plate.getSampleIdentifier() + ":" + wellCode
            
-           if libraryValue in controlWellTypes:
+           if templateValue in controlWellTypes:
                # CONTROL_WELL
-               wellType = controlWellTypes[libraryValue]
+               wellType = controlWellTypes[templateValue]
                well = self.transaction.createNewSample(wellIdentifier, wellType)
                well.setContainer(self.plate)
-           else: 
+               
+           elif self.isCompoundWell(templateValue): 
                # COMPOUND_WELL
-               concentration = libraryValue
-               try:
-                   float(concentration)
-               except ValueError:
-                   raise RuntimeError("The specified value for well %s in the property "  
-                                      " %s of experiment %s is invalid. Allowed values are 'H', 'L'"
-                                      " or number, but '%s' was found." % \
-                   (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, libraryValue))
-                   
                well = self.transaction.createNewSample(wellIdentifier, self.COMPOUND_WELL_TYPE)
                well.setContainer(self.plate)
-               well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
-               materialCode = self.getByWellCode(wellCode, sanofiMaterials).materialCode
+               well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, templateValue)
+               sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterials)
+               materialCode = sanofiMaterial.materialCode
                material = openbisMaterials[materialCode]
                well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
+               
+           else:
+               raise RuntimeError("The specified value for well '%s' in the property "  
+                                  " '%s' of experiment '%s' is invalid. Allowed values are 'H', 'L'"
+                                  " or a number, but '%s' was found." % 
+               (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, templateValue))
+       
+    def validate(self, template, sanofiMaterialsByCode):
+        for wellCode in template:
+           if self.isCompoundWell(template[wellCode]):
+               sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterialsByCode)
+               if not sanofiMaterial:
+                   raise RuntimeError("Error registering library for plate '%s'. The library template"
+                                      " specified in property '%s' of experiment '%s' contains"
+                                      " concentration value for well '%s', but no"
+                                      " mapping to a material was found in the ABASE DB." % 
+                                      (self.plateCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, wellCode))
+                   
+        for sanofiMaterial in sanofiMaterialsByCode.values():
+            wellCode = sanofiMaterial.wellCode
+            templateValue = template.get(wellCode, None)
+            
+            if not templateValue or not self.isCompoundWell(templateValue): 
+               val = templateValue and ("'%s'" % templateValue) or "no value"
+               raise RuntimeError("Error registering library for plate '%s'. The ABASE DB contains"
+                                  " a material definition for well '%s', but no valid concentration"
+                                  " was found in the library template of experiment '%s'. The library"
+                                  " template should contain a number for '%s' but %s was found" % 
+                                  (self.plateCode, wellCode, self.experimentId, wellCode, val))
         
 
     def createWellsAndMaterials(self):
-        library = self.parseLibraryTemplate()
+        template = self.parseLibraryTemplate()
         sanofiMaterials = self.fetchPlateCompounds()
         
-        # TODO KE: validate that library and sanofiMaterials data agrees
-        openbisMaterials = self.getOrCreateMaterials(library, sanofiMaterials)
-        self.createWells(library, sanofiMaterials, openbisMaterials)
+        materialsByCode = {}
+        for sanofiMaterial in sanofiMaterials:
+            materialsByCode[ sanofiMaterial.materialCode ] = sanofiMaterial
+        
+        self.validate(template, materialsByCode)
+        
+        openbisMaterials = self.getOrCreateMaterials(template, materialsByCode)
+        self.createWells(template, materialsByCode, openbisMaterials)
 
 # ------------
 # Image dataset registration
