@@ -110,11 +110,7 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * For a given set of plates provides the list of all connected data sets containing feature
      * vectors.
-     * 
-     * @deprecated use {@link #listFeatureVectorDatasets(List, String)} with second argument set to
-     *             <code>null</code>.
      */
-    @Deprecated
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates);
 
@@ -145,11 +141,7 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * For a given set of plates provides the list of all connected data sets containing
      * segmentation images (overlays).
-     * 
-     * @deprecated use {@link #listSegmentationImageDatasets(List, String)} with second argument set
-     *             to <code>null</code>.
      */
-    @Deprecated
     public List<ImageDatasetReference> listSegmentationImageDatasets(
             List<? extends PlateIdentifier> plates);
 
@@ -330,15 +322,12 @@ public interface IScreeningOpenbisServiceFacade
      * For a given set of plates and a set of features (given by their code), provide all the
      * feature vectors.
      * 
-     * @deprecated use {@link #loadFeaturesForPlates(List, List, String)} with <code>null</code> as
-     *             third argument.
      * @param plates The plates to get the feature vectors for
      * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
-    @Deprecated
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull);
 
