@@ -45,16 +45,15 @@ public class MailService implements IMailService
 
     private final String defaultBodyText;
 
-    public MailService(IMailClient mailClient, String recipientAddress)
+    public MailService(IMailClient mailClient, String recipientAddressOrNull)
     {
-        this(mailClient, recipientAddress, DEFAULT_SUBJECT, DEFAULT_BODY_TEXT);
+        this(mailClient, recipientAddressOrNull, DEFAULT_SUBJECT, DEFAULT_BODY_TEXT);
     }
 
-    public MailService(IMailClient mailClient, String recipientAddress, String defaultSubject,
-            String defaultBodyText)
+    public MailService(IMailClient mailClient, String recipientAddressOrNull,
+            String defaultSubject, String defaultBodyText)
     {
-        assert recipientAddress != null;
-        this.senderService = createEmailSenderService(mailClient, recipientAddress);
+        this.senderService = createEmailSenderService(mailClient, recipientAddressOrNull);
         this.defaultSubject = defaultSubject;
         this.defaultBodyText = defaultBodyText;
     }
@@ -65,9 +64,9 @@ public class MailService implements IMailService
     }
 
     static IEmailSenderService createEmailSenderService(final IMailClient mailClient,
-            final String recipientAddress)
+            final String recipientAddressOrNull)
     {
-        final EMailAddress recipient = new EMailAddress(recipientAddress);
+        final EMailAddress recipient = new EMailAddress(recipientAddressOrNull);
         return new IEmailSenderService()
             {
 

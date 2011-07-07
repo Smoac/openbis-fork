@@ -22,7 +22,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -109,7 +108,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
                 operationLog.info("Reporting done");
                 JythonBasedPluginUtils.closeContent(iDataSets);
             }
-        } catch (EvaluatorException ex)
+        } catch (RuntimeException ex)
         {
             notifyLog.error(ex.getMessage());
             throw new UserFailureException("Chosen plugin failed to create a report.");
