@@ -84,4 +84,6 @@ if dataset.getExperiment() is None:
 	exp = retrieve_experiment(tr, exp_id)
 	if exp is not None:
 		dataset.setExperiment(exp)
+		original_dataset.setExperiment(exp)
+		tsv_dataset.setExperiment(exp)
 

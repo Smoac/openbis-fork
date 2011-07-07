@@ -44,15 +44,16 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
         createHandler(properties, false, true);
         createData("OD600-Example.xlsx");
 
-        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE);
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
+                setUpDataSetRegistrationExpectations(DATA_SET_TYPE,
+                        TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
 
         handler.handle(markerFile);
 
-        assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
+        assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         NewExternalData dataSet =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+                atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());

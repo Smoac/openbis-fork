@@ -51,6 +51,11 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
     private static final String EXPERIMENT_IDENTIFIER = "/TEST/TEST/TEST";
 
+    protected static final DataSetType TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE = new DataSetType(
+            "TSV_MULTISTRAIN_EXPORT");
+
+    protected static final DataSetType TSV_DATA_SET_TYPE = new DataSetType("TSV_EXPORT");
+
     /**
      *
      *
@@ -61,7 +66,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
     }
 
     protected RecordingMatcher<AtomicEntityOperationDetails> setUpDataSetRegistrationExpectations(
-            final DataSetType dataSetType)
+            final DataSetType dataSetType, final DataSetType tsvDataSetType)
     {
         ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
         final Experiment experiment = builder.getExperiment();
@@ -72,13 +77,39 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                 {
                     one(openBisService).createDataSetCode();
                     will(returnValue(DATA_SET_CODE));
+
+                    String excelDataSetCode = DATA_SET_CODE + "-EXCEL";
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(excelDataSetCode));
+
+                    String tsvDataSetCode = DATA_SET_CODE + "-TSV";
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(tsvDataSetCode));
+
                     atLeast(1).of(openBisService).tryToGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
 
-                    one(dataSetValidator).assertValidDataSet(dataSetType,
-                            new File(new File(stagingDirectory, DATA_SET_CODE), "data"));
+                    allowing(openBisService).tryToGetExperiment(null);
+                    will(returnValue(null));
+
+                    one(dataSetValidator).assertValidDataSet(dataSetType, null);
+
+                    one(dataSetValidator).assertValidDataSet(new DataSetType("EXCEL_ORIGINAL"),
+                            new File(new File(stagingDirectory, excelDataSetCode), "xls"));
+
+                    if (tsvDataSetType == TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE)
+                    {
+                        one(dataSetValidator).assertValidDataSet(
+                                TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE,
+                                new File(new File(stagingDirectory, tsvDataSetCode), "tsv-multi"));
+                    } else
+                    {
+                        one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
+                                new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
+                    }
+
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));
                 }

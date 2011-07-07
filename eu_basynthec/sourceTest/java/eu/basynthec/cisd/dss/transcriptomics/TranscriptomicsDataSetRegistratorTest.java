@@ -46,15 +46,16 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         createHandler(properties, false, true);
         createData("Transcriptomics-Example.xlsx");
 
-        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
-                setUpDataSetRegistrationExpectations(DATA_SET_TYPE);
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
+                setUpDataSetRegistrationExpectations(DATA_SET_TYPE,
+                        TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
 
         handler.handle(markerFile);
 
-        assertEquals(1, atomicatOperationDetails.recordedObject().getDataSetRegistrations().size());
+        assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         NewExternalData dataSet =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations().get(0);
+                atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 
         assertEquals(DATA_SET_CODE, dataSet.getCode());
         assertEquals(DATA_SET_TYPE, dataSet.getDataSetType());
@@ -67,10 +68,12 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
         assert null != strainProperty;
         assertEquals("MGP253,MGP776", strainProperty.getValue());
 
-        String location = dataSet.getLocation();
+        NewExternalData tsvDataSet =
+                atomicOperationDetails.recordedObject().getDataSetRegistrations().get(2);
+        String location = tsvDataSet.getLocation();
         File tsvFile =
                 new File(new File(workingDirectory, "/1/" + location),
-                        "tsv/Transcriptomics-Example.xlsx.tsv");
+                        "Transcriptomics-Example.xlsx.tsv");
         checkTsvContent(tsvFile);
         context.assertIsSatisfied();
     }
