@@ -21,8 +21,13 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.DataSet;
+import net.lemnik.eodsql.InvalidQueryException;
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
@@ -32,6 +37,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQu
  */
 public class DataSourceQueryService implements IDataSourceQueryService
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSourceQueryService.class);
 
     private DataSourceProvider getDataSourceProvider()
     {
@@ -42,7 +49,14 @@ public class DataSourceQueryService implements IDataSourceQueryService
             Object... parameters)
     {
         DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
-        return QueryTool.select(dataSource, query, parameters);
+        try
+        {
+            return QueryTool.select(dataSource, query, parameters);
+        } catch (InvalidQueryException ex)
+        {
+            operationLog.error(ex.getCause().getMessage());
+            throw ex;
+        }
     }
 
     public DataSet<Map<String, Object>> select(String dataSourceName, String query)

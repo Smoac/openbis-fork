@@ -57,6 +57,8 @@ public interface IDataSourceQueryService
      * @param query The SQL query to execute, possibly including parameters marked by '?'.
      * @return A List of Maps with the data. Do not forget to close the result when done!
      * @throw IllegalArgumentException Throws if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
      */
     DataSet<Map<String, Object>> select(String dataSourceName, String query)
             throws IllegalArgumentException;
@@ -69,7 +71,9 @@ public interface IDataSourceQueryService
      * @param query The SQL query to execute, possibly including parameters marked by '?'.
      * @param parameters The values for filling in the query parameters.
      * @return A List of Maps with the data. Do not forget to close the result when done!
-     * @throw IllegalArgumentException Throws if there is no data source with the given name.
+     * @throw IllegalArgumentException Thrown if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
      */
     DataSet<Map<String, Object>> select(String dataSourceName, String query, Object... parameters)
             throws IllegalArgumentException;
