@@ -18,6 +18,7 @@
 	<target name="dist">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<mkdir dir="${dist}"/>
 		<jar destfile="${sanofi.dist.file}">
 			<fileset dir="../sanofi/dist">
 				<include name="**/*.*" />
