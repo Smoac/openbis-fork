@@ -65,10 +65,18 @@ metadata = timeSeriesData.getMetadataMap()
 # Strains are not in the metadata, but in the data, so extract them
 metadata["STRAIN_NAMES"] = extract_strains()
 assign_properties(dataset, metadata)
-		
-# Convert the data into a tsv file, and put that and the original data into the data set
-convert_data_to_tsv(tr, dataset, "data/tsv")
-store_original_data(tr, dataset, "data/xls")
+
+# Store the original and tsv data in data sets
+original_dataset = tr.createNewDataSet("EXCEL_ORIGINAL")
+store_original_data(tr, original_dataset, "xls")
+
+tsv_dataset = tr.createNewDataSet("TSV_MULTISTRAIN_EXPORT")
+convert_data_to_tsv(tr, tsv_dataset, "tsv-multi")
+
+# Make the original contain these
+contained_codes = [original_dataset.getDataSetCode(), tsv_dataset.getDataSetCode()]
+dataset.setContainedDataSetCodes(contained_codes)
+
 
 # If no experiment has been set, then get the experiment from the excel file
 if dataset.getExperiment() is None:

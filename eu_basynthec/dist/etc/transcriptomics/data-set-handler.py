@@ -94,10 +94,18 @@ dataset = tr.createNewDataSet("TRANSCRIPTOMICS")
 metadata = timeSeriesData.getMetadataMap()
 metadata["STRAIN_NAMES"] = extract_strains(dataStart[0], dataStart[1])
 assign_properties(dataset, metadata)
-		
-# Convert the data into a tsv file, and put that and the original data into the data set
-convert_data_to_tsv(tr, dataStart[0], dataStart[1], dataset, "data/tsv")
-store_original_data(tr, dataset, "data/xls")
+
+# Store the original and tsv data in data sets
+original_dataset = tr.createNewDataSet("EXCEL_ORIGINAL")
+store_original_data(tr, original_dataset, "xls")
+
+tsv_dataset = tr.createNewDataSet("TSV_MULTISTRAIN_EXPORT")
+convert_data_to_tsv(tr, dataStart[0], dataStart[1], tsv_dataset, "tsv-multi")
+
+# Make the original contain these
+contained_codes = [original_dataset.getDataSetCode(), tsv_dataset.getDataSetCode()]
+dataset.setContainedDataSetCodes(contained_codes)
+
 
 # If no experiment has been set, then get the experiment from the excel file
 if dataset.getExperiment() is None:
