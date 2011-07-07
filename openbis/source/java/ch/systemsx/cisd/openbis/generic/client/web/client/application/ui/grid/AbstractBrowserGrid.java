@@ -2095,6 +2095,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             clearModifications();
             grid.getStore().rejectChanges();
+            refresh(); // WORKAROUND remove this refresh after LMS-2397 is resolved
         }
 
         public void handleEditingEvent(M model, String columnID, String newValueOrNull)
