@@ -4,7 +4,7 @@
 
 -- Dumped from database version 9.0.4
 -- Dumped by pg_dump version 9.0.4
--- Started on 2011-06-29 15:21:49 CEST
+-- Started on 2011-07-07 15:25:24 CEST
 
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -17,8 +17,8 @@ SET search_path = public, pg_catalog;
 
 --
 -- TOC entry 2213 (class 0 OID 0)
--- Dependencies: 1715
--- Name: controlled_vocabulary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1751
+-- Name: controlled_vocabulary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 10, true);
@@ -26,8 +26,8 @@ SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 10, true);
 
 --
 -- TOC entry 2214 (class 0 OID 0)
--- Dependencies: 1717
--- Name: cvte_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1752
+-- Name: cvte_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('cvte_id_seq', 40, true);
@@ -35,26 +35,26 @@ SELECT pg_catalog.setval('cvte_id_seq', 40, true);
 
 --
 -- TOC entry 2215 (class 0 OID 0)
--- Dependencies: 1724
--- Name: data_set_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1774
+-- Name: data_set_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
-SELECT pg_catalog.setval('data_set_type_id_seq', 6, true);
+SELECT pg_catalog.setval('data_set_type_id_seq', 9, true);
 
 
 --
 -- TOC entry 2216 (class 0 OID 0)
--- Dependencies: 1737
--- Name: dstpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1784
+-- Name: dstpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
-SELECT pg_catalog.setval('dstpt_id_seq', 33, true);
+SELECT pg_catalog.setval('dstpt_id_seq', 32, true);
 
 
 --
 -- TOC entry 2217 (class 0 OID 0)
--- Dependencies: 1738
--- Name: etpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1759
+-- Name: etpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('etpt_id_seq', 9, true);
@@ -62,8 +62,8 @@ SELECT pg_catalog.setval('etpt_id_seq', 9, true);
 
 --
 -- TOC entry 2218 (class 0 OID 0)
--- Dependencies: 1744
--- Name: experiment_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1765
+-- Name: experiment_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('experiment_type_id_seq', 1, true);
@@ -71,8 +71,8 @@ SELECT pg_catalog.setval('experiment_type_id_seq', 1, true);
 
 --
 -- TOC entry 2219 (class 0 OID 0)
--- Dependencies: 1759
--- Name: material_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1770
+-- Name: material_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('material_id_seq', 1, true);
@@ -80,8 +80,8 @@ SELECT pg_catalog.setval('material_id_seq', 1, true);
 
 --
 -- TOC entry 2220 (class 0 OID 0)
--- Dependencies: 1761
--- Name: material_property_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1771
+-- Name: material_property_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('material_property_id_seq', 27, true);
@@ -89,8 +89,8 @@ SELECT pg_catalog.setval('material_property_id_seq', 27, true);
 
 --
 -- TOC entry 2221 (class 0 OID 0)
--- Dependencies: 1762
--- Name: material_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1772
+-- Name: material_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('material_type_id_seq', 1, true);
@@ -98,8 +98,8 @@ SELECT pg_catalog.setval('material_type_id_seq', 1, true);
 
 --
 -- TOC entry 2222 (class 0 OID 0)
--- Dependencies: 1766
--- Name: mtpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1773
+-- Name: mtpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('mtpt_id_seq', 1, false);
@@ -107,21 +107,20 @@ SELECT pg_catalog.setval('mtpt_id_seq', 1, false);
 
 --
 -- TOC entry 2223 (class 0 OID 0)
--- Dependencies: 1772
--- Name: property_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cramakri
+-- Dependencies: 1777
+-- Name: property_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: openbis
 --
 
 SELECT pg_catalog.setval('property_type_id_seq', 22, true);
 
 
 --
--- TOC entry 2200 (class 0 OID 568295)
--- Dependencies: 1714
--- Data for Name: controlled_vocabularies; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2200 (class 0 OID 17770)
+-- Dependencies: 1707
+-- Data for Name: controlled_vocabularies; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY controlled_vocabularies (id, code, description, registration_timestamp, pers_id_registerer, is_managed_internally, is_internal_namespace, dbin_id, modification_timestamp, is_chosen_from_list, source_uri) FROM stdin;
-1	STORAGE_FORMAT	The on-disk storage format of a data set	2011-04-28 16:49:47.665379+02	1	t	t	1	2011-04-28 16:49:47.665379+02	t	\N
 2	GROWTH_MEDIA	Growth media for B. Subtilis.	2011-06-01 14:21:40.40244+02	2	f	f	1	2011-06-01 14:21:40.415+02	t	\N
 3	TEMPERATURE	Temperature the experiment was conducted under	2011-06-01 14:22:36.240178+02	2	f	f	1	2011-06-01 14:22:36.241+02	t	\N
 4	CONTAINER	Container in which the experiment was performed.	2011-06-01 14:23:09.455946+02	2	f	f	1	2011-06-01 14:23:09.458+02	t	\N
@@ -136,14 +135,12 @@ COPY controlled_vocabularies (id, code, description, registration_timestamp, per
 
 
 --
--- TOC entry 2201 (class 0 OID 568308)
--- Dependencies: 1716 2200
--- Data for Name: controlled_vocabulary_terms; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2201 (class 0 OID 17781)
+-- Dependencies: 1708 2200
+-- Data for Name: controlled_vocabulary_terms; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, pers_id_registerer, label, description, ordinal, is_official) FROM stdin;
-1	PROPRIETARY	2011-04-28 16:49:47.665379+02	1	1	\N	\N	1	t
-2	BDS_DIRECTORY	2011-04-28 16:49:47.665379+02	1	1	\N	\N	2	t
 3	MALATE	2011-06-01 14:21:40.40244+02	2	2	\N	\N	1	t
 4	GLUCOSE	2011-06-01 14:21:40.40244+02	2	2	\N	\N	2	t
 5	20	2011-06-01 14:22:36.240178+02	3	2	\N	\N	1	t
@@ -154,7 +151,7 @@ COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, per
 10	PHYSIOLOGY	2011-06-01 14:32:54.940133+02	5	2	\N	\N	2	t
 11	PROTEOMICS	2011-06-01 14:32:54.940133+02	5	2	\N	\N	3	t
 12	TRANSCRIPTOMICS	2011-06-01 14:32:54.940133+02	5	2	\N	\N	4	t
-13	ORBITRAP	2011-06-01 14:33:26.888983+02	6	2	\N	\N	1	t
+13	ORBITRAP	2011-06-01 14:33:26.888983+02	2	2	\N	\N	1	t
 14	EX	2011-06-01 14:59:35.528305+02	7	2	\N	\N	1	t
 15	IN	2011-06-01 14:59:35.528305+02	7	2	\N	\N	2	t
 16	SI	2011-06-01 14:59:35.528305+02	7	2	\N	\N	3	t
@@ -185,25 +182,27 @@ COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, per
 
 
 --
--- TOC entry 2203 (class 0 OID 568359)
--- Dependencies: 1726
--- Data for Name: data_set_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2208 (class 0 OID 17961)
+-- Dependencies: 1733
+-- Data for Name: data_set_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path, is_container) FROM stdin;
-1	UNKNOWN	Unknown	1	2011-04-28 16:49:47.665379+02	\N	\N	f
 2	RAW	Raw data	1	2011-06-01 14:35:43.248544+02	\N	\N	f
-5	TRANSCRIPTOMICS	Transcriptomics data	1	2011-06-07 09:43:30.916419+02	\N	\N	f
-3	METABOLITE_INTENSITIES	Metabolite intensities	1	2011-06-01 15:09:15.822214+02	\N	\N	f
-4	OD600	Growth profiles	1	2011-06-07 09:40:07.551324+02	\N	\N	f
-6	PROTEIN_QUANTIFICATIONS	Protein quantifications	1	2011-06-07 09:44:55.591374+02	\N	\N	f
+7	EXCEL_ORIGINAL	Excel data	1	2011-07-07 14:24:59.205768+02	\N	\N	f
+8	TSV_EXPORT	An export of the data containing one strain per file.	1	2011-07-07 14:25:32.331964+02	\N	\N	f
+9	TSV_MULTISTRAIN_EXPORT	An export of the data containing multiple strains per file.	1	2011-07-07 14:26:06.13375+02	\N	\N	f
+5	TRANSCRIPTOMICS	Transcriptomics data	1	2011-06-07 09:43:30.916419+02	\N	\N	t
+3	METABOLITE_INTENSITIES	Metabolite intensities	1	2011-06-01 15:09:15.822214+02	\N	\N	t
+4	OD600	Growth profiles	1	2011-06-07 09:40:07.551324+02	\N	\N	t
+6	PROTEIN_QUANTIFICATIONS	Protein quantifications	1	2011-06-07 09:44:55.591374+02	\N	\N	t
 \.
 
 
 --
--- TOC entry 2208 (class 0 OID 568546)
--- Dependencies: 1764
--- Data for Name: material_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2206 (class 0 OID 17945)
+-- Dependencies: 1731
+-- Data for Name: material_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY material_types (id, code, description, dbin_id, modification_timestamp) FROM stdin;
@@ -212,13 +211,12 @@ COPY material_types (id, code, description, dbin_id, modification_timestamp) FRO
 
 
 --
--- TOC entry 2210 (class 0 OID 568586)
--- Dependencies: 1773 2200 2208
--- Data for Name: property_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2209 (class 0 OID 17983)
+-- Dependencies: 1736 2200 2206
+-- Data for Name: property_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY property_types (id, code, description, label, daty_id, registration_timestamp, pers_id_registerer, covo_id, is_managed_internally, is_internal_namespace, dbin_id, maty_prop_id, schema, transformation) FROM stdin;
-1	DESCRIPTION	A Description	Description	1	2011-04-28 16:49:47.665379+02	1	\N	f	f	1	\N	\N	\N
 2	MEDIUM	The growth medium for the experiment	Medium	7	2011-06-01 14:23:50.820065+02	2	2	f	f	1	\N	\N	\N
 4	CONTAINER	The type of container in which the experiment was carried out.	Container	7	2011-06-01 14:24:40.461839+02	2	4	f	f	1	\N	\N	\N
 5	CONTAINER_VOLUME	The volume of the container.	Container Volume	1	2011-06-01 14:25:42.437944+02	2	\N	f	f	1	\N	\N	\N
@@ -235,17 +233,17 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 16	VALUE_TYPE	Value Type	Value Type	7	2011-06-01 15:11:00.652368+02	2	9	f	f	1	\N	\N	\N
 17	VALUE_UNIT	Value Unit	Value Unit	7	2011-06-01 15:11:20.926301+02	2	10	f	f	1	\N	\N	\N
 18	SCALE	Scale	Scale	7	2011-06-01 15:11:36.989897+02	2	11	f	f	1	\N	\N	\N
-19	TEMPERATURE	The temperature under which the experiment was carried out.	Temperature	4	2011-06-15 09:55:42.66193+02	6	\N	f	f	1	\N	\N	\N
-20	STRAIN_NAMES	A comma separated list of strain names referenced by this data set.	Strain Names	1	2011-06-28 15:36:32.488662+02	46	\N	f	f	1	\N	\N	\N
-21	EXPERIMENT_DATE	Experiment date.	Experiment Date	6	2011-06-29 15:08:42.672159+02	46	\N	f	f	1	\N	\N	\N
-22	REFERENCE_STRAIN	Reference strain	Reference Strain	8	2011-06-29 15:11:44.549487+02	46	\N	f	f	1	1	\N	\N
+19	TEMPERATURE	The temperature under which the experiment was carried out.	Temperature	4	2011-06-15 09:55:42.66193+02	2	\N	f	f	1	\N	\N	\N
+20	STRAIN_NAMES	Strain Names	Strain Names	1	2011-06-29 15:53:03.26604+02	2	\N	f	f	1	\N	\N	\N
+21	REFERENCE_STRAIN	Reference Strain	Reference Strain	8	2011-06-29 15:53:42.397136+02	2	\N	f	f	1	1	\N	\N
+22	EXPERIMENT_DATE	Experiment Date	Experiment Date	6	2011-06-29 15:54:09.331516+02	2	\N	f	f	1	\N	\N	\N
 \.
 
 
 --
--- TOC entry 2202 (class 0 OID 568350)
--- Dependencies: 1725 2203 2210
--- Data for Name: data_set_type_property_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2210 (class 0 OID 18046)
+-- Dependencies: 1743 2208 2209
+-- Data for Name: data_set_type_property_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section, script_id) FROM stdin;
@@ -254,40 +252,40 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 3	2	11	f	f	2	2011-06-01 14:45:20.412582+02	4	\N	\N
 4	2	13	t	f	2	2011-06-01 14:55:14.000965+02	1	\N	\N
 5	3	13	f	f	2	2011-06-01 15:09:45.526152+02	1	\N	\N
-6	3	14	f	f	2	2011-06-01 15:11:51.457314+02	3	\N	\N
-7	3	15	f	f	2	2011-06-01 15:12:06.094358+02	4	\N	\N
-8	3	16	f	f	2	2011-06-01 15:12:17.388726+02	5	\N	\N
-9	3	17	f	f	2	2011-06-01 15:12:25.79652+02	6	\N	\N
-10	3	18	f	f	2	2011-06-01 15:12:35.809392+02	7	\N	\N
 11	4	13	f	f	2	2011-06-07 09:41:19.577666+02	1	\N	\N
+17	5	13	f	f	2	2011-06-07 09:45:57.381638+02	1	\N	\N
+23	6	13	f	f	2	2011-06-07 10:26:20.876194+02	1	\N	\N
 12	4	14	f	f	2	2011-06-07 09:41:39.189056+02	3	\N	\N
 13	4	15	f	f	2	2011-06-07 09:42:00.464051+02	4	\N	\N
 14	4	16	f	f	2	2011-06-07 09:42:14.906524+02	5	\N	\N
 15	4	17	f	f	2	2011-06-07 09:42:30.293596+02	6	\N	\N
 16	4	18	f	f	2	2011-06-07 09:42:36.606913+02	7	\N	\N
-17	5	13	f	f	2	2011-06-07 09:45:57.381638+02	1	\N	\N
+29	4	20	f	f	2	2011-06-29 15:56:25.578782+02	2	\N	\N
+24	6	14	f	f	2	2011-06-07 10:26:37.439939+02	3	\N	\N
+25	6	15	f	f	2	2011-06-07 10:27:03.19151+02	4	\N	\N
+27	6	17	f	f	2	2011-06-07 10:27:23.191867+02	6	\N	\N
+28	6	18	f	f	2	2011-06-07 10:27:33.149813+02	7	\N	\N
+30	6	20	f	f	2	2011-06-29 15:56:36.804424+02	2	\N	\N
 18	5	14	f	f	2	2011-06-07 09:46:07.477336+02	3	\N	\N
 19	5	15	f	f	2	2011-06-07 09:46:23.775868+02	4	\N	\N
 20	5	16	f	f	2	2011-06-07 09:46:34.150697+02	5	\N	\N
 21	5	17	f	f	2	2011-06-07 09:46:42.908173+02	6	\N	\N
 22	5	18	f	f	2	2011-06-07 09:46:49.641018+02	7	\N	\N
-23	6	13	f	f	2	2011-06-07 10:26:20.876194+02	1	\N	\N
-24	6	14	f	f	2	2011-06-07 10:26:37.439939+02	3	\N	\N
-25	6	15	f	f	2	2011-06-07 10:27:03.19151+02	4	\N	\N
-27	6	17	f	f	2	2011-06-07 10:27:23.191867+02	6	\N	\N
-28	6	18	f	f	2	2011-06-07 10:27:33.149813+02	7	\N	\N
-29	4	20	f	f	46	2011-06-28 15:59:35.731361+02	2	\N	\N
-30	3	20	f	f	46	2011-06-29 14:31:29.65883+02	2	\N	\N
-31	6	20	f	f	46	2011-06-29 14:31:39.508172+02	2	\N	\N
-32	5	20	f	f	46	2011-06-29 14:31:59.560796+02	2	\N	\N
-33	6	22	f	f	46	2011-06-29 15:12:06.111001+02	8	\N	\N
+31	5	20	f	f	2	2011-06-29 15:56:49.612258+02	2	\N	\N
+32	6	21	f	f	2	2011-06-29 15:59:14.016583+02	8	\N	\N
+6	3	14	f	f	2	2011-06-01 15:11:51.457314+02	3	\N	\N
+7	3	15	f	f	2	2011-06-01 15:12:06.094358+02	4	\N	\N
+8	3	16	f	f	2	2011-06-01 15:12:17.388726+02	5	\N	\N
+9	3	17	f	f	2	2011-06-01 15:12:25.79652+02	6	\N	\N
+10	3	18	f	f	2	2011-06-01 15:12:35.809392+02	7	\N	\N
+26	3	20	f	f	2	2011-06-29 15:55:28.052352+02	2	\N	\N
 \.
 
 
 --
--- TOC entry 2205 (class 0 OID 568451)
--- Dependencies: 1746
--- Data for Name: experiment_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2202 (class 0 OID 17870)
+-- Dependencies: 1721
+-- Data for Name: experiment_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY experiment_types (id, code, description, dbin_id, modification_timestamp) FROM stdin;
@@ -296,9 +294,9 @@ COPY experiment_types (id, code, description, dbin_id, modification_timestamp) F
 
 
 --
--- TOC entry 2204 (class 0 OID 568442)
--- Dependencies: 1745 2205 2210
--- Data for Name: experiment_type_property_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2203 (class 0 OID 17877)
+-- Dependencies: 1722 2202 2209
+-- Data for Name: experiment_type_property_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section, script_id) FROM stdin;
@@ -309,15 +307,15 @@ COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_mana
 6	1	6	f	f	2	2011-06-01 14:30:43.373831+02	7	\N	\N
 7	1	7	f	f	2	2011-06-01 14:30:54.766288+02	8	\N	\N
 8	1	8	f	f	2	2011-06-01 14:31:02.906052+02	9	\N	\N
-3	1	19	f	f	6	2011-06-15 10:01:30.732512+02	3	\N	\N
-9	1	21	f	f	46	2011-06-29 15:11:02.787466+02	10	\N	\N
+3	1	19	f	f	2	2011-06-15 10:01:30.732512+02	3	\N	\N
+9	1	22	f	f	2	2011-06-29 15:59:28.462793+02	10	\N	\N
 \.
 
 
 --
--- TOC entry 2207 (class 0 OID 568537)
--- Dependencies: 1763 2208 2210
--- Data for Name: material_type_property_types; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2207 (class 0 OID 17952)
+-- Dependencies: 1732 2206 2209
+-- Data for Name: material_type_property_types; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, is_managed_internally, registration_timestamp, pers_id_registerer, ordinal, section, script_id) FROM stdin;
@@ -326,9 +324,9 @@ COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, is_manage
 
 
 --
--- TOC entry 2209 (class 0 OID 568553)
--- Dependencies: 1765 2208
--- Data for Name: materials; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2204 (class 0 OID 17929)
+-- Dependencies: 1729 2206
+-- Data for Name: materials; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY materials (id, code, maty_id, pers_id_registerer, registration_timestamp, modification_timestamp, dbin_id) FROM stdin;
@@ -337,9 +335,9 @@ COPY materials (id, code, maty_id, pers_id_registerer, registration_timestamp, m
 
 
 --
--- TOC entry 2206 (class 0 OID 568524)
--- Dependencies: 1760 2201 2209 2209 2207
--- Data for Name: material_properties; Type: TABLE DATA; Schema: public; Owner: cramakri
+-- TOC entry 2205 (class 0 OID 17937)
+-- Dependencies: 1730 2201 2204 2204 2207
+-- Data for Name: material_properties; Type: TABLE DATA; Schema: public; Owner: openbis
 --
 
 COPY material_properties (id, mate_id, mtpt_id, value, registration_timestamp, modification_timestamp, pers_id_registerer, cvte_id, mate_prop_id) FROM stdin;
@@ -347,7 +345,7 @@ COPY material_properties (id, mate_id, mtpt_id, value, registration_timestamp, m
 \.
 
 
--- Completed on 2011-06-29 15:21:50 CEST
+-- Completed on 2011-07-07 15:25:24 CEST
 
 --
 -- PostgreSQL database dump complete
