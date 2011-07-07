@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Piotr Buczek
  */
-public interface IPluginScriptRunnerFactory
+public interface IPluginScriptRunnerFactory extends ISerializable
 {
     IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
 
