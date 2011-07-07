@@ -1,8 +1,8 @@
 DATA_SOURCE = "path-info-db"
 QUERY = """	
-					SELECT ds.code as "DATA_SET_CODE", dsf.*
+					SELECT ds.code as "data_set_code", dsf.*
 					FROM data_sets ds, data_set_files dsf
-					WHERE ds.code = ? AND dsf.dase_id = ds.id
+					WHERE ds.code = ?{1} AND dsf.dase_id = ds.id
 				"""
 				
 """reporting table column names"""
@@ -23,13 +23,15 @@ def describe(dataSets, tableBuilder):
     tableBuilder.addHeader(LAST_MODIFIED)
     
     for dataSet in dataSets:
-        results = query_service.select(DATA_SOURCE, QUERY, dataSet.getDataSetCode()) 
+        results = queryService.select(DATA_SOURCE, QUERY, [dataSet.getDataSetCode()])
+        print "Found " + str(len(results)) + " results for data set '" + dataSet.getDataSetCode() + "':" 
         for r in results:
+            print r		# debugging
             row = tableBuilder.addRow()
-            row.setCell(DATA_SET_CODE, r.get("DATA_SET_CODE"))
-            row.setCell(RELATIVE_PATH, r.get("RELATIVE_PATH"))
-            row.setCell(FILE_NAME, r.get("FILE_NAME"))
-            row.setCell(SIZE_IN_BYTES, r.get("SIZE_IN_BYTES"))
-            row.setCell(IS_DIRECTORY, r.get("IS_DIRECTORY"))
-            row.setCell(LAST_MODIFIED, r.get("LAST_MODIFIED"))
+            row.setCell(DATA_SET_CODE, r.get("DATA_SET_CODE".lower()))
+            row.setCell(RELATIVE_PATH, r.get("RELATIVE_PATH".lower()))
+            row.setCell(FILE_NAME, r.get("FILE_NAME".lower()))
+            row.setCell(SIZE_IN_BYTES, r.get("SIZE_IN_BYTES".lower()))
+            row.setCell(IS_DIRECTORY, r.get("IS_DIRECTORY".lower()))
+            row.setCell(LAST_MODIFIED, r.get("LAST_MODIFIED".lower()))
         results.close()

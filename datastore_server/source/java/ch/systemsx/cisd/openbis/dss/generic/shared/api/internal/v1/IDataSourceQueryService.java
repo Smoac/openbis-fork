@@ -54,7 +54,8 @@ public interface IDataSourceQueryService
      * 
      * @param dataSourceName The name of the data source to query against, as declared in the
      *            service.properties file.
-     * @param query The SQL query to execute, possibly including parameters marked by '?'.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
      * @return A List of Maps with the data. Do not forget to close the result when done!
      * @throw IllegalArgumentException Throws if there is no data source with the given name.
      * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
@@ -68,7 +69,8 @@ public interface IDataSourceQueryService
      * 
      * @param dataSourceName The name of the data source to query against, as declared in the
      *            service.properties file.
-     * @param query The SQL query to execute, possibly including parameters marked by '?'.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
      * @param parameters The values for filling in the query parameters.
      * @return A List of Maps with the data. Do not forget to close the result when done!
      * @throw IllegalArgumentException Thrown if there is no data source with the given name.
