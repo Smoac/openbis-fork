@@ -1,8 +1,7 @@
 import org.apache.commons.io.IOUtils as IOUtils
 
 def process(dataSet):
-    dataSetCode = dataSet.getDataSetCode()
-    print "script processing " + dataSetCode
+    print "script processing " + dataSet.getDataSetCode()
     processNode(dataSet.getContent().getRootNode(), dataSet.getDataSetCode())
     
 def processNode(node, dataSetCode):

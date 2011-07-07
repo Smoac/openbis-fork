@@ -11,10 +11,9 @@ def processNode(node, dataSetCode):
         for child in node.getChildNodes():
             processNode(child, dataSetCode)
     else:
-        fileAsString = IOUtils.readLines(node.getInputStream()).toString()
         fileName = node.getName()
-        
         if fileName.endswith(".txt"):
+            fileAsString = IOUtils.readLines(node.getInputStream()).toString()
             mailService.createEmailSender().\
                 withSubject("processed text file " + fileName).\
                 withBody("see the attached file").\
