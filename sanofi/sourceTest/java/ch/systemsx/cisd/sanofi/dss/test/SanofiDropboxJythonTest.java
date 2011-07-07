@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.sanofi.dss.test;
 
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 
 import java.io.File;
 import java.io.IOException;
@@ -126,37 +127,115 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
 
-    @BeforeMethod
+    private RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails;
+
+    private RecordingMatcher<ListMaterialCriteria> materialCriteria;
+
+    private RecordingMatcher<String> email;
+
     @Override
+    @BeforeMethod
     public void setUp() throws IOException
     {
         super.setUp();
+        atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
+        email = new RecordingMatcher<String>();
+    }
+
+    @Test
+    public void testLibraryWider() throws IOException
+    {
+        createDataSetHandler(false, false);
+        final Sample plate =
+                plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "10_WELLS_1X10");
+        context.checking(new Expectations()
+            {
+                {
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+                }
+            });
+
+        try
+        {
+            handler.handle(markerFile);
+            fail("Registration should fail with library validation error");
+        } catch (RuntimeException rex)
+        {
+            final String error =
+                    "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 2 rows, "
+                            + "but the geometry of plate 'TEST-PLATE' allows a maximum of 1 rows. You should either reduce the "
+                            + "number of rows in the library template or change the plate geometry.";
+            assertContains(error, rex.getMessage());
+            assertContains(error, email.recordedObject());
+            assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLibraryHigher() throws IOException
+    {
+        createDataSetHandler(false, false);
+        final Sample plate =
+                plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "5_WELLS_5X1");
+        context.checking(new Expectations()
+            {
+                {
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+                }
+            });
+
+        try
+        {
+            handler.handle(markerFile);
+            fail("Registration should fail with library validation error");
+        } catch (RuntimeException rex)
+        {
+            final String error =
+                    "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 3 "
+                            + "columns in row 1, but the geometry of plate 'TEST-PLATE' allows a maximum of "
+                            + "5 columns. You should either reduce the number of columns in the library "
+                            + "template or change the plate geometry.";
+            assertContains(error, rex.getMessage());
+            assertContains(error, email.recordedObject());
+            assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
+        }
+
+        context.assertIsSatisfied();
     }
 
     @Test
     public void testHappyCaseWithLibraryCreation() throws IOException
     {
-        setUpHomeDataBaseExpectations();
-        Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("dropbox-all-in-one-with-library.py");
-        createHandler(properties, false, true);
-        createData();
-
-        final String libraryTemplate = "1.45\t\tH\n0.12\t0.002\tL";
-        final Sample plate = createPlate(libraryTemplate, "6_WELLS_2X3");
-        setUpPlateSearchExpectations(plate);
-        setUpLibraryTemplateExpectations(plate);
+        createDataSetHandler(false, true);
+        final Sample plate =
+                plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "6_WELLS_10X10");
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A1"));
         queryResult.add(createQueryResult("B1"));
         queryResult.add(createQueryResult("B2"));
 
-        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails =
-                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
-        final RecordingMatcher<ListMaterialCriteria> materialCriteria =
-                new RecordingMatcher<ListMaterialCriteria>();
-        final RecordingMatcher<String> email = new RecordingMatcher<String>();
+        setDataSetExpectations();
         context.checking(new Expectations()
             {
                 {
@@ -170,30 +249,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     
                     exactly(5).of(openBisService).createPermId();
                     will(returnValue("well-permId"));
-
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(IMAGE_DATA_SET_CODE));
-
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(OVERLAY_DATA_SET_CODE));
-
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(ANALYSIS_DATA_SET_CODE));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            IMAGE_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE),
-                                    IMAGE_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            OVERLAY_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
-                                    OVERLAYS_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            ANALYSIS_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
-                                    ANALYSIS_DATA_SET_FILE_NAME));
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
@@ -247,10 +302,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
 
+
         AssertionUtil
                 .assertContains(
-                        "New data for the plate <a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE"
-                                + "&sample_type=PLATE&action=SEARCH&code=TEST-PLATE'>TEST-PLATE</a> has been registered.",
+                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
+                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode'>plateCode</a>",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
@@ -329,6 +385,57 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals("Invalid material found in well '" + wellCode + "': ",
                 materialIdentifier.print(), wellMaterialProp.tryGetAsString());
 
+    }
+
+    public Sample plateWithLibTemplateAndGeometry(String libraryTemplate, String plateGeometry)
+            throws IOException
+    {
+        Sample plate = createPlate(libraryTemplate, plateGeometry);
+        setUpPlateSearchExpectations(plate);
+        setUpLibraryTemplateExpectations(plate);
+        return plate;
+    }
+
+    private void createDataSetHandler(boolean shouldRegistrationFail, boolean rethrowExceptions)
+            throws IOException
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder("dropbox-all-in-one-with-library.py");
+        createHandler(properties, shouldRegistrationFail, rethrowExceptions);
+        createData();
+    }
+
+    private void setDataSetExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(IMAGE_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(OVERLAY_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(ANALYSIS_DATA_SET_CODE));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            IMAGE_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE),
+                                    IMAGE_DATA_SET_DIR_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            OVERLAY_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
+                                    OVERLAYS_DATA_SET_DIR_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            ANALYSIS_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
+                                    ANALYSIS_DATA_SET_FILE_NAME));
+                }
+            });
     }
 
     private void setUpPlateSearchExpectations(final Sample plate)

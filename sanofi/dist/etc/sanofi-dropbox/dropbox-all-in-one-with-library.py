@@ -121,31 +121,62 @@ def findDir(incomingFile, dirNameMarker):
             return File(incomingPath, file)
     return None
 
+""" Removes trailing empty strings from a list """
+def removeTrailingEmptyElements(list):
+    pos = len(list)
+    while (pos > 0):
+        pos = pos - 1
+        if not list[pos].strip():
+            del list[pos]
+        else:
+            break
+    return list
+
 
 # ======================================
 # end generic utility functions 
 # ======================================
 
 def rollback_service(service, ex):
-    plateCode = plate.getCode()
-    plateLink = createPlateLink(OPENBIS_URL, plateCode)
+    incomingFileName = incoming.getName()
     errorMessage = ex.getMessage()
-    sendEmail("openBIS: Data registration failed for %s" % (plateCode), """
+    if not errorMessage:
+        errorMessage = ex.toString()
+        
+    if plateCode:
+        plateLink = createPlateLink(OPENBIS_URL, plateCode)
+        sendEmail("openBIS: Data registration failed for %s" % (plateCode), """
     Dear openBIS user,
     
       Registering new data for plate %(plateLink)s has failed with error '%(errorMessage)s'.
+      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
+      repair the problem and remove the entry from '.faulty_paths' to retry registration.
+       
       This email has been generated automatically.
       
     Administrator
-    """ % vars(), False)
+        """ % vars(), False)
+    else:
+        sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
+    Dear user,
+    
+      openBIS was unable to understand the name of an incoming folder. 
+      Detailed error message was '%(errorMessage)s'.
+      
+      This email has been generated automatically.
+      
+    Administrator
+        """ % vars(), False)
+    
 
 def commit_transaction(service, transaction):
-    plateCode = plate.getCode()
+    incomingFileName = incoming.getName()
     plateLink = createPlateLink(OPENBIS_URL, plateCode)
     sendEmail("openBIS: New data registered for %s" % (plateCode), """
     Dear openBIS user,
     
-      New data for the plate %(plateLink)s has been registered.
+      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
+       
       This email has been generated automatically.
       
       Have a nice day!
@@ -196,15 +227,15 @@ def findPlateByCode(code):
 def parseIncomingDirname(dirName):
     """
        Parses the name of an incoming dataset folder from the format
-       'AcquisitionBatch_BarCode_Timestamp' to a tuple (acquisitionBatch, barCode)
+       '<ACQUISITION_BATCH_NAME>_<BAR_CODE>_<TIMESTAMP>' to a tuple (acquisitionBatch, plateCode)
     """
     tokens = dirName.split("_")
     if len(tokens) < 2:
-        raise RuntimeError("Data set directory name does not match the pattern 'AcquisitionBatch_BarCode_Timestamp': " + dirName)
+        raise RuntimeError("Data set directory name does not match the pattern '<ACQUISITION_BATCH_NAME>_<BAR_CODE>_<TIMESTAMP>': " + dirName)
     
     acquisitionBatch = tokens[0]
-    barCode = tokens[1].split('.')[0]
-    return (acquisitionBatch, barCode)
+    plateCode = tokens[1].split('.')[0]
+    return (acquisitionBatch, plateCode)
 
 def removeDuplicates(list):
     dict = {}
@@ -266,32 +297,28 @@ class PlateInitializer:
     def getWellCode(self, x, y):
         return ConversionUtils.convertToSpreadsheetLocation(Point(x,y))
     
-    def getPlateDimensions(self):
-        """
-          parses the plate geometry property from the form "384_WELLS_16X24" 
-          to a tuple of integers (plateHeight, plateWidth) 
-        """
+    def getPlateGeometryDimensions(self):
         plateGeometryString = self.plate.getPropertyValue(ScreeningConstants.PLATE_GEOMETRY)
         geometry = Geometry.createFromPlateGeometryString(plateGeometryString)
         return (geometry.height, geometry.width)
     
     def validateLibraryDimensions(self, tsvLines):
-        (plateHeight, plateWidth) = self.getPlateDimensions()
+        (plateHeight, plateWidth) = self.getPlateGeometryDimensions()
         
         numLines = len(tsvLines)
-        if plateHeight != len(tsvLines) :
-            raise RuntimeError("The geometry property of plate %s (height=%s)"
-                               " does not agree with the value of the %s"
-                               " property in experiment %s  (height=%s)." % \
-                               (self.plateCode, plateHeight, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, numLines))
+        if plateHeight < len(tsvLines) :
+            raise RuntimeError("The property %s of experiment '%s' contains %s rows, but the"
+                               " geometry of plate '%s' allows a maximum of %s rows. You should either reduce"
+                               " the number of rows in the library template or change the plate geometry." % 
+                               (self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, numLines, self.plateCode, plateHeight))
             
         for i in range(0, len(tsvLines)):
             lineWidth = len(tsvLines[i])
-            if plateWidth != lineWidth:
-                raise RuntimeError("The geometry property of plate %s (width=%s)"
-                                   " does not agree with the value of the %s"
-                                   " property in experiment %s  (line=%s, width=%s)." % \
-                                   (self.plateCode, plateWidth, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, i, lineWidth))
+            if plateWidth < lineWidth:
+                raise RuntimeError("The property %s of experiment '%s' contains %s columns in row %s, but the"
+                                   " geometry of plate '%s' allows a maximum of %s columns. You should either reduce"
+                                   " the number of columns in the library template or change the plate geometry." % 
+                                   (self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, lineWidth, (i + 1), self.plateCode, plateHeight))
         
     def parseLibraryTemplate(self):
         template = experiment.getPropertyValue(self.LIBRARY_TEMPLATE_PROPNAME)
@@ -299,7 +326,10 @@ class PlateInitializer:
             raise RuntimeError("Experiment %s has no library template value in property %s" \
                                % (self.experimentId, self.LIBRARY_TEMPLATE_PROPNAME))
         
-        tsvLists = [ line.split("\t")  for line in template.splitlines() ]
+        lines = template.splitlines()
+        lines = removeTrailingEmptyElements(lines)
+        tsvLists = [ removeTrailingEmptyElements(line.split("\t")) for line in lines ]
+                
         self.validateLibraryDimensions(tsvLists)
         
         library = {}
@@ -521,10 +551,10 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
 if incoming.isDirectory():
     transaction = service.transaction(incoming, factory)
     
-    (batchName, barCode) = parseIncomingDirname(incoming.getName())
-    plate = findPlateByCode(barCode)
+    (batchName, plateCode) = parseIncomingDirname(incoming.getName())
+    plate = findPlateByCode(plateCode)
     if not plate.getExperiment():
-        raise RuntimeError("Plate with code '%(barCode)s' is not associated with experiment" % vars())
+        raise RuntimeError("Plate with code '%(plateCode)s' is not associated with experiment" % vars())
     
     experimentId = plate.getExperiment().getExperimentIdentifier()
     experiment = transaction.getExperiment(experimentId)
