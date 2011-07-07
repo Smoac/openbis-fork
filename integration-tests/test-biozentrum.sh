@@ -62,7 +62,7 @@ function submitDerivedDataset {
   copyDataset $1 $name
 
 	local key_pattern="storage_provider\.parent\.dataset\.id = "
-	find $dropbox/$name -name "metadata.properties" -exec sed -i "" "s/$key_pattern.*/${key_pattern}${parent_dataset_code}/g" {} \;
+	find $dropbox/$name -name "metadata.properties" -exec sed -i'' --in-place "s/$key_pattern.*/${key_pattern}${parent_dataset_code}/g" {} \;
 
   touch $dropbox/.MARKER_is_finished_$name
 }

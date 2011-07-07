@@ -270,7 +270,6 @@ def registerDerivedDataset(state, transaction, dataset, incoming, metadataParser
         dataset.setPropertyValue(propertyCode, value)
     dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
 
-    print "moving", incoming.getPath()
     transaction.moveFile(incoming.getPath(), dataset)
     if transaction.commit():
         createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
@@ -297,7 +296,7 @@ def tryGetConnectedPlate(state, openbisDatasetPermId, iBrain2DatasetId, incoming
 			errorMsg = "No plate is connected to the dataset: " + openbisDatasetPermId + "."
 	else:
 		errorMsg = "Dataset does not exist or is not accessible: " + openbisDatasetPermId + ". Maybe the dataset has not been registered yet. Try again later."
-	state.getOperationLog().error(errorMsg)
+	state.operationLog.error(errorMsg)
 	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, errorMsg, incomingPath)
 	return (None, None)
 
