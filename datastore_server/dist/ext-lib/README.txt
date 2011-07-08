@@ -1,5 +1,5 @@
 This folder contains libraries (JAR files) that are not part of the standard 
-openBIS installation, but are needed for the normal work of the system.
+DSS installation, but are needed for the normal work of the system.
 
 One good example for such libraries are JDBC drivers required to connect to 
 an external database (e.g. Oracle). 
