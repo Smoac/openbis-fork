@@ -58,7 +58,7 @@ public class ExperimentProviderTest extends AbstractProviderTest
                         .code("E1")
                         .identifier("DB:/A/B/E1")
                         .date(new Date(1000123456))
-                        .invalidate()
+                        .markDeleted()
                         .permID("123-45")
                         .type("1")
                         .registrator(
@@ -84,7 +84,7 @@ public class ExperimentProviderTest extends AbstractProviderTest
         TypedTableModel<Experiment> tableModel =
                 new ExperimentProvider(server, SESSION_TOKEN, criteria).getTableModel(100);
         assertEquals("[CODE, EXPERIMENT_TYPE, EXPERIMENT_IDENTIFIER, DATABASE_INSTANCE, SPACE, "
-                + "PROJECT, REGISTRATOR, REGISTRATION_DATE, IS_INVALID, PERM_ID, "
+                + "PROJECT, REGISTRATOR, REGISTRATION_DATE, IS_DELETED, PERM_ID, "
                 + "SHOW_DETAILS_LINK, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
         assertEquals("[null, VARCHAR, null, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, "

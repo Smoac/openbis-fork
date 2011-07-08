@@ -25,7 +25,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -105,9 +105,9 @@ public class SampleBuilder
         return this;
     }
     
-    public SampleBuilder invalidate()
+    public SampleBuilder markDeleted()
     {
-        sample.setInvalidation(new Invalidation());
+        sample.setDeletion(new Deletion());
         return this;
     }
     

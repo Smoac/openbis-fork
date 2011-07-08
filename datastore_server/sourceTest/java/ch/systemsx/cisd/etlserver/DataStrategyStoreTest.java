@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -247,7 +247,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         final Sample baseSample = createSampleWithExperiment();
-        baseSample.getExperiment().setInvalidation(new Invalidation());
+        baseSample.getExperiment().setDeletion(new Deletion());
         context.checking(new Expectations()
             {
                 {

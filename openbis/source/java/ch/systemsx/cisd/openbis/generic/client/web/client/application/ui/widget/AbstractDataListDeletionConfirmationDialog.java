@@ -54,13 +54,13 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private final IViewContext<?> viewContext;
 
-    private final AbstractAsyncCallback<Void> deletionCallback;
+    private final AbstractAsyncCallback<Void> permanentDeletionCallback;
 
     private boolean withRadio = false;
 
-    private boolean withInvalidationOption = false;
+    private boolean withDeletionOption = false;
 
-    private AbstractAsyncCallback<Void> invalidationCallbackOrNull;
+    private AbstractAsyncCallback<Void> deletionCallbackOrNull;
 
     protected Radio onlySelectedRadioOrNull;
 
@@ -69,11 +69,11 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IViewContext<?> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> deletionCallback)
+            AbstractAsyncCallback<Void> permanentDeletionCallback)
     {
         super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.deletionCallback = deletionCallback;
+        this.permanentDeletionCallback = permanentDeletionCallback;
     }
 
     // optional initialization
@@ -84,19 +84,22 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         this.withRadio = true;
     }
 
-    /** adds invalidation option to the dialog with the same callback as the one used for deletion */
-    protected void withInvalidation()
+    /**
+     * adds deletion option to the dialog with the same callback as the one used for permanent
+     * deletion
+     */
+    protected void withDeletion()
     {
-        withInvalidation(deletionCallback);
+        withDeletion(permanentDeletionCallback);
     }
 
-    /** adds invalidation option to the dialog with fiven callback */
-    protected void withInvalidation(AbstractAsyncCallback<Void> invalidationCallback)
+    /** adds deletion option to the dialog with fiven callback */
+    protected void withDeletion(AbstractAsyncCallback<Void> deletionCallback)
     {
-        if (getWebClientConfiguration().getEnableInvalidation())
+        if (getWebClientConfiguration().getEnableTrash())
         {
-            this.withInvalidationOption = true;
-            this.invalidationCallbackOrNull = invalidationCallback;
+            this.withDeletionOption = true;
+            this.deletionCallbackOrNull = deletionCallback;
         }
     }
 
@@ -116,7 +119,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         reason = new ReasonField(messageProvider, true);
         reason.focus();
         reason.addKeyListener(keyListener);
-        if (withInvalidationOption)
+        if (withDeletionOption)
         {
             formPanel.add(permanentCheckBoxOrNull = createDeletePermanentlyCheckBox());
         }
@@ -141,7 +144,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         }
         final String operationName =
                 messageProvider.getMessage(isPermanentDeletion() ? Dict.DELETING_PERMANENTLY
-                        : Dict.INVALIDATING);
+                        : Dict.DELETING);
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE,
                 operationName, deletedObjects);
     }
@@ -191,24 +194,24 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     protected final DeletionType getDeletionType()
     {
-        return isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.INVALIDATION;
+        return isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.TRASH;
     }
 
     /**
-     * Returns deletion/invalidation callback and shows a progress bar that will be hidden when the
-     * callback is finished.
+     * Returns deletion callback and shows a progress bar that will be hidden when the callback is
+     * finished.
      */
     private AsyncCallback<Void> getCallbackWithProgressBar()
     {
         if (isPermanentDeletion())
         {
-            return AsyncCallbackWithProgressBar.decorate(deletionCallback,
-                    messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
+            return AsyncCallbackWithProgressBar.decorate(permanentDeletionCallback, messageProvider
+                    .getMessage(Dict.DELETE_PERMANENTLY_PROGRESS_MESSAGE, getEntityName()));
         } else
         {
-            assert invalidationCallbackOrNull != null;
-            return AsyncCallbackWithProgressBar.decorate(invalidationCallbackOrNull,
-                    messageProvider.getMessage(Dict.INVALIDATE_PROGRESS_MESSAGE, getEntityName()));
+            assert deletionCallbackOrNull != null;
+            return AsyncCallbackWithProgressBar.decorate(deletionCallbackOrNull,
+                    messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
         }
     }
 }

@@ -55,7 +55,7 @@ public class LinkRenderer
     private static final String LINK_STYLE = "link-style";
 
     /**
-     * @deprecated doesn't support invalidation; use {@link #createLinkRenderer(boolean, int)}
+     * @deprecated doesn't support deletion; use {@link #createLinkRenderer(boolean, int)}
      */
     @Deprecated
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()

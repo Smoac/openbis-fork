@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Display
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -52,7 +52,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
             DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
         super(viewContext, data, callback);
-        this.withInvalidation();
+        this.withDeletion();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
@@ -61,13 +61,13 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> deletionCallback,
-            AbstractAsyncCallback<Void> invalidationCallback, T sample)
+            AbstractAsyncCallback<Void> permanentDeletionCallback,
+            AbstractAsyncCallback<Void> deletionCallback, T sample)
     {
-        super(viewContext, data, deletionCallback);
-        if (InvalidationUtils.isInvalid(sample) == false)
+        super(viewContext, data, permanentDeletionCallback);
+        if (DeletionUtils.isDeleted(sample) == false)
         {
-            this.withInvalidation(invalidationCallback);
+            this.withDeletion(deletionCallback);
         }
         this.viewContext = viewContext;
         this.singleDataOrNull = sample;

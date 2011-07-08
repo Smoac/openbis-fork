@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
- * Information about invalidation.
- * 
- * @author Christian Ribeaud
+ * @author Franz-Josef Elmer
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public interface IDeletionProvider
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    /** Reason of invalidation. */
-    private String reasonOrNull;
-
-    public final String getReason()
-    {
-        return reasonOrNull;
-    }
-
-    public final void setReason(final String reasonOrNull)
-    {
-        this.reasonOrNull = reasonOrNull;
-    }
+    public Deletion getDeletion();
 }

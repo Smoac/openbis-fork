@@ -234,12 +234,12 @@ public class SampleListingQueryTest extends AbstractDAOTest
             {
                 assertEquals(msg, samplePE.getExperiment().getId(), sample.expe_id);
             }
-            if (samplePE.getInvalidation() == null)
+            if (samplePE.getDeletion() == null)
             {
                 assertNull(msg, sample.del_id);
             } else
             {
-                assertEquals(msg, samplePE.getInvalidation().getId(), sample.del_id);
+                assertEquals(msg, samplePE.getDeletion().getId(), sample.del_id);
             }
             if (samplePE.getContainer() == null)
             {

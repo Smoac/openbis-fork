@@ -125,12 +125,12 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         Sample s1 = getSample(list, createSampleIdentifier("MP001-1"));
         checkInternalProperty(s1.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
-        assertNotNull(s1.getInvalidation());
+        assertNotNull(s1.getDeletion());
         assertNull(s1.getExperiment());
 
         Sample s2 = getSample(list, createSampleIdentifier("MP002-1"));
         checkInternalProperty(s2.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
-        assertNull(s2.getInvalidation());
+        assertNull(s2.getDeletion());
         assertNull(s2.getExperiment());
     }
 
@@ -152,7 +152,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         Sample s = getSample(list, createSharedSampleIdentifier("MP"));
         checkInternalProperty(s.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
-        assertNull(s.getInvalidation());
+        assertNull(s.getDeletion());
         assertNull(s.getExperiment());
     }
 
@@ -174,7 +174,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
         Sample s = getSample(list, createSampleIdentifier("3VCP1"));
-        assertNotNull(s.getInvalidation());
+        assertNotNull(s.getDeletion());
         assertEquals("/CISD/NEMO/EXP1", s.getExperiment().getIdentifier());
         assertEquals("/CISD/3V-123", s.getGeneratedFrom().getIdentifier());
         assertNull(s.getGeneratedFrom().getGeneratedFrom());

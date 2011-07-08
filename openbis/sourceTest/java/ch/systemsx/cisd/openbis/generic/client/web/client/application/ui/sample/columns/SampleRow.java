@@ -105,21 +105,21 @@ public class SampleRow extends RowWithProperties
         return identifier;
     }
 
-    public SampleRow invalid()
+    public SampleRow deleted()
     {
-        withInvalidation(true);
+        withDeletion(true);
         return this;
     }
 
     public SampleRow valid()
     {
-        withInvalidation(false);
+        withDeletion(false);
         return this;
     }
 
-    private void withInvalidation(boolean isInvalid)
+    private void withDeletion(boolean isDeleted)
     {
-        withCell(SampleGridColumnIDs.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
+        withCell(SampleGridColumnIDs.IS_DELETED, SimpleYesNoRenderer.render(isDeleted));
     }
 
     public SampleRow derivedFromAncestors(final String... ancestorCodes)

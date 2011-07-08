@@ -96,7 +96,7 @@ public final class ExperimentTranslator
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
-        result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
+        result.setDeletion(DeletionTranslator.translate(experiment.getDeletion()));
         for (final LoadableFields field : withFields)
         {
             switch (field)

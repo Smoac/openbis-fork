@@ -461,7 +461,7 @@ public final class DataDAOTest extends AbstractDAOTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         for (ExperimentPE experimentPE : experiments)
         {
-            if (experimentPE.getInvalidation() == null)
+            if (experimentPE.getDeletion() == null)
             {
                 return experimentPE;
             }

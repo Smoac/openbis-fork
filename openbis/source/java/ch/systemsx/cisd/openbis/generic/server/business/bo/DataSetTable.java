@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -64,7 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -235,11 +235,11 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
-    public void invalidateLoadedDataSets(InvalidationPE invalidation)
+    public void trashLoadedDataSets(DeletionPE deletion)
     {
         try
         {
-            getDataDAO().invalidate(dataSets, invalidation);
+            getDataDAO().trash(dataSets, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Data Set", EntityKind.DATA_SET);

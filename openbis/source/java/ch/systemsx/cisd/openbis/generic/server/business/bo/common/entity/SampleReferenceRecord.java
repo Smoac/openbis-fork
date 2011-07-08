@@ -33,7 +33,7 @@ public class SampleReferenceRecord
     /** sample code */
     public String s_code;
 
-    /** invalidation id */
+    /** deletion id */
     public Long del_id;
 
     /** sample type code */

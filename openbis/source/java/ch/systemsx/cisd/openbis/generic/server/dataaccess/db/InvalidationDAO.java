@@ -24,17 +24,17 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IInvalidationDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**
- * <i>Data Access Object</i> implementation for {@link IInvalidationDAO}.
+ * <i>Data Access Object</i> implementation for {@link IDeletionDAO}.
  * 
  * @author Christian Ribeaud
  */
-final class InvalidationDAO extends AbstractGenericEntityDAO<InvalidationPE> implements
-        IInvalidationDAO
+final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements
+        IDeletionDAO
 {
 
     /**
@@ -42,28 +42,28 @@ final class InvalidationDAO extends AbstractGenericEntityDAO<InvalidationPE> imp
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            InvalidationDAO.class);
+            DeletionDAO.class);
 
-    InvalidationDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    DeletionDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, InvalidationPE.class);
+        super(sessionFactory, databaseInstance, DeletionPE.class);
     }
 
     //
-    // IInvalidationDAO
+    // IDeletionDAO
     //
 
-    public final void create(final InvalidationPE invalidation) throws DataAccessException
+    public final void create(final DeletionPE deletion) throws DataAccessException
     {
-        assert invalidation != null : "Unspecified invalidation";
-        validatePE(invalidation);
+        assert deletion != null : "Unspecified deletion";
+        validatePE(deletion);
 
         final HibernateTemplate template = getHibernateTemplate();
-        template.save(invalidation);
+        template.save(deletion);
         template.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("ADD: invalidation '%s'.", invalidation));
+            operationLog.info(String.format("ADD: deletion '%s'.", deletion));
         }
     }
 

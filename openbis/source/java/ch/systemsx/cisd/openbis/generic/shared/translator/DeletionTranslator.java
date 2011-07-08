@@ -16,32 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**
- * A <i>static</i> class for translating {@link InvalidationPE} into {@link Invalidation}.
+ * A <i>static</i> class for translating {@link DeletionPE} into {@link Deletion}.
  * 
  * @author Christian Ribeaud
  */
-public final class InvalidationTranslator
+public final class DeletionTranslator
 {
 
-    private InvalidationTranslator()
+    private DeletionTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static Invalidation translate(final InvalidationPE invalidation)
+    public final static Deletion translate(final DeletionPE deletion)
     {
-        if (invalidation == null)
+        if (deletion == null)
         {
             return null;
         }
-        final Invalidation newInvalidation = new Invalidation();
-        newInvalidation.setReason(invalidation.getReason());
-        newInvalidation.setRegistrationDate(invalidation.getRegistrationDate());
-        newInvalidation.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
-        return newInvalidation;
+        final Deletion newDeletion = new Deletion();
+        newDeletion.setReason(deletion.getReason());
+        newDeletion.setRegistrationDate(deletion.getRegistrationDate());
+        newDeletion.setRegistrator(PersonTranslator.translate(deletion.getRegistrator()));
+        return newDeletion;
     }
 }

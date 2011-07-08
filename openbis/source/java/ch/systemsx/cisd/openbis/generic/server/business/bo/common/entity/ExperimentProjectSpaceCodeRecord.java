@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 import ch.rinn.restrictions.Private;
 
 /**
- * A class representing an experiment, project and space code. It contains also invalidation id,
+ * A class representing an experiment, project and space code. It contains also deletion id,
  * code of experiment type and database instance id.
  */
 @Private

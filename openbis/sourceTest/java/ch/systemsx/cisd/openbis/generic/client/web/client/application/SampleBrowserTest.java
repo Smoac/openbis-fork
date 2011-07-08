@@ -75,7 +75,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedColumnHidden(SampleGridColumnIDs.CODE, false);
         table.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR, DEFAULT_COLUMN_WIDTH);
-        table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
+        table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").deleted()
                 .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
                         DEFAULT_PLATE_GEOMETRY_VALUE));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
@@ -134,7 +134,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
-        table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
+        table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").deleted().experiment(
                 "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123"));
         table.expectedColumnsNumber(21);
         remoteConsole.prepare(table.expectedSize(15));

@@ -72,7 +72,7 @@ public final class TableNames
 
     public static final String SPACES_TABLE = "spaces";
 
-    public static final String INVALIDATIONS_TABLE = "deletions";
+    public static final String DELETIONS_TABLE = "deletions";
 
     public static final String LOCATOR_TYPES_TABLE = "locator_types";
 

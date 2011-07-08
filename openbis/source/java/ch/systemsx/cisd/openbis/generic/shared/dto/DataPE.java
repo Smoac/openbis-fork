@@ -123,12 +123,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
     /**
-     * Invalidation information.
+     * Deletion information.
      * <p>
-     * If not <code>null</code>, then this data set is considered as <i>invalid</i>.
+     * If not <code>null</code>, then this data set is considered <i>deleted</i> (moved to trash).
      * </p>
      */
-    private InvalidationPE invalidation;
+    private DeletionPE deletion;
 
     /**
      * the index of this {@link DataPE} within its virtual parent; null if there is virtual parent
@@ -693,14 +693,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
-    public InvalidationPE getInvalidation()
+    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
+    public DeletionPE getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
-    public void setInvalidation(final InvalidationPE invalidation)
+    public void setDeletion(final DeletionPE deletion)
     {
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 }

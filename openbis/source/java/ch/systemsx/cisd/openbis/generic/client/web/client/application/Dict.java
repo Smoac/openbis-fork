@@ -250,7 +250,7 @@ public abstract class Dict
 
     public static final String IS_INSTANCE_SAMPLE = "is_instance_sample";
 
-    public static final String IS_INVALID = "is_invalid";
+    public static final String IS_DELETED = "is_deleted";
 
     public static final String GROUP = "group";
 
@@ -486,11 +486,11 @@ public abstract class Dict
     // Deletion
     //
 
-    public static final String INVALIDATE = "invalidate";
+    public static final String DELETE = "delete";
 
-    public static final String INVALIDATION = "invalidation";
+    public static final String DELETION = "deletion";
 
-    public static final String INVALIDATION_TEMPLATE = "invalidation_template";
+    public static final String DELETION_TEMPLATE = "deletion_template";
 
     public static final String PERMANENT = "permanent";
 
@@ -503,11 +503,12 @@ public abstract class Dict
 
     public static final String DELETING_PERMANENTLY = "deleting_permanently";
 
-    public static final String INVALIDATING = "invalidating";
+    public static final String DELETING = "deleting";
+
+    public static final String DELETE_PERMANENTLY_PROGRESS_MESSAGE =
+            "delete_permanently_progress_message";
 
     public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
-
-    public static final String INVALIDATE_PROGRESS_MESSAGE = "invalidate_progress_message";
 
     //
     // Sample Viewer

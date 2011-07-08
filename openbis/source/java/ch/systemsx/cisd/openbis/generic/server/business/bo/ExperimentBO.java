@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -208,7 +208,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
-    public void invalidateByTechIds(List<TechId> experimentIds, InvalidationPE invalidation)
+    public void trashByTechIds(List<TechId> experimentIds, DeletionPE deletion)
             throws UserFailureException
     {
         try
@@ -216,7 +216,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             getSessionFactory().getCurrentSession().flush();
             getSessionFactory().getCurrentSession().clear();
 
-            getExperimentDAO().invalidate(experimentIds, invalidation);
+            getExperimentDAO().trash(experimentIds, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Experiment", EntityKind.EXPERIMENT);

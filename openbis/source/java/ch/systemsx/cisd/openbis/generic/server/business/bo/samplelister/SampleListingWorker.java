@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -576,7 +576,7 @@ final class SampleListingWorker extends AbstractLister
                 return null;
             }
         }
-        enrichWithInvalidation(sample, row); // this is cheap even for dependent samples
+        enrichWithDeletion(sample, row); // this is cheap even for dependent samples
         // set properties needed for primary samples
         // (dependent samples too if they need to be enriched e.g. for entity tracking)
         if (primarySample || enrichDependentSamples)
@@ -617,12 +617,12 @@ final class SampleListingWorker extends AbstractLister
     }
 
     // NOTE: this just marks the sample as invalid without loading any details
-    private void enrichWithInvalidation(final Sample sample, SampleRecord row)
+    private void enrichWithDeletion(final Sample sample, SampleRecord row)
     {
         if (row.del_id != null)
         {
-            final Invalidation invalidation = new Invalidation();
-            sample.setInvalidation(invalidation);
+            final Deletion deletion = new Deletion();
+            sample.setDeletion(deletion);
         }
     }
 

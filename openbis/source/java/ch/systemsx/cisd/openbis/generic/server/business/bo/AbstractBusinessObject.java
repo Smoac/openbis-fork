@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IInvalidationDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -333,9 +333,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getEventDAO();
     }
 
-    public final IInvalidationDAO getInvalidationDAO()
+    public final IDeletionDAO getDeletionDAO()
     {
-        return daoFactory.getInvalidationDAO();
+        return daoFactory.getDeletionDAO();
     }
 
     public void setBatchUpdateMode(boolean batchMode)

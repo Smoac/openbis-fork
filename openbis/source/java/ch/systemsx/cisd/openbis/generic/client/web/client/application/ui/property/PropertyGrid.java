@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -81,8 +81,8 @@ public final class PropertyGrid extends Grid
                 PropertyValueRenderers.createPersonPropertyValueRenderer(messageProvider));
 
         // Entities
-        registerPropertyValueRenderer(Invalidation.class,
-                PropertyValueRenderers.createInvalidationPropertyValueRenderer(messageProvider));
+        registerPropertyValueRenderer(Deletion.class,
+                PropertyValueRenderers.createDeletionPropertyValueRenderer(messageProvider));
 
         registerPropertyValueRenderer(ContainerDataSet.class,
                 PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));

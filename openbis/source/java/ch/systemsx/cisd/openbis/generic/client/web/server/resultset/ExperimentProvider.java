@@ -20,7 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_INVALID;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATION_DATE;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -87,7 +87,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(PROJECT).hideByDefault();
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
-        builder.addColumn(IS_INVALID).hideByDefault();
+        builder.addColumn(IS_DELETED).hideByDefault();
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
         TableMap<String, ExperimentType> experimentTypes = getExperimentTypes();
@@ -104,8 +104,8 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
             builder.column(PROJECT).addString(experiment.getProject().getCode());
             builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
-            builder.column(IS_INVALID).addString(
-                    SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(experiment)));
+            builder.column(IS_DELETED).addString(
+                    SimpleYesNoRenderer.render(DeletionUtils.isDeleted(experiment)));
             builder.column(PERM_ID).addString(experiment.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
             ExperimentType experimentType =

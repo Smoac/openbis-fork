@@ -57,7 +57,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListExperiments("DEFAULT (CISD)", "SIRNA_HCS"));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow("EXP-REUSE").valid());
-        table.expectedRow(new ExperimentRow("EXP-X").invalid());
+        table.expectedRow(new ExperimentRow("EXP-X").deleted());
         table.expectedColumnsNumber(14);
         remoteConsole.prepare(table.expectedSize(2));
 

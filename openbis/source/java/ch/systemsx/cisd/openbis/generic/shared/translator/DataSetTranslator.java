@@ -178,7 +178,7 @@ public class DataSetTranslator
         setProperties(dataPE, externalData);
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
-        externalData.setInvalidation(InvalidationTranslator.translate(dataPE.getInvalidation()));
+        externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
         return externalData;
     }
 

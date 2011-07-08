@@ -87,7 +87,7 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
                 public void execute()
                 {
                     new ProjectListDeletionConfirmationDialog(viewContext, originalProject,
-                            createDeletionCallback()).show();
+                            createPermanentDeletionCallback()).show();
                 }
             }));
     }

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 
 /**
  * A <i>Business Object</i> to load a list of {@link DataPE}-s.
@@ -70,12 +70,12 @@ public interface IDataSetTable
     void setDataSets(List<DataPE> dataSets);
 
     /**
-     * Invalidates loaded data sets for specified reason.
+     * Moves loaded data sets to trash for specified reason.
      */
-    void invalidateLoadedDataSets(InvalidationPE invalidation);
+    void trashLoadedDataSets(DeletionPE deletion);
 
     /**
-     * Deletes loaded data sets for specified reason.
+     * Permanently Deletes loaded data sets for specified reason.
      */
     void deleteLoadedDataSets(String reason);
 

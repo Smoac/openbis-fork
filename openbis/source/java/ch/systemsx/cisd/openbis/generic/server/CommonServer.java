@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -60,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
@@ -1147,7 +1147,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         try
         {
             IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-            // TODO 2011-06-21, Piotr Buczek: loading less for invalidation would probably be faster
+            // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
             dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
             List<DataPE> dataSets = dataSetTable.getDataSets();
             Map<DataSetTypePE, List<DataPE>> groupedDataSets =
@@ -1187,11 +1187,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
                     sampleTableBO.deleteByTechIds(sampleIds, reason);
                     break;
-                case INVALIDATION:
-                    IInvalidationBO invalidationBO =
-                            businessObjectFactory.createInvalidationBO(session);
-                    invalidationBO.createInvalidation(reason);
-                    invalidationBO.invalidateSamples(sampleIds);
+                case TRASH:
+                    ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                    trashBO.createDeletion(reason);
+                    trashBO.trashSamples(sampleIds);
                     break;
             }
         } catch (final DataAccessException ex)
@@ -1212,11 +1211,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 case PERMANENT:
                     experimentBO.deleteByTechIds(experimentIds, reason);
                     break;
-                case INVALIDATION:
-                    IInvalidationBO invalidationBO =
-                            businessObjectFactory.createInvalidationBO(session);
-                    invalidationBO.createInvalidation(reason);
-                    invalidationBO.invalidateExperiments(experimentIds);
+                case TRASH:
+                    ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                    trashBO.createDeletion(reason);
+                    trashBO.trashExperiments(experimentIds);
                     break;
             }
         } catch (final DataAccessException ex)

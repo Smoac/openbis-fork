@@ -81,9 +81,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -710,7 +710,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
-        experiment.setInvalidation(new InvalidationPE());
+        experiment.setDeletion(new DeletionPE());
         prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
 
         try
@@ -720,7 +720,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         } catch (UserFailureException e)
         {
             assertEquals(
-                    "Data set can not be registered because experiment 'DB:/G1/P/EXP1' is invalid.",
+                    "Data set can not be registered because experiment 'DB:/G1/P/EXP1' is in trash.",
                     e.getMessage());
         }
 
@@ -951,12 +951,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         context.checking(new Expectations()
             {
-            {
+                {
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
 
-                    allowing(entityTypeDAO).tryToFindEntityTypeByCode(
-                            materialType.getCode());
+                    allowing(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
                     will(returnValue(materialType));
 
                     final List<NewMaterial> newMaterials = Arrays.asList(newMaterial);
@@ -983,7 +982,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleTable).save();
                     one(sampleTable).getSamples();
                     will(returnValue(Arrays.asList(newSamplePE)));
-                    
+
                     one(boFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 

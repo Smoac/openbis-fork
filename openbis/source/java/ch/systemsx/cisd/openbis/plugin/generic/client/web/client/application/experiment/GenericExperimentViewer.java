@@ -128,8 +128,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                 public void execute()
                 {
                     new ExperimentListDeletionConfirmationDialog(
-                            viewContext.getCommonViewContext(), createDeletionCallback(),
-                            createInvalidationCallback(), getOriginalData()).show();
+                            viewContext.getCommonViewContext(), createPermanentDeletionCallback(),
+                            createPermanentDeletionCallback(), getOriginalData()).show();
                 }
             }));
     }

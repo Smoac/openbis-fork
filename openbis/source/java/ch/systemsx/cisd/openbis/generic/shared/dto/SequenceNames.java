@@ -74,7 +74,7 @@ public final class SequenceNames
 
     public static final String SCRIPT_SEQUENCE = "SCRIPT_ID_SEQ";
 
-    public static final String INVALIDATION_SEQUENCE = "DELETION_ID_SEQ";
+    public static final String DELETION_SEQUENCE = "DELETION_ID_SEQ";
 
     public static final String LOCATOR_TYPE_SEQUENCE = "LOCATOR_TYPE_ID_SEQ";
 

@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -440,16 +440,16 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         scheduleRemoveFromFullTextIndex(ids);
     }
 
-    public void invalidate(final List<TechId> sampleIds, final InvalidationPE invalidation)
+    public void trash(final List<TechId> sampleIds, final DeletionPE deletion)
             throws DataAccessException
     {
         // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
         for (TechId sampleId : sampleIds)
         {
             SamplePE sample = loadByTechId(sampleId);
-            if (sample.getInvalidation() == null)
+            if (sample.getDeletion() == null)
             {
-                sample.setInvalidation(invalidation);
+                sample.setDeletion(deletion);
             }
         }
 

@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -647,7 +647,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
             if (dataSetOrNull != null)
             {
-                enrichWithInvalidation(dataSetOrNull, record);
+                enrichWithDeletion(dataSetOrNull, record);
                 datasets.put(record.id, dataSetOrNull);
             }
         }
@@ -655,12 +655,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     // NOTE: this just marks the data set as invalid without loading any details
-    private void enrichWithInvalidation(final ExternalData dataSet, DatasetRecord row)
+    private void enrichWithDeletion(final ExternalData dataSet, DatasetRecord row)
     {
         if (row.del_id != null)
         {
-            final Invalidation invalidation = new Invalidation();
-            dataSet.setInvalidation(invalidation);
+            final Deletion deletion = new Deletion();
+            dataSet.setDeletion(deletion);
         }
     }
 

@@ -149,7 +149,7 @@ public final class SampleTranslator
             }
             result.setContainedSample(containedSamples);
         }
-        result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
+        result.setDeletion(DeletionTranslator.translate(samplePE.getDeletion()));
         return result;
     }
 

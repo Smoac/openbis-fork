@@ -196,7 +196,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         assert sample != null : "Sample not loaded.";
 
-        checkValid(sample);
+        checkAvailable(sample);
         checkSampleInGroup(sample);
         checkSampleUnused(sample);
         checkSampleWithoutDatasets();
@@ -212,11 +212,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = false;
     }
 
-    static private void checkValid(SamplePE sample)
+    static private void checkAvailable(SamplePE sample)
     {
-        if (sample.getInvalidation() != null)
+        if (sample.getDeletion() != null)
         {
-            throw UserFailureException.fromTemplate("Given sample '%s' is invalid.",
+            throw UserFailureException.fromTemplate("Given sample '%s' is in trash.",
                     sample.getSampleIdentifier());
         }
     }
@@ -229,7 +229,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     private final static void checkSampleUnused(final SamplePE sample)
     {
         ExperimentPE experiment = sample.getExperiment();
-        if (experiment != null && experiment.getInvalidation() == null)
+        if (experiment != null && experiment.getDeletion() == null)
         {
             throw UserFailureException.fromTemplate(
                     "Given sample code '%s' already registered for experiment '%s'.",

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
-
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * Handles cascade invalidation of entities.
- * 
  * @author Piotr Buczek
  */
-public interface IInvalidationBO
+public class DeletionUtils
 {
 
-    public void createInvalidation(String reason);
+    public static boolean isDeleted(IDeletionProvider deletableOrNull)
+    {
+        return deletableOrNull != null && deletableOrNull.getDeletion() != null;
+    }
 
-    public void invalidateSamples(List<TechId> sampleIds);
-
-    public void invalidateExperiments(List<TechId> experimentIds);
-
-    public void invalidateDataSets(List<DataPE> dataSets);
-
+    public static boolean isDeleted(Object objectOrNull)
+    {
+        if (objectOrNull != null && objectOrNull instanceof IDeletionProvider)
+        {
+            return isDeleted((IDeletionProvider) objectOrNull);
+        } else
+        {
+            return false;
+        }
+    }
 }

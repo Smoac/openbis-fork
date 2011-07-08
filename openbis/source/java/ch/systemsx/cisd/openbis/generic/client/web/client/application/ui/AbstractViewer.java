@@ -55,12 +55,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -261,12 +261,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     {
         return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
                 + originalData.getEntityType().getCode() + "]"
-                + (isInvalid() ? " <b>(invalid)</b>" : "");
+                + (isDeleted() ? " <b>(moved to trash)</b>" : "");
     }
 
-    protected final boolean isInvalid()
+    protected final boolean isDeleted()
     {
-        return InvalidationUtils.isInvalid(originalData);
+        return DeletionUtils.isDeleted(originalData);
     }
 
     protected final static BorderLayoutData createBorderLayoutData(LayoutRegion region)
@@ -274,12 +274,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return BorderLayoutDataFactory.create(region);
     }
 
-    protected final AbstractAsyncCallback<Void> createDeletionCallback()
+    protected final AbstractAsyncCallback<Void> createPermanentDeletionCallback()
     {
         return new CloseViewerCallback(viewContext);
     }
 
-    protected final AbstractAsyncCallback<Void> createInvalidationCallback()
+    protected final AbstractAsyncCallback<Void> createDeletionCallback()
     {
         return new RefreshViewerCallback(viewContext);
     }
@@ -390,7 +390,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
         Widget link =
                 LinkRenderer.getLinkWidget(entity.getCode(), listener, href,
-                        InvalidationUtils.isInvalid(entity));
+                        DeletionUtils.isDeleted(entity));
         link.setTitle(entity.getEntityKind().getDescription() + " " + entity.getCode());
         return link;
     }

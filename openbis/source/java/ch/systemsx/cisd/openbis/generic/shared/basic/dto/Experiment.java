@@ -20,9 +20,9 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment> implements IInvalidationProvider,
+public class Experiment extends CodeWithRegistration<Experiment> implements IDeletionProvider,
         IEntityInformationHolderWithProperties, IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -43,7 +43,7 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
 
     private List<IEntityProperty> properties;
 
-    private Invalidation invalidation;
+    private Deletion deletion;
 
     private List<Attachment> attachments;
 
@@ -105,14 +105,14 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
         this.properties = properties;
     }
 
-    public Invalidation getInvalidation()
+    public Deletion getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
-    public void setInvalidation(final Invalidation invalidation)
+    public void setDeletion(final Deletion deletion)
     {
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 
     public List<Attachment> getAttachments()
@@ -142,10 +142,9 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
     public String toString()
     {
         return "Experiment [project=" + project + ", experimentType=" + experimentType
-                + ", identifier=" + identifier + ", properties=" + properties + ", invalidation="
-                + invalidation + ", attachments=" + attachments + ", id=" + id
-                + ", modificationDate=" + modificationDate + ", permId=" + permId + ", permlink="
-                + permlink + "]";
+                + ", identifier=" + identifier + ", properties=" + properties + ", deletion="
+                + deletion + ", attachments=" + attachments + ", id=" + id + ", modificationDate="
+                + modificationDate + ", permId=" + permId + ", permlink=" + permlink + "]";
     }
 
     //

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
@@ -76,7 +76,7 @@ public interface IGenericBusinessObjectFactory extends IAbstractBussinessObjectF
     public ISampleLister createSampleLister(Session session);
 
     /**
-     * Creates a {@link IInvalidationBO} <i>Business Object</i>.
+     * Creates a {@link ITrashBO} <i>Business Object</i>.
      */
-    public IInvalidationBO createInvalidationBO(final Session session);
+    public ITrashBO createTrashBO(final Session session);
 }

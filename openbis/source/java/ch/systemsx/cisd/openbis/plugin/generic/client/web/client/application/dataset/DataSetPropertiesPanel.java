@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -78,7 +78,7 @@ public class DataSetPropertiesPanel extends ContentPanel
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final DataSetType datasetType = dataset.getDataSetType();
-        final Invalidation invalidation = dataset.getInvalidation();
+        final Deletion deletion = dataset.getDeletion();
         final Sample sample = dataset.getSample();
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET),
@@ -126,9 +126,9 @@ public class DataSetPropertiesPanel extends ContentPanel
         {
             properties.put(messageProvider.getMessage(Dict.SAMPLE), sample);
         }
-        if (invalidation != null)
+        if (deletion != null)
         {
-            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
+            properties.put(messageProvider.getMessage(Dict.DELETION), deletion);
         }
         PropertiesPanelUtils.addEntityProperties(viewContext, properties, dataset.getProperties());
         return properties;

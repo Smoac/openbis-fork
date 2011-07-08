@@ -23,7 +23,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * @author Christian Ribeaud
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IInvalidationProvider, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
+        IDeletionProvider, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
         IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -48,7 +48,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Long id;
 
-    private Invalidation invalidation;
+    private Deletion deletion;
 
     private Experiment experiment;
 
@@ -322,14 +322,14 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     {
     }
 
-    public final Invalidation getInvalidation()
+    public final Deletion getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
-    public final void setInvalidation(Invalidation invalidation)
+    public final void setDeletion(Deletion deletion)
     {
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 
     public final Experiment getExperiment()

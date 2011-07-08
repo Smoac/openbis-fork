@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetail
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -341,7 +341,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public void invalidateByTechIds(List<TechId> sampleIds, InvalidationPE invalidation)
+    public void trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
             throws UserFailureException
     {
         try
@@ -349,7 +349,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             getSessionFactory().getCurrentSession().flush();
             getSessionFactory().getCurrentSession().clear();
 
-            getSampleDAO().invalidate(sampleIds, invalidation);
+            getSampleDAO().trash(sampleIds, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Sample", EntityKind.SAMPLE);

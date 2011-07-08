@@ -84,7 +84,7 @@ public class SampleProviderTest extends AbstractProviderTest
 
         assertEquals(
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
-                        + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
+                        + "IS_INSTANCE_SAMPLE, IS_DELETED, REGISTRATOR, REGISTRATION_DATE, "
                         + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
                         + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
                         + "property-USER-NUMBER, property-USER-TIMESTAMP, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
@@ -119,7 +119,7 @@ public class SampleProviderTest extends AbstractProviderTest
         SampleProvider sampleProvider = new SampleProvider(server, SESSION_TOKEN, listCriteria);
         final SampleBuilder s1 = new SampleBuilder("DB:/S1").id(1).type("ALPHA").permID("123-45");
         s1.registrator(new PersonBuilder().name("Albert", "Einstein").getPerson());
-        s1.invalidate().date(new Date(4711));
+        s1.markDeleted().date(new Date(4711));
         Sample p1 = new SampleBuilder("/AB/CD").permID("p-123").getSample();
         s1.property("NAME", "hello").permLink("http").childOf(p1);
         final SampleBuilder s2 =
@@ -140,7 +140,7 @@ public class SampleProviderTest extends AbstractProviderTest
 
         assertEquals(
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
-                        + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
+                        + "IS_INSTANCE_SAMPLE, IS_DELETED, REGISTRATOR, REGISTRATION_DATE, "
                         + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
                         + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
                         + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]",

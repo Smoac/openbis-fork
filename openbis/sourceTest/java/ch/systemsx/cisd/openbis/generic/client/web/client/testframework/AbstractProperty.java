@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import junit.framework.Assert;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 
 /**
  * Abstract superclass of a generic {@link IProperty} which implements convenient property value
@@ -102,8 +102,8 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link ICodeHolder} with a code equals
-     * the specified code.
+     * Sets assertion that the property value is of type {@link ICodeHolder} with a code equals the
+     * specified code.
      */
     public C asCode(final String expectedCode)
     {
@@ -117,34 +117,33 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     }
 
     /**
-     * Sets assertion that the property value is of type {@link IInvalidationProvider} with no
-     * {@link Invalidation} object.
+     * Sets assertion that the property value is of type {@link IDeletionProvider} with no
+     * {@link Deletion} object.
      */
     public C asValidEntity()
     {
-        return by(new IValueAssertion<IInvalidationProvider>()
+        return by(new IValueAssertion<IDeletionProvider>()
             {
-                public void assertValue(final IInvalidationProvider provider)
+                public void assertValue(final IDeletionProvider provider)
                 {
-                    final Invalidation invalidation = provider.getInvalidation();
-                    Assert.assertNull(message + " expected to be a valid entity.", invalidation);
+                    final Deletion deletion = provider.getDeletion();
+                    Assert.assertNull(message + " expected to be a valid entity.", deletion);
                 }
             });
     }
 
     /**
-     * Sets assertion that the property value is of type {@link IInvalidationProvider} with an
-     * {@link Invalidation} object.
+     * Sets assertion that the property value is of type {@link IDeletionProvider} with an
+     * {@link Deletion} object.
      */
-    public C asInvalidEntity()
+    public C asDeletedEntity()
     {
-        return by(new IValueAssertion<IInvalidationProvider>()
+        return by(new IValueAssertion<IDeletionProvider>()
             {
-                public void assertValue(final IInvalidationProvider provider)
+                public void assertValue(final IDeletionProvider provider)
                 {
-                    final Invalidation invalidation = provider.getInvalidation();
-                    Assert.assertNotNull(message + " expected to be an invalid entity.",
-                            invalidation);
+                    final Deletion deletion = provider.getDeletion();
+                    Assert.assertNotNull(message + " expected to be a deleted entity.", deletion);
                 }
             });
     }

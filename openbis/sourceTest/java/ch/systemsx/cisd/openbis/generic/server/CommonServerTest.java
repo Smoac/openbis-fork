@@ -1347,7 +1347,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testDeleteDataSets()
     {
-        // TODO write invalidation test
+        // TODO write deletion test
         final DeletionType deletionType = DeletionType.PERMANENT;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");

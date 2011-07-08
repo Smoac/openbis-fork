@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleViewer}.
@@ -128,16 +128,16 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
         checkSample.property("Sample Type").asCode("CELL_PLATE");
-        checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
+        checkSample.property("Deletion").by(new IValueAssertion<Deletion>()
             {
-                public void assertValue(final Invalidation invalidation)
+                public void assertValue(final Deletion deletion)
                 {
-                    assertEquals("Doe", invalidation.getRegistrator().getLastName());
-                    assertEquals("wrong-code", invalidation.getReason());
+                    assertEquals("Doe", deletion.getRegistrator().getLastName());
+                    assertEquals("wrong-code", deletion.getReason());
                 }
             });
         checkSample.property("Parent").asCode(parentCode1);
-        checkSample.property("Parent").asInvalidEntity();
+        checkSample.property("Parent").asDeletedEntity();
         remoteConsole.prepare(checkSample);
 
         activateTab(createSectionsTabPanelId(),
@@ -153,7 +153,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         activateTab(createSectionsTabPanelId(),
                 createSectionId(DisplayTypeIDGenerator.DATA_SETS_SECTION));
         final CheckTableCommand checkDataTable = checkSample.createDataTableCheck().expectedSize(1);
-        checkDataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+        checkDataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).deleted()
                 .withFileFormatType("TIFF"));
         checkDataTable.expectedColumnsNumber(26);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
@@ -184,7 +184,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 new CheckTableCommand(SampleDataSetBrowser.createGridId(WILDCARD_ID));
         checkDirectlyConnectedDataTable.expectedSize(1);
         checkDirectlyConnectedDataTable
-                .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).deleted()
                         .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID)
                         .withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
         remoteConsole.prepare(checkDirectlyConnectedDataTable);
@@ -206,7 +206,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 new CheckTableCommand(SampleDataSetBrowser.createGridId(WILDCARD_ID));
         checkIndirectlyConnectedDataTable.expectedSize(6);
         checkIndirectlyConnectedDataTable
-                .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).deleted()
                         .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID)
                         .withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
         checkIndirectlyConnectedDataTable.expectedRow(new DataSetRow(

@@ -1689,7 +1689,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     @SuppressWarnings("deprecation")
     protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
-        // NOTE: this renderer doesn't support special rendering of invalidated entities
+        // NOTE: this renderer doesn't support special rendering of deleted entities
         return LinkRenderer.createLinkRenderer();
     }
 

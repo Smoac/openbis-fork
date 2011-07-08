@@ -36,13 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Class representing invalidation.
+ * Class representing deletion.
  * 
  * @author Franz-Josef Elmer
  */
 @Entity
-@Table(name = TableNames.INVALIDATIONS_TABLE)
-public class InvalidationPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
+@Table(name = TableNames.DELETIONS_TABLE)
+public class DeletionPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
         Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -57,8 +57,8 @@ public class InvalidationPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Id
-    @SequenceGenerator(name = SequenceNames.INVALIDATION_SEQUENCE, sequenceName = SequenceNames.INVALIDATION_SEQUENCE, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.INVALIDATION_SEQUENCE)
+    @SequenceGenerator(name = SequenceNames.DELETION_SEQUENCE, sequenceName = SequenceNames.DELETION_SEQUENCE, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DELETION_SEQUENCE)
     public final Long getId()
     {
         return id;
@@ -82,11 +82,11 @@ public class InvalidationPE extends HibernateAbstractRegistrationHolder implemen
         {
             return true;
         }
-        if (obj instanceof InvalidationPE == false)
+        if (obj instanceof DeletionPE == false)
         {
             return false;
         }
-        final InvalidationPE that = (InvalidationPE) obj;
+        final DeletionPE that = (DeletionPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(id, that.id);
         return builder.isEquals();

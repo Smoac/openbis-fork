@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -52,7 +52,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
-        this.withInvalidation();
+        this.withDeletion();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
@@ -61,13 +61,13 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> deletionCallback,
-            AbstractAsyncCallback<Void> invalidationCallback, Experiment experiment)
+            AbstractAsyncCallback<Void> permanentDeletionCallback,
+            AbstractAsyncCallback<Void> deletionCallback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment), deletionCallback);
-        if (InvalidationUtils.isInvalid(experiment) == false)
+        super(viewContext, Collections.singletonList(experiment), permanentDeletionCallback);
+        if (DeletionUtils.isDeleted(experiment) == false)
         {
-            this.withInvalidation(invalidationCallback);
+            this.withDeletion(deletionCallback);
         }
         this.viewContext = viewContext;
         this.singleDataOrNull = experiment;

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentViewer}.
@@ -174,7 +174,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    public final void testShowInvalidExperimentDetails()
+    public final void testShowDeletedExperimentDetails()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
         final CheckExperiment checkExperiment = new CheckExperiment();
@@ -183,12 +183,12 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 ".*<a .* href=\".*permId=" + EXP_X_PERM_ID + ".*>" + EXP_X_PERM_ID + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
-        checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
+        checkExperiment.property("Deletion").by(new IValueAssertion<Deletion>()
             {
-                public void assertValue(final Invalidation invalidation)
+                public void assertValue(final Deletion deletion)
                 {
-                    assertEquals("Doe", invalidation.getRegistrator().getLastName());
-                    assertNull(invalidation.getReason());
+                    assertEquals("Doe", deletion.getRegistrator().getLastName());
+                    assertNull(deletion.getReason());
                 }
             });
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
@@ -286,7 +286,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckTableCommand datasetTable =
                 checkExperiment.createDataSetTableCheck().expectedSize(2);
         datasetTable.expectedRow(new DataSetRow("20081105092159188-3").valid().derived());
-        datasetTable.expectedRow(new DataSetRow("20081105092158673-1").invalid()
+        datasetTable.expectedRow(new DataSetRow("20081105092158673-1").deleted()
                 .withSample("CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").notDerived()
                 .withIsComplete(null));
         datasetTable.expectedColumnsNumber(25);

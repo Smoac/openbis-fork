@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Izabela Adamczyk
  */
-public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
+public final class Sample extends CodeWithRegistration<Sample> implements IDeletionProvider,
         Comparable<Sample>, IEntityInformationHolderWithProperties, IAttachmentHolder,
         IIdAndCodeHolder, IPermIdHolder
 {
@@ -58,7 +58,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private List<IEntityProperty> properties;
 
-    private Invalidation invalidation;
+    private Deletion deletion;
 
     private Experiment experiment;
 
@@ -217,9 +217,9 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.properties = properties;
     }
 
-    public final void setInvalidation(final Invalidation invalidation)
+    public final void setDeletion(final Deletion deletion)
     {
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 
     public final Experiment getExperiment()
@@ -242,12 +242,12 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     }
 
     //
-    // IInvalidationProvider
+    // IDeletionProvider
     //
 
-    public final Invalidation getInvalidation()
+    public final Deletion getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
     //
@@ -315,8 +315,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     {
         return "Sample [sampleType=" + sampleType + ", space=" + space + ", databaseInstance="
                 + databaseInstance + ", identifier=" + identifier + ", container=" + container
-                + ", parents=" + parents + ", properties=" + properties + ", invalidation="
-                + invalidation + ", experiment=" + experiment + ", id=" + id
+                + ", parents=" + parents + ", properties=" + properties + ", deletion="
+                + deletion + ", experiment=" + experiment + ", id=" + id
                 + ", modificationDate=" + modificationDate + ", attachments=" + attachments
                 + ", permId=" + permId + ", permlink=" + permlink + ", searchlink=" + searchlink
                 + ", subCode=" + subCode + "]";

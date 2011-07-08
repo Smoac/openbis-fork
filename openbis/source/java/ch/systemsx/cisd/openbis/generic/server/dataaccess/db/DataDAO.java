@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -466,15 +466,15 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         super.delete(entity);
     }
 
-    public void invalidate(List<DataPE> dataSets, InvalidationPE invalidation)
+    public void trash(List<DataPE> dataSets, DeletionPE deletion)
             throws DataAccessException
     {
         // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
         for (DataPE dataSet : dataSets)
         {
-            if (dataSet.getInvalidation() == null)
+            if (dataSet.getDeletion() == null)
             {
-                dataSet.setInvalidation(invalidation);
+                dataSet.setDeletion(deletion);
             }
         }
 

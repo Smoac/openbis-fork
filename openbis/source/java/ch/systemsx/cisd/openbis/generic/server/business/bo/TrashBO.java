@@ -23,60 +23,60 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author Piotr Buczek
  */
-public class InvalidationBO extends AbstractBusinessObject implements IInvalidationBO
+public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
 
     private final ICommonBusinessObjectFactory boFactory;
 
-    private InvalidationPE invalidation;
+    private DeletionPE deletion;
 
-    public InvalidationBO(IDAOFactory daoFactory, Session session,
+    public TrashBO(IDAOFactory daoFactory, Session session,
             ICommonBusinessObjectFactory boFactory)
     {
         super(daoFactory, session);
         this.boFactory = boFactory;
     }
 
-    public void createInvalidation(String reason)
+    public void createDeletion(String reason)
     {
         try
         {
-            invalidation = new InvalidationPE();
-            invalidation.setReason(reason);
-            invalidation.setRegistrator(session.tryGetPerson());
-            getInvalidationDAO().create(invalidation);
+            deletion = new DeletionPE();
+            deletion.setReason(reason);
+            deletion.setRegistrator(session.tryGetPerson());
+            getDeletionDAO().create(deletion);
         } catch (final DataAccessException ex)
         {
-            throwException(ex, "Invalidation");
+            throwException(ex, "Deletion");
         }
     }
 
-    public void invalidateSamples(List<TechId> sampleIds)
+    public void trashSamples(List<TechId> sampleIds)
     {
-        assert invalidation != null;
+        assert deletion != null;
         ISampleTable sampleTableBO = boFactory.createSampleTable(session);
-        sampleTableBO.invalidateByTechIds(sampleIds, invalidation);
+        sampleTableBO.trashByTechIds(sampleIds, deletion);
     }
 
-    public void invalidateExperiments(List<TechId> experimentIds)
+    public void trashExperiments(List<TechId> experimentIds)
     {
-        assert invalidation != null;
+        assert deletion != null;
         IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        experimentBO.invalidateByTechIds(experimentIds, invalidation);
+        experimentBO.trashByTechIds(experimentIds, deletion);
     }
 
-    public void invalidateDataSets(List<DataPE> dataSets)
+    public void trashDataSets(List<DataPE> dataSets)
     {
-        assert invalidation != null;
+        assert deletion != null;
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
         dataSetTable.setDataSets(dataSets);
-        dataSetTable.invalidateLoadedDataSets(invalidation);
+        dataSetTable.trashLoadedDataSets(deletion);
     }
 
 }

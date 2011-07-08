@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -108,7 +108,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final ExperimentType experimentType = experiment.getExperimentType();
-        final Invalidation invalidation = experiment.getInvalidation();
+        final Deletion deletion = experiment.getDeletion();
         properties.put(viewContext.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
         properties.put(viewContext.getMessage(Dict.PERM_ID),
                 new ExternalHyperlink(experiment.getPermId(), experiment.getPermlink()));
@@ -116,9 +116,9 @@ public class ExperimentPropertiesPanel extends ContentPanel
         properties.put(viewContext.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
         properties.put(viewContext.getMessage(Dict.REGISTRATION_DATE),
                 experiment.getRegistrationDate());
-        if (invalidation != null)
+        if (deletion != null)
         {
-            properties.put(viewContext.getMessage(Dict.INVALIDATION), invalidation);
+            properties.put(viewContext.getMessage(Dict.DELETION), deletion);
         }
         properties.put(viewContext.getMessage(Dict.PROJECT), experiment.getProject());
 

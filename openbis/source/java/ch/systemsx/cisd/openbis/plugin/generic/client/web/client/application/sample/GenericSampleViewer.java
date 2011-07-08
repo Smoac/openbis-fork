@@ -58,8 +58,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -162,8 +162,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 public void execute()
                 {
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalDataAsSingleton(), createDeletionCallback(),
-                            createInvalidationCallback(), getOriginalData()).show();
+                            getOriginalDataAsSingleton(), createPermanentDeletionCallback(),
+                            createDeletionCallback(), getOriginalData()).show();
                 }
             }));
     }
@@ -252,10 +252,10 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         properties.put(viewContext.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties
                 .put(viewContext.getMessage(Dict.REGISTRATION_DATE), sample.getRegistrationDate());
-        final Invalidation invalidation = sample.getInvalidation();
-        if (invalidation != null)
+        final Deletion deletion = sample.getDeletion();
+        if (deletion != null)
         {
-            properties.put(viewContext.getMessage(Dict.INVALIDATION), invalidation);
+            properties.put(viewContext.getMessage(Dict.DELETION), deletion);
         }
 
         Experiment experiment = sample.getExperiment();

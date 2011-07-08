@@ -18,18 +18,18 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**
- * An interface that contains all data access operations on {@link InvalidationPE}s.
+ * An interface that contains all data access operations on {@link DeletionPE}s.
  * 
  * @author Piotr Buczek
  */
-public interface IInvalidationDAO extends IGenericDAO<InvalidationPE>
+public interface IDeletionDAO extends IGenericDAO<DeletionPE>
 {
     /**
-     * Inserts given {@link InvalidationPE} into the database.
+     * Inserts given {@link DeletionPE} into the database.
      */
-    void create(final InvalidationPE invalidation) throws DataAccessException;
+    void create(final DeletionPE deletion) throws DataAccessException;
 
 }

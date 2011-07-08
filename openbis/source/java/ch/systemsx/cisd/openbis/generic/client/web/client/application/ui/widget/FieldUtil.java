@@ -95,7 +95,7 @@ public class FieldUtil
         field.syncSize();
         if (visible == false)
         {
-            // invalidation mark is not removed automatically when we make field invisible
+            // deletion mark is not removed automatically when we make field invisible
             field.clearInvalid();
         } else if (field.isDirty())
         {

@@ -120,7 +120,7 @@ public final class ColumnNames
 
     public static final String ID_COLUMN = "id";
 
-    public static final String INVALIDATION_COLUMN = "del_id";
+    public static final String DELETION_COLUMN = "del_id";
 
     public static final String IS_COMPLETE_COLUMN = "is_complete";
 

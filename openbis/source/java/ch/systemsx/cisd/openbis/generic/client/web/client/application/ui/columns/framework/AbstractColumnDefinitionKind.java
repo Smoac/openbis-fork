@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
@@ -141,9 +141,9 @@ public abstract class AbstractColumnDefinitionKind<T>
         return SimplePersonRenderer.createPersonName(person).toString();
     }
 
-    protected final String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
+    protected final String renderDeletionFlag(final IDeletionProvider deletionProvider)
     {
-        return SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(invalidationProvider));
+        return SimpleYesNoRenderer.render(DeletionUtils.isDeleted(deletionProvider));
     }
 
     /** to be overriden by subclasses */

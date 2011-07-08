@@ -53,7 +53,7 @@ public class WebClientConfiguration implements ISerializable
 
     private int maxEntityVisits;
 
-    private boolean enableInvalidation;
+    private boolean enableTrash;
 
     private boolean allowAddingUnofficielTerms;
 
@@ -138,14 +138,14 @@ public class WebClientConfiguration implements ISerializable
         this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
     }
 
-    public boolean getEnableInvalidation()
+    public boolean getEnableTrash()
     {
-        return enableInvalidation;
+        return enableTrash;
     }
 
-    public void setEnableInvalidation(boolean enableInvalidation)
+    public void setEnableTrash(boolean enableTrash)
     {
-        this.enableInvalidation = enableInvalidation;
+        this.enableTrash = enableTrash;
     }
 
     public WebClientConfiguration()

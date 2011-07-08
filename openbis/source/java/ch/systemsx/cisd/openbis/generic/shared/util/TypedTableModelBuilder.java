@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -354,7 +354,7 @@ public class TypedTableModelBuilder<T extends ISerializable>
             final EntityTableCell cell =
                     new EntityTableCell(entity.getEntityKind(), entity.getPermId(),
                             entity.getIdentifier());
-            cell.setInvalid(InvalidationUtils.isInvalid(entity));
+            cell.setInvalid(DeletionUtils.isDeleted(entity));
             cell.setLinkText(linkText);
             addValue(cell);
         }

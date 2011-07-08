@@ -21,8 +21,8 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTIFIER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INSTANCE_SAMPLE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INVALID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -82,7 +82,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(SAMPLE_IDENTIFIER).withDefaultWidth(150).hideByDefault();
         builder.addColumn(SAMPLE_TYPE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(IS_INSTANCE_SAMPLE).hideByDefault();
-        builder.addColumn(IS_INVALID).hideByDefault();
+        builder.addColumn(IS_DELETED).hideByDefault();
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(EXPERIMENT);
@@ -105,8 +105,8 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
             builder.column(IS_INSTANCE_SAMPLE).addString(
                     SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
-            builder.column(IS_INVALID).addString(
-                    SimpleYesNoRenderer.render(InvalidationUtils.isInvalid(sample)));
+            builder.column(IS_DELETED).addString(
+                    SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             final Experiment experimentOrNull = sample.getExperiment();

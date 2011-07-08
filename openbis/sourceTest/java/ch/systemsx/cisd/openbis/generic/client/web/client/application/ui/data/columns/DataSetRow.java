@@ -35,21 +35,21 @@ public class DataSetRow extends Row
         withCell(CommonExternalDataColDefKind.CODE, code);
     }
 
-    public DataSetRow invalid()
+    public DataSetRow deleted()
     {
-        withInvalidation(true);
+        withDeletion(true);
         return this;
     }
 
     public DataSetRow valid()
     {
-        withInvalidation(false);
+        withDeletion(false);
         return this;
     }
 
-    private void withInvalidation(boolean isInvalid)
+    private void withDeletion(boolean isDeleted)
     {
-        withCell(CommonExternalDataColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
+        withCell(CommonExternalDataColDefKind.IS_DELETED, SimpleYesNoRenderer.render(isDeleted));
     }
 
     public DataSetRow withIsComplete(Boolean complete)

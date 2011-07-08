@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * @author Piotr Buczek
+ * Information about deletion.
+ * 
+ * @author Christian Ribeaud
  */
-public class InvalidationUtils
+public final class Deletion extends AbstractRegistrationHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static boolean isInvalid(IInvalidationProvider invalidableOrNull)
+    /** Reason of deletion. */
+    private String reasonOrNull;
+
+    public final String getReason()
     {
-        return invalidableOrNull != null && invalidableOrNull.getInvalidation() != null;
+        return reasonOrNull;
     }
 
-    public static boolean isInvalid(Object objectOrNull)
+    public final void setReason(final String reasonOrNull)
     {
-        if (objectOrNull != null && objectOrNull instanceof IInvalidationProvider)
-        {
-            return isInvalid((IInvalidationProvider) objectOrNull);
-        } else
-        {
-            return false;
-        }
+        this.reasonOrNull = reasonOrNull;
     }
 }

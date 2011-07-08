@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -300,16 +300,16 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         }
     }
 
-    public void invalidate(final List<TechId> experimentIds, final InvalidationPE invalidation)
+    public void trash(final List<TechId> experimentIds, final DeletionPE deletion)
             throws DataAccessException
     {
         // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
         for (TechId experimentId : experimentIds)
         {
             ExperimentPE experiment = loadByTechId(experimentId);
-            if (experiment.getInvalidation() == null)
+            if (experiment.getDeletion() == null)
             {
-                experiment.setInvalidation(invalidation);
+                experiment.setDeletion(deletion);
             }
         }
 

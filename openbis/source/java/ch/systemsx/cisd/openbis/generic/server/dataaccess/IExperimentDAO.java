@@ -23,9 +23,9 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -107,6 +107,9 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      */
     public void createOrUpdateExperiments(List<ExperimentPE> experiments);
 
-    public void invalidate(List<TechId> experimentIds, InvalidationPE invalidation);
+    /**
+     * Move experiments with given ids to trash using specified deletion.
+     */
+    public void trash(List<TechId> experimentIds, DeletionPE deletion);
 
 }

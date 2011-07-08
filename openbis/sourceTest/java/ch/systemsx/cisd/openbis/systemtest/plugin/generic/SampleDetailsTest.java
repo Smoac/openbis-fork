@@ -154,13 +154,13 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .getIdentifier());
         assertEquals(CELL_PLATE_EXAMPLE_EXPERIMENT_ID, sDetails.getExperiment().getIdentifier());
 
-        assertEquals("Doe", sDetails.getInvalidation().getRegistrator().getLastName());
-        assertEquals("wrong-code", sDetails.getInvalidation().getReason());
+        assertEquals("Doe", sDetails.getDeletion().getRegistrator().getLastName());
+        assertEquals("wrong-code", sDetails.getDeletion().getReason());
 
         assertEquals(1, sDetails.getParents().size());
         final Sample parent = sDetails.getParents().iterator().next();
         assertEquals("3V-123", parent.getCode());
-        assertNotNull(parent.getInvalidation());
+        assertNotNull(parent.getDeletion());
 
         assertEquals(sListed.getProperties().size(), sDetails.getProperties().size());
 

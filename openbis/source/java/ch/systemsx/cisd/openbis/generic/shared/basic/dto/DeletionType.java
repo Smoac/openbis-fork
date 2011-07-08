@@ -25,5 +25,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum DeletionType implements ISerializable
 {
-    PERMANENT, INVALIDATION
+    PERMANENT, TRASH
 }

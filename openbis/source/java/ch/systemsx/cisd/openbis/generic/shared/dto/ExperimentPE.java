@@ -103,7 +103,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private ExperimentTypePE experimentType;
 
-    private InvalidationPE invalidation;
+    private DeletionPE deletion;
 
     private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
 
@@ -243,16 +243,15 @@ public class ExperimentPE extends AttachmentHolderPE implements
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
-    public InvalidationPE getInvalidation()
+    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
+    public DeletionPE getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
-    public void setInvalidation(final InvalidationPE invalidation)
+    public void setDeletion(final DeletionPE deletion)
     {
-
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
@@ -470,7 +469,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         builder.append("code", getCode());
         builder.append("project", getProject());
         builder.append("experimentType", getExperimentType());
-        builder.append("invalidation", getInvalidation());
+        builder.append("deletion", getDeletion());
         return builder.toString();
     }
 

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -114,14 +114,14 @@ public class DataSetTranslatorTest extends AssertJUnit
         sampleTypePE.setCode("sampleTypeCode");
         sampleTypePE.setDescription("sampleTypeDescription");
         samplePE.setSampleType(sampleTypePE);
-        InvalidationPE invalidationPE = new InvalidationPE();
-        invalidationPE.setReason("reason");
-        invalidationPE.setRegistrationDate(new Date(3));
+        DeletionPE deletionPE = new DeletionPE();
+        deletionPE.setReason("reason");
+        deletionPE.setRegistrationDate(new Date(3));
         PersonPE personPE = new PersonPE();
         personPE.setUserId("user");
         personPE.setDatabaseInstance(databaseInstancePE);
-        invalidationPE.setRegistrator(personPE);
-        externalDataPE.setInvalidation(invalidationPE);
+        deletionPE.setRegistrator(personPE);
+        externalDataPE.setDeletion(deletionPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
         ExternalData data = DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
@@ -149,9 +149,9 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals("sampleTypeCode", translated.getSampleType().getCode());
         assertEquals("sampleTypeDescription", translated.getSampleType().getDescription());
         assertEquals(false, translated.isDerived());
-        assertEquals("reason", translated.getInvalidation().getReason());
-        assertEquals(3, translated.getInvalidation().getRegistrationDate().getTime());
-        assertEquals("user", translated.getInvalidation().getRegistrator().getUserId());
+        assertEquals("reason", translated.getDeletion().getReason());
+        assertEquals(3, translated.getDeletion().getRegistrationDate().getTime());
+        assertEquals("user", translated.getDeletion().getRegistrator().getUserId());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals(true, parentCodes.contains("parent-1"));
         assertEquals(true, parentCodes.contains("parent-2"));
         assertEquals(true, externalData.isDerived());
-        assertEquals(null, externalData.getInvalidation());
+        assertEquals(null, externalData.getDeletion());
     }
 
     private Set<String> extractParentCodes(ExternalData externalData)

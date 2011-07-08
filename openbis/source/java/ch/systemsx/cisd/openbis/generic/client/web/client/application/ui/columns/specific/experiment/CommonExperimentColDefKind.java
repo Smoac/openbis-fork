@@ -121,12 +121,12 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             }
         }),
 
-    IS_INVALID(new AbstractColumnDefinitionKind<Experiment>(Dict.IS_INVALID, true)
+    IS_DELETED(new AbstractColumnDefinitionKind<Experiment>(Dict.IS_DELETED, true)
         {
             @Override
             public String tryGetValue(Experiment entity)
             {
-                return renderInvalidationFlag(entity);
+                return renderDeletionFlag(entity);
             }
         }),
 

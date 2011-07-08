@@ -18,20 +18,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 
-
 /**
  * IDs of static columns of {@link SampleBrowserGrid}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SampleGridColumnIDs
 {
     public static final String CODE = "CODE";
-    
+
     public static final String SUBCODE = "SUBCODE";
 
     public static final String SPACE = "SPACE";
-    
+
     public static final String REGISTRATOR = "REGISTRATOR";
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
@@ -41,25 +40,24 @@ public class SampleGridColumnIDs
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
 
     public static final String SAMPLE_IDENTIFIER = "SAMPLE_IDENTIFIER";
-    
+
     public static final String IS_INSTANCE_SAMPLE = "IS_INSTANCE_SAMPLE";
-    
-    public static final String IS_INVALID = "IS_INVALID";
-    
+
+    public static final String IS_DELETED = "IS_DELETED";
+
     public static final String EXPERIMENT = "EXPERIMENT";
-    
+
     public static final String EXPERIMENT_IDENTIFIER = "EXPERIMENT_IDENTIFIER";
-    
+
     public static final String PROJECT = "PROJECT";
-    
+
     public static final String PERM_ID = "PERM_ID";
-    
+
     public static final String SHOW_DETAILS_LINK_COLUMN_NAME = "SHOW_DETAILS_LINK";
-    
+
     public static final String PARENTS = "generatedFromParent";
-    
+
     public static final String CONTAINER_SAMPLE = "containerParent";
 
     public static final String PROPERTIES_PREFIX = "property-";
 }
-

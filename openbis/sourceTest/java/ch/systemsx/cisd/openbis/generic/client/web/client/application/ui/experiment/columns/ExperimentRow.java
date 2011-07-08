@@ -39,21 +39,21 @@ public class ExperimentRow extends RowWithProperties
         withCell(CommonExperimentColDefKind.EXPERIMENT_TYPE.id(), typeCode);
     }
 
-    public ExperimentRow invalid()
+    public ExperimentRow deleted()
     {
-        withInvalidation(true);
+        withDeletion(true);
         return this;
     }
 
     public ExperimentRow valid()
     {
-        withInvalidation(false);
+        withDeletion(false);
         return this;
     }
 
-    private void withInvalidation(boolean isInvalid)
+    private void withDeletion(boolean isDeleted)
     {
-        withCell(CommonExperimentColDefKind.IS_INVALID.id(), SimpleYesNoRenderer.render(isInvalid));
+        withCell(CommonExperimentColDefKind.IS_DELETED.id(), SimpleYesNoRenderer.render(isDeleted));
     }
 
 }

@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IInvalidationBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -58,11 +58,10 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
                 dataSetTable.setDataSets(dataSets);
                 dataSetTable.deleteLoadedDataSets(reason);
                 break;
-            case INVALIDATION:
-                IInvalidationBO invalidationBO =
-                        businessObjectFactory.createInvalidationBO(session);
-                invalidationBO.createInvalidation(reason);
-                invalidationBO.invalidateDataSets(dataSets);
+            case TRASH:
+                ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                trashBO.createDeletion(reason);
+                trashBO.trashDataSets(dataSets);
                 break;
         }
     }

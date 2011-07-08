@@ -223,7 +223,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         for (SamplePE parent : newParents)
         {
-            checkParentInvalidation(parent, child.getSampleIdentifier());
+            checkParentDeletion(parent, child.getSampleIdentifier());
         }
         List<SampleRelationshipPE> oldParents = new ArrayList<SampleRelationshipPE>();
         for (SampleRelationshipPE r : child.getParentRelationships())
@@ -276,16 +276,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         final SamplePE parentPE =
                 getSampleByIdentifier(SampleIdentifierFactory.parse(parentIdentifierOrNull));
-        checkParentInvalidation(parentPE, childIdentifier);
+        checkParentDeletion(parentPE, childIdentifier);
         return parentPE;
     }
 
-    private void checkParentInvalidation(final SamplePE parentPE, final SampleIdentifier child)
+    private void checkParentDeletion(final SamplePE parentPE, final SampleIdentifier child)
     {
-        if (parentPE.getInvalidation() != null)
+        if (parentPE.getDeletion() != null)
         {
             throw UserFailureException.fromTemplate(
-                    "Sample '%s' has been invalidated and can't become a parent of sample '%s'.",
+                    "Sample '%s' has been deleted and can't become a parent of sample '%s'.",
                     parentPE.getIdentifier(), child);
         }
     }
@@ -485,11 +485,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     private void ensureExperimentIsValid(ExperimentIdentifier identOrNull,
             ExperimentPE experimentOrNull, SamplePE sample)
     {
-        if (experimentOrNull != null && experimentOrNull.getInvalidation() != null)
+        if (experimentOrNull != null && experimentOrNull.getDeletion() != null)
         {
             throw UserFailureException.fromTemplate(
                     "The sample '%s' cannot be assigned to the experiment '%s' "
-                            + "because the experiment has been invalidated.",
+                            + "because the experiment has been deleted.",
                     sample.getSampleIdentifier(), identOrNull);
         }
     }

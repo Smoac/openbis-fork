@@ -211,12 +211,12 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     /**
-     * Invalidation information.
+     * Deletion information.
      * <p>
-     * If not <code>null</code>, then this sample is considered as <i>invalid</i>.
+     * If not <code>null</code>, then this sample is considered as <i>deleted</i> (moved to trash).
      * </p>
      */
-    private InvalidationPE invalidation;
+    private DeletionPE deletion;
 
     private Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
 
@@ -281,15 +281,15 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     // --------------------
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
-    public InvalidationPE getInvalidation()
+    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
+    public DeletionPE getDeletion()
     {
-        return invalidation;
+        return deletion;
     }
 
-    public void setInvalidation(final InvalidationPE invalidation)
+    public void setDeletion(final DeletionPE deletion)
     {
-        this.invalidation = invalidation;
+        this.deletion = deletion;
     }
 
     @Transient

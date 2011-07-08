@@ -18,21 +18,31 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * Column IDs for experiment browser grid.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ExperimentBrowserGridColumnIDs
 {
-    public static final String CODE  = "CODE";
-    public static final String EXPERIMENT_TYPE  = "EXPERIMENT_TYPE";
-    public static final String EXPERIMENT_IDENTIFIER  = "EXPERIMENT_IDENTIFIER";
-    public static final String DATABASE_INSTANCE  = "DATABASE_INSTANCE";
-    public static final String SPACE  = "SPACE";
-    public static final String PROJECT  = "PROJECT";
-    public static final String REGISTRATOR  = "REGISTRATOR";
-    public static final String REGISTRATION_DATE  = "REGISTRATION_DATE";
-    public static final String IS_INVALID  = "IS_INVALID";
-    public static final String PERM_ID  = "PERM_ID";
+    public static final String CODE = "CODE";
+
+    public static final String EXPERIMENT_TYPE = "EXPERIMENT_TYPE";
+
+    public static final String EXPERIMENT_IDENTIFIER = "EXPERIMENT_IDENTIFIER";
+
+    public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
+
+    public static final String SPACE = "SPACE";
+
+    public static final String PROJECT = "PROJECT";
+
+    public static final String REGISTRATOR = "REGISTRATOR";
+
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+
+    public static final String IS_DELETED = "IS_DELETED";
+
+    public static final String PERM_ID = "PERM_ID";
+
     public static final String SHOW_DETAILS_LINK = "SHOW_DETAILS_LINK";
 
     public static final String PROPERTIES_PREFIX = "property-";

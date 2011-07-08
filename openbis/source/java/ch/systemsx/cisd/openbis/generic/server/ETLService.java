@@ -1044,10 +1044,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
         }
-        if (experiment.getInvalidation() != null)
+        if (experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is invalid.");
+                    + experiment.getIdentifier() + "' is in trash.");
         }
 
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
@@ -1386,10 +1386,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
         }
-        if (experiment.getInvalidation() != null)
+        if (experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is invalid.");
+                    + experiment.getIdentifier() + "' is in trash.");
         }
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
@@ -1416,10 +1416,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
     {
         ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
-        if (experiment.getInvalidation() != null)
+        if (experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getIdentifier() + "' is invalid.");
+                    + experiment.getIdentifier() + "' is in trash.");
         }
         final IDataBO externalDataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =

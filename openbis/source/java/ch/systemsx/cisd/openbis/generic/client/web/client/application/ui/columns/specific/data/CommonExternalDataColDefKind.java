@@ -209,12 +209,12 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    IS_INVALID(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_INVALID, true)
+    IS_DELETED(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_DELETED, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return renderInvalidationFlag(entity);
+                return renderDeletionFlag(entity);
             }
         }),
 

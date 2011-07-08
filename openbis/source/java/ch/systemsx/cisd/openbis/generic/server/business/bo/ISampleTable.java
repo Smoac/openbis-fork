@@ -21,7 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
@@ -73,12 +73,12 @@ public interface ISampleTable
     public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException;
 
     /**
-     * Invalidates samples with given invalidation.
+     * Moves samples to trash with given deletion.
      * 
      * @param sampleIds sample technical identifiers
-     * @throws UserFailureException if one of the samples can not be invalidated.
+     * @throws UserFailureException if one of the samples can not be moved to trash.
      */
-    public void invalidateByTechIds(List<TechId> sampleIds, InvalidationPE invalidation)
+    public void trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
             throws UserFailureException;
 
 }

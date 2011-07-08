@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
- * @author Franz-Josef Elmer
+ * Handles the trash of entities.
+ * 
+ * @author Piotr Buczek
  */
-public interface IInvalidationProvider
+public interface ITrashBO
 {
-    public Invalidation getInvalidation();
+
+    public void createDeletion(String reason);
+
+    public void trashSamples(List<TechId> sampleIds);
+
+    public void trashExperiments(List<TechId> experimentIds);
+
+    public void trashDataSets(List<DataPE> dataSets);
+
 }

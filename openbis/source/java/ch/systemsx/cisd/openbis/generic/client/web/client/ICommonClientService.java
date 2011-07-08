@@ -638,36 +638,36 @@ public interface ICommonClientService extends IClientService
      */
     public Date updateProject(ProjectUpdates updates) throws UserFailureException;
 
-    /** Deletes/Invalidates the specified data sets. */
+    /** Deletes/Trashes the specified data sets. */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
             DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes/Invalidates the specified data set. */
+    /** Deletes/Trashes the specified data set. */
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
             throws UserFailureException;
 
     /**
-     * Deletes/Invalidates the specified samples. NOTE: this is a stale version used only for
-     * samples with abundance.
+     * Deletes/Trashes the specified samples. NOTE: this is a stale version used only for samples
+     * with abundance.
      */
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
             throws UserFailureException;
 
-    /** Deletes/Invalidates the specified samples. */
+    /** Deletes/Trashes the specified samples. */
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
             String reason, DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes/Invalidates the specified sample. */
+    /** Deletes/Trashes the specified sample. */
     public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
             throws UserFailureException;
 
-    /** Deletes/Invalidates the specified experiments. */
+    /** Deletes/Trashes the specified experiments. */
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
             String reason, DeletionType deletionType) throws UserFailureException;
 
-    /** Deletes/Invalidates the specified experiment. */
+    /** Deletes/Trashes the specified experiment. */
     public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType)
             throws UserFailureException;
 
@@ -997,14 +997,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link GridCustomColumn}s for given grid and display criteria.
      */
-    public TypedTableResultSet<GridCustomColumn> listGridCustomColumns(String gridId,
+    public TypedTableResultSet<GridCustomColumn> listGridCustomColumns(
+            String gridId,
             DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomColumn>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for custom grid filters.
      */
-    public String prepareExportColumns(final TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria)
+    public String prepareExportColumns(
+            final TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria)
             throws UserFailureException;
 
     /**

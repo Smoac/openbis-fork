@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.InvalidationUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -130,12 +130,12 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Invalidation}.
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Deletion}.
      */
-    public final static IPropertyValueRenderer<Invalidation> createInvalidationPropertyValueRenderer(
+    public final static IPropertyValueRenderer<Deletion> createDeletionPropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
-        return new InvalidationPropertyValueRenderer(messageProvider);
+        return new DeletionPropertyValueRenderer(messageProvider);
     }
 
     /**
@@ -211,15 +211,15 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Renderer for {@link Invalidation}.
+     * Renderer for {@link Deletion}.
      * 
      * @author Christian Ribeaud
      */
-    private final static class InvalidationPropertyValueRenderer extends
-            AbstractSimplePropertyValueRenderer<Invalidation>
+    private final static class DeletionPropertyValueRenderer extends
+            AbstractSimplePropertyValueRenderer<Deletion>
     {
 
-        InvalidationPropertyValueRenderer(final IMessageProvider messageProvider)
+        DeletionPropertyValueRenderer(final IMessageProvider messageProvider)
         {
             super(messageProvider);
         }
@@ -238,13 +238,13 @@ public final class PropertyValueRenderers
         //
 
         @Override
-        public final String renderNotNull(final Invalidation invalidation)
+        public final String renderNotNull(final Deletion deletion)
         {
             return getMessageProvider().getMessage(
-                    Dict.INVALIDATION_TEMPLATE,
-                    rendererPerson(invalidation.getRegistrator()),
-                    DateRenderer.renderDate(invalidation.getRegistrationDate(),
-                            BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN), invalidation.getReason());
+                    Dict.DELETION_TEMPLATE,
+                    rendererPerson(deletion.getRegistrator()),
+                    DateRenderer.renderDate(deletion.getRegistrationDate(),
+                            BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN), deletion.getReason());
         }
     }
 
@@ -428,7 +428,7 @@ public final class PropertyValueRenderers
         public FlowPanel getAsWidget(final T entity)
         {
             final String displayText = getDisplayText(entity);
-            final boolean invalidate = InvalidationUtils.isInvalid(entity);
+            final boolean invalidate = DeletionUtils.isDeleted(entity);
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             String href = LinkExtractor.tryExtract(entity);

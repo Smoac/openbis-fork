@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -114,7 +114,7 @@ public class SecondaryEntityDAO
         experiment.setPermId(record.e_permid);
         experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
-        experiment.setInvalidation(createInvalidation(record.del_id));
+        experiment.setDeletion(createDeletion(record.del_id));
         final Project project = new Project();
         project.setId(record.p_id);
         project.setCode(record.p_code);
@@ -199,7 +199,7 @@ public class SecondaryEntityDAO
         sample.setId(record.id);
         sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
-        sample.setInvalidation(createInvalidation(record.del_id));
+        sample.setDeletion(createDeletion(record.del_id));
         sample.setSpace(tryCreateGroup(record.spc_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.spc_code, databaseInstance));
         sample.setPermId(record.perm_id);
@@ -238,14 +238,14 @@ public class SecondaryEntityDAO
         }
     }
 
-    private static Invalidation createInvalidation(Long invalidationIdOrNull)
+    private static Deletion createDeletion(Long deletionIdOrNull)
     {
-        if (invalidationIdOrNull == null)
+        if (deletionIdOrNull == null)
         {
             return null;
         } else
         {
-            return new Invalidation();
+            return new Deletion();
         }
     }
 

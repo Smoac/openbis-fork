@@ -133,10 +133,9 @@ public final class DataStrategyStore implements IDataStrategyStore
                 error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
-            if (experiment.getInvalidation() != null)
+            if (experiment.getDeletion() != null)
             {
-                error(emailOrNull, "Experiment '" + experimentIdentifier
-                        + "' has been invalidated.");
+                error(emailOrNull, "Experiment '" + experimentIdentifier + "' has been deleted.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
             dataSetInfo.setExperiment(experiment);
@@ -154,10 +153,10 @@ public final class DataStrategyStore implements IDataStrategyStore
                 error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
                         + "because the sample is not attached to an experiment.", sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-            } else if (experiment.getInvalidation() != null)
+            } else if (experiment.getDeletion() != null)
             {
                 error(emailOrNull, String.format("Data set for sample '%s' can not be registered "
-                        + "because experiment '%s' has been invalidated.", sampleIdentifier,
+                        + "because experiment '%s' has been deleted.", sampleIdentifier,
                         experiment.getCode()));
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
@@ -182,14 +181,12 @@ public final class DataStrategyStore implements IDataStrategyStore
                             + "' has a blank email, sending the following email failed:\n"
                             + message);
                 }
-                operationLog
-                        .error(String
-                                .format("Incoming data set '%s' claims to "
-                                        + "belong to experiment '%s' and sample"
-                                        + " identifier '%s', but according to the openBIS server "
-                                        + "there is no such sample for this "
-                                        + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
-                                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
+                operationLog.error(String.format("Incoming data set '%s' claims to "
+                        + "belong to experiment '%s' and sample"
+                        + " identifier '%s', but according to the openBIS server "
+                        + "there is no such sample for this "
+                        + "experiment (maybe it has been deleted?). We thus consider it invalid.",
+                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
             }
             dataSetInfo.setProperties(properties);
