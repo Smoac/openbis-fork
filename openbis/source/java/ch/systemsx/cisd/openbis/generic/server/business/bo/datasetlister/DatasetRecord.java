@@ -39,7 +39,7 @@ public class DatasetRecord extends CodeRecord
 
     public Long ctnr_id;
 
-    public Long inva_id;
+    public Long del_id;
 
     // ---- from external_data table
     // ---- can be NULL in case of container(virtual) data sets

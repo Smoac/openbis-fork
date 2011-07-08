@@ -23,6 +23,6 @@ public class ExperimentProjectSpaceCodeRecord
 
     public Long dbin_id;
 
-    public Long inva_id;
+    public Long del_id;
 
 }

@@ -34,7 +34,7 @@ public class SampleReferenceRecord
     public String s_code;
 
     /** invalidation id */
-    public Long inva_id;
+    public Long del_id;
 
     /** sample type code */
     public String st_code;

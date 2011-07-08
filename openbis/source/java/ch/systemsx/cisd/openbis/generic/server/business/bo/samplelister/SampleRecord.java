@@ -17,7 +17,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 // REGISTRATION_TIMESTAMP TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP,
 // MODIFICATION_TIMESTAMP TIME_STAMP DEFAULT CURRENT_TIMESTAMP,
 // PERS_ID_REGISTERER TECH_ID NOT NULL,
-// INVA_ID TECH_ID,
+// del_id TECH_ID,
 // DBIN_ID TECH_ID,
 // SPACE_ID TECH_ID,
 // SAMP_ID_PART_OF TECH_ID);
@@ -40,7 +40,7 @@ public class SampleRecord extends CodeRecord
 
     public long pers_id_registerer;
 
-    public Long inva_id;
+    public Long del_id;
 
     public long saty_id;
 }

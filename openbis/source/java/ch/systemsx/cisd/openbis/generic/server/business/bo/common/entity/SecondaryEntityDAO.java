@@ -114,7 +114,7 @@ public class SecondaryEntityDAO
         experiment.setPermId(record.e_permid);
         experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
-        experiment.setInvalidation(createInvalidation(record.inva_id));
+        experiment.setInvalidation(createInvalidation(record.del_id));
         final Project project = new Project();
         project.setId(record.p_id);
         project.setCode(record.p_code);
@@ -199,7 +199,7 @@ public class SecondaryEntityDAO
         sample.setId(record.id);
         sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
-        sample.setInvalidation(createInvalidation(record.inva_id));
+        sample.setInvalidation(createInvalidation(record.del_id));
         sample.setSpace(tryCreateGroup(record.spc_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.spc_code, databaseInstance));
         sample.setPermId(record.perm_id);

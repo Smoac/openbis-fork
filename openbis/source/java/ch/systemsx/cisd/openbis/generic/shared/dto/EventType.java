@@ -21,10 +21,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  * <p>
  * These names reflect the ones that could be found in the database.
  * </p>
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 public enum EventType
 {
-    DELETION, INVALIDATION, MOVEMENT;
+    DELETION, MOVEMENT;
 }

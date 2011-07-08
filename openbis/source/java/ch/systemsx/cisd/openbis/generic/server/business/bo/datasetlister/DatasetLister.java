@@ -657,7 +657,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     // NOTE: this just marks the data set as invalid without loading any details
     private void enrichWithInvalidation(final ExternalData dataSet, DatasetRecord row)
     {
-        if (row.inva_id != null)
+        if (row.del_id != null)
         {
             final Invalidation invalidation = new Invalidation();
             dataSet.setInvalidation(invalidation);

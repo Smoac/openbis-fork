@@ -75,7 +75,7 @@ public class EventDAOTest extends AbstractDAOTest
     public void testListDeletedDataSetsWithoutSinceDate() throws Exception
     {
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER + 1);
+        saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER + 1);
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
         {
@@ -93,7 +93,7 @@ public class EventDAOTest extends AbstractDAOTest
     {
         saveEvent(EventType.DELETION, EntityType.DATASET, KEEP_ME, BEFORE);
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER + 1);
+        saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER + 1);
 
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
@@ -117,7 +117,7 @@ public class EventDAOTest extends AbstractDAOTest
     public void testListDataSetsAndNoSamples() throws Exception
     {
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.SAMPLE, KEEP_ME, AFTER + 1);
+        saveEvent(EventType.MOVEMENT, EntityType.SAMPLE, KEEP_ME, AFTER + 1);
         saveEvent(EventType.MOVEMENT, EntityType.SAMPLE, KEEP_ME, AFTER + 2);
 
         int numberOfDataSets = 3;
@@ -133,7 +133,7 @@ public class EventDAOTest extends AbstractDAOTest
     @Test
     public void testListDeletedDataSetsAndNotCreated() throws Exception
     {
-        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER);
+        saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER);
         saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER + 1);
 
         int numberOfDataSets = 3;
@@ -176,12 +176,10 @@ public class EventDAOTest extends AbstractDAOTest
         PersonPE person = getSystemPerson();
         Long personId = HibernateUtils.getId(person);
         simpleJdbcTemplate
-                .update(
-                        "insert into events "
-                                + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifier, entity_type) "
+                .update("insert into events "
+                        + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifier, entity_type) "
                         + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(), description,
-                        description, personId, date, identifier, entityType
-                                .name());
+                        description, personId, date, identifier, entityType.name());
     }
 
     private void saveEvent(EventType eventType, EntityType entityType, String identifier,

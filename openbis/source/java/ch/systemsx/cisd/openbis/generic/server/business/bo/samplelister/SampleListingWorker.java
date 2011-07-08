@@ -619,7 +619,7 @@ final class SampleListingWorker extends AbstractLister
     // NOTE: this just marks the sample as invalid without loading any details
     private void enrichWithInvalidation(final Sample sample, SampleRecord row)
     {
-        if (row.inva_id != null)
+        if (row.del_id != null)
         {
             final Invalidation invalidation = new Invalidation();
             sample.setInvalidation(invalidation);

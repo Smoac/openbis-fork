@@ -236,10 +236,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
             }
             if (samplePE.getInvalidation() == null)
             {
-                assertNull(msg, sample.inva_id);
+                assertNull(msg, sample.del_id);
             } else
             {
-                assertEquals(msg, samplePE.getInvalidation().getId(), sample.inva_id);
+                assertEquals(msg, samplePE.getInvalidation().getId(), sample.del_id);
             }
             if (samplePE.getContainer() == null)
             {
