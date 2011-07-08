@@ -26,7 +26,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE</value>
