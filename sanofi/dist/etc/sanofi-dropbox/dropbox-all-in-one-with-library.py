@@ -43,7 +43,6 @@ OVERLAYS_TRANSPARENT_COLOR = "black"
 
 """ file format of the analysis dataset """
 ANALYSIS_FILE_FORMAT = "CSV"
-ANALYSIS_RUN_PROPCODE = "$ANALYSIS_PROCEDURE"
     
 """ should thumbnails be generated? """
 GENERATE_THUMBNAILS = True
@@ -637,11 +636,12 @@ if incoming.isDirectory():
         featureProps.setProperty("well-name-col-is-alphanum", "true")
         
         analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisCSVFile.getPath(), featureProps)
+        analysisProcedureCode = extractFileBasename(analysisFile.getName())
+        analysisDataSetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
         analysisDataSet = transaction.createNewDataSet(analysisDataSetDetails)
         analysisDataSet.setSample(imageDataSet.getSample())
         analysisDataSet.setParentDatasets([ imageDataSet.getDataSetCode() ])
         analysisDataSet.setFileFormatType(ANALYSIS_FILE_FORMAT)
-        analysisDataSet.setPropertyValue(ANALYSIS_RUN_PROPCODE, extractFileBasename(analysisFile.getName()))
         transaction.moveFile(analysisCSVFile.getPath(), analysisDataSet)
     
     imageDataSetFolder = transaction.moveFile(incoming.getPath(), imageDataSet)
