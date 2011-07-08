@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author Franz-Josef Elmer
@@ -36,7 +37,7 @@ public class RegisterPropertyType implements ICommand
     private final static String TYPE = "type";
 
     private static final String LABEL = "label";
-
+    
     private static boolean validated(List<String> tokens)
     {
         return tokens.size() > 4 && tokens.get(1).equals(WITH) && tokens.get(2).equals(DATA)
@@ -60,19 +61,35 @@ public class RegisterPropertyType implements ICommand
         propertyType.setLabel(tokens.get(0));
         propertyType.setDescription(" ");
 
-        if (tokens.get(4).startsWith(DataTypeCode.MATERIAL.name()))
+        String dataType = tokens.get(4);
+        if (dataType.startsWith(DataTypeCode.MATERIAL.name()))
         {
             propertyType.setDataType(new DataType(DataTypeCode.MATERIAL));
-            if (DataTypeCode.MATERIAL.name().length() < tokens.get(4).length())
+
+            if (DataTypeCode.MATERIAL.name().length() < dataType.length())
             {
                 String materialCode =
-                        tokens.get(4).replaceAll(DataTypeCode.MATERIAL.name() + "\\((.*)\\)", "$1");
+                        dataType.replaceAll(DataTypeCode.MATERIAL.name() + "\\((.*)\\)", "$1");
                 MaterialType materialType = server.getMaterialType(sessionToken, materialCode);
                 propertyType.setMaterialType(materialType);
+
+            }
+        } else if (dataType.startsWith(DataTypeCode.CONTROLLEDVOCABULARY.name()))
+        {
+            propertyType.setDataType(new DataType(DataTypeCode.CONTROLLEDVOCABULARY));
+
+            if (DataTypeCode.CONTROLLEDVOCABULARY.name().length() < dataType.length())
+            {
+                String vocabularyCode =
+                        dataType.replaceAll(
+                                DataTypeCode.CONTROLLEDVOCABULARY.name() + "\\((.*)\\)", "$1");
+                List<Vocabulary> vocabularies = server.listVocabularies(sessionToken, false, true);
+                Vocabulary vocabulary = findVocabulary(vocabularies, vocabularyCode);
+                propertyType.setVocabulary(vocabulary);
             }
         } else
         {
-            DataTypeCode dataTypeCode = DataTypeCode.valueOf(tokens.get(4));
+            DataTypeCode dataTypeCode = DataTypeCode.valueOf(dataType);
             propertyType.setDataType(new DataType(dataTypeCode));
         }
 
@@ -94,5 +111,17 @@ public class RegisterPropertyType implements ICommand
         }
 
         server.registerPropertyType(sessionToken, propertyType);
+    }
+
+    private Vocabulary findVocabulary(List<Vocabulary> vocabularies, String vocabularyCode)
+    {
+        for (Vocabulary vocabulary : vocabularies)
+        {
+            if (vocabulary.getCode().equalsIgnoreCase(vocabularyCode))
+            {
+                return vocabulary;
+            }
+        }
+        throw new IllegalArgumentException("There is no vocabulary " + vocabularyCode);
     }
 }
