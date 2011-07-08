@@ -171,8 +171,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     /**
      * Abort any scheduled changes.
      */
-    public void abort()
+    public void abort(Throwable t)
     {
+        encounteredErrors.add(t);
         rollbackExtantTransactions();
         dataSetRegistrations.clear();
     }

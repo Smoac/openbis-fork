@@ -26,10 +26,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.python.core.PyException;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -202,8 +204,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     private final OmniscientTopLevelDataSetRegistratorState state;
     
-    private final IThrowableHandler finalThrowableHandler;
-
     private boolean stopped;
 
     /**
@@ -214,24 +214,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     protected AbstractOmniscientTopLevelDataSetRegistrator(
             TopLevelDataSetRegistratorGlobalState globalState)
     {
-        this(globalState, new IThrowableHandler()
-            {
-                public void handle(Throwable throwable)
-                {
-                }
-            });
-    }
-
-    /**
-     * Constructor.
-     * 
-     * @param globalState
-     */
-    protected AbstractOmniscientTopLevelDataSetRegistrator(
-            TopLevelDataSetRegistratorGlobalState globalState, IThrowableHandler finalThrowableHandler)
-    {
         super(globalState);
-        this.finalThrowableHandler = finalThrowableHandler;
 
         IStorageProcessorTransactional storageProcessor =
                 PropertiesBasedETLServerPlugin.create(IStorageProcessorTransactional.class,
@@ -322,9 +305,32 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         new DoNothingDelegatedAction());
         if (service.didErrorsArise())
         {
+            Throwable firstError = service.getEncounteredErrors().get(0);
             throw new EnvironmentFailureException("Could not process file "
-                    + incomingDataSetFile.getName(), service.getEncounteredErrors().get(0));
+                    + incomingDataSetFile.getName(), serializableException(firstError));
         }
+    }
+
+    /**
+     * Not all instances of PyExceptions are serializable, because they keep references to
+     * non-serializable objects e.g. java.lang.reflect.Method.
+     */
+    private Throwable serializableException(Throwable throwable)
+    {
+        if (throwable instanceof PyException)
+        {
+            return new RuntimeException(throwable.toString());
+        }
+        if (throwable instanceof UserFailureException)
+        {
+            return new RuntimeException(throwable.getMessage());
+        }
+        Throwable cause = throwable;
+        while (cause.getCause() != null)
+        {
+            cause = cause.getCause();
+        }
+        return new RuntimeException(cause.toString());
     }
 
     /**
@@ -371,7 +377,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback();
-            finalThrowableHandler.handle(ex);
         }
 
         return service;
@@ -460,7 +465,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     {
         updateStopped(throwable instanceof InterruptedExceptionUnchecked);
 
-        service.abort();
+        service.abort(throwable);
     }
 
     /**
