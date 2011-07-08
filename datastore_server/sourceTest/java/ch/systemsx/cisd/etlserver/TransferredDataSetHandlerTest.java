@@ -87,7 +87,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
-    private static final String SHARE_ID = ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
+    private static final String SHARE_ID =
+            ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
 
     private static final String SAMPLE_CODE = "sample1";
 
@@ -284,7 +285,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                new TopLevelDataSetRegistratorGlobalState("dss",
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
                         null, true, threadParameters);
 
@@ -365,7 +367,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private String getRelativeTargetFolder()
     {
         String absoluteTarget = targetFolder.getAbsolutePath();
-        return absoluteTarget.substring(workingDirectory.getAbsolutePath().length() + 1 + SHARE_ID.length() + 1);
+        return absoluteTarget.substring(workingDirectory.getAbsolutePath().length() + 1
+                + SHARE_ID.length() + 1);
     }
 
     // crates sample connected to an experiment
@@ -551,7 +554,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(transaction).commit();
-                    
+
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
@@ -599,7 +602,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(transaction).commit();
-                    
+
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
@@ -648,7 +651,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 + SAMPLE_CODE
                 + "', "
                 + "but according to the openBIS server there is no such sample for this experiment "
-                + "(it has maybe been invalidated?). We thus consider it invalid."
+                + "(maybe it has been deleted?). We thus consider it invalid."
                 + OSUtilities.LINE_SEPARATOR + "INFO  OPERATION.FileRenamer - "
                 + "Moving file 'data1' from '<wd>' to '<wd>/1/invalid/DataSetType_O1'.");
 
@@ -801,7 +804,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new ThreadParameters(threadProperties, "pre-registration-script-test");
 
         TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss", ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
+                new TopLevelDataSetRegistratorGlobalState("dss",
+                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, authorizedLimsService, mailClient, dataSetValidator,
                         null, true, threadParameters);
         context.checking(new Expectations()
@@ -839,7 +843,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                     one(transaction).commit();
-                    
+
                     one(shareIdManager).setShareId(DATA_SET_CODE, "1");
                 }
             });
