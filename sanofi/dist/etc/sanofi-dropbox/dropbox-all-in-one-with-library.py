@@ -186,19 +186,27 @@ def commit_transaction(service, transaction):
 
 def sendEmail(title, content, isError):
     recipients = []
-    recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
-    if recipientsProp:
-       recipients = [ email.strip() for email in recipientsProp.split(",") ]
+    experimentDetected = False
+    
+    if vars().has_key("experiment"):
+        experimentDetected = True
+        recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
+        if recipientsProp:
+           recipients = [ email.strip() for email in recipientsProp.split(",") ]
         
     if not recipients and isError:
        recipients = [ email.tryGetEmailAddress() for email in state.getErrorEmailRecipients() ]
         
     if not recipients:
-        state.operationLog.error("Failed to obtain e-mail recipients for experiment "
-                                 "'%s'. No e-mails will be sent. Please, set a value of the experiment's property '%s'." 
+        if experimentDetected:
+            experimentMsg = ("Please, fill in e-mail recipients list in the property '%s' of experiment '%s'." % (EXPERIMENT_RECIPIENTS_PROPCODE, experiment.getExperimentIdentifier()))
+        else :
+            experimentMsg = "" 
+        state.operationLog.error("Failed to detected e-mail recipients for incoming folder '%s'.%s"
+                                 " No e-mails will be sent." 
                                  "\nEmail title: %s" 
                                  "\nEmail content: %s" % 
-                                 (experiment.getExperimentIdentifier(), EXPERIMENT_RECIPIENTS_PROPCODE, title, content))
+                                 (incoming.getName(), experimentMsg, title, content))
         return
     
     fromAddress = From("openbis@sanofi-aventis.com")
