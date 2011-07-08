@@ -2,6 +2,7 @@ import re
 import os
 
 from java.io import File
+from java.util import Properties
 
 from ch.systemsx.cisd.common.geometry import Point, ConversionUtils
 from ch.systemsx.cisd.common.mail import From
@@ -138,6 +139,8 @@ def removeTrailingEmptyElements(list):
 # ======================================
 
 def rollback_service(service, ex):
+    global plateCode
+    
     incomingFileName = incoming.getName()
     errorMessage = ex.getMessage()
     if not errorMessage:
@@ -155,7 +158,7 @@ def rollback_service(service, ex):
       This email has been generated automatically.
       
     Administrator
-        """ % vars(), False)
+        """ % vars(), True)
     else:
         sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
     Dear user,
@@ -166,10 +169,12 @@ def rollback_service(service, ex):
       This email has been generated automatically.
       
     Administrator
-        """ % vars(), False)
+        """ % vars(), True)
     
 
 def commit_transaction(service, transaction):
+    global plateCode
+    
     incomingFileName = incoming.getName()
     plateLink = createPlateLink(OPENBIS_URL, plateCode)
     sendEmail("openBIS: New data registered for %s" % (plateCode), """
@@ -182,23 +187,24 @@ def commit_transaction(service, transaction):
       Have a nice day!
       
     Administrator
-    """ % vars(), True)
+    """ % vars(), False)
 
 def sendEmail(title, content, isError):
-    recipients = []
-    experimentDetected = False
+    global experiment
     
-    if vars().has_key("experiment"):
-        experimentDetected = True
+    recipients = []
+    
+    if experiment:
         recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
         if recipientsProp:
            recipients = [ email.strip() for email in recipientsProp.split(",") ]
         
     if not recipients and isError:
+       # TODO KE: this method is on a different state object !!!.. we need to move it somehow
        recipients = [ email.tryGetEmailAddress() for email in state.getErrorEmailRecipients() ]
         
     if not recipients:
-        if experimentDetected:
+        if experiment:
             experimentMsg = ("Please, fill in e-mail recipients list in the property '%s' of experiment '%s'." % (EXPERIMENT_RECIPIENTS_PROPCODE, experiment.getExperimentIdentifier()))
         else :
             experimentMsg = "" 
@@ -575,6 +581,10 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         return Geometry.createFromRowColDimensions(cols, rows);
 
 
+global experiment
+global plateCode 
+global plate 
+    
 if incoming.isDirectory():
     transaction = service.transaction(incoming, factory)
     
@@ -616,13 +626,22 @@ if incoming.isDirectory():
     # transform and move analysis file
     analysisFile = findFileByExt(incoming, "xml")
     if analysisFile is not None:
-        analysisDataSet = transaction.createNewDataSet(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE)
+        analysisCSVFile = File(analysisFile.getPath() + ".csv")
+        GEExplorerImageAnalysisResultParser(analysisFile.getPath()).writeCSV(analysisCSVFile)
+        
+        featureProps = Properties()
+        featureProps.setProperty("separator", ",")
+        featureProps.setProperty("well-name-row", "Well")
+        featureProps.setProperty("well-name-col", "Well")
+        # TODO KE: Tomek, this string is not used anywhere in the Java code. Are you sure we need it ?
+        featureProps.setProperty("well-name-col-is-alphanum", "true")
+        
+        analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisCSVFile.getPath(), featureProps)
+        analysisDataSet = transaction.createNewDataSet(analysisDataSetDetails)
         analysisDataSet.setSample(imageDataSet.getSample())
         analysisDataSet.setParentDatasets([ imageDataSet.getDataSetCode() ])
         analysisDataSet.setFileFormatType(ANALYSIS_FILE_FORMAT)
-        analysisDataSet.setMeasuredData(False)
         analysisDataSet.setPropertyValue(ANALYSIS_RUN_PROPCODE, extractFileBasename(analysisFile.getName()))
-        analysisDataSetFile = transaction.createNewFile(analysisDataSet, analysisFile.getName())
-        GEExplorerImageAnalysisResultParser(analysisFile.getPath()).writeCSV(File(analysisDataSetFile))
+        transaction.moveFile(analysisCSVFile.getPath(), analysisDataSet)
     
     imageDataSetFolder = transaction.moveFile(incoming.getPath(), imageDataSet)
