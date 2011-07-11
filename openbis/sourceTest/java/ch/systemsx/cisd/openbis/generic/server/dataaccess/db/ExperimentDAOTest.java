@@ -300,13 +300,18 @@ public class ExperimentDAOTest extends AbstractDAOTest
     public final void testDeleteFailWithDataSets()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
 
         // Deleted experiment should have data sets which prevent it from deletion.
-        // Other connections which also prevent sample deletion should be empty in this test.
+        // Other connections which also prevent experiment deletion should be empty in this test.
 
-        // Currently there is no such experiment in test DB so we first add a data set
+        // Currently there is no such experiment in test DB so we first create an experiment
+        // with no connections and then connect a data set to it.
         // to an empty experiment (with no connections).
+        ExperimentPE experiment =
+                createExperiment("CISD", "CISD", "DEFAULT", "EXP-13", "SIRNA_HCS");
+        daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
+
+        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-13");
         final ExternalDataPE dataSet = findExternalData("20081105092158673-1");
         dataSet.setExperiment(deletedExperiment);
         daoFactory.getDataDAO().validateAndSaveUpdatedEntity(dataSet);

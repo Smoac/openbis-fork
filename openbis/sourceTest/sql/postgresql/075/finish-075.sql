@@ -269,10 +269,17 @@ CREATE INDEX space_pers_registered_by_fk_i ON spaces USING btree (pers_id_regist
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
+CREATE CONSTRAINT TRIGGER check_created_or_modified_data_set_owner_is_alive AFTER INSERT OR UPDATE ON data DEFERRABLE INITIALLY DEFERRED FOR EACH ROW WHEN ((new.del_id IS NULL)) EXECUTE PROCEDURE check_created_or_modified_data_set_owner_is_alive();
+CREATE CONSTRAINT TRIGGER check_created_or_modified_sample_owner_is_alive AFTER INSERT OR UPDATE ON samples DEFERRABLE INITIALLY DEFERRED FOR EACH ROW WHEN ((new.del_id IS NULL)) EXECUTE PROCEDURE check_created_or_modified_sample_owner_is_alive();
+CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_experiment_deletion AFTER UPDATE ON experiments DEFERRABLE INITIALLY DEFERRED FOR EACH ROW WHEN (((old.del_id IS NULL) AND (new.del_id IS NOT NULL))) EXECUTE PROCEDURE check_deletion_consistency_on_experiment_deletion();
+CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_sample_deletion AFTER UPDATE ON samples DEFERRABLE INITIALLY DEFERRED FOR EACH ROW WHEN (((old.del_id IS NULL) AND (new.del_id IS NOT NULL))) EXECUTE PROCEDURE check_deletion_consistency_on_sample_deletion();
 CREATE TRIGGER controlled_vocabulary_check BEFORE INSERT OR UPDATE ON property_types FOR EACH ROW EXECUTE PROCEDURE controlled_vocabulary_check();
 CREATE TRIGGER data_set_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON data_set_properties FOR EACH ROW EXECUTE PROCEDURE data_set_property_with_material_data_type_check();
 CREATE TRIGGER experiment_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
 CREATE TRIGGER external_data_storage_format_check BEFORE INSERT OR UPDATE ON external_data FOR EACH ROW EXECUTE PROCEDURE external_data_storage_format_check();
+CREATE TRIGGER forbid_deleted_entity_modification BEFORE UPDATE ON data FOR EACH ROW EXECUTE PROCEDURE forbid_deleted_entity_modification();
+CREATE TRIGGER forbid_deleted_entity_modification BEFORE UPDATE ON samples FOR EACH ROW EXECUTE PROCEDURE forbid_deleted_entity_modification();
+CREATE TRIGGER forbid_deleted_entity_modification BEFORE UPDATE ON experiments FOR EACH ROW EXECUTE PROCEDURE forbid_deleted_entity_modification();
 CREATE TRIGGER material_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON material_properties FOR EACH ROW EXECUTE PROCEDURE material_property_with_material_data_type_check();
 CREATE TRIGGER sample_code_uniqueness_check BEFORE INSERT OR UPDATE ON samples FOR EACH ROW EXECUTE PROCEDURE sample_code_uniqueness_check();
 CREATE TRIGGER sample_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON sample_properties FOR EACH ROW EXECUTE PROCEDURE sample_property_with_material_data_type_check();
