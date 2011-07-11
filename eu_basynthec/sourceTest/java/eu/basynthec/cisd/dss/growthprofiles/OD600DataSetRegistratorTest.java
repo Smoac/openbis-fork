@@ -16,10 +16,13 @@
 
 package eu.basynthec.cisd.dss.growthprofiles;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -50,7 +53,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
 
         handler.handle(markerFile);
 
-        assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
+        assertEquals(4, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
@@ -64,7 +67,20 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("MGP1,MGP100,MGP20,MGP999", strainProperty.getValue());
+
+        NewExternalData tsvSplitDataSet =
+                atomicOperationDetails.recordedObject().getDataSetRegistrations().get(3);
+        String location = tsvSplitDataSet.getLocation();
+        File tsvSplitFolder = new File(workingDirectory, "/1/" + location);
+        String[] contents = tsvSplitFolder.list();
+        Arrays.sort(contents);
+        String[] expectedContents =
+                    { "OD600-Example.xlsx_MGP1.tsv", "OD600-Example.xlsx_MGP100.tsv",
+                            "OD600-Example.xlsx_MGP20.tsv", "OD600-Example.xlsx_MGP999.tsv" };
+        assertEquals(Arrays.asList(expectedContents), Arrays.asList(contents));
+        File tsvSplitFile = new File(tsvSplitFolder, "OD600-Example.xlsx_MGP1.tsv");
+        checkTsvSplitContent(tsvSplitFile);
+
         context.assertIsSatisfied();
     }
 
@@ -72,5 +88,15 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
     protected String getRegistrationScriptsFolderPath()
     {
         return "dist/etc/growth-profiles/";
+    }
+
+    private void checkTsvSplitContent(File tsvFile) throws IOException
+    {
+        String content = FileUtils.readFileToString(tsvFile);
+        assertEquals(
+                "RunNumber\tHumanReadable\t-19020.0\t-17220.0\t-15360.0\t-13620.0\t-11820.0\t-10020.0\t-8220.0\t-7020.0\t-4920.0\t-2820.0\t-1020.0\t-120.0\t720.0\t1500.0\t3660.0\t5460.0\t6060.0\t7200.0\t9000.0\n"
+                        + "0\tOD600\t0.05\t0.064\t0.077\t0.089\t0.107\t0.127\t0.155\t0.176\t0.24\t0.33\t0.43\t0.49\t0.58\t0.66\t0.975\t1.42\t1.49\t2.09\t3.22\n"
+                        + "1\tOD600\t0.05\t0.064\t0.077\t0.089\t0.107\t0.127\t0.155\t0.176\t0.24\t0.33\t0.43\t0.49\t0.58\t0.66\t0.975\t1.42\t1.49\t2.09\t3.22",
+                content);
     }
 }

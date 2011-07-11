@@ -82,6 +82,15 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     one(openBisService).createDataSetCode();
                     will(returnValue(excelDataSetCode));
 
+                    // Some if there is a multistrain data set type, it needs to be taken care of in
+                    // addition to the normal one
+                    if (tsvDataSetType == TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE)
+                    {
+                        String tsvMultistrain = DATA_SET_CODE + "-TSV-MULTISTRAIN";
+                        one(openBisService).createDataSetCode();
+                        will(returnValue(tsvMultistrain));
+                    }
+
                     String tsvDataSetCode = DATA_SET_CODE + "-TSV";
                     one(openBisService).createDataSetCode();
                     will(returnValue(tsvDataSetCode));
@@ -103,12 +112,12 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     {
                         one(dataSetValidator).assertValidDataSet(
                                 TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE,
-                                new File(new File(stagingDirectory, tsvDataSetCode), "tsv-multi"));
-                    } else
-                    {
-                        one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
-                                new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
+                                new File(new File(stagingDirectory, DATA_SET_CODE
+                                        + "-TSV-MULTISTRAIN"), "tsv-multi"));
                     }
+
+                    one(dataSetValidator).assertValidDataSet(TSV_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, tsvDataSetCode), "tsv"));
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     will(returnValue(new AtomicEntityOperationResult()));

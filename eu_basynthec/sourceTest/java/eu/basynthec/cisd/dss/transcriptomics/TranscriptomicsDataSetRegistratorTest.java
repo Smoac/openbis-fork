@@ -18,6 +18,7 @@ package eu.basynthec.cisd.dss.transcriptomics;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -52,7 +53,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
 
         handler.handle(markerFile);
 
-        assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
+        assertEquals(4, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
@@ -75,6 +76,19 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
                 new File(new File(workingDirectory, "/1/" + location),
                         "Transcriptomics-Example.xlsx.tsv");
         checkTsvContent(tsvFile);
+
+        NewExternalData tsvSplitDataSet =
+                atomicOperationDetails.recordedObject().getDataSetRegistrations().get(3);
+        location = tsvSplitDataSet.getLocation();
+        File tsvSplitFolder = new File(workingDirectory, "/1/" + location);
+        String[] contents = tsvSplitFolder.list();
+        Arrays.sort(contents);
+        String[] expectedContents =
+                    { "Transcriptomics-Example.xlsx_MGP253.tsv",
+                            "Transcriptomics-Example.xlsx_MGP776.tsv" };
+        assertEquals(Arrays.asList(expectedContents), Arrays.asList(contents));
+        File tsvSplitFile = new File(tsvSplitFolder, "Transcriptomics-Example.xlsx_MGP253.tsv");
+        checkSplitTsvContent(tsvSplitFile);
         context.assertIsSatisfied();
     }
 
@@ -101,5 +115,19 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
                 + "BSU00240\t10.8623\t11.1397\n" + "BSU00250\t11.6694\t11.429\n"
                 + "BSU00260\t11.7669\t11.4658\n" + "BSU00270\t12.2675\t11.8745\n"
                 + "BSU00280\t12.5574\t12.1608\n", content);
+    }
+
+    private void checkSplitTsvContent(File tsvFile) throws IOException
+    {
+        String content = FileUtils.readFileToString(tsvFile);
+        assertEquals("Locustag\t1 66687802\n" + "BSU00010\t13.7953\n" + "BSU00020\t13.5907\n"
+                + "BSU00030\t13.8489\n" + "BSU00040\t14.3564\n" + "BSU00050\t14.5239\n"
+                + "BSU00060\t14.3293\n" + "BSU00070\t14.481\n" + "BSU00090\t15.474\n"
+                + "BSU00100\t14.4332\n" + "BSU00110\t15.2669\n" + "BSU00120\t15.3344\n"
+                + "BSU_misc_RNA_1\t15.4497\n" + "BSU00130\t13.6604\n" + "BSU00180\t9.8208\n"
+                + "BSU_misc_RNA_2\t13.6614\n" + "BSU00190\t13.464\n" + "BSU00200\t14.6102\n"
+                + "BSU00210\t13.5285\n" + "BSU00220\t13.1007\n" + "BSU00230\t11.8547\n"
+                + "BSU00240\t10.8623\n" + "BSU00250\t11.6694\n" + "BSU00260\t11.7669\n"
+                + "BSU00270\t12.2675\n" + "BSU00280\t12.5574", content);
     }
 }

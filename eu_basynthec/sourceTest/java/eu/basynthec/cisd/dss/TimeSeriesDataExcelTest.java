@@ -105,7 +105,8 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
                 { "MGP1", "OD600", "0.05", "0.064" },
                 { "MGP100", "OD600", "0.05", "0.064" },
                 { "MGP20", "OD600", "0.05", "0.064" },
-                { "MGP999", "OD600", "0.05", "0.064" } };
+                { "MGP999", "OD600", "0.05", "0.064" },
+                { "MGP1", "OD600", "0.05", "0.064" } };
         assertLinesAreEqual(dataLines, expectedData);
     }
 
