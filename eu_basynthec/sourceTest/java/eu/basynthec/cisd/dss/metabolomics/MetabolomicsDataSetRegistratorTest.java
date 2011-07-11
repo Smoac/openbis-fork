@@ -51,6 +51,11 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
 
         assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(1), "PROTEIN_QUANTIFICATIONS");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(2), "PROTEIN_QUANTIFICATIONS");
+
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 

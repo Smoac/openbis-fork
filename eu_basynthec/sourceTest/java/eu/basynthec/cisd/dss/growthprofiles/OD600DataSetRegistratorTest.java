@@ -55,6 +55,13 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
 
         assertEquals(4, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(1), "OD600");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(2), "OD600");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(3), "OD600");
+
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 

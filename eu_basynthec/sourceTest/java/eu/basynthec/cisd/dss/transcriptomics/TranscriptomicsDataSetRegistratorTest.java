@@ -55,6 +55,13 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
 
         assertEquals(4, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(1), "TRANSCRIPTOMICS");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(2), "TRANSCRIPTOMICS");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(3), "TRANSCRIPTOMICS");
+
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 

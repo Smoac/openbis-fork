@@ -2,6 +2,9 @@ from datetime import datetime
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel
 import re
 
+def set_data_type(data_set):
+  data_set.setPropertyValue("DATA_TYPE", "TRANSCRIPTOMICS")
+
 def getInitialDataRowAndCol(metadata):
   """Extract the initial row and column as specified in the metadata. Returns an array with [row, col]."""
   # get the raw value from the map
@@ -169,12 +172,15 @@ assign_properties(dataset, metadata)
 
 # Store the original and tsv data in data sets
 original_dataset = tr.createNewDataSet("EXCEL_ORIGINAL")
+set_data_type(original_dataset)
 store_original_data(tr, original_dataset, "xls")
 
 tsv_dataset = tr.createNewDataSet("TSV_MULTISTRAIN_EXPORT")
+set_data_type(tsv_dataset)
 convert_data_to_tsv(tr, dataStart[0], dataStart[1], tsv_dataset, "tsv-multi")
 
 tsv_split_dataset = tr.createNewDataSet("TSV_EXPORT")
+set_data_type(tsv_split_dataset)
 convert_data_to_split_tsv(tr, dataStart[0], dataStart[1], tsv_split_dataset, "tsv")
 
 # Make the original contain these

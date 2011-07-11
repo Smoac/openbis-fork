@@ -51,6 +51,11 @@ public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRe
 
         assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(1), "METABOLITE_INTENSITIES");
+        checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
+                .get(2), "METABOLITE_INTENSITIES");
+
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
 

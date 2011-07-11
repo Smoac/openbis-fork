@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -152,6 +153,14 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
             propertyMap.put(prop.getPropertyCode(), prop);
         }
         return propertyMap;
+    }
+
+    protected void checkDataTypeProperty(NewExternalData dataSet, String expectedValue)
+    {
+        HashMap<String, NewProperty> propertyMap =
+                getDataSetPropertiesMap(dataSet.getDataSetProperties());
+        NewProperty property = propertyMap.get("DATA_TYPE");
+        assertEquals(expectedValue, property.getValue());
     }
 
 }

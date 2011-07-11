@@ -1,6 +1,9 @@
 from datetime import datetime
 from eu.basynthec.cisd.dss import TimeSeriesDataExcel
 
+def set_data_type(data_set):
+  data_set.setPropertyValue("DATA_TYPE", "METABOLITE_INTENSITIES")
+
 def retrieve_experiment(tr, exp_id):
   """Get the specified experiment form the server. Return the experiment."""
   if exp_id is None:
@@ -55,9 +58,11 @@ assign_properties(dataset, metadata)
     
 # Store the original and tsv data in data sets                                                                                                                    
 original_dataset = tr.createNewDataSet("EXCEL_ORIGINAL")
+set_data_type(original_dataset)
 store_original_data(tr, original_dataset, "xls")
 
 tsv_dataset = tr.createNewDataSet("TSV_EXPORT")
+set_data_type(tsv_dataset)
 convert_data_to_tsv(tr, tsv_dataset, "tsv")
 
 # Make the original contain these
