@@ -6,11 +6,11 @@
 -- Experiment 
 
 set type = OBSERVER_EMAILS
-register-property-type ${type} with data type VARCHAR
+register-property-type ${type} with data type VARCHAR "label=Observer e-mails"
 assign-to EXPERIMENT:COMPOUND_HCS ${type}
 
 set type = LIBRARY_TEMPLATE
-register-property-type ${type} with data type MULTILINE_VARCHAR
+register-property-type ${type} with data type MULTILINE_VARCHAR "label=Library Template"
 assign-to EXPERIMENT:COMPOUND_HCS ${type}
 
 
@@ -21,11 +21,11 @@ register-type SAMPLE NEGATIVE_CONTROL listable=false show-container=true show-pa
 register-type SAMPLE COMPOUND_WELL listable=false show-container=true show-parents=false
 
 set type = CONCENTRATION_M
-register-property-type ${type} with data type REAL
+register-property-type ${type} with data type REAL "label=Concentration (M)"
 assign-to SAMPLE:COMPOUND_WELL ${type}
 
 set type = COMPOUND
-register-property-type ${type} with data type MATERIAL(COMPOUND)
+register-property-type ${type} with data type MATERIAL(COMPOUND) "label=Compound"
 assign-to SAMPLE:COMPOUND_WELL ${type}
 
 
@@ -36,12 +36,12 @@ register-property-type ${type} with data type VARCHAR
 assign-to MATERIAL:COMPOUND ${type}
 
 set type = COMPOUND_BATCH_ID
-register-property-type ${type} with data type VARCHAR
+register-property-type ${type} with data type VARCHAR "label=Compound Batch"
 assign-to MATERIAL:COMPOUND ${type}
 
 -- Data Sets
 
 set type = ACQUISITION_BATCH
-register-property-type ${type} with data type VARCHAR
+register-property-type ${type} with data type VARCHAR "label=Acquisition Batch"
 assign-to DATA_SET:HCS_IMAGE_RAW ${type}
 
