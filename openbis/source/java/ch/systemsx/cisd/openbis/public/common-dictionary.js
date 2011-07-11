@@ -71,7 +71,7 @@ var common = {
   deleting_permanently: "<b>permanently</b> deleting",
   deleting: "Deleting",
   delete_permanently_progress_message: "Deleting {0}(s)...",
-  delete_progress_message: "Moving to trash {0}(s)...",
+  delete_progress_message: "Moving {0}(s) to trash ...",
 	 
   //
   // Table Modifications
