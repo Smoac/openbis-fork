@@ -202,7 +202,7 @@ class RegistrationConfirmationUtils:
 		return self._getDestinationDir(incoming) + "/" + self._getConfirmationFileName(ibrain2DatasetId)
 
 	def _prop(self, name, value):
-		return "" + name + " = " + (value or "") + "\n"
+		return "" + name + " = " + str(value) + "\n"
 	
 	def _writeConfirmationFile(self, ibrain2DatasetId, fileContent, incoming):
 		confirmationFile = self._getStatusFilePath(ibrain2DatasetId, incoming)
@@ -327,7 +327,7 @@ def createFailureStatus(datasetMetadataParser, throwable, incoming):
 	msg = throwable.getMessage()
 	if msg == None:
 		msg = throwable.toString()
-
+	
 	try:
 		# check if the field exists
 		throwable.value

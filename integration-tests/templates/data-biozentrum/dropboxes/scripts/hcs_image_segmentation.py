@@ -33,6 +33,7 @@ def register(incomingPath):
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
     imageDataset.setConvertTransformationCliArguments("-contrast-stretch 0 -edge 1 -threshold 1 -transparent black")
+    imageDataset.setUseImageMagicToGenerateThumbnails(True)
 
     commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
           

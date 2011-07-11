@@ -3,8 +3,8 @@
 import commonImageDropbox
 import commonDropbox
 
-reload(commonDropbox)
-reload(commonImageDropbox)
+#reload(commonDropbox)
+#reload(commonImageDropbox)
 
 """ sample type code of the plate, needed if a new sample is registered automatically """
 PLATE_TYPE_CODE = "PLATE"
@@ -58,6 +58,7 @@ if incoming.isDirectory():
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
+    imageDataset.setUseImageMagicToGenerateThumbnails(True)
 
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     for propertyCode, value in datasetMetadataParser.getDatasetPropertiesIter():
