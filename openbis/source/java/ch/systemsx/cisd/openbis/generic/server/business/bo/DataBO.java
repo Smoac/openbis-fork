@@ -25,6 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -530,7 +532,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private void validateAndSave()
     {
-        getDataDAO().validateAndSaveUpdatedEntity(data);
+        try
+        {
+            getDataDAO().validateAndSaveUpdatedEntity(data);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Data Set '%s'", data.getCode()));
+        }
     }
 
     private void updateParents(String[] modifiedParentDatasetCodesOrNull)
@@ -593,7 +601,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             return;
         } else if (componentCodes.contains(data.getCode()))
         {
-            throw new UserFailureException("Data set '" + data.getCode()
+            throw new UserFailureException(
+                    "Data set '"
+                            + data.getCode()
                             + "' cannot contain itself as a component neither directly nor via subordinate components.");
         }
 
