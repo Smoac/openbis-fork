@@ -486,8 +486,6 @@ public abstract class Dict
     // Deletion
     //
 
-    public static final String DELETE = "delete";
-
     public static final String DELETION = "deletion";
 
     public static final String DELETION_TEMPLATE = "deletion_template";
