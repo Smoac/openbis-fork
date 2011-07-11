@@ -1,0 +1,112 @@
+-- 
+-- Creating entities for Deep Sequencing Distribution 
+--
+
+-- @author Manuel Kohler
+
+set type = AFFILIATION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(AFFILIATION) "description=Where data will be shipped to" "label=Affiliation" 
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = AGILENT_KIT
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(AGILENT_KIT) "description=Kit used for QC" "label=Agilent Kit" 
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = ANALYSIS_FINISHED
+register-property-type ${type} with data type TIMESTAMP "description=Post processing of  the complete Flow Cell is finished and the fastq/SRF files have been created" "label=Analysis finshed" 
+assign-to SAMPLE:ILLUMINA_FLOW_CELL ${type}
+
+set type = BIOLOGICAL_SAMPLE_ARRIVED
+register-property-type ${type} with data type TIMESTAMP "description=The date when the biological sample arrived at lab" "label=Arrival Date of Biological Sample" 
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = BARCODE
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(BARCODES) "description=Barcodes used for multiplexing" "label=Barcode"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = BARCODE_LENGTH
+register-property-type ${type} with data type INTEGER "description=Length of the barcode. Will be used as a parameter for the bareback image analysis: Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be recovered by Deferred Cluster Calling Felix Krueger1, Simon R. Andrews1, Cameron S. Osborne2*,Plos One, 2011 "label=Barcode Length (+ recognition site)"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = BAREBACKED
+register-property-type ${type} with data type BOOLEAN "description=Has the bareback algorithm been applied?
+Krueger F, Andrews SR, Osborne CS (2011) Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be Recovered by Deferred Cluster Calling. PLoS ONE 6(1): e16607. doi:10.1371/journal.pone.0016607" "label=Barebacked?"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CLUSTER_GENERATION_KIT_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(CLUSTER_GENERATION_KIT) "description=Cluster Station Kit Version" "label=CS Generation Kit Version"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CASAVA_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(CASAVA_VERSION) "description=Illumina's post analyzing software" "label=Casava Version"
+assign-to DATA_SET:ILLUMINA_GA_OUTPUT ${type}
+assign-to DATA_SET:ILLUMINA_HISEQ_OUTPUT ${type}
+
+set type = CLUSTER_STATION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(CLUSTER_STATION) "description=Used Cluster Station" "label=Cluster Station"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CONCENTRATION_ORIGINAL
+register-property-type ${type} with data type REAL "description=Concentration of the original sample for Illumina Sequencing in nano grams per micro liter" "label=Concentration (original) [ng/μl]"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CONCENTRATION_PREPARED
+register-property-type ${type} with data type REAL "description=Concentration of the prepared sample for Illumina Sequencing in nano grams per micro liter" "label=Concentration (prepared) [ng/μl]"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CONCENTRATION_FLOW_LANE
+register-property-type ${type} with data type REAL "description=Concentration of library loaded in flow lane" "label=Concentration in flow lane [pM]"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CYCLES_REQUESTED_BY_CUSTOMER
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(CYCLES) "description=Read length" "label=Cycles"
+assign-to SAMPLE:SAMPLE:ILLUMINA_SEQUENCING ${type}
+assign-to SAMPLE:ILLUMINA_FLOW_CELL ${type}
+
+set type = DNA_CONCENTRATION_OF_LIBRARY
+register-property-type ${type} with data type INTEGER "description=" "label=DNA concentration of library (nM)"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CONCENTRATION_TOTAL
+register-property-type ${type} with data type INTEGER "description=Total amount of genetic material" "label=DNA concentration of library (ng/µl)"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = DATA_TRANSFERRED
+register-property-type ${type} with data type TIMESTAMP "description=Date of successful data transfer to the customer" "label=Data transferred on"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = CONTACT_PERSON_EMAIL
+register-property-type ${type} with data type VARCHAR "description=Email of person to contact about the sample, Used for the tracking system" "label=Email of Contact Person"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = PRINCIPAL_INVESTIGATOR_EMAIL
+register-property-type ${type} with data type VARCHAR "description=Email of PI to contact about the sample, Used for the tracking system" "label=Email of Principal Investigator"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = EXTERNAL_SAMPLE_NAME
+register-property-type ${type} with data type VARCHAR "description=Original Sample Name" "label=External Sample Name"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = FRAGMENT_SIZE_PREPARED_ILLUMINA
+register-property-type ${type} with data type INTEGER "description=Fragment size of the library of a prepared Illumina Sequencing sample in either bases or base pairs" "label=Fragment Size (prepared) [base (pairs)]"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = INVOICE
+register-property-type ${type} with data type BOOLEAN "description=Check box if invoice has been sent" "label=Invoice sent?"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = LOT
+register-property-type ${type} with data type INTEGER "description=Illumina Kit Lot" "label=Kit Lot #"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = KIT_ARRIVED
+register-property-type ${type} with data type TIMESTAMP "description=Date when Illumina Kit arrived" "label=Kit arrived"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = LIBRARY_PROCESSING_POSSIBLE
+register-property-type ${type} with data type BOOLEAN "description=" "label=Library Processing possible"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = KIT
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(KIT) "description=Type of preparation kit" "label=Type of preparation kit"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
