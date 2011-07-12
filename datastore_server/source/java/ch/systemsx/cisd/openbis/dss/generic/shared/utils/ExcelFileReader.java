@@ -122,35 +122,22 @@ public class ExcelFileReader
     // helper methods
     //
 
+    private static boolean isComment(Row row)
+    {
+        return row.getCell(0) != null && row.getCell(0).toString().startsWith(COMMENT);
+    }
+
     private static List<String[]> loadLines(Sheet sheet, boolean ignoreComments) throws IOException
     {
         final List<String[]> lines = new ArrayList<String[]>();
 
-        boolean firstLine = true;
         // NOTE: the following code is pretty ugly because poi API is very limited
-        int headerSize = 0;
+        int headerSize = extractMaxColumnIndex(sheet) + 1;
         for (Row row : sheet)
         {
-            if (ignoreComments && row.getCell(0) != null
-                    && row.getCell(0).toString().startsWith(COMMENT))
+            if (ignoreComments && isComment(row))
             {
                 continue; // ignore lines with comments
-            } else if (firstLine)
-            {
-                int maxColumnIndex = extractMaxColumnIndex(row);
-                headerSize = maxColumnIndex + 1;
-                String[] header = new String[headerSize];
-                for (Cell cell : row)
-                {
-                    String value = extractCellValue(cell);
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug(extractCellPosition(cell) + ": " + value);
-                    }
-                    header[cell.getColumnIndex()] = value;
-                }
-                lines.add(header);
-                firstLine = false;
             } else
             {
                 String[] line = new String[headerSize];
@@ -160,10 +147,6 @@ public class ExcelFileReader
                     if (operationLog.isDebugEnabled())
                     {
                         operationLog.debug(extractCellPosition(cell) + ": " + value);
-                    }
-                    if (cell.getColumnIndex() >= line.length)
-                    {
-                        continue; // ignore for now
                     }
                     line[cell.getColumnIndex()] = value;
                 }
@@ -182,12 +165,21 @@ public class ExcelFileReader
         return lines;
     }
 
+    private static int extractMaxColumnIndex(Sheet sheet)
+    {
+        int maxIndex = 0;
+        for (Row row : sheet)
+        {
+            maxIndex = Math.max(maxIndex, extractMaxColumnIndex(row));
+        }
+        return maxIndex;
+    }
     private static int extractMaxColumnIndex(Row row)
     {
         int maxColumnIndex = 0;
         for (Cell cell : row)
         {
-            maxColumnIndex = cell.getColumnIndex();
+            maxColumnIndex = Math.max(maxColumnIndex, cell.getColumnIndex());
         }
         return maxColumnIndex;
     }
@@ -231,10 +223,12 @@ public class ExcelFileReader
 
     public static void main(String[] args) throws Exception
     {
-        String filename = args[0];
+        String filename =
+                "/Users/kaloyane/cisd/train-tasks/2011-07-08-LIMBUD/Sample_template_modified.xlsx";
+        // String filename = args[0];
         File file = new File(filename);
         Workbook wb = getExcelWorkbook(file);
-        ExcelFileReader helper = new ExcelFileReader(wb, true);
+        ExcelFileReader helper = new ExcelFileReader(wb, false);
         List<String[]> lines = helper.readLines();
         for (String[] line : lines)
         {
