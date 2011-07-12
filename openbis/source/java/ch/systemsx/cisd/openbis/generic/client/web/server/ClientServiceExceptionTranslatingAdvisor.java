@@ -23,9 +23,7 @@ import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.RootClassFilter;
-import org.springframework.transaction.TransactionSystemException;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 
@@ -67,24 +65,10 @@ public class ClientServiceExceptionTranslatingAdvisor extends DefaultPointcutAdv
         {
             try
             {
-                return proceedWithTransactionSystemExceptionTranslation(invocation);
+                return invocation.proceed();
             } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 throw UserFailureExceptionTranslator.translate(ex);
-            }
-        }
-
-        private Object proceedWithTransactionSystemExceptionTranslation(MethodInvocation invocation)
-                throws Throwable
-        {
-            try
-            {
-                return invocation.proceed();
-            } catch (TransactionSystemException e)
-            {
-                // Deferred trigger may throw an exception just before commit.
-                // Message in the exception is readable for the user.
-                throw new UserFailureException(e.getMostSpecificCause().getMessage());
             }
         }
     }
