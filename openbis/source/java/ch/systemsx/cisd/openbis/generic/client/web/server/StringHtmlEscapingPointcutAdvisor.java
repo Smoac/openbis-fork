@@ -23,6 +23,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.RootClassFilter;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -71,15 +72,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
         @Override
         public ClassFilter getClassFilter()
         {
-            return new ClassFilter()
-                {
-
-                    @SuppressWarnings("rawtypes")
-                    public boolean matches(Class clazz)
-                    {
-                        return IClientService.class.isAssignableFrom(clazz);
-                    }
-                };
+            return new RootClassFilter(IClientService.class);
         }
 
         @SuppressWarnings("rawtypes")

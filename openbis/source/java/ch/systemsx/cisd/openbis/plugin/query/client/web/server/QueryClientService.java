@@ -90,66 +90,40 @@ public class QueryClientService extends AbstractClientService implements IQueryC
 
     public int initDatabases()
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return queryServer.initDatabases(sessionToken);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return queryServer.initDatabases(sessionToken);
     }
 
     public List<QueryDatabase> listQueryDatabases()
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return queryServer.listQueryDatabases(sessionToken);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return queryServer.listQueryDatabases(sessionToken);
     }
 
     public TableModelReference createQueryResultsReport(QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindingsOrNull)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final TableModel tableModel =
-                    queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull,
-                            false);
-            return createTableModelReference(tableModel);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final TableModel tableModel =
+                queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull, false);
+        return createTableModelReference(tableModel);
     }
 
     public List<ParameterValue> listParameterValues(QueryDatabase database, String sqlQuery)
     {
-        try
+        final String sessionToken = getSessionToken();
+        final TableModel tableModel =
+                queryServer.queryDatabase(sessionToken, database, sqlQuery, null, true);
+        // TreeSet is used because we want distinct values and we want them to be sorted
+        Set<ParameterValue> valuesSet = new TreeSet<ParameterValue>();
+        boolean withDescription = tableModel.getHeader().size() > 1;
+        for (TableModelRow row : tableModel.getRows())
         {
-            final String sessionToken = getSessionToken();
-            final TableModel tableModel =
-                    queryServer.queryDatabase(sessionToken, database, sqlQuery, null, true);
-            // TreeSet is used because we want distinct values and we want them to be sorted
-            Set<ParameterValue> valuesSet = new TreeSet<ParameterValue>();
-            boolean withDescription = tableModel.getHeader().size() > 1;
-            for (TableModelRow row : tableModel.getRows())
-            {
-                final String value = row.getValues().get(0).toString();
-                final String description =
-                        withDescription ? row.getValues().get(1).toString() : null;
-                valuesSet.add(new ParameterValue(value, description));
-            }
-            return new ArrayList<ParameterValue>(valuesSet);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            final String value = row.getValues().get(0).toString();
+            final String description = withDescription ? row.getValues().get(1).toString() : null;
+            valuesSet.add(new ParameterValue(value, description));
         }
+        return new ArrayList<ParameterValue>(valuesSet);
     }
 
     public TableModelReference createQueryResultsReport(TechId query,
@@ -181,57 +155,35 @@ public class QueryClientService extends AbstractClientService implements IQueryC
 
     public List<QueryExpression> listQueries(QueryType queryType, BasicEntityType entityTypeOrNull)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return queryServer.listQueries(sessionToken, queryType, entityTypeOrNull);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return queryServer.listQueries(sessionToken, queryType, entityTypeOrNull);
     }
 
     public TypedTableResultSet<QueryExpression> listQueries(
             final IResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig)
     {
-        return listEntities(new QueryExpressionProvider(queryServer, getSessionToken()), resultSetConfig);
+        return listEntities(new QueryExpressionProvider(queryServer, getSessionToken()),
+                resultSetConfig);
     }
 
-    public String prepareExportQueries(TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria)
+    public String prepareExportQueries(
+            TableExportCriteria<TableModelRowWithObject<QueryExpression>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
     public void registerQuery(NewQuery query)
     {
-        try
-        {
-            queryServer.registerQuery(getSessionToken(), query);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        queryServer.registerQuery(getSessionToken(), query);
     }
 
     public void deleteQueries(List<TechId> filterIds)
     {
-        try
-        {
-            queryServer.deleteQueries(getSessionToken(), filterIds);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        queryServer.deleteQueries(getSessionToken(), filterIds);
     }
 
     public void updateQuery(IQueryUpdates queryUpdate)
     {
-        try
-        {
-            queryServer.updateQuery(getSessionToken(), queryUpdate);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        queryServer.updateQuery(getSessionToken(), queryUpdate);
     }
 }

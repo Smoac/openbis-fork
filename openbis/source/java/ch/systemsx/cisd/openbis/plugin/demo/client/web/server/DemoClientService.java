@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -78,16 +77,10 @@ public final class DemoClientService extends AbstractClientService implements ID
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId,
             String baseIndexURL)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final SampleParentWithDerived sampleGenerationDTO =
-                    demoServer.getSampleInfo(sessionToken, sampleId);
-            return sampleGenerationDTO;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final SampleParentWithDerived sampleGenerationDTO =
+                demoServer.getSampleInfo(sessionToken, sampleId);
+        return sampleGenerationDTO;
     }
 
     public final void registerSample(final String sessionKey, final NewSample sample)

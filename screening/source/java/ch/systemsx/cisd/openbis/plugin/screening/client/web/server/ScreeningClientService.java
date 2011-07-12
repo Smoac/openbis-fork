@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialDisambiguationProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
@@ -125,82 +124,40 @@ public final class ScreeningClientService extends AbstractClientService implemen
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws UserFailureException
     {
-        try
-        {
-            return server.getSampleInfo(getSessionToken(), sampleId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getSampleInfo(getSessionToken(), sampleId);
     }
 
     public ExternalData getDataSetInfo(TechId datasetTechId)
     {
-        try
-        {
-            return server.getDataSetInfo(getSessionToken(), datasetTechId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getDataSetInfo(getSessionToken(), datasetTechId);
     }
 
     public Material getMaterialInfo(TechId materialTechId) throws UserFailureException
     {
-        try
-        {
-            return server.getMaterialInfo(getSessionToken(), materialTechId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getMaterialInfo(getSessionToken(), materialTechId);
     }
 
     public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
-        try
-        {
-            return server.getPlateContent(getSessionToken(), plateId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getPlateContent(getSessionToken(), plateId);
     }
 
     public FeatureVectorDataset getFeatureVectorDataset(DatasetReference dataset,
             CodeAndLabel featureName) throws UserFailureException
     {
-        try
-        {
-            return server.getFeatureVectorDataset(getSessionToken(), dataset, featureName);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getFeatureVectorDataset(getSessionToken(), dataset, featureName);
     }
 
     public FeatureVectorValues getWellFeatureVectorValues(String datasetCode, String datastoreCode,
             WellLocation location)
     {
-        try
-        {
-            return server.getWellFeatureVectorValues(getSessionToken(), datasetCode, datastoreCode,
-                    location);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getWellFeatureVectorValues(getSessionToken(), datasetCode, datastoreCode,
+                location);
     }
 
     public PlateImages getPlateContentForDataset(TechId datasetId)
     {
-        try
-        {
-            return server.getPlateContentForDataset(getSessionToken(), datasetId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getPlateContentForDataset(getSessionToken(), datasetId);
     }
 
     public TypedTableResultSet<WellContent> listPlateWells(
@@ -231,7 +188,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
             WellSearchCriteria materialCriteria)
     {
         List<Material> materials = server.listMaterials(getSessionToken(), materialCriteria);
-        final ITableModelProvider<Material> provider = new MaterialDisambiguationProvider(materials);
+        final ITableModelProvider<Material> provider =
+                new MaterialDisambiguationProvider(materials);
         ResultSet<TableModelRowWithObject<Material>> resultSet =
                 listEntities(gridCriteria, new DataProviderAdapter<Material>(provider));
         return new TypedTableResultSet<Material>(resultSet);
@@ -284,9 +242,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
                         extractor.getNewGenes(), extractor.getNewOligos(),
                         extractor.getNewSamplesWithType());
             }
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
@@ -325,23 +280,16 @@ public final class ScreeningClientService extends AbstractClientService implemen
     public ResultSet<Material> listExperimentMaterials(final TechId experimentId,
             final ListMaterialDisplayCriteria displayCriteria)
     {
-        try
-        {
-            return listEntities(displayCriteria,
-                    new AbstractOriginalDataProviderWithoutHeaders<Material>()
+        return listEntities(displayCriteria,
+                new AbstractOriginalDataProviderWithoutHeaders<Material>()
+                    {
+                        @Override
+                        public List<Material> getFullOriginalData() throws UserFailureException
                         {
-                            @Override
-                            public List<Material> getFullOriginalData() throws UserFailureException
-                            {
-                                return server.listExperimentMaterials(getSessionToken(),
-                                        experimentId, displayCriteria.getListCriteria()
-                                                .tryGetMaterialType());
-                            }
-                        });
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+                            return server.listExperimentMaterials(getSessionToken(), experimentId,
+                                    displayCriteria.getListCriteria().tryGetMaterialType());
+                        }
+                    });
     }
 
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(

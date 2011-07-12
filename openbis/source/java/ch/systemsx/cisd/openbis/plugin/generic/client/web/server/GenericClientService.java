@@ -27,10 +27,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionSystemException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -249,9 +247,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             return SampleUploadSectionsParser.prepareSamples(sampleType, files,
                     defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
                     operationKind);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
             cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
@@ -279,67 +274,50 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionKey)
     {
         String sessionToken = getSessionToken();
-        try
-        {
-            MaterialLoader loader = parseMaterials(sessionKey);
-            genericServer.registerMaterials(sessionToken, materialType.getCode(),
-                    loader.getNewMaterials());
-            return loader.getResults();
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        MaterialLoader loader = parseMaterials(sessionKey);
+        genericServer.registerMaterials(sessionToken, materialType.getCode(),
+                loader.getNewMaterials());
+        return loader.getResults();
     }
 
     public final List<BatchRegistrationResult> registerExperiments(
             final ExperimentType experimentType, final String sessionKey)
     {
         String sessionToken = getSessionToken();
-        try
-        {
-            ExperimentLoader loader = parseExperiments(sessionKey);
-            genericServer.registerExperiments(sessionToken, new NewExperimentsWithType(
-                    experimentType.getCode(), loader.getNewBasicExperiments()));
-            return loader.getResults();
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        ExperimentLoader loader = parseExperiments(sessionKey);
+        genericServer.registerExperiments(
+                sessionToken,
+                new NewExperimentsWithType(experimentType.getCode(), loader
+                        .getNewBasicExperiments()));
+        return loader.getResults();
     }
 
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
             String sessionKey, boolean ignoreUnregisteredMaterials)
     {
         String sessionToken = getSessionToken();
-        try
+        MaterialLoader loader = parseMaterials(sessionKey);
+        List<NewMaterial> newMaterials = loader.getNewMaterials();
+        int updateCount =
+                genericServer.updateMaterials(sessionToken, materialType.getCode(), newMaterials,
+                        ignoreUnregisteredMaterials);
+        List<BatchRegistrationResult> results = loader.getResults();
+        String message = updateCount + " material(s) updated";
+        if (ignoreUnregisteredMaterials)
         {
-            MaterialLoader loader = parseMaterials(sessionKey);
-            List<NewMaterial> newMaterials = loader.getNewMaterials();
-            int updateCount =
-                    genericServer.updateMaterials(sessionToken, materialType.getCode(),
-                            newMaterials, ignoreUnregisteredMaterials);
-            List<BatchRegistrationResult> results = loader.getResults();
-            String message = updateCount + " material(s) updated";
-            if (ignoreUnregisteredMaterials)
+            int ignoredCount = newMaterials.size() - updateCount;
+            if (ignoredCount > 0)
             {
-                int ignoredCount = newMaterials.size() - updateCount;
-                if (ignoredCount > 0)
-                {
-                    message += ", " + ignoredCount + " ignored.";
-                } else
-                {
-                    message += ", non ignored.";
-                }
+                message += ", " + ignoredCount + " ignored.";
             } else
             {
-                message += ".";
+                message += ", non ignored.";
             }
-            return Arrays
-                    .asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
-        } catch (final UserFailureException e)
+        } else
         {
-            throw UserFailureExceptionTranslator.translate(e);
+            message += ".";
         }
+        return Arrays.asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
     }
 
     private ExperimentLoader parseExperiments(String sessionKey)
@@ -491,20 +469,8 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public DataSetUpdateResult updateDataSet(final DataSetUpdates updates)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return genericServer.updateDataSet(sessionToken, createDataSetUpdatesDTO(updates));
-        } catch (TransactionSystemException e)
-        {
-            // Deferred triger may throw an exception just before commit.
-            // Message in the exception is readable for the user.
-            throw UserFailureExceptionTranslator.translate(new UserFailureException(e
-                    .getMostSpecificCause().getMessage()));
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return genericServer.updateDataSet(sessionToken, createDataSetUpdatesDTO(updates));
     }
 
     private static DataSetUpdatesDTO createDataSetUpdatesDTO(DataSetUpdates updates)
@@ -547,9 +513,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             genericServer.updateDataSets(getSessionToken(), new NewDataSetsWithTypes(dataSetType,
                     loader.getNewDataSets()));
             return loader.getResults();
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
@@ -576,9 +539,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             genericServer.updateExperiments(getSessionToken(), new UpdatedExperimentsWithType(
                     experimentType, loader.getNewBasicExperiments()));
             return loader.getResults();
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);

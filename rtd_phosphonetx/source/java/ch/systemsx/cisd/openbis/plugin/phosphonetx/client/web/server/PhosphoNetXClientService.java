@@ -35,7 +35,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -100,10 +98,10 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         IPhosphoNetXClientService, InitializingBean
 {
     private static final String CACHE_VERSION = Integer.toString(ServiceVersionHolder.VERSION);
-    
+
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
-    
+
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
 
@@ -190,7 +188,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         String sessionToken = getSessionToken();
         return listEntities(new BiologicalSampleProvider(commonServer, sessionToken), criteria);
     }
-    
+
     public void linkSamples(Sample parentSample, List<Sample> childSamples)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -199,14 +197,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public void createAndLinkSamples(NewSample newBiologicalSample, List<Sample> msInjectionSamples)
-    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         String sessionToken = getSessionToken();
-        List<NewAttachment> noAttachments = Collections.<NewAttachment>emptyList();
+        List<NewAttachment> noAttachments = Collections.<NewAttachment> emptyList();
         genericServer.registerSample(sessionToken, newBiologicalSample, noAttachments);
         linkSamples(sessionToken, newBiologicalSample.getIdentifier(), msInjectionSamples);
     }
-    
+
     private void linkSamples(String sessionToken, String identifier, List<Sample> childSamples)
     {
         String[] parents = new String[]
@@ -215,10 +213,11 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         {
             SampleIdentifier childSampleIdentifier =
                     SampleIdentifierFactory.parse(childSample.getIdentifier());
-            SampleUpdatesDTO update = new SampleUpdatesDTO(new TechId(childSample), Collections
-                    .<IEntityProperty> emptyList(), null, Collections
-                    .<NewAttachment> emptyList(), childSample.getModificationDate(),
-                    childSampleIdentifier, null, parents);
+            SampleUpdatesDTO update =
+                    new SampleUpdatesDTO(new TechId(childSample),
+                            Collections.<IEntityProperty> emptyList(), null,
+                            Collections.<NewAttachment> emptyList(),
+                            childSample.getModificationDate(), childSampleIdentifier, null, parents);
             update.setUpdateExperimentLink(false);
             genericServer.updateSample(sessionToken, update);
         }
@@ -298,13 +297,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            return server.getProteinByExperiment(sessionToken, experimentID, proteinReferenceID);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return server.getProteinByExperiment(sessionToken, experimentID, proteinReferenceID);
     }
 
     public TypedTableResultSet<ProteinSequence> listSequencesByProteinReference(

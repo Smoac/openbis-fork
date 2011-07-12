@@ -265,41 +265,29 @@ public final class CommonClientService extends AbstractClientService implements
     private final <T> String getGenericExportTable(final String exportDataKey,
             final String lineSeparator)
     {
-        try
-        {
-            // Not directly needed but this refreshes the session.
-            getSessionToken();
-            final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
-            final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
-            ITableDataProvider dataProvider =
-                    TableDataProviderFactory.createDataProvider(entities,
-                            exportCriteria.getColumnDefs());
-            return TSVRenderer.createTable(dataProvider, lineSeparator);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        // Not directly needed but this refreshes the session.
+        getSessionToken();
+        final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
+        final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
+        ITableDataProvider dataProvider =
+                TableDataProviderFactory.createDataProvider(entities,
+                        exportCriteria.getColumnDefs());
+        return TSVRenderer.createTable(dataProvider, lineSeparator);
     }
 
     public final void removeResultSet(final String resultSetKey)
     {
         try
         {
-            try
-            {
-                // Not directly needed but this refreshes the session.
-                getSessionToken();
-                getResultSetManager().removeResultSet(resultSetKey);
-            } catch (ch.systemsx.cisd.common.exceptions.InvalidSessionException e)
-            {
-                return; // there is no session, so nothing has to be removed from it
-            } catch (InvalidSessionException e)
-            {
-                return; // there is no session, so nothing has to be removed from it
-            }
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
+            getResultSetManager().removeResultSet(resultSetKey);
+        } catch (ch.systemsx.cisd.common.exceptions.InvalidSessionException e)
         {
-            throw UserFailureExceptionTranslator.translate(e);
+            return; // there is no session, so nothing has to be removed from it
+        } catch (InvalidSessionException e)
+        {
+            return; // there is no session, so nothing has to be removed from it
         }
     }
 
@@ -311,125 +299,67 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final void registerGroup(final String groupCode, final String descriptionOrNull)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerSpace(sessionToken, groupCode, descriptionOrNull);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerSpace(sessionToken, groupCode, descriptionOrNull);
     }
 
     public final void updateGroup(final ISpaceUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateSpace(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updateSpace(sessionToken, updates);
     }
 
     public final void updateScript(final IScriptUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateScript(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updateScript(sessionToken, updates);
     }
 
     public final void registerPerson(final String code)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerPerson(sessionToken, code);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerPerson(sessionToken, code);
     }
 
     public final void registerGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier,
-                    grantee);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final GroupIdentifier groupIdentifier =
+                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+        commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
     public final void registerInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerInstanceRole(sessionToken, role.getRoleCode(), grantee);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerInstanceRole(sessionToken, role.getRoleCode(), grantee);
     }
 
     public final void deleteGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            commonServer
-                    .deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        final GroupIdentifier groupIdentifier =
+                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+        commonServer.deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
     public final void deleteInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteInstanceRole(sessionToken, role.getRoleCode(), grantee);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        commonServer.deleteInstanceRole(sessionToken, role.getRoleCode(), grantee);
     }
 
     public final List<SampleType> listSampleTypes()
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
-            return sampleTypes;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
+        return sampleTypes;
     }
 
     // --------- methods preparing exported content. Note: GWT does not support
@@ -685,16 +615,10 @@ public final class CommonClientService extends AbstractClientService implements
     public List<AuthorizationGroup> listAuthorizationGroups()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<AuthorizationGroup> authGroups =
-                    commonServer.listAuthorizationGroups(sessionToken);
-            return authGroups;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<AuthorizationGroup> authGroups =
+                commonServer.listAuthorizationGroups(sessionToken);
+        return authGroups;
     }
 
     public TypedTableResultSet<Person> listPersons(final ListPersonsCriteria criteria)
@@ -709,15 +633,9 @@ public final class CommonClientService extends AbstractClientService implements
     public final List<Person> listPersons()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<Person> persons = commonServer.listPersons(sessionToken);
-            return persons;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<Person> persons = commonServer.listPersons(sessionToken);
+        return persons;
     }
 
     public TypedTableResultSet<RoleAssignment> listRoleAssignments(
@@ -730,15 +648,9 @@ public final class CommonClientService extends AbstractClientService implements
     public final List<RoleAssignment> listRoleAssignments()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<RoleAssignment> roles = commonServer.listRoleAssignments(sessionToken);
-            return roles;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<RoleAssignment> roles = commonServer.listRoleAssignments(sessionToken);
+        return roles;
     }
 
     public TypedTableResultSet<Project> listProjects(
@@ -904,115 +816,66 @@ public final class CommonClientService extends AbstractClientService implements
     public List<ExperimentType> listExperimentTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<ExperimentType> experimentTypes =
-                    commonServer.listExperimentTypes(sessionToken);
-            return experimentTypes;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<ExperimentType> experimentTypes = commonServer.listExperimentTypes(sessionToken);
+        return experimentTypes;
     }
 
     public List<PropertyType> listPropertyTypes(boolean withRelations)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<PropertyType> propertyTypes =
-                    commonServer.listPropertyTypes(sessionToken, withRelations);
-            return propertyTypes;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<PropertyType> propertyTypes =
+                commonServer.listPropertyTypes(sessionToken, withRelations);
+        return propertyTypes;
     }
 
     public final List<DataType> listDataTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<DataType> dataTypes = commonServer.listDataTypes(sessionToken);
-            return dataTypes;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<DataType> dataTypes = commonServer.listDataTypes(sessionToken);
+        return dataTypes;
     }
 
     public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.assignPropertyType(sessionToken, assignment);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.assignPropertyType(sessionToken, assignment);
     }
 
     public void updatePropertyTypeAssignment(NewETPTAssignment assignmentUpdates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updatePropertyTypeAssignment(sessionToken, assignmentUpdates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updatePropertyTypeAssignment(sessionToken, assignmentUpdates);
     }
 
     public void unassignPropertyType(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode,
-                    entityTypeCode);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode,
+                entityTypeCode);
     }
 
     public int countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.countPropertyTypedEntities(sessionToken, entityKind,
-                    propertyTypeCode, entityTypeCode);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.countPropertyTypedEntities(sessionToken, entityKind, propertyTypeCode,
+                entityTypeCode);
     }
 
     public final void registerPropertyType(final PropertyType propertyType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerPropertyType(sessionToken, propertyType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerPropertyType(sessionToken, propertyType);
     }
 
     public final void updatePropertyType(final IPropertyTypeUpdates updates)
@@ -1020,14 +883,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updatePropertyType(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updatePropertyType(sessionToken, updates);
     }
 
     public final void updateVocabularyTerm(final IVocabularyTermUpdates updates)
@@ -1035,14 +892,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateVocabularyTerm(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updateVocabularyTerm(sessionToken, updates);
     }
 
     public final void registerVocabulary(final String termsSessionKey,
@@ -1050,21 +901,16 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabulary != null : "Unspecified vocabulary.";
-        try
+
+        final String sessionToken = getSessionToken();
+        if (vocabulary.isUploadedFromFile())
         {
-            final String sessionToken = getSessionToken();
-            if (vocabulary.isUploadedFromFile())
-            {
-                List<VocabularyTerm> extractedTerms =
-                        extractVocabularyTermsFromUploadedData(termsSessionKey,
-                                BatchOperationKind.REGISTRATION);
-                vocabulary.setTerms(extractedTerms);
-            }
-            commonServer.registerVocabulary(sessionToken, vocabulary);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            List<VocabularyTerm> extractedTerms =
+                    extractVocabularyTermsFromUploadedData(termsSessionKey,
+                            BatchOperationKind.REGISTRATION);
+            vocabulary.setTerms(extractedTerms);
         }
+        commonServer.registerVocabulary(sessionToken, vocabulary);
     }
 
     public final void updateVocabulary(final IVocabularyUpdates updates)
@@ -1072,14 +918,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateVocabulary(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updateVocabulary(sessionToken, updates);
     }
 
     private final List<VocabularyTerm> extractVocabularyTermsFromUploadedData(String sessionKey,
@@ -1121,9 +961,6 @@ public final class CommonClientService extends AbstractClientService implements
                 final BisTabFileLoader<VocabularyTerm> tabFileLoader = createTermsLoader();
                 terms = loadTermsFromFiles(uploadedFiles, tabFileLoader);
                 return this;
-            } catch (final UserFailureException e)
-            {
-                throw UserFailureExceptionTranslator.translate(e);
             } finally
             {
                 if (uploadedFiles != null)
@@ -1269,15 +1106,9 @@ public final class CommonClientService extends AbstractClientService implements
 
         if (vocabularyTerms != null && vocabularyTerms.isEmpty() == false)
         {
-            try
-            {
-                final String sessionToken = getSessionToken();
-                commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms,
-                        previousTermOrdinal);
-            } catch (final UserFailureException e)
-            {
-                throw UserFailureExceptionTranslator.translate(e);
-            }
+            final String sessionToken = getSessionToken();
+            commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms,
+                    previousTermOrdinal);
         }
     }
 
@@ -1287,15 +1118,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         assert vocabularyId != null : "Unspecified vocabulary id.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,
-                    description, previousTermOrdinal);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.addUnofficialVocabularyTerm(sessionToken, vocabularyId, code, label,
+                description, previousTermOrdinal);
     }
 
     public void deleteVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> termsToBeDeleted,
@@ -1306,15 +1131,9 @@ public final class CommonClientService extends AbstractClientService implements
         assert termsToBeDeleted != null : "Unspecified term to be deleted.";
         assert termsToBeReplaced != null : "Unspecified term to be replaced.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted,
-                    termsToBeReplaced);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteVocabularyTerms(sessionToken, vocabularyId, termsToBeDeleted,
+                termsToBeReplaced);
     }
 
     public void makeVocabularyTermsOfficial(TechId vocabularyId,
@@ -1323,28 +1142,16 @@ public final class CommonClientService extends AbstractClientService implements
         assert vocabularyId != null : "Unspecified vocabulary id.";
         assert termsToBeOfficial != null : "Unspecified term to be official.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.makeVocabularyTermsOfficial(sessionToken, vocabularyId, termsToBeOfficial);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.makeVocabularyTermsOfficial(sessionToken, vocabularyId, termsToBeOfficial);
     }
 
     public List<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Set<VocabularyTerm> terms =
-                    commonServer.listVocabularyTerms(sessionToken, vocabulary);
-            return new ArrayList<VocabularyTerm>(terms);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final Set<VocabularyTerm> terms =
+                commonServer.listVocabularyTerms(sessionToken, vocabulary);
+        return new ArrayList<VocabularyTerm>(terms);
     }
 
     public void registerProject(String sessionKey, final Project project)
@@ -1379,29 +1186,17 @@ public final class CommonClientService extends AbstractClientService implements
     public List<MaterialType> listMaterialTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
-            return materialTypes;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<MaterialType> materialTypes = commonServer.listMaterialTypes(sessionToken);
+        return materialTypes;
     }
 
     public List<DataSetType> listDataSetTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<DataSetType> types = commonServer.listDataSetTypes(sessionToken);
-            return types;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<DataSetType> types = commonServer.listDataSetTypes(sessionToken);
+        return types;
     }
 
     public ResultSet<Material> listMaterials(ListMaterialDisplayCriteria criteria)
@@ -1421,92 +1216,56 @@ public final class CommonClientService extends AbstractClientService implements
     public void registerMaterialType(MaterialType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerMaterialType(sessionToken, entityType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerMaterialType(sessionToken, entityType);
     }
 
     public void registerExperimentType(ExperimentType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerExperimentType(sessionToken, entityType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerExperimentType(sessionToken, entityType);
     }
 
     public void registerSampleType(SampleType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerSampleType(sessionToken, entityType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerSampleType(sessionToken, entityType);
     }
 
     public void registerDataSetType(DataSetType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerDataSetType(sessionToken, entityType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerDataSetType(sessionToken, entityType);
     }
 
     public void registerFileType(FileFormatType type)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerFileFormatType(sessionToken, type);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.registerFileFormatType(sessionToken, type);
     }
 
     public void updateEntityType(EntityKind entityKind, EntityType entityType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
+        final String sessionToken = getSessionToken();
+        switch (entityKind)
         {
-            final String sessionToken = getSessionToken();
-            switch (entityKind)
-            {
-                case MATERIAL:
-                    commonServer.updateMaterialType(sessionToken, entityType);
-                    break;
-                case SAMPLE:
-                    commonServer.updateSampleType(sessionToken, entityType);
-                    break;
-                case EXPERIMENT:
-                    commonServer.updateExperimentType(sessionToken, entityType);
-                    break;
-                case DATA_SET:
-                    commonServer.updateDataSetType(sessionToken, entityType);
-                    break;
-            }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            case MATERIAL:
+                commonServer.updateMaterialType(sessionToken, entityType);
+                break;
+            case SAMPLE:
+                commonServer.updateSampleType(sessionToken, entityType);
+                break;
+            case EXPERIMENT:
+                commonServer.updateExperimentType(sessionToken, entityType);
+                break;
+            case DATA_SET:
+                commonServer.updateDataSetType(sessionToken, entityType);
+                break;
         }
     }
 
@@ -1515,48 +1274,30 @@ public final class CommonClientService extends AbstractClientService implements
             DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            return uploadDataSets(datasetCodes, uploadParameters);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+        return uploadDataSets(datasetCodes, uploadParameters);
     }
 
     private String uploadDataSets(List<String> dataSetCodes,
             DataSetUploadParameters uploadParameters)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            DataSetUploadContext uploadContext = new DataSetUploadContext();
-            uploadContext.setCifexURL(uploadParameters.getCifexURL());
-            uploadContext.setComment(uploadParameters.getComment());
-            uploadContext.setFileName(uploadParameters.getFileName());
-            uploadContext.setUserID(uploadParameters.getUserID());
-            uploadContext.setPassword(uploadParameters.getPassword());
-            return commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        DataSetUploadContext uploadContext = new DataSetUploadContext();
+        uploadContext.setCifexURL(uploadParameters.getCifexURL());
+        uploadContext.setComment(uploadParameters.getComment());
+        uploadContext.setFileName(uploadParameters.getFileName());
+        uploadContext.setUserID(uploadParameters.getUserID());
+        uploadContext.setPassword(uploadParameters.getPassword());
+        return commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
     }
 
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> dataSetCodes = Collections.singletonList(singleData);
-            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> dataSetCodes = Collections.singletonList(singleData);
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
     }
 
     public void deleteDataSets(
@@ -1564,71 +1305,41 @@ public final class CommonClientService extends AbstractClientService implements
             DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
     }
 
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
     }
 
     public void deleteSample(TechId sampleId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), reason,
-                    deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), reason,
+                deletionType);
     }
 
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
             String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<TechId> sampleIds = extractTechIds(criteria);
-            commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<TechId> sampleIds = extractTechIds(criteria);
+        commonServer.deleteSamples(sessionToken, sampleIds, reason, deletionType);
     }
 
     public void deleteExperiment(TechId experimentId, String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
-                    reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
+                reason, deletionType);
     }
 
     public void deleteExperiments(
@@ -1636,80 +1347,44 @@ public final class CommonClientService extends AbstractClientService implements
             String reason, DeletionType deletionType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<TechId> experimentIds = extractTechIds(criteria);
-            commonServer.deleteExperiments(sessionToken, experimentIds, reason, deletionType);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<TechId> experimentIds = extractTechIds(criteria);
+        commonServer.deleteExperiments(sessionToken, experimentIds, reason, deletionType);
     }
 
     public void deleteVocabularies(List<TechId> vocabularyIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteVocabularies(sessionToken, vocabularyIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteVocabularies(sessionToken, vocabularyIds, reason);
     }
 
     public void deletePropertyTypes(List<TechId> propertyTypeIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deletePropertyTypes(sessionToken, propertyTypeIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deletePropertyTypes(sessionToken, propertyTypeIds, reason);
     }
 
     public void deleteProjects(List<TechId> projectIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteProjects(sessionToken, projectIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteProjects(sessionToken, projectIds, reason);
     }
 
     public void deleteGroups(List<TechId> groupIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteSpaces(sessionToken, groupIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteSpaces(sessionToken, groupIds, reason);
     }
 
     public void deleteScripts(List<TechId> scriptIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteScripts(sessionToken, scriptIds);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteScripts(sessionToken, scriptIds);
     }
 
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
@@ -1717,25 +1392,17 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
+        switch (holderKind)
         {
-            switch (holderKind)
-            {
-                case EXPERIMENT:
-                    commonServer.deleteExperimentAttachments(sessionToken, holderId, fileNames,
-                            reason);
-                    break;
-                case SAMPLE:
-                    commonServer.deleteSampleAttachments(sessionToken, holderId, fileNames, reason);
-                    break;
-                case PROJECT:
-                    commonServer
-                            .deleteProjectAttachments(sessionToken, holderId, fileNames, reason);
-                    break;
-            }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            case EXPERIMENT:
+                commonServer.deleteExperimentAttachments(sessionToken, holderId, fileNames, reason);
+                break;
+            case SAMPLE:
+                commonServer.deleteSampleAttachments(sessionToken, holderId, fileNames, reason);
+                break;
+            case PROJECT:
+                commonServer.deleteProjectAttachments(sessionToken, holderId, fileNames, reason);
+                break;
         }
     }
 
@@ -1751,105 +1418,61 @@ public final class CommonClientService extends AbstractClientService implements
 
     public LastModificationState getLastModificationState()
     {
-        try
-        {
-            return commonServer.getLastModificationState(getSessionToken());
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.getLastModificationState(getSessionToken());
     }
 
     public final Experiment getExperimentInfo(final String experimentIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final ExperimentIdentifier identifier =
-                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            final Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
-            transformXML(experiment);
-            return experiment;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+        final Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
+        transformXML(experiment);
+        return experiment;
     }
 
     public Experiment getExperimentInfoByPermId(String experimentPermId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            IEntityInformationHolderWithPermId expInfo =
-                    commonServer.getEntityInformationHolder(sessionToken, EntityKind.EXPERIMENT,
-                            experimentPermId);
-            return getExperimentInfo(new TechId(expInfo.getId()));
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        IEntityInformationHolderWithPermId expInfo =
+                commonServer.getEntityInformationHolder(sessionToken, EntityKind.EXPERIMENT,
+                        experimentPermId);
+        return getExperimentInfo(new TechId(expInfo.getId()));
     }
 
     public final Experiment getExperimentInfo(final TechId experimentId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Experiment experiment =
-                    commonServer.getExperimentInfo(sessionToken, experimentId);
-            transformXML(experiment);
-            return experiment;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final Experiment experiment = commonServer.getExperimentInfo(sessionToken, experimentId);
+        transformXML(experiment);
+        return experiment;
     }
 
     public Project getProjectInfo(TechId projectId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Project project = commonServer.getProjectInfo(sessionToken, projectId);
-            return project;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final Project project = commonServer.getProjectInfo(sessionToken, projectId);
+        return project;
     }
 
     public Project getProjectInfo(BasicProjectIdentifier projectIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Project project =
-                    commonServer.getProjectInfo(sessionToken, new ProjectIdentifier(
-                            projectIdentifier));
-            return project;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final Project project =
+                commonServer.getProjectInfo(sessionToken, new ProjectIdentifier(projectIdentifier));
+        return project;
     }
 
     public String generateCode(String prefix)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.generateCode(sessionToken, prefix);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.generateCode(sessionToken, prefix);
     }
 
     public Date updateProject(final ProjectUpdates updates)
@@ -1885,26 +1508,20 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
+        switch (entityKind)
         {
-            switch (entityKind)
-            {
-                case DATA_SET:
-                    commonServer.deleteDataSetTypes(sessionToken, entityTypesCodes);
-                    break;
-                case SAMPLE:
-                    commonServer.deleteSampleTypes(sessionToken, entityTypesCodes);
-                    break;
-                case EXPERIMENT:
-                    commonServer.deleteExperimentTypes(sessionToken, entityTypesCodes);
-                    break;
-                case MATERIAL:
-                    commonServer.deleteMaterialTypes(sessionToken, entityTypesCodes);
-                    break;
-            }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            case DATA_SET:
+                commonServer.deleteDataSetTypes(sessionToken, entityTypesCodes);
+                break;
+            case SAMPLE:
+                commonServer.deleteSampleTypes(sessionToken, entityTypesCodes);
+                break;
+            case EXPERIMENT:
+                commonServer.deleteExperimentTypes(sessionToken, entityTypesCodes);
+                break;
+            case MATERIAL:
+                commonServer.deleteMaterialTypes(sessionToken, entityTypesCodes);
+                break;
         }
     }
 
@@ -1913,13 +1530,7 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            return commonServer.getEntityInformationHolder(sessionToken, entityKind, permId);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.getEntityInformationHolder(sessionToken, entityKind, permId);
     }
 
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(
@@ -1927,116 +1538,68 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            return commonServer.getMaterialInformationHolder(sessionToken, identifier);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.getMaterialInformationHolder(sessionToken, identifier);
     }
 
     public Material getMaterialInfo(MaterialIdentifier identifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            return commonServer.getMaterialInfo(sessionToken, identifier);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.getMaterialInfo(sessionToken, identifier);
     }
 
     public Material getMaterialInfo(TechId techId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            final Material material = commonServer.getMaterialInfo(sessionToken, techId);
-            transformXML(material);
-            return material;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final Material material = commonServer.getMaterialInfo(sessionToken, techId);
+        transformXML(material);
+        return material;
     }
 
     public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
             boolean withExperiments, BatchOperationKind operationKind)
     {
-        try
-        {
-            String sessionToken = getSessionToken();
-            return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
-                    withExperiments, operationKind);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        String sessionToken = getSessionToken();
+        return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
+                withExperiments, operationKind);
     }
 
     public List<FileFormatType> listFileTypes()
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<FileFormatType> types = commonServer.listFileFormatTypes(sessionToken);
-            return types;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final List<FileFormatType> types = commonServer.listFileFormatTypes(sessionToken);
+        return types;
     }
 
     public void deleteFileFormatTypes(List<String> fileFormatTypeCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteFileFormatTypes(sessionToken, fileFormatTypeCodes);
-        } catch (UserFailureException ex)
-        {
-            throw UserFailureExceptionTranslator.translate(ex);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteFileFormatTypes(sessionToken, fileFormatTypeCodes);
     }
 
     public void updateFileFormatType(AbstractType type)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateFileFormatType(sessionToken, type);
-        } catch (UserFailureException ex)
-        {
-            throw UserFailureExceptionTranslator.translate(ex);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.updateFileFormatType(sessionToken, type);
     }
 
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment)
     {
         final String sessionToken = getSessionToken();
-        try
+        switch (holderKind)
         {
-            switch (holderKind)
-            {
-                case EXPERIMENT:
-                    commonServer.updateExperimentAttachments(sessionToken, holderId, attachment);
-                    break;
-                case SAMPLE:
-                    commonServer.updateSampleAttachments(sessionToken, holderId, attachment);
-                    break;
-                case PROJECT:
-                    commonServer.updateProjectAttachments(sessionToken, holderId, attachment);
-                    break;
-            }
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            case EXPERIMENT:
+                commonServer.updateExperimentAttachments(sessionToken, holderId, attachment);
+                break;
+            case SAMPLE:
+                commonServer.updateSampleAttachments(sessionToken, holderId, attachment);
+                break;
+            case PROJECT:
+                commonServer.updateProjectAttachments(sessionToken, holderId, attachment);
+                break;
         }
     }
 
@@ -2065,13 +1628,7 @@ public final class CommonClientService extends AbstractClientService implements
                     }
                 }
             };
-        try
-        {
-            helper.process(sessionKey, getHttpSession(), Collections.singletonList(attachment));
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        helper.process(sessionKey, getHttpSession(), Collections.singletonList(attachment));
     }
 
     private static final String MANAGED_PROPERTY_UPDATE_ERROR_MSG =
@@ -2126,50 +1683,32 @@ public final class CommonClientService extends AbstractClientService implements
             DataStoreServiceKind dataStoreServiceKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.listDataStoreServices(sessionToken, dataStoreServiceKind);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.listDataStoreServices(sessionToken, dataStoreServiceKind);
     }
 
     public TableModelReference createReportFromDatasets(
             DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes =
-                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
-            final TableModel tableModel =
-                    commonServer.createReportFromDatasets(sessionToken, serviceDescription,
-                            datasetCodes);
-            String resultSetKey = saveReportInCache(tableModel);
-            return new TableModelReference(resultSetKey, tableModel.getHeader());
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes =
+                extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
+        final TableModel tableModel =
+                commonServer.createReportFromDatasets(sessionToken, serviceDescription,
+                        datasetCodes);
+        String resultSetKey = saveReportInCache(tableModel);
+        return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
 
     public TableModelReference createReportFromTableModel(TableModel tableModel)
     {
-        try
-        {
-            // WORKAROUND Need to unescape table model that was provided by the client.
-            // The table model will be sent back to client and escaped. Without unescaping here
-            // it would be escaped twice.
-            ReflectingStringUnescaper.unescapeDeep(tableModel);
-            String resultSetKey = saveReportInCache(tableModel);
-            return new TableModelReference(resultSetKey, tableModel.getHeader());
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        // WORKAROUND Need to unescape table model that was provided by the client.
+        // The table model will be sent back to client and escaped. Without unescaping here
+        // it would be escaped twice.
+        ReflectingStringUnescaper.unescapeDeep(tableModel);
+        String resultSetKey = saveReportInCache(tableModel);
+        return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
 
     public TypedTableResultSet<ReportRowModel> listReport(
@@ -2293,58 +1832,34 @@ public final class CommonClientService extends AbstractClientService implements
     public void processDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes =
-                    extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
-            commonServer.processDatasets(sessionToken, serviceDescription, datasetCodes);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes =
+                extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
+        commonServer.processDatasets(sessionToken, serviceDescription, datasetCodes);
     }
 
     public ArchivingResult archiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public ArchivingResult unarchiveDatasets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-            int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
+        int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public void deleteAuthorizationGroups(List<TechId> groupIds, String reason)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteAuthorizationGroups(sessionToken, groupIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.deleteAuthorizationGroups(sessionToken, groupIds, reason);
     }
 
     public TypedTableResultSet<AuthorizationGroup> listAuthorizationGroups(
@@ -2362,85 +1877,45 @@ public final class CommonClientService extends AbstractClientService implements
 
     public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerAuthorizationGroup(sessionToken, newAuthorizationGroup);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        commonServer.registerAuthorizationGroup(sessionToken, newAuthorizationGroup);
     }
 
     public void registerScript(Script script)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.registerScript(sessionToken, script);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        commonServer.registerScript(sessionToken, script);
     }
 
     public List<Person> listPersonsInAuthorizationGroup(TechId group)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.listPersonInAuthorizationGroup(sessionToken, group);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.listPersonInAuthorizationGroup(sessionToken, group);
     }
 
     public void updateAuthorizationGroup(AuthorizationGroupUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
 
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.updateAuthorizationGroup(sessionToken, updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        commonServer.updateAuthorizationGroup(sessionToken, updates);
     }
 
     public void addPersonsToAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.addPersonsToAuthorizationGroup(sessionToken, authorizationGroupId,
-                    personsCodes);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        commonServer.addPersonsToAuthorizationGroup(sessionToken, authorizationGroupId,
+                personsCodes);
     }
 
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            commonServer.removePersonsFromAuthorizationGroup(sessionToken, authorizationGroupId,
-                    personsCodes);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        final String sessionToken = getSessionToken();
+        commonServer.removePersonsFromAuthorizationGroup(sessionToken, authorizationGroupId,
+                personsCodes);
     }
 
     private <T extends IIdHolder> List<TechId> extractTechIds(
@@ -2479,13 +1954,7 @@ public final class CommonClientService extends AbstractClientService implements
     public List<GridCustomFilter> listFilters(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            return commonServer.listFilters(getSessionToken(), gridId);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.listFilters(getSessionToken(), gridId);
     }
 
     public TypedTableResultSet<GridCustomFilter> listFilters(
@@ -2508,38 +1977,20 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert filter != null : "Unspecified filter.";
-        try
-        {
-            commonServer.registerFilter(getSessionToken(), filter);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        commonServer.registerFilter(getSessionToken(), filter);
     }
 
     public void deleteFilters(List<TechId> filterIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            commonServer.deleteFilters(getSessionToken(), filterIds);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        commonServer.deleteFilters(getSessionToken(), filterIds);
     }
 
     public final void updateFilter(final IExpressionUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified updates.";
-        try
-        {
-            commonServer.updateFilter(getSessionToken(), updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        commonServer.updateFilter(getSessionToken(), updates);
     }
 
     // -- grid custom columns
@@ -2547,13 +1998,7 @@ public final class CommonClientService extends AbstractClientService implements
     public List<GridCustomColumn> listGridCustomColumns(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            return commonServer.listGridCustomColumns(getSessionToken(), gridId);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.listGridCustomColumns(getSessionToken(), gridId);
     }
 
     public TypedTableResultSet<GridCustomColumn> listGridCustomColumns(
@@ -2576,40 +2021,21 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert newColumn != null : "Unspecified grid custom column.";
-        try
-        {
-            commonServer.registerGridCustomColumn(getSessionToken(), newColumn);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        commonServer.registerGridCustomColumn(getSessionToken(), newColumn);
     }
 
     public void deleteColumns(List<TechId> columnIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            commonServer.deleteGridCustomColumns(getSessionToken(), columnIds);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
+        commonServer.deleteGridCustomColumns(getSessionToken(), columnIds);
     }
 
     public void updateColumn(IExpressionUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified grid custom updates.";
-        try
-        {
-            commonServer.updateGridCustomColumn(getSessionToken(), updates);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+
+        commonServer.updateGridCustomColumn(getSessionToken(), updates);
     }
 
     // --
@@ -2625,10 +2051,6 @@ public final class CommonClientService extends AbstractClientService implements
         {
             // most probable cause - user logged out
             return false;
-        } catch (final UserFailureException e)
-        {
-            // should not happen
-            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -2636,180 +2058,106 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabularyId != null : "Unspecified vocabulary.";
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<VocabularyTerm> extractedTerms =
-                    extractVocabularyTermsFromUploadedData(termsSessionKey,
-                            BatchOperationKind.UPDATE);
-            commonServer.updateVocabularyTerms(sessionToken, vocabularyId, extractedTerms);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<VocabularyTerm> extractedTerms =
+                extractVocabularyTermsFromUploadedData(termsSessionKey, BatchOperationKind.UPDATE);
+        commonServer.updateVocabularyTerms(sessionToken, vocabularyId, extractedTerms);
     }
 
     public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,
             String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<TechId> materialIds = extractTechIds(criteria);
-            commonServer.deleteMaterials(sessionToken, materialIds, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<TechId> materialIds = extractTechIds(criteria);
+        commonServer.deleteMaterials(sessionToken, materialIds, reason);
     }
 
     public ArchivingResult lockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.lockDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.lockDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public LinkModel retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final LinkModel url =
-                    commonServer.retrieveLinkFromDataSet(sessionToken, serviceDescription,
-                            dataSetCode);
-            return url;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final LinkModel url =
+                commonServer.retrieveLinkFromDataSet(sessionToken, serviceDescription, dataSetCode);
+        return url;
     }
 
     public Script getScriptInfo(TechId scriptId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final Script script = commonServer.getScriptInfo(sessionToken, scriptId);
-            return script;
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        final Script script = commonServer.getScriptInfo(sessionToken, scriptId);
+        return script;
     }
 
     public String evaluate(DynamicPropertyEvaluationInfo info)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            return commonServer.evaluate(sessionToken, info);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        return commonServer.evaluate(sessionToken, info);
     }
 
     public IEntityInformationHolderWithPermId getEntityInformationHolder(BasicEntityDescription info)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        try
-        {
-            return commonServer.getEntityInformationHolder(sessionToken, info);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        return commonServer.getEntityInformationHolder(sessionToken, info);
     }
 
     public ArchivingResult archiveDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public ArchivingResult unarchiveDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.unarchiveDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public ArchivingResult lockDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.lockDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.lockDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public ArchivingResult unlockDatasets(
             DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> datasetCodes = extractDatasetCodes(criteria);
-            int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
-            return new ArchivingResult(datasetCodes.size(), result);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final String sessionToken = getSessionToken();
+        List<String> datasetCodes = extractDatasetCodes(criteria);
+        int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
+        return new ArchivingResult(datasetCodes.size(), result);
     }
 
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)

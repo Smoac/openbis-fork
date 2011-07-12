@@ -189,14 +189,8 @@ public abstract class AbstractClientService implements IClientService,
             IOriginalDataProvider<T> dataProvider)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            final IResultSet<String, T> result = getResultSet(criteria, dataProvider);
-            return ResultSetTranslator.translate(result, Escape.YES);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        final IResultSet<String, T> result = getResultSet(criteria, dataProvider);
+        return ResultSetTranslator.translate(result, Escape.YES);
     }
 
     protected static <T> IOriginalDataProvider<T> createDummyDataProvider()
@@ -362,16 +356,10 @@ public abstract class AbstractClientService implements IClientService,
     protected final <T> String prepareExportEntities(TableExportCriteria<T> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        try
-        {
-            // Not directly needed but this refreshes the session.
-            getSessionToken();
-            final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
-            return exportManager.saveData(criteria);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        // Not directly needed but this refreshes the session.
+        getSessionToken();
+        final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
+        return exportManager.saveData(criteria);
     }
 
     private CachedResultSetManager<String> createCachedResultSetManager()
@@ -513,9 +501,6 @@ public abstract class AbstractClientService implements IClientService,
         {
             final SessionContextDTO session = getServer().tryToAuthenticate(userID, password);
             return tryToLogin(session);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
         } catch (final IllegalStateException e)
         {
             operationLog.error("Session already invalidated.", e);
@@ -654,15 +639,9 @@ public abstract class AbstractClientService implements IClientService,
             ITableModelProvider<T> provider,
             IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
     {
-        try
-        {
-            DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
-            ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
-            return new TypedTableResultSet<T>(resultSet);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        DataProviderAdapter<T> dataProvider = new DataProviderAdapter<T>(provider);
+        ResultSet<TableModelRowWithObject<T>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<T>(resultSet);
     }
 
     protected static void cleanUploadedFiles(final String sessionKey, HttpSession session,
