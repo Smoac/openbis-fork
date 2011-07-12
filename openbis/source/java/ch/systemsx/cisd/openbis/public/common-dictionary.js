@@ -73,7 +73,10 @@ var common = {
   delete_permanently_progress_message: "Deleting {0}(s)...",
   delete_progress_message: "Moving {0}(s) to trash ...",
   cannot_modify_deleted_entity_title: "Can't modify deleted {0}",
-  cannot_modify_deleted_entity_msg": "{0} '{1}' has been moved to trash and therefore can't be modified.',
+  cannot_modify_deleted_entity_msg: "{0} '{1}' has been moved to trash and therefore can't be modified.",
+  deletion_browser: "Trash",
+  button_revert_deletion: "Revert",
+  button_delete_permanently: "Delete Permanently",
 	 
   //
   // Table Modifications
@@ -350,6 +353,7 @@ var common = {
   AUTHORIZATION_MENU_USERS: "Users",
   AUTHORIZATION_MENU_AUTHORIZATION_GROUPS: "User Groups",
   AUTHORIZATION_MENU_ROLES: "Roles",
+  TRASH: "Trash",
   LOGGING_CONSOLE: "Logging Console",
 
   menu_data_set: "Data Set",
