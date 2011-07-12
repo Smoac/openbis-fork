@@ -25,16 +25,15 @@ register-property-type ${type} with data type CONTROLLEDVOCABULARY(BARCODES) "de
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = BARCODE_LENGTH
-register-property-type ${type} with data type INTEGER "description=Length of the barcode. Will be used as a parameter for the bareback image analysis: Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be recovered by Deferred Cluster Calling Felix Krueger1, Simon R. Andrews1, Cameron S. Osborne2*,Plos One, 2011 "label=Barcode Length (+ recognition site)"
+register-property-type ${type} with data type INTEGER "description=Length of the barcode. Will be used as a parameter for the bareback image analysis: Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be recovered by Deferred Cluster Calling Felix Krueger1, Simon R. Andrews1, Cameron S. Osborne2*,Plos One, 2011" "label=Barcode Length (+ recognition site)"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = BAREBACKED
-register-property-type ${type} with data type BOOLEAN "description=Has the bareback algorithm been applied?
-Krueger F, Andrews SR, Osborne CS (2011) Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be Recovered by Deferred Cluster Calling. PLoS ONE 6(1): e16607. doi:10.1371/journal.pone.0016607" "label=Barebacked?"
+register-property-type ${type} with data type BOOLEAN "description=Has the bareback algorithm been applied? Krueger F, Andrews SR, Osborne CS (2011) Large Scale Loss of Data in Low-Diversity Illumina Sequencing Libraries Can Be Recovered by Deferred Cluster Calling. PLoS ONE 6(1): e16607. doi:10.1371/journal.pone.0016607" "label=Barebacked?"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = CLUSTER_GENERATION_KIT_VERSION
-register-property-type ${type} with data type CONTROLLEDVOCABULARY(CLUSTER_GENERATION_KIT) "description=Cluster Station Kit Version" "label=CS Generation Kit Version"
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(CLUSTER_GENERATION_KIT_VERSION) "description=Cluster Station Kit Version" "label=CS Generation Kit Version"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = CASAVA_VERSION
@@ -60,7 +59,7 @@ assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = CYCLES_REQUESTED_BY_CUSTOMER
 register-property-type ${type} with data type CONTROLLEDVOCABULARY(CYCLES) "description=Read length" "label=Cycles"
-assign-to SAMPLE:SAMPLE:ILLUMINA_SEQUENCING ${type}
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 assign-to SAMPLE:ILLUMINA_FLOW_CELL ${type}
 
 set type = DNA_CONCENTRATION_OF_LIBRARY
@@ -77,15 +76,15 @@ assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 
 set type = CONTACT_PERSON_EMAIL
 register-property-type ${type} with data type VARCHAR "description=Email of person to contact about the sample, Used for the tracking system" "label=Email of Contact Person"
-assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
 
-set type = PRINCIPAL_INVESTIGATOR_EMAIL
-register-property-type ${type} with data type VARCHAR "description=Email of PI to contact about the sample, Used for the tracking system" "label=Email of Principal Investigator"
-assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+set type = CONTACT_PERSON_NAME
+register-property-type ${type} with data type VARCHAR "description=Name of person to contact about the sample" "label=Email of Contact Person"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
 
 set type = EXTERNAL_SAMPLE_NAME
 register-property-type ${type} with data type VARCHAR "description=Original Sample Name" "label=External Sample Name"
-assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
 
 set type = FRAGMENT_SIZE_PREPARED_ILLUMINA
 register-property-type ${type} with data type INTEGER "description=Fragment size of the library of a prepared Illumina Sequencing sample in either bases or base pairs" "label=Fragment Size (prepared) [base (pairs)]"
@@ -110,3 +109,120 @@ assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
 set type = KIT
 register-property-type ${type} with data type CONTROLLEDVOCABULARY(KIT) "description=Type of preparation kit" "label=Type of preparation kit"
 assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = LIBRARY_PROCESSING_SCUCCESSFUL
+register-property-type ${type} with data type BOOLEAN "description=" "label=Library processing successful"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = MACS_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(MACS_VERSION) "description=Used MACS version (peak caller) http://liulab.dfci.harvard.edu/MACS/" "label=MACS Version"
+assign-to DATA_SET:MACS_OUTPUT ${type}
+
+set type = MAPPED_READS
+register-property-type ${type} with data type INTEGER "description=Reads successfully aligned to reference genome" "label=# of mapped reads"
+assign-to  DATA_SET:ALIGNMENT ${type}
+
+set type = NANO_DROP
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(NANO_DROP) "description=" "label=Nano Drop"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = NCBI_ORGANISM_TAXONOMY
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(NCBI_TAXONOMY) "description=Standard NCBI Taxonomy (http://www.ncbi.nlm.nih.gov/taxonomy)" "label=Organism (NCBI Taxonomy)"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
+
+set type = NOTES
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Free text" "label=Notes"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+assign-to SAMPLE:ILLUMINA_FLOW_CELL ${type}
+
+set type = NOTES_CUSTOMER
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Free text" "label=Customer notes"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = NUMBER_OF_ATTACHMENTS
+register-property-type ${type} with data type INTEGER "description=" "label=# of attachments"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = OTRS
+register-property-type ${type} with data type INTEGER "description=OTRS Reference Number" "label=OTRS ID #"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = PRINCIPAL_INVESTIGATOR_EMAIL
+register-property-type ${type} with data type VARCHAR "description=Email of Principal Investigator responsible for the sample. Used for the tracking system" "label=Email of Principal Investigator"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
+
+set type = PRINCIPAL_INVESTIGATOR_NAME
+register-property-type ${type} with data type VARCHAR "description=Name of Principal Investigator responsible for the sample." "label=Name of Principal Investigator"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
+
+set type = REQUIRED_LANES
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(REQUIRED_LANES) "description=" "label=Required Lanes"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_CHARACTERISTICS
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Describe all available characteristics of the biological source, including factors not necessarily under investigation. Provide in 'Tag: Value' format, where 'Tag' is a type of characteristic (e.g. 'gender', 'strain', 'tissue', 'developmental stage', 'tumor stage', etc), and 'Value' is the value for each tag (e.g. 'female', '129SV', 'brain', 'embryo', etc). Include as many characteristics fields as necessary to thoroughly describe your Samples." "label=Sample characteristics"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_DATA_PROCESSING
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Provide details of how data were generated and calculated. For example, what software was used, how and to what were the reads aligned, what filtering parameters were applied, how were peaks calculated, etc. Include a separate 'data processing' attribute for each file type described." "label=Sample Data Processing"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_EXTRACT_PROTOCOL
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Describe the protocol used to isolate the extract material. Describe the library construction protocol, ie, the protocols used to extract and prepare the material to be sequenced. You can include as much text as you need to thoroughly describe the protocol; it is strongly recommended that complete protocol descriptions are provided within your submission." "label=Sample Extract Protocol"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_KIND
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SAMPLE_TYPE) "description=Kind of sample delivered by the customer (and suitable for a certain sequencing application)" "label=Sample Kind"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
+
+set type = SAMPLE_LIBRARY_SELECTION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SAMPLE_LIBRARY_SELECTION) "description=Describes whether any method was used to select and/or enrich the material being sequenced." "label=Sample Library Selection"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_LIBRARY_SOURCE
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SAMPLE_LIBRARY_SOURCE_VOC) "description=Type of source material that is being sequenced." "label=Sample Library Source"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_LIBRARY_STRATEGY
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SAMPLE_LIBRARY_STRATEGY) "description=Sequencing technique for this library." "label=Sample Library Strategy"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_MOLECULE
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SAMPLE_MOLECULE) "description=Specify the type of molecule that was extracted from the biological material." "label=Sample molecule"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMPLE_SOURCE_NAME
+register-property-type ${type} with data type VARCHAR "description=Briefly identify the biological material and the experimental variable(s), e.g., vastus lateralis muscle, exercised, 60 min." "label=Sample Source Name"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SAMTOOLS_FLAGSTAT
+register-property-type ${type} with data type MULTILINE_VARCHAR "description=Output of the samtools flagstat command" "label=Samtools Flagstat Output"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SBS_SEQUENCING_KIT_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SBS_SEQUENCING_KIT_VERSION) "description=SBS Sequencing Kit Version" "label=SBS Sequencing Kit Version"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SCS_PROTOCOL_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SCS_PROTOCOL_VERSION) "description=Illumina protocol version" "label=SCS Protocol Version"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SCS_SOFTWARE_VERSION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SCS_SOFTWARE_VERSION) "description=Version of the SCS Software on the GA Control PC" "label=SCS Software Version"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = SEQUENCER
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SEQUENCER) "description=Which sequencer has been used?" "label=Sequencer"
+assign-to SAMPLE:ILLUMINA_FLOW_CELL ${type}
+
+set type = SEQUENCING_APPLICATION
+register-property-type ${type} with data type CONTROLLEDVOCABULARY(SEQUENCING_APPLICATION) "description=What kind of sequencing application the sample has been prepared for" "label=Sequencing Application"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type} mandatory
+
+set type = STARTING_AMOUNT_OF_SAMPLE_IN_NG
+register-property-type ${type} with data type REAL "description=" "label=Starting amount of sample (ng)"
+assign-to SAMPLE:ILLUMINA_SEQUENCING ${type}
+
+set type = TOTAL_READS
+register-property-type ${type} with data type REAL "description=Total reads which have been tried to map" "label=Total reads"
+assign-to DATA_SET:ALIGNMENT ${type}
