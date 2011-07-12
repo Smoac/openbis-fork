@@ -38,8 +38,10 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
@@ -74,7 +76,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * Things not tested
  * - skip well creation when plate library already exists
  * - skip material creation for preexisting materials
- * - error cases
  * </pre>
  * 
  * @author Kaloyan Enimanev
@@ -106,7 +107,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String OVERLAYS_DATA_SET_DIR_NAME = "overlays";
 
-    private static final String ANALYSIS_DATA_SET_FILE_NAME = "LC80463-RS101117.xml";
+    private static final String ANALYSIS_DATA_SET_FILE_NAME = "LC80463-RS101117.xml.csv";
 
     private static final String IMAGE_DATA_SET_CODE = "data-set-code";
 
@@ -138,10 +139,14 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     public void setUp() throws IOException
     {
         super.setUp();
+
+        extendJythonLibPath(getRegistrationScriptsFolderPath());
+
         atomicatOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
         email = new RecordingMatcher<String>();
+
     }
 
     @Test
@@ -165,21 +170,19 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             });
 
-        try
-        {
-            handler.handle(markerFile);
-            fail("Registration should fail with library validation error");
-        } catch (RuntimeException rex)
-        {
-            final String error =
-                    "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 2 rows, "
-                            + "but the geometry of plate 'TEST-PLATE' allows a maximum of 1 rows. You should either reduce the "
-                            + "number of rows in the library template or change the plate geometry.";
-            assertContains(error, rex.getMessage());
-            assertContains(error, email.recordedObject());
-            assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
-        }
+        final String error =
+                "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 2 rows, "
+                        + "but the geometry of plate 'TEST-PLATE' allows a maximum of 1 rows. You should either reduce the "
+                        + "number of rows in the library template or change the plate geometry.";
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, error);
 
+        handler.handle(markerFile);
+
+        assertContains(error, email.recordedObject());
+        assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
+
+        appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
 
@@ -204,22 +207,20 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             });
 
-        try
-        {
-            handler.handle(markerFile);
-            fail("Registration should fail with library validation error");
-        } catch (RuntimeException rex)
-        {
-            final String error =
-                    "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 3 "
-                            + "columns in row 1, but the geometry of plate 'TEST-PLATE' allows a maximum of "
-                            + "5 columns. You should either reduce the number of columns in the library "
-                            + "template or change the plate geometry.";
-            assertContains(error, rex.getMessage());
-            assertContains(error, email.recordedObject());
-            assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
-        }
+        final String error =
+                "The property LIBRARY_TEMPLATE of experiment '/SANOFI/PROJECT/EXP' contains 3 "
+                        + "columns in row 1, but the geometry of plate 'TEST-PLATE' allows a maximum of "
+                        + "5 columns. You should either reduce the number of columns in the library "
+                        + "template or change the plate geometry.";
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, error);
 
+        handler.handle(markerFile);
+
+        assertContains(error, email.recordedObject());
+        assertContains(IMAGE_DATA_SET_DIR_NAME, email.recordedObject());
+
+        appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
 
@@ -250,19 +251,16 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             });
 
-        try
-        {
-            handler.handle(markerFile);
-            fail("Registration should fail validation error");
-        } catch (RuntimeException rex)
-        {
-            assertContains(
-                    "Error registering library for plate 'TEST-PLATE'. The library template specified in "
-                            + "property 'LIBRARY_TEMPLATE' of experiment '/SANOFI/PROJECT/EXP' contains concentration value "
-                            + "for well 'B1', but no mapping to a material was found in the ABASE DB.",
-                    rex.getMessage());
-        }
+        final String error =
+                "Error registering library for plate 'TEST-PLATE'. The library template specified in "
+                        + "property 'LIBRARY_TEMPLATE' of experiment '/SANOFI/PROJECT/EXP' contains concentration value "
+                        + "for well 'B1', but no mapping to a material was found in the ABASE DB.";
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, error);
 
+        handler.handle(markerFile);
+
+        appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
 
@@ -294,19 +292,16 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             });
 
-        try
-        {
-            handler.handle(markerFile);
-            fail("Registration should fail validation error");
-        } catch (RuntimeException rex)
-        {
-            assertContains(
-                    " Error registering library for plate 'TEST-PLATE'. The ABASE DB contains a material definition "
-                            + "for well 'A3', but no valid concentration was found in the library template of experiment "
-                            + "'/SANOFI/PROJECT/EXP'. The library template should contain a number for 'A3' but no value was found",
-                    rex.getMessage());
-        }
+        final String error =
+                " Error registering library for plate 'TEST-PLATE'. The ABASE DB contains a material definition "
+                        + "for well 'A3', but no valid concentration was found in the library template of experiment "
+                        + "'/SANOFI/PROJECT/EXP'. The library template should contain a number for 'A3' but no value was found";
+        LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION, error);
 
+        handler.handle(markerFile);
+
+        appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
 
@@ -612,8 +607,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         handler = new TestingPlateDataSetHandler(globalState, registrationShouldFail,
                 shouldReThrowException);
+
     }
-    
 
     private class TestingPlateDataSetHandler extends JythonPlateDataSetHandler
     {
