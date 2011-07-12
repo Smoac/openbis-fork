@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -63,9 +62,6 @@ public class AdminConsole
         }
         ICommonServer commonService =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH,
-                        5 * DateUtils.MILLIS_PER_MINUTE);
-        IGenericServer genericService =
-                HttpInvokerUtils.createServiceStub(IGenericServer.class, serverURL + SERVICE_PATH,
                         5 * DateUtils.MILLIS_PER_MINUTE);
 
         SessionContextDTO session = commonService.tryToAuthenticate(userID, password);
