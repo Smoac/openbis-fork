@@ -147,6 +147,7 @@ public class ConversionUtils
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
         data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
+        data.setParentDataSetCodes(dataSetInformation.getParentDataSetCodes());
 
         data.setStorageFormat(storageFormat);
 
@@ -172,6 +173,7 @@ public class ConversionUtils
         data.setDataStoreCode(dataStoreCode);
         data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
         data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
+        data.setParentDataSetCodes(dataSetInformation.getParentDataSetCodes());
 
         List<NewProperty> newProperties =
                 dataSetInformation.getExtractableData().getDataSetProperties();
