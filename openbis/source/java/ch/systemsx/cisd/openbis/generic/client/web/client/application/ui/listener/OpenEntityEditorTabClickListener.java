@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -59,6 +63,10 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
             IEntityInformationHolder entity, boolean inBackground)
     {
         assert entity != null : "entity is not provided";
+        if (forbidDeletedEntityModification(viewContext, entity))
+        {
+            return;
+        }
         final AbstractTabItemFactory tabView;
         // NOTE: most plugins require a specific type class here!
         BasicEntityType entityType = entity.getEntityType();
@@ -71,5 +79,22 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
         tabView = createClientPlugin.createEntityEditor(entity);
         tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
+    }
+
+    public static boolean forbidDeletedEntityModification(IMessageProvider messageProvider,
+            IEntityInformationHolder entity)
+    {
+        if (DeletionUtils.isDeleted(entity))
+        {
+            String title =
+                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_TITLE, entity
+                            .getEntityKind().getDescription());
+            String msg =
+                    messageProvider.getMessage(Dict.CANNOT_MODIFY_DELETED_ENTITY_MSG, entity
+                            .getEntityKind().getDescription(), entity.getCode());
+            MessageBox.alert(title, msg, null);
+            return true;
+        }
+        return false;
     }
 }

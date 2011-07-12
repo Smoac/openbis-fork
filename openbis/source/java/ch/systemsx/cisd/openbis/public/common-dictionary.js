@@ -72,6 +72,8 @@ var common = {
   deleting: "Deleting",
   delete_permanently_progress_message: "Deleting {0}(s)...",
   delete_progress_message: "Moving {0}(s) to trash ...",
+  cannot_modify_deleted_entity_title: "Can't modify deleted {0}",
+  cannot_modify_deleted_entity_msg": "{0} '{1}' has been moved to trash and therefore can't be modified.',
 	 
   //
   // Table Modifications

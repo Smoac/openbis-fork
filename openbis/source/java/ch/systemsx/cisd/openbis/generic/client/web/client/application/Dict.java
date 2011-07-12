@@ -508,6 +508,12 @@ public abstract class Dict
 
     public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
 
+    public static final String CANNOT_MODIFY_DELETED_ENTITY_TITLE =
+            "cannot_modify_deleted_entity_title";
+
+    public static final String CANNOT_MODIFY_DELETED_ENTITY_MSG =
+            "cannot_modify_deleted_entity_msg";
+
     //
     // Sample Viewer
     //

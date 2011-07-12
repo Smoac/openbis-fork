@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.PagingToolBarButtonKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
@@ -387,6 +388,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected void showEntityInformationHolderViewer(IEntityInformationHolderWithPermId entity,
             boolean editMode, boolean inBackground)
     {
+        if (OpenEntityEditorTabClickListener.forbidDeletedEntityModification(viewContext, entity))
+        {
+            return;
+        }
         final EntityKind entityKind = entity.getEntityKind();
         final AbstractTabItemFactory tabView;
         BasicEntityType entityType = entity.getEntityType();
