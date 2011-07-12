@@ -37,7 +37,9 @@ public class RegisterPropertyType implements ICommand
     private final static String TYPE = "type";
 
     private static final String LABEL = "label";
-    
+
+    private static final String DESCRIPTION = "description";
+
     private static boolean validated(List<String> tokens)
     {
         return tokens.size() > 4 && tokens.get(1).equals(WITH) && tokens.get(2).equals(DATA)
@@ -93,9 +95,9 @@ public class RegisterPropertyType implements ICommand
             propertyType.setDataType(new DataType(dataTypeCode));
         }
 
-        if (tokens.size() > 5)
+        for (int i = 5; i < tokens.size(); ++i)
         {
-            String token = tokens.get(5);
+            String token = tokens.get(i);
             int indexOfEqualSign = token.indexOf('=');
             if (indexOfEqualSign < 0)
             {
@@ -107,6 +109,9 @@ public class RegisterPropertyType implements ICommand
             if (LABEL.equalsIgnoreCase(key))
             {
                 propertyType.setLabel(value);
+            } else if (DESCRIPTION.equalsIgnoreCase(key))
+            {
+                propertyType.setDescription(value);
             }
         }
 
