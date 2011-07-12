@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -60,11 +61,14 @@ public class AdminConsole
         {
             password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
         }
-        ICommonServer service =
+        ICommonServer commonService =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH,
                         5 * DateUtils.MILLIS_PER_MINUTE);
+        IGenericServer genericService =
+                HttpInvokerUtils.createServiceStub(IGenericServer.class, serverURL + SERVICE_PATH,
+                        5 * DateUtils.MILLIS_PER_MINUTE);
 
-        SessionContextDTO session = service.tryToAuthenticate(userID, password);
+        SessionContextDTO session = commonService.tryToAuthenticate(userID, password);
         if (session == null)
         {
             System.err.println("Authentication failed");
@@ -94,7 +98,7 @@ public class AdminConsole
                     {
                         try
                         {
-                            cmd.execute(service, sessionToken, context, argument);
+                            cmd.execute(commonService, sessionToken, context, argument);
                         } catch (RuntimeException ex)
                         {
                             printError(i, line, ex);
@@ -102,7 +106,8 @@ public class AdminConsole
                     }
                 }
             }
-            service.logout(sessionToken);
+            commonService.logout(sessionToken);
+            System.out.println("Done. Processed " + lines.size() + " lines.");
         }
     }
 
