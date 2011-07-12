@@ -20,7 +20,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -29,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -141,8 +144,8 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         return newImagePath;
     }
 
-    private byte[] generateThumbnail(ByteArrayOutputStream bufferOutputStream, File img, String imageIdOrNull)
-            throws IOException
+    private byte[] generateThumbnail(ByteArrayOutputStream bufferOutputStream, File img,
+            String imageIdOrNull) throws IOException
     {
         byte[] byteArray;
         if (thumbnailsStorageFormat.isGenerateWithImageMagic())
@@ -161,9 +164,16 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
                 thumbnailsStorageFormat.getMaxWidth() + "x"
                         + thumbnailsStorageFormat.getMaxHeight();
         String imageFilePath = imageFile.getPath();
+        List<String> params = new ArrayList<String>();
+        params.addAll(Arrays.asList(convertUtilityOrNull.getPath(), imageFilePath, "-scale", size));
+        List<String> additionalParams = thumbnailsStorageFormat.getImageMagicParams();
+        if (additionalParams != null)
+        {
+            params.addAll(additionalParams);
+        }
+        params.add("png:-");
         final ProcessResult result =
-                ProcessExecutionHelper.run(Arrays.asList(convertUtilityOrNull.getPath(),
-                        imageFilePath, "-scale", size, "png:-"), operationLog, machineLog,
+                ProcessExecutionHelper.run(params, operationLog, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
                         ProcessIOStrategy.BINARY_DISCARD_STDERR_IO_STRATEGY, false);
         if (result.isOK() == false)
@@ -177,8 +187,8 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         }
     }
 
-    private byte[] generateThumbnailInternally(File imageFile,
-            String imageIdOrNull, ByteArrayOutputStream bufferOutputStream) throws IOException
+    private byte[] generateThumbnailInternally(File imageFile, String imageIdOrNull,
+            ByteArrayOutputStream bufferOutputStream) throws IOException
     {
         BufferedImage image = loadImage(imageFile, imageIdOrNull);
         BufferedImage thumbnail =
@@ -231,8 +241,16 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     public void runWithSimpleWriter(IHDF5SimpleWriter writer)
     {
-        ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
-                thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
-                "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION);
+        Collection<FailureRecord<AcquiredSingleImage>> errors =
+                ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
+                        thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
+                        "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION);
+        if (errors.size() > 0)
+        {
+            throw new IllegalStateException(
+                    String.format(
+                            "There were errors when generating %d thumbnails, the whole thumbnails generation process fails.",
+                            errors.size()));
+        }
     }
 }

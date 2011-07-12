@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.util.Collections;
+import java.util.List;
+
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
@@ -44,6 +47,8 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     private boolean highQuality = false;
 
     private boolean generateWithImageMagic = false;
+
+    private List<String> imageMagicParams = Collections.emptyList();
 
     /**
      * Creates empty object which instructs that the thumbnails should be generated with default
@@ -81,6 +86,11 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     public boolean isGenerateWithImageMagic()
     {
         return generateWithImageMagic;
+    }
+
+    public List<String> getImageMagicParams()
+    {
+        return imageMagicParams;
     }
 
     // --- setters ---
@@ -124,12 +134,23 @@ public class ThumbnailsStorageFormat extends AbstractHashable
     /**
      * if true ImageMagic 'convert' utility should be installed and will be used to generate
      * thumbnails. <br>
-     * Note: if image library has been specified to handle the images, it will be ignored for
-     * thumbnails generation if convert is supposed to be used.
+     * Note: if images should be handled with a specific image library, it will be ignored for
+     * thumbnails generation if 'convert' is supposed to be used. Make sure that 'convert' can deal
+     * with your images in such a case.
      */
     public void setGenerateWithImageMagic(boolean generateWithImageMagic)
     {
         this.generateWithImageMagic = generateWithImageMagic;
+    }
+
+    /**
+     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is
+     * used to generate thumbnails. Example: pass "-contrast-stretch 2%" to discard 2% of brightest
+     * and darkest pixels in the thumbnails.
+     */
+    public void setImageMagicParams(List<String> imageMagicParams)
+    {
+        this.imageMagicParams = imageMagicParams;
     }
 
 }

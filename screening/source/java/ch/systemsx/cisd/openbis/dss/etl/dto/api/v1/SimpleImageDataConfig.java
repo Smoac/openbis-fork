@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -52,7 +54,7 @@ abstract public class SimpleImageDataConfig
      * just the {@link ImageMetadata} object returned by {@link #extractImageMetadata(String)}.
      * <p>
      * In case of a image container file format (like multi-page TIFF) this method should
-     * overridden. 
+     * overridden.
      * 
      * @param imageIdentifiers Identifiers of all images contained in the image file.
      */
@@ -142,7 +144,9 @@ abstract public class SimpleImageDataConfig
 
     private int maxThumbnailWidthAndHeight = 256;
 
-    private boolean generateThumbnailsWithImageMagic = false;
+    private boolean generateThumbnailsWithImageMagic = true;
+
+    private List<String> thumbnailsGenerationImageMagicParams = Collections.emptyList();
 
     private boolean generateThumbnailsInHighQuality = false;
 
@@ -176,6 +180,7 @@ abstract public class SimpleImageDataConfig
             thumbnailsStorageFormat.setMaxWidth(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setMaxHeight(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
+            thumbnailsStorageFormat.setImageMagicParams(thumbnailsGenerationImageMagicParams);
             thumbnailsStorageFormat.setHighQuality(generateThumbnailsInHighQuality);
             imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
         }
@@ -284,12 +289,28 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * if true ImageMagic 'convert' utility will be used to generate thumbnails. It should be
-     * installed and accessible.
+     * Decides if ImageMagic 'convert' utility will be used to generate thumbnails. True by default.
+     * <p>
+     * The tool should be installed and accessible, otherwise set this option to false and set
+     * {@link #setAllowedMachineLoadDuringThumbnailsGeneration(double)} to
+     * 1/numberOfYourProcessorCores. Internal library will be used to generate thumbnails, but it is
+     * not able to generate thumbnails in parallel.
      */
     public void setUseImageMagicToGenerateThumbnails(boolean generateWithImageMagic)
     {
         this.generateThumbnailsWithImageMagic = generateWithImageMagic;
+    }
+
+    /**
+     * Sets additional parameters which should be passed to ImageMagic 'convert' utility when it is
+     * used to generate thumbnails.
+     * <p>
+     * Example: pass "-contrast-stretch 2%" to discard 2% of brightest and darkest pixels in the
+     * thumbnails.
+     */
+    public void setThumbnailsGenerationImageMagicParams(String[] imageMagicParams)
+    {
+        this.thumbnailsGenerationImageMagicParams = Arrays.asList(imageMagicParams);
     }
 
     /**
@@ -356,7 +377,7 @@ abstract public class SimpleImageDataConfig
     {
         this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName, readerName);
     }
-    
+
     /**
      * Sets the image library to be used for reading images. Available libraries are: IJ, ImageIO,
      * JAI, and BioFormats. The first image file is used to determine the actual reader. Note, that
@@ -366,7 +387,7 @@ abstract public class SimpleImageDataConfig
     {
         this.imageLibraryInfoOrNull = new ImageLibraryInfo(imageLibraryName);
     }
-    
+
     // --- predefined image dataset types
 
     /**
@@ -445,7 +466,7 @@ abstract public class SimpleImageDataConfig
     {
         return isMeasured;
     }
-    
+
     public boolean isMicroscopyData()
     {
         return isMicroscopy;
