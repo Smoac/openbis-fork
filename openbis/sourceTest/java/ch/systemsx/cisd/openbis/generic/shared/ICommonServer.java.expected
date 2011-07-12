@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.DeletionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -159,7 +161,7 @@ public interface ICommonServer extends IServer
             EntityKind entityKindOrNull);
 
     /**
-     * Returns all spaces which belong to the specified database instance. *
+     * Returns deletions which belong to the specified database instance. *
      * 
      * @return a sorted list of {@link Space}.
      */
@@ -753,7 +755,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
             String reason, DeletionType type);
@@ -763,7 +766,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.DELETION })
     public void deleteSamples(
             String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdCollectionPredicate.class) List<TechId> sampleIds,
@@ -774,7 +778,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     public void deleteExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) List<TechId> experimentIds,
@@ -1423,5 +1428,15 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateMaterialProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties);
+
+    /**
+     * Returns all deletions.
+     * 
+     * @return a sorted list of {@link Deletion}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @ReturnValueFilter(validatorClass = DeletionValidator.class)
+    public List<Deletion> listDeletions(String sessionToken);
 
 }
