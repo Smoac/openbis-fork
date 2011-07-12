@@ -96,7 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
@@ -357,8 +357,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         final List<Space> groups = createServer().listSpaces(SESSION_TOKEN, identifier);
 
-        assertEquals(GroupTranslator.translate(g1), groups.get(0));
-        assertEquals(GroupTranslator.translate(g2), groups.get(1));
+        assertEquals(SpaceTranslator.translate(g1), groups.get(0));
+        assertEquals(SpaceTranslator.translate(g2), groups.get(1));
         assertEquals(2, groups.size());
         assertEquals(true, g1.isHome().booleanValue());
         assertEquals(false, g2.isHome().booleanValue());

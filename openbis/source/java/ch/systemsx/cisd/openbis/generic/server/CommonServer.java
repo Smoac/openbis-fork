@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -173,6 +174,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -216,10 +218,10 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DeletionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
@@ -229,6 +231,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
@@ -306,20 +309,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // IGenericServer
     //
 
+    public final List<Deletion> listDeletions(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<DeletionPE> deletions = getDAOFactory().getDeletionDAO().listAllEntities();
+        Collections.sort(deletions);
+        return DeletionTranslator.translate(deletions);
+    }
+
     public final List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
         final Session session = getSession(sessionToken);
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
-        final List<SpacePE> groups = getDAOFactory().getSpaceDAO().listSpaces(databaseInstance);
-        final SpacePE homeGroupOrNull = session.tryGetHomeGroup();
-        for (final SpacePE group : groups)
+        final List<SpacePE> spaces = getDAOFactory().getSpaceDAO().listSpaces(databaseInstance);
+        final SpacePE homeSpaceOrNull = session.tryGetHomeGroup();
+        for (final SpacePE space : spaces)
         {
-            group.setHome(group.equals(homeGroupOrNull));
+            space.setHome(space.equals(homeSpaceOrNull));
         }
-        Collections.sort(groups);
-        return GroupTranslator.translate(groups);
+        Collections.sort(spaces);
+        return SpaceTranslator.translate(spaces);
     }
 
     public final void registerSpace(final String sessionToken, final String spaceCode,

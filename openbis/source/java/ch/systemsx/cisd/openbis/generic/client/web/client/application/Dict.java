@@ -514,6 +514,12 @@ public abstract class Dict
     public static final String CANNOT_MODIFY_DELETED_ENTITY_MSG =
             "cannot_modify_deleted_entity_msg";
 
+    public static final String DELETION_BROWSER = "deletion_browser";
+
+    public static final String BUTTON_REVERT_DELETION = "button_revert_deletion";
+
+    public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
+
     //
     // Sample Viewer
     //

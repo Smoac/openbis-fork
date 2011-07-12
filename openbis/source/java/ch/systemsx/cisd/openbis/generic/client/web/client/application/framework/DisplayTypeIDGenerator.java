@@ -48,6 +48,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PROJECT_BROWSER_GRID("project-browser-grid"),
 
+    DELETION_BROWSER_GRID("deletion-browser-grid"),
+
     FILTER_BROWSER_GRID("filter-browser-grid"),
 
     CUSTOM_GRID_COLUMN_GRID("custom-grid-column-browser-grid"),

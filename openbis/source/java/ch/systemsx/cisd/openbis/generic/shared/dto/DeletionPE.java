@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 @Entity
 @Table(name = TableNames.DELETIONS_TABLE)
 public class DeletionPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
-        Serializable
+        Serializable, Comparable<DeletionPE>
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -105,5 +105,14 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
     {
         return ToStringBuilder.reflectionToString(this,
                 ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+    }
+
+    //
+    // Comparable - registration date based
+    //
+
+    public final int compareTo(final DeletionPE o)
+    {
+        return this.getRegistrationDate().compareTo(o.getRegistrationDate());
     }
 }

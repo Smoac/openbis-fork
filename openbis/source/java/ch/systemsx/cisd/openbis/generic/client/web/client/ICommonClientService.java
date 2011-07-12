@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -348,10 +349,24 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of all deletions.
+     */
+    public TypedTableResultSet<Deletion> listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
+            throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
     public String prepareExportProjects(
             final TableExportCriteria<TableModelRowWithObject<Project>> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for deletions.
+     */
+    public String prepareExportDeletions(
+            final TableExportCriteria<TableModelRowWithObject<Deletion>> criteria)
             throws UserFailureException;
 
     /**

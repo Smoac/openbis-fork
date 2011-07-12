@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
@@ -30,6 +33,16 @@ public final class DeletionTranslator
     private DeletionTranslator()
     {
         // Can not be instantiated.
+    }
+
+    public final static List<Deletion> translate(final List<DeletionPE> deletions)
+    {
+        final List<Deletion> result = new ArrayList<Deletion>();
+        for (final DeletionPE deletion : deletions)
+        {
+            result.add(translate(deletion));
+        }
+        return result;
     }
 
     public final static Deletion translate(final DeletionPE deletion)

@@ -234,7 +234,7 @@ public class DataSetTranslator
         sample.setIdentifier(samplePE.getSampleIdentifier().toString());
         sample.setRegistrationDate(samplePE.getRegistrationDate());
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
-        sample.setSpace(GroupTranslator.translate(samplePE.getSpace()));
+        sample.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),

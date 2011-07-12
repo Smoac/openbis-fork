@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 
 /**
  * Test cases for corresponding {@link MatchingEntityValidator} class.
@@ -45,7 +45,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     private static MatchingEntity asMatchingEntityStub(IMatchingEntity matchingEntity)
     {
         final MatchingEntity result = new MatchingEntity();
-        result.setSpace(GroupTranslator.translate(tryGetGroup(matchingEntity)));
+        result.setSpace(SpaceTranslator.translate(tryGetGroup(matchingEntity)));
         return result;
     }
 

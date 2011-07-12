@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.Authorizatio
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CustomGridColumnProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DeletionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
@@ -118,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -400,6 +402,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportDeletions(
+            TableExportCriteria<TableModelRowWithObject<Deletion>> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
     public String prepareExportVocabularies(
             final TableExportCriteria<TableModelRowWithObject<Vocabulary>> criteria)
     {
@@ -659,6 +667,15 @@ public final class CommonClientService extends AbstractClientService implements
     {
         ProjectsProvider projectsProvider = new ProjectsProvider(commonServer, getSessionToken());
         return listEntities(projectsProvider, criteria);
+    }
+
+    public TypedTableResultSet<Deletion> listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        DeletionsProvider deletionsProvider =
+                new DeletionsProvider(commonServer, getSessionToken());
+        return listEntities(deletionsProvider, criteria);
     }
 
     public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,

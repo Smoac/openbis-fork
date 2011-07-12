@@ -53,7 +53,7 @@ public final class RoleAssignmentTranslator
             return null;
         }
         final RoleAssignment result = new RoleAssignment();
-        result.setSpace(GroupTranslator.translate(role.getSpace()));
+        result.setSpace(SpaceTranslator.translate(role.getSpace()));
         result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
         result.setAuthorizationGroup(AuthorizationGroupTranslator.translate(role

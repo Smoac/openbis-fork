@@ -29,37 +29,37 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Franz-Josef Elmer
  */
-public final class GroupTranslator
+public final class SpaceTranslator
 {
-    private GroupTranslator()
+    private SpaceTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static List<Space> translate(final List<SpacePE> groups)
+    public final static List<Space> translate(final List<SpacePE> spaces)
     {
         final List<Space> result = new ArrayList<Space>();
-        for (final SpacePE group : groups)
+        for (final SpacePE space : spaces)
         {
-            result.add(GroupTranslator.translate(group));
+            result.add(SpaceTranslator.translate(space));
         }
         return result;
     }
 
-    public static Space translate(final SpacePE group)
+    public static Space translate(final SpacePE space)
     {
-        if (group == null)
+        if (space == null)
         {
             return null;
         }
         final Space result = new Space();
-        result.setId(HibernateUtils.getId(group));
-        result.setCode(group.getCode());
-        result.setDescription(group.getDescription());
-        result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
-        result.setRegistrationDate(group.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        result.setIdentifier(IdentifierHelper.createGroupIdentifier(group).toString());
+        result.setId(HibernateUtils.getId(space));
+        result.setCode(space.getCode());
+        result.setDescription(space.getDescription());
+        result.setInstance(DatabaseInstanceTranslator.translate(space.getDatabaseInstance()));
+        result.setRegistrationDate(space.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(space.getRegistrator()));
+        result.setIdentifier(IdentifierHelper.createGroupIdentifier(space).toString());
         return result;
     }
 }

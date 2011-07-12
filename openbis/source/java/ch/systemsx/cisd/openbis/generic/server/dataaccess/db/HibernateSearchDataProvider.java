@@ -23,7 +23,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 
 /**
  * Encapsulates data provided to {@link HibernateSearchDAO} by other DAOs.
@@ -40,7 +40,7 @@ public class HibernateSearchDataProvider
         groupsById = new HashMap<String, Space>();
         for (SpacePE group : groups)
         {
-            groupsById.put(group.getId().toString(), GroupTranslator.translate(group));
+            groupsById.put(group.getId().toString(), SpaceTranslator.translate(group));
         }
     }
 

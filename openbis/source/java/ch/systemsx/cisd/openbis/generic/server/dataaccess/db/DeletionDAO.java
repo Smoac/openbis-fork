@@ -33,8 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
  * 
  * @author Christian Ribeaud
  */
-final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements
-        IDeletionDAO
+final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements IDeletionDAO
 {
 
     /**

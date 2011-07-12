@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
@@ -942,6 +943,44 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.PROJECT_BROWSER);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
+    public final AbstractTabItemFactory getDeletionBrowser()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    IDisposableComponent component = DeletionGrid.create(viewContext);
+                    return createTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return DeletionGrid.BROWSER_ID;
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return HelpPageIdentifier.createSpecific(getMessage(Dict.DELETION_BROWSER));
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.DELETION_BROWSER);
                 }
 
                 @Override

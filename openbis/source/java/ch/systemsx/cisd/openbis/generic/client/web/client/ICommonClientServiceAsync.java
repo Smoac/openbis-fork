@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
@@ -289,9 +290,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
             final AsyncCallback<TypedTableResultSet<Project>> asyncCallback);
 
+    /** @see ICommonClientService#listDeletions(DefaultResultSetConfig) */
+    public void listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria,
+            final AsyncCallback<TypedTableResultSet<Deletion>> asyncCallback);
+
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
     public void prepareExportProjects(
             TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#prepareExportDeletions(TableExportCriteria) */
+    public void prepareExportDeletions(
+            TableExportCriteria<TableModelRowWithObject<Deletion>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -899,14 +910,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#listGridCustomColumns(String, DefaultResultSetConfig)
      */
-    public void listGridCustomColumns(String gridId,
+    public void listGridCustomColumns(
+            String gridId,
             DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomColumn>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<GridCustomColumn>> callback);
 
     /**
      * @see ICommonClientService#prepareExportColumns(TableExportCriteria)
      */
-    public void prepareExportColumns(final TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria,
+    public void prepareExportColumns(
+            final TableExportCriteria<TableModelRowWithObject<GridCustomColumn>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /** @see ICommonClientService#registerColumn(NewColumnOrFilter) */

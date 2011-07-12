@@ -154,7 +154,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
@@ -1099,7 +1099,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         try
         {
             groupBO.load(identifier);
-            return GroupTranslator.translate(groupBO.getGroup());
+            return SpaceTranslator.translate(groupBO.getGroup());
         } catch (UserFailureException ufe)
         {
             // space does not exist
@@ -1173,7 +1173,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     registerSpaceInternal(session, newSpace, operationDetails.tryUserIdOrNull());
             spacePEsCreated.add(spacePE);
         }
-        return GroupTranslator.translate(spacePEsCreated);
+        return SpaceTranslator.translate(spacePEsCreated);
     }
 
     private List<Material> createMaterials(Session session,
