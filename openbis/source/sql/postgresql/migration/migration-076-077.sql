@@ -1,0 +1,1 @@
+-- Keep this file empty - migration is performed in sub project screening

@@ -1,3 +1,5 @@
+-- Migration from 076 to 077
+
 ---------------------------------------------
 -- the property "DESCRIPTION" should be optional for materials "VIRUS", "BACTERIUM", "COMPOUND"
 -- (screening-specific requirement)
