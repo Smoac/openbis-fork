@@ -113,7 +113,6 @@ FIND_IN_ALL_ASSAYS: "Find {0} in all experiments",
 MATERIAL_IN_ASSAY: "{0} in experiment {1}",
 SHOW_ASSAY: "Show experiment {0}",
 MATERIAL_IN_ALL_ASSAYS: "{0} in all experiments",
-MATERIAL_IN_ALL_ASSAYS_OF_PROJECT: "{0} in all experiments of project {1}",
 
 // LAST LINE: KEEP IT AT THE END
 lastline: "" // we need a line without a comma
