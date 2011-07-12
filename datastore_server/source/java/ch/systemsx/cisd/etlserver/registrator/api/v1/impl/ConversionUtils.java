@@ -97,13 +97,15 @@ public class ConversionUtils
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = apiSample.getSample();
 
         List<NewAttachment> attachments = Collections.emptyList();
+        String containerIdentifier =
+                (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
         SampleUpdatesDTO sampleUpdate = new SampleUpdatesDTO(TechId.create(sample), // db id
                 sample.getProperties(), // List<IEntityProperty>
                 ExperimentIdentifierFactory.parse(sample.getExperiment().getIdentifier()), // ExperimentIdentifier
                 attachments, // Collection<NewAttachment>
                 sample.getModificationDate(), // Sample version
                 SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
-                sample.getContainer().getIdentifier(), // Container Identifier
+                containerIdentifier, // Container Identifier
                 null // Parent Identifiers
                 );
         return sampleUpdate;
