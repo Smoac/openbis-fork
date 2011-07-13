@@ -184,7 +184,7 @@ set_data_type(tsv_split_dataset)
 convert_data_to_split_tsv(tr, dataStart[0], dataStart[1], tsv_split_dataset, "tsv")
 
 # Make the original contain these
-contained_codes = [original_dataset.getDataSetCode(), tsv_dataset.getDataSetCode()]
+contained_codes = [original_dataset.getDataSetCode(), tsv_dataset.getDataSetCode(), tsv_split_dataset.getDataSetCode()]
 dataset.setContainedDataSetCodes(contained_codes)
 
 
