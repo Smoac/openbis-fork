@@ -218,7 +218,7 @@ def parseIncomingDirname(dirName):
         raise ValidationException("Data set directory name does not match the pattern '<ACQUISITION_BATCH_NAME>_<BAR_CODE>_<TIMESTAMP>': " + dirName)
     
     acquisitionBatch = tokens[0]
-    plateCode = tokens[1].split('.')[0]
+    plateCode = tokens[1]
     return (acquisitionBatch, plateCode)
     
 

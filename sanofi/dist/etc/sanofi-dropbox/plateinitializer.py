@@ -132,8 +132,9 @@ class PlateInitializer:
         else:
             query = self.ABASE_PRODUCTION_QUERY
             
+        plateCode = self.plateCode.split(".")[0]
         queryService = self.state.getDataSourceQueryService()
-        queryResult = queryService.select(self.ABASE_DATA_SOURCE, query, [self.plateCode])
+        queryResult = queryService.select(self.ABASE_DATA_SOURCE, query, [plateCode])
         
         sanofiMaterials = []
         for resultMap in list(queryResult):
