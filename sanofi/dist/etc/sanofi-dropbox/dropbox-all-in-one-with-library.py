@@ -246,8 +246,8 @@ def convertToPng(dir, transparentColor):
     machineLoad = ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION
     maxThreads = 100
     errorMsg = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
-    if errorMsg != None:
-        raise RuntimeException("Error converting overlays:", errorMsg)
+    if errorMsg:
+        raise RuntimeException("Error converting overlays:" + errorMsg)
 
 # ---------------------
 
