@@ -352,7 +352,7 @@ BEGIN
 	  FROM data
 	  WHERE data.samp_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its data sets is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
   -- all components need to be deleted
 	SELECT count(*) INTO counter 

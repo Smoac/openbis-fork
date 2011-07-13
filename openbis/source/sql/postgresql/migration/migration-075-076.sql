@@ -119,14 +119,14 @@ BEGIN
 	  FROM data
 	  WHERE data.expe_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
 	-- check samples
 	SELECT count(*) INTO counter 
 	  FROM samples 
 	  WHERE samples.expe_id = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples was not deleted.', NEW.code;
 	END IF;
 	RETURN NEW;
 END;
