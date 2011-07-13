@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
+import org.springframework.beans.factory.BeanFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -49,6 +51,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -59,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
@@ -135,12 +139,16 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private RecordingMatcher<String> email;
 
+    private BeanFactory applicationContext;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
     {
         super.setUp();
 
+        applicationContext = context.mock(BeanFactory.class);
+        
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
         atomicatOperationDetails =
@@ -148,6 +156,22 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
         email = new RecordingMatcher<String>();
 
+        ServiceProviderTestWrapper.setApplicationContext(applicationContext);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(applicationContext).getBean("openBIS-service");
+                    will(returnValue(openBisService));
+                }
+            });
+    }
+
+    @Override
+    public void tearDown() throws IOException
+    {
+        super.tearDown();
+
+        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test
@@ -395,6 +419,80 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     }
 
     @Test
+    public void testFatalErrorSentToAdmin() throws IOException
+    {
+        createDataSetHandler(false, false);
+        final Sample plate = plateWithLibTemplateAndGeometry("0.75\tH\n54.12\tL", "8_WELLS_2X4");
+
+        final String[] adminEmails = new String[]
+            { "admin@sanofi.com", null, "admin@openbis.org", "" };
+
+        final String[] nonEmptyAdminEmails = new String[]
+            { "admin@sanofi.com", "admin@openbis.org" };
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(throwException(new RuntimeException("Connection to ABASE DB Failed")));
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+
+                    one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    one(openBisService).listAdministrators();
+                    List<String> adminEmailsList = Arrays.asList(adminEmails);
+                    will(returnValue(createAdministrators(adminEmailsList)));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(nonEmptyAdminEmails)));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+
+                }
+
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(0, atomicatOperationDetails.getRecordedObjects().size());
+
+
+        assertContains("java.lang.RuntimeException: Connection to ABASE DB Failed", email
+                .getRecordedObjects().get(0));
+        assertEquals(
+                "Dear openBIS user,\n"
+                        + "    \n"
+                        + "      Registering new data from incoming folder 'batchNr_plateCode.variant_2011.07.05' has failed due to a system error.\n"
+                        + "      \n"
+                        + "      openBIS has sent a notification to the responsible system administrators and they should be \n"
+                        + "      fixing the problem as soon as possible. \n" + "      \n"
+                        + "      We are sorry for any inconveniences this may have caused. \n"
+                        + "      \n" + "    openBIS Administrators", email.getRecordedObjects()
+                        .get(1).trim());
+
+        context.assertIsSatisfied();
+    }
+
+    private List<Person> createAdministrators(List<String> adminEmails)
+    {
+        List<Person> result = new ArrayList<Person>();
+        for (String adminEmail : adminEmails)
+        {
+            Person person = new Person();
+            person.setEmail(adminEmail);
+            result.add(person);
+        }
+        return result;
+    }
+
+    @Test
     public void testHappyCaseWithLibraryCreationAndNonUniqueMaterials() throws IOException
     {
         createDataSetHandler(false, true);
@@ -480,7 +578,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                         email.recordedObject());
         context.assertIsSatisfied();
     }
-
     private void assertHasProperty(NewExternalData dataSet, String propCode, String propValue)
     {
         for (NewProperty prop : dataSet.getDataSetProperties())

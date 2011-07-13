@@ -80,7 +80,8 @@ def isUserError(ex):
 
 def getAdminEmails():
     admins = ServiceProvider.getOpenBISService().listAdministrators()
-    return [ admin.getEmail() for admin in admins if admin.getEmail() ]
+    adminEmails = [ admin.getEmail() for admin in admins if admin.getEmail() ]
+    return adminEmails
 
 
 def rollback_service(service, ex):
@@ -89,13 +90,13 @@ def rollback_service(service, ex):
         shortErrorMessage = ex.getMessage()
         if not shortErrorMessage:
             shortErrorMessage = ex.value.getMessage()
-        sendError(service, shortErrorMessage, getDefaultEmailRecipients())
+        sendUserError(service, shortErrorMessage, getDefaultEmailRecipients())
     else:
         fullErrorMessage = ExceptionUtils.getFullStackTrace(ex)
-        sendError(service, fullErrorMessage, getAdminEmails())
+        sendAdminError(service, fullErrorMessage, getAdminEmails())
         sendSystemErrorNotificationToUser(service, getDefaultEmailRecipients())
         
-def sendError(service, errorDetails, recipients):        
+def sendUserError(service, errorDetails, recipients):        
     global plateCode
     
     localPlateCode = plateCode
@@ -125,6 +126,23 @@ def sendError(service, errorDetails, recipients):
     Administrator
         """ % vars(), recipients)
     
+def sendAdminError(service, errorDetails, recipients):        
+    incomingFileName = incoming.getName()
+        
+    sendEmail("openBIS System Error: Data registration failed for %s" % (incomingFileName), """
+    Dear openBIS Administrator,
+    
+      The registration of data sets from incoming folder '%(incomingFileName)s' has failed
+      in an unexpected way. The most probable cause is a misconfiguration of a bug in the system. 
+      Here is a full description of the encountered error :
+      
+      %(errorDetails)s
+      
+      Please, repair the problem and remove the entry from '.faulty_paths' to retry registration.
+      
+    openBIS
+        """ % vars(), recipients)
+        
 def sendSystemErrorNotificationToUser(service, recipients):        
     
     incomingFileName = incoming.getName()
