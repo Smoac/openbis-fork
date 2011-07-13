@@ -199,6 +199,8 @@ public abstract class Dict
 
     public static final String EXCEPTION_WITHOUT_MESSAGE = "exception_withoutMessage";
 
+    public static final String SESSION_EXPIRED_MESSAGE = "session_expired";
+
     //
     // Header
     //

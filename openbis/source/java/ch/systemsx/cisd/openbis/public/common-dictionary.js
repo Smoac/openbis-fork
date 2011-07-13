@@ -168,6 +168,7 @@ var common = {
   
   exception_invocationMessage: "Failed to contact the server. Please try again later or contact your administrator.", 
   exception_withoutMessage: "Unexpected error has occurred, please contact your administrator:<br>{0}",
+  session_expired: "Session expired. Please login again.",
   
   //
   // Header
