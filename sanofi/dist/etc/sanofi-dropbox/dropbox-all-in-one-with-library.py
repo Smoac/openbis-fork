@@ -8,6 +8,7 @@ from java.lang import RuntimeException
 from java.io import File
 from java.util import Properties
 
+from org.apache.commons.lang.exception import ExceptionUtils
 from ch.systemsx.cisd.common.mail import From
 from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
@@ -17,6 +18,8 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import Ma
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, OriginalDataStorageFormat, Location 
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
+
+from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
 
 # Switch this off if there is more then one dropbox using this module,
 # in this case it should be switched on manually only after the module's code has been changed on the fly
@@ -72,39 +75,72 @@ ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
 """ Change to 'False' if 'convert' tool is not installed """
 USE_IMAGE_MAGIC_CONVERT_TOOL = True
 
+def isUserError(ex):
+    return ex.value and (ex.value.getClass() == ValidationException("").getClass())
+
+def getAdminEmails():
+    admins = ServiceProvider.getOpenBISService().listAdministrators()
+    return [ admin.getEmail() for admin in admins if admin.getEmail() ]
+
+
 def rollback_service(service, ex):
+    
+    if isUserError(ex):
+        shortErrorMessage = ex.getMessage()
+        if not shortErrorMessage:
+            shortErrorMessage = ex.value.getMessage()
+        sendError(service, shortErrorMessage, getDefaultEmailRecipients())
+    else:
+        fullErrorMessage = ExceptionUtils.getFullStackTrace(ex)
+        sendError(service, fullErrorMessage, getAdminEmails())
+        sendSystemErrorNotificationToUser(service, getDefaultEmailRecipients())
+        
+def sendError(service, errorDetails, recipients):        
     global plateCode
     
+    localPlateCode = plateCode
     incomingFileName = incoming.getName()
-    errorMessage = ex.getMessage()
-    if not errorMessage:
-        errorMessage = ex.toString()
         
-    if plateCode:
-        plateLink = createPlateLink(OPENBIS_URL, plateCode)
-        sendEmail("openBIS: Data registration failed for %s" % (plateCode), """
+    if localPlateCode:
+        sendEmail("openBIS: Data registration failed for %s" % (localPlateCode), """
     Dear openBIS user,
     
-      Registering new data for the plate %(plateLink)s has failed with an error '%(errorMessage)s'.
-      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths' file. 
-      Please, repair the problem and remove the entry from '.faulty_paths' to retry the registration.
+      Registering new data for plate %(localPlateCode)s has failed with error '%(errorDetails)s'.
+      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
+      repair the problem and remove the entry from '.faulty_paths' to retry registration.
        
       This email has been generated automatically.
       
     Administrator
-        """ % vars(), True)
+        """ % vars(), recipients)
     else:
         sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
     Dear openBIS user,
     
       openBIS was unable to understand the name of an incoming folder. 
-      Detailed error message was '%(errorMessage)s'.
+      Detailed error message was '%(errorDetails)s'.
       
       This email has been generated automatically.
       
     Administrator
-        """ % vars(), True)
+        """ % vars(), recipients)
     
+def sendSystemErrorNotificationToUser(service, recipients):        
+    
+    incomingFileName = incoming.getName()
+        
+    sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
+    Dear openBIS user,
+    
+      Registering new data from incoming folder '%(incomingFileName)s' has failed due to a system error.
+      
+      openBIS has sent a notification to the responsible system administrators and they should be 
+      fixing the problem as soon as possible. 
+      
+      We are sorry for any inconveniences this may have caused. 
+      
+    openBIS Administrators
+        """ % vars(), recipients)
 
 def commit_transaction(service, transaction):
     global plateCode
@@ -114,15 +150,16 @@ def commit_transaction(service, transaction):
     sendEmail("openBIS: New data registered for %s" % (plateCode), """
     Dear openBIS user,
     
-      New data from the folder '%(incomingFileName)s' has been successfully registered for the plate %(plateLink)s.
+      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
+       
       This email has been generated automatically.
       
       Have a nice day!
       
     Administrator
-    """ % vars(), False)
-
-def sendEmail(title, content, isError):
+    """ % vars(), getDefaultEmailRecipients())
+    
+def getDefaultEmailRecipients():
     global experiment
     
     recipients = []
@@ -131,10 +168,6 @@ def sendEmail(title, content, isError):
         recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
         if recipientsProp:
            recipients = [ email.strip() for email in recipientsProp.split(",") ]
-        
-    if not recipients and isError:
-       # TODO KE: use state.getErrorEmailRecipients()
-       recipients = [ "Matthew.Smicker@sanofi-aventis.com" ]
         
     if not recipients:
         if experiment:
@@ -146,8 +179,12 @@ def sendEmail(title, content, isError):
                                  "\nEmail title: %s" 
                                  "\nEmail content: %s" % 
                                  (incoming.getName(), experimentMsg, title, content))
+        
+    return recipients
+
+def sendEmail(title, content, recipients):
+    if not recipients:
         return
-    
     fromAddress = From("openbis@sanofi-aventis.com")
     replyTo = None
     state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
