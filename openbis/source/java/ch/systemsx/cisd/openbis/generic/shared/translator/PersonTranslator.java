@@ -40,14 +40,14 @@ public class PersonTranslator
         final List<Person> result = new ArrayList<Person>();
         for (final PersonPE person : persons)
         {
-            result.add(PersonTranslator.translate(person));
+            result.add(PersonTranslator.translate(person, true));
         }
         return result;
     }
 
     public final static Person translate(final PersonPE person)
     {
-        return translate(person, true);
+        return translate(person, false);
     }
 
     private final static Person translate(final PersonPE person, final boolean recursively)

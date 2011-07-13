@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -143,6 +144,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IProjectDAO projectDAO;
 
+    protected IDeletionDAO deletionDAO;
+
     protected IExperimentBO experimentBO;
 
     protected ISampleTypeDAO sampleTypeDAO;
@@ -211,6 +214,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         vocabularyDAO = context.mock(IVocabularyDAO.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
         queryDAO = context.mock(IQueryDAO.class);
+        deletionDAO = context.mock(IDeletionDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
@@ -263,6 +267,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(dataSetTypeDAO));
                     allowing(daoFactory).getDataStoreDAO();
                     will(returnValue(dataStoreDAO));
+                    allowing(daoFactory).getDeletionDAO();
+                    will(returnValue(deletionDAO));
                 }
             });
     }
