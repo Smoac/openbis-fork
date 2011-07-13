@@ -209,7 +209,7 @@ def sendEmail(title, content, recipients):
 def createPlateLink(openbisUrl, code):
     return "<a href='%(openbisUrl)s#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=%(code)s'>%(code)s</a>" % vars()
 
-def findPlateByCode(code):
+def findPlateByCode(transaction, code):
     """
        Finds a plate (openBIS sample) matching a specified bar code.
     """
@@ -330,7 +330,7 @@ if incoming.isDirectory():
     transaction = service.transaction(incoming, factory)
     
     (batchName, plateCode) = parseIncomingDirname(incoming.getName())
-    plate = findPlateByCode(plateCode)
+    plate = findPlateByCode(transaction, plateCode)
     if not plate.getExperiment():
         raise ValidationException("Plate with code '%(plateCode)s' is not associated with experiment" % vars())
     
