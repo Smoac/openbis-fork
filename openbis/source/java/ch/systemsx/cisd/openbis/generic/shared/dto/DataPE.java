@@ -83,7 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = EventPE.class)
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE
 {
     private static final long serialVersionUID = IServer.VERSION;
 

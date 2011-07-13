@@ -70,9 +70,9 @@ public class DeletionPE extends HibernateAbstractRegistrationHolder implements I
         return reason;
     }
 
-    public void setReason(final String description)
+    public void setReason(final String reason)
     {
-        this.reason = description;
+        this.reason = reason;
     }
 
     @Override

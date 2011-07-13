@@ -86,7 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
         + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
 @Indexed(index = "SamplePE")
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, Serializable
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
