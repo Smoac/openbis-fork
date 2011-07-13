@@ -193,9 +193,9 @@ def sendEmail(title, content, recipients):
     if not recipients:
         if experiment:
             experimentMsg = ("Please, fill in e-mail recipients list in the property '%s' of experiment '%s'." % (EXPERIMENT_RECIPIENTS_PROPCODE, experiment.getExperimentIdentifier()))
-        else :
+        else:
             experimentMsg = "" 
-        state.operationLog.error("Failed to detected e-mail recipients for incoming folder '%s'.%s"
+        state.operationLog.error("Failed to detect e-mail recipients for incoming folder '%s'.%s"
                                  " No e-mails will be sent." 
                                  "\nEmail title: %s" 
                                  "\nEmail content: %s" % 
