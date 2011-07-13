@@ -10,7 +10,6 @@ from java.util import Properties
 
 from ch.systemsx.cisd.common.mail import From
 from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
-# TODO KE: this is somewhat ugly, maybe we need an exception class in the etlserver package ?!
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria 
@@ -19,8 +18,12 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, I
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
-""" Switch to False for the Sanofi production environment """
-TEST_MODE=True
+# Switch this off if there is more then one dropbox using this module,
+# in this case it should be switched on manually only after the module's code has been changed on the fly
+reload(plateinit)
+
+""" Switch to True in development environment to use a mock of Abase database """
+TEST_MODE=False
 
 """ the url of the Sanofi's openBIS installation """
 OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
@@ -79,9 +82,9 @@ def rollback_service(service, ex):
         sendEmail("openBIS: Data registration failed for %s" % (plateCode), """
     Dear openBIS user,
     
-      Registering new data for plate %(plateLink)s has failed with error '%(errorMessage)s'.
-      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
-      repair the problem and remove the entry from '.faulty_paths' to retry registration.
+      Registering new data for the plate %(plateLink)s has failed with an error '%(errorMessage)s'.
+      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths' file. 
+      Please, repair the problem and remove the entry from '.faulty_paths' to retry the registration.
        
       This email has been generated automatically.
       
@@ -89,7 +92,7 @@ def rollback_service(service, ex):
         """ % vars(), True)
     else:
         sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
-    Dear user,
+    Dear openBIS user,
     
       openBIS was unable to understand the name of an incoming folder. 
       Detailed error message was '%(errorMessage)s'.
@@ -108,8 +111,7 @@ def commit_transaction(service, transaction):
     sendEmail("openBIS: New data registered for %s" % (plateCode), """
     Dear openBIS user,
     
-      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
-       
+      New data from the folder '%(incomingFileName)s' has been successfully registered for the plate %(plateLink)s.
       This email has been generated automatically.
       
       Have a nice day!
@@ -128,8 +130,8 @@ def sendEmail(title, content, isError):
            recipients = [ email.strip() for email in recipientsProp.split(",") ]
         
     if not recipients and isError:
-       # TODO KE: this method is on a different state object !!!.. we need to move it somehow
-       recipients = [ email.tryGetEmailAddress() for email in state.getErrorEmailRecipients() ]
+       # TODO KE: use state.getErrorEmailRecipients()
+       recipients = [ "Matthew.Smicker@sanofi-aventis.com" ]
         
     if not recipients:
         if experiment:

@@ -6,7 +6,6 @@ import utilfunctions as util
 from java.lang import RuntimeException
 
 from ch.systemsx.cisd.common.geometry import Point, ConversionUtils
-# TODO KE: this is somewhat ugly, maybe we need an exception class in the etlserver package ?!
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
 
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import MaterialIdentifierCollection
@@ -25,7 +24,7 @@ class SanofiMaterial:
         self.sanofiBatchId = sanofiBatchId
     
     def normalizeWellCode(self, wellCode):
-        """ normalizes Sanofi wellCodes openBIS wellCodes e.g. AB007 to AB7 """
+        """ normalizes Sanofi wellCodes to openBIS wellCodes e.g. AB007 to AB7 """
         return re.sub("(?<=\w)(0+)(?=\d)", "", wellCode)
             
 class PlateInitializer:
@@ -160,7 +159,11 @@ class PlateInitializer:
         material.setPropertyValue(self.MATERIAL_BATCH_ID_PROPNAME, sanofiMaterial.sanofiBatchId)
         return material
     
-    def getOrCreateMaterials(self, template, materialsByCode):
+    def getOrCreateMaterials(self, template, sanofiMaterials):
+        materialsByCode = {}
+        for sanofiMaterial in sanofiMaterials:
+            materialsByCode[ sanofiMaterial.materialCode ] = sanofiMaterial
+
         materialIdentifiers = MaterialIdentifierCollection()
         for materialCode in materialsByCode:
             materialIdentifiers.addIdentifier(self.MATERIAL_TYPE, materialCode)
@@ -180,8 +183,8 @@ class PlateInitializer:
         return existingMaterialsByCode
             
     
-    def getByWellCode(self, wellCode, materialsByCode):
-        for sanofiMaterial in materialsByCode.values():
+    def getByWellCode(self, wellCode, sanofiMaterials):
+        for sanofiMaterial in sanofiMaterials:
             if wellCode == sanofiMaterial.wellCode:
                 return sanofiMaterial
             
@@ -227,10 +230,10 @@ class PlateInitializer:
                                   " or a number, but '%s' was found." % 
                (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, templateValue))
        
-    def validate(self, template, sanofiMaterialsByCode):
+    def validate(self, template, sanofiMaterials):
         for wellCode in template:
            if self.isCompoundWell(template[wellCode]):
-               sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterialsByCode)
+               sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterials)
                if not sanofiMaterial:
                    raise ValidationException("Error registering library for plate '%s'. The library template"
                                       " specified in property '%s' of experiment '%s' contains"
@@ -238,7 +241,7 @@ class PlateInitializer:
                                       " mapping to a material was found in the ABASE DB." % 
                                       (self.plateCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, wellCode))
                    
-        for sanofiMaterial in sanofiMaterialsByCode.values():
+        for sanofiMaterial in sanofiMaterials:
             wellCode = sanofiMaterial.wellCode
             templateValue = template.get(wellCode, None)
             
@@ -254,12 +257,7 @@ class PlateInitializer:
     def createWellsAndMaterials(self):
         template = self.parseLibraryTemplate()
         sanofiMaterials = self.fetchPlateCompounds()
+        self.validate(template, sanofiMaterials)
         
-        materialsByCode = {}
-        for sanofiMaterial in sanofiMaterials:
-            materialsByCode[ sanofiMaterial.materialCode ] = sanofiMaterial
-        
-        self.validate(template, materialsByCode)
-        
-        openbisMaterials = self.getOrCreateMaterials(template, materialsByCode)
-        self.createWells(template, materialsByCode, openbisMaterials)
+        openbisMaterials = self.getOrCreateMaterials(template, sanofiMaterials)
+        self.createWells(template, sanofiMaterials, openbisMaterials)
