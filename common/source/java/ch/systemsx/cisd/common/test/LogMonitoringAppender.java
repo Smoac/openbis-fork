@@ -123,7 +123,7 @@ public final class LogMonitoringAppender extends AppenderSkeleton
             return StringUtils.EMPTY;
         } else
         {
-            return info.getThrowableStrRep()[0];
+            return StringUtils.join(info.getThrowableStrRep(), "\n");
         }
     }
 
