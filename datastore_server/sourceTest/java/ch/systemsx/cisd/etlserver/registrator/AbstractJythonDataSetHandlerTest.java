@@ -125,39 +125,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         context.assertIsSatisfied();
     }
 
-    private Properties createThreadProperties(String scriptPath,
-            String validationScriptPropertyOrNull)
-    {
-        Properties threadProperties = new Properties();
-        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
-        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
-                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
-        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
-                MockStorageProcessor.class.getName());
-        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
-        if (null != validationScriptPropertyOrNull)
-        {
-            threadProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
-                    validationScriptPropertyOrNull);
-        }
-        threadProperties.setProperty(DataSetRegistrationService.STAGING_DIR,
-                stagingDirectory.getPath());
-        return threadProperties;
-    }
-
-    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
-    {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null);
-    }
-
-    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
-            String validationScriptPath)
-    {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath,
-                validationScriptPath);
-    }
-
     protected File createDirectory(File parentDir, String directoryName)
     {
         final File file = new File(parentDir, directoryName);
@@ -172,7 +139,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         handler =
                 new TestingDataSetHandler(globalState, registrationShouldFail,
-                shouldReThrowException);
+                        shouldReThrowException);
     }
 
     protected TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
@@ -201,6 +168,51 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 }
             });
     }
+    /**
+     * adds an extension to the Jython Path, so that all libraries in it will be visible to the
+     * Jython environment.
+     */
+    protected void extendJythonLibPath(String pathExtension)
+    {
+        final String JYTHON_PATH_PROPNAME = "python.path";
+        String pythonPath = System.getProperty(JYTHON_PATH_PROPNAME, "");
+        String extendedPath = pythonPath + File.pathSeparator + pathExtension;
+        System.setProperty("python.path", extendedPath);
+    }
+
+    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
+    {
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null);
+    }
+
+    protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
+            String validationScriptPath)
+    {
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath,
+                validationScriptPath);
+    }
+
+    private Properties createThreadProperties(String scriptPath,
+            String validationScriptPropertyOrNull)
+    {
+        Properties threadProperties = new Properties();
+        threadProperties.put(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
+                ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
+        threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
+        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+                MockStorageProcessor.class.getName());
+        threadProperties.put(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        if (null != validationScriptPropertyOrNull)
+        {
+            threadProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.VALIDATION_SCRIPT_KEY,
+                    validationScriptPropertyOrNull);
+        }
+        threadProperties.setProperty(DataSetRegistrationService.STAGING_DIR,
+                stagingDirectory.getPath());
+        return threadProperties;
+    }
+
 
     public static final class MockStorageProcessor implements IStorageProcessorTransactional
     {
