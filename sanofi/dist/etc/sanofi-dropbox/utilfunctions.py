@@ -68,8 +68,7 @@ def removeTrailingEmptyElements(list):
     pos = len(list)
     while (pos > 0):
         pos = pos - 1
-        # do not remove tabs
-        if not list[pos].strip(' \n'):
+        if not list[pos].strip():
             del list[pos]
         else:
             break

@@ -101,7 +101,7 @@ class PlateInitializer:
         
         lines = template.splitlines()
         lines = util.removeTrailingEmptyElements(lines)
-        tsvLists = [ util.removeTrailingEmptyElements(line.split("\t")) for line in lines ]
+        tsvLists = [ line.split("\t") for line in lines ]
                 
         self.validateLibraryDimensions(tsvLists)
         
