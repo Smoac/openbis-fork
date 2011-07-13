@@ -87,7 +87,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 {
-    private static final String PLATE_CODE = "plateCode";
+    private static final String PLATE_CODE = "plateCode.variant";
 
     private static final String LIBRARY_TEMPLATE_PROPNAME = "LIBRARY_TEMPLATE";
 
@@ -413,7 +413,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
-                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode'>plateCode</a>",
+                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
@@ -574,7 +574,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
-                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode'>plateCode</a>",
+                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
