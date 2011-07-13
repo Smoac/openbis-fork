@@ -57,8 +57,9 @@ GENERATE_THUMBNAILS = True
 MAX_THUMNAIL_WIDTH_AND_HEIGHT = 256
 
 """
-number of threads that are used for thumbnail generation will be equal to:
+Number of threads that are used for thumbnail generation will be equal to:
    this constant * number of processor cores
+Set to 1/<number-of-cores> if ImageMagic 'convert' tool is not installed.
 """
 ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION = 1.0
 
@@ -285,6 +286,10 @@ if incoming.isDirectory():
     imageDatasetConfig = MyImageDataSetConfig(incoming, incoming)
     imageDatasetConfig.setRawImageDatasetType()
     imageDatasetConfig.setFileFormatType(IMAGE_DATASET_FILE_FORMAT)
+    # Change to 'False' if 'convert' tool is not installed
+    imageDatasetConfig.setUseImageMagicToGenerateThumbnails(True)
+    # used only if Image Magic is used to generate thumbnails
+    imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
     imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
     imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
     imageDataSet.setPropertyValue(IMAGE_DATASET_BATCH_PROPCODE, batchName)
@@ -297,6 +302,11 @@ if incoming.isDirectory():
         overlayDatasetConfig = MyImageDataSetConfig(overlaysDir, overlaysDir)
         overlayDatasetConfig.setSegmentationImageDatasetType()
         overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
+        # Change to 'False' if 'convert' tool is not installed
+        overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(True)
+        # used only if Image Magic is used to generate thumbnails
+        overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+
         overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
         overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
         overlayDataset.setSample(imageDataSet.getSample())
