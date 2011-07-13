@@ -69,6 +69,8 @@ STORE_CHANNELS_ON_EXPERIMENT_LEVEL = False
 """ should the original data be stored in the original form or should we pack them into one container? """
 ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
 
+""" Change to 'False' if 'convert' tool is not installed """
+USE_IMAGE_MAGIC_CONVERT_TOOL = True
 
 def rollback_service(service, ex):
     global plateCode
@@ -286,10 +288,9 @@ if incoming.isDirectory():
     imageDatasetConfig = MyImageDataSetConfig(incoming, incoming)
     imageDatasetConfig.setRawImageDatasetType()
     imageDatasetConfig.setFileFormatType(IMAGE_DATASET_FILE_FORMAT)
-    # Change to 'False' if 'convert' tool is not installed
-    imageDatasetConfig.setUseImageMagicToGenerateThumbnails(True)
-    # used only if Image Magic is used to generate thumbnails
-    imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+    imageDatasetConfig.setUseImageMagicToGenerateThumbnails(USE_IMAGE_MAGIC_CONVERT_TOOL)
+    # Available in the next release:
+    #imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
     imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
     imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
     imageDataSet.setPropertyValue(IMAGE_DATASET_BATCH_PROPCODE, batchName)
@@ -302,10 +303,9 @@ if incoming.isDirectory():
         overlayDatasetConfig = MyImageDataSetConfig(overlaysDir, overlaysDir)
         overlayDatasetConfig.setSegmentationImageDatasetType()
         overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
-        # Change to 'False' if 'convert' tool is not installed
-        overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(True)
-        # used only if Image Magic is used to generate thumbnails
-        overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+        overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(USE_IMAGE_MAGIC_CONVERT_TOOL)
+        # Available in the next release:
+        #overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
 
         overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
         overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
