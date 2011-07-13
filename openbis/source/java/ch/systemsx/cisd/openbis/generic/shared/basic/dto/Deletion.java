@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+
 /**
  * Information about deletion.
  * 
  * @author Christian Ribeaud
  */
-public final class Deletion extends AbstractRegistrationHolder
+public final class Deletion extends AbstractRegistrationHolder implements IIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private Long id;
 
     /** Reason of deletion. */
     private String reasonOrNull;
@@ -37,4 +41,15 @@ public final class Deletion extends AbstractRegistrationHolder
     {
         this.reasonOrNull = reasonOrNull;
     }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
 }

@@ -1131,4 +1131,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "listDeletions");
         return null;
     }
+
+    public void revertDeletions(String sessionToken, List<TechId> deletionIds)
+    {
+        logTracking(sessionToken, "revertDeletions", "ID(%s)", deletionIds);
+    }
 }

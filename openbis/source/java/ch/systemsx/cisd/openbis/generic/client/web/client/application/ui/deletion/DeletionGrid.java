@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs;
@@ -72,18 +75,22 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
-
         Button revertButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_REVERT_DELETION),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Deletion>>>()
+                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_REVERT_DELETION),
+                        new AbstractCreateDialogListener()
                             {
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<Deletion>> selectedItem,
-                                        boolean keyPressed)
+                                @Override
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<Deletion>> data,
+                                        IBrowserGridActionInvoker invoker)
                                 {
-                                    // TODO
-                                    MessageBox.info("Not implemented yet", "", null);
+                                    List<Deletion> deletions = new ArrayList<Deletion>();
+                                    for (TableModelRowWithObject<Deletion> row : data)
+                                    {
+                                        deletions.add(row.getObjectOrNull());
+                                    }
+                                    return new RevertDeletionConfirmationDialog(viewContext,
+                                            deletions, createRefreshCallback(invoker));
                                 }
                             });
         addButton(revertButton);

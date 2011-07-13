@@ -36,11 +36,22 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
     private DeletionPE deletion;
 
-    public TrashBO(IDAOFactory daoFactory, Session session,
-            ICommonBusinessObjectFactory boFactory)
+    public TrashBO(IDAOFactory daoFactory, Session session, ICommonBusinessObjectFactory boFactory)
     {
         super(daoFactory, session);
         this.boFactory = boFactory;
+    }
+
+    public void revertDeletion(TechId deletionId)
+    {
+        try
+        {
+            deletion = getDeletionDAO().getByTechId(deletionId);
+            getDeletionDAO().delete(deletion);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Deletion");
+        }
     }
 
     public void createDeletion(String reason)

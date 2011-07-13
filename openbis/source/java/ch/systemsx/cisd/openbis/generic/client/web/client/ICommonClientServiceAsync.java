@@ -290,19 +290,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
             final AsyncCallback<TypedTableResultSet<Project>> asyncCallback);
 
-    /** @see ICommonClientService#listDeletions(DefaultResultSetConfig) */
-    public void listDeletions(
-            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria,
-            final AsyncCallback<TypedTableResultSet<Deletion>> asyncCallback);
-
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
     public void prepareExportProjects(
             TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
-            AsyncCallback<String> callback);
-
-    /** @see ICommonClientService#prepareExportDeletions(TableExportCriteria) */
-    public void prepareExportDeletions(
-            TableExportCriteria<TableModelRowWithObject<Deletion>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -983,4 +973,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void updateProperties(EntityPropertyUpdates entityPropertyUpdates,
             AsyncCallback<EntityPropertyUpdatesResult> callback);
+
+    /** @see ICommonClientService#listDeletions(DefaultResultSetConfig) */
+    public void listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria,
+            final AsyncCallback<TypedTableResultSet<Deletion>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportDeletions(TableExportCriteria) */
+    public void prepareExportDeletions(
+            TableExportCriteria<TableModelRowWithObject<Deletion>> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /**
+     * @see ICommonClientService#revertDeletions(List)
+     */
+    public void revertDeletions(List<TechId> deletionIds, AsyncCallback<Void> callback);
 }

@@ -1399,6 +1399,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSetProperties(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId entityId,
             List<PropertyUpdates> modifiedProperties);
@@ -1408,6 +1409,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperimentProperties(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId entityId,
             List<PropertyUpdates> modifiedProperties);
@@ -1417,6 +1419,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSampleProperties(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId entityId,
             List<PropertyUpdates> modifiedProperties);
@@ -1426,6 +1429,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public void updateMaterialProperties(String sessionToken, TechId entityId,
             List<PropertyUpdates> modifiedProperties);
 
@@ -1438,5 +1442,16 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = DeletionValidator.class)
     public List<Deletion> listDeletions(String sessionToken);
+
+    /**
+     * Reverts specified deletion (puts back all objects moved to trash in the deletion).
+     */
+    @Transactional
+    // TODO make it possible for deletion creator
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
+    @DatabaseUpdateModification(value =
+        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public void revertDeletions(final String sessionToken, final List<TechId> deletionIds);
 
 }

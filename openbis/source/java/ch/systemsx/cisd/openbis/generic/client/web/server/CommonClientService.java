@@ -669,15 +669,6 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(projectsProvider, criteria);
     }
 
-    public TypedTableResultSet<Deletion> listDeletions(
-            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        DeletionsProvider deletionsProvider =
-                new DeletionsProvider(commonServer, getSessionToken());
-        return listEntities(deletionsProvider, criteria);
-    }
-
     public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
             boolean excludeInternal,
             DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria)
@@ -2213,5 +2204,20 @@ public final class CommonClientService extends AbstractClientService implements
             result.setErrorMessage(UserFailureExceptionTranslator.translate(e).getMessage());
         }
         return result;
+    }
+
+    public TypedTableResultSet<Deletion> listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        DeletionsProvider deletionsProvider =
+                new DeletionsProvider(commonServer, getSessionToken());
+        return listEntities(deletionsProvider, criteria);
+    }
+
+    public void revertDeletions(List<TechId> deletionIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        commonServer.revertDeletions(getSessionToken(), deletionIds);
     }
 }

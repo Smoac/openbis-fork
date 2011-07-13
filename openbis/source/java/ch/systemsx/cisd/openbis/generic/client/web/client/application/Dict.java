@@ -520,6 +520,12 @@ public abstract class Dict
 
     public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
 
+    public static final String REVERT_DELETIONS_CONFIRMATION_TITLE =
+            "revert_deletions_confirmation_title";
+
+    public static final String REVERT_DELETIONS_CONFIRMATION_MSG =
+            "revert_deletions_confirmation_msg";
+
     //
     // Sample Viewer
     //

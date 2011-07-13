@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A <i>static</i> class for translating {@link DeletionPE} into {@link Deletion}.
@@ -52,6 +53,9 @@ public final class DeletionTranslator
             return null;
         }
         final Deletion newDeletion = new Deletion();
+        // NOTE: we should always translate Id in this way
+        // because getId() on HibernateProxy object always returns null
+        newDeletion.setId(HibernateUtils.getId(deletion));
         newDeletion.setReason(deletion.getReason());
         newDeletion.setRegistrationDate(deletion.getRegistrationDate());
         newDeletion.setRegistrator(PersonTranslator.translate(deletion.getRegistrator()));

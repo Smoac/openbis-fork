@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * <i>Data Access Object</i> implementation for {@link IDeletionDAO}.
@@ -66,4 +67,33 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         }
     }
 
+    @Override
+    public void delete(DeletionPE deletion) throws DataAccessException
+    {
+        operationLog.info(String.format("REVERT: deletion %s.", deletion));
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            // NOTE: material deletion are always permanent and therefore can't be reverted
+            if (entityKind != EntityKind.MATERIAL)
+            {
+                revertDeletion(deletion, entityKind);
+            }
+        }
+        super.delete(deletion);
+    }
+
+    private void revertDeletion(final DeletionPE deletion,
+            final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind)
+    {
+        assert deletion != null : "Unspecified deletion";
+        assert entityKind != null : "Unspecified entity kind";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        String query =
+                String.format("UPDATE VERSIONED %s SET deletion = NULL WHERE deletion = ?",
+                        entityKind.getEntityClass().getSimpleName());
+        int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
+        hibernateTemplate.flush();
+        operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
+    }
 }

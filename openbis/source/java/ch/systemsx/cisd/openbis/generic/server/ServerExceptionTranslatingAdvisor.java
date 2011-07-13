@@ -24,6 +24,7 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.RootClassFilter;
 import org.springframework.core.NestedRuntimeException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * Translates deeply nested exceptions thrown on server side e.g. by Spring (like
- * {@link TransactionSystemException}) into {UserFailureException} with message taken from the root
- * exception cause.
+ * {@link TransactionSystemException} or {@link DataAccessException}) into {UserFailureException}
+ * with message taken from the root exception cause.
  * <p>
  * The most important reason why this advisor was introduced was to translate exceptions that happen
  * just before commit/rollback of transactions, like {@link TransactionSystemException}. Such
@@ -73,11 +74,12 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
             try
             {
                 return invocation.proceed();
-            } catch (NestedRuntimeException e) // e.g. TransactionSystemException
+            } catch (NestedRuntimeException ex)
+            // e.g. TransactionSystemException, DataAccessException
             {
                 // Deferred trigger may throw an exception just before commit.
                 // Message in the exception is readable for the user.
-                throw new UserFailureException(e.getMostSpecificCause().getMessage());
+                throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
             }
         }
     }

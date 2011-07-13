@@ -77,6 +77,8 @@ var common = {
   deletion_browser: "Trash",
   button_revert_deletion: "Revert",
   button_delete_permanently: "Delete Permanently",
+  revert_deletions_confirmation_title: "Confirm Revert",
+  revert_deletions_confirmation_msg: "Are you sure you want to revert {0} deletion(s)?",
 	 
   //
   // Table Modifications

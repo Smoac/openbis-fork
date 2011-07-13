@@ -349,13 +349,6 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a list of all deletions.
-     */
-    public TypedTableResultSet<Deletion> listDeletions(
-            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
-            throws UserFailureException;
-
-    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
     public String prepareExportProjects(
@@ -1088,5 +1081,17 @@ public interface ICommonClientService extends IClientService
      */
     public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
             throws UserFailureException;
+
+    /**
+     * Returns a list of all deletions.
+     */
+    public TypedTableResultSet<Deletion> listDeletions(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> criteria)
+            throws UserFailureException;
+
+    /**
+     * Reverts specified deletions.
+     */
+    public void revertDeletions(List<TechId> deletionIds) throws UserFailureException;
 
 }

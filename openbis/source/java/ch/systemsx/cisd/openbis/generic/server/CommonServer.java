@@ -268,11 +268,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return businessObjectFactory;
     }
 
-    static UserFailureException createUserFailureException(final DataAccessException ex)
-    {
-        return new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
-    }
-
     //
     // IInvocationLoggerFactory
     //
@@ -308,14 +303,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     //
     // IGenericServer
     //
-
-    public final List<Deletion> listDeletions(final String sessionToken)
-    {
-        checkSession(sessionToken);
-        final List<DeletionPE> deletions = getDAOFactory().getDeletionDAO().listAllEntities();
-        Collections.sort(deletions);
-        return DeletionTranslator.translate(deletions);
-    }
 
     public final List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
@@ -579,21 +566,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         checkSession(sessionToken);
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
-        try
+        for (final SearchableEntity searchableEntity : searchableEntities)
         {
-            for (final SearchableEntity searchableEntity : searchableEntities)
-            {
-                HibernateSearchDataProvider dataProvider =
-                        new HibernateSearchDataProvider(getDAOFactory());
-                List<MatchingEntity> entities =
-                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                                searchableEntity, queryText, dataProvider, useWildcardSearchMode,
-                                list.size(), maxSize);
-                list.addAll(entities);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            HibernateSearchDataProvider dataProvider =
+                    new HibernateSearchDataProvider(getDAOFactory());
+            List<MatchingEntity> entities =
+                    getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(searchableEntity,
+                            queryText, dataProvider, useWildcardSearchMode, list.size(), maxSize);
+            list.addAll(entities);
         }
         return list;
     }
@@ -966,21 +946,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DataSetRelatedEntities relatedEntities)
     {
         final Session session = getSession(sessionToken);
-        try
+        final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
+        // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
+        addRelatedDataSets(resultSet, relatedEntities.getEntities());
+        final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
+        for (final DataPE hit : resultSet)
         {
-            final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
-            // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
-            addRelatedDataSets(resultSet, relatedEntities.getEntities());
-            final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
-            for (final DataPE hit : resultSet)
-            {
-                list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), false));
-            }
-            return list;
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), false));
         }
+        return list;
     }
 
     private void addRelatedDataSets(final Set<DataPE> resultSet,
@@ -1021,15 +995,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
         final Session session = getSession(sessionToken);
-        try
-        {
-            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
-            entityTypeBO.define(entityType);
-            entityTypeBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+        entityTypeBO.define(entityType);
+        entityTypeBO.save();
     }
 
     public void updateSampleType(String sessionToken, EntityType entityType)
@@ -1040,15 +1008,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
         final Session session = getSession(sessionToken);
-        try
-        {
-            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
-            entityTypeBO.define(entityType);
-            entityTypeBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+        entityTypeBO.define(entityType);
+        entityTypeBO.save();
     }
 
     public void updateMaterialType(String sessionToken, EntityType entityType)
@@ -1059,15 +1021,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
         final Session session = getSession(sessionToken);
-        try
-        {
-            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
-            entityTypeBO.define(entityType);
-            entityTypeBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+        entityTypeBO.define(entityType);
+        entityTypeBO.save();
     }
 
     public void updateExperimentType(String sessionToken, EntityType entityType)
@@ -1094,15 +1050,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
         final Session session = getSession(sessionToken);
-        try
-        {
-            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
-            entityTypeBO.define(entityType);
-            entityTypeBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+        entityTypeBO.define(entityType);
+        entityTypeBO.save();
     }
 
     public void updateDataSetType(String sessionToken, EntityType entityType)
@@ -1113,19 +1063,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private void updateEntityType(String sessionToken, EntityKind entityKind, EntityType entityType)
     {
         checkSession(sessionToken);
-        try
-        {
-            IEntityTypeDAO entityTypeDAO =
-                    getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
-            EntityTypePE entityTypePE =
-                    entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
-            entityTypePE.setDescription(entityType.getDescription());
-            updateSpecificEntityTypeProperties(entityKind, entityTypePE, entityType);
-            entityTypeDAO.createOrUpdateEntityType(entityTypePE);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IEntityTypeDAO entityTypeDAO =
+                getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
+        EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+        entityTypePE.setDescription(entityType.getDescription());
+        updateSpecificEntityTypeProperties(entityKind, entityTypePE, entityType);
+        entityTypeDAO.createOrUpdateEntityType(entityTypePE);
     }
 
     private void updateSpecificEntityTypeProperties(EntityKind entityKind,
@@ -1155,34 +1098,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
-        try
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
+        dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+        List<DataPE> dataSets = dataSetTable.getDataSets();
+        Map<DataSetTypePE, List<DataPE>> groupedDataSets =
+                new LinkedHashMap<DataSetTypePE, List<DataPE>>();
+        for (DataPE dataSet : dataSets)
         {
-            IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-            // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
-            dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
-            List<DataPE> dataSets = dataSetTable.getDataSets();
-            Map<DataSetTypePE, List<DataPE>> groupedDataSets =
-                    new LinkedHashMap<DataSetTypePE, List<DataPE>>();
-            for (DataPE dataSet : dataSets)
+            DataSetTypePE dataSetType = dataSet.getDataSetType();
+            List<DataPE> list = groupedDataSets.get(dataSetType);
+            if (list == null)
             {
-                DataSetTypePE dataSetType = dataSet.getDataSetType();
-                List<DataPE> list = groupedDataSets.get(dataSetType);
-                if (list == null)
-                {
-                    list = new ArrayList<DataPE>();
-                    groupedDataSets.put(dataSetType, list);
-                }
-                list.add(dataSet);
+                list = new ArrayList<DataPE>();
+                groupedDataSets.put(dataSetType, list);
             }
-            for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
-            {
-                DataSetTypePE dataSetType = entry.getKey();
-                IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-                plugin.deleteDataSets(session, entry.getValue(), reason, deletionType);
-            }
-        } catch (final DataAccessException ex)
+            list.add(dataSet);
+        }
+        for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
         {
-            throw createUserFailureException(ex);
+            DataSetTypePE dataSetType = entry.getKey();
+            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
+            plugin.deleteDataSets(session, entry.getValue(), reason, deletionType);
         }
     }
 
@@ -1190,23 +1127,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
-        try
+        switch (deletionType)
         {
-            switch (deletionType)
-            {
-                case PERMANENT:
-                    ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
-                    sampleTableBO.deleteByTechIds(sampleIds, reason);
-                    break;
-                case TRASH:
-                    ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
-                    trashBO.createDeletion(reason);
-                    trashBO.trashSamples(sampleIds);
-                    break;
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            case PERMANENT:
+                ISampleTable sampleTableBO = businessObjectFactory.createSampleTable(session);
+                sampleTableBO.deleteByTechIds(sampleIds, reason);
+                break;
+            case TRASH:
+                ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                trashBO.createDeletion(reason);
+                trashBO.trashSamples(sampleIds);
+                break;
         }
     }
 
@@ -1214,55 +1145,37 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
-        try
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        switch (deletionType)
         {
-            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            switch (deletionType)
-            {
-                case PERMANENT:
-                    experimentBO.deleteByTechIds(experimentIds, reason);
-                    break;
-                case TRASH:
-                    ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
-                    trashBO.createDeletion(reason);
-                    trashBO.trashExperiments(experimentIds);
-                    break;
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            case PERMANENT:
+                experimentBO.deleteByTechIds(experimentIds, reason);
+                break;
+            case TRASH:
+                ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                trashBO.createDeletion(reason);
+                trashBO.trashExperiments(experimentIds);
+                break;
         }
     }
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
+        IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        for (TechId id : vocabularyIds)
         {
-            IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-            for (TechId id : vocabularyIds)
-            {
-                vocabularyBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            vocabularyBO.deleteByTechId(id, reason);
         }
     }
 
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
+        IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
+        for (TechId id : propertyTypeIds)
         {
-            IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
-            for (TechId id : propertyTypeIds)
-            {
-                propertyTypeBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            propertyTypeBO.deleteByTechId(id, reason);
         }
     }
 
@@ -1270,48 +1183,30 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
+        IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        for (TechId id : projectIds)
         {
-            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-            for (TechId id : projectIds)
-            {
-                projectBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            projectBO.deleteByTechId(id, reason);
         }
     }
 
     public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
+        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        for (TechId id : groupIds)
         {
-            IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
-            for (TechId id : groupIds)
-            {
-                groupBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            groupBO.deleteByTechId(id, reason);
         }
     }
 
     public void deleteScripts(String sessionToken, List<TechId> scriptIds)
     {
         Session session = getSession(sessionToken);
-        try
+        IScriptBO scriptBO = businessObjectFactory.createScriptBO(session);
+        for (TechId id : scriptIds)
         {
-            IScriptBO scriptBO = businessObjectFactory.createScriptBO(session);
-            for (TechId id : scriptIds)
-            {
-                scriptBO.deleteByTechId(id);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            scriptBO.deleteByTechId(id);
         }
     }
 
@@ -1319,78 +1214,48 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            experimentBO.loadDataByTechId(experimentId);
-            deleteHolderAttachments(session, experimentBO.getExperiment(), fileNames, reason);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
+        deleteHolderAttachments(session, experimentBO.getExperiment(), fileNames, reason);
     }
 
     public void updateExperimentAttachments(String sessionToken, TechId experimentId,
             Attachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            experimentBO.loadDataByTechId(experimentId);
-            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
-            attachmentBO.updateAttachment(experimentBO.getExperiment(), attachment);
-            attachmentBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
+        IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+        attachmentBO.updateAttachment(experimentBO.getExperiment(), attachment);
+        attachmentBO.save();
     }
 
     public void addExperimentAttachment(String sessionToken, TechId experimentId,
             NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IExperimentBO bo = businessObjectFactory.createExperimentBO(session);
-            bo.loadDataByTechId(experimentId);
-            bo.addAttachment(AttachmentTranslator.translate(attachment));
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IExperimentBO bo = businessObjectFactory.createExperimentBO(session);
+        bo.loadDataByTechId(experimentId);
+        bo.addAttachment(AttachmentTranslator.translate(attachment));
+        bo.save();
     }
 
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-            sampleBO.loadDataByTechId(sampleId);
-            deleteHolderAttachments(session, sampleBO.getSample(), fileNames, reason);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(sampleId);
+        deleteHolderAttachments(session, sampleBO.getSample(), fileNames, reason);
     }
 
     public void deleteProjectAttachments(String sessionToken, TechId projectId,
             List<String> fileNames, String reason)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-            projectBO.loadDataByTechId(projectId);
-            deleteHolderAttachments(session, projectBO.getProject(), fileNames, reason);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        projectBO.loadDataByTechId(projectId);
+        deleteHolderAttachments(session, projectBO.getProject(), fileNames, reason);
     }
 
     private void deleteHolderAttachments(Session session, AttachmentHolderPE holder,
@@ -1403,49 +1268,29 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            experimentBO.loadDataByTechId(experimentId);
-            return AttachmentTranslator.translate(
-                    listHolderAttachments(session, experimentBO.getExperiment()),
-                    session.getBaseIndexURL());
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
+        return AttachmentTranslator.translate(
+                listHolderAttachments(session, experimentBO.getExperiment()),
+                session.getBaseIndexURL());
     }
 
     public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-            sampleBO.loadDataByTechId(sampleId);
-            return AttachmentTranslator
-                    .translate(listHolderAttachments(session, sampleBO.getSample()),
-                            session.getBaseIndexURL());
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(sampleId);
+        return AttachmentTranslator.translate(listHolderAttachments(session, sampleBO.getSample()),
+                session.getBaseIndexURL());
     }
 
     public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-            projectBO.loadDataByTechId(projectId);
-            return AttachmentTranslator.translate(
-                    listHolderAttachments(session, projectBO.getProject()),
-                    session.getBaseIndexURL());
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        projectBO.loadDataByTechId(projectId);
+        return AttachmentTranslator.translate(
+                listHolderAttachments(session, projectBO.getProject()), session.getBaseIndexURL());
     }
 
     private List<AttachmentPE> listHolderAttachments(Session session, AttachmentHolderPE holder)
@@ -1457,15 +1302,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DataSetUploadContext uploadContext)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-            dataSetTable.loadByDataSetCodes(dataSetCodes, true, false);
-            return dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.loadByDataSetCodes(dataSetCodes, true, false);
+        return dataSetTable.uploadLoadedDataSetsToCIFEX(uploadContext);
     }
 
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
@@ -1923,16 +1762,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void updateFileFormatType(String sessionToken, AbstractType type)
     {
         checkSession(sessionToken);
-        try
-        {
-            IFileFormatTypeDAO dao = getDAOFactory().getFileFormatTypeDAO();
-            FileFormatTypePE typePE = dao.tryToFindFileFormatTypeByCode(type.getCode());
-            typePE.setDescription(type.getDescription());
-            dao.createOrUpdate(typePE);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IFileFormatTypeDAO dao = getDAOFactory().getFileFormatTypeDAO();
+        FileFormatTypePE typePE = dao.tryToFindFileFormatTypeByCode(type.getCode());
+        typePE.setDescription(type.getDescription());
+        dao.createOrUpdate(typePE);
 
     }
 
@@ -1940,65 +1773,40 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             Attachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IProjectBO bo = businessObjectFactory.createProjectBO(session);
-            bo.loadDataByTechId(projectId);
-            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
-            attachmentBO.updateAttachment(bo.getProject(), attachment);
-            attachmentBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-
+        IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadDataByTechId(projectId);
+        IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+        attachmentBO.updateAttachment(bo.getProject(), attachment);
+        attachmentBO.save();
     }
 
     public void addProjectAttachments(String sessionToken, TechId projectId,
             NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IProjectBO bo = businessObjectFactory.createProjectBO(session);
-            bo.loadDataByTechId(projectId);
-            bo.addAttachment(AttachmentTranslator.translate(attachment));
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadDataByTechId(projectId);
+        bo.addAttachment(AttachmentTranslator.translate(attachment));
+        bo.save();
     }
 
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            ISampleBO bo = businessObjectFactory.createSampleBO(session);
-            bo.loadDataByTechId(sampleId);
-            IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
-            attachmentBO.updateAttachment(bo.getSample(), attachment);
-            attachmentBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        ISampleBO bo = businessObjectFactory.createSampleBO(session);
+        bo.loadDataByTechId(sampleId);
+        IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
+        attachmentBO.updateAttachment(bo.getSample(), attachment);
+        attachmentBO.save();
     }
 
     public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            ISampleBO bo = businessObjectFactory.createSampleBO(session);
-            bo.loadDataByTechId(sampleId);
-            bo.addAttachment(AttachmentTranslator.translate(attachment));
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        ISampleBO bo = businessObjectFactory.createSampleBO(session);
+        bo.loadDataByTechId(sampleId);
+        bo.addAttachment(AttachmentTranslator.translate(attachment));
+        bo.save();
     }
 
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
@@ -2053,45 +1861,27 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             NewAuthorizationGroup newAuthorizationGroup)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
-            bo.define(newAuthorizationGroup);
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.define(newAuthorizationGroup);
+        bo.save();
     }
 
     public void registerScript(String sessionToken, Script script)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IScriptBO bo = businessObjectFactory.createScriptBO(session);
-            bo.define(script);
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        IScriptBO bo = businessObjectFactory.createScriptBO(session);
+        bo.define(script);
+        bo.save();
     }
 
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
-        try
+        IAuthorizationGroupBO authGroupBO =
+                businessObjectFactory.createAuthorizationGroupBO(session);
+        for (TechId id : groupIds)
         {
-            IAuthorizationGroupBO authGroupBO =
-                    businessObjectFactory.createAuthorizationGroupBO(session);
-            for (TechId id : groupIds)
-            {
-                authGroupBO.deleteByTechId(id, reason);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            authGroupBO.deleteByTechId(id, reason);
         }
     }
 
@@ -2190,43 +1980,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private void registerFilterOrColumn(NewColumnOrFilter filter, IGridCustomFilterOrColumnBO bo)
     {
-        try
-        {
-            bo.define(filter);
-            bo.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        bo.define(filter);
+        bo.save();
     }
 
     private void deleteFiltersOrColumns(List<TechId> filterIds, IGridCustomFilterOrColumnBO bo)
     {
-        try
+        for (TechId id : filterIds)
         {
-            for (TechId id : filterIds)
-            {
-                bo.deleteByTechId(id);
-            }
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
+            bo.deleteByTechId(id);
         }
     }
 
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
         checkSession(sessionToken);
-        try
-        {
-            List<GridCustomFilterPE> filters =
-                    getDAOFactory().getGridCustomFilterDAO().listFilters(gridId);
-            Collections.sort(filters);
-            return GridCustomFilterTranslator.translate(filters);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        List<GridCustomFilterPE> filters =
+                getDAOFactory().getGridCustomFilterDAO().listFilters(gridId);
+        Collections.sort(filters);
+        return GridCustomFilterTranslator.translate(filters);
     }
 
     public void registerFilter(String sessionToken, NewColumnOrFilter filter)
@@ -2394,101 +2166,76 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-            experimentBO.loadDataByTechId(experimentId);
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadDataByTechId(experimentId);
 
-            // Evaluate the script
-            experimentBO.enrichWithProperties();
-            Set<? extends EntityPropertyPE> properties =
-                    experimentBO.getExperiment().getProperties();
-            ManagedPropertyEvaluator evaluator =
-                    tryManagedPropertyEvaluator(managedProperty, properties);
-            extendWithPerson(updateAction, session.tryGetPerson());
-            evaluator.updateFromUI(managedProperty, updateAction);
+        // Evaluate the script
+        experimentBO.enrichWithProperties();
+        Set<? extends EntityPropertyPE> properties = experimentBO.getExperiment().getProperties();
+        ManagedPropertyEvaluator evaluator =
+                tryManagedPropertyEvaluator(managedProperty, properties);
+        extendWithPerson(updateAction, session.tryGetPerson());
+        evaluator.updateFromUI(managedProperty, updateAction);
 
-            experimentBO.updateManagedProperty(managedProperty);
-            experimentBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        experimentBO.updateManagedProperty(managedProperty);
+        experimentBO.save();
     }
 
     public void updateManagedPropertyOnSample(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-            sampleBO.loadDataByTechId(experimentId);
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(experimentId);
 
-            // Evaluate the script
-            sampleBO.enrichWithProperties();
-            Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
-            ManagedPropertyEvaluator evaluator =
-                    tryManagedPropertyEvaluator(managedProperty, properties);
-            extendWithPerson(updateAction, session.tryGetPerson());
-            evaluator.updateFromUI(managedProperty, updateAction);
+        // Evaluate the script
+        sampleBO.enrichWithProperties();
+        Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
+        ManagedPropertyEvaluator evaluator =
+                tryManagedPropertyEvaluator(managedProperty, properties);
+        extendWithPerson(updateAction, session.tryGetPerson());
+        evaluator.updateFromUI(managedProperty, updateAction);
 
-            sampleBO.updateManagedProperty(managedProperty);
-            sampleBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        sampleBO.updateManagedProperty(managedProperty);
+        sampleBO.save();
     }
 
     public void updateManagedPropertyOnDataSet(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
-            dataSetBO.loadDataByTechId(experimentId);
+        IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
+        dataSetBO.loadDataByTechId(experimentId);
 
-            // Evaluate the script
-            dataSetBO.enrichWithProperties();
-            Set<? extends EntityPropertyPE> properties = dataSetBO.getData().getProperties();
-            ManagedPropertyEvaluator evaluator =
-                    tryManagedPropertyEvaluator(managedProperty, properties);
-            extendWithPerson(updateAction, session.tryGetPerson());
-            evaluator.updateFromUI(managedProperty, updateAction);
+        // Evaluate the script
+        dataSetBO.enrichWithProperties();
+        Set<? extends EntityPropertyPE> properties = dataSetBO.getData().getProperties();
+        ManagedPropertyEvaluator evaluator =
+                tryManagedPropertyEvaluator(managedProperty, properties);
+        extendWithPerson(updateAction, session.tryGetPerson());
+        evaluator.updateFromUI(managedProperty, updateAction);
 
-            dataSetBO.updateManagedProperty(managedProperty);
-            dataSetBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        dataSetBO.updateManagedProperty(managedProperty);
+        dataSetBO.save();
     }
 
     public void updateManagedPropertyOnMaterial(String sessionToken, TechId experimentId,
             IManagedProperty managedProperty, IManagedUiAction updateAction)
     {
         Session session = getSession(sessionToken);
-        try
-        {
-            IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-            materialBO.loadDataByTechId(experimentId);
+        IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.loadDataByTechId(experimentId);
 
-            // Evaluate the script
-            materialBO.enrichWithProperties();
-            Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
-            ManagedPropertyEvaluator evaluator =
-                    tryManagedPropertyEvaluator(managedProperty, properties);
-            extendWithPerson(updateAction, session.tryGetPerson());
-            evaluator.updateFromUI(managedProperty, updateAction);
+        // Evaluate the script
+        materialBO.enrichWithProperties();
+        Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
+        ManagedPropertyEvaluator evaluator =
+                tryManagedPropertyEvaluator(managedProperty, properties);
+        extendWithPerson(updateAction, session.tryGetPerson());
+        evaluator.updateFromUI(managedProperty, updateAction);
 
-            materialBO.updateManagedProperty(managedProperty);
-            materialBO.save();
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
+        materialBO.updateManagedProperty(managedProperty);
+        materialBO.save();
     }
 
     private static void extendWithPerson(IManagedUiAction updateAction, PersonPE personOrNull)
@@ -2636,6 +2383,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             properties.put(CodeConverter.getPropertyTypeCode(p.getPropertyCode()), p.getValue());
         }
         return properties;
+    }
+
+    public final List<Deletion> listDeletions(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<DeletionPE> deletions = getDAOFactory().getDeletionDAO().listAllEntities();
+        Collections.sort(deletions);
+        return DeletionTranslator.translate(deletions);
+    }
+
+    public final void revertDeletions(final String sessionToken, final List<TechId> deletionIds)
+    {
+        final Session session = getSession(sessionToken);
+
+        final ITrashBO trashBO = getBusinessObjectFactory().createTrashBO(session);
+        for (TechId deletionId : deletionIds)
+        {
+            trashBO.revertDeletion(deletionId);
+        }
     }
 
     private static UserFailureException wrapExceptionWithEntityIdentifier(

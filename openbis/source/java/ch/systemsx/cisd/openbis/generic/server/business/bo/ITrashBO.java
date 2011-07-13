@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
  */
 public interface ITrashBO
 {
+    /** Puts back all objects moved to trash in deletion with specified id. */
+    public void revertDeletion(TechId deletionId);
 
     public void createDeletion(String reason);
 

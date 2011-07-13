@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
-
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -56,28 +54,16 @@ class SearchHelper
 
     public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
     {
-        try
-        {
-            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            final IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
-            return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
-        } catch (final DataAccessException ex)
-        {
-            throw CommonServer.createUserFailureException(ex);
-        }
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        final IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
+        return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
     }
 
     public List<ExternalData> searchForDataSets(DetailedSearchCriteria detailedSearchCriteria)
     {
-        try
-        {
-            IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
-            IDatasetLister dataSetLister = businessObjectFactory.createDatasetLister(session);
-            return new DataSetSearchManager(searchDAO, dataSetLister)
-                    .searchForDataSets(detailedSearchCriteria);
-        } catch (DataAccessException ex)
-        {
-            throw CommonServer.createUserFailureException(ex);
-        }
+        IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
+        IDatasetLister dataSetLister = businessObjectFactory.createDatasetLister(session);
+        return new DataSetSearchManager(searchDAO, dataSetLister)
+                .searchForDataSets(detailedSearchCriteria);
     }
 }
