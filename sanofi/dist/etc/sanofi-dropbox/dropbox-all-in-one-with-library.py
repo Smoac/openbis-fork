@@ -104,7 +104,7 @@ def commit_transaction(service, transaction):
     sendEmail("openBIS: New data registered for %s" % (plateCode), """
     Dear openBIS user,
     
-      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
+      New data from folder '%(incomingFileName)s' has been successfully registered for plate %(plateLink)s.
        
       This email has been generated automatically.
       
@@ -161,8 +161,8 @@ def sendAdminError(service, errorDetails, recipients):
     Dear openBIS Administrator,
     
       The registration of data sets from incoming folder '%(incomingFileName)s' has failed
-      in an unexpected way. The most probable cause is a misconfiguration of a bug in the system. 
-      Here is a full description of the encountered error :
+      in an unexpected way. The most probable cause is a misconfiguration of the system. It may be also a bug. 
+      Here is a full description of the encountered error:
       
       %(errorDetails)s
       
@@ -221,7 +221,7 @@ def findPlateByCode(transaction, code):
     platesFound = list(searchService.searchForSamples(criteria))
     
     if not platesFound:
-        raise ValidationException("Plate with code '%(code)s' does not exist in openBIS.\n"
+        raise ValidationException("Plate with code '%(code)s' does not exist in openBIS. "
                                   "Please check if the barcode provided in the folder name is correct "
                                   "or register the plate in openBIS." % vars())
     if len(platesFound) > 1:
