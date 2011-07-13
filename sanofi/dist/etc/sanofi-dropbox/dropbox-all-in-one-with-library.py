@@ -323,6 +323,10 @@ global plateCode
 global plate 
     
 if incoming.isDirectory():
+    experiment = None
+    plateCode = None
+    plate = None
+    
     transaction = service.transaction(incoming, factory)
     
     (batchName, plateCode) = parseIncomingDirname(incoming.getName())
