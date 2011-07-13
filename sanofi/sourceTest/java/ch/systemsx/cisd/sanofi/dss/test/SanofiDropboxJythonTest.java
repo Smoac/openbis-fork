@@ -1,5 +1,6 @@
 /*
  * Copyright 2011 ETH Zuerich, CISD
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +33,6 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
-import org.springframework.beans.factory.BeanFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -51,7 +51,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -93,8 +92,14 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String EXPERIMENT_RECIPIENTS_PROPNAME = "OBSERVER_EMAILS";
 
-    private static final String[] EXPERIMENT_RECIPIENTS = new String[]
-        { "admin@sanofi.com", "mickey@mouse.org" };
+    private static final String[] USER_EMAILS = new String[]
+        { "donald@duck.com", "mickey@mouse.org" };
+
+    final String[] ADMIN_EMAILS = new String[]
+        { "admin@sanofi.com", "admin@openbis.org" };
+
+    final String[] ALL_EMAILS = new String[]
+        { "admin@sanofi.com", "admin@openbis.org", "donald@duck.com", "mickey@mouse.org" };
 
     private static final String MATERIAL_TYPE = "COMPOUND";
     
@@ -139,15 +144,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private RecordingMatcher<String> email;
 
-    private BeanFactory applicationContext;
-
     @Override
     @BeforeMethod
     public void setUp() throws IOException
     {
         super.setUp();
-
-        applicationContext = context.mock(BeanFactory.class);
         
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
@@ -155,29 +156,14 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
         materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
         email = new RecordingMatcher<String>();
-
-        ServiceProviderTestWrapper.setApplicationContext(applicationContext);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(applicationContext).getBean("openBIS-service");
-                    will(returnValue(openBisService));
-                }
-            });
-    }
-
-    @Override
-    public void tearDown() throws IOException
-    {
-        super.tearDown();
-
-        ServiceProviderTestWrapper.restoreApplicationContext();
     }
 
     @Test
     public void testLibraryWider() throws IOException
     {
         createDataSetHandler(false, false);
+        setUpListAdministratorExpectations();
+
         final Sample plate =
                 plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "10_WELLS_1X10");
         context.checking(new Expectations()
@@ -191,7 +177,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -217,6 +203,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createDataSetHandler(false, false);
         final Sample plate =
                 plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "5_WELLS_5X1");
+        setUpListAdministratorExpectations();
+
         context.checking(new Expectations()
             {
                 {
@@ -228,7 +216,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -253,6 +241,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     public void testLibraryTemplateWithWellNotPresentInAbase() throws IOException
     {
         createDataSetHandler(false, false);
+        setUpListAdministratorExpectations();
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A1"));
@@ -272,7 +261,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -293,6 +282,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     public void testLibraryTemplateIncompleteAccordingToAbase() throws IOException
     {
         createDataSetHandler(false, false);
+        setUpListAdministratorExpectations();
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A1"));
@@ -313,7 +303,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -343,6 +333,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("B2"));
 
         setDataSetExpectations();
+        setUpListAdministratorExpectations();
+
         context.checking(new Expectations()
             {
                 {
@@ -371,7 +363,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -424,12 +416,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createDataSetHandler(false, false);
         final Sample plate = plateWithLibTemplateAndGeometry("0.75\tH\n54.12\tL", "8_WELLS_2X4");
 
-        final String[] adminEmails = new String[]
-            { "admin@sanofi.com", null, "admin@openbis.org", "" };
-
-        final String[] nonEmptyAdminEmails = new String[]
-            { "admin@sanofi.com", "admin@openbis.org" };
-
+        setUpListAdministratorExpectations();
         context.checking(new Expectations()
             {
                 {
@@ -443,17 +430,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     one(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
-                    one(openBisService).listAdministrators();
-                    List<String> adminEmailsList = Arrays.asList(adminEmails);
-                    will(returnValue(createAdministrators(adminEmailsList)));
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(ADMIN_EMAILS)));
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(nonEmptyAdminEmails)));
-
-                    one(mailClient).sendMessage(with(any(String.class)), with(email),
-                            with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(USER_EMAILS)));
 
                 }
 
@@ -480,18 +463,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         context.assertIsSatisfied();
     }
 
-    private List<Person> createAdministrators(List<String> adminEmails)
-    {
-        List<Person> result = new ArrayList<Person>();
-        for (String adminEmail : adminEmails)
-        {
-            Person person = new Person();
-            person.setEmail(adminEmail);
-            result.add(person);
-        }
-        return result;
-    }
-
     @Test
     public void testHappyCaseWithLibraryCreationAndNonUniqueMaterials() throws IOException
     {
@@ -503,6 +474,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("B1", "material-1"));
 
         setDataSetExpectations();
+        setUpListAdministratorExpectations();
+
         context.checking(new Expectations()
             {
                 {
@@ -530,7 +503,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
-                            with(equal(EXPERIMENT_RECIPIENTS)));
+                            with(equal(ALL_EMAILS)));
                 }
             });
 
@@ -742,6 +715,30 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
             });
     }
 
+    private void setUpListAdministratorExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).listAdministrators();
+                    List<String> adminEmailsList = Arrays.asList(ADMIN_EMAILS);
+                    will(returnValue(createAdministrators(adminEmailsList)));
+                }
+            });
+    }
+
+    private List<Person> createAdministrators(List<String> adminEmails)
+    {
+        List<Person> result = new ArrayList<Person>();
+        for (String adminEmail : adminEmails)
+        {
+            Person person = new Person();
+            person.setEmail(adminEmail);
+            result.add(person);
+        }
+        return result;
+    }
+
     private void createData() throws IOException
     {
         File dataDirectory = new File("./sourceTest/examples/" + IMAGE_DATA_SET_DIR_NAME);
@@ -757,7 +754,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         ExperimentBuilder experimentBuilder = new ExperimentBuilder();
         experimentBuilder.identifier(EXPERIMENT_IDENTIFIER);
         experimentBuilder.property(LIBRARY_TEMPLATE_PROPNAME, libraryTemplate);
-        String recipients = StringUtils.join(Arrays.asList(EXPERIMENT_RECIPIENTS), ",");
+        String recipients = StringUtils.join(Arrays.asList(USER_EMAILS), ",");
         experimentBuilder.property(EXPERIMENT_RECIPIENTS_PROPNAME, recipients);
 
         SampleBuilder sampleBuilder = new SampleBuilder();

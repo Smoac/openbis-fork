@@ -19,8 +19,6 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, I
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
-from ch.systemsx.cisd.openbis.dss.generic.shared import ServiceProvider
-
 # Switch this off if there is more then one dropbox using this module,
 # in this case it should be switched on manually only after the module's code has been changed on the fly
 reload(plateinit)
@@ -79,21 +77,52 @@ def isUserError(ex):
     return ex.value and (ex.value.getClass() == ValidationException("").getClass())
 
 def getAdminEmails():
-    admins = ServiceProvider.getOpenBISService().listAdministrators()
+    admins = state.getOpenBisService().listAdministrators()
     adminEmails = [ admin.getEmail() for admin in admins if admin.getEmail() ]
     return adminEmails
 
+def getUserEmails():
+    global experiment
+    
+    recipients = []
+    
+    if experiment:
+        recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
+        if recipientsProp:
+           recipients = [ email.strip() for email in recipientsProp.split(",") ]
+        
+    return recipients
+
+def getAllEmailRecipients():
+    return getAdminEmails() + getUserEmails()
+
+def commit_transaction(service, transaction):
+    global plateCode
+    
+    incomingFileName = incoming.getName()
+    plateLink = createPlateLink(OPENBIS_URL, plateCode)
+    sendEmail("openBIS: New data registered for %s" % (plateCode), """
+    Dear openBIS user,
+    
+      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
+       
+      This email has been generated automatically.
+      
+      Have a nice day!
+      
+    Administrator
+    """ % vars(), getAllEmailRecipients())
 
 def rollback_service(service, ex):
     if isUserError(ex):
         shortErrorMessage = ex.getMessage()
         if not shortErrorMessage:
             shortErrorMessage = ex.value.getMessage()
-        sendUserError(service, shortErrorMessage, getDefaultEmailRecipients())
+        sendUserError(service, shortErrorMessage, getAllEmailRecipients())
     else:
         fullErrorMessage = ExceptionUtils.getFullStackTrace(ex)
         sendAdminError(service, fullErrorMessage, getAdminEmails())
-        sendSystemErrorNotificationToUser(service, getDefaultEmailRecipients())
+        sendSystemErrorNotificationToUser(service, getUserEmails())
         
 def sendUserError(service, errorDetails, recipients):        
     global plateCode
@@ -157,35 +186,6 @@ def sendSystemErrorNotificationToUser(service, recipients):
       
     openBIS Administrators
         """ % vars(), recipients)
-
-def commit_transaction(service, transaction):
-    global plateCode
-    
-    incomingFileName = incoming.getName()
-    plateLink = createPlateLink(OPENBIS_URL, plateCode)
-    sendEmail("openBIS: New data registered for %s" % (plateCode), """
-    Dear openBIS user,
-    
-      New data from folder '%(incomingFileName)s' has been successfully registered in plate %(plateLink)s.
-       
-      This email has been generated automatically.
-      
-      Have a nice day!
-      
-    Administrator
-    """ % vars(), getDefaultEmailRecipients())
-    
-def getDefaultEmailRecipients():
-    global experiment
-    
-    recipients = []
-    
-    if experiment:
-        recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
-        if recipientsProp:
-           recipients = [ email.strip() for email in recipientsProp.split(",") ]
-        
-    return recipients
 
 def sendEmail(title, content, recipients):
     global experiment
@@ -321,7 +321,7 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
 global experiment
 global plateCode 
 global plate 
-    
+
 if incoming.isDirectory():
     experiment = None
     plateCode = None
