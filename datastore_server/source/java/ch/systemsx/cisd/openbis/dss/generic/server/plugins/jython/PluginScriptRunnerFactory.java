@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
 /**
  * @author Piotr Buczek
  */
-class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
+public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 {
     private static final long serialVersionUID = 1L;
 
@@ -57,6 +57,7 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public PluginScriptRunnerFactory(String scriptPath)
     {
         this.scriptPath = scriptPath;
+        Evaluator.initialize();
     }
 
     /**
@@ -124,8 +125,8 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     /**
      * Factory method for creating an IReportingPluginScriptRunner given the script as a string.
      */
-    static IReportingPluginScriptRunner createReportingPluginRunnerFromScriptString(
-            String scriptString, DataSetProcessingContext context)
+    IReportingPluginScriptRunner createReportingPluginRunnerFromScriptString(String scriptString,
+            DataSetProcessingContext context)
     {
         return new ReportingPluginScriptRunner(createEvaluator(scriptString, context));
     }
@@ -133,13 +134,13 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     /**
      * Factory method for creating an IProcessingPluginScriptRunner given the script as a string.
      */
-    static IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptString(
-            String scriptString, DataSetProcessingContext context)
+    IProcessingPluginScriptRunner createProcessingPluginRunnerFromScriptString(String scriptString,
+            DataSetProcessingContext context)
     {
         return new ProcessingPluginScriptRunner(createEvaluator(scriptString, context));
     }
 
-    private static Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
+    protected Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
     {
         final Evaluator evaluator = new Evaluator("", null, scriptString, false);
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createSearchService());
@@ -216,6 +217,11 @@ class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             return Status.OK;
         }
 
+    }
+
+    public String getScriptPath()
+    {
+        return scriptPath;
     }
 
 }

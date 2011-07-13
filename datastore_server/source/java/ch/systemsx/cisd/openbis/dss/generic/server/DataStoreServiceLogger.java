@@ -84,8 +84,8 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return 0;
     }
 
-    public List<String> getKnownDataSets(String sessionToken, List<DatasetDescription> dataSetLocations)
-            throws InvalidAuthenticationException
+    public List<String> getKnownDataSets(String sessionToken,
+            List<DatasetDescription> dataSetLocations) throws InvalidAuthenticationException
     {
         log("getKnownDataSets", "DATA_SETS(%s)", dataSetLocations);
         return null;
@@ -109,20 +109,21 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
                 .toString().trim());
     }
 
-    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets)
+    public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
+            String serviceKey, List<DatasetDescription> datasets)
     {
-        log("createReportFromDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s)", serviceKey,
-                datasets.size());
+        log("createReportFromDatasets", "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s)",
+                userSessionToken, serviceKey, datasets.size());
         return null;
     }
 
-    public void processDatasets(String sessionToken, String serviceKey,
+    public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
             String userEmailOrNull)
     {
-        log("processDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s) PARAMETERS(%s) USER_EMAIL(%s)",
-                serviceKey, datasets.size(), parameterBindings, userEmailOrNull);
+        log("processDatasets",
+                "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) PARAMETERS(%s) USER_EMAIL(%s)",
+                userSessionToken, serviceKey, datasets.size(), parameterBindings, userEmailOrNull);
     }
 
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,

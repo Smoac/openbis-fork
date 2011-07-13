@@ -22,10 +22,10 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
@@ -45,10 +45,13 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
 {
     private static final long serialVersionUID = 1L;
 
-    private static final String SCRIPT_PATH = "script-path";
-
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractDatastorePlugin.class);
+
+    protected static String getScriptPathProperty(Properties properties)
+    {
+        return JythonBasedProcessingPlugin.getScriptPathProperty(properties);
+    }
 
     private final IPluginScriptRunnerFactory scriptRunnerFactory;
 
@@ -56,12 +59,12 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
 
     public JythonBasedReportingPlugin(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new PluginScriptRunnerFactory(
-                PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH)), null);
+        this(properties, storeRoot,
+                new PluginScriptRunnerFactory(getScriptPathProperty(properties)), null);
     }
 
     // for tests
-    JythonBasedReportingPlugin(Properties properties, File storeRoot,
+    protected JythonBasedReportingPlugin(Properties properties, File storeRoot,
             IPluginScriptRunnerFactory scriptRunnerFactory,
             IHierarchicalContentProvider contentProvider)
     {
@@ -108,9 +111,25 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
                 operationLog.info("Reporting done");
                 JythonBasedPluginUtils.closeContent(iDataSets);
             }
+        } catch (EvaluatorException ex)
+        {
+            StringBuilder errorString = new StringBuilder();
+            errorString
+                    .append("Could not run report script " + scriptRunnerFactory.getScriptPath());
+            if (null != ex.getCause())
+            {
+                notifyLog.error(errorString.toString(), ex.getCause());
+            } else
+            {
+                notifyLog.error(errorString.toString(), ex);
+            }
+            throw new UserFailureException("Chosen plugin failed to create a report.");
         } catch (RuntimeException ex)
         {
-            notifyLog.error(ex.getMessage());
+            StringBuilder errorString = new StringBuilder();
+            errorString
+                    .append("Could not run report script " + scriptRunnerFactory.getScriptPath());
+            notifyLog.error(errorString.toString(), ex);
             throw new UserFailureException("Chosen plugin failed to create a report.");
         }
     }

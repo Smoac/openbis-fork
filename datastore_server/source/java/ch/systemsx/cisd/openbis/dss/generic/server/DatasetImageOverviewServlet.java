@@ -131,6 +131,7 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
     private ResponseContentStream createImageResponse(HttpSession session, String datasetCode,
             String datasetTypeCode, ImageResolutionKind resolution)
     {
+        @SuppressWarnings("deprecation")
         File datasetRoot = createDataSetRootDirectory(datasetCode, session);
         IDatasetImageOverviewPlugin plugin =
                 configuration.getDatasetImageOverviewPlugin(datasetTypeCode);

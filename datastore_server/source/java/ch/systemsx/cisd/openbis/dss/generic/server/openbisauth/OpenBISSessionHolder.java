@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.openbisauth;
 
 /**
+ * A class that holds information about the openBIS session. It has the information necessary to
+ * connect to any of the openBIS APIs.
+ * 
  * @author Kaloyan Enimanev
  */
 public class OpenBISSessionHolder
@@ -25,6 +28,17 @@ public class OpenBISSessionHolder
 
     private String dataStoreCode;
 
+    private String serverUrl;
+
+    public String getServerUrl()
+    {
+        return serverUrl;
+    }
+
+    public void setServerUrl(String serverUrl)
+    {
+        this.serverUrl = serverUrl;
+    }
 
     public String getDataStoreCode()
     {

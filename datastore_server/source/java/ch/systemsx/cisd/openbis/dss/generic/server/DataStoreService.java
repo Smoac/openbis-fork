@@ -179,7 +179,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             operationLog.info("Command executor started.");
         }
-        getShareIdManager().isKnown(""); // initializes ShareIdManager: reading all share ids from the data base
+        getShareIdManager().isKnown(""); // initializes ShareIdManager: reading all share ids from
+                                         // the data base
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Initialization finished.");
@@ -293,8 +294,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new CIFEXRPCServiceFactory(cifexURL);
     }
 
-    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets)
+    public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
+            String serviceKey, List<DatasetDescription> datasets)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -310,7 +311,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             return task.createReport(datasets, new DataSetProcessingContext(
                     new DataSetDirectoryProvider(storeRoot, manager),
-                    new HashMap<String, String>(), null, null));
+                    new HashMap<String, String>(), null, null, userSessionToken));
 
         } finally
         {
@@ -318,7 +319,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
     }
 
-    public void processDatasets(String sessionToken, String serviceKey,
+    public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
             String userEmailOrNull)
     {
@@ -330,7 +331,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
         commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userEmailOrNull,
-                pluginDescription, mailClientParameters);
+                userSessionToken, pluginDescription, mailClientParameters);
     }
 
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
@@ -372,7 +373,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
-                userEmailOrNull, pluginDescription, mailClientParameters);
+                userEmailOrNull, sessionToken, pluginDescription, mailClientParameters);
     }
 
     private static class ArchiveProcessingPluginTask implements IProcessingPluginTask

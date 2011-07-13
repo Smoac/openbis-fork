@@ -87,7 +87,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         parameterBindings = new HashMap<String, String>();
         dataSets = Arrays.<DatasetDescription> asList(ds1, ds2);
         command =
-                new ProcessDatasetsCommand(task, dataSets, parameterBindings, E_MAIL,
+                new ProcessDatasetsCommand(task, dataSets, parameterBindings, E_MAIL, null,
                         DatastoreServiceDescription.processing("MY_TASK", EXAMPLE_TASK_LABEL,
                                 new String[0], "DSS1"), mailClient);
         subjectRecorder = new RecordingMatcher<String>();

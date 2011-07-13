@@ -52,14 +52,18 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
 
     transient IHierarchicalContentProvider hierarchicalContentProvider;
 
+    protected static String getScriptPathProperty(Properties properties)
+    {
+        return PropertyUtils.getMandatoryProperty(properties, SCRIPT_PATH);
+    }
+
     public JythonBasedProcessingPlugin(Properties properties, File storeRoot)
     {
-        this(new PluginScriptRunnerFactory(PropertyUtils.getMandatoryProperty(properties,
-                SCRIPT_PATH)), null);
+        this(new PluginScriptRunnerFactory(getScriptPathProperty(properties)), null);
     }
 
     // for tests
-    JythonBasedProcessingPlugin(IPluginScriptRunnerFactory scriptRunnerFactory,
+    protected JythonBasedProcessingPlugin(IPluginScriptRunnerFactory scriptRunnerFactory,
             IHierarchicalContentProvider contentProvider)
     {
         this.scriptRunnerFactory = scriptRunnerFactory;

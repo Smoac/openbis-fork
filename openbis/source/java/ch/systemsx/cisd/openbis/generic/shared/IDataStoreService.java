@@ -78,20 +78,21 @@ public interface IDataStoreService
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
     /** Runs the reporting task with the specified id for provided datasets */
-    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets);
+    public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
+            String serviceKey, List<DatasetDescription> datasets);
 
     /**
      * Schedules the processing task with the specified id for provided datasets and specified
      * parameter bindings.
      * 
+     * @param userSessionToken The session token of the user that initiated the processing.
      * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER}
      *            with the ID of the user who initiated processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      */
-    public void processDatasets(String sessionToken, String serviceKey,
+    public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
             String userEmailOrNull);
 

@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public interface IPluginScriptRunnerFactory extends ISerializable
 {
+    String getScriptPath();
+
     IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
 
     IProcessingPluginScriptRunner createProcessingPluginRunner(DataSetProcessingContext context);

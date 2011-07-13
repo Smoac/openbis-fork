@@ -59,6 +59,8 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     private final String userEmailOrNull;
 
+    private final String sessionTokenOrNull;
+
     private final DatastoreServiceDescription serviceDescription;
 
     private MailClientParameters mailClientParameters;
@@ -67,22 +69,24 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
             Map<String, String> parameterBindings, String userEmailOrNull,
-            DatastoreServiceDescription serviceDescription,
+            String sessionTokenOrNull, DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        this(task, datasets, parameterBindings, userEmailOrNull, serviceDescription,
-                new MailClient(mailClientParameters));
+        this(task, datasets, parameterBindings, userEmailOrNull, sessionTokenOrNull,
+                serviceDescription, new MailClient(mailClientParameters));
         this.mailClientParameters = mailClientParameters;
     }
 
     ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
             Map<String, String> parameterBindings, String userEmailOrNull,
-            DatastoreServiceDescription serviceDescription, IMailClient mailClient)
+            String sessionTokenOrNull, DatastoreServiceDescription serviceDescription,
+            IMailClient mailClient)
     {
         super(datasets);
         this.task = task;
         this.parameterBindings = parameterBindings;
         this.userEmailOrNull = userEmailOrNull;
+        this.sessionTokenOrNull = sessionTokenOrNull;
         this.serviceDescription = serviceDescription;
         this.mailClient = mailClient;
     }
@@ -153,7 +157,7 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         {
             DataSetProcessingContext context =
                     new DataSetProcessingContext(dataSetDirectoryProvider, parameterBindings,
-                            proxyMailClient, userEmailOrNull);
+                            proxyMailClient, userEmailOrNull, sessionTokenOrNull);
             processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 
 /**
  * Context for processing data sets by a {@link IProcessingPluginTask}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetProcessingContext
@@ -36,17 +36,31 @@ public class DataSetProcessingContext
 
     private final IDataSetDirectoryProvider directoryProvider;
 
+    private final String sessionTokenOrNull;
+
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
-     * optional user e-mail address.
+     * optional user e-mail address and sessionToken.
      */
     public DataSetProcessingContext(IDataSetDirectoryProvider directoryProvider,
             Map<String, String> parameterBindings, IMailClient mailClient, String userEmailOrNull)
+    {
+        this(directoryProvider, parameterBindings, mailClient, userEmailOrNull, null);
+    }
+
+    /**
+     * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
+     * optional user e-mail address and sessionToken.
+     */
+    public DataSetProcessingContext(IDataSetDirectoryProvider directoryProvider,
+            Map<String, String> parameterBindings, IMailClient mailClient, String userEmailOrNull,
+            String sessionTokenOrNull)
     {
         this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
         this.mailClient = mailClient;
         this.userEmailOrNull = userEmailOrNull;
+        this.sessionTokenOrNull = sessionTokenOrNull;
     }
 
     public IDataSetDirectoryProvider getDirectoryProvider()
@@ -67,5 +81,10 @@ public class DataSetProcessingContext
     public final String getUserEmailOrNull()
     {
         return userEmailOrNull;
+    }
+
+    public String trySessionToken()
+    {
+        return sessionTokenOrNull;
     }
 }

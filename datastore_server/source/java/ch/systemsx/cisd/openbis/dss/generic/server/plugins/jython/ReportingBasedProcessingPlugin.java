@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTabl
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -53,8 +54,6 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     // keys of properties
 
-    private static final String SCRIPT_PATH = "script-path"; // the only mandatory property
-
     private static final String EMAIL_SUBJECT = "email-subject";
 
     private static final String EMAIL_BODY = "email-body";
@@ -71,6 +70,11 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     private static final boolean DEFAULT_SINGLE_REPORT_FOR_ALL = false;
 
+    protected static String getScriptPathProperty(Properties properties)
+    {
+        return JythonBasedProcessingPlugin.getScriptPathProperty(properties);
+    }
+
     private final String emailSubject;
 
     private final String emailBody;
@@ -83,9 +87,17 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
 
     public ReportingBasedProcessingPlugin(Properties properties, File storeRoot)
     {
-        this.scriptRunnerFactory =
-                new PluginScriptRunnerFactory(PropertyUtils.getMandatoryProperty(properties,
-                        SCRIPT_PATH));
+        this(new PluginScriptRunnerFactory(getScriptPathProperty(properties)), properties,
+                storeRoot);
+    }
+
+    /**
+     * Internal constructor for use by subclasses.
+     */
+    protected ReportingBasedProcessingPlugin(IPluginScriptRunnerFactory scriptRunnerFactory,
+            Properties properties, File storeRoot)
+    {
+        this.scriptRunnerFactory = scriptRunnerFactory;
         this.singleReport =
                 PropertyUtils.getBoolean(properties, SINGLE_REPORT, DEFAULT_SINGLE_REPORT_FOR_ALL);
         this.emailSubject =
@@ -144,8 +156,8 @@ public class ReportingBasedProcessingPlugin implements IProcessingPluginTask
     public TableModel createTableModel(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
-        return JythonBasedReportingPlugin
-                .createReport(dataSets, context, scriptRunnerFactory, null);
+        return JythonBasedReportingPlugin.createReport(dataSets, context, scriptRunnerFactory,
+                ServiceProvider.getHierarchicalContentProvider());
     }
 
 }

@@ -551,9 +551,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
+        String userSessionToken = session.getSessionToken();
         parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
-        service.processDatasets(sessionToken, datastoreServiceKey, locations, parameterBindings,
-                tryGetLoggedUserEmail());
+        service.processDatasets(sessionToken, userSessionToken, datastoreServiceKey, locations,
+                parameterBindings, tryGetLoggedUserEmail());
     }
 
     private String tryGetLoggedUserEmail()
@@ -579,7 +580,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
-        return service.createReportFromDatasets(sessionToken, datastoreServiceKey, locations);
+        String userSessionToken = session.getSessionToken();
+        return service.createReportFromDatasets(sessionToken, userSessionToken,
+                datastoreServiceKey, locations);
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)

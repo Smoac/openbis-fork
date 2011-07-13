@@ -20,7 +20,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
  * Default implementation of {@link IScreeningOpenbisServiceFacadeFactory}.
  * 
  * @author Chandrasekhar Ramakrishnan
- * @author Franze-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class ScreeningOpenbisServiceFacadeFactory implements IScreeningOpenbisServiceFacadeFactory
 {
