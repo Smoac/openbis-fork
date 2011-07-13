@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -393,6 +394,93 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testHappyCaseWithLibraryCreationAndNonUniqueMaterials() throws IOException
+    {
+        createDataSetHandler(false, true);
+        final Sample plate = plateWithLibTemplateAndGeometry("0.75\tH\n54.12\tL", "8_WELLS_2X4");
+
+        final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
+        queryResult.add(createQueryResult("A1", "material-1"));
+        queryResult.add(createQueryResult("B1", "material-1"));
+
+        setDataSetExpectations();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(returnValue(queryResult));
+
+                    one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
+                    will(returnValue(Collections.emptyList()));
+
+                    exactly(4).of(openBisService).createPermId();
+                    will(returnValue("well-permId"));
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
+                            sampleIdentifier);
+                    will(returnValue(new IEntityProperty[0]));
+
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(EXPERIMENT_RECIPIENTS)));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(MATERIAL_TYPE, materialCriteria.recordedObject().tryGetMaterialType()
+                .getCode());
+        assertEquals(true, queryResult.hasCloseBeenInvoked());
+
+        List<NewSample> registeredSamples =
+                atomicatOperationDetails.recordedObject().getSampleRegistrations();
+
+        assertEquals(4, registeredSamples.size());
+        assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
+        assertCompoundWell(registeredSamples, "A1", "0.75", "material-1");
+        assertPositiveControl(registeredSamples, "A2");
+        assertCompoundWell(registeredSamples, "B1", "54.12", "material-1");
+
+        List<? extends NewExternalData> dataSetsRegistered =
+                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
+        assertEquals(3, dataSetsRegistered.size());
+
+        NewExternalData imageDataSet = dataSetsRegistered.get(0);
+        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
+        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
+        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
+
+        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+
+        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
+        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
+
+        Map<String, List<NewMaterial>> materialsRegistered =
+                atomicatOperationDetails.recordedObject().getMaterialRegistrations();
+        assertEquals(1, materialsRegistered.size());
+        assertEquals("material-1", materialsRegistered.get(MATERIAL_TYPE).get(0).getCode());
+
+        AssertionUtil
+                .assertContains(
+                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
+                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode'>plateCode</a>",
+                        email.recordedObject());
+        context.assertIsSatisfied();
+    }
+
     private void assertHasProperty(NewExternalData dataSet, String propCode, String propValue)
     {
         for (NewProperty prop : dataSet.getDataSetProperties())
@@ -447,6 +535,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private void assertCompoundWell(List<NewSample> newSamples, String wellCode,
             String concentration)
     {
+        String materialCode = getMaterialCodeByWellCode(wellCode);
+        assertCompoundWell(newSamples, wellCode, concentration, materialCode);
+    }
+
+    private void assertCompoundWell(List<NewSample> newSamples, String wellCode,
+            String concentration, String materialCode)
+    {
         NewSample newSample = findByWellCode(newSamples, wellCode);
         assertEquals(COMPOUND_WELL_TYPE, newSample.getSampleType().getCode());
 
@@ -457,7 +552,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals("Invalid concentration value for well '" + wellCode + "': ", concentration,
                 concentrationProp.tryGetAsString());
 
-        String materialCode = getMaterialCodeByWellCode(wellCode);
         MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, MATERIAL_TYPE);
 
         IEntityProperty wellMaterialProp =
@@ -580,9 +674,14 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private Map<String, Object> createQueryResult(String wellCode)
     {
+        return createQueryResult(wellCode, getMaterialCodeByWellCode(wellCode));
+    }
+
+    private Map<String, Object> createQueryResult(String wellCode, String materialCode)
+    {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("WELL_CODE", wellCode);
-        result.put("MATERIAL_CODE", getMaterialCodeByWellCode(wellCode));
+        result.put("MATERIAL_CODE", materialCode);
         result.put("ABASE_COMPOUND_ID", wellCode + "_compound_id");
         result.put("ABASE_COMPOUND_BATCH_ID", wellCode + "_compound_batch_id");
         return result;
