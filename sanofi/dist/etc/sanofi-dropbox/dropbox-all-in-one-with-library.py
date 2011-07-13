@@ -85,7 +85,6 @@ def getAdminEmails():
 
 
 def rollback_service(service, ex):
-    
     if isUserError(ex):
         shortErrorMessage = ex.getMessage()
         if not shortErrorMessage:
@@ -144,7 +143,6 @@ def sendAdminError(service, errorDetails, recipients):
         """ % vars(), recipients)
         
 def sendSystemErrorNotificationToUser(service, recipients):        
-    
     incomingFileName = incoming.getName()
         
     sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
@@ -187,6 +185,11 @@ def getDefaultEmailRecipients():
         if recipientsProp:
            recipients = [ email.strip() for email in recipientsProp.split(",") ]
         
+    return recipients
+
+def sendEmail(title, content, recipients):
+    global experiment
+    
     if not recipients:
         if experiment:
             experimentMsg = ("Please, fill in e-mail recipients list in the property '%s' of experiment '%s'." % (EXPERIMENT_RECIPIENTS_PROPCODE, experiment.getExperimentIdentifier()))
@@ -197,12 +200,8 @@ def getDefaultEmailRecipients():
                                  "\nEmail title: %s" 
                                  "\nEmail content: %s" % 
                                  (incoming.getName(), experimentMsg, title, content))
-        
-    return recipients
-
-def sendEmail(title, content, recipients):
-    if not recipients:
         return
+    
     fromAddress = From("openbis@sanofi-aventis.com")
     replyTo = None
     state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
