@@ -359,14 +359,14 @@ BEGIN
 	  FROM samples 
 	  WHERE samples.samp_id_part_of = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its component samples is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its component samples was not deleted.', NEW.code;
 	END IF;
 	-- all children need to be deleted
 	SELECT count(*) INTO counter 
 		FROM sample_relationships sr, samples sc
 		WHERE sample_id_parent = NEW.id AND sc.id = sr.sample_id_child AND sc.del_id IS NULL;
 	IF (counter > 0) THEN
-		RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its child samples is not deleted.', NEW.code;
+		RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its child samples was not deleted.', NEW.code;
 	END IF;
 	RETURN NEW;
 END;
@@ -392,14 +392,14 @@ BEGIN
 	  FROM data
 	  WHERE data.expe_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
 	-- check samples
 	SELECT count(*) INTO counter 
 	  FROM samples 
 	  WHERE samples.expe_id = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
-	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples is not deleted.', NEW.code;
+	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples was not deleted.', NEW.code;
 	END IF;
 	RETURN NEW;
 END;
