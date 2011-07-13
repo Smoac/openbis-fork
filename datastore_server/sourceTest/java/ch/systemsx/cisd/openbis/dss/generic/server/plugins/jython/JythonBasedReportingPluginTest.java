@@ -133,6 +133,8 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                     one(reportingPluginScriptRunner).describe(with(iDataSetsMatcher),
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
                     will(throwException(new EvaluatorException("blabla")));
+                    one(scriptRunnerFactory).getScriptPath();
+                    will(returnValue("/path/to/script"));
                 }
             });
         try
