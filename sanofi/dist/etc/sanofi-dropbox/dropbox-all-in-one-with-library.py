@@ -221,8 +221,13 @@ def findPlateByCode(transaction, code):
     platesFound = list(searchService.searchForSamples(criteria))
     
     if not platesFound:
-        raise ValidationException("No plate with code '%(code)s' found in the openBIS database" % vars())
-    
+        raise ValidationException("Plate with code '%(code)s' does not exist in openBIS.\n"
+                                  "Please check if the barcode provided in the folder name is correct "
+                                  "or register the plate in openBIS." % vars())
+    if len(platesFound) > 1:
+        raise ValidationException("There is more than one plate with code '%(code)s' in openBIS.\n"
+                                  "Plate barcodes should be unique, you may have to delete some plates from openBIS." % vars())
+        
     return platesFound[0]
 
 def parseIncomingDirname(dirName):
