@@ -29,7 +29,7 @@ public class BiozentrumMatLabApiTest
                     .println("Specify the password and optionally the plate identifier, mount point and dataset type pattern!");
         }
         String passwd = args[0];
-        String chosenPlate = "/TEST/KB01";
+        String chosenPlate = "/GROUP_DEHIO/KB03-2O-130";
         String mountPoint = null;
         String datasetTypePattern = "HCS_ANALYSIS_CELL_CLASSIFICATIONS_MAT";
         if (args.length > 1)
@@ -41,20 +41,50 @@ public class BiozentrumMatLabApiTest
             mountPoint = args[2];
         }
 
+        // OpenBISScreeningML.login("cisd", passwd, "https://infectx.biozentrum.unibas.ch");
         OpenBISScreeningML.login("cisd", passwd, "http://bc2-openbis01.bc2.unibas.ch:8443");
+        // OpenBISScreeningML.login("admin", passwd, "https://sprint-openbis.ethz.ch:8446");
+        // OpenBISScreeningML.login("admin", passwd, "http://127.0.0.1:8888");
 
         String experiment = "/TEST/TEST-USER/MY-ASSAY";
-        Object[][] channels = OpenBISScreeningML.listChannels(experiment);
-        print2DArray(channels);
 
+        testListChannels(experiment);
         testLoadFeatures(chosenPlate, experiment);
-
         testImagesMetadata(chosenPlate);
         testLoadImage(chosenPlate);
         testWellProperties(chosenPlate);
         testLoadDataset(chosenPlate, mountPoint, datasetTypePattern);
+        testUploadDataset(chosenPlate);
+
+        testUploadDataset("/RESEARCH_IT/TEST2");
+        // testUploadDataset("/DEMO/VL0206A-FV1801");
+        // testUploadDataset("/TEST/PLATE1");
 
         OpenBISScreeningML.logout();
+    }
+
+    private static void testListChannels(String experiment)
+    {
+        Object[][] channels = OpenBISScreeningML.listChannels(experiment);
+        print2DArray(channels);
+    }
+
+    private static void testUploadDataset(String chosenPlate)
+    {
+        String file = "/Users/tpylak/main/tmp/bioz-test/PlateSummary.csv";
+        String datasetType = "HCS_ANALYSIS_WELL_CLASSIFICATION_SUMMARIES";
+        String datasetCode;
+        Object[][] dataSetProperties = new Object[][]
+            { new Object[] {} };
+        datasetCode =
+                (String) OpenBISScreeningML.uploadDataSet(chosenPlate, file, datasetType,
+                        dataSetProperties);
+        System.out.println("Uploaded classification dataset " + datasetCode);
+
+        datasetCode =
+                (String) OpenBISScreeningML.uploadDataSet(chosenPlate, file,
+                        "HCS_ANALYSIS_CELL_CLASSIFICATIONS_MAT", dataSetProperties);
+        System.out.println("Uploaded any dataset " + datasetCode);
     }
 
     private static void testLoadFeatures(String chosenPlate, String experiment)
@@ -62,13 +92,15 @@ public class BiozentrumMatLabApiTest
         Object[][] features = OpenBISScreeningML.listFeatures(experiment, null);
         print2DArray(features);
 
-        Object[][][] featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, null);
+        Object[][][] featureMatrix =
+                OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, null);
         System.out.println("per plate features -------------------------------");
         print3DArray(featureMatrix);
 
         String[] featureNames = new String[]
             { "OOF" };
-        featureMatrix = OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, featureNames);
+        featureMatrix =
+                OpenBISScreeningML.getFeatureMatrixForPlate(chosenPlate, null, featureNames);
         System.out.println("one per plate feature -------------------------------");
         print3DArray(featureMatrix);
 
