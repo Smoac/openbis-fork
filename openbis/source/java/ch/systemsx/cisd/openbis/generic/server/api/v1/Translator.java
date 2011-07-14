@@ -144,7 +144,7 @@ public class Translator
         List<IEntityProperty> properties = privateExperiment.getProperties();
         for (IEntityProperty prop : properties)
         {
-            initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
+            initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
 
         return new Experiment(initializer);
