@@ -492,7 +492,7 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
                                     .list();
                         }
                     });
-        return transformNumbers2TechIds(results);
+        return transformNumbers2TechIdSet(results);
     }
 
     // data set relationship helper methods

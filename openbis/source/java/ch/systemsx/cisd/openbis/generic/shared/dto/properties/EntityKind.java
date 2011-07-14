@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Enumeration of entity kinds.
@@ -44,17 +45,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
  */
 public enum EntityKind
 {
-    MATERIAL("material", MaterialPE.class, MaterialTypePE.class, MaterialTypePropertyTypePE.class,
-            MaterialPropertyPE.class),
+    MATERIAL(TableNames.MATERIALS_TABLE, "material", MaterialPE.class, MaterialTypePE.class,
+            MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
 
-    EXPERIMENT("experiment", ExperimentPE.class, ExperimentTypePE.class,
-            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
+    EXPERIMENT(TableNames.EXPERIMENTS_TABLE, "experiment", ExperimentPE.class,
+            ExperimentTypePE.class, ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
 
-    SAMPLE("sample", SamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
-            SamplePropertyPE.class),
+    SAMPLE(TableNames.SAMPLES_TABLE, "sample", SamplePE.class, SampleTypePE.class,
+            SampleTypePropertyTypePE.class, SamplePropertyPE.class),
 
-    DATA_SET("dataSet", DataPE.class, DataSetTypePE.class, DataSetTypePropertyTypePE.class,
-            DataSetPropertyPE.class);
+    DATA_SET(TableNames.DATA_TABLE, "dataSet", DataPE.class, DataSetTypePE.class,
+            DataSetTypePropertyTypePE.class, DataSetPropertyPE.class);
+
+    private final String entityTableName;
 
     private final String entityLabel;
 
@@ -66,10 +69,11 @@ public enum EntityKind
 
     private transient final Class<?> propertyClass;
 
-    private EntityKind(final String entityLabel,
+    private EntityKind(final String entityTableName, final String entityLabel,
             final Class<? extends IEntityInformationWithPropertiesHolder> entityClass,
             final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass)
     {
+        this.entityTableName = entityTableName;
         this.entityLabel = entityLabel;
         this.entityClass = entityClass;
         this.typeClass = typeClass;
@@ -86,6 +90,11 @@ public enum EntityKind
     public final String getLabel()
     {
         return entityLabel;
+    }
+
+    public final String getTableName()
+    {
+        return entityTableName;
     }
 
     public final <T extends EntityTypePE> Class<T> getTypeClass()

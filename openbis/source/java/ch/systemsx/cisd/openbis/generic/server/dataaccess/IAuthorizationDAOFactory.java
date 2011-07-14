@@ -72,4 +72,6 @@ public interface IAuthorizationDAOFactory
     public IQueryDAO getQueryDAO();
 
     public IRelationshipTypeDAO getRelationshipTypeDAO();
+
+    public IDeletionDAO getDeletionDAO();
 }

@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -460,7 +460,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     public Set<TechId> listParents(final Collection<TechId> children, final TechId relationship)
     {
         final String query =
-
                 "select sample_id_parent from sample_relationships where sample_id_child in (:ids) and relationship_id = :r ";
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
@@ -473,7 +472,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                                     .setParameter("r", relationship.getId()).list();
                         }
                     });
-        Set<TechId> result = transformNumbers2TechIds(results);
+        Set<TechId> result = transformNumbers2TechIdSet(results);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d sample parents(s) have been found.",

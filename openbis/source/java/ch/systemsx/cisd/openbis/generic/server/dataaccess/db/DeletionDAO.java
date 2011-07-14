@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -25,6 +30,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -67,8 +73,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         }
     }
 
-    @Override
-    public void delete(DeletionPE deletion) throws DataAccessException
+    public void revert(DeletionPE deletion) throws DataAccessException
     {
         operationLog.info(String.format("REVERT: deletion %s.", deletion));
         for (EntityKind entityKind : EntityKind.values())
@@ -76,14 +81,13 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             // NOTE: material deletion are always permanent and therefore can't be reverted
             if (entityKind != EntityKind.MATERIAL)
             {
-                revertDeletion(deletion, entityKind);
+                revertDeletionOfEntities(deletion, entityKind);
             }
         }
         super.delete(deletion);
     }
 
-    private void revertDeletion(final DeletionPE deletion,
-            final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind)
+    private void revertDeletionOfEntities(final DeletionPE deletion, final EntityKind entityKind)
     {
         assert deletion != null : "Unspecified deletion";
         assert entityKind != null : "Unspecified entity kind";
@@ -96,4 +100,41 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         hibernateTemplate.flush();
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
     }
+
+    public List<TechId> findTrashedSampleIds(final List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE);
+    }
+
+    public List<TechId> findTrashedExperimentIds(final List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.EXPERIMENT);
+    }
+
+    public List<String> findTrashedDataSetCodes(final List<TechId> deletionIds)
+    {
+        final DetachedCriteria criteria =
+                DetachedCriteria.forClass(EntityKind.DATA_SET.getEntityClass());
+        final List<Long> longIds = TechId.asLongs(deletionIds);
+        criteria.setProjection(Projections.property("code"));
+        criteria.add(Restrictions.in("deletion.id", longIds));
+        final List<String> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        operationLog.info(String.format("found %s trashed %s(s)", results.size(),
+                EntityKind.DATA_SET.name()));
+        return results;
+    }
+
+    private List<TechId> findTrashedEntityIds(final List<TechId> deletionIds,
+            final EntityKind entityKind)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
+        final List<Long> longIds = TechId.asLongs(deletionIds);
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.in("deletion.id", longIds));
+        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        operationLog
+                .info(String.format("found %s trashed %s(s)", results.size(), entityKind.name()));
+        return transformNumbers2TechIdList(results);
+    }
+
 }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
@@ -85,6 +86,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final IRelationshipTypeDAO relationshipTypeDAO;
 
+    private final IDeletionDAO deletionDAO;
+
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
             final IFullTextIndexUpdateScheduler indexUpdateScheduler,
@@ -106,6 +109,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
         relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
+        deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance);
     }
 
     public final PersistencyResources getPersistencyResources()
@@ -240,6 +244,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public IRelationshipTypeDAO getRelationshipTypeDAO()
     {
         return relationshipTypeDAO;
+    }
+
+    public IDeletionDAO getDeletionDAO()
+    {
+        return deletionDAO;
     }
 
     /**

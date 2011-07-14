@@ -507,7 +507,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                     .list();
                         }
                     });
-        return transformNumbers2TechIds(results);
+        return transformNumbers2TechIdSet(results);
     }
 
     // data set relationship helper methods

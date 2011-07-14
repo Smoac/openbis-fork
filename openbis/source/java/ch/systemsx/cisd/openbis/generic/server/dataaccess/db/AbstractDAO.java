@@ -71,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 public abstract class AbstractDAO extends HibernateDaoSupport
 {
 
-
     /** The original source database instance. */
     private DatabaseInstancePE databaseInstance;
 
@@ -86,8 +85,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     private static Map<Class<?>, ClassValidator<?>> validators =
-        new HashMap<Class<?>, ClassValidator<?>>();
-    
+            new HashMap<Class<?>, ClassValidator<?>>();
+
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
@@ -384,9 +383,19 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         }
     }
 
-    protected static Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
+    protected static Set<TechId> transformNumbers2TechIdSet(Collection<? extends Number> numbers)
     {
         final Set<TechId> result = new HashSet<TechId>();
+        for (Number number : numbers)
+        {
+            result.add(new TechId(number));
+        }
+        return result;
+    }
+
+    protected static List<TechId> transformNumbers2TechIdList(Collection<? extends Number> numbers)
+    {
+        final List<TechId> result = new ArrayList<TechId>();
         for (Number number : numbers)
         {
             result.add(new TechId(number));

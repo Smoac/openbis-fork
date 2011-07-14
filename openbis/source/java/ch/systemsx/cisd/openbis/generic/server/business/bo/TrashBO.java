@@ -42,18 +42,6 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         this.boFactory = boFactory;
     }
 
-    public void revertDeletion(TechId deletionId)
-    {
-        try
-        {
-            deletion = getDeletionDAO().getByTechId(deletionId);
-            getDeletionDAO().delete(deletion);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, "Deletion");
-        }
-    }
-
     public void createDeletion(String reason)
     {
         try
@@ -88,6 +76,18 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
         dataSetTable.setDataSets(dataSets);
         dataSetTable.trashLoadedDataSets(deletion);
+    }
+
+    public void revertDeletion(TechId deletionId)
+    {
+        try
+        {
+            deletion = getDeletionDAO().getByTechId(deletionId);
+            getDeletionDAO().revert(deletion);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Deletion");
+        }
     }
 
 }

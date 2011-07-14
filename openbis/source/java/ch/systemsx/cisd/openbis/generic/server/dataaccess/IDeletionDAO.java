@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**
@@ -31,5 +34,13 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
      * Inserts given {@link DeletionPE} into the database.
      */
     void create(final DeletionPE deletion) throws DataAccessException;
+
+    void revert(DeletionPE deletion);
+
+    List<TechId> findTrashedSampleIds(List<TechId> deletionIds);
+
+    List<TechId> findTrashedExperimentIds(List<TechId> deletionIds);
+
+    List<String> findTrashedDataSetCodes(List<TechId> deletionIds);
 
 }
