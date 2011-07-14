@@ -77,7 +77,7 @@ public class ExperimentBrowsingTest extends SystemTestCase
         Experiment e1 = getOriginalObjectByCode(resultSet, "EXP-REUSE");
         assertEquals(null, e1.getDeletion());
         Experiment e2 = getOriginalObjectByCode(resultSet, "EXP-X");
-        assertEquals(null, e2.getDeletion().getReason());
+        assertEquals("no reason", e2.getDeletion().getReason());
         assertEquals(false, resultSet.getResultSet().isPartial());
         assertEquals(3, resultSet.getResultSet().getTotalLength());
         assertEquals(3, resultSet.getResultSet().getList().size());

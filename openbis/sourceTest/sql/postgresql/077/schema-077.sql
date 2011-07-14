@@ -1,4 +1,3 @@
-SET statement_timeout = 0;
 SET standard_conforming_strings = off;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
@@ -631,7 +630,7 @@ CREATE TABLE deletions (
     id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    reason description_2000 NOT NULL,
+    reason description_2000 NOT NULL
 );
 CREATE SEQUENCE dstpt_id_seq
     START WITH 1
