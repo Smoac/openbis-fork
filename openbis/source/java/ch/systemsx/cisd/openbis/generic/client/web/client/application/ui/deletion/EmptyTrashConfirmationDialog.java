@@ -37,12 +37,11 @@ public final class EmptyTrashConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
-    public EmptyTrashConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext,
+    public EmptyTrashConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, Collections.<Deletion> emptyList(), viewContext
-                .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
+                .getMessage(Dict.EMPTY_TRASH_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
         this.callback = callback;
     }
@@ -56,7 +55,7 @@ public final class EmptyTrashConfirmationDialog extends
     @Override
     protected String createMessage()
     {
-        return viewContext.getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_MSG, data.size());
+        return viewContext.getMessage(Dict.EMPTY_TRASH_CONFIRMATION_MSG, data.size());
     }
 
     @Override
