@@ -108,7 +108,6 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                             });
         addButton(emptyTrashButton);
 
-        @SuppressWarnings("unused")
         Button deletePermanentlyButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
                         new AbstractCreateDialogListener()
@@ -127,8 +126,8 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                             deletions, createRefreshCallback(invoker));
                                 }
                             });
-        // TODO uncomment when permanent deletion of selected deletions is reliably implemented
-        // addButton(deletePermanentlyButton);
+        // TODO unsafe
+        addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow deletion/revert of multiple deletions
 
         addEntityOperationsSeparator();

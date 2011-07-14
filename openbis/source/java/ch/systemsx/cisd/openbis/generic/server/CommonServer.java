@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -2406,10 +2407,30 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public final void deletePermanently(final String sessionToken, final List<TechId> deletionIds)
     {
-        @SuppressWarnings("unused")
-        final Session session = getSession(sessionToken);
+        checkSession(sessionToken);
 
-        throw new UserFailureException("This feature is not yet implemented.");
+        IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
+        // NOTE:
+        // - we can't do bulk deletions to preserve original reason
+        // - we keep findTrashed... methods with collections as arguments for future use
+        for (TechId deletionId : deletionIds)
+        {
+            DeletionPE deletion = deletionDAO.getByTechId(deletionId);
+            String deletionReason = deletion.getReason();
+            DeletionType deletionType = DeletionType.PERMANENT;
+
+            List<TechId> singletonList = Collections.singletonList(deletionId);
+            List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
+            deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType);
+
+            List<TechId> trashedSamples = deletionDAO.findTrashedSampleIds(singletonList);
+            deleteSamples(sessionToken, trashedSamples, deletionReason, deletionType);
+
+            List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
+            deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);
+
+            deletionDAO.delete(deletion);
+        }
     }
 
     private static UserFailureException wrapExceptionWithEntityIdentifier(

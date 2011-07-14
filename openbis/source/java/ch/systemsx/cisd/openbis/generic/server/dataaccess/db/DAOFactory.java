@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -102,8 +101,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IScriptDAO scriptDAO;
 
-    private final IDeletionDAO deletionDAO;
-
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -130,7 +127,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         eventDAO = new EventDAO(sessionFactory, databaseInstance);
         authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
         scriptDAO = new ScriptDAO(sessionFactory, databaseInstance);
-        deletionDAO = new DeletionDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -234,11 +230,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IScriptDAO getScriptDAO()
     {
         return scriptDAO;
-    }
-
-    public IDeletionDAO getDeletionDAO()
-    {
-        return deletionDAO;
     }
 
     public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
