@@ -528,6 +528,12 @@ public abstract class Dict
     public static final String REVERT_DELETIONS_CONFIRMATION_MSG =
             "revert_deletions_confirmation_msg";
 
+    public static final String PERMANENT_DELETIONS_CONFIRMATION_TITLE =
+            "permanent_deletions_confirmation_title";
+
+    public static final String PERMANENT_DELETIONS_CONFIRMATION_MSG =
+            "permanent_deletions_confirmation_msg";
+
     //
     // Sample Viewer
     //

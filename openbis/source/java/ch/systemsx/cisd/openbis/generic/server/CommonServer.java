@@ -2404,6 +2404,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    public final void deletePermanently(final String sessionToken, final List<TechId> deletionIds)
+    {
+        @SuppressWarnings("unused")
+        final Session session = getSession(sessionToken);
+
+        throw new UserFailureException("This feature is not yet implemented.");
+    }
+
     private static UserFailureException wrapExceptionWithEntityIdentifier(
             UserFailureException exception, IEntityInformationHolderWithIdentifier entity)
     {

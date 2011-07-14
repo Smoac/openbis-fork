@@ -1444,7 +1444,7 @@ public interface ICommonServer extends IServer
     public List<Deletion> listDeletions(String sessionToken);
 
     /**
-     * Reverts specified deletion (puts back all objects moved to trash in the deletion).
+     * Reverts specified deletions (puts back all entities moved to trash in the deletions).
      */
     @Transactional
     // TODO make it possible for deletion creator
@@ -1454,4 +1454,12 @@ public interface ICommonServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void revertDeletions(final String sessionToken, final List<TechId> deletionIds);
 
+    /**
+     * Permanently deletes entities moved to trash in specified deletions.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
 }

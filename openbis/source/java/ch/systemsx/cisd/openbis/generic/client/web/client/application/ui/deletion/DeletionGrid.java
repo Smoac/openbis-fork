@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -96,16 +94,21 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
         addButton(revertButton);
 
         Button deletePermanentlyButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Deletion>>>()
+                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
+                        new AbstractCreateDialogListener()
                             {
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<Deletion>> selectedItem,
-                                        boolean keyPressed)
+                                @Override
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<Deletion>> data,
+                                        IBrowserGridActionInvoker invoker)
                                 {
-                                    // TODO
-                                    MessageBox.info("Not implemented yet", "", null);
+                                    List<Deletion> deletions = new ArrayList<Deletion>();
+                                    for (TableModelRowWithObject<Deletion> row : data)
+                                    {
+                                        deletions.add(row.getObjectOrNull());
+                                    }
+                                    return new PermanentDeletionConfirmationDialog(viewContext,
+                                            deletions, createRefreshCallback(invoker));
                                 }
                             });
         addButton(deletePermanentlyButton);

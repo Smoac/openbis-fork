@@ -2220,4 +2220,10 @@ public final class CommonClientService extends AbstractClientService implements
     {
         commonServer.revertDeletions(getSessionToken(), deletionIds);
     }
+
+    public void deletePermanently(List<TechId> deletionIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        commonServer.deletePermanently(getSessionToken(), deletionIds);
+    }
 }

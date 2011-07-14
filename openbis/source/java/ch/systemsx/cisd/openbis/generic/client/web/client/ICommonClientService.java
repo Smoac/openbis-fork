@@ -1094,4 +1094,9 @@ public interface ICommonClientService extends IClientService
      */
     public void revertDeletions(List<TechId> deletionIds) throws UserFailureException;
 
+    /**
+     * Permanently deletes entities moved to trash with specified deletions.
+     */
+    public void deletePermanently(List<TechId> deletionIds) throws UserFailureException;
+
 }

@@ -78,7 +78,9 @@ var common = {
   button_revert_deletion: "Revert",
   button_delete_permanently: "Delete Permanently",
   revert_deletions_confirmation_title: "Confirm Revert",
-  revert_deletions_confirmation_msg: "Are you sure you want to revert {0} deletion(s)?",
+  revert_deletions_confirmation_msg: "Are you sure you want to revert {0} selected deletion(s)?",
+  permanent_deletions_confirmation_title: "Confirm Permanent Deletion",
+  permanent_deletions_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in selected {0} deletion(s)?",
 	 
   //
   // Table Modifications
