@@ -212,7 +212,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         if (isIncompatibleServerException(caught))
         {
             String sessionExpiredMessage = getMessage(Dict.SESSION_EXPIRED_MESSAGE);
-            handleSessionTerminated(sessionExpiredMessage);
+            handleSessionTerminated(sessionExpiredMessage, caught);
             return;
         }
 
@@ -239,12 +239,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
         if (caught instanceof InvalidSessionException)
         {
-            handleSessionTerminated(msg);
-            // only for tests
-            if (staticCallbackListener != DEFAULT_CALLBACK_LISTENER)
-            {
-                callbackListener.onFailureOf(viewContext, this, msg, caught);
-            }
+            handleSessionTerminated(msg, caught);
         } else
         {
             callbackListener.onFailureOf(viewContext, this, msg, caught);
@@ -281,7 +276,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
     }
 
-    private void handleSessionTerminated(String msg)
+    private void handleSessionTerminated(String msg, Throwable caught)
     {
         if (viewContext.isSimpleOrEmbeddedMode())
         {
@@ -289,6 +284,11 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         } else
         {
             showSessionTerminated(msg);
+        }
+        // only for tests
+        if (staticCallbackListener != DEFAULT_CALLBACK_LISTENER)
+        {
+            callbackListener.onFailureOf(viewContext, this, msg, caught);
         }
     }
 
