@@ -50,7 +50,7 @@ ALTER DOMAIN event_type DROP CONSTRAINT event_type_check;
 ALTER DOMAIN event_type ADD CONSTRAINT event_type_check CHECK (VALUE IN ('DELETION', 'MOVEMENT'));
 
 ----------------------------------------------------------------------------------------------------
--- Purpose: Remove all deletions.
+-- Purpose: Remove all deletions and make reason not null.
 -- Reasoning:
 --- they were only test deletions and probably current DB state doesn't satisfy consistency rules 
 --  introduced with triggers in next migration,
@@ -61,3 +61,4 @@ UPDATE data SET del_id = NULL;
 UPDATE samples SET del_id = NULL;
 UPDATE experiments SET del_id = NULL;
 DELETE FROM deletions;
+ALTER TABLE deletions ALTER COLUMN reason SET NOT NULL;

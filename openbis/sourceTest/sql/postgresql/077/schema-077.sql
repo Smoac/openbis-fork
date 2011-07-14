@@ -631,7 +631,7 @@ CREATE TABLE deletions (
     id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    reason description_2000
+    reason description_2000 NOT NULL,
 );
 CREATE SEQUENCE dstpt_id_seq
     START WITH 1
