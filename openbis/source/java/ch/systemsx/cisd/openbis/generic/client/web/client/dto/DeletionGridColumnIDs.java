@@ -27,8 +27,8 @@ public class DeletionGridColumnIDs
 {
     public static final String REASON = "REASON";
 
-    public static final String REGISTRATOR = "REGISTRATOR";
+    public static final String DELETER = "DELETER";
 
-    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+    public static final String DELETION_DATE = "DELETION_DATE";
 
 }

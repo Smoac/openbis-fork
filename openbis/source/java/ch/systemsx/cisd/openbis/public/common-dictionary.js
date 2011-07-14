@@ -61,6 +61,8 @@ var common = {
   // Deletion
   // 
   
+  deletion_date: "Deletion Date",
+  deleter: "Deleter",
   deletion: "Deletion",
   deletion_template: "{0}; {1}<br><i>reason:</i>&nbsp;{2}",
   permanent: "Permanent",

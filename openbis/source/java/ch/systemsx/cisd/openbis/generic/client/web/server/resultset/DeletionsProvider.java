@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.REASON;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.REGISTRATION_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.REGISTRATOR;
 
 import java.util.List;
 
@@ -44,14 +44,14 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
     {
         List<Deletion> deletions = commonServer.listDeletions(sessionToken);
         TypedTableModelBuilder<Deletion> builder = new TypedTableModelBuilder<Deletion>();
-        builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);
-        builder.addColumn(REGISTRATOR).withDefaultWidth(200);
+        builder.addColumn(DELETION_DATE).withDefaultWidth(300);
+        builder.addColumn(DELETER).withDefaultWidth(200);
         builder.addColumn(REASON).withDefaultWidth(500);
         for (Deletion deletion : deletions)
         {
             builder.addRow(deletion);
-            builder.column(REGISTRATION_DATE).addDate(deletion.getRegistrationDate());
-            builder.column(REGISTRATOR).addPerson(deletion.getRegistrator());
+            builder.column(DELETION_DATE).addDate(deletion.getRegistrationDate());
+            builder.column(DELETER).addPerson(deletion.getRegistrator());
             builder.column(REASON).addString(deletion.getReason());
         }
         return builder.getModel();

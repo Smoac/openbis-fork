@@ -147,7 +147,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(DeletionGridColumnIDs.REASON,
                 createMultilineStringCellRenderer());
-        schema.setGridCellRendererFor(DeletionGridColumnIDs.REGISTRATOR,
+        schema.setGridCellRendererFor(DeletionGridColumnIDs.DELETER,
                 PersonRenderer.REGISTRATOR_RENDERER);
         return schema;
     }
@@ -171,7 +171,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(DeletionGridColumnIDs.REGISTRATOR, DeletionGridColumnIDs.REASON);
+        return Arrays.asList(DeletionGridColumnIDs.DELETER, DeletionGridColumnIDs.REASON);
     }
 
     @Override
