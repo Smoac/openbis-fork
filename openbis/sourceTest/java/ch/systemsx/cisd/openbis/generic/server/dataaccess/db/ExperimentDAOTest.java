@@ -274,19 +274,26 @@ public class ExperimentDAOTest extends AbstractDAOTest
         }
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testDeleteFailWithAttachments()
+    private static final String ATT_CONTENTS_TABLE = "attachment_contents";
+
+    @Test
+    public final void testDeleteWithAttachments()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
         final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
 
         // Deleted experiment should have attachments which prevent it from deletion.
-        // Other connections which also prevent sample deletion should be empty in this test.
+        // Other connections which also prevent experiment deletion should be empty in this test.
 
         // Currently there is no such experiment in test DB so we first add an attachment
-        // to an experiment empty experiment (with no connections).
+        // to an empty experiment (with no connections).
+        int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
+
         AttachmentPE attachment = CommonTestUtils.createAttachment();
+        attachment.setRegistrator(deletedExperiment.getRegistrator());
         daoFactory.getAttachmentDAO().createAttachment(attachment, deletedExperiment);
+
+        assertEquals(rowsInAttachmentContents + 1, countRowsInTable(ATT_CONTENTS_TABLE));
 
         assertFalse(deletedExperiment.getAttachments().isEmpty());
         assertTrue(deletedExperiment.getDataSets().isEmpty());
@@ -294,6 +301,11 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         // delete
         experimentDAO.delete(deletedExperiment);
+
+        // test successful deletion of experiment, attachment & content
+        assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
+        assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(TechId.create(attachment)));
+        assertEquals(rowsInAttachmentContents, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)

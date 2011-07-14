@@ -47,12 +47,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -370,20 +370,37 @@ public final class SampleDAOTest extends AbstractDAOTest
         }
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testDeleteFailWithAttachments()
+    private static final String ATT_CONTENTS_TABLE = "attachment_contents";
+
+    @Test
+    public final void testDeleteWithAttachments()
     {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         final SamplePE deletedSample = findSample("3VCP6", "CISD");
 
-        // Deleted sample should have attachments which prevent it from deletion.
-        // Other connections which also prevent sample deletion should be empty in this test.
+        // Deleted sample should have attachments which should be deleted as well as the sample.
         assertFalse(deletedSample.getAttachments().isEmpty());
+        List<TechId> attachmentIds = TechId.createList(deletedSample.getAttachments());
+        // Other connections which would prevent sample deletion should be empty in this test.
         assertTrue(deletedSample.getDatasets().isEmpty());
         assertTrue(deletedSample.getGenerated().isEmpty());
         assertTrue(deletedSample.getContained().isEmpty());
 
+        int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
+
         // delete
         deleteSample(deletedSample);
+
+        // test successful deletion of sample
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+
+        // test successful deletion of attachments & their contents
+        for (TechId attachmentId : attachmentIds)
+        {
+            assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(attachmentId));
+        }
+        assertEquals(rowsInAttachmentContents - attachmentIds.size(),
+                countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)

@@ -30,6 +30,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * An attachment content <i>Persistent Entity</i>.
@@ -38,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.ATTACHMENT_CONTENT_TABLE)
-public class AttachmentContentPE implements Serializable
+public class AttachmentContentPE implements IIdHolder, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 

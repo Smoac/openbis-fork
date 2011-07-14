@@ -387,6 +387,12 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 "SELECT perm_id FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
         final String sqlDeleteProperties =
                 "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :sId";
+        final String sqlAttachmentContentIds =
+                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
+        final String sqlDeleteAttachmentContents =
+                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
+        final String sqlDeleteAttachments =
+                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
         final String sqlDeleteSample =
                 "DELETE FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
         final String sqlInsertEvent =
@@ -404,6 +410,12 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                             session.createSQLQuery(sqlDeleteProperties);
                     final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
                     final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
+                    final SQLQuery sqlQueryAttachmentContentIds =
+                            session.createSQLQuery(sqlAttachmentContentIds);
+                    final SQLQuery sqlQueryDeleteAttachments =
+                            session.createSQLQuery(sqlDeleteAttachments);
+                    final SQLQuery sqlQueryDeleteAttachmentContents =
+                            session.createSQLQuery(sqlDeleteAttachmentContents);
                     sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
                     sqlQueryInsertEvent.setParameter("reason", reason);
                     sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
@@ -418,6 +430,18 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                             // delete properties
                             sqlQueryDeleteProperties.setParameter("sId", techId.getId());
                             sqlQueryDeleteProperties.executeUpdate();
+                            // delete attachments
+                            sqlQueryAttachmentContentIds.setParameter("sId", techId.getId());
+                            List<Long> attachmentContentIds =
+                                    cast(sqlQueryAttachmentContentIds.list());
+                            if (attachmentContentIds.size() > 0)
+                            {
+                                sqlQueryDeleteAttachments.setParameter("sId", techId.getId());
+                                sqlQueryDeleteAttachments.executeUpdate();
+                                sqlQueryDeleteAttachmentContents.setParameterList("aIds",
+                                        attachmentContentIds);
+                                sqlQueryDeleteAttachmentContents.executeUpdate();
+                            }
                             // delete sample
                             sqlQueryDeleteSample.setParameter("sId", techId.getId());
                             sqlQueryDeleteSample.executeUpdate();
