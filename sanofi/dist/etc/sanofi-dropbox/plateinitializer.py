@@ -136,6 +136,9 @@ class PlateInitializer:
         queryService = self.state.getDataSourceQueryService()
         queryResult = queryService.select(self.ABASE_DATA_SOURCE, query, [plateCode])
         
+        if not queryResult:
+            raise ValidationException("No information for plate '%s' stored in the ABASE DB." % (self.plateCode))
+        
         sanofiMaterials = []
         for resultMap in list(queryResult):
             materialMap = self.upperCaseKeys(resultMap)
@@ -217,13 +220,15 @@ class PlateInitializer:
                
            elif self.isCompoundWell(templateValue): 
                # COMPOUND_WELL
-               well = self.transaction.createNewSample(wellIdentifier, self.COMPOUND_WELL_TYPE)
-               well.setContainer(self.plate)
-               well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, templateValue)
                sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterials)
-               materialCode = sanofiMaterial.materialCode
-               material = openbisMaterials[materialCode]
-               well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
+               if sanofiMaterial:
+                   # only create when they exist in the ABASE DB
+                   well = self.transaction.createNewSample(wellIdentifier, self.COMPOUND_WELL_TYPE)
+                   well.setContainer(self.plate)
+                   well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, templateValue)
+                   materialCode = sanofiMaterial.materialCode
+                   material = openbisMaterials[materialCode]
+                   well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
                
            else:
                raise ValidationException("The specified value for well '%s' in the property "  
@@ -232,16 +237,6 @@ class PlateInitializer:
                (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, templateValue))
        
     def validate(self, template, sanofiMaterials):
-        for wellCode in template:
-           if self.isCompoundWell(template[wellCode]):
-               sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterials)
-               if not sanofiMaterial:
-                   raise ValidationException("Error registering library for plate '%s'. The library template"
-                                      " specified in property '%s' of experiment '%s' contains"
-                                      " concentration value for well '%s', but no"
-                                      " mapping to a material was found in the ABASE DB." % 
-                                      (self.plateCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, wellCode))
-                   
         for sanofiMaterial in sanofiMaterials:
             wellCode = sanofiMaterial.wellCode
             templateValue = template.get(wellCode, None)

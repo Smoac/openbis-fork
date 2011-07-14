@@ -74,7 +74,10 @@ ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
 USE_IMAGE_MAGIC_CONVERT_TOOL = True
 
 def isUserError(ex):
-    return ex.value and (ex.value.getClass() == ValidationException("").getClass())
+    if ex.value and hasattr(ex.value, "getClass"):
+        return (ex.value.getClass() == ValidationException("").getClass())
+    
+    return False
 
 def getAdminEmails():
     admins = state.getOpenBisService().listAdministrators()

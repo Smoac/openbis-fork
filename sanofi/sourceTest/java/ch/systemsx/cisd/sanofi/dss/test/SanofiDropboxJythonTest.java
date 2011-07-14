@@ -238,13 +238,12 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     }
 
     @Test
-    public void testLibraryTemplateWithWellNotPresentInAbase() throws IOException
+    public void testNoInformationInAbase() throws IOException
     {
         createDataSetHandler(false, false);
         setUpListAdministratorExpectations();
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
-        queryResult.add(createQueryResult("A1"));
 
         final Sample plate = plateWithLibTemplateAndGeometry("1.45\tH\n0.12\tL", "25_WELLS_5X5");
         context.checking(new Expectations()
@@ -265,14 +264,20 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             });
 
-        final String error =
-                "Error registering library for plate 'TEST-PLATE'. The library template specified in "
-                        + "property 'LIBRARY_TEMPLATE' of experiment '/SANOFI/PROJECT/EXP' contains concentration value "
-                        + "for well 'B1', but no mapping to a material was found in the ABASE DB.";
+        final String error = "No information for plate 'TEST-PLATE' stored in the ABASE DB.";
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.OPERATION, error);
 
         handler.handle(markerFile);
+
+        assertEquals(
+                "Dear openBIS user,\n"
+                        + "    \n"
+                        + "      Registering new data for plate plateCode.variant has failed with error 'No information for plate 'TEST-PLATE' stored in the ABASE DB.'.\n"
+                        + "      The name of the incoming folder 'batchNr_plateCode.variant_2011.07.05' was added to '.faulty_paths'. Please,\n"
+                        + "      repair the problem and remove the entry from '.faulty_paths' to retry registration.\n"
+                        + "       \n" + "      This email has been generated automatically.\n"
+                        + "      \n" + "    Administrator", email.recordedObject().trim());
 
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
@@ -404,7 +409,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         AssertionUtil
                 .assertContains(
-                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
+                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
                                 + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
                         email.recordedObject());
         context.assertIsSatisfied();
@@ -459,6 +464,90 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                         + "      We are sorry for any inconveniences this may have caused. \n"
                         + "      \n" + "    openBIS Administrators", email.getRecordedObjects()
                         .get(1).trim());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLibraryTemplateWithWellNotPresentInAbase() throws IOException
+    {
+        createDataSetHandler(false, false);
+
+        setDataSetExpectations();
+        setUpListAdministratorExpectations();
+
+        final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
+        queryResult.add(createQueryResult("A1"));
+
+        final Sample plate = plateWithLibTemplateAndGeometry("1.45\tH\n0.12\tL", "25_WELLS_5X5");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(returnValue(queryResult));
+
+                    one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
+                    will(returnValue(Collections.emptyList()));
+
+                    exactly(3).of(openBisService).createPermId();
+                    will(returnValue("well-permId"));
+
+                    SampleIdentifier sampleIdentifier =
+                            SampleIdentifierFactory.parse(plate.getIdentifier());
+                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    will(returnValue(plate));
+
+                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
+                            sampleIdentifier);
+                    will(returnValue(new IEntityProperty[0]));
+
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
+
+                    one(mailClient).sendMessage(with(any(String.class)), with(email),
+                            with(aNull(String.class)), with(any(From.class)),
+                            with(equal(ALL_EMAILS)));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        assertEquals(MATERIAL_TYPE, materialCriteria.recordedObject().tryGetMaterialType()
+                .getCode());
+        assertEquals(true, queryResult.hasCloseBeenInvoked());
+
+        List<NewSample> registeredSamples =
+                atomicatOperationDetails.recordedObject().getSampleRegistrations();
+
+        assertEquals(3, registeredSamples.size());
+        assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
+        assertCompoundWell(registeredSamples, "A1", "1.45");
+        assertPositiveControl(registeredSamples, "A2");
+        assertNegativeControl(registeredSamples, "B2");
+
+        List<? extends NewExternalData> dataSetsRegistered =
+                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
+        assertEquals(3, dataSetsRegistered.size());
+
+        NewExternalData imageDataSet = dataSetsRegistered.get(0);
+        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
+        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
+        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
+
+        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+
+        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
+        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
+
+        AssertionUtil
+                .assertContains(
+                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
+                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
+                        email.recordedObject());
 
         context.assertIsSatisfied();
     }
@@ -546,7 +635,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         AssertionUtil
                 .assertContains(
-                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered in plate "
+                        "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
                                 + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
                         email.recordedObject());
         context.assertIsSatisfied();
