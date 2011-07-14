@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -40,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
@@ -79,7 +79,6 @@ public final class DataDAOTest extends AbstractDAOTest
     private final String COMPONENT_CODE = "20110509092359990-11";
 
     private final String VIRTUAL_DATA_SET_TYPE_CODE = "CONTAINER_TYPE";
-
 
     @Test
     public final void testListSampleDataSets()
@@ -366,7 +365,7 @@ public final class DataDAOTest extends AbstractDAOTest
             assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
         }
 
-        // deleted sample had parent connected that should not have been deleted
+        // deleted data set had parent connected that should not have been deleted
         // NOTE: somehow cannot get parents even though connection is the same as with children
         // DataPE parent = deletedData.tryGetParent();
         // assertNotNull(parent);
@@ -392,17 +391,27 @@ public final class DataDAOTest extends AbstractDAOTest
         assertNull(preservedComponent.getContainer());
     }
 
-    @Test(expectedExceptions = DataIntegrityViolationException.class)
-    public final void testDeleteFailWithChildrenDatasets()
+    @Test
+    public final void testDeleteParentPreservesChildren()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
         final DataPE deletedData = findData(PARENT_CODE);
 
-        // Deleted data set should have 'child' data sets which prevent it from deletion.
+        // Deleted data set should have 'child' data sets.
         assertFalse(deletedData.getChildren().isEmpty());
+        List<String> childrenCodes = Code.extractCodes(deletedData.getChildren());
 
         // delete
         dataDAO.delete(deletedData);
+
+        // test successful deletion of data set
+        assertNull(dataDAO.tryGetByTechId(TechId.create(deletedData)));
+
+        // deleted data set had child connected that should not have been deleted
+        for (String child : childrenCodes)
+        {
+            findData(child);
+        }
     }
 
     protected VocabularyTermPE pickAStorageFormatVocabularyTerm()

@@ -35,7 +35,6 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -52,9 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -446,28 +445,26 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     public void delete(DataPE entity) throws DataAccessException
     {
         assert entity != null : "entity unspecified";
-        if (entity.getChildren().size() > 0)
+        // Remove children & components and flush changes before deletion.
+        // Otherwise constraint violation exception will be thrown.
+        List<DataPE> children = new ArrayList<DataPE>(entity.getChildren());
+        for (DataPE child : children)
         {
-            throw new DataIntegrityViolationException(String.format(
-                    "Data Set '%s' cannot be deleted because children datasets are connected.",
-                    entity.getCode()));
+            child.removeParent(entity);
         }
         if (entity.isContainer())
         {
-            // Remove components and flush changes before deletion of the container.
-            // Otherwise constraint violation exception will be thrown.
             List<DataPE> components = new ArrayList<DataPE>(entity.getContainedDataSets());
             for (DataPE component : components)
             {
                 entity.removeComponent(component);
             }
-            flush();
         }
+        flush();
         super.delete(entity);
     }
 
-    public void trash(List<DataPE> dataSets, DeletionPE deletion)
-            throws DataAccessException
+    public void trash(List<DataPE> dataSets, DeletionPE deletion) throws DataAccessException
     {
         // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
         for (DataPE dataSet : dataSets)
