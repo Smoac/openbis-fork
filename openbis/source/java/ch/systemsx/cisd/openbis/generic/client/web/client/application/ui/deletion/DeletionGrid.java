@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -93,6 +95,20 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                             });
         addButton(revertButton);
 
+        Button emptyTrashButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_EMPTY_TRASH),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    new EmptyTrashConfirmationDialog(viewContext,
+                                            createRefreshCallback(asActionInvoker())).show();
+                                }
+                            });
+        addButton(emptyTrashButton);
+
+        @SuppressWarnings("unused")
         Button deletePermanentlyButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),
                         new AbstractCreateDialogListener()
@@ -111,7 +127,8 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                             deletions, createRefreshCallback(invoker));
                                 }
                             });
-        addButton(deletePermanentlyButton);
+        // TODO uncomment when permanent deletion of selected deletions is reliably implemented
+        // addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow deletion/revert of multiple deletions
 
         addEntityOperationsSeparator();
