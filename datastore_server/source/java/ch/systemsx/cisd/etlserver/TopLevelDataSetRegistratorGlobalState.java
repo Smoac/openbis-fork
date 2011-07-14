@@ -17,15 +17,19 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Global state needed by top level data set registrators.
@@ -184,5 +188,24 @@ public class TopLevelDataSetRegistratorGlobalState
     public String[] getValidationScriptsOrNull()
     {
         return validationScriptsOrNull;
+    }
+
+    /**
+     * Return the email addresses of all administrator users registered on the openBIS AS.
+     */
+    public List<String> getAdministratorEmails()
+    {
+        List<String> emails = new ArrayList<String>();
+
+        List<Person> administrators = openBisService.listAdministrators();
+        for (Person admin : administrators)
+        {
+            String email = admin.getEmail();
+            if (StringUtils.isNotBlank(email))
+            {
+                emails.add(email);
+            }
+        }
+        return emails;
     }
 }
