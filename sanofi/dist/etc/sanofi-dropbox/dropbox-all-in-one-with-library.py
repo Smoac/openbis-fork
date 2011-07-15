@@ -27,7 +27,7 @@ reload(plateinit)
 TEST_MODE=False
 
 """ the url of the Sanofi's openBIS installation """
-OPENBIS_URL = "https://bwl27.sanofi-aventis.com:8443/openbis"
+OPENBIS_URL = "http://bwdl27.bw.f2.enterprise:8080/openbis"
 
 EXPERIMENT_RECIPIENTS_PROPCODE = "OBSERVER_EMAILS"
 
@@ -104,17 +104,14 @@ def commit_transaction(service, transaction):
     
     incomingFileName = incoming.getName()
     plateLink = createPlateLink(OPENBIS_URL, plateCode)
-    sendEmail("openBIS: New data registered for %s" % (plateCode), """
-    Dear openBIS user,
-    
-      New data from folder '%(incomingFileName)s' has been successfully registered for plate %(plateLink)s.
+    sendEmail("openBIS: New data registered for %s" % (plateCode), 
+"""Dear openBIS user,
+New data from folder '%(incomingFileName)s' has been successfully registered for plate %(plateLink)s.
        
-      This email has been generated automatically.
+This email has been generated automatically.
       
-      Have a nice day!
-      
-    Administrator
-    """ % vars(), getAllEmailRecipients())
+Have a nice day!
+Administrator""" % vars(), getAllEmailRecipients())
 
 def rollback_service(service, ex):
     if isUserError(ex):
@@ -134,61 +131,54 @@ def sendUserError(service, errorDetails, recipients):
     incomingFileName = incoming.getName()
         
     if localPlateCode:
-        sendEmail("openBIS: Data registration failed for %s" % (localPlateCode), """
-    Dear openBIS user,
-    
-      Registering new data for plate %(localPlateCode)s has failed with error '%(errorDetails)s'.
-      The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
-      repair the problem and remove the entry from '.faulty_paths' to retry registration.
+        sendEmail("openBIS: Data registration failed for %s" % (localPlateCode), 
+"""Dear openBIS user,
+Registering new data for plate %(localPlateCode)s has failed with error '%(errorDetails)s'.
+The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
+repair the problem and remove the entry from '.faulty_paths' to retry registration.
        
-      This email has been generated automatically.
+This email has been generated automatically.
       
-    Administrator
-        """ % vars(), recipients)
+Administrator""" % vars(), recipients)
     else:
-        sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
-    Dear openBIS user,
-    
-      openBIS was unable to understand the name of an incoming folder. 
-      Detailed error message was '%(errorDetails)s'.
+        sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), 
+"""Dear openBIS user,
+openBIS was unable to understand the name of an incoming folder. 
+Detailed error message was '%(errorDetails)s'.
       
-      This email has been generated automatically.
+This email has been generated automatically.
       
-    Administrator
-        """ % vars(), recipients)
+Administrator""" % vars(), recipients)
     
 def sendAdminError(service, errorDetails, recipients):        
     incomingFileName = incoming.getName()
         
-    sendEmail("openBIS System Error: Data registration failed for %s" % (incomingFileName), """
-    Dear openBIS Administrator,
+    sendEmail("openBIS System Error: Data registration failed for %s" % (incomingFileName), 
+"""Dear openBIS Administrator,
     
-      The registration of data sets from incoming folder '%(incomingFileName)s' has failed
-      in an unexpected way. The most probable cause is a misconfiguration of the system. It may be also a bug. 
-      Here is a full description of the encountered error:
+The registration of data sets from incoming folder '%(incomingFileName)s' has failed
+in an unexpected way. The most probable cause is a misconfiguration of the system. It may be also a bug. 
+Here is a full description of the encountered error:
       
-      %(errorDetails)s
+%(errorDetails)s
       
-      Please, repair the problem and remove the entry from '.faulty_paths' to retry registration.
+Please, repair the problem and remove the entry from '.faulty_paths' to retry registration.
       
-    openBIS
-        """ % vars(), recipients)
+openBIS""" % vars(), recipients)
         
 def sendSystemErrorNotificationToUser(service, recipients):        
     incomingFileName = incoming.getName()
         
-    sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), """
-    Dear openBIS user,
-    
-      Registering new data from incoming folder '%(incomingFileName)s' has failed due to a system error.
+    sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), 
+"""Dear openBIS user,
+Registering new data from incoming folder '%(incomingFileName)s' has failed due to a system error.
       
-      openBIS has sent a notification to the responsible system administrators and they should be 
-      fixing the problem as soon as possible. 
+openBIS has sent a notification to the responsible system administrators and they should be 
+fixing the problem as soon as possible. 
       
-      We are sorry for any inconveniences this may have caused. 
+We are sorry for any inconveniences this may have caused. 
       
-    openBIS Administrators
-        """ % vars(), recipients)
+openBIS Administrators""" % vars(), recipients)
 
 def sendEmail(title, content, recipients):
     global experiment
@@ -210,7 +200,7 @@ def sendEmail(title, content, recipients):
     state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
 
 def createPlateLink(openbisUrl, code):
-    return "<a href='%(openbisUrl)s#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=%(code)s'>%(code)s</a>" % vars()
+    return "%(openbisUrl)s#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=%(code)s" % vars()
 
 def findPlateByCode(transaction, code):
     """
