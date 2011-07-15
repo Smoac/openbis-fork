@@ -24,10 +24,9 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -41,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
  * 
  * @author Kaloyan Enimanev
  */
-class AnalysisProcedureChooser extends LayoutContainer
+class AnalysisProcedureChooser extends HorizontalPanel
 {
 
     /**
@@ -84,7 +83,6 @@ class AnalysisProcedureChooser extends LayoutContainer
 
         add(createComboLabel());
         add(analysisProceduresComboBox);
-        add(new FillToolItem());
         addAnalysisProcedures(analysisProcedures);
 
 

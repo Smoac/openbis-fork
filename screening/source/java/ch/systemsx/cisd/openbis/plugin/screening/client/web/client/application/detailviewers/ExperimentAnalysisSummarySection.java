@@ -76,7 +76,7 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
                             getHeader().addTool(analysisProcedureChooser);
                             // WORKAROUND to GXT private widgetPanel in Header with fixed
                             // "float: right" set onRender
-                            analysisProcedureChooser.addStyleName("force-float-left");
+                            analysisProcedureChooser.getParent().addStyleName("force-float-left");
 
                             replaceContent(analysisGridDisposableComponent);
                         }
