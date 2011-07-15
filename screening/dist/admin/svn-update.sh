@@ -18,7 +18,7 @@ fi
 WGET_HOME=`which wget`
 
 # download the scripts
-$WGET_HOME -nH --cut-dirs=6 --directory-prefix $OPENBIS_HOME --no-verbose -r -l2 -A.{sh,sql}http://$SVN/
+$WGET_HOME -nH --cut-dirs=6 --directory-prefix $OPENBIS_HOME --no-verbose -r -l2 -A.{sh,sql} http://$SVN/
 
 # set permissions
 find $OPENBIS_HOME -type f -name "*.sh" -exec chmod 700 {} \;
