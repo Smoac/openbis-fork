@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException;
 import com.google.gwt.user.client.rpc.InvocationException;
-import com.google.gwt.user.client.rpc.SerializationException;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -253,8 +252,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     private boolean isIncompatibleServerException(final Throwable caught)
     {
-        return caught instanceof SerializationException
-                || caught instanceof IncompatibleRemoteServiceException;
+        return caught instanceof IncompatibleRemoteServiceException;
     }
 
     private String getMessage(String messageKey, Object... params)
