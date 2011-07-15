@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -76,7 +77,7 @@ public interface IDatasetLister
      * Lists all data sets with specified codes. Unenriched data sets will be returned.
      */
     List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
-    
+
     /**
      * Lists all data sets of specified data store. Unenriched data sets will be returned.
      */
@@ -95,4 +96,9 @@ public interface IDatasetLister
      * @return Datasets connected to the samples with the specified ids
      */
     List<ExternalData> listBySampleIds(Collection<Long> sampleIds);
+
+    /**
+     * @return properties of given type for given dataset ids
+     */
+    Map<Long, GenericEntityPropertyRecord> fetchProperties(List<Long> ids, String propertyTypeCode);
 }

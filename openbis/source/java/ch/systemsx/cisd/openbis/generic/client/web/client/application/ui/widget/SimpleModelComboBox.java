@@ -24,12 +24,13 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
      * corresponding label.
      */
     public SimpleModelComboBox(IMessageProvider messageProvider, List<T> items,
-            List<String> labels, int widthPx)
+            List<String> labels, List<String> tooltips, int widthPx)
     {
         assert items.size() == labels.size() : "for each item there should be one corresponding label";
+        assert items.size() == tooltips.size() : "for each item there should be one corresponding tooltip";
 
         configure(messageProvider, widthPx);
-        setModel(items, labels);
+        setModel(items, labels, tooltips);
         GWTUtils.autoselect(this);
     }
 
@@ -51,15 +52,23 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         setEditable(false);
         setEmptyText(messageProvider.getMessage(Dict.COMBO_BOX_CHOOSE));
         setWidth("" + widthPx);
+        setTemplate(GWTUtils.getTooltipTemplate(LabeledItem.LABEL_FIELD, LabeledItem.TOOLTIP_FIELD));
     }
 
-    private void setModel(List<T> items, List<String> labels)
+    private void setModel(List<T> items, List<String> labels, List<String> tooltips)
     {
         int i = 0;
         for (T item : items)
         {
-            add(new LabeledItem<T>(item, labels.get(i)));
+            add(new LabeledItem<T>(item, labels.get(i), tooltips.get(i)));
             i++;
+        }
+
+        for (int j = 0; j < getStore().getCount(); j++)
+        {
+            SimpleComboValue<LabeledItem<T>> item = getStore().getAt(j);
+            item.set(LabeledItem.LABEL_FIELD, item.getValue().toString());
+            item.set(LabeledItem.TOOLTIP_FIELD, item.getValue().getTooltip());
         }
     }
 

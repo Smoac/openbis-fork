@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -35,10 +39,49 @@ public class EntityTypeLabelUtils
             boolean withFileType)
     {
         List<String> labels = new ArrayList<String>(datasetReferences.size());
-        for (DatasetReference dataset : datasetReferences)
+        for (DatasetReference datasetReference : datasetReferences)
         {
-            labels.add(createDatasetLabel(dataset, withFileType));
+            labels.add(createDatasetLabel(datasetReference, withFileType, null, true));
         }
+        return labels;
+    }
+
+    public final static List<String> createDatasetLabelsForFeatureVectors(
+            List<FeatureVectorDataset> featureVectors, boolean withFileType)
+    {
+        Map<String, Integer> labelsSet = new HashMap<String, Integer>(featureVectors.size());
+        List<String> labels = new ArrayList<String>(featureVectors.size());
+        for (FeatureVectorDataset featureVector : featureVectors)
+        {
+            String label =
+                    createDatasetLabel(featureVector.getDatasetReference(), withFileType,
+                            featureVector.getAnalysisProcedure(), false);
+
+            Integer count = 1;
+            if (labelsSet.containsKey(label))
+            {
+                count = labelsSet.get(label) + 1;
+            }
+            labelsSet.put(label, count);
+
+            labels.add(label);
+        }
+
+        // detect duplicated labels
+        int i = 0;
+        for (FeatureVectorDataset featureVector : featureVectors)
+        {
+            String label = labels.get(i);
+            if (labelsSet.get(label) > 1)
+            {
+                labels.set(
+                        i,
+                        createDatasetLabel(featureVector.getDatasetReference(), withFileType,
+                                featureVector.getAnalysisProcedure(), true));
+            }
+            i++;
+        }
+
         return labels;
     }
 
@@ -52,19 +95,24 @@ public class EntityTypeLabelUtils
      * <br>
      * Hcs analysis cell classifications (MAT), 2011-05-30, 12378612873681-12312<br>
      */
-    public static String createDatasetLabel(DatasetReference datasetReference, boolean withFileType)
+    public static String createDatasetLabel(DatasetReference datasetReference,
+            boolean withFileType, String analysisProcedure, boolean withDatasetCode)
     {
         String registrationDate = renderDate(datasetReference);
-        return createDatasetLabel(datasetReference, withFileType, registrationDate);
+        return createDatasetLabel(datasetReference, withFileType, registrationDate,
+                analysisProcedure, withDatasetCode);
     }
 
     // private, just for tests
     static String createDatasetLabel(DatasetReference datasetReference, boolean withFileType,
-            String registrationDate)
+            String registrationDate, String analysisProcedure, boolean withDatasetCode)
     {
         String typeLabel = getDatasetUserFriendlyTypeCode(datasetReference);
         String fileType = withFileType ? " (" + datasetReference.getFileTypeCode() + ")" : "";
-        return typeLabel + fileType + ", " + registrationDate + ", " + datasetReference.getCode();
+        String analysisProcedureRendered =
+                StringUtils.isBlank(analysisProcedure) ? "" : analysisProcedure + ", ";
+        return typeLabel + fileType + ", " + analysisProcedureRendered + registrationDate
+                + (withDatasetCode ? ", " + datasetReference.getCode() : "");
     }
 
     private static String renderDate(DatasetReference datasetReference)

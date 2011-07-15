@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.EntityTypeLabelUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -92,7 +94,7 @@ class ImagingDatasetGuiUtils
         c.add(new Text(UNKNOWN_DATASETS_LABEL));
         for (DatasetReference dataset : unknownDatasets)
         {
-            String label = EntityTypeLabelUtils.createDatasetLabel(dataset, true);
+            String label = EntityTypeLabelUtils.createDatasetLabel(dataset, true, null, true);
             Widget detailsLink = createDatasetDetailsLink(dataset, label, viewContext);
             // WORKAROUND without wrapping in table all links are rendered in the same line )in
             // spite of the row layout)
@@ -170,8 +172,34 @@ class ImagingDatasetGuiUtils
                 final IFeatureVectorDatasetReferenceUpdater datasetUpdater)
         {
             List<String> datasetLabels = getDatasetLabels(featureVectorDatasets);
+            List<String> tooltips = getDatasetTooltips(featureVectorDatasets);
             final SimpleModelComboBox<FeatureVectorDataset> datasetChooser =
-                    createDatasetChooserComboBox(viewContext, featureVectorDatasets, datasetLabels);
+                    createDatasetChooserComboBox(viewContext, featureVectorDatasets, datasetLabels,
+                            tooltips);
+
+            // select default
+            String defaultAnalysisProcedure =
+                    ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext)
+                            .getDefaultAnalysisProcedure();
+            if (defaultAnalysisProcedure != null)
+            {
+                int index = -1;
+                for (int i = 0; i < featureVectorDatasets.size(); i++)
+                {
+                    if (defaultAnalysisProcedure.equals(featureVectorDatasets.get(i)
+                            .getAnalysisProcedure()))
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index > -1)
+                {
+                    datasetChooser.setSelection(Collections.singletonList(datasetChooser.getStore()
+                            .getAt(index)));
+                }
+            }
+
             final Anchor datasetDetailsButton = createImageAnalysisDetailsButton(datasetChooser);
             datasetChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<FeatureVectorDataset>>>()
@@ -185,6 +213,14 @@ class ImagingDatasetGuiUtils
                                 datasetUpdater.changeDisplayedFeatureVectorDataset(chosenDataset);
                                 updateFeatureVectorDatasetSimpleViewModeLink(datasetChooser,
                                         datasetDetailsButton);
+
+                                if (chosenDataset.getAnalysisProcedure() != null)
+                                {
+                                    ScreeningViewContext
+                                            .getTechnologySpecificDisplaySettingsManager(
+                                                    viewContext).setDefaultAnalysisProcedure(
+                                                    chosenDataset.getAnalysisProcedure());
+                                }
                             }
                         });
             FeatureVectorDataset chosenDataset = datasetChooser.getChosenItem();
@@ -195,11 +231,36 @@ class ImagingDatasetGuiUtils
                     datasetDetailsButton);
         }
 
+        private List<String> getDatasetTooltips(List<FeatureVectorDataset> featureVectorDatasets)
+        {
+            List<String> tooltips = new ArrayList<String>(featureVectorDatasets.size());
+
+            for (FeatureVectorDataset featureVectorDataset : featureVectorDatasets)
+            {
+                DatasetReference reference = featureVectorDataset.getDatasetReference();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Dataset Code: ").append(reference.getCode()).append("<BR/>");
+                sb.append("Dataset Type: ").append(reference.getEntityType().getCode())
+                        .append("<BR/>");
+                sb.append("File Type: ").append(reference.getFileTypeCode()).append("<BR/>");
+                sb.append("Registration Date: ").append(reference.getRegistrationDate())
+                        .append("<BR/>");
+                if (featureVectorDataset.getAnalysisProcedure() != null)
+                {
+                    sb.append("Analysis Procedure: ")
+                            .append(featureVectorDataset.getAnalysisProcedure()).append("<BR/>");
+                }
+                tooltips.add(sb.toString());
+            }
+
+            return tooltips;
+        }
+
         private List<String> getDatasetLabels(List<FeatureVectorDataset> featureVectorDatasets)
         {
-            List<DatasetReference> references = asFeatureVectorReferences(featureVectorDatasets);
             List<String> datasetLabels =
-                    EntityTypeLabelUtils.createDatasetLabels(references, false);
+                    EntityTypeLabelUtils.createDatasetLabelsForFeatureVectors(
+                            featureVectorDatasets, false);
             return datasetLabels;
         }
 
@@ -213,17 +274,6 @@ class ImagingDatasetGuiUtils
                     createDatasetDetailsLink(featureVectorDataset.getDatasetReference(),
                             SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON, viewContext);
             return withLabel(datasetDetailsLink, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL);
-        }
-
-        private static List<DatasetReference> asFeatureVectorReferences(
-                List<FeatureVectorDataset> featureVectorDatasets)
-        {
-            List<DatasetReference> refs = new ArrayList<DatasetReference>();
-            for (FeatureVectorDataset dataset : featureVectorDatasets)
-            {
-                refs.add(dataset.getDatasetReference());
-            }
-            return refs;
         }
 
         private Anchor createImageAnalysisDetailsButton(
@@ -329,10 +379,10 @@ class ImagingDatasetGuiUtils
                 List<ImageDatasetEnrichedReference> imageDatasets,
                 final IDatasetImagesReferenceUpdater datasetUpdater)
         {
+            List<String> labels =
+                    EntityTypeLabelUtils.createDatasetLabels(asReferences(imageDatasets), true);
             final SimpleModelComboBox<ImageDatasetEnrichedReference> datasetChooser =
-                    createDatasetChooserComboBox(viewContext, imageDatasets,
-                            EntityTypeLabelUtils.createDatasetLabels(asReferences(imageDatasets),
-                                    true));
+                    createDatasetChooserComboBox(viewContext, imageDatasets, labels, labels);
 
             final Anchor datasetDetailsButton = createImageDetailsButton(datasetChooser);
             datasetChooser
@@ -440,9 +490,10 @@ class ImagingDatasetGuiUtils
     }
 
     private static <T> SimpleModelComboBox<T> createDatasetChooserComboBox(
-            IMessageProvider messageProvider, List<T> items, List<String> labels)
+            IMessageProvider messageProvider, List<T> items, List<String> labels,
+            List<String> tooltips)
     {
-        return new SimpleModelComboBox<T>(messageProvider, items, labels,
+        return new SimpleModelComboBox<T>(messageProvider, items, labels, tooltips,
                 DATASET_COMBOBOX_CHOOSER_WIDTH_PX);
     }
 }

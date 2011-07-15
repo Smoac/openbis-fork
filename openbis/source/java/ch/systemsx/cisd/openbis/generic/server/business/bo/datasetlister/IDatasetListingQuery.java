@@ -23,6 +23,7 @@ import java.util.Date;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
+import net.lemnik.eodsql.TypeMapper;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
@@ -225,6 +226,22 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
+
+    /**
+     * Returns property values for specified type code of all datasets specified by
+     * <var>entityIds</var>.
+     * 
+     * @param entityIds The set of sample ids to get the property values for.
+     * @param propertyTypeCode type code f properties we want to fetch
+     */
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value "
+            + "      FROM data_set_properties pr"
+            + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
+            + "      JOIN property_types pt ON etpt.prty_id=pt.id"
+            + "     WHERE pr.value is not null AND pr.ds_id = any(?{1}) AND pt.code = ?{2}", parameterBindings =
+        { LongSetMapper.class, TypeMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+            LongSet entityIds, String propertyTypeCode);
 
     /**
      * Returns all controlled vocabulary property values of all datasets specified by

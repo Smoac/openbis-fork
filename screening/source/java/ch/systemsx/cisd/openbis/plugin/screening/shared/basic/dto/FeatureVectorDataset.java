@@ -35,6 +35,8 @@ public class FeatureVectorDataset implements ISerializable
 
     private DatasetReference datasetReference;
 
+    private String analysisProcedure;
+
     private List<CodeAndLabel> featureNames;
 
     private List<FeatureVectorValues> datasetFeatures;
@@ -46,16 +48,23 @@ public class FeatureVectorDataset implements ISerializable
     }
 
     public FeatureVectorDataset(DatasetReference datasetReference,
-            List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames)
+            List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames,
+            String analysisProcedure)
     {
         this.datasetReference = datasetReference;
         this.datasetFeatures = datasetFeatures;
         this.featureNames = featureNames;
+        this.analysisProcedure = analysisProcedure;
     }
 
     public DatasetReference getDatasetReference()
     {
         return datasetReference;
+    }
+
+    public String getAnalysisProcedure()
+    {
+        return analysisProcedure;
     }
 
     public List<CodeAndLabel> getFeatureNames()

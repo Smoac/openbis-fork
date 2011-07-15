@@ -70,4 +70,15 @@ public class ScreeningDisplaySettingsManager
         screeningSettings.getDefaultChannels().put(displayTypeID, channelListString);
     }
 
+    @SuppressWarnings("deprecation")
+    public void setDefaultAnalysisProcedure(String analysisProcedure)
+    {
+        screeningSettings.setDefaultAnalysisProcedure(analysisProcedure);
+    }
+
+    @SuppressWarnings("deprecation")
+    public String getDefaultAnalysisProcedure()
+    {
+        return screeningSettings.getDefaultAnalysisProcedure();
+    }
 }

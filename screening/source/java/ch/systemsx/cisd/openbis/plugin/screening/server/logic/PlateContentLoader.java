@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -55,6 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageIn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
@@ -68,7 +71,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  */
 public class PlateContentLoader
 {
-
     /**
      * Loads data about the plate for a specified sample id. Attaches information about images and
      * image analysis datasets.
@@ -217,6 +219,16 @@ public class PlateContentLoader
             List<DatasetReference> featureVectorDatasetReferences)
     {
         List<FeatureVectorDataset> featureVectorDatasets = new ArrayList<FeatureVectorDataset>();
+
+        List<Long> ids = new ArrayList<Long>(featureVectorDatasetReferences.size());
+        for (DatasetReference featureVectorDatasetReference : featureVectorDatasetReferences)
+        {
+            ids.add(featureVectorDatasetReference.getId());
+        }
+        Map<Long, GenericEntityPropertyRecord> analysisProcedures =
+                businessObjectFactory.createDatasetLister(session).fetchProperties(ids,
+                        ScreeningConstants.ANALYSIS_PROCEDURE_PROPERTY);
+
         if (featureVectorDatasetReferences.isEmpty() == false)
         {
             for (DatasetReference datasetReference : featureVectorDatasetReferences)
@@ -224,8 +236,12 @@ public class PlateContentLoader
                 IHCSFeatureVectorLoader loader =
                         businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
                                 .getDatastoreCode());
+
+                GenericEntityPropertyRecord analysisProcedure =
+                        analysisProcedures.get(datasetReference.getId());
                 FeatureVectorDataset featureVectorDataset =
-                        loadFeatureVector(datasetReference, loader);
+                        loadFeatureVector(datasetReference, loader,
+                                analysisProcedure == null ? null : analysisProcedure.value);
                 featureVectorDatasets.add(featureVectorDataset);
             }
         }
@@ -234,7 +250,7 @@ public class PlateContentLoader
 
     // loads feature vector with only 1 feature
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
-            IHCSFeatureVectorLoader loader)
+            IHCSFeatureVectorLoader loader, String analysisProcedure)
     {
         List<CodeAndLabel> allFeatureNames =
                 loader.fetchDatasetFeatureNames(datasetReference.getCode());
@@ -250,7 +266,8 @@ public class PlateContentLoader
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
 
         FeatureVectorDataset featureVectorDataset =
-                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames);
+                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames,
+                        analysisProcedure);
         return featureVectorDataset;
     }
 
@@ -267,8 +284,15 @@ public class PlateContentLoader
 
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
 
+        Map<Long, GenericEntityPropertyRecord> analysisProcedures =
+                businessObjectFactory.createDatasetLister(session).fetchProperties(
+                        Arrays.asList(datasetReference.getId()),
+                        ScreeningConstants.ANALYSIS_PROCEDURE_PROPERTY);
+        GenericEntityPropertyRecord property = analysisProcedures.get(datasetReference.getId());
+
         FeatureVectorDataset featureVectorDataset =
-                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames);
+                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames,
+                        property == null ? null : property.value);
         return featureVectorDataset;
     }
 
