@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 
 /**
  * An UI panel for selecting analysis procedures.
@@ -143,14 +144,24 @@ class AnalysisProcedureChooser extends HorizontalPanel
         }
     }
 
-    private void setInitialSelection(String analysisProcedureOrNull)
+    private void setInitialSelection(String value)
     {
+        String analysisProcedureOrNull = value;
+        if (StringUtils.isBlank(analysisProcedureOrNull))
+        {
+            analysisProcedureOrNull = getDefaultAnalysisProcedure();
+        }
+
         String comboBoxValue = analysisCodeToComboBoxValue(analysisProcedureOrNull);
-        if (UNSPECIFIED_ANALYSIS_PROCEDURE.equals(comboBoxValue))
+
+        if (UNSPECIFIED_ANALYSIS_PROCEDURE.equals(comboBoxValue)
+                || analysisProceduresComboBox.findModel(comboBoxValue) == null)
         {
             comboBoxValue = getFirstValueFromCombo();
         }
+
         analysisProceduresComboBox.setSimpleValue(comboBoxValue);
+
     }
 
     private String getFirstValueFromCombo()
@@ -161,13 +172,31 @@ class AnalysisProcedureChooser extends HorizontalPanel
     private void selectionChanged()
     {
         String selection = analysisProceduresComboBox.getSimpleValue();
-        notifySelectionListener(selection);
+        String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
+        notifySelectionListener(analysisProcedureOrNull);
+        setDefaultAnalysisProcedure(analysisProcedureOrNull);
     }
 
-    private void notifySelectionListener(String selection)
+    private void notifySelectionListener(String analysisProcedureOrNull)
     {
-        String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
         selectionListener.analysisProcedureSelected(analysisProcedureOrNull);
+    }
+
+    private String getDefaultAnalysisProcedure()
+    {
+        ScreeningDisplaySettingsManager screeningDisplaySettingsManager =
+                new ScreeningDisplaySettingsManager(viewContext);
+        return screeningDisplaySettingsManager.getDefaultAnalysisProcedure();
+    }
+
+    private void setDefaultAnalysisProcedure(String analysisProcedureOrNull)
+    {
+        if (StringUtils.isNotBlank(analysisProcedureOrNull))
+        {
+            ScreeningDisplaySettingsManager screeningDisplaySettingsManager =
+                    new ScreeningDisplaySettingsManager(viewContext);
+            screeningDisplaySettingsManager.setDefaultAnalysisProcedure(analysisProcedureOrNull);
+        }
     }
 
     private String analysisCodeToComboBoxValue(String analysisProcedureOrNull)
