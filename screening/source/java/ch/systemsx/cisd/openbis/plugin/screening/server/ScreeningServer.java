@@ -72,8 +72,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQue
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.LogicalImageLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeaturesFromAllExperimentsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeatureVectorSummaryLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeaturesFromAllExperimentsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
@@ -91,6 +91,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
@@ -302,13 +303,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            TechId experimentId)
+            TechId experimentId, String analysisProcedureOrNull)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
         return ExperimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(session,
-                businessObjectFactory, getDAOFactory(), experimentId, settings);
+                businessObjectFactory, getDAOFactory(), experimentId, analysisProcedureOrNull,
+                settings);
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
@@ -449,6 +451,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<String> datasetCodes)
     {
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
+    }
+
+    public AnalysisProcedures listAnalysisProcedures(String sessionToken, TechId experimentId)
+    {
+        checkSession(sessionToken);
+        IScreeningQuery dao = createDAO(getDAOFactory());
+        List<String> procedureCodes = dao.listAnalysisProcedures(experimentId.getId());
+        return new AnalysisProcedures(procedureCodes);
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,

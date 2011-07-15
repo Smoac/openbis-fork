@@ -358,8 +358,9 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
             Set<PlateIdentifier> plateIdentifiers)
     {
+        // TODO KE: 2011-07-15 specify analysis procedure here ?
         return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory)
-                .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes());
+                .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes(), null);
     }
 
 }

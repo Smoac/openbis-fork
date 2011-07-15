@@ -1,8 +1,13 @@
-body,div,td {
+body,div,td, .default-text {
     font-family: verdana, tahoma, helvetica;
     font-size: 12px;
 }
 
+.default-text {
+	font-weight: normal;
+	color: black;
+}
+	
 .link-style {
     color: blue;
     text-decoration: underline;

@@ -305,4 +305,17 @@ public interface IScreeningQuery extends BaseQuery
     public List<ExperimentReferenceQueryResult> getExperimentsWithMaterial(long materialId,
             long projectId);
 
+    @Select(sql = "select distinct "
+            + "       ds_props.value as value"
+            + "  from experiments exp "
+            + "       join data ds on ds.expe_id = exp.id "
+            + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
+            + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
+            + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id "
+            + "  where "
+            + "       exp.id = ?{1} "
+            + "       and "
+            + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)")
+    public List<String> listAnalysisProcedures(long experimentId);
+
 }

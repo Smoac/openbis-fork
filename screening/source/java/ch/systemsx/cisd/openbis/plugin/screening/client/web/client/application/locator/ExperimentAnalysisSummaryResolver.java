@@ -32,8 +32,11 @@ public class ExperimentAnalysisSummaryResolver extends AbstractViewLocatorResolv
         boolean restrictGlobalScopeLinkToProject =
                 getOptionalBooleanParameter(locator,
                         ScreeningLinkExtractor.RESTRICT_GLOBAL_SEARCH_TO_PROJECT, false);
+
+        String analysisProcedureOrNull =
+                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
         ExperimentAnalysisSummaryViewer.openTab(viewContext, experimentPermId,
-                restrictGlobalScopeLinkToProject);
+                restrictGlobalScopeLinkToProject, analysisProcedureOrNull);
 
     }
 }

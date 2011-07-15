@@ -113,6 +113,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String MATERIAL_IN_ALL_ASSAYS = "MATERIAL_IN_ALL_ASSAYS";
 
+    public static final String ANALYSIS_PROCEDURE = "ANALYSIS_PROCEDURE";
+
     private Dict()
     {
         // Can not be instantiated.

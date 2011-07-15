@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -173,11 +174,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSet<Material>> callback);
 
     /**
-     * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId)
+     * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId,
+     *      String)
      */
     public void listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
-            TechId experimentId,
+            TechId experimentId, String analysisProcedureOrNull,
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback);
 
     /**
@@ -218,5 +220,11 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     public void prepareExportMaterialFeaturesFromAllExperiments(
             TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria,
             AsyncCallback<String> callback);
+
+    /**
+     * @see IScreeningClientService#listAnalysisProcedures(TechId)
+     */
+    public void listAnalysisProcedures(TechId experimentId,
+            AsyncCallback<AnalysisProcedures> callback);
 
 }

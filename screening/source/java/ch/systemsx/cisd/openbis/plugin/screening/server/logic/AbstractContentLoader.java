@@ -100,8 +100,9 @@ abstract class AbstractContentLoader
     }
 
     protected final FeatureVectorDatasetLoader createFeatureVectorDatasetsRetriever(
-            Set<PlateIdentifier> plates)
+            Set<PlateIdentifier> plates, String analysisProcedureOrNull)
     {
-        return new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
+        return new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates,
+                analysisProcedureOrNull);
     }
 }

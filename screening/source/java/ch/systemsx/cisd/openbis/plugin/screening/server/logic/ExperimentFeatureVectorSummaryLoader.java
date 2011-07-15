@@ -63,15 +63,30 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
  */
 public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 {
+
+    static class LoaderParameters
+    {
+        TechId experimentId;
+
+        String analysisProcedureOrNull;
+
+        LoaderParameters(TechId experimentId, String analysisProcedureOrNull)
+        {
+            this.experimentId = experimentId;
+            this.analysisProcedureOrNull = analysisProcedureOrNull;
+        }
+    }
+
     /**
      * Loads feature vectors summaries for all the materials in the specified experiment.
      */
     public static ExperimentFeatureVectorSummary loadExperimentFeatureVectors(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId experimentId, MaterialSummarySettings settings)
+            TechId experimentId, String analysisProcedureOrNull, MaterialSummarySettings settings)
     {
+        LoaderParameters params = new LoaderParameters(experimentId, analysisProcedureOrNull);
         return new ExperimentFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                settings).loadExperimentFeatureVectors(experimentId);
+                settings).loadExperimentFeatureVectors(params);
     }
 
     protected final MaterialSummarySettings settings;
@@ -84,10 +99,10 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         this.settings = settings;
     }
 
-    private ExperimentFeatureVectorSummary loadExperimentFeatureVectors(TechId experimentId)
+    private ExperimentFeatureVectorSummary loadExperimentFeatureVectors(LoaderParameters params)
     {
-        WellDataCollection wellDataCollection = tryLoadWellData(experimentId);
-        ExperimentReference experiment = loadExperimentByTechId(experimentId);
+        WellDataCollection wellDataCollection = tryLoadWellData(params);
+        ExperimentReference experiment = loadExperimentByTechId(params.experimentId);
 
         if (wellDataCollection == null)
         {
@@ -160,10 +175,11 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             }, UniqueKeyViolationStrategy.KEEP_FIRST);
     }
 
-    protected final WellDataCollection tryLoadWellData(TechId experimentId)
+    protected final WellDataCollection tryLoadWellData(LoaderParameters params)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        List<Sample> plates = sampleLister.list(createExperientCriteria(experimentId.getId()));
+        List<Sample> plates =
+                sampleLister.list(createExperientCriteria(params.experimentId.getId()));
         List<Sample> wells = sampleLister.list(createWellsCriteria(plates));
         if (wells.isEmpty())
         {
@@ -173,7 +189,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 
         Set<PlateIdentifier> plateIdentifiers = extractIdentifiers(plates);
         WellFeatureCollection<FeatureVectorValues> featureVectorsCollection =
-                tryLoadWellSingleFeatureVectors(plateIdentifiers);
+                tryLoadWellSingleFeatureVectors(plateIdentifiers, params.analysisProcedureOrNull);
         if (featureVectorsCollection == null)
         {
             return null; // no feature vector datasets connected to plates in this experiment
@@ -185,10 +201,11 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     }
 
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plateIdentifiers)
+            Set<PlateIdentifier> plateIdentifiers, String analysisProcedureOrNull)
     {
         return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory)
-                .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes());
+                .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes(),
+                        analysisProcedureOrNull);
     }
 
     private static ExperimentFeatureVectorSummary createEmptySummary(ExperimentReference experiment)

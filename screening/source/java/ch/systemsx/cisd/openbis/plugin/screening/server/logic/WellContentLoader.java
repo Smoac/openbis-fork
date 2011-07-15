@@ -356,7 +356,8 @@ public class WellContentLoader extends AbstractContentLoader
             List<WellContent> locations)
     {
         Set<PlateIdentifier> plates = extractPlates(locations);
-        return createFeatureVectorDatasetsRetriever(plates);
+        // TODO KE: 2011-07-15 add analysis procedure support here
+        return createFeatureVectorDatasetsRetriever(plates, null);
     }
 
     private static Collection<ExternalData> selectChildlessImageDatasets(

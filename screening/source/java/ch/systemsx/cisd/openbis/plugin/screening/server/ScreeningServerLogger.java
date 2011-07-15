@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
@@ -348,10 +349,11 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            TechId experimentId)
+            TechId experimentId, String analysisProcedureOrNull)
     {
         logAccess(sessionToken, "getExperimentFeatureVectorSummary",
-                "sessionToken(%s), experimentId(%s)", sessionToken, experimentId);
+                "sessionToken(%s), experimentId(%s), analysisProcedure(%s)", sessionToken,
+                experimentId, analysisProcedureOrNull);
         return null;
     }
 
@@ -371,6 +373,13 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "getMaterialFeatureVectorsFromAllExperiments",
                 "sessionToken(%s), materialId(%s), projectId(%s)", sessionToken, materialId,
                 experimentSearchCriteria);
+        return null;
+    }
+
+    public AnalysisProcedures listAnalysisProcedures(String sessionToken, TechId experimentId)
+    {
+        logAccess(sessionToken, "listAnalysisProcedures", "sessionToken(%s), experimentId(%s)",
+                sessionToken, experimentId);
         return null;
     }
 }

@@ -49,12 +49,15 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
 
     private final TechId experimentId;
 
+    private final String analysisProcedureOrNull;
+
     public FeatureVectorSummaryProvider(IScreeningServer server, String sessionToken,
-            TechId experimentId)
+            TechId experimentId, String analysisProcedureOrNull)
     {
         this.server = server;
         this.sessionToken = sessionToken;
         this.experimentId = experimentId;
+        this.analysisProcedureOrNull = analysisProcedureOrNull;
     }
 
     @Override
@@ -63,7 +66,8 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
         TypedTableModelBuilder<MaterialFeatureVectorSummary> builder =
                 new TypedTableModelBuilder<MaterialFeatureVectorSummary>();
         ExperimentFeatureVectorSummary fvSummary =
-                server.getExperimentFeatureVectorSummary(sessionToken, experimentId);
+                server.getExperimentFeatureVectorSummary(sessionToken, experimentId,
+                        analysisProcedureOrNull);
 
         builder.addColumn(MATERIAL_ID);
         builder.columnGroup(MATERIAL_PROPS_GROUP);

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.C
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureV
  * @author Kaloyan Enimanev
  */
 public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatureVectorSummary>
+        implements IAnalysisProcedureSelectionListener
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX
             + "experiment-feature-vector-summary";
@@ -63,6 +65,8 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     private final IEntityInformationHolderWithIdentifier experiment;
 
     private final boolean restrictGlobalScopeLinkToProject;
+
+    private String analysisProcedureOrNull = null;
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
@@ -137,13 +141,14 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
         setBorders(true);
     }
 
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
     {
         screeningViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
-                new TechId(experiment), callback);
+                new TechId(experiment), analysisProcedureOrNull, callback);
 
     }
 
@@ -171,5 +176,14 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     public void dispose()
     {
         asDisposableWithoutToolbar().dispose();
+    }
+
+    //
+    // IAnalysisProcedureSelectionListener
+    //
+    public void analysisProcedureSelected(String analysisProcedure)
+    {
+        this.analysisProcedureOrNull = analysisProcedure;
+        refresh(true);
     }
 }

@@ -56,11 +56,12 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
 
     /** Loads feature vectors for chosen plates and set of features */
     public WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plates, List<String> featureCodes)
+            Set<PlateIdentifier> plates, List<String> featureCodes, String analysisProcedureOrNull)
     {
         StopWatch watch = new StopWatch();
         watch.start();
-        FeatureVectorDatasetLoader datasetsRetriever = createFeatureVectorDatasetsRetriever(plates);
+        FeatureVectorDatasetLoader datasetsRetriever =
+                createFeatureVectorDatasetsRetriever(plates, analysisProcedureOrNull);
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())

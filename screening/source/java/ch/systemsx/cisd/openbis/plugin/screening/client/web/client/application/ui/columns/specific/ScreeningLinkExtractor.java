@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -85,6 +86,8 @@ public class ScreeningLinkExtractor extends LinkExtractor
     // false by default
     public static final String RESTRICT_GLOBAL_SEARCH_TO_PROJECT = "restrictGlobalSearchToProject";
 
+    public static final String ANALYSIS_PROCEDURE_KEY = "analysisProcedure";
+
     public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
@@ -94,7 +97,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
     }
 
     public static final String createExperimentAnalysisSummaryBrowserLink(String experimentPermId,
-            boolean restrictGlobalScopeLinkToProject)
+            boolean restrictGlobalScopeLinkToProject, String analysisProcedureOrNull)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, EXPERIMENT_ANALYSIS_SUMMARY_ACTION);
@@ -104,6 +107,10 @@ public class ScreeningLinkExtractor extends LinkExtractor
         {
             url.addParameterWithoutEncoding(RESTRICT_GLOBAL_SEARCH_TO_PROJECT,
                     restrictGlobalScopeLinkToProject);
+        }
+        if (StringUtils.isNotBlank(analysisProcedureOrNull))
+        {
+            url.addParameter(ANALYSIS_PROCEDURE_KEY, analysisProcedureOrNull);
         }
         return tryPrint(url);
     }

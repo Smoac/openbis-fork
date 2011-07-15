@@ -67,8 +67,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
@@ -192,7 +192,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (viewContext.getModel().isEmbeddedMode())
         {
             ExperimentAnalysisSummaryViewer.openTab(viewContext, new TechId(experiment),
-                    restrictGlobalScopeLinkToProject);
+                    restrictGlobalScopeLinkToProject, null);
         } else
         {
             new OpenEntityDetailsTabAction(experiment, viewContext).execute();
@@ -211,7 +211,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (viewContext.getModel().isEmbeddedMode())
         {
             return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(
-                    experiment.getPermId(), restrictGlobalScopeLinkToProject);
+                    experiment.getPermId(), restrictGlobalScopeLinkToProject, null);
         } else
         {
             return LinkExtractor.tryExtract(experiment);

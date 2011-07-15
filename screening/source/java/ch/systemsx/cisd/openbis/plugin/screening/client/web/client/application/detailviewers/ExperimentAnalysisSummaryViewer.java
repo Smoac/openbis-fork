@@ -45,7 +45,8 @@ public class ExperimentAnalysisSummaryViewer
 
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId, final boolean restrictGlobalScopeLinkToProject)
+            String experimentPermId, final boolean restrictGlobalScopeLinkToProject,
+            final String analysisProcedureOrNull)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -56,14 +57,15 @@ public class ExperimentAnalysisSummaryViewer
                         {
                             TechId experimentId = new TechId(experiment);
                             openTab(screeningViewContext, experimentId,
-                                    restrictGlobalScopeLinkToProject);
+                                    restrictGlobalScopeLinkToProject, analysisProcedureOrNull);
                         }
                     });
     }
 
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            TechId experimentId, final boolean restrictGlobalScopeLinkToProject)
+            TechId experimentId, final boolean restrictGlobalScopeLinkToProject,
+            final String analysisProcedureOrNull)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
                 new AbstractAsyncCallback<Experiment>(screeningViewContext)
@@ -73,7 +75,8 @@ public class ExperimentAnalysisSummaryViewer
                         {
                             AbstractTabItemFactory factory =
                                     createTabFactory(screeningViewContext, result,
-                                            restrictGlobalScopeLinkToProject);
+                                            restrictGlobalScopeLinkToProject,
+                                            analysisProcedureOrNull);
                             DispatcherHelper.dispatchNaviEvent(factory);
                         }
                     });
@@ -82,7 +85,7 @@ public class ExperimentAnalysisSummaryViewer
     private static AbstractTabItemFactory createTabFactory(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final IEntityInformationHolderWithProperties experiment,
-            final boolean restrictGlobalScopeLinkToProject)
+            final boolean restrictGlobalScopeLinkToProject, final String analysisProcedureOrNull)
     {
         return new AbstractTabItemFactory()
             {
@@ -99,7 +102,8 @@ public class ExperimentAnalysisSummaryViewer
                 public ITabItem create()
                 {
                     IDisposableComponent tabComponent =
-                            createViewer(viewContext, experiment, restrictGlobalScopeLinkToProject);
+                            createViewer(viewContext, experiment, restrictGlobalScopeLinkToProject,
+                                    analysisProcedureOrNull);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
                 }
 
@@ -107,7 +111,8 @@ public class ExperimentAnalysisSummaryViewer
                 public String tryGetLink()
                 {
                     return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(
-                            experiment.getPermId(), restrictGlobalScopeLinkToProject);
+                            experiment.getPermId(), restrictGlobalScopeLinkToProject,
+                            analysisProcedureOrNull);
                 }
 
                 @Override
@@ -128,7 +133,7 @@ public class ExperimentAnalysisSummaryViewer
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithProperties experiment,
-            boolean restrictGlobalScopeLinkToProject)
+            boolean restrictGlobalScopeLinkToProject, String analysisProcedureOrNull)
     {
         String headingText = viewContext.getMessage(Dict.ASSAY_HEADER, experiment.getCode());
         final IDisposableComponent gridComponent =

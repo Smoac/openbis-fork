@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.DatasetRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.MaterialExperimentFeatureVectorSummaryValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
@@ -219,7 +220,8 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
+            String analysisProcedureOrNull);
 
     /**
      * Returns a feature vector summary (with details for each replica) for the given experiment and
@@ -240,5 +242,15 @@ public interface IScreeningServer extends IServer
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, TechId materialId,
             ExperimentSearchByProjectCriteria experimentSearchCriteria);
+
+    /**
+     * Return a list of all different analysis procedures applied to the data sets of an experiment.
+     * The result contains unique values. It can contain NULL (which can be used for data sets
+     * having no ANALYSIS_PROCEDURE value specified).
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public AnalysisProcedures listAnalysisProcedures(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
 }

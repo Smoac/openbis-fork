@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset.Pla
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset.WellContentProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -294,10 +295,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria,
-            TechId experimentId)
+            TechId experimentId, String analysisProcedureOrNull)
     {
         FeatureVectorSummaryProvider provider =
-                new FeatureVectorSummaryProvider(server, getSessionToken(), experimentId);
+                new FeatureVectorSummaryProvider(server, getSessionToken(), experimentId,
+                        analysisProcedureOrNull);
         return listEntities(provider, criteria);
 
     }
@@ -343,6 +345,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
             throws UserFailureException
     {
         return prepareExportEntities(criteria);
+    }
+
+    public AnalysisProcedures listAnalysisProcedures(TechId experimentId)
+    {
+        return server.listAnalysisProcedures(getSessionToken(), experimentId);
     }
 
 }

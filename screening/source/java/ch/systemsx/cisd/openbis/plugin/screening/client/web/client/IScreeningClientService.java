@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -196,7 +197,7 @@ public interface IScreeningClientService extends IClientService
      */
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
-            TechId experimentId) throws UserFailureException;
+            TechId experimentId, String analysisProcedureOrNull) throws UserFailureException;
 
     public String prepareExportFeatureVectorSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria)
@@ -225,4 +226,10 @@ public interface IScreeningClientService extends IClientService
     public String prepareExportMaterialFeaturesFromAllExperiments(
             TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria)
             throws UserFailureException;
+
+    /**
+     * Return all analysis procedures for an experiment.
+     */
+    public AnalysisProcedures listAnalysisProcedures(TechId experimentId);
+
 }

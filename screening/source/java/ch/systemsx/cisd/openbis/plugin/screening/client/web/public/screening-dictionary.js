@@ -21,6 +21,7 @@ WELL: "Well",
 WELL_IMAGES: "Well Images",
 PREVIEW: "Preview",
 PLATE_VIEWER_TITLE: "Plate {0}",
+ANALYSIS_PROCEDURE: "Analysis Procedure",
 
 //
 // Menu items

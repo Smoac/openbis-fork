@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils.isTypeMatching;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -42,6 +47,8 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     // Parameter state
     private final String featureVectorDatasetTypeCode;
 
+    private final String analysisProcedureOrNull;
+
     // Running state
     private Collection<ExternalData> featureVectorDatasets;
 
@@ -49,10 +56,18 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
             Set<? extends PlateIdentifier> plates)
     {
+        this(session, businessObjectFactory, homeSpaceOrNull, plates, null);
+    }
+
+    FeatureVectorDatasetLoader(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
+            Set<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
+    {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
         featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN;
+        this.analysisProcedureOrNull = analysisProcedureOrNull;
     }
 
     public static class FeatureVectorExternalData
@@ -106,12 +121,10 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : getDatasets())
         {
-            if (ScreeningUtils.isTypeMatching(dataset,
-                    ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN))
+            if (isMatchingAnalysisDataSet(dataset))
             {
                 featureVectorDatasetSet.put(dataset.getId(), dataset);
-            } else if (ScreeningUtils.isTypeMatching(dataset,
-                    ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
+            } else if (isMatchingImageDataset(dataset))
             {
                 imageDatasets.add(dataset);
             }
@@ -119,6 +132,30 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
         gatherChildrenDataSets(featureVectorDatasetSet, imageDatasets, featureVectorDatasetTypeCode);
         featureVectorDatasets = featureVectorDatasetSet.values();
+    }
+
+    private boolean isMatchingImageDataset(ExternalData dataset)
+    {
+        return isTypeMatching(dataset, ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
+    }
+
+    private boolean isMatchingAnalysisProcedure(ExternalData dataset)
+    {
+        String dataSetAnalysisProcedure =
+                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        if (analysisProcedureOrNull == null)
+        {
+            return dataSetAnalysisProcedure == null;
+        } else
+        {
+            return analysisProcedureOrNull.equals(dataSetAnalysisProcedure);
+        }
+    }
+
+    private boolean isMatchingAnalysisDataSet(ExternalData dataset)
+    {
+        return isTypeMatching(dataset, HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN)
+                && isMatchingAnalysisProcedure(dataset);
     }
 
     private List<FeatureVectorDatasetReference> asFeatureVectorDatasetReferences()

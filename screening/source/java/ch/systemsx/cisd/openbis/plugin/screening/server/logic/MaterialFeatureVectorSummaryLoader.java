@@ -176,7 +176,9 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
             TechId experimentId)
     {
-        WellDataCollection experimentWells = tryLoadWellData(experimentId);
+        // TODO KE: 2011-07-15 this should also be changed
+        LoaderParameters params = new LoaderParameters(experimentId, null);
+        WellDataCollection experimentWells = tryLoadWellData(params);
         if (experimentWells == null)
         {
             return null;
