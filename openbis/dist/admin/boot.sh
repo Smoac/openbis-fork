@@ -45,11 +45,6 @@ cd bin
 wget $SVN_DIR/svn-update.sh
 wget $SVN_DIR/env
 
-# fetch screening specific file
-if [ "$SVN_DIR" == "$SVN_DIR_SCREENING" ]; then
-    wget $SVN_DIR/empty-screening-database.sql
-fi
-
 
 source ./svn-update.sh
 
