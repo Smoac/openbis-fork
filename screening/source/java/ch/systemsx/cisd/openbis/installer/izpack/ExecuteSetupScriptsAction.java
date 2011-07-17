@@ -26,10 +26,10 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.izforge.izpack.installer.AutomatedInstallData;
-import com.izforge.izpack.installer.PanelAction;
-import com.izforge.izpack.installer.PanelActionConfiguration;
-import com.izforge.izpack.util.AbstractUIHandler;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.PanelActionConfiguration;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
+import com.izforge.izpack.data.PanelAction;
 
 /**
  * Executes a script that configures the installation.

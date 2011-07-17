@@ -25,10 +25,16 @@
   <property name="installer.basedir" value="${basedir}/dist/installer" />
   <!-- relative path referenced from within the installer compilation --> 
   <property name="installer.resourcedir" value="dist/installer" />
-  <property name="installer.dist.dir" value="${dist}/installer" />
-	
-  <taskdef name="izpack" classpath="${lib}/izpack/standalone-compiler.jar"
-	         classname="com.izforge.izpack.ant.IzPackTask"/>
+  <property name="installer.dist.dir" value="${basedir}/${dist}/installer" />
+	<path id="izpack.classpath">
+	    <pathelement path="${classpath}"/>
+	    <fileset dir="${lib}">
+	        <include name="izpack/*.jar"/>
+	        <include name="commons-io/commons-io.jar"/>
+	        <include name="commons-lang/commons-lang.jar"/>
+	    </fileset>
+	</path>
+  <taskdef name="izpack" classpathref="izpack.classpath" classname="com.izforge.izpack.ant.IzPackTask"/>
 	
   <target name="compile" depends="build-common.compile, clean" />
 	
@@ -40,8 +46,8 @@
 	
   <target name="dist" depends="create-installer, screening-api"/>
   
-	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
-
+	<target name="create-installer">
+	
 		<mkdir dir="${installer.dist.dir}" />
 		<unzip src="${dss.dist.file}" dest="${installer.dist.dir}"/>
 		<unzip src="${server.dist.file}" dest="${installer.dist.dir}"/>

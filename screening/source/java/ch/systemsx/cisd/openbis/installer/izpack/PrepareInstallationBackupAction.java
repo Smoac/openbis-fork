@@ -20,10 +20,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.izforge.izpack.installer.AutomatedInstallData;
-import com.izforge.izpack.installer.PanelAction;
-import com.izforge.izpack.installer.PanelActionConfiguration;
-import com.izforge.izpack.util.AbstractUIHandler;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.PanelActionConfiguration;
+import com.izforge.izpack.api.handler.AbstractUIHandler;
+import com.izforge.izpack.data.PanelAction;
 
 /**
  * An action that creates a backup folder and sets a global variable with the folder's name.

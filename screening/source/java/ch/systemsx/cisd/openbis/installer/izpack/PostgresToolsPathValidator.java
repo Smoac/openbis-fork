@@ -20,8 +20,8 @@ import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContex
 
 import java.io.File;
 
-import com.izforge.izpack.installer.AutomatedInstallData;
-import com.izforge.izpack.installer.DataValidator;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.installer.DataValidator;
 
 /**
  * Validates the user input for the location of the postgres installation.

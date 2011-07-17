@@ -4,7 +4,13 @@
     <appname>openBIS</appname>
     <appversion>@{version.number}</appversion>
     <url>http://www.cisd.ethz.ch/software/openBIS</url>
-    <uninstaller write="no"/>
+    <!--  TODO KE: cannot disable uninstaller -->
+    <!--  uninstaller write="no"/-->
+    <javaversion>1.6</javaversion>
+    <requiresjdk>yes</requiresjdk>
+    <os>
+      <family>unix, mac</family>  
+    </os>
   </info>
 
   <!-- Sets the installer window size. -->
@@ -17,12 +23,6 @@
   <locale>
     <langpack iso3="eng" />
   </locale>
-
-  <javaversion>1.6</javaversion>
-  <requiresjdk>yes</requiresjdk>
-  <os>
-    <family>unix, mac</family>
-  </os>
 
   <!-- The resources section. The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel. -->
   <resources>
@@ -77,7 +77,6 @@
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
   <panels>
     <panel classname="HTMLHelloPanel"/>
-
     <panel classname="TargetPanel">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.InitializeInstallationContextAction" />

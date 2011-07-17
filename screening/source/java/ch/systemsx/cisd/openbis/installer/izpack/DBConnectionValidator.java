@@ -20,8 +20,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.izforge.izpack.installer.AutomatedInstallData;
-import com.izforge.izpack.installer.DataValidator;
+import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.installer.DataValidator;
 
 /**
  * Tests if there is a valid PostgreSQL installation on the local machine that is setup to accept

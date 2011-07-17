@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 
 import java.io.File;
 
-import com.izforge.izpack.installer.AutomatedInstallData;
+import com.izforge.izpack.api.data.AutomatedInstallData;
 
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
