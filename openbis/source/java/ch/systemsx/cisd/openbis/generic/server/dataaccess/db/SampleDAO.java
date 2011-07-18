@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -46,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -467,42 +464,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         scheduleRemoveFromFullTextIndex(ids);
     }
 
-    public int trash(final List<TechId> sampleIds, final DeletionPE deletion)
-            throws DataAccessException
-    {
-        if (sampleIds.isEmpty())
-        {
-            return 0;
-        }
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
-            {
-
-                //
-                // HibernateCallback
-                //
-
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
-                {
-                    // NOTE: 'VERSIONED' makes modification time modified too
-                    return session
-                            .createQuery(
-                                    "UPDATE VERSIONED "
-                                            + SamplePE.class.getSimpleName()
-                                            + " SET deletion = :deletion WHERE deletion IS NULL AND id IN (:ids) ")
-                            .setParameter("deletion", deletion)
-                            .setParameterList("ids", TechId.asLongs(sampleIds)).executeUpdate();
-                }
-            });
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("trashing %d samples", updatedRows));
-        }
-        hibernateTemplate.flush();
-        return updatedRows;
-    }
-
     public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
             final TechId relationship)
     {
@@ -550,7 +511,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         if (operationLog.isDebugEnabled())
         {
             operationLog.info(String.format("found %d sample children for given parents",
-                results.size()));
+                    results.size()));
         }
         return result;
     }
@@ -565,7 +526,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         if (operationLog.isDebugEnabled())
         {
             operationLog.info(String.format("found %s sample components for given containers",
-                results.size()));
+                    results.size()));
         }
         return transformNumbers2TechIdList(results);
     }

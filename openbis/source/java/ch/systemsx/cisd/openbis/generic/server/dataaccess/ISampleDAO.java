@@ -24,7 +24,6 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -131,10 +130,4 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     void delete(List<TechId> sampleIds, PersonPE registrator, String reason)
             throws DataAccessException;
-
-    /**
-     * Move samples with given ids to trash using specified deletion.
-     */
-    int trash(List<TechId> sampleIds, DeletionPE deletion) throws DataAccessException;
-
 }

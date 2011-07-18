@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -82,14 +81,6 @@ public interface IExperimentBO extends IEntityBusinessObject
      * @throws UserFailureException if one of the experiments can not be deleted.
      */
     void deleteByTechIds(List<TechId> experimentIds, String reason);
-
-    /**
-     * Moves experiment to trash with given deletion.
-     * 
-     * @param experimentIds experiment technical identifiers
-     * @throws UserFailureException if one of the experiments can not be moved to trash.
-     */
-    int trashByTechIds(List<TechId> experimentIds, DeletionPE deletion);
 
     /**
      * Changes the value of a managed property.

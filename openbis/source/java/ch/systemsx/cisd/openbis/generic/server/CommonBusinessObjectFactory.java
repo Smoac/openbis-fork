@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -50,9 +49,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.TrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
@@ -62,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.TrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetLister;
@@ -216,6 +216,6 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ITrashBO createTrashBO(Session session)
     {
-        return new TrashBO(getDaoFactory(), session, this);
+        return new TrashBO(getDaoFactory(), session);
     }
 }

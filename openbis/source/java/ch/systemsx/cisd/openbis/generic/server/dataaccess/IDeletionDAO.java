@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * An interface that contains all data access operations on {@link DeletionPE}s.
@@ -30,17 +31,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
  */
 public interface IDeletionDAO extends IGenericDAO<DeletionPE>
 {
-    /**
-     * Inserts given {@link DeletionPE} into the database.
-     */
+    /** Inserts given {@link DeletionPE} into the database. */
     void create(final DeletionPE deletion) throws DataAccessException;
 
+    /**
+     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that
+     * don't exist or are already in the trash.
+     * 
+     * @return number of trashed entities
+     */
+    int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion)
+            throws DataAccessException;
+
+    /** Reverts given deletion. The deletion record will be removed from DB. */
     void revert(DeletionPE deletion);
 
+    /** Returns list of ids of samples moved to trash in specified deletions. */
     List<TechId> findTrashedSampleIds(List<TechId> deletionIds);
 
+    /** Returns list of ids of experiments moved to trash in specified deletions. */
     List<TechId> findTrashedExperimentIds(List<TechId> deletionIds);
 
+    /** Returns list of codes of data sets moved to trash in specified deletions. */
     List<String> findTrashedDataSetCodes(List<TechId> deletionIds);
 
 }

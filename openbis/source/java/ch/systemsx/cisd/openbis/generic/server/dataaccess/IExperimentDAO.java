@@ -22,8 +22,6 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -106,10 +104,5 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      * Saves or updates given given experiments in the database.
      */
     public void createOrUpdateExperiments(List<ExperimentPE> experiments);
-
-    /**
-     * Move experiments with given ids to trash using specified deletion.
-     */
-    public int trash(List<TechId> experimentIds, DeletionPE deletion);
 
 }

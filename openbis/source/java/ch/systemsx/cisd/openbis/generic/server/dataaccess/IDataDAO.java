@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -119,9 +118,6 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<DataPE> listByCode(Set<String> values);
 
     public void updateDataSets(List<DataPE> externalData);
-
-    /** Move given data sets to trash using specified deletion. */
-    public int trash(List<TechId> dataSetIds, DeletionPE deletion) throws DataAccessException;
 
     /** Returns ids of data sets connected with samples specified by given ids. */
     public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples);

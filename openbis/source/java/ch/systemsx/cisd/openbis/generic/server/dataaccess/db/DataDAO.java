@@ -51,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -464,42 +463,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         super.delete(entity);
     }
 
-    public int trash(final List<TechId> dataSetIds, final DeletionPE deletion)
-            throws DataAccessException
-    {
-        if (dataSetIds.isEmpty())
-        {
-            return 0;
-        }
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
-            {
-
-                //
-                // HibernateCallback
-                //
-
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
-                {
-                    // NOTE: 'VERSIONED' makes modification time modified too
-                    return session
-                            .createQuery(
-                                    "UPDATE VERSIONED "
-                                            + DataPE.class.getSimpleName()
-                                            + " SET deletion = :deletion WHERE deletion IS NULL AND id IN (:ids) ")
-                            .setParameter("deletion", deletion)
-                            .setParameterList("ids", TechId.asLongs(dataSetIds)).executeUpdate();
-                }
-            });
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("trashing %d data sets", updatedRows));
-        }
-        hibernateTemplate.flush();
-        return updatedRows;
-    }
-
     @SuppressWarnings("unchecked")
     public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
     {
@@ -587,7 +550,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-           operationLog.info(String.format("found %s data sets for given samples", results.size()));
+            operationLog
+                    .info(String.format("found %s data sets for given samples", results.size()));
         }
         return transformNumbers2TechIdList(results);
     }
@@ -601,8 +565,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-           operationLog
-                .info(String.format("found %s data sets for given experiments", results.size()));
+            operationLog.info(String.format("found %s data sets for given experiments",
+                    results.size()));
         }
         return transformNumbers2TechIdList(results);
     }

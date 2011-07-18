@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -206,19 +205,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         throw new UserFailureException("Attachment '" + filename + "' (version '" + version
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
-    }
-
-    public int trashByTechIds(List<TechId> experimentIds, DeletionPE deletion)
-            throws UserFailureException
-    {
-        try
-        {
-            return getExperimentDAO().trash(experimentIds, deletion);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, "Experiment", EntityKind.EXPERIMENT);
-        }
-        return -1; // not possible
     }
 
     public void deleteByTechIds(List<TechId> experimentIds, String reason)

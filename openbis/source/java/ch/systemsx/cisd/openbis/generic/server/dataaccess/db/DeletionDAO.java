@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -135,6 +139,43 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         operationLog
                 .info(String.format("found %s trashed %s(s)", results.size(), entityKind.name()));
         return transformNumbers2TechIdList(results);
+    }
+
+    public int trash(final EntityKind entityKind, final List<TechId> entityIds,
+            final DeletionPE deletion) throws DataAccessException
+    {
+        if (entityIds.isEmpty())
+        {
+            return 0;
+        }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
+
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED "
+                                            + entityKind.getEntityClass().getSimpleName()
+                                            + " SET deletion = :deletion"
+                                            + " WHERE deletion IS NULL AND id IN (:ids) ")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(entityIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d %ss", updatedRows, entityKind.getLabel()));
+        }
+        hibernateTemplate.flush();
+        return updatedRows;
     }
 
 }

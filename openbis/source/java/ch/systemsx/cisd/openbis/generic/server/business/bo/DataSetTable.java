@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -233,19 +232,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         ExperimentPE experiment = getExperimentDAO().getByTechId(experimentId);
         dataSets = new ArrayList<DataPE>();
         dataSets.addAll(getDataDAO().listDataSets(experiment));
-    }
-
-    public int trashByTechIds(List<TechId> dataSetIds, DeletionPE deletion)
-            throws UserFailureException
-    {
-        try
-        {
-            return getDataDAO().trash(dataSetIds, deletion);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, "Data Set", EntityKind.DATA_SET);
-        }
-        return -1; // not possible
     }
 
     public void deleteLoadedDataSets(String reason)

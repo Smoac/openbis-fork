@@ -27,21 +27,18 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Piotr Buczek
  */
 public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
-
-    private final ICommonBusinessObjectFactory boFactory;
-
     private DeletionPE deletion;
 
-    public TrashBO(IDAOFactory daoFactory, Session session, ICommonBusinessObjectFactory boFactory)
+    public TrashBO(IDAOFactory daoFactory, Session session)
     {
         super(daoFactory, session);
-        this.boFactory = boFactory;
     }
 
     public void createDeletion(String reason)
@@ -61,8 +58,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashSamples(List<TechId> sampleIds)
     {
         assert deletion != null;
-        ISampleTable sampleTableBO = boFactory.createSampleTable(session);
-        int trashedCount = sampleTableBO.trashByTechIds(sampleIds, deletion);
+        int trashedCount = getDeletionDAO().trash(EntityKind.SAMPLE, sampleIds, deletion);
         if (trashedCount > 0)
         {
             trashSampleDependentChildrenAndComponents(sampleIds);
@@ -73,8 +69,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashExperiments(List<TechId> experimentIds)
     {
         assert deletion != null;
-        IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        int trashedCount = experimentBO.trashByTechIds(experimentIds, deletion);
+        int trashedCount = getDeletionDAO().trash(EntityKind.EXPERIMENT, experimentIds, deletion);
         if (trashedCount > 0)
         {
             trashExperimentDependentDataSets(experimentIds);
@@ -85,8 +80,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashDataSets(List<TechId> dataSetIds)
     {
         assert deletion != null;
-        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
-        dataSetTable.trashByTechIds(dataSetIds, deletion);
+        getDeletionDAO().trash(EntityKind.DATA_SET, dataSetIds, deletion);
         // NOTE: data set children are not cascade trashed - a conscious decision made by Tomek
     }
 

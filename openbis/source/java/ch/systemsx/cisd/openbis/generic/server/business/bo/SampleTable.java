@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -339,19 +338,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             throwException(ex, "Sample", EntityKind.SAMPLE);
         }
-    }
-
-    public int trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
-            throws UserFailureException
-    {
-        try
-        {
-            return getSampleDAO().trash(sampleIds, deletion);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, "Sample", EntityKind.SAMPLE);
-        }
-        return -1; // not possible
     }
 
 }
