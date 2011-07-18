@@ -31,6 +31,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+
 /**
  * Test cases for the {@link PersistentExtendedBlockingQueueDecorator}.
  * 
@@ -39,8 +41,8 @@ import org.testng.annotations.Test;
 public class PersistentExtendedBlockingQueueDecoratorTest
 {
 
-    private static final File workingDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File workingDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
     private static final File queueFile = new File(workingDirectory, "persistentQueue.dat");
 
@@ -228,6 +230,42 @@ public class PersistentExtendedBlockingQueueDecoratorTest
         }
         assertTrue(persistentQueue.isEmpty());
         assertTrue(createQueue().isEmpty());
+    }
+
+    @Test(expectedExceptions =
+        { IOExceptionUnchecked.class })
+    public void testAddLotsOfItems()
+    {
+        PersistentExtendedBlockingQueueDecorator<String> persistentQueue = createQueue();
+
+        final List<String> items = new ArrayList<String>();
+        for (int i = 0; i < 64; ++i)
+        {
+            items.add(createItemOfLength(i));
+            persistentQueue.add(items.get(i));
+        }
+
+        queueFile.delete();
+
+        // Running through this will throw an exception at some point when it tries to grow the
+        // persistent queue's record size.
+        for (int i = 64; i < 128; ++i)
+        {
+            items.add(createItemOfLength(i));
+            persistentQueue.add(items.get(i));
+        }
+
+        assertEquals(items, asList(createQueue()));
+    }
+
+    private String createItemOfLength(int itemLength)
+    {
+        String item = "";
+        for (int j = 0; j < itemLength; ++j)
+        {
+            item += "1";
+        }
+        return item;
     }
 
 }
