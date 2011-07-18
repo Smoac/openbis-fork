@@ -317,7 +317,15 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected final AbstractAsyncCallback<Void> createDeletionCallback()
     {
-        return new RefreshViewerCallback(viewContext);
+        return new RefreshViewerCallback(viewContext)
+            {
+                @Override
+                protected void process(Void result)
+                {
+                    super.process(result);
+                    GWTUtils.displayInfo(viewContext.getMessage(Dict.USE_TRASH_BROWSER));
+                }
+            };
     }
 
     protected final AbstractAsyncCallback<Void> createRevertDeletionCallback()
@@ -339,7 +347,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
     }
 
-    private final class RefreshViewerCallback extends AbstractAsyncCallback<Void>
+    private class RefreshViewerCallback extends AbstractAsyncCallback<Void>
     {
         public RefreshViewerCallback(IViewContext<?> viewContext)
         {

@@ -55,7 +55,7 @@ public class TopMenu extends LayoutContainer
         AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
         AUTHORIZATION_MENU_AUTHORIZATION_GROUPS,
 
-        TRASH, LOGGING_CONSOLE,
+        LOGGING_CONSOLE,
 
         DATA_SET_MENU_SEARCH, DATA_SET_MENU_TYPES, DATA_SET_MENU_FILE_FORMATS,
         DATA_SET_MENU_UPLOAD, DATA_SET_MENU_UPLOAD_CLIENT, DATA_SET_MENU_MASS_UPDATE,
@@ -124,6 +124,7 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new SearchWidget(viewContext));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new InfoButton(viewContext));
+        toolBar.add(new TrashButton(viewContext, componentProvider));
         toolBar.add(new LoggedUserMenu(viewContext, componentProvider));
     }
 

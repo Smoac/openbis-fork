@@ -62,4 +62,7 @@ public interface IGenericImageBundle extends ClientBundle
     @Source("cancel.gif")
     public ImageResource getCancelIcon();
 
+    @Source("trash.gif")
+    public ImageResource getTrashIcon();
+
 }

@@ -85,6 +85,8 @@ var common = {
   revert_deletions_confirmation_msg: "Are you sure you want to revert {0} selected deletion(s)?",
   permanent_deletions_confirmation_title: "Confirm Permanent Deletion",
   permanent_deletions_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in selected {0} deletion(s)?</br></br>You can't undo this action.",
+  use_trash_browser: "Use trash browser (click on the trash button in top menu) to delete entities permanently.",
+  trash_button_tooltip: "Displays browser of deletions, allows to revert them or confirm (delete permanently).",
   empty_trash_confirmation_title: "Confirm Empty Trash",
   empty_trash_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash?</br></br>You can't undo this action.",
 	 
