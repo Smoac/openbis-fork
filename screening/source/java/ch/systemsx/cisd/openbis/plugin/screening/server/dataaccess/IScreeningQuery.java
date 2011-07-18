@@ -307,18 +307,23 @@ public interface IScreeningQuery extends BaseQuery
 
     
     final static String ANALYSIS_PROCEDURE_SELECT = "select distinct "
-        + "       ds_props.value as value"
-        + "  from experiments exp "
-        + "       join data ds on ds.expe_id = exp.id "
-        + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
-        + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
-        + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id "
-        + "  where "
-        + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
+                    + "       ds_props.value as value"
+                    + "  from experiments exp "
+                    + "       join data ds on ds.expe_id = exp.id "
+                    + "       join projects proj on proj.id = exp.proj_id      "
+                    + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
+                    + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
+                    + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id "
+                    + "  where "
+                    + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
     
-    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} ")
-    public List<String> listAnalysisProcedures(long experimentId);
-
     @Select(sql = ANALYSIS_PROCEDURE_SELECT)
     public List<String> listAllAnalysisProcedures();
+
+    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} ")
+    public List<String> listAnalysisProceduresForExperiment(long experimentId);
+
+    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and proj.id = ?{1} ")
+    public List<String> listAnalysisProceduresForProject(long projectId);
+
 }
