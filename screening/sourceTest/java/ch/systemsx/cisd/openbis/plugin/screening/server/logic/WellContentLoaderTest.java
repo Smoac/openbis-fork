@@ -66,7 +66,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
                         MaterialSearchCriteria.createCodesCriteria(materialCodes,
                                 materialTypeCodes, false),
-                        AnalysisProcedureCriteria.createFromCode(null));
+                        AnalysisProcedureCriteria.createAllProcedures());
 
         Session session = createSession(getSystemPerson());
         List<WellContent> wellContents =
@@ -92,7 +92,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
                         MaterialSearchCriteria.createCodesCriteria(materialCodes,
                                 materialTypeCodes, false),
-                        AnalysisProcedureCriteria.createFromCode(null));
+                        AnalysisProcedureCriteria.createAllProcedures());
 
         Session session = createSession(getSystemPerson());
         List<WellContent> wellContents =
