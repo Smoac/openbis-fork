@@ -200,6 +200,32 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         assertEquals(TrackingCommandStatus.ROLLEDBACK, cmdN.status);
     }
 
+    @Test
+    public void testIncreasingSerializedCommandSize()
+    {
+        // Create some commands
+        // Add them to the stack
+        for (int i = 0; i < 129; ++i)
+        {
+            StringTrackingCommand cmd = new StringTrackingCommand(createStringOfLength(i));
+            rollbackStack.pushAndExecuteCommand(cmd);
+            assertEquals(TrackingCommandStatus.EXECUTED, cmd.status);
+        }
+
+        // Rollback and check that the rollback occurred correctly
+        rollbackStack.rollbackAll();
+    }
+
+    private String createStringOfLength(int length)
+    {
+        String item = "";
+        for (int j = 0; j < length; ++j)
+        {
+            item += "1";
+        }
+        return item;
+    }
+
     private static enum TrackingCommandStatus
     {
         PENDING_EXECUTE, EXECUTED, ROLLEDBACK
@@ -209,7 +235,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
     {
         private static final long serialVersionUID = 1L;
 
-        private TrackingCommandStatus status = TrackingCommandStatus.PENDING_EXECUTE;
+        protected TrackingCommandStatus status = TrackingCommandStatus.PENDING_EXECUTE;
 
         private final TrackingCommand predecessor;
 
@@ -291,5 +317,49 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
             return true;
         }
 
+        @Override
+        public String toString()
+        {
+            return "EqualityTrackingCommand [id=" + id + ",status=" + status + "]";
+        }
+
+    }
+
+    private static class StringTrackingCommand extends TrackingCommand
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final String text;
+
+        private StringTrackingCommand(String text)
+        {
+            super();
+            this.text = text;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return text.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            StringTrackingCommand other = (StringTrackingCommand) obj;
+            return text.equals(other.text);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "StringTrackingCommand [text=" + text + ", status=" + status + "]";
+        }
     }
 }
