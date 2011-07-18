@@ -82,4 +82,10 @@ public class WellReference implements ISerializable
             return false;
         return true;
     }
+
+    @Override
+    public String toString()
+    {
+        return platePermId + wellLocation.toString();
+    }
 }

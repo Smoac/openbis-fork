@@ -472,7 +472,6 @@ public class WellSearchCriteria implements ISerializable
         private String analysisProcedureCodeOrNull;
 
         // GWT only
-        @SuppressWarnings("unused")
         private AnalysisProcedureCriteria()
         {
         }
