@@ -409,7 +409,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
+                                + "http://openbis-test-bw.sanofi.com:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
@@ -544,7 +544,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
+                                + "http://openbis-test-bw.sanofi.com:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
 
         context.assertIsSatisfied();
@@ -634,7 +634,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
+                                + "http://openbis-test-bw.sanofi.com:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
