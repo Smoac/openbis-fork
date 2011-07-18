@@ -81,7 +81,7 @@ var common = {
   button_empty_trash: "Empty Trash",
   button_delete_permanently: "Delete Permanently",
   revert_deletions_confirmation_title: "Confirm Revert",
-  revert_entity_deletion_confirmation_msg: "Are you sure you want to revert deletion of {0}?</br></br><b>NOTE:</b> This will in fact revert deletion of all entities deleted together with {0} by {1} on {2}.",
+  revert_entity_deletion_confirmation_msg: "Are you sure you want to revert deletion of {0}?</br></br><b>NOTE:</b> This will in fact revert deletion of all entities deleted together with {0} by {1} on {2} with following reason:</br><i>{3}</i>",
   revert_deletions_confirmation_msg: "Are you sure you want to revert {0} selected deletion(s)?",
   permanent_deletions_confirmation_title: "Confirm Permanent Deletion",
   permanent_deletions_confirmation_msg: "Are you sure you want to <b>permanently</b> delete all entities that were moved to trash in selected {0} deletion(s)?</br></br>You can't undo this action.",

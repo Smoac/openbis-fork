@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -83,13 +84,14 @@ public final class RevertDeletionConfirmationDialog extends
             String deletedEntity =
                     deletedEntityOrNull.getEntityKind().getDescription() + " '"
                             + deletedEntityOrNull.getCode() + "'";
-            String deletedBy = deletedEntityOrNull.getDeletion().getRegistrator().toString();
+            Deletion deletion = deletedEntityOrNull.getDeletion();
+            String deletedBy = deletion.getRegistrator().toString();
             String deletionDate =
-                    DateRenderer.renderDate(
-                            deletedEntityOrNull.getDeletion().getRegistrationDate(),
+                    DateRenderer.renderDate(deletion.getRegistrationDate(),
                             BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+            String deletionReason = StringEscapeUtils.unescapeHtml(deletion.getReason());
             return viewContext.getMessage(Dict.REVERT_ENTITY_DELETION_CONFIRMATION_MSG,
-                    deletedEntity, deletedBy, deletionDate);
+                    deletedEntity, deletedBy, deletionDate, deletionReason);
         } else
         {
             return viewContext.getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_MSG, data.size());
