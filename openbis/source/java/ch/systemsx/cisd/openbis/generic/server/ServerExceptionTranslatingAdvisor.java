@@ -32,9 +32,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * Translates deeply nested exceptions thrown on server side e.g. by Spring (like
- * {@link TransactionSystemException} or {@link DataAccessException}) into {UserFailureException}
- * with message taken from the root exception cause.
+ * Translates deeply nested exceptions thrown on server side e.g. by Spring that contain user
+ * readable error messages (like {@link TransactionSystemException} or {@link DataAccessException})
+ * into {UserFailureException} with message taken from the root exception cause.
  * <p>
  * The most important reason why this advisor was introduced was to translate exceptions that happen
  * just before commit/rollback of transactions, like {@link TransactionSystemException}. Such
@@ -75,11 +75,14 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
             {
                 return invocation.proceed();
             } catch (NestedRuntimeException ex)
-            // e.g. TransactionSystemException, DataAccessException
             {
-                // Deferred trigger may throw an exception just before commit.
-                // Message in the exception is readable for the user.
-                throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+                if (ex instanceof TransactionSystemException || ex instanceof DataAccessException)
+                {
+                    throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+                } else
+                {
+                    throw ex; // don't expose query syntax errors etc.
+                }
             }
         }
     }
