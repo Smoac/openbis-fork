@@ -25,8 +25,8 @@ import java.util.TreeSet;
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Izabela Adamczyk
  */
-public final class Sample extends CodeWithRegistration<Sample> implements IDeletionProvider,
-        Comparable<Sample>, IEntityInformationHolderWithProperties, IAttachmentHolder,
-        IIdAndCodeHolder, IPermIdHolder
+public final class Sample extends CodeWithRegistration<Sample> implements
+        IEntityWithDeletionInformation, Comparable<Sample>, IEntityInformationHolderWithProperties,
+        IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -315,11 +315,11 @@ public final class Sample extends CodeWithRegistration<Sample> implements IDelet
     {
         return "Sample [sampleType=" + sampleType + ", space=" + space + ", databaseInstance="
                 + databaseInstance + ", identifier=" + identifier + ", container=" + container
-                + ", parents=" + parents + ", properties=" + properties + ", deletion="
-                + deletion + ", experiment=" + experiment + ", id=" + id
-                + ", modificationDate=" + modificationDate + ", attachments=" + attachments
-                + ", permId=" + permId + ", permlink=" + permlink + ", searchlink=" + searchlink
-                + ", subCode=" + subCode + "]";
+                + ", parents=" + parents + ", properties=" + properties + ", deletion=" + deletion
+                + ", experiment=" + experiment + ", id=" + id + ", modificationDate="
+                + modificationDate + ", attachments=" + attachments + ", permId=" + permId
+                + ", permlink=" + permlink + ", searchlink=" + searchlink + ", subCode=" + subCode
+                + "]";
     }
 
     @Override

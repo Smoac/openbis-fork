@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -150,6 +151,14 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                             getOriginalData()).show();
                 }
 
+            }));
+        addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                            getOriginalData(), createRevertDeletionCallback()).show();
+                }
             }));
 
         addToolBarButton(processButtonHolder.getButton());

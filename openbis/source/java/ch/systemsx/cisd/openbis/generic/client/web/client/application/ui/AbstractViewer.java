@@ -90,6 +90,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected D originalData;
 
+    private final DeletionButtonsManager deletionButtonsManager = new DeletionButtonsManager();
+
     protected final ModulesSectionsManager moduleSectionManager = new ModulesSectionsManager();
 
     // A suffix used to designate widgets owned by this panel
@@ -139,6 +141,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return result;
     }
 
+    void updateDeletionButtons()
+    {
+
+    }
+
     protected Button createDeleteButton(final IDelegatedAction deleteAction)
     {
         Button result = new Button(viewContext.getMessage(Dict.BUTTON_DELETE));
@@ -150,7 +157,35 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                     deleteAction.execute();
                 }
             });
-        result.disable();
+        if (DeletionUtils.isDeleted(originalData))
+        {
+            result.setVisible(false);
+        } else
+        {
+            result.disable();
+        }
+        deletionButtonsManager.setDeleteButton(result);
+        return result;
+    }
+
+    protected Button createRevertDeletionButton(final IDelegatedAction revertAction)
+    {
+        Button result = new Button(viewContext.getMessage(Dict.BUTTON_REVERT_DELETION));
+        result.addListener(Events.Select, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    revertAction.execute();
+                }
+            });
+        if (DeletionUtils.isDeleted(originalData))
+        {
+            result.disable();
+        } else
+        {
+            result.setVisible(false);
+        }
+        deletionButtonsManager.setRevertButton(result);
         return result;
     }
 
@@ -213,6 +248,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         this.displayIdSuffix = newData.getEntityType().getCode();
         updateBreadcrumbs();
         setToolBarButtonsEnabled(true);
+        deletionButtonsManager.updateButtonVisibitity();
     }
 
     /**
@@ -280,6 +316,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     protected final AbstractAsyncCallback<Void> createDeletionCallback()
+    {
+        return new RefreshViewerCallback(viewContext);
+    }
+
+    protected final AbstractAsyncCallback<Void> createRevertDeletionCallback()
     {
         return new RefreshViewerCallback(viewContext);
     }
@@ -427,6 +468,35 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             add(widget);
         }
 
+    }
+
+    private class DeletionButtonsManager
+    {
+        private Button deleteButtonOrNull;
+
+        private Button revertButtonOrNull;
+
+        public void setDeleteButton(Button deleteButton)
+        {
+            this.deleteButtonOrNull = deleteButton;
+        }
+
+        public void setRevertButton(Button revertButton)
+        {
+            this.revertButtonOrNull = revertButton;
+        }
+
+        public void updateButtonVisibitity()
+        {
+            if (deleteButtonOrNull != null)
+            {
+                deleteButtonOrNull.setVisible(DeletionUtils.isDeleted(originalData) == false);
+            }
+            if (revertButtonOrNull != null)
+            {
+                revertButtonOrNull.setVisible(DeletionUtils.isDeleted(originalData));
+            }
+        }
     }
 
 }

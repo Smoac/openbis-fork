@@ -23,7 +23,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
@@ -38,6 +41,8 @@ public final class RevertDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
+    private final IEntityWithDeletionInformation deletedEntityOrNull;
+
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             List<Deletion> deletions, AbstractAsyncCallback<Void> callback)
     {
@@ -45,12 +50,23 @@ public final class RevertDeletionConfirmationDialog extends
                 .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
         this.callback = callback;
+        this.deletedEntityOrNull = null;
     }
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             Deletion deletion, AbstractAsyncCallback<Void> callback)
     {
         this(viewContext, Collections.singletonList(deletion), callback);
+    }
+
+    public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+            IEntityWithDeletionInformation deletedEntity, AbstractAsyncCallback<Void> callback)
+    {
+        super(viewContext, Collections.singletonList(deletedEntity.getDeletion()), viewContext
+                .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
+        this.viewContext = viewContext;
+        this.callback = callback;
+        this.deletedEntityOrNull = deletedEntity;
     }
 
     @Override
@@ -62,7 +78,22 @@ public final class RevertDeletionConfirmationDialog extends
     @Override
     protected String createMessage()
     {
-        return viewContext.getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_MSG, data.size());
+        if (deletedEntityOrNull != null)
+        {
+            String deletedEntity =
+                    deletedEntityOrNull.getEntityKind().getDescription() + " '"
+                            + deletedEntityOrNull.getCode() + "'";
+            String deletedBy = deletedEntityOrNull.getDeletion().getRegistrator().toString();
+            String deletionDate =
+                    DateRenderer.renderDate(
+                            deletedEntityOrNull.getDeletion().getRegistrationDate(),
+                            BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+            return viewContext.getMessage(Dict.REVERT_ENTITY_DELETION_CONFIRMATION_MSG,
+                    deletedEntity, deletedBy, deletionDate);
+        } else
+        {
+            return viewContext.getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_MSG, data.size());
+        }
     }
 
     @Override

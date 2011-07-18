@@ -20,8 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
@@ -30,8 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment> implements IDeletionProvider,
-        IEntityInformationHolderWithProperties, IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder
+public class Experiment extends CodeWithRegistration<Experiment> implements
+        IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IAttachmentHolder,
+        IIdAndCodeHolder, IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

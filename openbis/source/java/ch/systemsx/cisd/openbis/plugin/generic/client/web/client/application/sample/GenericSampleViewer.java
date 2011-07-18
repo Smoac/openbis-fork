@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
@@ -164,6 +165,14 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
                             getOriginalDataAsSingleton(), createPermanentDeletionCallback(),
                             createDeletionCallback(), getOriginalData()).show();
+                }
+            }));
+        addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                            getOriginalData(), createRevertDeletionCallback()).show();
                 }
             }));
     }

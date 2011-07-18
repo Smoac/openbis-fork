@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDeletionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  * @author Christian Ribeaud
  */
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
-        IDeletionProvider, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
+        IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IIdAndCodeHolder,
         IPermIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

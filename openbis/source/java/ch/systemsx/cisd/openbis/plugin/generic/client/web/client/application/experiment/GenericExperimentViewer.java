@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
@@ -130,6 +131,14 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                     new ExperimentListDeletionConfirmationDialog(
                             viewContext.getCommonViewContext(), createPermanentDeletionCallback(),
                             createDeletionCallback(), getOriginalData()).show();
+                }
+            }));
+        addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                            getOriginalData(), createRevertDeletionCallback()).show();
                 }
             }));
     }
