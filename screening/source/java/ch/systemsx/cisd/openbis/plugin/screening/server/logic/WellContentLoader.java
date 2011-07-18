@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVec
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
@@ -357,7 +358,8 @@ public class WellContentLoader extends AbstractContentLoader
     {
         Set<PlateIdentifier> plates = extractPlates(locations);
         // TODO KE: 2011-07-15 add analysis procedure support here
-        return createFeatureVectorDatasetsRetriever(plates, null);
+        return createFeatureVectorDatasetsRetriever(plates,
+                AnalysisProcedureCriteria.createAllProcedures());
     }
 
     private static Collection<ExternalData> selectChildlessImageDatasets(
@@ -743,7 +745,7 @@ public class WellContentLoader extends AbstractContentLoader
         SingleExperimentSearchCriteria experimentOrNull = experimentCriteria.tryGetExperiment();
         BasicProjectIdentifier projectOrNull = experimentCriteria.tryGetProjectIdentifier();
 
-        IScreeningQuery dao = createDAO();
+        IScreeningQuery dao = getScreeningDAO();
         if (materialSearchCriteria.tryGetMaterialCodesOrProperties() != null)
         {
             MaterialSearchCodesCriteria codesCriteria =
@@ -882,7 +884,7 @@ public class WellContentLoader extends AbstractContentLoader
     private List<WellContent> loadLocations(TechId geneMaterialId, TechId experimentId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO().getPlateLocationsForMaterialId(geneMaterialId.getId(),
+                getScreeningDAO().getPlateLocationsForMaterialId(geneMaterialId.getId(),
                         experimentId.getId());
 
         return convert(locations);
@@ -891,21 +893,16 @@ public class WellContentLoader extends AbstractContentLoader
     private List<WellContent> loadLocations(TechId geneMaterialId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO().getPlateLocationsForMaterialId(geneMaterialId.getId());
+                getScreeningDAO().getPlateLocationsForMaterialId(geneMaterialId.getId());
         return convert(locations);
     }
 
     private List<WellContent> loadLocationsForProject(TechId geneMaterialId, TechId projectId)
     {
         DataIterator<WellContentQueryResult> locations =
-                createDAO().getPlateLocationsForMaterialAndProjectIds(geneMaterialId.getId(),
+                getScreeningDAO().getPlateLocationsForMaterialAndProjectIds(geneMaterialId.getId(),
                         projectId.getId());
         return convert(locations);
-    }
-
-    private IScreeningQuery createDAO()
-    {
-        return createDAO(daoFactory);
     }
 
     private List<WellContent> convert(Iterable<WellContentQueryResult> queryResults)
@@ -955,16 +952,15 @@ public class WellContentLoader extends AbstractContentLoader
 
     private static WellContent convert(WellContentQueryResult well)
     {
-        WellLocation location =
-                ScreeningUtils.tryCreateLocationFromMatrixCoordinate(well.well_code);
         EntityReference wellReference =
                 new EntityReference(well.well_id, well.well_code, well.well_type_code,
                         EntityKind.SAMPLE, well.well_perm_id);
         EntityReference plate =
                 new EntityReference(well.plate_id, well.plate_code, well.plate_type_code,
-                        EntityKind.SAMPLE, well.plate_perm_id);
+                        EntityKind.SAMPLE, well.getPlatePermId());
 
-        return new WellContent(location, wellReference, plate, convertExperiment(well));
+        WellLocation wellLocation = well.getWellReference().getWellLocation();
+        return new WellContent(wellLocation, wellReference, plate, convertExperiment(well));
     }
 
     private static ExperimentReference convertExperiment(WellContentQueryResult loc)
