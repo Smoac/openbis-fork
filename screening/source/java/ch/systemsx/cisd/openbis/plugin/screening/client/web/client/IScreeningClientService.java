@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -228,8 +229,9 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Return all analysis procedures for an experiment.
+     * Return all analysis procedures for an experiment criteria.
      */
-    public AnalysisProcedures listAnalysisProcedures(TechId experimentId);
+    public AnalysisProcedures listAnalysisProcedures(
+            ExperimentSearchCriteria experimentSearchCriteria);
 
 }

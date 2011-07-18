@@ -10,6 +10,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
@@ -47,6 +48,10 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
         boolean exactMatchOnly =
                 getMandatoryBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_IS_EXACT_PARAMETER_KEY);
+
+        String analysisProcedureOrNull =
+                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
+
         boolean showCombinedResults =
                 getOptionalBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
@@ -58,6 +63,11 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
 
         MaterialSearchCriteria materialSearchCriteria =
                 MaterialSearchCriteria.create(materialCodesCriteria);
+
+        AnalysisProcedureCriteria analysisProcedureCriteria =
+                (analysisProcedureOrNull == null) ? AnalysisProcedureCriteria.createAllProcedures()
+                        : AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
+
         if (StringUtils.isBlank(experimentPermId))
         {
             ExperimentSearchCriteria criteria;
@@ -72,10 +82,12 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                                         spaceCode, projectCode));
             }
             WellSearchGrid.openTab(viewContext, criteria, materialSearchCriteria,
+                    analysisProcedureCriteria,
                     showCombinedResults);
         } else
         {
             WellSearchGrid.openTab(viewContext, experimentPermId, materialSearchCriteria,
+                    analysisProcedureCriteria,
                     showCombinedResults);
         }
 

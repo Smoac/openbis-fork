@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
@@ -207,7 +208,8 @@ public class WellSearchComponent extends TabContent
             return;
         }
         WellSearchGrid.openTab(screeningViewContext, experimentSearchCriteria,
-                MaterialSearchCriteria.create(materialCriteria), showCombinedResults.getValue());
+                MaterialSearchCriteria.create(materialCriteria),
+                AnalysisProcedureCriteria.createAllProcedures(), showCombinedResults.getValue());
     }
 
     private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()

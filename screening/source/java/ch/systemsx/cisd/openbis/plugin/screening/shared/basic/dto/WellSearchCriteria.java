@@ -305,7 +305,7 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class MaterialSearchCodesCriteria implements IsSerializable, Serializable
+    public static final class MaterialSearchCodesCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -358,7 +358,7 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class MaterialSearchCriteria implements IsSerializable, Serializable
+    public static final class MaterialSearchCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -432,9 +432,51 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
+    public static final class AnalysisProcedureCriteria implements ISerializable
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private String analysisProcedureCodeOrNull;
+
+        public static AnalysisProcedureCriteria createAllProcedures()
+        {
+            // TODO KE: could we improve this ?
+            return new AnalysisProcedureCriteria();
+        }
+
+        public static AnalysisProcedureCriteria createFromCode(String codeOrNull)
+        {
+            return new AnalysisProcedureCriteria(codeOrNull);
+        }
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private AnalysisProcedureCriteria()
+        {
+        }
+
+        private AnalysisProcedureCriteria(String analysisProcedureCodeOrNull)
+        {
+            this.analysisProcedureCodeOrNull = analysisProcedureCodeOrNull;
+        }
+
+        public String tryGetAnalysisProcedureCode()
+        {
+            return analysisProcedureCodeOrNull;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "[Analysis procedure code '" + analysisProcedureCodeOrNull + "']";
+        }
+    }
+
     private MaterialSearchCriteria materialCriteria;
 
     private ExperimentSearchCriteria experimentCriteria;
+
+    private AnalysisProcedureCriteria analysisProcedureCriteria;
 
     // GWT
     @SuppressWarnings("unused")
@@ -443,19 +485,23 @@ public class WellSearchCriteria implements ISerializable
     }
 
     public WellSearchCriteria(ExperimentSearchCriteria experimentCriteria,
-            MaterialSearchCriteria materialCriteria)
+            MaterialSearchCriteria materialCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         assert experimentCriteria != null;
         assert materialCriteria != null;
+        assert analysisProcedureCriteria != null;
 
         this.materialCriteria = materialCriteria;
         this.experimentCriteria = experimentCriteria;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     @Override
     public String toString()
     {
-        return "Search criteria: " + experimentCriteria + ", " + materialCriteria;
+        return "Search criteria: " + experimentCriteria + ", " + materialCriteria + ", "
+                + analysisProcedureCriteria;
     }
 
     /** null means all experiments */
@@ -469,6 +515,11 @@ public class WellSearchCriteria implements ISerializable
         return materialCriteria;
     }
 
+    public AnalysisProcedureCriteria getAnalysisProcedureCriteria()
+    {
+        return analysisProcedureCriteria;
+    }
+
     public static boolean shouldRestrictScopeToProject(
             ExperimentSearchCriteria searchCriteria)
     {
@@ -480,4 +531,5 @@ public class WellSearchCriteria implements ISerializable
     {
         return searchCriteria != null && searchCriteria.tryGetProjectIdentifier() != null;
     }
+
 }

@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -347,9 +348,10 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
-    public AnalysisProcedures listAnalysisProcedures(TechId experimentId)
+    public AnalysisProcedures listAnalysisProcedures(
+            ExperimentSearchCriteria experimentSearchCriteria)
     {
-        return server.listAnalysisProcedures(getSessionToken(), experimentId);
+        return server.listAnalysisProcedures(getSessionToken(), experimentSearchCriteria);
     }
 
 }

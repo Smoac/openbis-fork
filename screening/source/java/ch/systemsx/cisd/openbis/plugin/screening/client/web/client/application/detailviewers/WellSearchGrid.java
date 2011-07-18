@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.C
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -72,6 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
@@ -80,7 +83,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSear
 /**
  * @author Franz-Josef Elmer
  */
-public class WellSearchGrid extends TypedTableGrid<WellContent>
+public class WellSearchGrid extends TypedTableGrid<WellContent> implements
+        IAnalysisProcedureSelectionListener
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX
             + "PlateMaterialReviewer2Grid";
@@ -93,6 +97,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final String experimentPermId, final MaterialSearchCriteria materialSearchCriteria,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
             final boolean showCombinedResults)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
@@ -105,7 +110,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         {
                             TechId experimentId = new TechId(experimentIdentifier.getId());
                             WellSearchGrid.openTab(screeningViewContext, experimentId,
-                                    materialSearchCriteria, showCombinedResults);
+                                    materialSearchCriteria, analysisProcedureCriteria,
+                                    showCombinedResults);
                         }
                     });
     }
@@ -114,6 +120,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     private static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             TechId experimentId, final MaterialSearchCriteria materialSearchCriteria,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
             final boolean showCombinedResults)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
@@ -125,17 +132,21 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                             ExperimentSearchCriteria experimentCriteria =
                                     ExperimentSearchCriteria.createExperiment(experiment);
                             WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
-                                    materialSearchCriteria, showCombinedResults);
+                                    materialSearchCriteria, analysisProcedureCriteria,
+                                    showCombinedResults);
                         }
                     });
     }
 
     public static void openTab(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final ExperimentSearchCriteria experimentCriteria,
-            final MaterialSearchCriteria materialCriteria, final boolean showCombinedResults)
+            final MaterialSearchCriteria materialCriteria,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
+            final boolean showCombinedResults)
     {
         WellSearchCriteria searchCriteria =
-                new WellSearchCriteria(experimentCriteria, materialCriteria);
+                new WellSearchCriteria(experimentCriteria, materialCriteria,
+                        analysisProcedureCriteria);
         if (showCombinedResults)
         {
             openWellSearchTab(viewContext, searchCriteria);
@@ -157,7 +168,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                     IDisposableComponent grid =
                             WellSearchGrid.create(viewContext,
                                     searchCriteria.getExperimentCriteria(),
-                                    searchCriteria.getMaterialSearchCriteria());
+                                    searchCriteria.getMaterialSearchCriteria(),
+                                    searchCriteria.getAnalysisProcedureCriteria());
                     return DefaultTabItem.create(getTabTitle(), grid, viewContext);
                 }
 
@@ -192,10 +204,11 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId,
+            AnalysisProcedureCriteria analysisProcedureCriteria,
             boolean restrictGlobalScopeLinkToProject)
     {
         return create(viewContext, experimentCriteriaOrNull,
-                MaterialSearchCriteria.createIdCriteria(materialId),
+                MaterialSearchCriteria.createIdCriteria(materialId), analysisProcedureCriteria,
                 restrictGlobalScopeLinkToProject);
     }
 
@@ -204,18 +217,23 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     private static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
-            MaterialSearchCriteria materialCriteria)
+            MaterialSearchCriteria materialCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        return create(viewContext, experimentCriteriaOrNull, materialCriteria, false);
+        return create(viewContext, experimentCriteriaOrNull, materialCriteria,
+                analysisProcedureCriteria, false);
     }
 
     private static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
-            MaterialSearchCriteria materialCriteria, boolean restrictGlobalScopeLinkToProject)
+            MaterialSearchCriteria materialCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria,
+            boolean restrictGlobalScopeLinkToProject)
     {
         WellSearchGrid reviewer =
                 new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria,
+                        analysisProcedureCriteria,
                         restrictGlobalScopeLinkToProject);
         final ToolBar toolbar = reviewer.createToolbar();
         return reviewer.asDisposableWithToolbar(new IDisposableComponent()
@@ -250,9 +268,14 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     private ChannelChooserPanel channelChooser;
 
+    // field value can change
+    private AnalysisProcedureCriteria analysisProcedureCriteria;
+
     private WellSearchGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
-            MaterialSearchCriteria materialCriteria, boolean restrictGlobalScopeLinkToProject)
+            MaterialSearchCriteria materialCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria,
+            boolean restrictGlobalScopeLinkToProject)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, experimentCriteriaOrNull != null,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
@@ -262,6 +285,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         this.experimentCriteriaHolder =
                 new ExperimentSearchCriteriaHolder(experimentCriteriaOrNull);
         this.materialCriteria = materialCriteria;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
 
         final IDefaultChannelState defaultChannelState =
                 createDefaultChannelState(viewContext, experimentCriteriaOrNull);
@@ -512,16 +536,41 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     private ToolBar createToolbar()
     {
         ToolBar toolbar = new ToolBar();
-        toolbar.add(createExperimentChooser());
+        AnalysisProcedureChooser analysisProcedureChooser = createAnalysisProcedureChooser();
+        toolbar.add(createExperimentChooser(analysisProcedureChooser));
+        toolbar.add(analysisProcedureChooser);
         toolbar.add(new Label(CHANNEL_CHOOSER_LABEL));
         toolbar.add(channelChooser);
         return toolbar;
     }
 
-    private Component createExperimentChooser()
+    private Component createExperimentChooser(AnalysisProcedureChooser analysisProcedureChooser)
     {
+        IDelegatedAction experimentSelectionChangedAction =
+                createExperimentSelectionChangedAction(analysisProcedureChooser);
         return new SingleOrAllExperimentsChooser(viewContext, experimentCriteriaHolder,
-                restrictGlobalScopeLinkToProject, createRefreshGridAction());
+                restrictGlobalScopeLinkToProject, experimentSelectionChangedAction);
+    }
+
+    protected final IDelegatedAction createExperimentSelectionChangedAction(
+            final AnalysisProcedureChooser analysisProcedureChooser)
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    analysisProcedureChooser.updateAnalysisProcedures();
+                }
+            };
+    }
+
+
+    private AnalysisProcedureChooser createAnalysisProcedureChooser()
+    {
+        AnalysisProcedureChooser analysisProcedureChooser =
+                AnalysisProcedureChooser.createVertical(viewContext, experimentCriteriaHolder,
+                        null, this);
+        return analysisProcedureChooser;
     }
 
     @Override
@@ -597,7 +646,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         assert experimentCriteriaOrNull != null : "experiment not specified";
 
         WellSearchCriteria searchCriteria =
-                new WellSearchCriteria(experimentCriteriaOrNull, materialCriteria);
+                new WellSearchCriteria(experimentCriteriaOrNull, materialCriteria,
+                        analysisProcedureCriteria);
         viewContext.getService().listPlateWells(resultSetConfig, searchCriteria, callback);
     }
 
@@ -613,6 +663,16 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     protected List<String> getColumnIdsOfFilters()
     {
         return Arrays.asList(WellSearchGridColumnIds.PLATE, WellSearchGridColumnIds.WELL);
+    }
+
+    public void analysisProcedureSelected(String analysisProcedureOrNull)
+    {
+        if (experimentCriteriaHolder.tryGetCriteria() != null)
+        {
+            this.analysisProcedureCriteria =
+                AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
+            refresh(true);
+        }
     }
 
 }

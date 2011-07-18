@@ -71,7 +71,7 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         ExperimentChooserFieldAdaptor singleExperimentChooser = createSingleExperimentChooser();
         RadioGroup experimentRadioChooser = createExperimentRadio(singleExperimentChooser);
 
-        setWidth(400);
+        setWidth(380);
         add(experimentRadioChooser);
         add(singleExperimentChooser.getField());
     }

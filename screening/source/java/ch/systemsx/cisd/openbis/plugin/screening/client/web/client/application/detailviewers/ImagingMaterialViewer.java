@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -79,9 +80,13 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         boolean restrictGlobalScopeLinkToProject =
                 isRestrictGlobalScopeLinkToProject(initialExperimentCriteriaOrNull);
 
+        AnalysisProcedureCriteria analysisProcedureCriteria =
+                AnalysisProcedureCriteria.createAllProcedures();
+
         WellSearchMaterialSection wellSearchSection =
                 new WellSearchMaterialSection(screeningViewContext, materialId,
-                        initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
+                        initialExperimentCriteriaOrNull, analysisProcedureCriteria,
+                        restrictGlobalScopeLinkToProject);
         sections.add(wellSearchSection);
 
         MaterialMergedSummarySection summarySection =

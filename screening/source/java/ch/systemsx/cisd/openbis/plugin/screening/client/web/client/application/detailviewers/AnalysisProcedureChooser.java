@@ -25,23 +25,28 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 
 /**
  * An UI panel for selecting analysis procedures.
  * 
  * @author Kaloyan Enimanev
  */
-class AnalysisProcedureChooser extends HorizontalPanel
+class AnalysisProcedureChooser extends LayoutContainer
 {
 
     /**
@@ -53,10 +58,35 @@ class AnalysisProcedureChooser extends HorizontalPanel
         void analysisProcedureSelected(String analysisProcedureOrNull);
     }
 
-    private final static String UNSPECIFIED_ANALYSIS_PROCEDURE = "unspecified";
+    public static final AnalysisProcedureChooser createHorizontal(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteriaHolder experimentCriteriaHolder,
+            String selectedAnalysisProcedureOrNull,
+            IAnalysisProcedureSelectionListener selectionListener)
+    {
+        return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
+                selectedAnalysisProcedureOrNull, selectionListener, new HorizontalPanel());
+    }
+
+    public static final AnalysisProcedureChooser createVertical(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteriaHolder experimentCriteriaHolder,
+            String selectedAnalysisProcedureOrNull,
+            IAnalysisProcedureSelectionListener selectionListener)
+    {
+
+        final VerticalPanel layoutPanel = new VerticalPanel();
+        layoutPanel.setWidth(200);
+        return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
+                selectedAnalysisProcedureOrNull, selectionListener, layoutPanel);
+    }
+
+    private final static String ANY_ANALYSIS_PROCEDURE = "Any";
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
     private final IAnalysisProcedureSelectionListener selectionListener;
+
+    private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
 
     private SimpleComboBox<String> analysisProceduresComboBox;
 
@@ -70,24 +100,48 @@ class AnalysisProcedureChooser extends HorizontalPanel
 
         };
 
-    public AnalysisProcedureChooser(IViewContext<IScreeningClientServiceAsync> viewContext,
-            List<String> analysisProcedures,
+    private AnalysisProcedureChooser(IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteriaHolder experimentCriteriaHolder,
             String selectedAnalysisProcedureOrNull,
-            IAnalysisProcedureSelectionListener selectionListener)
+            IAnalysisProcedureSelectionListener selectionListener, LayoutContainer layoutPanel)
     {
         this.viewContext = viewContext;
         this.selectionListener = selectionListener;
+        this.experimentCriteriaHolder = experimentCriteriaHolder;
+
         analysisProceduresComboBox = createProceduresComboBox();
 
-        setAutoHeight(true);
-        setAutoWidth(true);
+        add(layoutPanel);
+        layoutPanel.setAutoHeight(true);
+        layoutPanel.add(createComboLabel());
+        layoutPanel.add(analysisProceduresComboBox);
 
-        add(createComboLabel());
-        add(analysisProceduresComboBox);
-        addAnalysisProcedures(analysisProcedures);
+        refresh(selectedAnalysisProcedureOrNull);
+    }
 
+    public void updateAnalysisProcedures()
+    {
+        String selection = analysisProceduresComboBox.getSimpleValue();
+        String selectedProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
+        refresh(selectedProcedureOrNull);
+    }
 
-        setInitialSelection(selectedAnalysisProcedureOrNull);
+    private void refresh(final String selectedAnalysisProcedureOrNull)
+    {
+
+        analysisProceduresComboBox.removeAll();
+
+        viewContext.getService().listAnalysisProcedures(experimentCriteriaHolder.tryGetCriteria(),
+                new AbstractAsyncCallback<AnalysisProcedures>(viewContext)
+                    {
+                        @Override
+                        protected void process(AnalysisProcedures analysisProcedures)
+                        {
+                            addAnalysisProcedures(analysisProcedures.getProcedureCodes());
+                            setInitialSelection(selectedAnalysisProcedureOrNull);
+                        }
+                    });
+
     }
 
     private Component createComboLabel()
@@ -103,6 +157,7 @@ class AnalysisProcedureChooser extends HorizontalPanel
     {
         SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
 
+        comboBox.setWidth(160);
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
@@ -130,8 +185,8 @@ class AnalysisProcedureChooser extends HorizontalPanel
         Collections.sort(sortedCodes);
 
         // unspecified is always an option and is always displayed at the end
-        sortedCodes.remove(UNSPECIFIED_ANALYSIS_PROCEDURE);
-        sortedCodes.add(UNSPECIFIED_ANALYSIS_PROCEDURE);
+        sortedCodes.remove(ANY_ANALYSIS_PROCEDURE);
+        sortedCodes.add(ANY_ANALYSIS_PROCEDURE);
 
         return sortedCodes;
     }
@@ -146,6 +201,7 @@ class AnalysisProcedureChooser extends HorizontalPanel
 
     private void setInitialSelection(String value)
     {
+        // TODO KE: this is a logic we might want to review
         String analysisProcedureOrNull = value;
         if (StringUtils.isBlank(analysisProcedureOrNull))
         {
@@ -154,7 +210,7 @@ class AnalysisProcedureChooser extends HorizontalPanel
 
         String comboBoxValue = analysisCodeToComboBoxValue(analysisProcedureOrNull);
 
-        if (UNSPECIFIED_ANALYSIS_PROCEDURE.equals(comboBoxValue)
+        if (ANY_ANALYSIS_PROCEDURE.equals(comboBoxValue)
                 || analysisProceduresComboBox.findModel(comboBoxValue) == null)
         {
             comboBoxValue = getFirstValueFromCombo();
@@ -201,12 +257,12 @@ class AnalysisProcedureChooser extends HorizontalPanel
 
     private String analysisCodeToComboBoxValue(String analysisProcedureOrNull)
     {
-        return StringUtils.isBlank(analysisProcedureOrNull) ? UNSPECIFIED_ANALYSIS_PROCEDURE
+        return StringUtils.isBlank(analysisProcedureOrNull) ? ANY_ANALYSIS_PROCEDURE
                 : analysisProcedureOrNull;
     }
 
     private String comboBoxValueToAnalysisProcedure(String comboBoxValue)
     {
-        return UNSPECIFIED_ANALYSIS_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
+        return ANY_ANALYSIS_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
     }
 }

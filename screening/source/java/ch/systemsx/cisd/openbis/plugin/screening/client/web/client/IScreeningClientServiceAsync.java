@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -222,9 +223,9 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listAnalysisProcedures(TechId)
+     * @see IScreeningClientService#listAnalysisProcedures(ExperimentSearchCriteria)
      */
-    public void listAnalysisProcedures(TechId experimentId,
+    public void listAnalysisProcedures(ExperimentSearchCriteria experimentSearchCriteria,
             AsyncCallback<AnalysisProcedures> callback);
 
 }

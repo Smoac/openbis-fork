@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AbstractScreeningDAOTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 
@@ -64,7 +65,8 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
                         MaterialSearchCriteria.createCodesCriteria(materialCodes,
-                                materialTypeCodes, false));
+                                materialTypeCodes, false),
+                        AnalysisProcedureCriteria.createFromCode(null));
 
         Session session = createSession(getSystemPerson());
         List<WellContent> wellContents =
@@ -89,7 +91,8 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(ExperimentSearchCriteria.createAllExperiments(),
                         MaterialSearchCriteria.createCodesCriteria(materialCodes,
-                                materialTypeCodes, false));
+                                materialTypeCodes, false),
+                        AnalysisProcedureCriteria.createFromCode(null));
 
         Session session = createSession(getSystemPerson());
         List<WellContent> wellContents =

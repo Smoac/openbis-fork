@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.DatasetReferencePredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.ExperimentSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.MaterialExperimentFeatureVectorSummaryValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * The <i>screening</i> server. Used internally.
@@ -251,6 +253,6 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AnalysisProcedures listAnalysisProcedures(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
+            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria);
 
 }

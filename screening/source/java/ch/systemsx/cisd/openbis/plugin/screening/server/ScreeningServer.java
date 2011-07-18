@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -110,6 +111,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -453,11 +456,24 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
     }
 
-    public AnalysisProcedures listAnalysisProcedures(String sessionToken, TechId experimentId)
+    public AnalysisProcedures listAnalysisProcedures(String sessionToken,
+            ExperimentSearchCriteria experimentSearchCriteria)
     {
         checkSession(sessionToken);
         IScreeningQuery dao = createDAO(getDAOFactory());
-        List<String> procedureCodes = dao.listAnalysisProcedures(experimentId.getId());
+
+        SingleExperimentSearchCriteria singleExpCriteria =
+                (experimentSearchCriteria != null) ? experimentSearchCriteria.tryGetExperiment()
+                        : null;
+        List<String> procedureCodes = Collections.emptyList();
+        if (singleExpCriteria == null)
+        {
+            procedureCodes = dao.listAllAnalysisProcedures();
+        } else
+        {
+            procedureCodes =
+                    dao.listAnalysisProcedures(singleExpCriteria.getExperimentId().getId());
+        }
         return new AnalysisProcedures(procedureCodes);
     }
 

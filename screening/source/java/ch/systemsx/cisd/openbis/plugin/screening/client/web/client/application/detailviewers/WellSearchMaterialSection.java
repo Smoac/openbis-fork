@@ -6,6 +6,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -23,6 +24,7 @@ class WellSearchMaterialSection extends TabContent
     public WellSearchMaterialSection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final TechId materialId, ExperimentSearchCriteria experimentCriteriaOrNull,
+            AnalysisProcedureCriteria analysisProcedureCriteria,
             boolean restrictGlobalScopeLinkToProject)
     {
         super(
@@ -32,6 +34,7 @@ class WellSearchMaterialSection extends TabContent
         setHeaderVisible(false);
         this.reviewer =
                 WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull, materialId,
+                        analysisProcedureCriteria,
                         restrictGlobalScopeLinkToProject);
         setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }

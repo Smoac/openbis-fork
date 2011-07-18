@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -376,10 +377,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public AnalysisProcedures listAnalysisProcedures(String sessionToken, TechId experimentId)
+    public AnalysisProcedures listAnalysisProcedures(String sessionToken,
+            ExperimentSearchCriteria experimentSearchCriteria)
     {
-        logAccess(sessionToken, "listAnalysisProcedures", "sessionToken(%s), experimentId(%s)",
-                sessionToken, experimentId);
+        logAccess(sessionToken, "listAnalysisProcedures",
+                "sessionToken(%s), experimentSearchCriteria(%s)", sessionToken,
+                experimentSearchCriteria);
         return null;
     }
 }
