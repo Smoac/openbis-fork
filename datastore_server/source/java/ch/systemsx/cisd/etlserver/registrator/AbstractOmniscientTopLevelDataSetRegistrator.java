@@ -26,7 +26,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.python.core.PyException;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -203,7 +202,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     private final OmniscientTopLevelDataSetRegistratorState state;
-    
+
     private boolean stopped;
 
     /**
@@ -307,20 +306,19 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         {
             Throwable firstError = service.getEncounteredErrors().get(0);
             throw new EnvironmentFailureException("Could not process file "
-                    + incomingDataSetFile.getName(), serializableException(firstError));
+                    + incomingDataSetFile.getName(), asSerializableException(firstError));
         }
     }
 
     /**
      * Not all instances of PyExceptions are serializable, because they keep references to
      * non-serializable objects e.g. java.lang.reflect.Method.
+     * <p>
+     * Subclasses may need to override if they encounter other kinds of exceptions that cannot
+     * happen in this generic context.
      */
-    private Throwable serializableException(Throwable throwable)
+    protected Throwable asSerializableException(Throwable throwable)
     {
-        if (throwable instanceof PyException)
-        {
-            return new RuntimeException(throwable.toString());
-        }
         if (throwable instanceof UserFailureException)
         {
             return new RuntimeException(throwable.getMessage());

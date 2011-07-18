@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 
 import org.python.core.Py;
+import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 
@@ -332,4 +333,16 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PythonInterpreter interpreter = ((JythonDataSetRegistrationService<T>) service).interpreter;
         return interpreter;
     }
+
+    @Override
+    protected Throwable asSerializableException(Throwable throwable)
+    {
+        if (throwable instanceof PyException)
+        {
+            return new RuntimeException(throwable.toString());
+        }
+
+        return super.asSerializableException(throwable);
+    }
+
 }
