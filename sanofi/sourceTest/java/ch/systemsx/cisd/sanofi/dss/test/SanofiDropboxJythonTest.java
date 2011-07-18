@@ -107,7 +107,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL";
 
-    private static final String COMPOUND_WELL_TYPE = "COMPOUND_WELL";
+    private static final String COMPOUND_WELL_TYPE = "COMPOUND_BATCH_WELL";
 
     private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M";
 
@@ -272,12 +272,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         assertEquals(
                 "Dear openBIS user,\n"
-                        + "    \n"
-                        + "      Registering new data for plate plateCode.variant has failed with error 'No information for plate 'TEST-PLATE' stored in the ABASE DB.'.\n"
-                        + "      The name of the incoming folder 'batchNr_plateCode.variant_2011.07.05' was added to '.faulty_paths'. Please,\n"
-                        + "      repair the problem and remove the entry from '.faulty_paths' to retry registration.\n"
-                        + "       \n" + "      This email has been generated automatically.\n"
-                        + "      \n" + "    Administrator", email.recordedObject().trim());
+                        + "Registering new data for plate plateCode.variant has failed with error 'No information for plate 'TEST-PLATE' stored in the ABASE DB.'.\n"
+                        + "The name of the incoming folder 'batchNr_plateCode.variant_2011.07.05' was added to '.faulty_paths'. Please,\n"
+                        + "repair the problem and remove the entry from '.faulty_paths' to retry registration.\n"
+                        + "       \n" + "This email has been generated automatically.\n"
+                        + "      \n" + "Administrator", email.recordedObject().trim());
 
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
@@ -410,7 +409,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
+                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
@@ -456,13 +455,12 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 .getRecordedObjects().get(0));
         assertEquals(
                 "Dear openBIS user,\n"
-                        + "    \n"
-                        + "      Registering new data from incoming folder 'batchNr_plateCode.variant_2011.07.05' has failed due to a system error.\n"
+                        + "Registering new data from incoming folder 'batchNr_plateCode.variant_2011.07.05' has failed due to a system error.\n"
                         + "      \n"
-                        + "      openBIS has sent a notification to the responsible system administrators and they should be \n"
-                        + "      fixing the problem as soon as possible. \n" + "      \n"
-                        + "      We are sorry for any inconveniences this may have caused. \n"
-                        + "      \n" + "    openBIS Administrators", email.getRecordedObjects()
+                        + "openBIS has sent a notification to the responsible system administrators and they should be \n"
+                        + "fixing the problem as soon as possible. \n" + "      \n"
+                        + "We are sorry for any inconveniences this may have caused. \n"
+                        + "      \n" + "openBIS Administrators", email.getRecordedObjects()
                         .get(1).trim());
 
         context.assertIsSatisfied();
@@ -546,7 +544,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
+                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
 
         context.assertIsSatisfied();
@@ -636,7 +634,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         AssertionUtil
                 .assertContains(
                         "New data from folder 'batchNr_plateCode.variant_2011.07.05' has been successfully registered for plate "
-                                + "<a href='https://bwl27.sanofi-aventis.com:8443/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant'>plateCode.variant</a>",
+                                + "http://bwdl27.bw.f2.enterprise:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
         context.assertIsSatisfied();
     }
