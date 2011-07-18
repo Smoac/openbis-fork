@@ -197,6 +197,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return references;
     }
 
+    /** Sets parents of all datasets in 'childrenDataSets'. */
     protected void gatherChildrenDataSets(final Map<Long, ExternalData> childrenDataSets,
             List<ExternalData> parentDataSets, String childTypePattern)
     {
