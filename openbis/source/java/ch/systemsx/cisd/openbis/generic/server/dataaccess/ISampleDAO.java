@@ -93,16 +93,25 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
 
     /**
-     * @return Unique set of ids of parents of data sets specified by ids.
-     *         <p>
-     *         NOTE: does not check if specified ids are proper data set ids.
-     */
-
-    /**
      * Returns ids of parents of samples specified by given ids and connected by chosen relationship
      * type.
      */
-    public Set<TechId> listParents(Collection<TechId> children, TechId relationship);
+    public Set<TechId> listSampleIdsByChildrenIds(Collection<TechId> children, TechId relationship);
+
+    /**
+     * Returns ids of children of samples specified by given ids.
+     * <p>
+     * NOTES:
+     * <li>we don't use relationship type as don't really support different relationship types
+     * <li>we need a set as the connection is many-to-many and we want unique ids
+     */
+    public Set<TechId> listSampleIdsByParentIds(Collection<TechId> parentIds);
+
+    /** Returns ids of components of samples specified by given ids. */
+    public List<TechId> listSampleIdsByContainerIds(Collection<TechId> containerIds);
+
+    /** Returns ids of samples connected with experiments specified by given ids. */
+    List<TechId> listSampleIdsByExperimentIds(Collection<TechId> experimentIds);
 
     /**
      * Lists samples (with minimal additional information) belonging to the given <code>space</code>
@@ -126,5 +135,6 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Move samples with given ids to trash using specified deletion.
      */
-    void trash(List<TechId> sampleIds, DeletionPE deletion) throws DataAccessException;
+    int trash(List<TechId> sampleIds, DeletionPE deletion) throws DataAccessException;
+
 }

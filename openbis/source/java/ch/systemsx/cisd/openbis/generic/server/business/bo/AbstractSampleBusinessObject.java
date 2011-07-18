@@ -546,7 +546,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                         sample.getIdentifier(), parentToAdd.getIdentifier());
             } else
             {
-                final Set<TechId> nextToVisit = getSampleDAO().listParents(toVisit, relationship);
+                final Set<TechId> nextToVisit = getSampleDAO().listSampleIdsByChildrenIds(toVisit, relationship);
                 visited.addAll(toVisit);
                 nextToVisit.removeAll(visited);
                 toVisit = nextToVisit;

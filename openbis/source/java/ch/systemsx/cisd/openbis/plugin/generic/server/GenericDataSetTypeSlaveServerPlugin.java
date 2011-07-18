@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -61,7 +62,7 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
             case TRASH:
                 ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
                 trashBO.createDeletion(reason);
-                trashBO.trashDataSets(dataSets);
+                trashBO.trashDataSets(TechId.createList(dataSets));
                 break;
         }
     }

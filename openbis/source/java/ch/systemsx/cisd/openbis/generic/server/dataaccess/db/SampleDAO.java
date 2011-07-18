@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,11 +26,13 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
@@ -464,27 +467,48 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         scheduleRemoveFromFullTextIndex(ids);
     }
 
-    public void trash(final List<TechId> sampleIds, final DeletionPE deletion)
+    public int trash(final List<TechId> sampleIds, final DeletionPE deletion)
             throws DataAccessException
     {
-        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
-        for (TechId sampleId : sampleIds)
+        if (sampleIds.isEmpty())
         {
-            SamplePE sample = loadByTechId(sampleId);
-            if (sample.getDeletion() == null)
-            {
-                sample.setDeletion(deletion);
-            }
+            return 0;
         }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
 
-        getHibernateTemplate().flush();
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED "
+                                            + SamplePE.class.getSimpleName()
+                                            + " SET deletion = :deletion WHERE deletion IS NULL AND id IN (:ids) ")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(sampleIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d samples", updatedRows));
+        }
+        hibernateTemplate.flush();
+        return updatedRows;
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<TechId> listParents(final Collection<TechId> children, final TechId relationship)
+    public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
+            final TechId relationship)
     {
         final String query =
                 "select sample_id_parent from sample_relationships where sample_id_child in (:ids) and relationship_id = :r ";
+        @SuppressWarnings("unchecked")
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
@@ -499,10 +523,65 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         Set<TechId> result = transformNumbers2TechIdSet(results);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%d sample parents(s) have been found.",
+            operationLog.debug(String.format("found %d sample parents for given children",
                     results.size()));
         }
         return result;
+    }
+
+    public Set<TechId> listSampleIdsByParentIds(final Collection<TechId> parents)
+    {
+        final String query =
+                "SELECT sample_id_child FROM " + TableNames.SAMPLE_RELATIONSHIPS_TABLE
+                        + " WHERE sample_id_parent IN (:ids)";
+        @SuppressWarnings("unchecked")
+        final List<? extends Number> results =
+                (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+
+                        public final Object doInHibernate(final Session session)
+                        {
+                            final List<Long> longIds = TechId.asLongs(parents);
+                            return session.createSQLQuery(query).setParameterList("ids", longIds)
+                                    .list();
+                        }
+                    });
+        Set<TechId> result = transformNumbers2TechIdSet(results);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info(String.format("found %d sample children for given parents",
+                results.size()));
+        }
+        return result;
+    }
+
+    public List<TechId> listSampleIdsByContainerIds(final Collection<TechId> containers)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
+        final List<Long> longIds = TechId.asLongs(containers);
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.in("container.id", longIds));
+        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info(String.format("found %s sample components for given containers",
+                results.size()));
+        }
+        return transformNumbers2TechIdList(results);
+    }
+
+    public List<TechId> listSampleIdsByExperimentIds(final Collection<TechId> experiments)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
+        final List<Long> longIds = TechId.asLongs(experiments);
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.in("experimentInternal.id", longIds));
+        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        // if (operationLog.isDebugEnabled())
+        // {
+        operationLog.info(String.format("found %s samples for given experiments", results.size()));
+        // }
+        return transformNumbers2TechIdList(results);
     }
 
 }

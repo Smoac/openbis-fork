@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -60,22 +62,57 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
         ISampleTable sampleTableBO = boFactory.createSampleTable(session);
-        sampleTableBO.trashByTechIds(sampleIds, deletion);
+        int trashedCount = sampleTableBO.trashByTechIds(sampleIds, deletion);
+        if (trashedCount > 0)
+        {
+            trashSampleDependentChildrenAndComponents(sampleIds);
+            trashSampleDependentDataSets(sampleIds);
+        }
     }
 
     public void trashExperiments(List<TechId> experimentIds)
     {
         assert deletion != null;
         IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        experimentBO.trashByTechIds(experimentIds, deletion);
+        int trashedCount = experimentBO.trashByTechIds(experimentIds, deletion);
+        if (trashedCount > 0)
+        {
+            trashExperimentDependentDataSets(experimentIds);
+            trashExperimentDependentSamples(experimentIds);
+        }
     }
 
-    public void trashDataSets(List<DataPE> dataSets)
+    public void trashDataSets(List<TechId> dataSetIds)
     {
         assert deletion != null;
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
-        dataSetTable.setDataSets(dataSets);
-        dataSetTable.trashLoadedDataSets(deletion);
+        dataSetTable.trashByTechIds(dataSetIds, deletion);
+        // NOTE: data set children are not cascade trashed - a conscious decision made by Tomek
+    }
+
+    private void trashSampleDependentChildrenAndComponents(List<TechId> sampleIds)
+    {
+        ISampleDAO sampleDAO = getSampleDAO();
+        trashSamples(new ArrayList<TechId>(sampleDAO.listSampleIdsByParentIds(sampleIds)));
+        trashSamples(sampleDAO.listSampleIdsByContainerIds(sampleIds));
+    }
+
+    private void trashSampleDependentDataSets(List<TechId> sampleIds)
+    {
+        IDataDAO dataDAO = getDataDAO();
+        trashDataSets(dataDAO.listDataSetIdsBySampleIds(sampleIds));
+    }
+
+    private void trashExperimentDependentSamples(List<TechId> experimentIds)
+    {
+        ISampleDAO sampleDAO = getSampleDAO();
+        trashSamples(sampleDAO.listSampleIdsByExperimentIds(experimentIds));
+    }
+
+    private void trashExperimentDependentDataSets(List<TechId> experimentIds)
+    {
+        IDataDAO dataDAO = getDataDAO();
+        trashDataSets(dataDAO.listDataSetIdsByExperimentIds(experimentIds));
     }
 
     public void revertDeletion(TechId deletionId)

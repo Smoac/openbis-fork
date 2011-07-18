@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,9 +26,12 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -38,10 +42,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -300,20 +304,40 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         }
     }
 
-    public void trash(final List<TechId> experimentIds, final DeletionPE deletion)
+    public int trash(final List<TechId> experimentIds, final DeletionPE deletion)
             throws DataAccessException
     {
-        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
-        for (TechId experimentId : experimentIds)
+        if (experimentIds.isEmpty())
         {
-            ExperimentPE experiment = loadByTechId(experimentId);
-            if (experiment.getDeletion() == null)
-            {
-                experiment.setDeletion(deletion);
-            }
+            return 0;
         }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
 
-        getHibernateTemplate().flush();
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED "
+                                            + ExperimentPE.class.getSimpleName()
+                                            + " SET deletion = :deletion WHERE deletion IS NULL AND id IN (:ids) ")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(experimentIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d experiments", updatedRows));
+        }
+        hibernateTemplate.flush();
+        return updatedRows;
     }
 
 }

@@ -110,6 +110,6 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     /**
      * Move experiments with given ids to trash using specified deletion.
      */
-    public void trash(List<TechId> experimentIds, DeletionPE deletion);
+    public int trash(List<TechId> experimentIds, DeletionPE deletion);
 
 }

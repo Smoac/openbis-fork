@@ -120,9 +120,13 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     public void updateDataSets(List<DataPE> externalData);
 
-    /**
-     * Move given data sets to trash using specified deletion.
-     */
-    public void trash(List<DataPE> dataSets, DeletionPE deletion) throws DataAccessException;
+    /** Move given data sets to trash using specified deletion. */
+    public int trash(List<TechId> dataSetIds, DeletionPE deletion) throws DataAccessException;
+
+    /** Returns ids of data sets connected with samples specified by given ids. */
+    public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples);
+
+    /** Returns ids of data sets connected with experiments specified by given ids. */
+    public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
 
 }

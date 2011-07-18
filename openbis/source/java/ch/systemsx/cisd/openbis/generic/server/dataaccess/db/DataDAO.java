@@ -464,18 +464,40 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         super.delete(entity);
     }
 
-    public void trash(List<DataPE> dataSets, DeletionPE deletion) throws DataAccessException
+    public int trash(final List<TechId> dataSetIds, final DeletionPE deletion)
+            throws DataAccessException
     {
-        // TODO 2011-06-16, Piotr Buczek: could be done faster with bulk update
-        for (DataPE dataSet : dataSets)
+        if (dataSetIds.isEmpty())
         {
-            if (dataSet.getDeletion() == null)
-            {
-                dataSet.setDeletion(deletion);
-            }
+            return 0;
         }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
 
-        getHibernateTemplate().flush();
+                //
+                // HibernateCallback
+                //
+
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED "
+                                            + DataPE.class.getSimpleName()
+                                            + " SET deletion = :deletion WHERE deletion IS NULL AND id IN (:ids) ")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(dataSetIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d data sets", updatedRows));
+        }
+        hibernateTemplate.flush();
+        return updatedRows;
     }
 
     @SuppressWarnings("unchecked")
@@ -554,6 +576,35 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
+    }
+
+    public List<TechId> listDataSetIdsBySampleIds(final Collection<TechId> samples)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
+        final List<Long> longIds = TechId.asLongs(samples);
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.in("sampleInternal.id", longIds));
+        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+           operationLog.info(String.format("found %s data sets for given samples", results.size()));
+        }
+        return transformNumbers2TechIdList(results);
+    }
+
+    public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> experiments)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
+        final List<Long> longIds = TechId.asLongs(experiments);
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.in("experimentInternal.id", longIds));
+        final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+           operationLog
+                .info(String.format("found %s data sets for given experiments", results.size()));
+        }
+        return transformNumbers2TechIdList(results);
     }
 
 }

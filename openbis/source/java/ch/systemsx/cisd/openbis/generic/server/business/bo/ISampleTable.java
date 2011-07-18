@@ -78,7 +78,7 @@ public interface ISampleTable
      * @param sampleIds sample technical identifiers
      * @throws UserFailureException if one of the samples can not be moved to trash.
      */
-    public void trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
+    public int trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
             throws UserFailureException;
 
 }

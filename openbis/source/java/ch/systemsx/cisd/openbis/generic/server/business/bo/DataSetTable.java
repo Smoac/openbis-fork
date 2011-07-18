@@ -235,15 +235,17 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
-    public void trashLoadedDataSets(DeletionPE deletion)
+    public int trashByTechIds(List<TechId> dataSetIds, DeletionPE deletion)
+            throws UserFailureException
     {
         try
         {
-            getDataDAO().trash(dataSets, deletion);
+            return getDataDAO().trash(dataSetIds, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Data Set", EntityKind.DATA_SET);
         }
+        return -1; // not possible
     }
 
     public void deleteLoadedDataSets(String reason)

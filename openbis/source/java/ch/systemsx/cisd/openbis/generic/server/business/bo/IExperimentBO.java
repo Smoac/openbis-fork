@@ -89,7 +89,7 @@ public interface IExperimentBO extends IEntityBusinessObject
      * @param experimentIds experiment technical identifiers
      * @throws UserFailureException if one of the experiments can not be moved to trash.
      */
-    void trashByTechIds(List<TechId> experimentIds, DeletionPE deletion);
+    int trashByTechIds(List<TechId> experimentIds, DeletionPE deletion);
 
     /**
      * Changes the value of a managed property.

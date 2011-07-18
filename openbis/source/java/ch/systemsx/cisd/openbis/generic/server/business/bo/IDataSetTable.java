@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -70,9 +71,13 @@ public interface IDataSetTable
     void setDataSets(List<DataPE> dataSets);
 
     /**
-     * Moves loaded data sets to trash for specified reason.
+     * Moves data sets to trash with given deletion.
+     * 
+     * @param dataSetIds data set technical identifiers
+     * @throws UserFailureException if one of the data sets can not be moved to trash.
      */
-    void trashLoadedDataSets(DeletionPE deletion);
+    public int trashByTechIds(List<TechId> dataSetIds, DeletionPE deletion)
+            throws UserFailureException;
 
     /**
      * Permanently Deletes loaded data sets for specified reason.

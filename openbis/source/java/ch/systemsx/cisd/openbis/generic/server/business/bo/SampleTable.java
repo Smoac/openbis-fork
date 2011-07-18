@@ -31,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -341,19 +341,17 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public void trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
+    public int trashByTechIds(List<TechId> sampleIds, DeletionPE deletion)
             throws UserFailureException
     {
         try
         {
-            getSessionFactory().getCurrentSession().flush();
-            getSessionFactory().getCurrentSession().clear();
-
-            getSampleDAO().trash(sampleIds, deletion);
+            return getSampleDAO().trash(sampleIds, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Sample", EntityKind.SAMPLE);
         }
+        return -1; // not possible
     }
 
 }

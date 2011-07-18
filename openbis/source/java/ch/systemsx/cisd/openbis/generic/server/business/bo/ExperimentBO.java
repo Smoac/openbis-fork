@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -47,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -208,19 +208,17 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
-    public void trashByTechIds(List<TechId> experimentIds, DeletionPE deletion)
+    public int trashByTechIds(List<TechId> experimentIds, DeletionPE deletion)
             throws UserFailureException
     {
         try
         {
-            getSessionFactory().getCurrentSession().flush();
-            getSessionFactory().getCurrentSession().clear();
-
-            getExperimentDAO().trash(experimentIds, deletion);
+            return getExperimentDAO().trash(experimentIds, deletion);
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Experiment", EntityKind.EXPERIMENT);
         }
+        return -1; // not possible
     }
 
     public void deleteByTechIds(List<TechId> experimentIds, String reason)
