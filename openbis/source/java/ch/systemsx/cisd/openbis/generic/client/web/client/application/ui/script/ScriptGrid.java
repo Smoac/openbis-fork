@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTa
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs;
@@ -247,7 +247,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
     }
 
     private static final class ScriptListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<Script>>
+            AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<Script>>
     {
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;

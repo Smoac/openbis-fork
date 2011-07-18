@@ -26,16 +26,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 public final class DataSetListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<ExternalData>
+        AbstractDataListPermanentDeletionConfirmationDialog<ExternalData>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -50,7 +49,6 @@ public final class DataSetListDeletionConfirmationDialog extends
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback);
-        this.withDeletion();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleData = null;
@@ -59,14 +57,9 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> permanentDeletionCallback,
             AbstractAsyncCallback<Void> deletionCallback, ExternalData data)
     {
-        super(viewContext, Collections.singletonList(data), permanentDeletionCallback);
-        if (DeletionUtils.isDeleted(data) == false)
-        {
-            this.withDeletion(deletionCallback);
-        }
+        super(viewContext, Collections.singletonList(data), deletionCallback);
         this.viewContext = viewContext;
         this.singleData = data;
         this.selectedAndDisplayedItemsOrNull = null;

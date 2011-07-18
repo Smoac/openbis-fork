@@ -27,17 +27,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> extends
-        AbstractDataListDeletionConfirmationDialog<T>
+        AbstractDataListPermanentDeletionConfirmationDialog<T>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -52,7 +51,6 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
             DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
         super(viewContext, data, callback);
-        this.withDeletion();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
@@ -61,14 +59,9 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> permanentDeletionCallback,
             AbstractAsyncCallback<Void> deletionCallback, T sample)
     {
-        super(viewContext, data, permanentDeletionCallback);
-        if (DeletionUtils.isDeleted(sample) == false)
-        {
-            this.withDeletion(deletionCallback);
-        }
+        super(viewContext, data, deletionCallback);
         this.viewContext = viewContext;
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;

@@ -25,14 +25,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
-public final class AttachmentListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<AttachmentVersions>>
+public final class AttachmentListDeletionConfirmationDialog
+        extends
+        AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<AttachmentVersions>>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;

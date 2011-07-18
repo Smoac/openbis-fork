@@ -147,8 +147,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                 public void execute()
                 {
                     new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            createPermanentDeletionCallback(), createDeletionCallback(),
-                            getOriginalData()).show();
+                            createDeletionCallback(), getOriginalData()).show();
                 }
 
             }));

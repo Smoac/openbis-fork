@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -29,11 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
@@ -52,28 +46,22 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String SELECTED = " selected ";
 
-    private final IViewContext<?> viewContext;
+    protected final IViewContext<?> viewContext;
 
-    private final AbstractAsyncCallback<Void> permanentDeletionCallback;
+    private final AbstractAsyncCallback<Void> deletionCallback;
 
     private boolean withRadio = false;
 
-    private boolean withDeletionOption = false;
-
-    private AbstractAsyncCallback<Void> deletionCallbackOrNull;
-
     protected Radio onlySelectedRadioOrNull;
-
-    protected CheckBoxField permanentCheckBoxOrNull;
 
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IViewContext<?> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> permanentDeletionCallback)
+            AbstractAsyncCallback<Void> deletionCallback)
     {
         super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.permanentDeletionCallback = permanentDeletionCallback;
+        this.deletionCallback = deletionCallback;
     }
 
     // optional initialization
@@ -82,30 +70,6 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected void withRadio()
     {
         this.withRadio = true;
-    }
-
-    /**
-     * adds deletion option to the dialog with the same callback as the one used for permanent
-     * deletion
-     */
-    protected void withDeletion()
-    {
-        withDeletion(permanentDeletionCallback);
-    }
-
-    /** adds deletion option to the dialog with fiven callback */
-    protected void withDeletion(AbstractAsyncCallback<Void> deletionCallback)
-    {
-        if (getWebClientConfiguration().getEnableTrash())
-        {
-            this.withDeletionOption = true;
-            this.deletionCallbackOrNull = deletionCallback;
-        }
-    }
-
-    private WebClientConfiguration getWebClientConfiguration()
-    {
-        return viewContext.getModel().getApplicationInfo().getWebClientConfiguration();
     }
 
     //
@@ -119,10 +83,6 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         reason = new ReasonField(messageProvider, true);
         reason.focus();
         reason.addKeyListener(keyListener);
-        if (withDeletionOption)
-        {
-            formPanel.add(permanentCheckBoxOrNull = createDeletePermanentlyCheckBox());
-        }
         if (withRadio)
         {
             formPanel.add(createRadio());
@@ -142,16 +102,17 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
             deletedObjects =
                     (isOnlySelected() ? data.size() + SELECTED : ALL_EMPHASIZED) + getEntityName();
         }
-        final String operationName =
-                messageProvider.getMessage(isPermanentDeletion() ? Dict.DELETING_PERMANENTLY
-                        : Dict.DELETING);
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE,
-                operationName, deletedObjects);
+                getOperationName(), deletedObjects);
     }
 
     protected abstract String getEntityName();
 
     protected abstract void executeDeletion(AsyncCallback<Void> callback);
+
+    abstract String getOperationName();
+
+    abstract String getProgressMessage();
 
     @Override
     protected final void executeConfirmedAction()
@@ -168,33 +129,9 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         return null;
     }
 
-    private CheckBoxField createDeletePermanentlyCheckBox()
-    {
-        CheckBoxField result = new CheckBoxField(messageProvider.getMessage(Dict.PERMANENT), false);
-        result.setValue(true);
-        result.addListener(Events.Change, new Listener<FieldEvent>()
-            {
-                public void handleEvent(FieldEvent fe)
-                {
-                    refreshMessage();
-                }
-            });
-        return result;
-    }
-
     protected final boolean isOnlySelected()
     {
         return WidgetUtils.isSelected(onlySelectedRadioOrNull);
-    }
-
-    protected final boolean isPermanentDeletion()
-    {
-        return permanentCheckBoxOrNull == null || permanentCheckBoxOrNull.getValue();
-    }
-
-    protected final DeletionType getDeletionType()
-    {
-        return isPermanentDeletion() ? DeletionType.PERMANENT : DeletionType.TRASH;
     }
 
     /**
@@ -203,15 +140,6 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
      */
     private AsyncCallback<Void> getCallbackWithProgressBar()
     {
-        if (isPermanentDeletion())
-        {
-            return AsyncCallbackWithProgressBar.decorate(permanentDeletionCallback, messageProvider
-                    .getMessage(Dict.DELETE_PERMANENTLY_PROGRESS_MESSAGE, getEntityName()));
-        } else
-        {
-            assert deletionCallbackOrNull != null;
-            return AsyncCallbackWithProgressBar.decorate(deletionCallbackOrNull,
-                    messageProvider.getMessage(Dict.DELETE_PROGRESS_MESSAGE, getEntityName()));
-        }
+        return AsyncCallbackWithProgressBar.decorate(deletionCallback, getProgressMessage());
     }
 }

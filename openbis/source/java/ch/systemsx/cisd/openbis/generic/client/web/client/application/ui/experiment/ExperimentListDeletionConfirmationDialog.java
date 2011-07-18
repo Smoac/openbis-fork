@@ -26,10 +26,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid.DisplayedAndSelectedExperiments;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -37,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class ExperimentListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<Experiment>
+        AbstractDataListPermanentDeletionConfirmationDialog<Experiment>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -52,7 +51,6 @@ public final class ExperimentListDeletionConfirmationDialog extends
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
-        this.withDeletion();
         this.withRadio();
         this.viewContext = viewContext;
         this.singleDataOrNull = null;
@@ -61,14 +59,9 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> permanentDeletionCallback,
             AbstractAsyncCallback<Void> deletionCallback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment), permanentDeletionCallback);
-        if (DeletionUtils.isDeleted(experiment) == false)
-        {
-            this.withDeletion(deletionCallback);
-        }
+        super(viewContext, Collections.singletonList(experiment), deletionCallback);
         this.viewContext = viewContext;
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;

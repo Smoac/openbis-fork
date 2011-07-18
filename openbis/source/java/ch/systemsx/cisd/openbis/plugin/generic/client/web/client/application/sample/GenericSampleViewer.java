@@ -163,8 +163,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 public void execute()
                 {
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalDataAsSingleton(), createPermanentDeletionCallback(),
-                            createDeletionCallback(), getOriginalData()).show();
+                            getOriginalDataAsSingleton(), createDeletionCallback(),
+                            getOriginalData()).show();
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()

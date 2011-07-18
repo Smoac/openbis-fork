@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -211,7 +211,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
     }
 
     private static final class GroupListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<Space>>
+            AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<Space>>
     {
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;

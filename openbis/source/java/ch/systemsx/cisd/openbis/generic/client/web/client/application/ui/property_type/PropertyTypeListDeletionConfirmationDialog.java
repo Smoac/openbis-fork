@@ -24,19 +24,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class PropertyTypeListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<PropertyType>>
+        AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<PropertyType>>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public PropertyTypeListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<TableModelRowWithObject<PropertyType>> propertyTypes,
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            List<TableModelRowWithObject<PropertyType>> propertyTypes,
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, propertyTypes, callback);
