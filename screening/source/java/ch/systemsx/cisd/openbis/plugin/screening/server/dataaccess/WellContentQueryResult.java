@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 
 /**
  * @author Tomasz Pylak
  */
 @Private
-public class WellContentQueryResult extends ExperimentReferenceQueryResult
+public class WellContentQueryResult extends ExperimentReferenceQueryResult implements
+        IWellReference
 {
     // well pointer
 
@@ -42,7 +45,7 @@ public class WellContentQueryResult extends ExperimentReferenceQueryResult
 
     public String plate_type_code;
 
-    public String plate_perm_id;
+    private String plate_perm_id;
 
     // a pointer to a material which was being searched for inside a well
 
@@ -55,4 +58,15 @@ public class WellContentQueryResult extends ExperimentReferenceQueryResult
 
     @Deprecated
     public String material_content_type_code;
+
+    public String getPlatePermId()
+    {
+        return plate_perm_id;
+    }
+
+    public WellReference getWellReference()
+    {
+        WellLocation wellLocation = WellLocation.parseLocationStr(well_code);
+        return new WellReference(wellLocation, plate_perm_id);
+    }
 }

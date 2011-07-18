@@ -18,46 +18,41 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * The simplest implementation of {@Link IWellExtendedData}.
+ * Enriches {@link IWellData} interface with well sample.
+ * metadata.
  * 
  * @author Tomasz Pylak
  */
-public class WellExtendedData extends WellData implements IWellExtendedData
+public class WellExtendedData extends WellData implements IEntityPropertiesHolder
 {
-    private Sample well;
+    private final Sample well;
 
-    private final Material material;
-
-    public WellExtendedData(long replicaId, float[] featureVector, Sample well, Material material)
+    public WellExtendedData(WellData wellData, Sample well)
     {
-        super(replicaId, featureVector);
+        super(wellData.getReplicaMaterialId(), wellData.getFeatureVector(), wellData
+                .tryGetWellReference());
         this.well = well;
-        this.material = material;
     }
 
+    /** Properties of the well sample for which the data are provided. */
     public Sample getWell()
     {
         return well;
     }
 
-    public Material getMaterial()
+    public Long getId()
     {
-        return material;
+        return well.getId();
     }
 
     public List<IEntityProperty> getProperties()
     {
         return well.getProperties();
-    }
-
-    public Long getId()
-    {
-        return well.getId();
     }
 
 }

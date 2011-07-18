@@ -21,6 +21,7 @@ import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -54,6 +55,8 @@ abstract class AbstractContentLoader
 
     protected final IDAOFactory daoFactory;
 
+    private IScreeningQuery screeningDao = null;
+
     protected AbstractContentLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
     {
@@ -62,10 +65,14 @@ abstract class AbstractContentLoader
         this.daoFactory = daoFactory;
     }
 
-    protected static IScreeningQuery createDAO(IDAOFactory daoFactory)
+    protected IScreeningQuery getScreeningDAO()
     {
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        return QueryTool.getQuery(connection, IScreeningQuery.class);
+        if (screeningDao == null)
+        {
+            Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+            screeningDao = QueryTool.getQuery(connection, IScreeningQuery.class);
+        }
+        return screeningDao;
     }
 
     protected final ExperimentReference loadExperimentByPermId(String experimentPermId)
@@ -106,4 +113,12 @@ abstract class AbstractContentLoader
         return new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates,
                 analysisProcedureCriteria);
     }
+
+    protected final StopWatch createWatchAndStart()
+    {
+        StopWatch watch = new StopWatch();
+        watch.start();
+        return watch;
+    }
+
 }

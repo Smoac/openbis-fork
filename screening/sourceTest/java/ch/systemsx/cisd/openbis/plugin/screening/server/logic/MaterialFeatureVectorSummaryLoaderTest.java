@@ -35,12 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
@@ -61,7 +59,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setBiologicalReplicatePropertyTypeCodes(SIRNA_PROPERTY_TYPE_CODE);
         int replId = 0;
-        List<IWellExtendedData> wellDataList = Arrays.asList(
+        List<WellExtendedData> wellDataList = Arrays.asList(
         // repl. 1 group 1
                 createSIRNAWellData(replId, 1, 10, 100),
 
@@ -80,18 +78,13 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
                 createSIRNAWellData(replId + 2, 1, 0, 500));
         List<CodeAndLabel> featuresDesc =
                 Arrays.asList(new CodeAndLabel("A", "A"), new CodeAndLabel("B", "B"));
-        WellDataCollection wellDataCollection = new WellDataCollection(wellDataList, featuresDesc);
 
         MaterialAllReplicasFeatureVectors featureVectors =
                 new MaterialFeatureVectorSummaryLoader(null, null, null, settings)
-                        .tryLoadMaterialFeatureVectors(new TechId(replId), wellDataCollection);
+                        .createMaterialFeatureVectors(new TechId(replId), wellDataList, null,
+                                featuresDesc);
 
-        MaterialIdFeatureVectorSummary generalSummary = featureVectors.getGeneralSummary();
-        assertArraysEqual(new float[]
-            { 65, 650 }, generalSummary.getFeatureVectorSummary());
-        assertArraysEqual(new int[]
-            { 2, 3 }, generalSummary.getFeatureVectorRanks());
-        assertEquals(replId, generalSummary.getMaterial().longValue());
+        assertNull(featureVectors.getGeneralSummary());
 
         assertEquals(featuresDesc, featureVectors.getFeatureDescriptions());
         int groupId = 1;
@@ -120,7 +113,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
     }
 
-    private static IWellExtendedData createSIRNAWellData(long replicaId, long siRNAId,
+    private static WellExtendedData createSIRNAWellData(long replicaId, long siRNAId,
             float... featureValues)
     {
         MaterialEntityProperty subgroupProperty = new MaterialEntityProperty();
@@ -135,7 +128,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         return createWellData(replicaId, subgroupProperty, featureValues);
     }
 
-    private static IWellExtendedData createWellData(long replicaId,
+    private static WellExtendedData createWellData(long replicaId,
             IEntityProperty subgroupProperty, float... featureValues)
     {
         Material material = new Material();
@@ -147,6 +140,6 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         material.setProperties(properties);
         well.setProperties(properties);
 
-        return new WellExtendedData(replicaId, featureValues, well, material);
+        return new WellExtendedData(new WellData(replicaId, featureValues, null), well);
     }
 }

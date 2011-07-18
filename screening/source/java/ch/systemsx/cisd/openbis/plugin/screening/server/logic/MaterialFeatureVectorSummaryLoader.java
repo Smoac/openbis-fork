@@ -29,21 +29,21 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellExtendedData;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummaryAndFeatures;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialTechnicalReplicateFeatureVector;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellDataCollection;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiologicalReplicateFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * For the specified material in the specified experiment loads feature vectors (details and
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummar
  * 
  * @author Tomasz Pylak
  */
-public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorSummaryLoader
+public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
 {
     /**
      * For comments {@See MaterialFeatureVectorSummaryLoader}.
@@ -165,40 +165,56 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
 
     // ----------------------
 
+    private final MaterialSummarySettings settings;
+
+    private final WellDataLoader wellDataLoader;
+
     @Private
     MaterialFeatureVectorSummaryLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             MaterialSummarySettings settings)
     {
-        super(session, businessObjectFactory, daoFactory, settings);
+        super(session, businessObjectFactory, daoFactory);
+        this.settings = settings;
+        this.wellDataLoader =
+                new WellDataLoader(session, businessObjectFactory, daoFactory, settings);
+
     }
 
     private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
             TechId experimentId)
     {
-        // TODO KE: 2011-07-15 this should also be changed
-        LoaderParameters params = new LoaderParameters(experimentId, null);
-        WellDataCollection experimentWells = tryLoadWellData(params);
-        if (experimentWells == null)
+        // TODO KE: 2011-07-15 specify analysis procedure
+        AnalysisProcedureCriteria analysisProcedureCriteria =
+                AnalysisProcedureCriteria.createAllProcedures();
+        MaterialIdSummaryAndFeatures summaries =
+                wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(experimentId,
+                        analysisProcedureCriteria, materialId, true);
+        if (summaries == null)
         {
             return null;
         }
-        return tryLoadMaterialFeatureVectors(materialId, experimentWells);
-    }
-
-    @Private
-    MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
-            WellDataCollection experimentWells)
-    {
-        List<IWellExtendedData> experimentWellsData = experimentWells.getWellDataList();
         MaterialIdFeatureVectorSummary materialGeneralSummary =
-                tryCalculateMaterialSummary(materialId, experimentWellsData);
+                tryFindMaterialSummary(materialId, summaries.getFeatureSummaries());
         if (materialGeneralSummary == null)
         {
             return null;
         }
-        List<IWellExtendedData> materialWellsData =
-                filterWellsByMaterial(experimentWellsData, materialId);
+        List<WellExtendedData> materialWellsData =
+                wellDataLoader.tryLoadWellData(materialId, experimentId, analysisProcedureCriteria);
+        if (materialWellsData == null)
+        {
+            return null;
+        }
+        return createMaterialFeatureVectors(materialId, materialWellsData, materialGeneralSummary,
+                summaries.getFeatureNames());
+    }
+
+    @Private
+    MaterialAllReplicasFeatureVectors createMaterialFeatureVectors(TechId materialId,
+            List<WellExtendedData> materialWellsData,
+            MaterialIdFeatureVectorSummary materialGeneralSummary, List<CodeAndLabel> featureNames)
+    {
         ReplicateSequenceProvider replicaSequences =
                 new ReplicateSequenceProvider(materialWellsData,
                         settings.getBiologicalReplicatePropertyTypeCodes());
@@ -208,14 +224,14 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         List<MaterialTechnicalReplicateFeatureVector> replicas =
                 filterDirectTechnicalReplicas(materialWellsData, replicaSequences);
 
-        return new MaterialAllReplicasFeatureVectors(experimentWells.getFeatureDescriptions(),
-                materialGeneralSummary, subgroups, replicas);
+        return new MaterialAllReplicasFeatureVectors(featureNames, materialGeneralSummary,
+                subgroups, replicas);
     }
 
     private List<MaterialBiologicalReplicateFeatureVector> createBiologicalReplicates(
-            List<IWellExtendedData> materialWells, ReplicateSequenceProvider replicaSequences)
+            List<WellExtendedData> materialWells, ReplicateSequenceProvider replicaSequences)
     {
-        GroupByMap<Integer, IWellExtendedData> biologicalReplicateMap =
+        GroupByMap<Integer, WellExtendedData> biologicalReplicateMap =
                 groupByBiologicalReplicate(materialWells, replicaSequences);
 
         List<MaterialBiologicalReplicateFeatureVector> subgroups =
@@ -223,7 +239,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
         MaterialReplicaSummaryAggregationType aggregationType = settings.getAggregationType();
         for (Integer biologicalReplicateSeq : replicaSequences.getBiologicalReplicateSequences())
         {
-            List<IWellExtendedData> technicalReplicateWells =
+            List<WellExtendedData> technicalReplicateWells =
                     biologicalReplicateMap.getOrDie(biologicalReplicateSeq);
             MaterialBiologicalReplicateFeatureVector subgroup =
                     createBiologicalReplicate(technicalReplicateWells, replicaSequences,
@@ -234,7 +250,7 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     }
 
     private MaterialBiologicalReplicateFeatureVector createBiologicalReplicate(
-            List<IWellExtendedData> technicalReplicateWells,
+            List<WellExtendedData> technicalReplicateWells,
             ReplicateSequenceProvider replicaSequences,
             MaterialReplicaSummaryAggregationType aggregationType)
     {
@@ -248,37 +264,28 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
                 aggregationType, subgroupLabel);
     }
 
-    private String getSubgroupLabel(List<IWellExtendedData> subgroupWellDataList,
+    private String getSubgroupLabel(List<WellExtendedData> subgroupWellDataList,
             ReplicateSequenceProvider replicaSequences)
     {
         assert subgroupWellDataList.size() > 0 : "empty subgroup";
         // all wells belong to the same subgroup, so it does not matter which one we take
-        Sample well = subgroupWellDataList.get(0).getWell();
+        IEntityPropertiesHolder well = subgroupWellDataList.get(0);
 
         String label = replicaSequences.tryGetBiologicalReplicateLabel(well);
         assert label != null : "no biological replicates!";
         return label;
     }
 
-    private MaterialIdFeatureVectorSummary tryCalculateMaterialSummary(TechId materialId,
-            List<? extends IWellData> experimentWellDataList)
-    {
-        List<MaterialIdFeatureVectorSummary> featureSummaries =
-                WellReplicaSummaryCalculator.calculateReplicasFeatureVectorSummaries(
-                        experimentWellDataList, settings.getAggregationType(), true);
-        return tryFindMaterialSummary(materialId, featureSummaries);
-    }
-
     // chooses wells which have no information about which biological replicate they are
     private static List<MaterialTechnicalReplicateFeatureVector> filterDirectTechnicalReplicas(
-            List<IWellExtendedData> materialWellDataList,
+            List<WellExtendedData> materialWellDataList,
             final ReplicateSequenceProvider replicaSequences)
     {
-        List<IWellExtendedData> directTechnicalReplicas =
+        List<WellExtendedData> directTechnicalReplicas =
                 CollectionUtils.filter(materialWellDataList,
-                        new ICollectionFilter<IWellExtendedData>()
+                        new ICollectionFilter<WellExtendedData>()
                             {
-                                public boolean isPresent(IWellExtendedData element)
+                                public boolean isPresent(WellExtendedData element)
                                 {
                                     return replicaSequences.isBiologicalReplicate(element) == false;
                                 }
@@ -288,11 +295,11 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     }
 
     private static List<MaterialTechnicalReplicateFeatureVector> createTechnicalReplicates(
-            List<IWellExtendedData> wells, final ReplicateSequenceProvider replicaSequences)
+            List<WellExtendedData> wells, final ReplicateSequenceProvider replicaSequences)
     {
         List<MaterialTechnicalReplicateFeatureVector> replicas =
                 new ArrayList<MaterialTechnicalReplicateFeatureVector>();
-        for (IWellExtendedData wellData : wells)
+        for (WellExtendedData wellData : wells)
         {
             int replicaSequenceNumber = replicaSequences.getTechnicalReplicateSequence(wellData);
             MaterialTechnicalReplicateFeatureVector featureVector =
@@ -304,12 +311,12 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
     }
 
     private static void sortByTechnicalReplicateSequence(
-            List<IWellExtendedData> materialWellDataList,
+            List<WellExtendedData> materialWellDataList,
             final ReplicateSequenceProvider replicaSequences)
     {
-        Collections.sort(materialWellDataList, new Comparator<IWellExtendedData>()
+        Collections.sort(materialWellDataList, new Comparator<WellExtendedData>()
             {
-                public int compare(IWellExtendedData w1, IWellExtendedData w2)
+                public int compare(WellExtendedData w1, WellExtendedData w2)
                 {
                     Integer replicaSequenceNumber1 =
                             replicaSequences.getTechnicalReplicateSequence(w1);
@@ -320,33 +327,19 @@ public class MaterialFeatureVectorSummaryLoader extends ExperimentFeatureVectorS
             });
     }
 
-    private static List<IWellExtendedData> filterWellsByMaterial(
-            List<IWellExtendedData> wellDataList, final TechId materialTechId)
-    {
-        final Long materialId = materialTechId.getId();
-        return CollectionUtils.filter(wellDataList, new ICollectionFilter<IWellExtendedData>()
-            {
-                public boolean isPresent(IWellExtendedData element)
-                {
-                    return materialId.equals(element.getReplicaMaterialId());
-                }
-            });
-    }
-
     /**
      * A subgroup can be e.g. oligo or compound concentration.
      */
-    private GroupByMap<Integer, IWellExtendedData> groupByBiologicalReplicate(
-            List<IWellExtendedData> materialWellDataList,
+    private GroupByMap<Integer, WellExtendedData> groupByBiologicalReplicate(
+            List<WellExtendedData> materialWellDataList,
             final ReplicateSequenceProvider replicaSequences)
     {
         return GroupByMap.create(materialWellDataList,
-                new IKeyExtractor<Integer, IWellExtendedData>()
+                new IKeyExtractor<Integer, WellExtendedData>()
                     {
-                        public Integer getKey(IWellExtendedData wellData)
+                        public Integer getKey(WellExtendedData wellData)
                         {
-                            return replicaSequences.tryGetBiologicalReplicateSequence(wellData
-                                    .getWell());
+                            return replicaSequences.tryGetBiologicalReplicateSequence(wellData);
                         }
                     });
     }

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
 import java.util.Arrays;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
+
 /**
  * The simplest implementation of {@Link IWellData}.
  * 
@@ -29,10 +31,14 @@ public class WellData implements IWellData
 
     private final float[] featureVector;
 
-    public WellData(long replicaId, float[] featureVector)
+    private final WellReference wellReferenceOrNull;
+
+    /** @param wellReferenceOrNull null if these are aggregated data */
+    public WellData(long replicaId, float[] featureVector, WellReference wellReferenceOrNull)
     {
         this.featureVector = featureVector;
         this.replicaId = replicaId;
+        this.wellReferenceOrNull = wellReferenceOrNull;
     }
 
     public long getReplicaMaterialId()
@@ -43,6 +49,11 @@ public class WellData implements IWellData
     public float[] getFeatureVector()
     {
         return featureVector;
+    }
+
+    public WellReference tryGetWellReference()
+    {
+        return wellReferenceOrNull;
     }
 
     @Override

@@ -30,8 +30,8 @@ public class MaterialSummarySettings implements ISerializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /**
-     * the name of a material property type that can be rendered as a link to a details view. TODO
-     * KE: this should be part of the display settings ?!
+     * The name of a material property type that can be rendered as a link to a details view when a
+     * material is shown.
      */
     private String materialDetailsPropertyType;
 
@@ -39,8 +39,8 @@ public class MaterialSummarySettings implements ISerializable
 
     private String[] replicaMatrialTypeSubstrings;
 
-    // well property codes which links to the material which determins which biological replicate it
-    // is, e.g. siRNA or compound
+    // well property codes which links to the material which determines which biological replicate
+    // it is, e.g. siRNA or compound
     private List<String> biologicalReplicatePropertyTypeCodes;
 
     private MaterialReplicaSummaryAggregationType aggregationType;
@@ -55,7 +55,7 @@ public class MaterialSummarySettings implements ISerializable
         this.featureCodes = featureCodes;
     }
 
-    public String[] getReplicaMatrialTypeSubstrings()
+    public String[] getReplicaMaterialTypeSubstrings()
     {
         return replicaMatrialTypeSubstrings;
     }

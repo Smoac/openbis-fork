@@ -16,34 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 
 /**
- * Basic information about well content which allows to compute rankings.
+ * Allows to reference a well.
  * 
  * @author Tomasz Pylak
  */
-@Private
-public class BasicWellContentQueryResult implements IWellReference
+public interface IWellReference
 {
-    private String well_code;
+    String getPlatePermId();
 
-    private String plate_perm_id;
-
-    public String exp_perm_id;
-
-    public long material_content_id;
-
-    public String getPlatePermId()
-    {
-        return plate_perm_id;
-    }
-
-    public WellReference getWellReference()
-    {
-        WellLocation wellLocation = WellLocation.parseLocationStr(well_code);
-        return new WellReference(wellLocation, plate_perm_id);
-    }
+    WellReference getWellReference();
 }

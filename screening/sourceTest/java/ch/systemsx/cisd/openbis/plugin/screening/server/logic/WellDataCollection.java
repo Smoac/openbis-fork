@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
 
 /**
  * List of well data and description of each feature.
@@ -27,19 +28,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
  */
 public class WellDataCollection
 {
-    private final List<IWellExtendedData> wellDataList;
+    private final List<WellExtendedData> wellDataList;
 
     // has the same length as feature vectors in all wells
     private final List<CodeAndLabel> featureDescriptions;
 
-    public WellDataCollection(List<IWellExtendedData> wellDataList,
+    public WellDataCollection(List<WellExtendedData> wellDataList,
             List<CodeAndLabel> featureDescriptions)
     {
         this.wellDataList = wellDataList;
         this.featureDescriptions = featureDescriptions;
     }
 
-    public List<IWellExtendedData> getWellDataList()
+    public List<WellExtendedData> getWellDataList()
     {
         return wellDataList;
     }
