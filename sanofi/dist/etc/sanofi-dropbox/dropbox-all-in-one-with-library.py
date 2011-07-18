@@ -27,7 +27,7 @@ reload(plateinit)
 TEST_MODE=False
 
 """ the url of the Sanofi's openBIS installation """
-OPENBIS_URL = "http://bwdl27.bw.f2.enterprise:8080/openbis"
+OPENBIS_URL = "http://openbis-test-bw.sanofi.com:8080/openbis"
 
 EXPERIMENT_RECIPIENTS_PROPCODE = "OBSERVER_EMAILS"
 
