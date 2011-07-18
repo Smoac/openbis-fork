@@ -75,7 +75,7 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      * Deletes all attachment versions with specified <var>fileName</var> and <var>owner</var>.
      * There will be no error if no such attachment exist.
      * <p>
-     * NOTE: Attachments are removed from DB - not from the owner object.
+     * NOTE: Attachments are removed from DB and from the owner object.
      * 
      * @return number of attachments deleted
      */

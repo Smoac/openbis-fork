@@ -41,8 +41,7 @@ public final class AttachmentDAOTest extends AbstractDAOTest
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
 
-    @Test(groups = "broken")
-    // FIXME
+    @Test
     public final void testDeleteAttachment()
     {
         IAttachmentDAO attachmentDAO = daoFactory.getAttachmentDAO();

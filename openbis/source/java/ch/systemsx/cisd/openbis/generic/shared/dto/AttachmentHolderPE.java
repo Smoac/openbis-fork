@@ -48,8 +48,8 @@ public abstract class AttachmentHolderPE implements Serializable, IIdentifierHol
     //
     public static final char HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER = '$';
 
-    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX =
-            Character.toString(HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
+    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX = Character
+            .toString(HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
 
     public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX2 =
             HIDDEN_EXPERIMENT_PROPERTY_PREFIX + HIDDEN_EXPERIMENT_PROPERTY_PREFIX;
@@ -125,6 +125,13 @@ public abstract class AttachmentHolderPE implements Serializable, IIdentifierHol
         }
         child.setParent(this);
         getInternalAttachments().add(child);
+    }
+
+    // Should be called ONLY before deletion of the attachment.
+    // Doesn't clear connection with parent - it is handled by cascade delete.
+    public void removeAttachment(final AttachmentPE child)
+    {
+        getInternalAttachments().remove(child);
     }
 
     public final static boolean isHiddenFile(final String fileName)

@@ -44,8 +44,8 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
 
     private final static String TABLE_NAME = ATTACHMENT_CLASS.getSimpleName();
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AttachmentDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AttachmentDAO.class);
 
     AttachmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -191,8 +191,9 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         {
             if (fileName.equals(att.getFileName()))
             {
-                deletedRows++;
+                owner.removeAttachment(att);
                 hibernateTemplate.delete(att);
+                deletedRows++;
             }
         }
 
