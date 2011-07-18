@@ -76,22 +76,22 @@
 
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
   <panels>
-    <panel classname="HTMLHelloPanel"/>
-    <panel classname="TargetPanel">
+    <panel classname="com.izforge.izpack.panels.htmlhello.HTMLHelloPanel"/>
+    <panel classname="com.izforge.izpack.panels.target.TargetPanel">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.InitializeInstallationContextAction" />
       </actions>
     </panel>
     
-    <panel classname="HTMLInfoPanel" id="dbsetup" condition="isFirstTimeInstallation">
+    <panel classname="com.izforge.izpack.panels.htmlinfo.HTMLInfoPanel" id="dbsetup" condition="isFirstTimeInstallation">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
     </panel>
     
-    <panel classname="UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
     </panel>
 
-    <panel classname="UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetHostnameVariableAction" />
       </actions>
@@ -99,21 +99,21 @@
     
     
     <!--  create backup if needed -->
-    <panel classname="ProcessPanel" condition="isUpdateInstallation" >
+    <panel classname="com.izforge.izpack.panels.process.ProcessPanel" condition="isUpdateInstallation" >
       <actions>
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.PrepareInstallationBackupAction" />
       </actions>
     </panel>
     
-    <panel classname="PacksPanel"/>
-    <panel classname="InstallPanel">
+    <panel classname="com.izforge.izpack.panels.packs.PacksPanel"/>
+    <panel classname="com.izforge.izpack.panels.install.InstallPanel">
       <actions>
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteSetupScriptsAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.OpenGettingStartedPageAction" />
       </actions>
     </panel>
     
-    <panel classname="SimpleFinishPanel"/>
+    <panel classname="com.izforge.izpack.panels.simplefinish.SimpleFinishPanel"/>
   </panels>
 
 
