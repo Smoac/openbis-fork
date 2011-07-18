@@ -116,19 +116,19 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                         File seqFile = files[0];
 
                         String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
-                        String pngFileName = baseFileName + SVG_FILE_EXTENSION;
+                        String svgFileName = baseFileName + SVG_FILE_EXTENSION;
                         String gbFileName = baseFileName + GB_FILE_EXTENSION;
 
                         File generatedDir = new File(answer, GENERATED_DIR);
                         if (generatedDir.mkdir())
                         {
-                            final File pngFileDest = new File(generatedDir, pngFileName);
+                            final File svgFileDest = new File(generatedDir, svgFileName);
                             final File gbFileDest = new File(generatedDir, gbFileName);
 
                             operationLog.info("Uploading '" + seqFile.getName()
                                     + "' to PlasMapper.");
                             uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP,
-                                    pngFileDest);
+                                    svgFileDest);
                             uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT,
                                     gbFileDest);
                         } else
