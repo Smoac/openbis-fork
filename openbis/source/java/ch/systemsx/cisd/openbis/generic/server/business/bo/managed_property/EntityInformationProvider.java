@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.EntityLinkElementTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityLinkElement;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Piotr Buczek
@@ -194,12 +193,10 @@ public class EntityInformationProvider implements IEntityInformationProvider
     public String getSamplePropertyValue(String permId, String propertyCode)
     {
         SamplePE sample = getSampleByPermId(permId);
-
-        HibernateUtils.initialize(sample.getProperties());
         for (SamplePropertyPE property : sample.getProperties())
         {
-            if (propertyCode.equalsIgnoreCase(property.getEntityTypePropertyType().getEntityType()
-                    .getCode()))
+            if (propertyCode.equalsIgnoreCase(property.getEntityTypePropertyType()
+                    .getPropertyType().getCode()))
             {
                 return property.getValue();
             }

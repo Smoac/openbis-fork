@@ -67,7 +67,7 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private static final String GB_FILE_EXTENSION = ".gb";
 
-    private static final String PNG_FILE_EXTENSION = ".png";
+    private static final String SVG_FILE_EXTENSION = ".svg";
 
     private final PlasMapperUploader uploader;
 
@@ -116,7 +116,7 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                         File seqFile = files[0];
 
                         String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
-                        String pngFileName = baseFileName + PNG_FILE_EXTENSION;
+                        String pngFileName = baseFileName + SVG_FILE_EXTENSION;
                         String gbFileName = baseFileName + GB_FILE_EXTENSION;
 
                         File generatedDir = new File(answer, GENERATED_DIR);

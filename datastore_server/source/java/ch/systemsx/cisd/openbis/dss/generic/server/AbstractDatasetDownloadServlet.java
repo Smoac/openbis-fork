@@ -95,6 +95,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     static
     {
         MIMETYPES.addMimeTypes("application/pdf pdf");
+        MIMETYPES.addMimeTypes("image/svg+xml svg");
     }
 
     public AbstractDatasetDownloadServlet()
