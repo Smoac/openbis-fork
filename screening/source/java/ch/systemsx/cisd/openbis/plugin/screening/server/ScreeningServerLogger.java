@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
@@ -350,11 +351,11 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            TechId experimentId, String analysisProcedureOrNull)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         logAccess(sessionToken, "getExperimentFeatureVectorSummary",
-                "sessionToken(%s), experimentId(%s), analysisProcedure(%s)", sessionToken,
-                experimentId, analysisProcedureOrNull);
+                "sessionToken(%s), experimentId(%s), analysisProcedureCriteria(%s)", sessionToken,
+                experimentId, analysisProcedureCriteria);
         return null;
     }
 

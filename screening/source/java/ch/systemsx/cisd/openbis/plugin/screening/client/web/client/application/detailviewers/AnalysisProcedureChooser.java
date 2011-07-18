@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 
 /**
@@ -55,7 +56,7 @@ class AnalysisProcedureChooser extends LayoutContainer
      */
     public static interface IAnalysisProcedureSelectionListener
     {
-        void analysisProcedureSelected(String analysisProcedureOrNull);
+        void analysisProcedureSelected(AnalysisProcedureCriteria criteria);
     }
 
     public static final AnalysisProcedureChooser createHorizontal(
@@ -235,7 +236,11 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void notifySelectionListener(String analysisProcedureOrNull)
     {
-        selectionListener.analysisProcedureSelected(analysisProcedureOrNull);
+        AnalysisProcedureCriteria criteria = StringUtils.isBlank(analysisProcedureOrNull) ?
+                AnalysisProcedureCriteria.createAllProcedures() : 
+                    AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
+            
+        selectionListener.analysisProcedureSelected(criteria);
     }
 
     private String getDefaultAnalysisProcedure()

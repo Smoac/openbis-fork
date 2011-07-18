@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs;
 
 /**
@@ -49,15 +50,15 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
 
     private final TechId experimentId;
 
-    private final String analysisProcedureOrNull;
+    private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
     public FeatureVectorSummaryProvider(IScreeningServer server, String sessionToken,
-            TechId experimentId, String analysisProcedureOrNull)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         this.server = server;
         this.sessionToken = sessionToken;
         this.experimentId = experimentId;
-        this.analysisProcedureOrNull = analysisProcedureOrNull;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class FeatureVectorSummaryProvider extends AbstractTableModelProvider<Mat
                 new TypedTableModelBuilder<MaterialFeatureVectorSummary>();
         ExperimentFeatureVectorSummary fvSummary =
                 server.getExperimentFeatureVectorSummary(sessionToken, experimentId,
-                        analysisProcedureOrNull);
+                        analysisProcedureCriteria);
 
         builder.addColumn(MATERIAL_ID);
         builder.columnGroup(MATERIAL_PROPS_GROUP);

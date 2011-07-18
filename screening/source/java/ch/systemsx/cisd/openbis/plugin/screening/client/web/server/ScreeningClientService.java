@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
@@ -296,11 +297,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> criteria,
-            TechId experimentId, String analysisProcedureOrNull)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         FeatureVectorSummaryProvider provider =
                 new FeatureVectorSummaryProvider(server, getSessionToken(), experimentId,
-                        analysisProcedureOrNull);
+                        analysisProcedureCriteria);
         return listEntities(provider, criteria);
 
     }

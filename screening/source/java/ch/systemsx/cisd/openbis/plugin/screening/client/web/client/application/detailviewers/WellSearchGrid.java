@@ -665,12 +665,11 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         return Arrays.asList(WellSearchGridColumnIds.PLATE, WellSearchGridColumnIds.WELL);
     }
 
-    public void analysisProcedureSelected(String analysisProcedureOrNull)
+    public void analysisProcedureSelected(AnalysisProcedureCriteria selectedProcedureCriteria)
     {
         if (experimentCriteriaHolder.tryGetCriteria() != null)
         {
-            this.analysisProcedureCriteria =
-                AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
+            this.analysisProcedureCriteria = selectedProcedureCriteria;
             refresh(true);
         }
     }

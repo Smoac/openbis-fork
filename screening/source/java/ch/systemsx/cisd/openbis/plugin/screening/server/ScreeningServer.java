@@ -111,6 +111,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
@@ -306,13 +307,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            TechId experimentId, String analysisProcedureOrNull)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
         return ExperimentFeatureVectorSummaryLoader.loadExperimentFeatureVectors(session,
-                businessObjectFactory, getDAOFactory(), experimentId, analysisProcedureOrNull,
+                businessObjectFactory, getDAOFactory(), experimentId, analysisProcedureCriteria,
                 settings);
     }
 
@@ -472,7 +473,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         } else
         {
             procedureCodes =
-                    dao.listAnalysisProcedures(singleExpCriteria.getExperimentId().getId());
+                    dao.listAnalysisProceduresForExperiment(singleExpCriteria.getExperimentId().getId());
         }
         return new AnalysisProcedures(procedureCodes);
     }

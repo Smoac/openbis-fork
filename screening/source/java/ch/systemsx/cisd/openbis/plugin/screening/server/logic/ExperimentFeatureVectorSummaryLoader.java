@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatur
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 
 /**
@@ -68,12 +69,12 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     {
         TechId experimentId;
 
-        String analysisProcedureOrNull;
+        AnalysisProcedureCriteria analysisProcedureCriteria;
 
-        LoaderParameters(TechId experimentId, String analysisProcedureOrNull)
+        LoaderParameters(TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria)
         {
             this.experimentId = experimentId;
-            this.analysisProcedureOrNull = analysisProcedureOrNull;
+            this.analysisProcedureCriteria = analysisProcedureCriteria;
         }
     }
 
@@ -82,9 +83,10 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
      */
     public static ExperimentFeatureVectorSummary loadExperimentFeatureVectors(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId experimentId, String analysisProcedureOrNull, MaterialSummarySettings settings)
+            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria,
+            MaterialSummarySettings settings)
     {
-        LoaderParameters params = new LoaderParameters(experimentId, analysisProcedureOrNull);
+        LoaderParameters params = new LoaderParameters(experimentId, analysisProcedureCriteria);
         return new ExperimentFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
                 settings).loadExperimentFeatureVectors(params);
     }
@@ -189,7 +191,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
 
         Set<PlateIdentifier> plateIdentifiers = extractIdentifiers(plates);
         WellFeatureCollection<FeatureVectorValues> featureVectorsCollection =
-                tryLoadWellSingleFeatureVectors(plateIdentifiers, params.analysisProcedureOrNull);
+                tryLoadWellSingleFeatureVectors(plateIdentifiers, params.analysisProcedureCriteria);
         if (featureVectorsCollection == null)
         {
             return null; // no feature vector datasets connected to plates in this experiment
@@ -201,11 +203,12 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
     }
 
     private WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plateIdentifiers, String analysisProcedureOrNull)
+            Set<PlateIdentifier> plateIdentifiers,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         return new WellFeatureCollectionLoader(session, businessObjectFactory, daoFactory)
                 .tryLoadWellSingleFeatureVectors(plateIdentifiers, settings.getFeatureCodes(),
-                        analysisProcedureOrNull);
+                        analysisProcedureCriteria);
     }
 
     private static ExperimentFeatureVectorSummary createEmptySummary(ExperimentReference experiment)

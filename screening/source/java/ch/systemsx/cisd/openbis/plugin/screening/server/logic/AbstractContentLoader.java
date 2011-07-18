@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * Abstract superclass for screening loaders.
@@ -100,9 +101,9 @@ abstract class AbstractContentLoader
     }
 
     protected final FeatureVectorDatasetLoader createFeatureVectorDatasetsRetriever(
-            Set<PlateIdentifier> plates, String analysisProcedureOrNull)
+            Set<PlateIdentifier> plates, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         return new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates,
-                analysisProcedureOrNull);
+                analysisProcedureCriteria);
     }
 }

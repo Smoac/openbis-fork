@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
@@ -56,12 +57,13 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
 
     /** Loads feature vectors for chosen plates and set of features */
     public WellFeatureCollection<FeatureVectorValues> tryLoadWellSingleFeatureVectors(
-            Set<PlateIdentifier> plates, List<String> featureCodes, String analysisProcedureOrNull)
+            Set<PlateIdentifier> plates, List<String> featureCodes,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         StopWatch watch = new StopWatch();
         watch.start();
         FeatureVectorDatasetLoader datasetsRetriever =
-                createFeatureVectorDatasetsRetriever(plates, analysisProcedureOrNull);
+                createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())

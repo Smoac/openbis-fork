@@ -65,7 +65,8 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                 MaterialSearchCriteria.create(materialCodesCriteria);
 
         AnalysisProcedureCriteria analysisProcedureCriteria =
-                (analysisProcedureOrNull == null) ? AnalysisProcedureCriteria.createAllProcedures()
+                StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
+                        .createAllProcedures()
                         : AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
 
         if (StringUtils.isBlank(experimentPermId))

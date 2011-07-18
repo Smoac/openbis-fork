@@ -436,18 +436,40 @@ public class WellSearchCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        private String analysisProcedureCodeOrNull;
+        public static enum MatchType implements ISerializable
+        {
+            /** match data sets for explicitly specified analysis procedure code. */
+            BY_CODE,
+            /** match any data set */
+            ANY,
+            /** match data sets having no analysis procedure property */
+            NONE
+        }
+
+        public static AnalysisProcedureCriteria createFromCode(String code)
+        {
+            if (StringUtils.isBlank(code))
+            {
+                throw new IllegalArgumentException("Cannot construct analysis procedure search "
+                        + "criteria of this type without a specified code.");
+            }
+            return new AnalysisProcedureCriteria(MatchType.BY_CODE, code);
+        }
 
         public static AnalysisProcedureCriteria createAllProcedures()
         {
-            // TODO KE: could we improve this ?
-            return new AnalysisProcedureCriteria();
+            return new AnalysisProcedureCriteria(MatchType.ANY, null);
         }
 
-        public static AnalysisProcedureCriteria createFromCode(String codeOrNull)
+        public static AnalysisProcedureCriteria createNoProcedures()
         {
-            return new AnalysisProcedureCriteria(codeOrNull);
+            return new AnalysisProcedureCriteria(MatchType.NONE, null);
         }
+
+
+        private MatchType matchType;
+
+        private String analysisProcedureCodeOrNull;
 
         // GWT only
         @SuppressWarnings("unused")
@@ -455,9 +477,26 @@ public class WellSearchCriteria implements ISerializable
         {
         }
 
-        private AnalysisProcedureCriteria(String analysisProcedureCodeOrNull)
+        private AnalysisProcedureCriteria(MatchType matchType, String analysisProcedureCodeOrNull)
         {
+            this.matchType = matchType;
             this.analysisProcedureCodeOrNull = analysisProcedureCodeOrNull;
+        }
+
+        /**
+         * Return true if this criteria selects all data sets regardless of their property values.
+         */
+        public boolean isAllProcedures()
+        {
+            return matchType == MatchType.ANY;
+        }
+
+        /**
+         * Return true if this criteria selects only data sets without APs, false otherwise.
+         */
+        public boolean isNoProcedures()
+        {
+            return matchType == MatchType.NONE;
         }
 
         public String tryGetAnalysisProcedureCode()

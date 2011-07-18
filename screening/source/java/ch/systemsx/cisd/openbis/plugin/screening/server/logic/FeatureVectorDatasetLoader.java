@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -47,7 +50,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     // Parameter state
     private final String featureVectorDatasetTypeCode;
 
-    private final String analysisProcedureOrNull;
+    private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
     // Running state
     private Collection<ExternalData> featureVectorDatasets;
@@ -56,18 +59,20 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
             Set<? extends PlateIdentifier> plates)
     {
-        this(session, businessObjectFactory, homeSpaceOrNull, plates, null);
+        this(session, businessObjectFactory, homeSpaceOrNull, plates, AnalysisProcedureCriteria
+                .createAllProcedures());
     }
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
-            Set<? extends PlateIdentifier> plates, String analysisProcedureOrNull)
+            Set<? extends PlateIdentifier> plates,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
         featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN;
-        this.analysisProcedureOrNull = analysisProcedureOrNull;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     public static class FeatureVectorExternalData
@@ -141,14 +146,20 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
     private boolean isMatchingAnalysisProcedure(ExternalData dataset)
     {
+        if (analysisProcedureCriteria.isAllProcedures())
+        {
+            return true;
+        }
+
         String dataSetAnalysisProcedure =
                 EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
-        if (analysisProcedureOrNull == null)
+        if (analysisProcedureCriteria.isNoProcedures())
         {
-            return dataSetAnalysisProcedure == null;
+            return StringUtils.isBlank(dataSetAnalysisProcedure);
         } else
         {
-            return analysisProcedureOrNull.equals(dataSetAnalysisProcedure);
+            String analysisProcedureCode = analysisProcedureCriteria.tryGetAnalysisProcedureCode();
+            return analysisProcedureCode.equals(dataSetAnalysisProcedure);
         }
     }
 

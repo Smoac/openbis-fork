@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs;
 
@@ -66,7 +67,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
 
     private final boolean restrictGlobalScopeLinkToProject;
 
-    private String analysisProcedureOrNull = null;
+    private AnalysisProcedureCriteria analysisProcedureCriteria;
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
@@ -141,15 +142,13 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
         setBorders(true);
     }
 
-
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
     {
         screeningViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
-                new TechId(experiment), analysisProcedureOrNull, callback);
-
+                new TechId(experiment), analysisProcedureCriteria, callback);
     }
 
     @Override
@@ -181,9 +180,9 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     //
     // IAnalysisProcedureSelectionListener
     //
-    public void analysisProcedureSelected(String analysisProcedure)
+    public void analysisProcedureSelected(AnalysisProcedureCriteria selectedProcedureCriteria)
     {
-        this.analysisProcedureOrNull = analysisProcedure;
+        this.analysisProcedureCriteria = selectedProcedureCriteria;
         refresh(true);
     }
 }
