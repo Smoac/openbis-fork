@@ -42,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangin
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -501,6 +503,14 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setId(1L);
         init.setPermId("permid");
         init.setIdentifier(experimentIdentifier(code));
+        EntityRegistrationDetailsInitializer registrationDetailsInitializer =
+                new EntityRegistrationDetailsInitializer();
+        registrationDetailsInitializer.setEmail("mail@mail.com");
+        registrationDetailsInitializer.setFirstName("First");
+        registrationDetailsInitializer.setLastName("Last");
+        registrationDetailsInitializer.setUserId("userId");
+        registrationDetailsInitializer.setRegistrationDate(new Date());
+        init.setRegistrationDetails(new EntityRegistrationDetails(registrationDetailsInitializer));
         return new Experiment(init);
     }
 
