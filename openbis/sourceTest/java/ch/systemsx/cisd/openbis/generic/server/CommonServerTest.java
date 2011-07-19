@@ -31,6 +31,7 @@ import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
@@ -1367,11 +1368,52 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final static Object[][] deletionTypes()
+    {
+        return new Object[][]
+            {
+                { DeletionType.PERMANENT },
+                { DeletionType.TRASH }
+
+            };
+    }
+
+    @Test(dataProvider = "deletionTypes")
+    public void testDeleteDataSets(final DeletionType deletionType)
+    {
+        prepareGetSession();
+        final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    will(returnValue(dataSetTable));
+
+                    one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
+                    one(dataSetTable).getDataSets();
+                    DataPE ds1 = createDataSet("ds1", "type1");
+                    DataPE ds2 = createDataSet("ds2", "type1");
+                    DataPE ds3 = createDataSet("ds3", "type2");
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
+                            Arrays.asList(ds1, ds2), "reason", deletionType);
+                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
+                            "reason", deletionType);
+                }
+            });
+
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType);
+
+        context.assertIsSatisfied();
+    }
+
     @Test
     public void testDeleteDataSets()
     {
-        // TODO write deletion test
-        final DeletionType deletionType = DeletionType.PERMANENT;
+        final DeletionType deletionType = DeletionType.TRASH;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
@@ -1631,6 +1673,88 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEqualContent(del1, result.get(0));
         assertEqualContent(del2, result.get(1));
         assertEqualContent(del3, result.get(2));
+        context.assertIsSatisfied();
+    }
+
+    public void testDeleteSamplesPermanently()
+    {
+        final DeletionType deletionType = DeletionType.PERMANENT;
+        final String reason = "example reason";
+        final List<TechId> sampleIds = TechId.createList(1, 2, 3);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createSampleTable(SESSION);
+                    will(returnValue(sampleTable));
+                    one(sampleTable).deleteByTechIds(sampleIds, reason);
+                }
+            });
+
+        createServer().deleteSamples(SESSION_TOKEN, sampleIds, reason, deletionType);
+
+        context.assertIsSatisfied();
+    }
+
+    public void testTrashSamples()
+    {
+        final DeletionType deletionType = DeletionType.TRASH;
+        final String reason = "example reason";
+        final List<TechId> sampleIds = TechId.createList(1, 2, 3);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    will(returnValue(trashBO));
+                    one(trashBO).createDeletion(reason);
+                    one(trashBO).trashSamples(sampleIds);
+                }
+            });
+
+        createServer().deleteSamples(SESSION_TOKEN, sampleIds, reason, deletionType);
+
+        context.assertIsSatisfied();
+    }
+
+    public void testDeleteExperimentsPermanently()
+    {
+        final DeletionType deletionType = DeletionType.PERMANENT;
+        final String reason = "example reason";
+        final List<TechId> experimentIds = TechId.createList(1, 2, 3);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExperimentBO(SESSION);
+                    will(returnValue(experimentBO));
+                    one(experimentBO).deleteByTechIds(experimentIds, reason);
+                }
+            });
+
+        createServer().deleteSamples(SESSION_TOKEN, experimentIds, reason, deletionType);
+
+        context.assertIsSatisfied();
+    }
+
+    public void testTrashExperimentSamples()
+    {
+        final DeletionType deletionType = DeletionType.TRASH;
+        final String reason = "example reason";
+        final List<TechId> experimentIds = TechId.createList(1, 2, 3);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    will(returnValue(trashBO));
+                    one(trashBO).createDeletion(reason);
+                    one(trashBO).trashExperiments(experimentIds);
+                }
+            });
+
+        createServer().deleteSamples(SESSION_TOKEN, experimentIds, reason, deletionType);
+
         context.assertIsSatisfied();
     }
 }

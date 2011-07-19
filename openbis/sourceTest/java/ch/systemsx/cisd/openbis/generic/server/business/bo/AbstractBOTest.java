@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
@@ -117,6 +118,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IGridCustomFilterDAO filterDAO;
 
+    protected IDeletionDAO deletionDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -148,6 +151,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         authorizationGroupDAO = context.mock(IAuthorizationGroupDAO.class);
         filterDAO = context.mock(IGridCustomFilterDAO.class);
         scriptDAO = context.mock(IScriptDAO.class);
+        deletionDAO = context.mock(IDeletionDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -192,6 +196,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(experimentDAO));
                     allowing(daoFactory).getPropertyTypeDAO();
                     will(returnValue(propertyTypeDAO));
+                    allowing(daoFactory).getDeletionDAO();
+                    will(returnValue(deletionDAO));
                 }
             });
     }

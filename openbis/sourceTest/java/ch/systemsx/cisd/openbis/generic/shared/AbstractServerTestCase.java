@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -168,6 +169,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypeBO entityTypeBO;
 
+    protected ITrashBO trashBO;
+
     protected IFileFormatTypeDAO fileFormatDAO;
 
     protected IDataSetTypeDAO dataSetTypeDAO;
@@ -225,6 +228,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         vocabularyBO = context.mock(IVocabularyBO.class);
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
         dataBO = context.mock(IDataBO.class);
+        trashBO = context.mock(ITrashBO.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);
         sampleTable = context.mock(ISampleTable.class);
