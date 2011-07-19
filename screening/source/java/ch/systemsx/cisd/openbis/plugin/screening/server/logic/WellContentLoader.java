@@ -953,6 +953,8 @@ public class WellContentLoader extends AbstractContentLoader
 
     private static WellContent convert(WellContentQueryResult well)
     {
+        WellLocation wellLocation =
+                ScreeningUtils.tryCreateLocationFromMatrixCoordinate(well.well_code);
         EntityReference wellReference =
                 new EntityReference(well.well_id, well.well_code, well.well_type_code,
                         EntityKind.SAMPLE, well.well_perm_id);
@@ -960,7 +962,6 @@ public class WellContentLoader extends AbstractContentLoader
                 new EntityReference(well.plate_id, well.plate_code, well.plate_type_code,
                         EntityKind.SAMPLE, well.getPlatePermId());
 
-        WellLocation wellLocation = well.getWellReference().getWellLocation();
         return new WellContent(wellLocation, wellReference, plate, convertExperiment(well));
     }
 
