@@ -31,22 +31,25 @@ class MaterialMergedSummarySection extends DisposableTabContent
 
     private final boolean restrictGlobalScopeLinkToProject;
 
-    private ExperimentSearchCriteriaHolder experimentSearchCriteriaHolder;
+    private final ExperimentSearchCriteriaHolder experimentSearchCriteriaHolder;
 
-    private AnalysisProcedureListenerHolder analysisProcedureListenerHolder =
+    private final AnalysisProcedureListenerHolder analysisProcedureListenerHolder =
             new AnalysisProcedureListenerHolder();
+
+    private AnalysisProcedureCriteria initialAnalysisProcedureCriteriaOrNull;
 
     // TODO 2011-07-19, Tomasz Pylak: use analysisProcedureCriteria
     public MaterialMergedSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             ExperimentSearchCriteria experimentCriteriaOrNull,
-            AnalysisProcedureCriteria analysisProcedureCriteria,
+            AnalysisProcedureCriteria initialAnalysisProcedureCriteriaOrNull,
             boolean restrictGlobalScopeLinkToProject)
     {
         super(screeningViewContext.getMessage(Dict.MATERIAL_MERGED_SUMMARY_SECTION_TITLE),
                 screeningViewContext, material);
         this.screeningViewContext = screeningViewContext;
         this.material = material;
+        this.initialAnalysisProcedureCriteriaOrNull = initialAnalysisProcedureCriteriaOrNull;
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
         this.experimentSearchCriteriaHolder =
                 new ExperimentSearchCriteriaHolder(experimentCriteriaOrNull);
@@ -99,6 +102,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
         IDisposableComponent allExperimentsComponent =
                 MaterialFeaturesFromAllExperimentsComponent.createComponent(screeningViewContext,
                         material, experimentSearchCriteria, analysisProcedureListenerHolder);
+        setInitialAnalysisProcedureCriteriaAndReset();
         return allExperimentsComponent;
     }
 
@@ -108,7 +112,22 @@ class MaterialMergedSummarySection extends DisposableTabContent
                 MaterialReplicaSummaryComponent
                         .createViewer(screeningViewContext, experiment, material,
                                 restrictGlobalScopeLinkToProject, analysisProcedureListenerHolder);
+        setInitialAnalysisProcedureCriteriaAndReset();
         return viewer;
+    }
+
+    /**
+     * The first time when the grid is shown, we set the initial analysis procedure. Later on the
+     * user choice is kept.
+     */
+    private void setInitialAnalysisProcedureCriteriaAndReset()
+    {
+        if (initialAnalysisProcedureCriteriaOrNull != null)
+        {
+            analysisProcedureListenerHolder.getAnalysisProcedureListener()
+                    .analysisProcedureSelected(initialAnalysisProcedureCriteriaOrNull);
+            initialAnalysisProcedureCriteriaOrNull = null;
+        }
     }
 
     @Override
