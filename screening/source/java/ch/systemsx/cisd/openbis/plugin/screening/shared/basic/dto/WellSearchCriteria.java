@@ -440,6 +440,11 @@ public class WellSearchCriteria implements ISerializable
 
         private AnalysisProcedureCriteria analysisProcedureCriteria;
 
+        // GWT only
+        protected AbstractMaterialFeaturesCriteria()
+        {
+        }
+
         public AbstractMaterialFeaturesCriteria(TechId materialId,
                 AnalysisProcedureCriteria analysisProcedureCriteria)
         {
@@ -465,6 +470,12 @@ public class WellSearchCriteria implements ISerializable
 
         private TechId experimentId;
 
+        // GWT only
+        @SuppressWarnings("unused")
+        private MaterialFeaturesOneExpCriteria()
+        {
+        }
+
         public MaterialFeaturesOneExpCriteria(TechId materialId,
                 AnalysisProcedureCriteria analysisProcedureCriteria, TechId experimentId)
         {
@@ -483,7 +494,13 @@ public class WellSearchCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+        private ExperimentSearchByProjectCriteria experimentSearchCriteria;
+
+        // GWT only
+        @SuppressWarnings("unused")
+        private MaterialFeaturesManyExpCriteria()
+        {
+        }
 
         public MaterialFeaturesManyExpCriteria(TechId materialId,
                 AnalysisProcedureCriteria analysisProcedureCriteria,
