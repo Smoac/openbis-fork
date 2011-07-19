@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummaryAndFeatures;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
@@ -184,7 +184,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
     private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(
             MaterialFeaturesOneExpCriteria criteria)
     {
-        MaterialIdSummaryAndFeatures summaries =
+        MaterialIdSummariesAndFeatures summaries =
                 wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(criteria, true);
         if (summaries == null)
         {

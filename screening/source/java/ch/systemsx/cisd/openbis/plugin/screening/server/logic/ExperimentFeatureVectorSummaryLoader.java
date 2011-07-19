@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummaryAndFeatures;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
@@ -78,7 +78,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             AnalysisProcedureCriteria analysisProcedureCriteria)
     {
 
-        MaterialIdSummaryAndFeatures summaries =
+        MaterialIdSummariesAndFeatures summaries =
                 wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(experimentId,
                         settings.getReplicaMaterialTypeSubstrings(), analysisProcedureCriteria,
                         false);

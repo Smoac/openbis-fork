@@ -265,10 +265,16 @@ class WellDataLoader extends AbstractContentLoader
                                 allWellFeaturesOrNull, false);
 
                 MaterialSimpleFeatureVectorSummary summary =
-                        findExperimentFeatureVectorSummary(materialId, experiment,
+                        tryFindExperimentFeatureVectorSummary(materialId, experiment,
                                 allWellFeaturesOrNull.getFeatureCodesAndLabels(),
                                 experimentSummaries);
-                summaries.add(summary);
+                if (summary != null)
+                {
+                    summaries.add(summary);
+                } else
+                {
+                    summaries.add(new MaterialSimpleFeatureVectorSummary(experiment));
+                }
             }
         }
         operationLog.info(String.format(
@@ -387,13 +393,17 @@ class WellDataLoader extends AbstractContentLoader
         return well.exp_perm_id.equals(experimentPermId);
     }
 
-    private MaterialSimpleFeatureVectorSummary findExperimentFeatureVectorSummary(
+    private MaterialSimpleFeatureVectorSummary tryFindExperimentFeatureVectorSummary(
             TechId materialId, ExperimentReference experiment, List<CodeAndLabel> features,
             List<MaterialIdFeatureVectorSummary> experimentSummaries)
     {
         // select the summary of the right material
         MaterialIdFeatureVectorSummary materialSummary =
-                findMaterialSummary(materialId, experimentSummaries);
+                tryFindMaterialSummary(materialId, experimentSummaries);
+        if (materialSummary == null)
+        {
+            return null; // there are no feature vectors for this material
+        }
         return new MaterialSimpleFeatureVectorSummary(experiment, features,
                 materialSummary.getFeatureVectorSummary(), materialSummary.getFeatureVectorRanks());
     }
@@ -405,7 +415,7 @@ class WellDataLoader extends AbstractContentLoader
                 experimentWellData, settings.getAggregationType(), calculateDeviations);
     }
 
-    private static MaterialIdFeatureVectorSummary findMaterialSummary(TechId materialId,
+    private static MaterialIdFeatureVectorSummary tryFindMaterialSummary(TechId materialId,
             List<MaterialIdFeatureVectorSummary> summaries)
     {
         for (MaterialIdFeatureVectorSummary summary : summaries)
@@ -415,8 +425,7 @@ class WellDataLoader extends AbstractContentLoader
                 return summary;
             }
         }
-        throw new IllegalStateException("It should not happen: no summary found for material "
-                + materialId);
+        return null;
     }
 
     // connects each well with a material with its feature vector
@@ -471,7 +480,7 @@ class WellDataLoader extends AbstractContentLoader
      * Calculates summaries of feature vectors for each material of the specified type in the given
      * experiment.
      */
-    public MaterialIdSummaryAndFeatures tryCalculateExperimentFeatureVectorSummaries(
+    public MaterialIdSummariesAndFeatures tryCalculateExperimentFeatureVectorSummaries(
             TechId experimentId, String[] replicaMaterialTypeSubstrings,
             AnalysisProcedureCriteria analysisProcedureCriteria, boolean calculateDeviations)
     {
@@ -488,7 +497,7 @@ class WellDataLoader extends AbstractContentLoader
      * Calculates summaries of feature vectors for each material in the given experiment. A material
      * of one well is chosen by filtering materials of the same type as the specified one.
      */
-    public MaterialIdSummaryAndFeatures tryCalculateExperimentFeatureVectorSummaries(
+    public MaterialIdSummariesAndFeatures tryCalculateExperimentFeatureVectorSummaries(
             MaterialFeaturesOneExpCriteria criteria, boolean calculateDeviations)
     {
         List<BasicWellContentQueryResult> wells =
@@ -497,7 +506,7 @@ class WellDataLoader extends AbstractContentLoader
                 criteria.getAnalysisProcedureCriteria(), calculateDeviations);
     }
 
-    private MaterialIdSummaryAndFeatures tryCalculateExperimentFeatureVectorSummaries(
+    private MaterialIdSummariesAndFeatures tryCalculateExperimentFeatureVectorSummaries(
             List<BasicWellContentQueryResult> wells,
             AnalysisProcedureCriteria analysisProcedureCriteria, boolean calculateDeviations)
     {
@@ -511,17 +520,17 @@ class WellDataLoader extends AbstractContentLoader
         List<MaterialIdFeatureVectorSummary> featureSummaries =
                 calculateExperimentFeatureVectorSummaries(wells, allWellFeatures,
                         calculateDeviations);
-        return new MaterialIdSummaryAndFeatures(featureSummaries,
+        return new MaterialIdSummariesAndFeatures(featureSummaries,
                 allWellFeatures.getFeatureCodesAndLabels());
     }
 
-    static class MaterialIdSummaryAndFeatures
+    static class MaterialIdSummariesAndFeatures
     {
         private final List<MaterialIdFeatureVectorSummary> featureSummaries;
 
         private final List<CodeAndLabel> featureNames;
 
-        public MaterialIdSummaryAndFeatures(List<MaterialIdFeatureVectorSummary> featureSummaries,
+        public MaterialIdSummariesAndFeatures(List<MaterialIdFeatureVectorSummary> featureSummaries,
                 List<CodeAndLabel> featureNames)
         {
             this.featureSummaries = featureSummaries;
