@@ -30,7 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * A grid showing replica feature vector summaries for a combination of experiment and material.
@@ -52,24 +54,42 @@ public class MaterialReplicaFeatureSummaryGrid extends
 
     private final TechId materialId;
 
+    private AnalysisProcedureCriteria analysisProcedureCriteria;
+
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId,
-            TechId materialId)
+            TechId materialId, AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
-        return new MaterialReplicaFeatureSummaryGrid(viewContext, experimentId, materialId)
-                .asDisposableWithoutToolbar();
+        return new MaterialReplicaFeatureSummaryGrid(viewContext, experimentId, materialId,
+                analysisProcedureListenerHolder).asDisposableWithoutToolbar();
     }
 
     MaterialReplicaFeatureSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId experimentId, TechId materialId)
+            TechId experimentId, TechId materialId,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
                 DisplayTypeIDGenerator.MATERIAL_REPLICA_SUMMARY_SECTION);
         this.specificViewContext = viewContext;
         this.experimentId = experimentId;
         this.materialId = materialId;
 
         setBorders(true);
+        IAnalysisProcedureSelectionListener analysisProcedureListener =
+                createAnalysisProcedureListener();
+        analysisProcedureListenerHolder.setAnalysisProcedureListener(analysisProcedureListener);
+    }
+
+    private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()
+    {
+        return new IAnalysisProcedureSelectionListener()
+            {
+                public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
+                {
+                    analysisProcedureCriteria = criteria;
+                    refresh(true);
+                }
+            };
     }
 
     @Override
@@ -77,6 +97,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback)
     {
+        // TODO KE: add the analysisProcedureCriteria here
         specificViewContext.getService().listMaterialReplicaFeatureSummary(resultSetConfig,
                 experimentId, materialId, callback);
     }

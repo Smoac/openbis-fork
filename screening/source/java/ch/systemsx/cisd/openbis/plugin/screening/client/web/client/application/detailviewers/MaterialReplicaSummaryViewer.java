@@ -43,23 +43,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 public class MaterialReplicaSummaryViewer
 {
     /**
-     * Fetches experiment and opens a tab with {@link MaterialReplicaSummaryComponent}.
-     * 
-     * @param material should be enriched with properties
-     */
-    // FIXME remove if not needed
-    public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            String experimentPermId, boolean restrictGlobalScopeLinkToProject, Material material)
-    {
-        MaterialReplicaSummaryViewer viewer =
-                new MaterialReplicaSummaryViewer(screeningViewContext,
-                        restrictGlobalScopeLinkToProject);
-        AbstractAsyncCallback<Experiment> experimentFoundCallback =
-                viewer.createExperimentFoundCallback(material);
-        viewer.fetchExperimentByPermId(experimentPermId, experimentFoundCallback);
-    }
-
-    /**
      * Fetches material and experiment and opens a tab with {@link MaterialReplicaSummaryComponent}.
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
@@ -91,19 +74,6 @@ public class MaterialReplicaSummaryViewer
     {
         screeningViewContext.getCommonService().getExperimentInfoByPermId(experimentPermId,
                 experimentFoundCallback);
-    }
-
-    // NOTE: material is already fetched
-    private AbstractAsyncCallback<Experiment> createExperimentFoundCallback(final Material material)
-    {
-        return new AbstractAsyncCallback<Experiment>(screeningViewContext)
-            {
-                @Override
-                protected void process(Experiment experiment)
-                {
-                    openTab(experiment, material);
-                }
-            };
     }
 
     // NOTE: material has to be still fetched
@@ -168,9 +138,11 @@ public class MaterialReplicaSummaryViewer
                 @Override
                 public ITabItem create()
                 {
+                    // TODO KE: FIXME - what sort of analysis***holder do we have here ?
                     IDisposableComponent tabComponent =
                             MaterialReplicaSummaryComponent.createViewer(screeningViewContext,
-                                    experiment, material, restrictGlobalScopeLinkToProject);
+                                    experiment, material, restrictGlobalScopeLinkToProject,
+                                    new AnalysisProcedureListenerHolder());
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 

@@ -139,7 +139,9 @@ public class WellContentLoader extends AbstractContentLoader
         operationLog.info(String.format("[%d msec] Load %d locations.",
                 (System.currentTimeMillis() - start), locations.size()));
 
-        List<WellContent> withPropsAndDataSets = loader.enrichWithDatasets(locations);
+        List<WellContent> withPropsAndDataSets =
+                loader.enrichWithDatasets(locations,
+                        materialCriteria.getAnalysisProcedureCriteria());
         List<WellContent> withFeatureVectors =
                 loader.enrichWithFeatureVectors(withPropsAndDataSets);
         return withFeatureVectors;
@@ -322,12 +324,13 @@ public class WellContentLoader extends AbstractContentLoader
         return locations;
     }
 
-    private List<WellContent> enrichWithDatasets(List<WellContent> locations)
+    private List<WellContent> enrichWithDatasets(List<WellContent> locations,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         long start = System.currentTimeMillis();
 
         FeatureVectorDatasetLoader datasetsRetriever =
-                createFeatureVectorDatasetsRetriever(locations);
+                createFeatureVectorDatasetsRetriever(locations, analysisProcedureCriteria);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
@@ -354,12 +357,10 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private FeatureVectorDatasetLoader createFeatureVectorDatasetsRetriever(
-            List<WellContent> locations)
+            List<WellContent> locations, AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         Set<PlateIdentifier> plates = extractPlates(locations);
-        // TODO KE: 2011-07-15 add analysis procedure support here
-        return createFeatureVectorDatasetsRetriever(plates,
-                AnalysisProcedureCriteria.createAllProcedures());
+        return createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
     }
 
     private static Collection<ExternalData> selectChildlessImageDatasets(

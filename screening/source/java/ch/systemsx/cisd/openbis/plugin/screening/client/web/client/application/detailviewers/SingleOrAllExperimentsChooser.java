@@ -140,6 +140,7 @@ class SingleOrAllExperimentsChooser extends LayoutContainer
         final RadioGroup experimentRadio = new RadioGroup();
         experimentRadio.setSelectionRequired(true);
         experimentRadio.setOrientation(Orientation.HORIZONTAL);
+        experimentRadio.addStyleName("default-text");
 
         final Radio allExps = new Radio();
         if (restrictGlobalScopeLinkToProject)

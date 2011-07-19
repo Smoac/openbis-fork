@@ -35,10 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs;
@@ -63,20 +65,25 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
 
     private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
 
+    private AnalysisProcedureCriteria analysisProcedureCriteria;
+
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialFeaturesFromAllExperimentsGrid(viewContext, material,
-                experimentSearchCriteria).asDisposableWithoutToolbar();
+                experimentSearchCriteria, analysisProcedureListenerHolder)
+                .asDisposableWithoutToolbar();
     }
 
     MaterialFeaturesFromAllExperimentsGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithPermId material,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
                 DisplayTypeIDGenerator.MATERIAL_FEATURES_FROM_ALL_EXPERIMENTS_SECTION);
         this.screeningViewContext = viewContext;
         this.material = material;
@@ -84,6 +91,23 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
         setBorders(true);
         linkExperiment();
         linkMaterialInExperiment();
+
+        IAnalysisProcedureSelectionListener analysisProcedureListener =
+                createAnalysisProcedureListener();
+        analysisProcedureListenerHolder.setAnalysisProcedureListener(analysisProcedureListener);
+    }
+
+    private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()
+    {
+        return new IAnalysisProcedureSelectionListener()
+            {
+
+                public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
+                {
+                    analysisProcedureCriteria = criteria;
+                    refresh(true);
+                }
+            };
     }
 
     private void linkExperiment()

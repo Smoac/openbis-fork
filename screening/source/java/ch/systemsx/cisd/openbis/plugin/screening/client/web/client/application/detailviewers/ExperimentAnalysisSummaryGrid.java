@@ -117,7 +117,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
             final IEntityInformationHolderWithIdentifier experiment,
             boolean restrictGlobalScopeLinkToProject)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
                 DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
         this.screeningViewContext = viewContext;
         this.experiment = experiment;

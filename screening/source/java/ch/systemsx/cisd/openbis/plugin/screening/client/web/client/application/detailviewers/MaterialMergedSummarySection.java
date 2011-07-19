@@ -10,6 +10,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 
@@ -29,6 +32,9 @@ class MaterialMergedSummarySection extends DisposableTabContent
     private final boolean restrictGlobalScopeLinkToProject;
 
     private ExperimentSearchCriteriaHolder experimentSearchCriteriaHolder;
+
+    private AnalysisProcedureListenerHolder analysisProcedureListenerHolder =
+            new AnalysisProcedureListenerHolder();
 
     public MaterialMergedSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
@@ -65,17 +71,25 @@ class MaterialMergedSummarySection extends DisposableTabContent
                                         @Override
                                         protected void process(Experiment experiment)
                                         {
-                                            replaceContent(MaterialReplicaSummaryComponent
+                                            IDisposableComponent viewer =
+                                                    MaterialReplicaSummaryComponent
                                                     .createViewer(screeningViewContext, experiment,
                                                             material,
-                                                            restrictGlobalScopeLinkToProject));
+                                                            restrictGlobalScopeLinkToProject,
+                                                            analysisProcedureListenerHolder);
+                                            replaceContent(viewer);
                                         }
                                     });
                     } else
                     {
-                        replaceContent(MaterialFeaturesFromAllExperimentsComponent.createComponent(
-                                screeningViewContext, material, criteriaOrNull == null ? null
-                                        : criteriaOrNull.tryAsSearchByProjectCriteria()));
+                        final ExperimentSearchByProjectCriteria experimentSearchCriteria =
+                                criteriaOrNull == null ? null
+                                        : criteriaOrNull.tryAsSearchByProjectCriteria();
+                        IDisposableComponent allExperimentsComponent =
+                                MaterialFeaturesFromAllExperimentsComponent.createComponent(
+                                        screeningViewContext, material, experimentSearchCriteria,
+                                        analysisProcedureListenerHolder);
+                        replaceContent(allExperimentsComponent);
                     }
                 }
             };
@@ -94,6 +108,8 @@ class MaterialMergedSummarySection extends DisposableTabContent
         setHeading("");
         final SingleOrAllExperimentsChooser experimentsChooser = createExperimentChooser();
         getHeader().addTool(experimentsChooser);
+        getHeader().addTool(createAnalysisProcedureChooser());
+        
         // WORKAROUND to GXT private widgetPanel in Header with fixed "float: right" set onRender
         experimentsChooser.getParent().addStyleName("force-float-left");
     }
@@ -105,4 +121,26 @@ class MaterialMergedSummarySection extends DisposableTabContent
                 createRefreshAction(experimentSearchCriteriaHolder));
     }
 
+    private AnalysisProcedureChooser createAnalysisProcedureChooser()
+    {
+        return AnalysisProcedureChooser.createVertical(screeningViewContext,
+                experimentSearchCriteriaHolder, null, createAnalysisProcedureListener());
+    }
+
+    private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()
+    {
+        return new IAnalysisProcedureSelectionListener()
+            {
+                public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
+                {
+                    IAnalysisProcedureSelectionListener delegateListener =
+                            analysisProcedureListenerHolder.getAnalysisProcedureListener();
+                    if (delegateListener != null)
+                    {
+                        // dispatch the event to the currently shown grid component
+                        delegateListener.analysisProcedureSelected(criteria);
+                    }
+                }
+            };
+    }
 }

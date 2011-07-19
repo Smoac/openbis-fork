@@ -108,6 +108,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         if (editMode == false)
         {
+            // TODO KE: pass AnalysisProcedure.ANY
             ClientPluginFactory.openImagingMaterialViewer(material,
                     createExperimentSearchCriteria(), screeningViewContext);
         } else

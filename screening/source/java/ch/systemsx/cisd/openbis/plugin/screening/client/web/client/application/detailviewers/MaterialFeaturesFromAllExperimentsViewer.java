@@ -91,9 +91,11 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 @Override
                 public ITabItem create()
                 {
+                    // TODO KE: FIXMe what sort of analysis***holder do we have here ?
                     IDisposableComponent tabComponent =
                             MaterialFeaturesFromAllExperimentsComponent.createComponent(
-                                    screeningViewContext, material, experimentCriteria);
+                                    screeningViewContext, material, experimentCriteria,
+                                    new AnalysisProcedureListenerHolder());
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 

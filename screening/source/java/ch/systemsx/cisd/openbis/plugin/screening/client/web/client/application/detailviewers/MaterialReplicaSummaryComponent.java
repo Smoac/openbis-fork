@@ -83,10 +83,12 @@ public class MaterialReplicaSummaryComponent
 
     public static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Experiment experiment,
-            Material material, boolean restrictGlobalScopeLinkToProject)
+            Material material, boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialReplicaSummaryComponent(screeningViewContext,
-                restrictGlobalScopeLinkToProject, experiment).createViewer(material);
+                restrictGlobalScopeLinkToProject, experiment).createViewer(material,
+                analysisProcedureListenerHolder);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -341,7 +343,8 @@ public class MaterialReplicaSummaryComponent
         return widgetWithListener.asWidget();
     }
 
-    private IDisposableComponent createViewer(Material material)
+    private IDisposableComponent createViewer(Material material,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
@@ -354,7 +357,7 @@ public class MaterialReplicaSummaryComponent
         TechId experimentTechId = new TechId(experiment);
         final IDisposableComponent gridComponent =
                 MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, experimentTechId,
-                        materialTechId);
+                        materialTechId, analysisProcedureListenerHolder);
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 

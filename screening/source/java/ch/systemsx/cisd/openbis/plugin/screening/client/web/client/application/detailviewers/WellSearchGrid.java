@@ -277,7 +277,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             AnalysisProcedureCriteria analysisProcedureCriteria,
             boolean restrictGlobalScopeLinkToProject)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, experimentCriteriaOrNull != null,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
 

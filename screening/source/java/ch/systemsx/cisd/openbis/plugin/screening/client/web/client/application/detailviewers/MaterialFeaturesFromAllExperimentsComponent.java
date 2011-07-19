@@ -35,10 +35,12 @@ public class MaterialFeaturesFromAllExperimentsComponent
 {
     public static IDisposableComponent createComponent(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
-                .createComponent(material, experimentSearchCriteria);
+                .createComponent(material, experimentSearchCriteria,
+                        analysisProcedureListenerHolder);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -50,11 +52,12 @@ public class MaterialFeaturesFromAllExperimentsComponent
     }
 
     private IDisposableComponent createComponent(Material material,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         final IDisposableComponent gridComponent =
                 MaterialFeaturesFromAllExperimentsGrid.create(screeningViewContext, material,
-                        experimentSearchCriteria);
+                        experimentSearchCriteria, analysisProcedureListenerHolder);
         String headingTextOtNull = tryCreateHeadingText(material, experimentSearchCriteria);
         return MaterialComponentUtils.createMaterialViewer(screeningViewContext, material,
                 headingTextOtNull, gridComponent);
