@@ -50,6 +50,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 class AnalysisProcedureChooser extends LayoutContainer
 {
 
+    private static final int COMBOX_WIDTH_PX = 320;
+
+    private static final int PANEL_WIDTH_PX = COMBOX_WIDTH_PX + 40;
+
     /**
      * Can be used from external classes wishing to be notified when the analysis procedure
      * selection changes.
@@ -77,7 +81,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     {
 
         final VerticalPanel layoutPanel = new VerticalPanel();
-        layoutPanel.setWidth(200);
+        layoutPanel.setWidth(PANEL_WIDTH_PX);
         return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
                 selectedAnalysisProcedureOrNull, selectionListener, layoutPanel);
     }
@@ -85,6 +89,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     private final static String ANY_ANALYSIS_PROCEDURE = "Any";
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
+
     private final IAnalysisProcedureSelectionListener selectionListener;
 
     private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
@@ -158,7 +163,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     {
         SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
 
-        comboBox.setWidth(160);
+        comboBox.setWidth(COMBOX_WIDTH_PX);
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
@@ -236,10 +241,11 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void notifySelectionListener(String analysisProcedureOrNull)
     {
-        AnalysisProcedureCriteria criteria = StringUtils.isBlank(analysisProcedureOrNull) ?
-                AnalysisProcedureCriteria.createAllProcedures() : 
-                    AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
-            
+        AnalysisProcedureCriteria criteria =
+                StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
+                        .createAllProcedures() : AnalysisProcedureCriteria
+                        .createFromCode(analysisProcedureOrNull);
+
         selectionListener.analysisProcedureSelected(criteria);
     }
 
