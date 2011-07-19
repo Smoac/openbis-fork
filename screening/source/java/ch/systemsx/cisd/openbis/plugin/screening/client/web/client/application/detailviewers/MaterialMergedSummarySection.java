@@ -36,9 +36,11 @@ class MaterialMergedSummarySection extends DisposableTabContent
     private AnalysisProcedureListenerHolder analysisProcedureListenerHolder =
             new AnalysisProcedureListenerHolder();
 
+    // TODO 2011-07-19, Tomasz Pylak: use analysisProcedureCriteria
     public MaterialMergedSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
             ExperimentSearchCriteria experimentCriteriaOrNull,
+            AnalysisProcedureCriteria analysisProcedureCriteria,
             boolean restrictGlobalScopeLinkToProject)
     {
         super(screeningViewContext.getMessage(Dict.MATERIAL_MERGED_SUMMARY_SECTION_TITLE),
@@ -72,27 +74,38 @@ class MaterialMergedSummarySection extends DisposableTabContent
                                         protected void process(Experiment experiment)
                                         {
                                             IDisposableComponent viewer =
-                                                    MaterialReplicaSummaryComponent
-                                                    .createViewer(screeningViewContext, experiment,
-                                                            material,
-                                                            restrictGlobalScopeLinkToProject,
-                                                            analysisProcedureListenerHolder);
+                                                    createMaterialReplicaSummaryComponent(experiment);
                                             replaceContent(viewer);
                                         }
                                     });
                     } else
                     {
-                        final ExperimentSearchByProjectCriteria experimentSearchCriteria =
-                                criteriaOrNull == null ? null
-                                        : criteriaOrNull.tryAsSearchByProjectCriteria();
                         IDisposableComponent allExperimentsComponent =
-                                MaterialFeaturesFromAllExperimentsComponent.createComponent(
-                                        screeningViewContext, material, experimentSearchCriteria,
-                                        analysisProcedureListenerHolder);
+                                createMaterialFeaturesFromAllExperimentsComponent(criteriaOrNull);
                         replaceContent(allExperimentsComponent);
                     }
                 }
             };
+    }
+
+    private IDisposableComponent createMaterialFeaturesFromAllExperimentsComponent(
+            ExperimentSearchCriteria criteriaOrNull)
+    {
+        final ExperimentSearchByProjectCriteria experimentSearchCriteria =
+                criteriaOrNull == null ? null : criteriaOrNull.tryAsSearchByProjectCriteria();
+        IDisposableComponent allExperimentsComponent =
+                MaterialFeaturesFromAllExperimentsComponent.createComponent(screeningViewContext,
+                        material, experimentSearchCriteria, analysisProcedureListenerHolder);
+        return allExperimentsComponent;
+    }
+
+    private IDisposableComponent createMaterialReplicaSummaryComponent(Experiment experiment)
+    {
+        IDisposableComponent viewer =
+                MaterialReplicaSummaryComponent
+                        .createViewer(screeningViewContext, experiment, material,
+                                restrictGlobalScopeLinkToProject, analysisProcedureListenerHolder);
+        return viewer;
     }
 
     @Override
@@ -109,7 +122,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
         final SingleOrAllExperimentsChooser experimentsChooser = createExperimentChooser();
         getHeader().addTool(experimentsChooser);
         getHeader().addTool(createAnalysisProcedureChooser());
-        
+
         // WORKAROUND to GXT private widgetPanel in Header with fixed "float: right" set onRender
         experimentsChooser.getParent().addStyleName("force-float-left");
     }

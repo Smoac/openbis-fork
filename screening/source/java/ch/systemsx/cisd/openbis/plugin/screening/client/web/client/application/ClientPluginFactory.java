@@ -177,7 +177,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         public final AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
-            return createImagingMaterialViewerTabFactory(entity, null, getViewContext());
+            return createImagingMaterialViewerTabFactory(entity, null,
+                    AnalysisProcedureCriteria.createAllProcedures(), getViewContext());
         }
     }
 
@@ -255,7 +256,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             }
         } else
         {
-            openImagingMaterialGenericViewer(material, experimentCriteriaOrNull, viewContext);
+            openImagingMaterialGenericViewer(material, experimentCriteriaOrNull,
+                    analysisProcedureCriteria, viewContext);
         }
     }
 
@@ -281,11 +283,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     private static void openImagingMaterialGenericViewer(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory tab =
                 createImagingMaterialViewerTabFactory(material, experimentCriteriaOrNull,
-                        viewContext);
+                        analysisProcedureCriteria, viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
@@ -298,6 +301,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     private static final AbstractTabItemFactory createImagingMaterialViewerTabFactory(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         return new AbstractTabItemFactory()
@@ -306,11 +310,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 public ITabItem create()
                 {
                     TechId materialTechId = TechId.create(material);
-                    // TODO KE, TPK: Finish me
                     final DatabaseModificationAwareComponent viewer =
                             ImagingMaterialViewer.create(viewContext, materialTechId,
-                                    experimentCriteriaOrNull,
-                                    AnalysisProcedureCriteria.createAllProcedures());
+                                    experimentCriteriaOrNull, analysisProcedureCriteria);
                     return createViewerTab(viewer, getTabTitle(), viewContext);
                 }
 

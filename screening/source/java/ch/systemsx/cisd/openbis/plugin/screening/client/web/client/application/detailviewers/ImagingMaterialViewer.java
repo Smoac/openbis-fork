@@ -59,7 +59,8 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 
     private final ExperimentSearchCriteria initialExperimentCriteriaOrNull;
 
-    // TODO KE, TPK: finish me
+    private final AnalysisProcedureCriteria analysisProcedureCriteria;
+
     private ImagingMaterialViewer(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull,
             AnalysisProcedureCriteria analysisProcedureCriteria)
@@ -67,6 +68,7 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         super(viewContext, materialTechId);
         this.screeningViewContext = viewContext;
         this.initialExperimentCriteriaOrNull = experimentCriteriaOrNull;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     @Override
@@ -84,19 +86,15 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
         boolean restrictGlobalScopeLinkToProject =
                 isRestrictGlobalScopeLinkToProject(initialExperimentCriteriaOrNull);
 
-        AnalysisProcedureCriteria analysisProcedureCriteria =
-                AnalysisProcedureCriteria.createAllProcedures();
-
         WellSearchMaterialSection wellSearchSection =
                 new WellSearchMaterialSection(screeningViewContext, materialId,
                         initialExperimentCriteriaOrNull, analysisProcedureCriteria,
                         restrictGlobalScopeLinkToProject);
         sections.add(wellSearchSection);
 
-        // TODO KE, TPK: finish me
         MaterialMergedSummarySection summarySection =
                 new MaterialMergedSummarySection(screeningViewContext, material,
-                        initialExperimentCriteriaOrNull,
+                        initialExperimentCriteriaOrNull, analysisProcedureCriteria,
                         restrictGlobalScopeLinkToProject);
         sections.add(summarySection);
         return sections;
