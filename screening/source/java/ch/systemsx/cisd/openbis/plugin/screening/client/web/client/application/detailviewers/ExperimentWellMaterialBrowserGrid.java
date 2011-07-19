@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -108,9 +109,9 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     {
         if (editMode == false)
         {
-            // TODO KE: pass AnalysisProcedure.ANY
             ClientPluginFactory.openImagingMaterialViewer(material,
-                    createExperimentSearchCriteria(), screeningViewContext);
+                    createExperimentSearchCriteria(),
+                    AnalysisProcedureCriteria.createAllProcedures(), screeningViewContext);
         } else
         {
             super.showEntityViewer(material, editMode, active);

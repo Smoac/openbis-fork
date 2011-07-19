@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -87,8 +88,18 @@ public class MaterialReplicaSummaryComponent
             AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialReplicaSummaryComponent(screeningViewContext,
-                restrictGlobalScopeLinkToProject, experiment).createViewer(material,
+                restrictGlobalScopeLinkToProject, experiment, null).createViewer(material,
                 analysisProcedureListenerHolder);
+    }
+
+    public static IDisposableComponent createViewer(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext, Experiment experiment,
+            Material material, boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
+    {
+        return new MaterialReplicaSummaryComponent(screeningViewContext,
+                restrictGlobalScopeLinkToProject, experiment, analysisProcedureCriteria)
+                .createViewer(material);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
@@ -97,13 +108,17 @@ public class MaterialReplicaSummaryComponent
 
     private final Experiment experiment;
 
+    private final AnalysisProcedureCriteria initialAnalysisProcedureCriteriaOrNull;
+
     private MaterialReplicaSummaryComponent(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            boolean restrictGlobalScopeLinkToProject, Experiment experiment)
+            boolean restrictGlobalScopeLinkToProject, Experiment experiment,
+            AnalysisProcedureCriteria initialAnalysisProcedureCriteriaOrNull)
     {
         this.screeningViewContext = screeningViewContext;
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
         this.experiment = experiment;
+        this.initialAnalysisProcedureCriteriaOrNull = initialAnalysisProcedureCriteriaOrNull;
     }
 
     private class ImagesFoundCallback extends AbstractAsyncCallback<List<WellReplicaImage>>
@@ -343,6 +358,18 @@ public class MaterialReplicaSummaryComponent
         return widgetWithListener.asWidget();
     }
 
+    private IDisposableComponent createViewer(Material material)
+    {
+        AnalysisProcedureListenerHolder holder = new AnalysisProcedureListenerHolder();
+        IDisposableComponent view = createViewer(material, holder);
+        if (initialAnalysisProcedureCriteriaOrNull != null)
+        {
+            holder.getAnalysisProcedureListener().analysisProcedureSelected(
+                    initialAnalysisProcedureCriteriaOrNull);
+        }
+        return view;
+    }
+
     private IDisposableComponent createViewer(Material material,
             AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
@@ -420,9 +447,12 @@ public class MaterialReplicaSummaryComponent
 
         // in non-embedded mode there is a separate tab in material detail view with all assays
         // information, so we do not display this link there
-        if (screeningViewContext.getModel().isEmbeddedMode())
+        if (screeningViewContext.getModel().isEmbeddedMode()
+                && initialAnalysisProcedureCriteriaOrNull != null)
         {
-            Widget materialInAllAssaysSummaryLink = createMaterialInAllAssaysSummaryLink(material);
+            Widget materialInAllAssaysSummaryLink =
+                    createMaterialInAllAssaysSummaryLink(material,
+                            initialAnalysisProcedureCriteriaOrNull);
             rightLinksPanel.add(materialInAllAssaysSummaryLink, linkMargins);
         }
 
@@ -433,7 +463,8 @@ public class MaterialReplicaSummaryComponent
         return headerPanel;
     }
 
-    private Widget createMaterialInAllAssaysSummaryLink(final Material material)
+    private Widget createMaterialInAllAssaysSummaryLink(final Material material,
+            final AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         final ExperimentSearchCriteria experimentCriteria = createAllAssaysExperimentCriteria();
         String linkUrl =
@@ -446,7 +477,7 @@ public class MaterialReplicaSummaryComponent
                 public void onClick(ClickEvent event)
                 {
                     ClientPluginFactory.openImagingMaterialViewer(material, experimentCriteria,
-                            screeningViewContext);
+                            analysisProcedureCriteria, screeningViewContext);
                 }
             }, linkUrl);
         return linkWidget;

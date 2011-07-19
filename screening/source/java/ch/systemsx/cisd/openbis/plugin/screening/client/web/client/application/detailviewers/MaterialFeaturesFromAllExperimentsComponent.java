@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
@@ -41,6 +42,19 @@ public class MaterialFeaturesFromAllExperimentsComponent
         return new MaterialFeaturesFromAllExperimentsComponent(screeningViewContext)
                 .createComponent(material, experimentSearchCriteria,
                         analysisProcedureListenerHolder);
+    }
+
+    public static IDisposableComponent createComponent(
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
+            ExperimentSearchByProjectCriteria experimentCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
+    {
+        AnalysisProcedureListenerHolder listenerHolder = new AnalysisProcedureListenerHolder();
+        IDisposableComponent component =
+                createComponent(screeningViewContext, material, experimentCriteria, listenerHolder);
+        listenerHolder.getAnalysisProcedureListener().analysisProcedureSelected(
+                analysisProcedureCriteria);
+        return component;
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;

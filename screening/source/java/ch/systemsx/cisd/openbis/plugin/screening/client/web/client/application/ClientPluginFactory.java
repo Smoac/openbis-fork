@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
@@ -228,6 +229,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     public static final void openImagingMaterialViewer(
             final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
+            final AnalysisProcedureCriteria analysisProcedureCriteria,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (viewContext.getModel().isEmbeddedMode())
@@ -238,7 +240,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             if (multipleExperimentsScope != null)
             {
                 MaterialFeaturesFromAllExperimentsViewer.openTab(viewContext, materialIdentifier,
-                        multipleExperimentsScope);
+                        multipleExperimentsScope, analysisProcedureCriteria);
             } else
             {
                 assert experimentCriteriaOrNull != null;
@@ -248,7 +250,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
                 MaterialReplicaSummaryViewer.openTab(viewContext, experiment.getExperimentPermId(),
                         experimentCriteriaOrNull.getRestrictGlobalSearchLinkToProject(),
-                        materialIdentifier);
+                        materialIdentifier, analysisProcedureCriteria);
 
             }
         } else
@@ -304,9 +306,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 public ITabItem create()
                 {
                     TechId materialTechId = TechId.create(material);
+                    // TODO KE, TPK: Finish me
                     final DatabaseModificationAwareComponent viewer =
                             ImagingMaterialViewer.create(viewContext, materialTechId,
-                                    experimentCriteriaOrNull);
+                                    experimentCriteriaOrNull,
+                                    AnalysisProcedureCriteria.createAllProcedures());
                     return createViewerTab(viewer, getTabTitle(), viewContext);
                 }
 

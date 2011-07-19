@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
@@ -434,6 +435,7 @@ public class WellContentDialog extends Dialog
                     // TODO KE: pass analysis procedure from plate layout to material detail view
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openImagingMaterialViewer(material, getExperimentCriteria(),
+                                    AnalysisProcedureCriteria.createAllProcedures(),
                                     viewContext);
                 }
 

@@ -15,6 +15,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.dto.ExperimentIdentifierSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -41,7 +42,10 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 
         ExperimentIdentifierSearchCriteria experimentCriteriaOrNull =
                 tryGetExperimentIdentifierSearchCriteria(locator);
-        openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentCriteriaOrNull);
+        AnalysisProcedureCriteria analysisProcedureCriteria =
+                extractAnalysisProcedureCriteria(locator);
+        openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentCriteriaOrNull,
+                analysisProcedureCriteria);
     }
 
     private static ExperimentIdentifierSearchCriteria tryGetExperimentIdentifierSearchCriteria(
@@ -80,16 +84,30 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
         return null;
     }
 
+    private AnalysisProcedureCriteria extractAnalysisProcedureCriteria(ViewLocator locator)
+    {
+        String analysisProcedureCode =
+                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
+
+        return StringUtils.isBlank(analysisProcedureCode) ? AnalysisProcedureCriteria
+                .createAllProcedures() : AnalysisProcedureCriteria
+                .createFromCode(analysisProcedureCode);
+    }
+
     /**
      * Open the gene material details tab for the specified identifier. Optionally select experiment
      * in the viewer.
+     * 
+     * @param analysisProcedureCriteria
      */
     protected void openInitialMaterialViewer(MaterialIdentifier identifier,
-            ExperimentIdentifierSearchCriteria experimentCriteriaOrNull)
+            ExperimentIdentifierSearchCriteria experimentCriteriaOrNull,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
             throws UserFailureException
     {
         viewContext.getCommonService().getMaterialInformationHolder(identifier,
-                new OpenEntityDetailsTabCallback(viewContext, experimentCriteriaOrNull));
+                new OpenEntityDetailsTabCallback(viewContext, experimentCriteriaOrNull,
+                        analysisProcedureCriteria));
     }
 
     private static class OpenEntityDetailsTabCallback extends
@@ -99,13 +117,17 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 
         private final ExperimentIdentifierSearchCriteria scopeOrNull;
 
+        private final AnalysisProcedureCriteria analysisProcedureCriteria;
+
         private OpenEntityDetailsTabCallback(
                 final IViewContext<IScreeningClientServiceAsync> viewContext,
-                ExperimentIdentifierSearchCriteria scopeOrNull)
+                ExperimentIdentifierSearchCriteria scopeOrNull,
+                AnalysisProcedureCriteria analysisProcedureCriteria)
         {
             super(viewContext);
             this.viewContext = viewContext;
             this.scopeOrNull = scopeOrNull;
+            this.analysisProcedureCriteria = analysisProcedureCriteria;
         }
 
         //
@@ -165,7 +187,7 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 final ExperimentSearchCriteria experimentSearchCriteriaOrNull)
         {
             ClientPluginFactory.openImagingMaterialViewer(material, experimentSearchCriteriaOrNull,
-                    viewContext);
+                    analysisProcedureCriteria, viewContext);
         }
     }
 

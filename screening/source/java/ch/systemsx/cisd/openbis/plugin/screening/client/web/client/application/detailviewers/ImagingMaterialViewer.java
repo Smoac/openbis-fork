@@ -45,10 +45,12 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
      */
     public static DatabaseModificationAwareComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
-            ExperimentSearchCriteria experimentCriteriaOrNull)
+            ExperimentSearchCriteria experimentCriteriaOrNull,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         ImagingMaterialViewer viewer =
-                new ImagingMaterialViewer(viewContext, materialId, experimentCriteriaOrNull);
+                new ImagingMaterialViewer(viewContext, materialId, experimentCriteriaOrNull,
+                        analysisProcedureCriteria);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
@@ -57,8 +59,10 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
 
     private final ExperimentSearchCriteria initialExperimentCriteriaOrNull;
 
+    // TODO KE, TPK: finish me
     private ImagingMaterialViewer(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull)
+            TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         super(viewContext, materialTechId);
         this.screeningViewContext = viewContext;
@@ -89,9 +93,11 @@ public class ImagingMaterialViewer extends GenericMaterialViewer
                         restrictGlobalScopeLinkToProject);
         sections.add(wellSearchSection);
 
+        // TODO KE, TPK: finish me
         MaterialMergedSummarySection summarySection =
                 new MaterialMergedSummarySection(screeningViewContext, material,
-                        initialExperimentCriteriaOrNull, restrictGlobalScopeLinkToProject);
+                        initialExperimentCriteriaOrNull,
+                        restrictGlobalScopeLinkToProject);
         sections.add(summarySection);
         return sections;
     }

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -47,11 +48,12 @@ public class MaterialReplicaSummaryViewer
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, boolean restrictGlobalScopeLinkToProject,
-            MaterialIdentifier materialIdentifier)
+            MaterialIdentifier materialIdentifier,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         MaterialReplicaSummaryViewer viewer =
                 new MaterialReplicaSummaryViewer(screeningViewContext,
-                        restrictGlobalScopeLinkToProject);
+                        restrictGlobalScopeLinkToProject, analysisProcedureCriteria);
         AbstractAsyncCallback<Experiment> experimentFoundCallback =
                 viewer.createExperimentFoundCallback(materialIdentifier);
         viewer.fetchExperimentByPermId(experimentPermId, experimentFoundCallback);
@@ -61,12 +63,16 @@ public class MaterialReplicaSummaryViewer
 
     private final boolean restrictGlobalScopeLinkToProject;
 
+    private final AnalysisProcedureCriteria analysisProcedureCriteria;
+
     private MaterialReplicaSummaryViewer(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            boolean restrictGlobalScopeLinkToProject)
+            boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         this.screeningViewContext = screeningViewContext;
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     private void fetchExperimentByPermId(String experimentPermId,
@@ -138,11 +144,10 @@ public class MaterialReplicaSummaryViewer
                 @Override
                 public ITabItem create()
                 {
-                    // TODO KE: FIXME - what sort of analysis***holder do we have here ?
                     IDisposableComponent tabComponent =
                             MaterialReplicaSummaryComponent.createViewer(screeningViewContext,
                                     experiment, material, restrictGlobalScopeLinkToProject,
-                                    new AnalysisProcedureListenerHolder());
+                                    analysisProcedureCriteria);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 

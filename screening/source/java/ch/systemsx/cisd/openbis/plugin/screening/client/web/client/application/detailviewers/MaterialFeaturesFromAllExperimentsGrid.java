@@ -154,6 +154,9 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                             }
                             String experimentPermId = summaryOrNull.getExperiment().getPermId();
 
+                            assert analysisProcedureCriteria != null : "analysisProcedureCriteria is not set yet, "
+                                    + "it should not happen because this field is set before the grid refreshes";
+
                             // NOTE: even in not-embedded mode we open specific standalone summary
                             // view instead of material detail view (which contains the summary view
                             // as one of its tabs). The reason is that in such a case we are already
@@ -161,7 +164,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
                             // implemented there.
                             MaterialReplicaSummaryViewer.openTab(screeningViewContext,
                                     experimentPermId, getRestrictGlobalScopeLinkToProject(),
-                                    new MaterialIdentifier(material));
+                                    new MaterialIdentifier(material), analysisProcedureCriteria);
                         }
 
                         public String tryGetLink(MaterialSimpleFeatureVectorSummary entity,

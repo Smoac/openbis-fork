@@ -404,7 +404,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private void openImagingMaterialViewer(WellContent wellContent, Material material)
     {
         ClientPluginFactory.openImagingMaterialViewer(material, getExperimentCriteria(wellContent),
-                viewContext);
+                analysisProcedureCriteria, viewContext);
     }
 
     private void linkExperiment()

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 
 /**
@@ -41,13 +42,17 @@ public class MaterialFeaturesFromAllExperimentsViewer
 {
     /**
      * Fetches material and opens a tab with {@link MaterialReplicaSummaryComponent}.
+     * 
+     * @param analysisProcedureCriteria
      */
     public static void openTab(IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             MaterialIdentifier materialIdentifier,
-            final ExperimentSearchByProjectCriteria experimentCriteria)
+            final ExperimentSearchByProjectCriteria experimentCriteria,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         final MaterialFeaturesFromAllExperimentsViewer viewer =
-                new MaterialFeaturesFromAllExperimentsViewer(screeningViewContext);
+                new MaterialFeaturesFromAllExperimentsViewer(screeningViewContext,
+                        analysisProcedureCriteria);
 
         screeningViewContext.getCommonService().getMaterialInfo(materialIdentifier,
                 new AbstractAsyncCallback<Material>(screeningViewContext)
@@ -63,10 +68,14 @@ public class MaterialFeaturesFromAllExperimentsViewer
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
+    private final AnalysisProcedureCriteria analysisProcedureCriteria;
+
     private MaterialFeaturesFromAllExperimentsViewer(
-            IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+            IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         this.screeningViewContext = screeningViewContext;
+        this.analysisProcedureCriteria = analysisProcedureCriteria;
     }
 
     private void openTab(Material material, ExperimentSearchByProjectCriteria experimentCriteria)
@@ -91,11 +100,11 @@ public class MaterialFeaturesFromAllExperimentsViewer
                 @Override
                 public ITabItem create()
                 {
-                    // TODO KE: FIXMe what sort of analysis***holder do we have here ?
                     IDisposableComponent tabComponent =
                             MaterialFeaturesFromAllExperimentsComponent.createComponent(
                                     screeningViewContext, material, experimentCriteria,
-                                    new AnalysisProcedureListenerHolder());
+                                    analysisProcedureCriteria);
+
                     return DefaultTabItem.create(getTabTitle(), tabComponent, screeningViewContext);
                 }
 
