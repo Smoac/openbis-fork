@@ -72,10 +72,12 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithIdentifier experiment,
-            boolean restrictGlobalScopeLinkToProject)
+            boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureCriteria initialAnalysisProcedureOrNull)
     {
         return new ExperimentAnalysisSummaryGrid(viewContext, experiment,
-                restrictGlobalScopeLinkToProject).asDisposableWithoutToolbar();
+                restrictGlobalScopeLinkToProject, initialAnalysisProcedureOrNull)
+                .asDisposableWithoutToolbar();
     }
 
     private ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> createMaterialReplicaSummaryLinkGenerator()
@@ -117,13 +119,16 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
 
     ExperimentAnalysisSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             final IEntityInformationHolderWithIdentifier experiment,
-            boolean restrictGlobalScopeLinkToProject)
+            boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureCriteria initialAnalysisProcedureOrNull)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
+        super(viewContext.getCommonViewContext(), BROWSER_ID,
+                initialAnalysisProcedureOrNull != null,
                 DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
         this.screeningViewContext = viewContext;
         this.experiment = experiment;
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
+        this.analysisProcedureCriteria = initialAnalysisProcedureOrNull;
 
         ICellListenerAndLinkGenerator<MaterialFeatureVectorSummary> linkGenerator =
                 createMaterialReplicaSummaryLinkGenerator();

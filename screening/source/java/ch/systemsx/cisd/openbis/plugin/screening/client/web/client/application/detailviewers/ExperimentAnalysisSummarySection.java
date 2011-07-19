@@ -36,7 +36,7 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
         setIds(DisplayTypeIDGenerator.EXPERIMENT_FEATURE_VECTOR_SUMMARY_SECTION);
 
         analysisGridDisposableComponent =
-                ExperimentAnalysisSummaryGrid.create(screeningViewContext, experiment, false);
+                ExperimentAnalysisSummaryGrid.create(screeningViewContext, experiment, false, null);
     }
 
     @Override

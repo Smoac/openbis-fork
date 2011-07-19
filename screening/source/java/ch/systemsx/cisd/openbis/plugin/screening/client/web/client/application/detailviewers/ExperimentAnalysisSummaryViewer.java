@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningModule;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.MaterialComponentUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * A grid showing feature vector summary for an experiment.
@@ -46,7 +47,7 @@ public class ExperimentAnalysisSummaryViewer
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             String experimentPermId, final boolean restrictGlobalScopeLinkToProject,
-            final String analysisProcedureOrNull)
+            final AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
@@ -57,7 +58,7 @@ public class ExperimentAnalysisSummaryViewer
                         {
                             TechId experimentId = new TechId(experiment);
                             openTab(screeningViewContext, experimentId,
-                                    restrictGlobalScopeLinkToProject, analysisProcedureOrNull);
+                                    restrictGlobalScopeLinkToProject, analysisProcedureCriteria);
                         }
                     });
     }
@@ -65,7 +66,7 @@ public class ExperimentAnalysisSummaryViewer
     public static void openTab(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             TechId experimentId, final boolean restrictGlobalScopeLinkToProject,
-            final String analysisProcedureOrNull)
+            final AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         screeningViewContext.getCommonService().getExperimentInfo(experimentId,
                 new AbstractAsyncCallback<Experiment>(screeningViewContext)
@@ -76,7 +77,7 @@ public class ExperimentAnalysisSummaryViewer
                             AbstractTabItemFactory factory =
                                     createTabFactory(screeningViewContext, result,
                                             restrictGlobalScopeLinkToProject,
-                                            analysisProcedureOrNull);
+                                            analysisProcedureCriteria);
                             DispatcherHelper.dispatchNaviEvent(factory);
                         }
                     });
@@ -85,7 +86,8 @@ public class ExperimentAnalysisSummaryViewer
     private static AbstractTabItemFactory createTabFactory(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final IEntityInformationHolderWithProperties experiment,
-            final boolean restrictGlobalScopeLinkToProject, final String analysisProcedureOrNull)
+            final boolean restrictGlobalScopeLinkToProject,
+            final AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         return new AbstractTabItemFactory()
             {
@@ -103,7 +105,7 @@ public class ExperimentAnalysisSummaryViewer
                 {
                     IDisposableComponent tabComponent =
                             createViewer(viewContext, experiment, restrictGlobalScopeLinkToProject,
-                                    analysisProcedureOrNull);
+                                    analysisProcedureCriteria);
                     return DefaultTabItem.create(getTabTitle(), tabComponent, viewContext);
                 }
 
@@ -112,7 +114,7 @@ public class ExperimentAnalysisSummaryViewer
                 {
                     return ScreeningLinkExtractor.createExperimentAnalysisSummaryBrowserLink(
                             experiment.getPermId(), restrictGlobalScopeLinkToProject,
-                            analysisProcedureOrNull);
+                            analysisProcedureCriteria.tryGetAnalysisProcedureCode());
                 }
 
                 @Override
@@ -133,12 +135,13 @@ public class ExperimentAnalysisSummaryViewer
     private static IDisposableComponent createViewer(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithProperties experiment,
-            boolean restrictGlobalScopeLinkToProject, String analysisProcedureOrNull)
+            boolean restrictGlobalScopeLinkToProject,
+            AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         String headingText = viewContext.getMessage(Dict.ASSAY_HEADER, experiment.getCode());
         final IDisposableComponent gridComponent =
                 ExperimentAnalysisSummaryGrid.create(viewContext, experiment,
-                        restrictGlobalScopeLinkToProject);
+                        restrictGlobalScopeLinkToProject, analysisProcedureCriteria);
 
         return MaterialComponentUtils.createExperimentViewer(viewContext, experiment, headingText,
                 gridComponent);
