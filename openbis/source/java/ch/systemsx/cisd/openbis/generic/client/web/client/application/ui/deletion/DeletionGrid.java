@@ -126,7 +126,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                             deletions, createRefreshCallback(invoker));
                                 }
                             });
-        // TODO unsafe
+        deletePermanentlyButton.hide(); // FIXME rollback of deleted data sets is not possible
         addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow deletion/revert of multiple deletions
 
