@@ -51,10 +51,9 @@ public final class DataAccessExceptionTranslator
     public final static String FOREIGN_KEY_VIOLATION_FORMAT =
             "%s is being used. Delete all connected data %s first.";
 
-    public final static String DETAILED_FOREIGN_KEY_VIOLATION_FORMAT =
-            FOREIGN_KEY_VIOLATION_FORMAT
-                    + " To find out which exactly objects are connected to this object "
-                    + "go to its Detail view or use Search.";
+    public final static String DETAILED_FOREIGN_KEY_VIOLATION_FORMAT = FOREIGN_KEY_VIOLATION_FORMAT
+            + " To find out which exactly objects are connected to this object "
+            + "go to its Detail view or use Search.";
 
     private DataAccessExceptionTranslator()
     {
@@ -137,13 +136,13 @@ public final class DataAccessExceptionTranslator
         switch (entityKindOrNull)
         {
             case DATA_SET:
-                return "(child data sets)";
+                return "";
             case EXPERIMENT:
-                return "(attachments, data sets, samples)";
+                return "(data sets, samples)";
             case MATERIAL:
                 return "";
             case SAMPLE:
-                return "(attachments, data sets, contained and generated samples)";
+                return "(data sets, contained and generated samples)";
         }
         return "";
     }
