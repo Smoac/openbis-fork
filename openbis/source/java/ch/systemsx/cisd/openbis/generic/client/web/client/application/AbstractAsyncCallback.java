@@ -70,20 +70,21 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                             final AbstractAsyncCallback<Object> callback,
                             final String failureMessage, final Throwable throwable)
                     {
-
+                        String message = GWTUtils.translateToHtmlLineBreaks(failureMessage);
                         if (throwable instanceof UserFailureException)
                         {
                             UserFailureException userException = (UserFailureException) throwable;
-                            String details = userException.getDetails();
+                            String details =
+                                    GWTUtils.translateToHtmlLineBreaks(userException.getDetails());
                             if (details != null)
                             {
                                 GWTUtils.createErrorMessageWithDetailsDialog(messageProvider,
-                                        failureMessage, details).show();
+                                        message, details).show();
                                 return;
                             }
                         }
                         // no details - show simple error message box
-                        MessageBox.alert("Error", failureMessage, null);
+                        MessageBox.alert("Error", message, null);
                     }
 
                 };

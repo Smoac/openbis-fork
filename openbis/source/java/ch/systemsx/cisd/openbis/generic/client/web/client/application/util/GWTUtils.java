@@ -313,9 +313,9 @@ public final class GWTUtils
         component.setToolTip(config);
     }
 
-    public static String translateToHtmlLineBreaks(String text)
+    public static String translateToHtmlLineBreaks(String textOrNull)
     {
-        return text.replace("\n", "<br>");
+        return textOrNull != null ? textOrNull.replace("\n", "<br>") : null;
     }
 
     /** @return specified model from the list if it's found, null otherwise */
