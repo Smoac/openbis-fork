@@ -351,6 +351,42 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testListExperimentsByIdentifier()
+    {
+        List<SpaceWithProjectsAndRoleAssignments> spaces =
+                generalInformationService.listSpacesWithProjectsAndRoleAssignments(sessionToken,
+                        null);
+        ArrayList<Project> projects = new ArrayList<Project>();
+        for (SpaceWithProjectsAndRoleAssignments space : spaces)
+        {
+            projects.addAll(space.getProjects());
+        }
+        List<Experiment> experimentsByProject =
+                generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
+        assertEquals(true, experimentsByProject.size() > 0);
+
+        List<String> experimentIdentifiers = new ArrayList<String>();
+        for (Experiment exp : experimentsByProject)
+        {
+            experimentIdentifiers.add(exp.getIdentifier());
+        }
+
+        List<Experiment> results =
+                generalInformationService.listExperiments(sessionToken, experimentIdentifiers);
+        Comparator<Experiment> experimentCompare = new Comparator<Experiment>()
+            {
+
+                public int compare(Experiment o1, Experiment o2)
+                {
+                    return o1.getIdentifier().compareTo(o2.getIdentifier());
+                }
+            };
+        Collections.sort(experimentsByProject, experimentCompare);
+        Collections.sort(results, experimentCompare);
+        assertEquals(experimentsByProject, results);
+    }
+
+    @Test
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);

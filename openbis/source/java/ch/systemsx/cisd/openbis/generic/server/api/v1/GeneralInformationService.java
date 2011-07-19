@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -416,7 +415,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ExperimentIdentifier> parsedIdentifiers =
                 ExperimentIdentifierFactory.parse(experimentIdentifiers);
 
-        Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> experiments =
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> experiments =
                 commonServer.listExperiments(sessionToken, parsedIdentifiers);
 
         return Translator.translateExperiments(experiments);

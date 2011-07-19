@@ -347,7 +347,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(
             final String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) Collection<ExperimentIdentifier> experimentIdentifiers);
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) List<ExperimentIdentifier> experimentIdentifiers);
 
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.

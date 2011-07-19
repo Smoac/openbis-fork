@@ -592,7 +592,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public List<Experiment> listExperiments(String sessionToken,
-            Collection<ExperimentIdentifier> experimentIdentifiers)
+            List<ExperimentIdentifier> experimentIdentifiers)
     {
         Session session = getSession(sessionToken);
         IExperimentTable experimentTable = businessObjectFactory.createExperimentTable(session);

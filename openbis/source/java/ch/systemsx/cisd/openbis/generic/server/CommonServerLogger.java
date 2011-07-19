@@ -1119,7 +1119,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public List<Experiment> listExperiments(String sessionToken,
-            Collection<ExperimentIdentifier> experimentIdentifiers)
+            List<ExperimentIdentifier> experimentIdentifiers)
     {
         logTracking(sessionToken, "listExperiments", "experimentIdentifiers(%s)",
                 abbreviate(experimentIdentifiers));
