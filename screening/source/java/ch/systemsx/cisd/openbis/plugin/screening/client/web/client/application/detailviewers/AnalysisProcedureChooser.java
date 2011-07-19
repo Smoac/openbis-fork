@@ -167,7 +167,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
-        comboBox.setEmptyText("No data sets found...");
+        comboBox.setEmptyText(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         comboBox.addListener(Events.SelectionChange, selectionChangeListener);
 
         return comboBox;
