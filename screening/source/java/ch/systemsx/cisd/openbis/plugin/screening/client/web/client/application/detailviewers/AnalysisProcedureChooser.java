@@ -89,7 +89,6 @@ class AnalysisProcedureChooser extends LayoutContainer
     private final static String ANY_ANALYSIS_PROCEDURE = "Any";
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
-
     private final IAnalysisProcedureSelectionListener selectionListener;
 
     private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
@@ -127,8 +126,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     public void updateAnalysisProcedures()
     {
-        String selection = analysisProceduresComboBox.getSimpleValue();
-        String selectedProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
+        String selectedProcedureOrNull = getSelectionAsCriteria().tryGetAnalysisProcedureCode();
         refresh(selectedProcedureOrNull);
     }
 
@@ -233,20 +231,18 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void selectionChanged()
     {
-        String selection = analysisProceduresComboBox.getSimpleValue();
-        String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
-        notifySelectionListener(analysisProcedureOrNull);
-        setDefaultAnalysisProcedure(analysisProcedureOrNull);
+        AnalysisProcedureCriteria analysisProcedureCriteria = getSelectionAsCriteria();
+        selectionListener.analysisProcedureSelected(analysisProcedureCriteria);
+        setDefaultAnalysisProcedure(analysisProcedureCriteria);
     }
 
-    private void notifySelectionListener(String analysisProcedureOrNull)
+    private AnalysisProcedureCriteria getSelectionAsCriteria()
     {
-        AnalysisProcedureCriteria criteria =
-                StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
-                        .createAllProcedures() : AnalysisProcedureCriteria
-                        .createFromCode(analysisProcedureOrNull);
-
-        selectionListener.analysisProcedureSelected(criteria);
+        String selection = analysisProceduresComboBox.getSimpleValue();
+        String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
+        return StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
+                .createAllProcedures() : AnalysisProcedureCriteria
+                .createFromCode(analysisProcedureOrNull);
     }
 
     private String getDefaultAnalysisProcedure()
@@ -256,13 +252,14 @@ class AnalysisProcedureChooser extends LayoutContainer
         return screeningDisplaySettingsManager.getDefaultAnalysisProcedure();
     }
 
-    private void setDefaultAnalysisProcedure(String analysisProcedureOrNull)
+    private void setDefaultAnalysisProcedure(AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        if (StringUtils.isNotBlank(analysisProcedureOrNull))
+        String analysisProcedureCode = analysisProcedureCriteria.tryGetAnalysisProcedureCode();
+        if (StringUtils.isNotBlank(analysisProcedureCode))
         {
             ScreeningDisplaySettingsManager screeningDisplaySettingsManager =
                     new ScreeningDisplaySettingsManager(viewContext);
-            screeningDisplaySettingsManager.setDefaultAnalysisProcedure(analysisProcedureOrNull);
+            screeningDisplaySettingsManager.setDefaultAnalysisProcedure(analysisProcedureCode);
         }
     }
 

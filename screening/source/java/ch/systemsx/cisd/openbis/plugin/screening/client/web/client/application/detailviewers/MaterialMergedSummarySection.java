@@ -38,6 +38,8 @@ class MaterialMergedSummarySection extends DisposableTabContent
 
     private AnalysisProcedureCriteria initialAnalysisProcedureCriteriaOrNull;
 
+    private AnalysisProcedureChooser analysisProcedureChooser;
+
     // TODO 2011-07-19, Tomasz Pylak: use analysisProcedureCriteria
     public MaterialMergedSummarySection(
             IViewContext<IScreeningClientServiceAsync> screeningViewContext, Material material,
@@ -74,6 +76,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
                         IDisposableComponent allExperimentsComponent =
                                 createMaterialFeaturesFromAllExperimentsComponent(criteriaOrNull);
                         replaceContent(allExperimentsComponent);
+                        analysisProcedureChooser.updateAnalysisProcedures();
                     }
                 }
             };
@@ -90,6 +93,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
                             IDisposableComponent viewer =
                                     createMaterialReplicaSummaryComponent(experiment);
                             replaceContent(viewer);
+                            analysisProcedureChooser.updateAnalysisProcedures();
                         }
                     });
     }
@@ -143,7 +147,8 @@ class MaterialMergedSummarySection extends DisposableTabContent
         setHeading("");
         final SingleOrAllExperimentsChooser experimentsChooser = createExperimentChooser();
         getHeader().addTool(experimentsChooser);
-        getHeader().addTool(createAnalysisProcedureChooser());
+        analysisProcedureChooser = createAnalysisProcedureChooser();
+        getHeader().addTool(analysisProcedureChooser);
 
         // WORKAROUND to GXT private widgetPanel in Header with fixed "float: right" set onRender
         experimentsChooser.getParent().addStyleName("force-float-left");
