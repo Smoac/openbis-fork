@@ -71,11 +71,7 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
 
                 createSIRNAWellData(replId, 2, 200, 3000),
 
-                createSIRNAWellData(replId, 2, 300, 2000),
-                // repl. 2
-                createSIRNAWellData(replId + 1, 1, 500, 0),
-                // repl. 3
-                createSIRNAWellData(replId + 2, 1, 0, 500));
+                createSIRNAWellData(replId, 2, 300, 2000));
         List<CodeAndLabel> featuresDesc =
                 Arrays.asList(new CodeAndLabel("A", "A"), new CodeAndLabel("B", "B"));
 
