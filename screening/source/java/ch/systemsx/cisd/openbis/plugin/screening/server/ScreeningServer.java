@@ -113,6 +113,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaIma
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
@@ -318,17 +320,17 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
-            String sessionToken, TechId materialId,
-            WellSearchCriteria.ExperimentSearchByProjectCriteria experimentCriteria)
+            String sessionToken, MaterialFeaturesManyExpCriteria criteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
 
-        TechId projectTechIdOrNull = tryFetchProjectId(sessionToken, experimentCriteria);
+        TechId projectTechIdOrNull =
+                tryFetchProjectId(sessionToken, criteria.getExperimentSearchCriteria());
         return MaterialFeaturesFromAllExperimentsLoader.loadMaterialFeatureVectorsFromAllAssays(
-                session, businessObjectFactory, getDAOFactory(), materialId, projectTechIdOrNull,
-                settings);
+                session, businessObjectFactory, getDAOFactory(), criteria.getMaterialId(),
+                criteria.getAnalysisProcedureCriteria(), projectTechIdOrNull, settings);
     }
 
     private TechId tryFetchProjectId(String sessionToken,
@@ -363,13 +365,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
-            TechId experimentId, TechId materialId)
+            MaterialFeaturesOneExpCriteria criteria)
     {
         Session session = getSession(sessionToken);
         // NOTE: we want the settings to be passed form the client in future
         MaterialSummarySettings settings = createDefaultSettings();
         return MaterialFeatureVectorSummaryLoader.loadMaterialFeatureVectors(session,
-                businessObjectFactory, getDAOFactory(), materialId, experimentId, settings);
+                businessObjectFactory, getDAOFactory(), criteria, settings);
     }
 
     // --------- IScreeningOpenbisServer - method signature should be changed with care
@@ -473,7 +475,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         } else
         {
             procedureCodes =
-                    dao.listAnalysisProceduresForExperiment(singleExpCriteria.getExperimentId().getId());
+                    dao.listAnalysisProceduresForExperiment(singleExpCriteria.getExperimentId()
+                            .getId());
         }
         return new AnalysisProcedures(procedureCodes);
     }

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * A grid showing replica feature vector summaries for a combination of experiment and material.
@@ -97,9 +98,11 @@ public class MaterialReplicaFeatureSummaryGrid extends
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback)
     {
-        // TODO KE: add the analysisProcedureCriteria here
+        MaterialFeaturesOneExpCriteria criteria =
+                new MaterialFeaturesOneExpCriteria(materialId, analysisProcedureCriteria,
+                        experimentId);
         specificViewContext.getService().listMaterialReplicaFeatureSummary(resultSetConfig,
-                experimentId, materialId, callback);
+                criteria, callback);
     }
 
     @Override

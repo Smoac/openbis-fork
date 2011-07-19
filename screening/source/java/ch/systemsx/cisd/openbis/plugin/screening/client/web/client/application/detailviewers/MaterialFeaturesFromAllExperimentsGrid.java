@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.MaterialFeatureVectorsFromAllExperimentsGridColumnIDs;
 
 /**
@@ -193,8 +194,11 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback)
     {
+        MaterialFeaturesManyExpCriteria criteria =
+                new MaterialFeaturesManyExpCriteria(new TechId(material),
+                        analysisProcedureCriteria, experimentSearchCriteria);
         screeningViewContext.getService().listMaterialFeaturesFromAllExperiments(resultSetConfig,
-                new TechId(material), experimentSearchCriteria, callback);
+                criteria, callback);
     }
 
     @Override

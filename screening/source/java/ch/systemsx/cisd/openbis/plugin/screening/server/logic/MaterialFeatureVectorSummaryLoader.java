@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * For the specified material in the specified experiment loads feature vectors (details and
@@ -59,11 +59,11 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
      */
     public static MaterialReplicaFeatureSummaryResult loadMaterialFeatureVectors(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId materialId, TechId experimentId, MaterialSummarySettings settings)
+            MaterialFeaturesOneExpCriteria criteria, MaterialSummarySettings settings)
     {
         MaterialAllReplicasFeatureVectors resultOrNull =
                 new MaterialFeatureVectorSummaryLoader(session, businessObjectFactory, daoFactory,
-                        settings).tryLoadMaterialFeatureVectors(materialId, experimentId);
+                        settings).tryLoadMaterialFeatureVectors(criteria);
 
         List<MaterialReplicaFeatureSummary> replicaRows = convertToFeatureRows(resultOrNull);
         List<String> subgroupLabels = tryGetSubgroupLabels(resultOrNull);
@@ -181,27 +181,23 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
 
     }
 
-    private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(TechId materialId,
-            TechId experimentId)
+    private MaterialAllReplicasFeatureVectors tryLoadMaterialFeatureVectors(
+            MaterialFeaturesOneExpCriteria criteria)
     {
-        // TODO KE: 2011-07-15 specify analysis procedure
-        AnalysisProcedureCriteria analysisProcedureCriteria =
-                AnalysisProcedureCriteria.createAllProcedures();
         MaterialIdSummaryAndFeatures summaries =
-                wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(experimentId,
-                        analysisProcedureCriteria, materialId, true);
+                wellDataLoader.tryCalculateExperimentFeatureVectorSummaries(criteria, true);
         if (summaries == null)
         {
             return null;
         }
+        TechId materialId = criteria.getMaterialId();
         MaterialIdFeatureVectorSummary materialGeneralSummary =
                 tryFindMaterialSummary(materialId, summaries.getFeatureSummaries());
         if (materialGeneralSummary == null)
         {
             return null;
         }
-        List<WellExtendedData> materialWellsData =
-                wellDataLoader.tryLoadWellData(materialId, experimentId, analysisProcedureCriteria);
+        List<WellExtendedData> materialWellsData = wellDataLoader.tryLoadWellData(criteria);
         if (materialWellsData == null)
         {
             return null;

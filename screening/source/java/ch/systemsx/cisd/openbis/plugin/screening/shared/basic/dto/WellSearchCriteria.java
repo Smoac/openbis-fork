@@ -432,6 +432,73 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
+    public static class AbstractMaterialFeaturesCriteria implements ISerializable
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private TechId materialId;
+
+        private AnalysisProcedureCriteria analysisProcedureCriteria;
+
+        public AbstractMaterialFeaturesCriteria(TechId materialId,
+                AnalysisProcedureCriteria analysisProcedureCriteria)
+        {
+            this.materialId = materialId;
+            this.analysisProcedureCriteria = analysisProcedureCriteria;
+        }
+
+        public TechId getMaterialId()
+        {
+            return materialId;
+        }
+
+        public AnalysisProcedureCriteria getAnalysisProcedureCriteria()
+        {
+            return analysisProcedureCriteria;
+        }
+    }
+
+    public static final class MaterialFeaturesOneExpCriteria extends
+            AbstractMaterialFeaturesCriteria implements ISerializable
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private TechId experimentId;
+
+        public MaterialFeaturesOneExpCriteria(TechId materialId,
+                AnalysisProcedureCriteria analysisProcedureCriteria, TechId experimentId)
+        {
+            super(materialId, analysisProcedureCriteria);
+            this.experimentId = experimentId;
+        }
+
+        public TechId getExperimentId()
+        {
+            return experimentId;
+        }
+    }
+
+    public static final class MaterialFeaturesManyExpCriteria extends
+            AbstractMaterialFeaturesCriteria implements ISerializable
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+
+        public MaterialFeaturesManyExpCriteria(TechId materialId,
+                AnalysisProcedureCriteria analysisProcedureCriteria,
+                ExperimentSearchByProjectCriteria experimentSearchCriteria)
+        {
+            super(materialId, analysisProcedureCriteria);
+            this.experimentSearchCriteria = experimentSearchCriteria;
+        }
+
+        public ExperimentSearchByProjectCriteria getExperimentSearchCriteria()
+        {
+            return experimentSearchCriteria;
+        }
+    }
+
     public static final class AnalysisProcedureCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -465,7 +532,6 @@ public class WellSearchCriteria implements ISerializable
         {
             return new AnalysisProcedureCriteria(MatchType.NONE, null);
         }
-
 
         private MatchType matchType;
 
@@ -506,7 +572,8 @@ public class WellSearchCriteria implements ISerializable
         @Override
         public String toString()
         {
-            return "[Analysis procedure code '" + analysisProcedureCodeOrNull + "']";
+            return "[Analysis procedure code '" + analysisProcedureCodeOrNull + "', match = '"
+                    + matchType + "']";
         }
     }
 
@@ -558,8 +625,7 @@ public class WellSearchCriteria implements ISerializable
         return analysisProcedureCriteria;
     }
 
-    public static boolean shouldRestrictScopeToProject(
-            ExperimentSearchCriteria searchCriteria)
+    public static boolean shouldRestrictScopeToProject(ExperimentSearchCriteria searchCriteria)
     {
         return searchCriteria != null && searchCriteria.tryGetProjectIdentifier() != null;
     }

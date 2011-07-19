@@ -67,8 +67,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -360,21 +361,22 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
-            TechId experimentId, TechId materialId)
+            MaterialFeaturesOneExpCriteria criteria)
     {
         logAccess(sessionToken, "getFeatureVectorReplicaSummary",
-                "sessionToken(%s), experimentId(%s), materialId(%s)", sessionToken, experimentId,
-                materialId);
+                "sessionToken(%s), experimentId(%s), materialId(%s) analysisProcedure(%s)",
+                sessionToken, criteria.getExperimentId(), criteria.getMaterialId(),
+                criteria.getAnalysisProcedureCriteria());
         return null;
     }
 
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
-            String sessionToken, TechId materialId,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            String sessionToken, MaterialFeaturesManyExpCriteria criteria)
     {
         logAccess(sessionToken, "getMaterialFeatureVectorsFromAllExperiments",
-                "sessionToken(%s), materialId(%s), projectId(%s)", sessionToken, materialId,
-                experimentSearchCriteria);
+                "sessionToken(%s), materialId(%s), experiments(%s) analysisProcedure(%s)",
+                sessionToken, criteria.getMaterialId(), criteria.getExperimentSearchCriteria(),
+                criteria.getAnalysisProcedureCriteria());
         return null;
     }
 

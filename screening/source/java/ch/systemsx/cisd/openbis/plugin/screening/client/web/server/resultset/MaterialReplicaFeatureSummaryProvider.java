@@ -24,7 +24,6 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.M
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialBiolog
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * A provider for material replica feature summaries.
@@ -49,17 +49,14 @@ public class MaterialReplicaFeatureSummaryProvider extends
 
     private final String sessionToken;
 
-    private final TechId experimentId;
-
-    private final TechId materialId;
+    private final MaterialFeaturesOneExpCriteria criteria;
 
     public MaterialReplicaFeatureSummaryProvider(IScreeningServer server, String sessionToken,
-            TechId experimentId, TechId materialId)
+            MaterialFeaturesOneExpCriteria criteria)
     {
         this.server = server;
         this.sessionToken = sessionToken;
-        this.experimentId = experimentId;
-        this.materialId = materialId;
+        this.criteria = criteria;
     }
 
     @Override
@@ -68,7 +65,7 @@ public class MaterialReplicaFeatureSummaryProvider extends
         TypedTableModelBuilder<MaterialReplicaFeatureSummary> builder =
                 new TypedTableModelBuilder<MaterialReplicaFeatureSummary>();
         MaterialReplicaFeatureSummaryResult replicaResult =
-                server.getMaterialFeatureVectorSummary(sessionToken, experimentId, materialId);
+                server.getMaterialFeatureVectorSummary(sessionToken, criteria);
 
         List<MaterialReplicaFeatureSummary> rows = replicaResult.getFeatureSummaries();
         boolean displayMedianAndDeviation = shouldDisplayMedianAndDeviationColumns(rows);

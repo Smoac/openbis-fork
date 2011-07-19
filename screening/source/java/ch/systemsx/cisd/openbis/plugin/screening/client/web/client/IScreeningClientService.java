@@ -52,8 +52,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -212,7 +213,7 @@ public interface IScreeningClientService extends IClientService
      */
     public TypedTableResultSet<MaterialReplicaFeatureSummary> listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
-            TechId experimentId, TechId materialId) throws UserFailureException;
+            MaterialFeaturesOneExpCriteria criteria) throws UserFailureException;
 
     public String prepareExportMaterialReplicaFeatureSummary(
             TableExportCriteria<TableModelRowWithObject<MaterialReplicaFeatureSummary>> criteria)
@@ -223,8 +224,7 @@ public interface IScreeningClientService extends IClientService
      */
     public TypedTableResultSet<MaterialSimpleFeatureVectorSummary> listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
-            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria)
-            throws UserFailureException;
+            MaterialFeaturesManyExpCriteria criteria) throws UserFailureException;
 
     public String prepareExportMaterialFeaturesFromAllExperiments(
             TableExportCriteria<TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> criteria)

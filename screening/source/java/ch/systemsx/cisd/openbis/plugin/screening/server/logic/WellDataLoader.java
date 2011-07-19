@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimple
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 
 /**
@@ -77,13 +78,14 @@ class WellDataLoader extends AbstractContentLoader
     /**
      * Loads feature vectors of each well with the specified material in the specified experiment.
      */
-    public List<WellExtendedData> tryLoadWellData(TechId materialId, TechId experimentId,
-            AnalysisProcedureCriteria analysisProcedureCriteria)
+    public List<WellExtendedData> tryLoadWellData(MaterialFeaturesOneExpCriteria criteria)
     {
+        TechId materialId = criteria.getMaterialId();
         List<WellContentQueryResult> wells =
-                getPlateLocationsForMaterialId(materialId, experimentId);
+                getPlateLocationsForMaterialId(materialId, criteria.getExperimentId());
         List<WellData> wellsData =
-                tryCreateWellDataForMaterial(wells, materialId, analysisProcedureCriteria);
+                tryCreateWellDataForMaterial(wells, materialId,
+                        criteria.getAnalysisProcedureCriteria());
         if (wellsData == null)
         {
             return null;
@@ -233,7 +235,8 @@ class WellDataLoader extends AbstractContentLoader
      * constant number of selects.
      */
     public List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssaysBatch(
-            TechId materialId, List<ExperimentReference> experiments)
+            TechId materialId, AnalysisProcedureCriteria analysisProcedureCriteria,
+            List<ExperimentReference> experiments)
     {
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
@@ -244,10 +247,8 @@ class WellDataLoader extends AbstractContentLoader
         List<BasicWellContentQueryResult> allWells =
                 fetchWellLocations(materialId, extractIds(experiments));
         totalWellsLoaded += allWells.size();
-        // TODO KE: 2011-07-15 specify analysis procedure here
         WellFeatureCollection<FeatureVectorValues> allWellFeaturesOrNull =
-                tryLoadWellSingleFeatureVectors(allWells,
-                        AnalysisProcedureCriteria.createAllProcedures());
+                tryLoadWellSingleFeatureVectors(allWells, analysisProcedureCriteria);
 
         if (allWellFeaturesOrNull == null)
         {
@@ -488,12 +489,12 @@ class WellDataLoader extends AbstractContentLoader
      * of one well is chosen by filtering materials of the same type as the specified one.
      */
     public MaterialIdSummaryAndFeatures tryCalculateExperimentFeatureVectorSummaries(
-            TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria,
-            TechId materialId, boolean calculateDeviations)
+            MaterialFeaturesOneExpCriteria criteria, boolean calculateDeviations)
     {
-        List<BasicWellContentQueryResult> wells = fetchWellLocations(materialId, experimentId);
-        return tryCalculateExperimentFeatureVectorSummaries(wells, analysisProcedureCriteria,
-                calculateDeviations);
+        List<BasicWellContentQueryResult> wells =
+                fetchWellLocations(criteria.getMaterialId(), criteria.getExperimentId());
+        return tryCalculateExperimentFeatureVectorSummaries(wells,
+                criteria.getAnalysisProcedureCriteria(), calculateDeviations);
     }
 
     private MaterialIdSummaryAndFeatures tryCalculateExperimentFeatureVectorSummaries(

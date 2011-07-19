@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQue
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * Finds all experiments where the given material is present and calculates summaries for feature
@@ -48,7 +49,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
 
     public static List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
             Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, TechId materialId, TechId projectTechIdOrNull,
+            IDAOFactory daoFactory, TechId materialId,
+            AnalysisProcedureCriteria analysisProcedureCriteria, TechId projectTechIdOrNull,
             MaterialSummarySettings settings)
     {
         MaterialFeaturesFromAllExperimentsLoader loader =
@@ -56,7 +58,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                         daoFactory, settings);
         List<ExperimentReference> experiments =
                 loader.fetchExperiments(materialId, projectTechIdOrNull);
-        return loader.loadMaterialFeatureVectorsFromAllAssays(materialId, experiments);
+        return loader.loadMaterialFeatureVectorsFromAllAssays(materialId,
+                analysisProcedureCriteria, experiments);
     }
 
     private List<ExperimentReference> fetchExperiments(TechId materialId, TechId projectTechIdOrNull)
@@ -111,7 +114,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
      * Note that different experiments can have different set of features!
      */
     private List<MaterialSimpleFeatureVectorSummary> loadMaterialFeatureVectorsFromAllAssays(
-            TechId materialId, List<ExperimentReference> experiments)
+            TechId materialId, AnalysisProcedureCriteria analysisProcedureCriteria,
+            List<ExperimentReference> experiments)
     {
         List<MaterialSimpleFeatureVectorSummary> summaries =
                 new ArrayList<MaterialSimpleFeatureVectorSummary>();
@@ -141,7 +145,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
                         experimentsBatch.size(), datasetsInBatch, experimentsBatch));
                 List<MaterialSimpleFeatureVectorSummary> batchSummaries =
                         wellDataLoader.loadMaterialFeatureVectorsFromAllAssaysBatch(materialId,
-                                experimentsBatch);
+                                analysisProcedureCriteria, experimentsBatch);
                 summaries.addAll(batchSummaries);
                 experimentsBatch.clear();
                 datasetsInBatch = 0;

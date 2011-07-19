@@ -53,8 +53,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -192,12 +193,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listMaterialReplicaFeatureSummary(IResultSetConfig, TechId,
-     *      TechId)
+     * @see IScreeningClientService#listMaterialReplicaFeatureSummary(IResultSetConfig,
+     *      MaterialFeaturesOneExpCriteria)
      */
     public void listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
-            TechId experimentId, TechId materialId,
+            MaterialFeaturesOneExpCriteria criteria,
             AsyncCallback<TypedTableResultSet<MaterialReplicaFeatureSummary>> callback);
 
     /**
@@ -208,12 +209,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig, TechId,
-     *      ExperimentSearchByProjectCriteria)
+     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig,
+     *      MaterialFeaturesManyExpCriteria)
      */
     public void listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
-            TechId materialId, ExperimentSearchByProjectCriteria experimentSearchCriteria,
+            MaterialFeaturesManyExpCriteria criteria,
             AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback);
 
     /**

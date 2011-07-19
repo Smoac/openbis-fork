@@ -21,14 +21,13 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.M
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesManyExpCriteria;
 
 /**
  * A provider for material feature summaries from all experiments.
@@ -42,18 +41,14 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
 
     private final String sessionToken;
 
-    private final TechId materialId;
-
-    private final ExperimentSearchByProjectCriteria experimentSearchCriteria;
+    private final MaterialFeaturesManyExpCriteria criteria;
 
     public MaterialFeatureVectorsFromAllExperimentsProvider(IScreeningServer server,
-            String sessionToken, TechId materialId,
-            ExperimentSearchByProjectCriteria experimentSearchCriteria)
+            String sessionToken, MaterialFeaturesManyExpCriteria criteria)
     {
         this.server = server;
         this.sessionToken = sessionToken;
-        this.materialId = materialId;
-        this.experimentSearchCriteria = experimentSearchCriteria;
+        this.criteria = criteria;
     }
 
     @Override
@@ -62,8 +57,7 @@ public class MaterialFeatureVectorsFromAllExperimentsProvider extends
         TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary> builder =
                 new TypedTableModelBuilder<MaterialSimpleFeatureVectorSummary>();
         List<MaterialSimpleFeatureVectorSummary> summaries =
-                server.getMaterialFeatureVectorsFromAllExperiments(sessionToken, materialId,
-                        experimentSearchCriteria);
+                server.getMaterialFeatureVectorsFromAllExperiments(sessionToken, criteria);
 
         builder.addColumn(EXPERIMENT);
 
