@@ -56,6 +56,8 @@ public final class Experiment implements Serializable
 
         private String experimentTypeCode;
 
+        private EntityRegistrationDetails registrationDetails;
+
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         public void setId(Long id)
@@ -117,6 +119,16 @@ public final class Experiment implements Serializable
         {
             properties.put(propCode, value);
         }
+
+        public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+        {
+            this.registrationDetails = registrationDetails;
+        }
+
+        public EntityRegistrationDetails getRegistrationDetails()
+        {
+            return registrationDetails;
+        }
     }
 
     private final Long id;
@@ -128,6 +140,8 @@ public final class Experiment implements Serializable
     private final String identifier;
 
     private final String experimentTypeCode;
+
+    private final EntityRegistrationDetails registrationDetails;
 
     private final HashMap<String, String> properties;
 
@@ -150,8 +164,12 @@ public final class Experiment implements Serializable
         checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
         this.identifier = initializer.getIdentifier();
 
-        checkValidString(initializer.getExperimentTypeCode(), "Unspecified eperiment type code.");
+        checkValidString(initializer.getExperimentTypeCode(), "Unspecified experiment type code.");
         this.experimentTypeCode = initializer.getExperimentTypeCode();
+
+        checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                "Unspecified entity registration details.");
+        this.registrationDetails = initializer.getRegistrationDetails();
 
         this.properties = initializer.getProperties();
     }
@@ -167,6 +185,15 @@ public final class Experiment implements Serializable
     private void checkValidLong(Long longValue, String message) throws IllegalArgumentException
     {
         if (longValue == null || longValue == 0)
+        {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private void checkValidRegistrationDetails(EntityRegistrationDetails details, String message)
+            throws IllegalArgumentException
+    {
+        if (details == null)
         {
             throw new IllegalArgumentException(message);
         }
@@ -210,6 +237,11 @@ public final class Experiment implements Serializable
     public String getExperimentTypeCode()
     {
         return experimentTypeCode;
+    }
+
+    public EntityRegistrationDetails getRegistrationDetails()
+    {
+        return registrationDetails;
     }
 
     public Map<String, String> getProperties()

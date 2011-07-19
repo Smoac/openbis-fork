@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -446,10 +448,17 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     one(commonServer).listExperiments(SESSION_TOKEN, returnExperimentType,
                             projectIdentifier);
 
+                    Person registrator = new Person();
+                    registrator.setEmail("mail@mail.com");
+                    registrator.setFirstName("First");
+                    registrator.setLastName("Last");
+                    registrator.setUserId("personId");
+
                     ExperimentBuilder experiment =
                             new ExperimentBuilder().id(1L).code("EXP-CODE").permID("EXP-PERMID")
                                     .identifier("/SPACE-1/PROJECT-1/EXP-CODE")
-                                    .type(returnExperimentType.getCode());
+                                    .type(returnExperimentType.getCode()).registrator(registrator)
+                                    .date(new Date());
                     will(returnValue(Collections.singletonList(experiment.getExperiment())));
                 }
             });

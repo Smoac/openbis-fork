@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -146,6 +148,10 @@ public class Translator
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
+
+        EntityRegistrationDetails registrationDetails =
+                translateRegistrationDetails(privateExperiment);
+        initializer.setRegistrationDetails(registrationDetails);
 
         return new Experiment(initializer);
     }
@@ -295,6 +301,20 @@ public class Translator
         }
 
         return new DataSet(initializer);
+    }
+
+    private static EntityRegistrationDetails translateRegistrationDetails(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration<?> thingWithRegistrationDetails)
+    {
+        Person registrator = thingWithRegistrationDetails.getRegistrator();
+        EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetails.EntityRegistrationDetailsInitializer();
+        initializer.setEmail(registrator.getEmail());
+        initializer.setFirstName(registrator.getFirstName());
+        initializer.setLastName(registrator.getLastName());
+        initializer.setUserId(registrator.getUserId());
+        initializer.setRegistrationDate(thingWithRegistrationDetails.getRegistrationDate());
+        return new EntityRegistrationDetails(initializer);
     }
 
     private Translator()
