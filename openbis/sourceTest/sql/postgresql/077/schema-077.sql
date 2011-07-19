@@ -52,7 +52,8 @@ BEGIN
   	  FROM samples 
   	  WHERE id = NEW.samp_id;
   	IF (owner_del_id IS NOT NULL) THEN 
-			RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected to a deleted Sample (Code: %).', NEW.code, owner_code;
+			RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to a Sample (Code: %) %.', 
+			                NEW.code, owner_code, deletion_description(owner_del_id);
 		END IF;
 	END IF;
 	-- check experiment
@@ -60,7 +61,8 @@ BEGIN
     FROM experiments 
     WHERE id = NEW.expe_id;
   IF (owner_del_id IS NOT NULL) THEN 
-		RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected to a deleted Experiment (Code: %).', NEW.code, owner_code;
+		RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+		                NEW.code, owner_code, deletion_description(owner_del_id);
 	END IF;	
 	RETURN NEW;
 END;
@@ -78,7 +80,8 @@ BEGIN
   	  FROM experiments 
   	  WHERE id = NEW.expe_id;
   	IF (owner_del_id IS NOT NULL) THEN 
-			RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because it cannot be connected to a deleted Experiment (Code: %).', NEW.code, owner_code;
+			RAISE EXCEPTION 'Sample (Code: %) cannot be connected to an Experiment (Code: %) %.', 
+   		                NEW.code, owner_code, deletion_description(owner_del_id);
 		END IF;
 	END IF;
 	RETURN NEW;
@@ -179,6 +182,21 @@ BEGIN
 			end if;
    end if;
    RETURN NEW;
+END;
+$$;
+CREATE FUNCTION deletion_description(del_id tech_id) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  del_person VARCHAR;
+  del_date VARCHAR;
+  del_reason VARCHAR;
+BEGIN
+  SELECT p.last_name || ' ' || p.first_name || ' (' || p.email || ')', 
+         to_char(d.registration_timestamp, 'YYYY-MM-DD HH:MM:SS'), d.reason 
+    INTO del_person, del_date, del_reason FROM deletions d, persons p 
+    WHERE d.pers_id_registerer = p.id AND d.id = del_id;
+  RETURN 'deleted by ' || del_person || ' on ' || del_date || ' with reason: "' || del_reason || '"';
 END;
 $$;
 CREATE FUNCTION experiment_property_with_material_data_type_check() RETURNS trigger
