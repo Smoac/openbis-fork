@@ -16,6 +16,8 @@
 
 package eu.basynthec.cisd.client.examples;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -122,9 +124,18 @@ public class BaSynthecClient extends AbstractBaSynthecClient
      */
     public void run()
     {
-        logInfo("Listing experiments...");
+        List<String> projectIdentifiers = Arrays.asList("/PRIVATE/TEST");
+        logInfo("Listing experiments in projects " + projectIdentifiers + "...");
         ExperimentLister experimentLister = new ExperimentLister(openBis);
-        experimentLister.run();
+        experimentLister.run(projectIdentifiers);
+
+        println("\n");
+
+        List<String> strainNames = Arrays.asList("MGP100");
+        logInfo("Listing data sets containing data for strains " + strainNames + "...");
+        DataSetSearch dataSetSearch = new DataSetSearch(openBis);
+        dataSetSearch.run(strainNames);
+
     }
 
     private void logout()

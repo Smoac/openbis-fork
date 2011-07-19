@@ -25,19 +25,26 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 
 /**
- * A class that, given a live connection to openBIS, prints a listing of experiments with metadata.
+ * A class that, given a live connection to openBIS, searches for data sets where one of the
+ * specified strains appear, downloads the data set and prints information about the data set and
+ * experiment.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ExperimentLister extends AbstractBaSynthecClient
+public class DataSetSearch extends AbstractBaSynthecClient
 {
     private static final String STRAIN_NAMES_PROPERTY = "STRAIN_NAMES";
 
     private static final String STRAINS_HEADER = "Strains";
 
     private static final String REGISTERED_BY_HEADER = "Contact Person";
+
+    private static final String DATA_SET_HEADER = "Data Set";
 
     /**
      * An enum for keeping track of the metadata fields we are interested in, in the order we want
@@ -60,7 +67,10 @@ public class ExperimentLister extends AbstractBaSynthecClient
 
     // State we compute as part of the operation of this class
 
-    // The experiments we are interested in
+    // The data sets we are interested in
+    private List<DataSet> matchingDataSets;
+
+    // The experiments that contain the data sets we are interested in
     private List<Experiment> experiments;
 
     // A mapping from experiments to data sets
@@ -71,30 +81,28 @@ public class ExperimentLister extends AbstractBaSynthecClient
      * 
      * @param facade The facade for interacting with openBIS.
      */
-    public ExperimentLister(IOpenbisServiceFacade facade)
+    public DataSetSearch(IOpenbisServiceFacade facade)
     {
         super(facade);
     }
 
     /**
-     * Using the connection to openBIS, get all experiments in the specified projects and print the
-     * following information about the experiment:<br>
+     * Using the connection to openBIS, get search for data sets that contain data on the specified
+     * strains. Download the data set and print information about the data set and its experiment.<br>
      * <ul>
      * <li>Experiment Date</li>
      * <li>Description</li>
      * <li>Medium</li>
      * <li>Temperature</li>
      * <li>Growth Conditions</li>
-     * <li>Strains</li>
+     * <li>Data Set Strains</li>
+     * <li>Data Set Path</li>
      * </ul>
-     * 
-     * @param projectIdentifiers The projects in which the experiments we are interested in are
-     *            housed.
      */
-    public void run(List<String> projectIdentifiers)
+    public void run(List<String> strainNames)
     {
         printHeader();
-        retrieveInformationFromOpenBis(projectIdentifiers);
+        retrieveInformationFromOpenBis(strainNames);
 
         for (Experiment experiment : experiments)
         {
@@ -105,22 +113,22 @@ public class ExperimentLister extends AbstractBaSynthecClient
     /**
      * Connect to openBis to get the information we need.
      */
-    private void retrieveInformationFromOpenBis(List<String> projectIdentifiers)
+    private void retrieveInformationFromOpenBis(List<String> strainNames)
     {
-        // Get the experiments for the specified project
-        experiments = openBis.listExperimentsForProjects(projectIdentifiers);
+        // Find all data sets that match the strain names
+        matchingDataSets = retrieveDataSetsReferencingStrains(strainNames);
 
-        // Get the data sets
+        // Get the experiments for the specified data sets
         List<String> experimentIdentifiers = new ArrayList<String>();
-        for (Experiment experiment : experiments)
+        for (DataSet dataSet : matchingDataSets)
         {
-            experimentIdentifiers.add(experiment.getIdentifier());
+            experimentIdentifiers.add(dataSet.getExperimentIdentifier());
         }
+        experiments = openBis.getExperiments(experimentIdentifiers);
 
-        List<DataSet> dataSets = openBis.listDataSetsForExperiments(experimentIdentifiers);
-
+        // Create a map from experiment to data set
         experimentDataSets = new HashMap<String, ArrayList<DataSet>>();
-        for (DataSet dataSet : dataSets)
+        for (DataSet dataSet : matchingDataSets)
         {
             ArrayList<DataSet> dataSetsForExperiment =
                     experimentDataSets.get(dataSet.getExperimentIdentifier());
@@ -133,6 +141,24 @@ public class ExperimentLister extends AbstractBaSynthecClient
         }
     }
 
+    /**
+     * Find data sets that contain data for the specified strains.
+     */
+    private List<DataSet> retrieveDataSetsReferencingStrains(List<String> strainNames)
+    {
+        // Construct a search criteria that matches any of the strains specified.
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+        for (String strainName : strainNames)
+        {
+            searchCriteria.addMatchClause(MatchClause.createPropertyMatch(STRAIN_NAMES_PROPERTY,
+                    strainName));
+        }
+        println("Searching for data sets that match the following criteria: ");
+        println(searchCriteria.toString());
+        return openBis.searchForDataSets(searchCriteria);
+    }
+
     private void printHeader()
     {
         StringBuffer sb = new StringBuffer();
@@ -143,10 +169,27 @@ public class ExperimentLister extends AbstractBaSynthecClient
             sb.append(field.headerText);
         }
         sb.append("\t");
-        sb.append(STRAINS_HEADER);
-        sb.append("\t");
         sb.append(REGISTERED_BY_HEADER);
+        sb.append("\t");
+        sb.append(DATA_SET_HEADER);
+        sb.append("\t");
+        sb.append(STRAINS_HEADER);
         println(sb.toString());
+    }
+
+    private void printEmptyExperimentInformationOn(StringBuffer sb)
+    {
+        // Experiment Identifier
+        sb.append("\t");
+        for (@SuppressWarnings("unused")
+        MetadataField field : MetadataField.values())
+        {
+            sb.append("\t");
+        }
+        // REGISTERED_BY_HEADER
+        sb.append("\t");
+
+        // We have now tabbed to allign with the data set information
     }
 
     private void printExperiment(Experiment experiment)
@@ -154,8 +197,8 @@ public class ExperimentLister extends AbstractBaSynthecClient
         StringBuffer sb = new StringBuffer();
         sb.append(experiment.getIdentifier());
         printExperimentPropertiesOn(experiment.getProperties(), sb);
-        printExperimentStrainsOn(experiment, sb);
         printRegisteredByOn(experiment.getRegistrationDetails(), sb);
+        printDataSetsOn(experiment, sb);
         println(sb.toString());
     }
 
@@ -175,38 +218,26 @@ public class ExperimentLister extends AbstractBaSynthecClient
     /**
      * Get the strains for the experiment and print them to the string buffer.
      */
-    private void printExperimentStrainsOn(Experiment experiment, StringBuffer sb)
+    private void printDataSetsOn(Experiment experiment, StringBuffer sb)
     {
         sb.append("\t");
 
+        // dataSets cannot be null, because we only have experiments that have data sets here
         ArrayList<DataSet> dataSets = experimentDataSets.get(experiment.getIdentifier());
-        if (null == dataSets)
-        {
-            return;
-        }
 
-        // collect all the strain names
-        ArrayList<String> strains = new ArrayList<String>();
+        boolean isFirstLine = true;
         for (DataSet dataSet : dataSets)
         {
+            String dataSetCode = dataSet.getCode();
             String strainNames = dataSet.getProperties().get(STRAIN_NAMES_PROPERTY);
-            if (null != strainNames)
+            if (false == isFirstLine)
             {
-                strains.add(strainNames);
+                sb.append("\n");
+                printEmptyExperimentInformationOn(sb);
             }
-        }
-
-        if (strains.size() < 1)
-        {
-            return;
-        }
-
-        // Append them to the StringBuffer
-        sb.append(strains.get(0));
-        for (int i = 1; i < strains.size(); ++i)
-        {
-            sb.append(",");
-            sb.append(strains.get(i));
+            sb.append(dataSetCode);
+            sb.append("\t");
+            sb.append(strainNames);
         }
     }
 
