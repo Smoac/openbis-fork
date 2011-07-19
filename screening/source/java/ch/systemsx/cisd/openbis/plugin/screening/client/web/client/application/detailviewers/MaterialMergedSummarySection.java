@@ -58,7 +58,6 @@ class MaterialMergedSummarySection extends DisposableTabContent
     {
         return new IDelegatedAction()
             {
-
                 public void execute()
                 {
                     ExperimentSearchCriteria criteriaOrNull = searchCriteriaHolder.tryGetCriteria();
@@ -66,18 +65,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
                     {
                         final String experimentPermId =
                                 criteriaOrNull.tryGetExperiment().getExperimentPermId();
-                        screeningViewContext.getCommonService().getExperimentInfoByPermId(
-                                experimentPermId,
-                                new AbstractAsyncCallback<Experiment>(screeningViewContext)
-                                    {
-                                        @Override
-                                        protected void process(Experiment experiment)
-                                        {
-                                            IDisposableComponent viewer =
-                                                    createMaterialReplicaSummaryComponent(experiment);
-                                            replaceContent(viewer);
-                                        }
-                                    });
+                        showMaterialReplicaSummaryComponent(experimentPermId);
                     } else
                     {
                         IDisposableComponent allExperimentsComponent =
@@ -86,6 +74,21 @@ class MaterialMergedSummarySection extends DisposableTabContent
                     }
                 }
             };
+    }
+
+    private void showMaterialReplicaSummaryComponent(final String experimentPermId)
+    {
+        screeningViewContext.getCommonService().getExperimentInfoByPermId(experimentPermId,
+                new AbstractAsyncCallback<Experiment>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(Experiment experiment)
+                        {
+                            IDisposableComponent viewer =
+                                    createMaterialReplicaSummaryComponent(experiment);
+                            replaceContent(viewer);
+                        }
+                    });
     }
 
     private IDisposableComponent createMaterialFeaturesFromAllExperimentsComponent(
