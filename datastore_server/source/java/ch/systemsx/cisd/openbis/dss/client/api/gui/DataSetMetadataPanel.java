@@ -35,21 +35,17 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetPropertiesPanel.Observer;
@@ -146,11 +142,13 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
     private final JTextField sampleIdText;
 
+    private final JTextField dataSetIdText;
+
     private final ExperimentPickerPanel experimentPicker;
 
     private final JPanel ownerIdPanel;
 
-    private final ButtonGroup ownerButtonGroup;
+    private final JComboBox ownerComboBox;
 
     private final JComboBox dataSetTypeComboBox;
 
@@ -163,10 +161,6 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     private final JButton dataSetFileButton;
 
     private final JButton dataSetFileValidateButton;
-
-    private final JRadioButton experimentButton;
-
-    private final JRadioButton sampleButton;
 
     private final HashMap<String, DataSetPropertiesPanel> propertiesPanels =
             new HashMap<String, DataSetPropertiesPanel>();
@@ -191,18 +185,15 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         // Initialize the fields in the gui
         ownerIdLabel = new JLabel("Owner:", JLabel.TRAILING);
         sampleIdText = new JTextField();
+        dataSetIdText = new JTextField();
         experimentPicker = new ExperimentPickerPanel(mainWindow, clientModel.getExperiments());
 
         ownerIdPanel = new JPanel(new CardLayout());
+        ownerComboBox = new JComboBox(DataSetOwnerType.values());
 
-        ownerButtonGroup = new ButtonGroup();
-        experimentButton = new JRadioButton("Experiment");
-        sampleButton = new JRadioButton("Sample");
-        ownerButtonGroup.add(experimentButton);
-        ownerButtonGroup.add(sampleButton);
-
-        ownerIdPanel.add(experimentPicker, experimentButton.getText());
-        ownerIdPanel.add(sampleIdText, sampleButton.getText());
+        ownerIdPanel.add(experimentPicker, DataSetOwnerType.EXPERIMENT.toString());
+        ownerIdPanel.add(sampleIdText, DataSetOwnerType.SAMPLE.toString());
+        ownerIdPanel.add(dataSetIdText, DataSetOwnerType.DATA_SET.toString());
 
         dataSetTypeComboBox = new JComboBox();
         dataSetTypePanel = new JPanel();
@@ -239,16 +230,22 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         enableAllWidgets();
 
         NewDataSetDTOBuilder builder = newDataSetInfo.getNewDataSetBuilder();
-        switch (builder.getDataSetOwnerType())
+        DataSetOwnerType type = builder.getDataSetOwnerType();
+        if (type != null)
         {
-            case EXPERIMENT:
-                ownerButtonGroup.setSelected(experimentButton.getModel(), true);
-                experimentPicker.setText(builder.getDataSetOwnerIdentifier());
-                break;
-            case SAMPLE:
-                ownerButtonGroup.setSelected(sampleButton.getModel(), true);
-                sampleIdText.setText(builder.getDataSetOwnerIdentifier());
-                break;
+            ownerComboBox.setSelectedItem(type);
+            switch (type)
+            {
+                case EXPERIMENT:
+                    experimentPicker.setText(builder.getDataSetOwnerIdentifier());
+                    break;
+                case SAMPLE:
+                    sampleIdText.setText(builder.getDataSetOwnerIdentifier());
+                    break;
+                case DATA_SET:
+                    dataSetIdText.setText(builder.getDataSetOwnerIdentifier());
+                    break;
+            }
         }
 
         String dataSetTypeOrNull = builder.getDataSetMetadata().tryDataSetType();
@@ -290,8 +287,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         editableWidgets.add(sampleIdText);
         editableWidgets.add(experimentPicker);
         editableWidgets.add(dataSetFileButton);
-        editableWidgets.add(experimentButton);
-        editableWidgets.add(sampleButton);
+        editableWidgets.add(ownerComboBox);
         editableWidgets.add(experimentPicker);
         editableWidgets.add(dataSetTypeComboBox);
 
@@ -428,29 +424,23 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                 }
             });
 
-        experimentButton.addActionListener(new ActionListener()
+        ownerComboBox.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        ownerComboBox.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    setOwnerType(DataSetOwnerType.EXPERIMENT);
-                    setOwnerId(experimentPicker.getText());
-                    CardLayout cardLayout = (CardLayout) ownerIdPanel.getLayout();
-                    cardLayout.show(ownerIdPanel, experimentButton.getText());
-                }
-            });
-        experimentButton.setSelected(true);
-        sampleButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setOwnerType(DataSetOwnerType.SAMPLE);
-                    setOwnerId(sampleIdText.getText());
-                    CardLayout cardLayout = (CardLayout) ownerIdPanel.getLayout();
-                    cardLayout.show(ownerIdPanel, sampleButton.getText());
+                    DataSetOwnerType type = (DataSetOwnerType) ownerComboBox.getSelectedItem();
+                    if (type != null)
+                    {
+                        setOwnerType(type);
+                        setOwnerId(extractOwnerId(type));
+                        CardLayout cardLayout = (CardLayout) ownerIdPanel.getLayout();
+                        cardLayout.show(ownerIdPanel, type.toString());
+                    }
                 }
             });
 
-        addRow(2, ownerIdLabel, ownerIdPanel, ownerButtonGroup);
+        addRow(2, ownerIdLabel, ownerIdPanel, ownerComboBox);
 
         // The data set type row
         JLabel label = new JLabel("Data Set Type:", JLabel.TRAILING);
@@ -535,7 +525,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         }
     }
 
-    private void addRow(int rowy, Component label, Component field, ButtonGroup buttonGroup)
+    private void addRow(int rowy, Component label, Component field, JComboBox comboBox)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -550,16 +540,10 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 5);
         add(field, c);
 
-        AbstractButton button;
-        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
-        while (buttons.hasMoreElements())
-        {
-            button = buttons.nextElement();
-            ++c.gridx;
-            c.weightx = 0;
-            c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, buttons.hasMoreElements() ? 5 : 0);
-            add(button, c);
-        }
+        ++c.gridx;
+        c.weightx = 0;
+        c.insets = new Insets((rowy > 0) ? 5 : 0, 0, 0, 0);
+        add(comboBox, c);
     }
 
     private void addRow(int rowy, Component label, Component field, Component button,
@@ -649,6 +633,21 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             builder.setDataSetOwnerType(type);
             validationQueue.add(Boolean.TRUE);
         }
+    }
+
+    private String extractOwnerId(DataSetOwnerType type)
+    {
+        switch (type)
+        {
+            case EXPERIMENT:
+                return experimentPicker.getText();
+            case SAMPLE:
+                return sampleIdText.getText();
+            case DATA_SET:
+                return dataSetIdText.getText();
+        }
+
+        return null;
     }
 
     protected void setOwnerId(String text)

@@ -263,5 +263,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                 + " EXPERIMENT <experiment identifier> <path>");
         out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
                 + " SAMPLE <sample identifier> <path>");
+        out.println("     " + getCommandCallString() + parser.printExample(ExampleMode.ALL)
+                + " DATA_SET <data set identifier> <path>");
     }
 }

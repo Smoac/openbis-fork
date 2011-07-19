@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class NewDataSetPredicate implements
         IAuthorizationGuardPredicate<IDssServiceRpcGeneric, NewDataSetDTO>
 {
-    
+
     public List<String> getDataSetCodes(NewDataSetDTO argument)
     {
         return Arrays.asList();
@@ -50,36 +50,30 @@ public class NewDataSetPredicate implements
     public Status evaluate(IDssServiceRpcGeneric receiver, String sessionToken,
             NewDataSetDTO newDataSet) throws UserFailureException
     {
-        SpaceIdentifier spaceId = getSpaceIdentifier(newDataSet);
-        return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(sessionToken,
-                spaceId);
-    }
-
-    private SpaceIdentifier getSpaceIdentifier(NewDataSetDTO newDataSet)
-    {
-        SpaceIdentifier spaceId = null;
         DataSetOwner owner = newDataSet.getDataSetOwner();
         String ownerIdentifier = owner.getIdentifier();
+        SpaceIdentifier spaceId;
         switch (owner.getType())
         {
             case EXPERIMENT:
-            {
                 ExperimentIdentifier experimentId =
                         new ExperimentIdentifierFactory(ownerIdentifier).createIdentifier();
                 spaceId =
                         new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
                                 experimentId.getSpaceCode());
-                break;
-            }
+                return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(
+                        sessionToken, spaceId);
             case SAMPLE:
-            {
                 SampleIdentifier sampleId =
                         new SampleIdentifierFactory(ownerIdentifier).createIdentifier();
                 spaceId = sampleId.getSpaceLevel();
-                break;
-            }
+                return DssSessionAuthorizationHolder.getAuthorizer().checkSpaceWriteable(
+                        sessionToken, spaceId);
+            case DATA_SET:
+                return DssSessionAuthorizationHolder.getAuthorizer().checkDatasetAccess(
+                        sessionToken, ownerIdentifier);
         }
-        return spaceId;
-    }
 
+        return null; // impossible!
+    }
 }

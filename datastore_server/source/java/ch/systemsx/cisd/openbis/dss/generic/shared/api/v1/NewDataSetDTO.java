@@ -47,7 +47,33 @@ public class NewDataSetDTO implements Serializable
      */
     public static enum DataSetOwnerType
     {
-        EXPERIMENT, SAMPLE
+        EXPERIMENT
+        {
+            @Override
+            public String toString()
+            {
+                return "Experiment";
+            }
+        },
+        SAMPLE
+        {
+            @Override
+            public String toString()
+            {
+                return "Sample";
+            }
+        },
+        DATA_SET
+        {
+            @Override
+            public String toString()
+            {
+                return "Data Set";
+            }
+        };
+
+        @Override
+        public abstract String toString();
     }
 
     /**
@@ -99,7 +125,7 @@ public class NewDataSetDTO implements Serializable
         }
         return folderNameOrNull;
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     private final DataSetOwner dataSetOwner;

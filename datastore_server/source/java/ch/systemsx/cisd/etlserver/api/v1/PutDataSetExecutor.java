@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -265,6 +266,25 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                 dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
                 dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
                 break;
+            case DATA_SET:
+                String dataSetCode = tryGetDataSetCode();
+
+                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                if (parentDataSet != null)
+                {
+                    if (parentDataSet.getExperiment() != null)
+                    {
+                        dataSetInfo.setExperiment(parentDataSet.getExperiment());
+                    }
+                    if (parentDataSet.getSample() != null)
+                    {
+                        dataSetInfo.setSample(parentDataSet.getSample());
+                    }
+                    dataSetInfo.setParentDataSetCodes(Collections.singletonList(parentDataSet
+                            .getCode()));
+                    break;
+                }
+                break;
         }
         String typeCode = newDataSet.tryDataSetType();
         if (null != typeCode)
@@ -353,19 +373,39 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         switch (owner.getType())
         {
             case EXPERIMENT:
-            {
                 ExperimentIdentifier experimentId = tryExperimentIdentifier();
                 spaceId =
                         new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
                                 experimentId.getSpaceCode());
                 break;
-            }
             case SAMPLE:
-            {
                 SampleIdentifier sampleId = trySampleIdentifier();
                 spaceId = sampleId.getSpaceLevel();
                 break;
-            }
+            case DATA_SET:
+                String dataSetCode = tryGetDataSetCode();
+
+                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                if (parentDataSet != null)
+                {
+                    if (parentDataSet.getExperiment() != null)
+                    {
+                        experimentId =
+                                ExperimentIdentifierFactory.parse(parentDataSet.getExperiment()
+                                        .getIdentifier());
+                        spaceId =
+                                new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
+                                        experimentId.getSpaceCode());
+                    }
+                    if (parentDataSet.getSample() != null)
+                    {
+                        sampleId =
+                                SampleIdentifierFactory.parse(parentDataSet.getSample()
+                                        .getIdentifier());
+                        spaceId = sampleId.getSpaceLevel();
+                    }
+                }
+                break;
         }
         return spaceId;
     }
@@ -376,16 +416,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         switch (owner.getType())
         {
             case EXPERIMENT:
-            {
                 return new ExperimentIdentifierFactory(owner.getIdentifier()).createIdentifier();
-            }
-            case SAMPLE:
-            {
+            default:
                 return null;
-            }
         }
-
-        return null;
     }
 
     private SampleIdentifier trySampleIdentifier()
@@ -393,18 +427,23 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
-            case EXPERIMENT:
-            {
-                return null;
-            }
             case SAMPLE:
-            {
                 return new SampleIdentifierFactory(owner.getIdentifier()).createIdentifier();
-
-            }
+            default:
+                return null;
         }
+    }
 
-        return null;
+    private String tryGetDataSetCode()
+    {
+        DataSetOwner owner = getDataSetOwner();
+        switch (owner.getType())
+        {
+            case DATA_SET:
+                return owner.getIdentifier();
+            default:
+                return null;
+        }
     }
 
     private IEncapsulatedOpenBISService getOpenBisService()
@@ -659,6 +698,24 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                     dataSetInfo.setSpaceCode(sampleId.getSpaceLevel().getSpaceCode());
                     dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
                     break;
+                case DATA_SET:
+                    String dataSetCode = tryGetDataSetCode();
+
+                    ExternalData parentDataSet = openbisService.tryGetDataSet(dataSetCode);
+                    if (parentDataSet != null)
+                    {
+                        if (parentDataSet.getExperiment() != null)
+                        {
+                            dataSetInfo.setExperiment(parentDataSet.getExperiment());
+                        }
+                        if (parentDataSet.getSample() != null)
+                        {
+                            dataSetInfo.setSample(parentDataSet.getSample());
+                        }
+                        dataSetInfo.setParentDataSetCodes(Collections.singletonList(parentDataSet
+                                .getCode()));
+                        break;
+                    }
             }
             String typeCode = newDataSet.tryDataSetType();
             if (null != typeCode)
