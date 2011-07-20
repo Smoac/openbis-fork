@@ -80,7 +80,7 @@ public class BaSynthecClient extends AbstractBaSynthecClient
             serverUrl = "https://basynthec.ethz.ch";
         }
 
-        logInfo(String.format("Connecting to the server '%s' as a user '%s.", serverUrl, userId));
+        logInfo(String.format("Connecting to the server '%s' as a user '%s'.", serverUrl, userId));
         IOpenbisServiceFacade facade =
                 OpenbisServiceFacadeFactory.tryCreate(userId, userPassword, serverUrl,
                         CONNECTION_TIMEOUT_MILLIS);
