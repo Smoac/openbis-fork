@@ -185,11 +185,11 @@ class AnalysisProcedureChooser extends LayoutContainer
         for (String code : codes)
         {
             sortedCodes.add(analysisCodeToComboBoxValue(code));
+        
         }
-        Collections.sort(sortedCodes);
-
-        // unspecified is always an option and is always displayed at the end
         sortedCodes.remove(UNSPECIFIED_PROCEDURE);
+        Collections.sort(sortedCodes);
+        // unspecified is always an option and is always displayed at the end
         sortedCodes.add(UNSPECIFIED_PROCEDURE);
 
         return sortedCodes;
