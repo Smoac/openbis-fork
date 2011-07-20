@@ -2429,7 +2429,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
             deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);
 
-            deletionDAO.delete(deletion);
+            // WORKAROUND to get the fresh deletion and fix org.hibernate.NonUniqueObjectException
+            DeletionPE freshDeletion = deletionDAO.getByTechId(TechId.create(deletion));
+            deletionDAO.delete(freshDeletion);
         }
     }
 
