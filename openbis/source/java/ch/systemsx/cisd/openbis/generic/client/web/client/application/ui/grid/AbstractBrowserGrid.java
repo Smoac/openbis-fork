@@ -388,7 +388,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected void showEntityInformationHolderViewer(IEntityInformationHolderWithPermId entity,
             boolean editMode, boolean inBackground)
     {
-        if (OpenEntityEditorTabClickListener.forbidDeletedEntityModification(viewContext, entity))
+        if (editMode
+                && OpenEntityEditorTabClickListener.forbidDeletedEntityModification(viewContext,
+                        entity))
         {
             return;
         }
