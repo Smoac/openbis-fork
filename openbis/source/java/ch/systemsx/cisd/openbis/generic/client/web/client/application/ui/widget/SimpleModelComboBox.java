@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -26,12 +27,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
     public SimpleModelComboBox(IMessageProvider messageProvider, List<T> items,
             List<String> labels, List<String> tooltips, int widthPx)
     {
-        assert items.size() == labels.size() : "for each item there should be one corresponding label";
-        assert items.size() == tooltips.size() : "for each item there should be one corresponding tooltip";
-
-        configure(messageProvider, widthPx);
-        setModel(items, labels, tooltips);
-        GWTUtils.autoselect(this);
+        this(messageProvider, createModelItems(items, labels, tooltips), widthPx);
     }
 
     /**
@@ -41,7 +37,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
             int widthPx)
     {
         configure(messageProvider, widthPx);
-        add(model);
+        setModel(model);
         GWTUtils.autoselect(this);
     }
 
@@ -55,12 +51,28 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         setTemplate(GWTUtils.getTooltipTemplate(LabeledItem.LABEL_FIELD, LabeledItem.TOOLTIP_FIELD));
     }
 
-    private void setModel(List<T> items, List<String> labels, List<String> tooltips)
+    private static <T> List<LabeledItem<T>> createModelItems(List<T> items, List<String> labels,
+            List<String> tooltips)
     {
+        assert items.size() == labels.size() : "for each item there should be one corresponding label";
+        assert items.size() == tooltips.size() : "for each item there should be one corresponding tooltip";
+
+        List<LabeledItem<T>> model = new ArrayList<LabeledItem<T>>();
         int i = 0;
         for (T item : items)
         {
-            add(new LabeledItem<T>(item, labels.get(i), tooltips.get(i)));
+            model.add(new LabeledItem<T>(item, labels.get(i), tooltips.get(i)));
+            i++;
+        }
+        return model;
+    }
+
+    private void setModel(List<LabeledItem<T>> modelItems)
+    {
+        int i = 0;
+        for (LabeledItem<T> item : modelItems)
+        {
+            add(item);
             i++;
         }
 
