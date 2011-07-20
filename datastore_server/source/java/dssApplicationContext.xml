@@ -35,7 +35,6 @@
   
   <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder">
       <property name="dataStoreCode" value="${data-store-server-code}"/>
-      <property name="serverUrl" value="${server-url}"/>
   </bean>
   
   <bean id="reauthenticateInterceptor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor">

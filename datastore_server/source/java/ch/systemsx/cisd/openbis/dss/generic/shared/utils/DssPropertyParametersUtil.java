@@ -41,6 +41,8 @@ public class DssPropertyParametersUtil
 
     public static final String DOWNLOAD_URL_KEY = "download-url";
 
+    public static final String SERVER_URL_KEY = "server-url";
+
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
@@ -75,4 +77,8 @@ public class DssPropertyParametersUtil
                 STOREROOT_DIR_KEY)));
     }
 
+    public static String getOpenBisServerUrl(Properties serviceProperties)
+    {
+        return PropertyUtils.getMandatoryProperty(serviceProperties, SERVER_URL_KEY);
+    }
 }

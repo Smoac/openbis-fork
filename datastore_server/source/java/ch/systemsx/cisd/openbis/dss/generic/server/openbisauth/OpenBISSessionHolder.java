@@ -28,18 +28,6 @@ public class OpenBISSessionHolder
 
     private String dataStoreCode;
 
-    private String serverUrl;
-
-    public String getServerUrl()
-    {
-        return serverUrl;
-    }
-
-    public void setServerUrl(String serverUrl)
-    {
-        this.serverUrl = serverUrl;
-    }
-
     public String getDataStoreCode()
     {
         return dataStoreCode;

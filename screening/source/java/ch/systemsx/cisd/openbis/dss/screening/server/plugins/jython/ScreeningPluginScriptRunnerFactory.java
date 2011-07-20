@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython;
 
-import org.springframework.beans.factory.BeanFactory;
-
 import ch.systemsx.cisd.common.evaluator.Evaluator;
-import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.PluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
@@ -57,10 +55,8 @@ public class ScreeningPluginScriptRunnerFactory extends PluginScriptRunnerFactor
 
     private IScreeningOpenbisServiceFacade createScreeningFacade(DataSetProcessingContext context)
     {
-        BeanFactory applicationContext = ServiceProvider.getApplicationContext();
-        OpenBISSessionHolder sessionContextHolder =
-                (OpenBISSessionHolder) applicationContext.getBean("sessionHolder");
+        IConfigProvider configProvider = ServiceProvider.getConfigProvider();
         return ScreeningOpenbisServiceFacadeFactory.tryCreate(context.trySessionToken(),
-                sessionContextHolder.getServerUrl());
+                configProvider.getOpenBisServerUrl());
     }
 }

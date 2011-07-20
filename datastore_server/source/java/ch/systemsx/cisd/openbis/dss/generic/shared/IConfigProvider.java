@@ -36,4 +36,9 @@ public interface IConfigProvider
      */
     String getDataStoreCode();
 
+    /**
+     * Return the url of the openBIS server.
+     */
+    String getOpenBisServerUrl();
+
 }
