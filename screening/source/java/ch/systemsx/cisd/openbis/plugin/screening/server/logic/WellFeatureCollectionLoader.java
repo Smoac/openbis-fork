@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -64,8 +65,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         watch.start();
         FeatureVectorDatasetLoader datasetsRetriever =
                 createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
-        Collection<ExternalData> featureVectorDatasets =
-                datasetsRetriever.getFeatureVectorDatasets();
+        List<ExternalData> featureVectorDatasets = datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())
         {
             return null;
@@ -87,9 +87,9 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
     // runs, where each plate has at most one analysis dataset in each run. {@link
     // UniqueKeyViolationStrategy} could be set to {@link UniqueKeyViolationStrategy.ERROR} in
     // such a case.
-    private static List<DatasetReference> chooseSingleDatasetForPlate(
-            Collection<ExternalData> datasets)
+    private static List<DatasetReference> chooseSingleDatasetForPlate(List<ExternalData> datasets)
     {
+        Collections.sort(datasets);
         TableMap<String, ExternalData> plateToDatasetMap =
                 new TableMap<String, ExternalData>(datasets,
                         new IKeyExtractor<String, ExternalData>()

@@ -53,7 +53,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
     // Running state
-    private Collection<ExternalData> featureVectorDatasets;
+    private List<ExternalData> featureVectorDatasets;
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
@@ -100,7 +100,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     }
 
     /** enriched with image dataset parents */
-    public Collection<ExternalData> getFeatureVectorDatasets()
+    public List<ExternalData> getFeatureVectorDatasets()
     {
         loadAll();
         return featureVectorDatasets;
@@ -136,7 +136,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         }
 
         gatherChildrenDataSets(featureVectorDatasetSet, imageDatasets, featureVectorDatasetTypeCode);
-        featureVectorDatasets = featureVectorDatasetSet.values();
+        featureVectorDatasets = new ArrayList<ExternalData>(featureVectorDatasetSet.values());
     }
 
     private boolean isMatchingImageDataset(ExternalData dataset)
@@ -200,7 +200,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
         if (parentDataset == null)
         {
-            return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull, 
+            return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                     createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
                     externalData.getRegistrationDate(), null, extractProperties(externalData));
