@@ -19,6 +19,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
 {
+    private static class ExtendedSimpleComboValue<T> extends SimpleComboValue<LabeledItem<T>>
+    {
+        private static final long serialVersionUID = 1L;
+
+        private ExtendedSimpleComboValue(LabeledItem<T> value)
+        {
+            super(value);
+
+            set(LabeledItem.LABEL_FIELD, value.toString());
+            set(LabeledItem.TOOLTIP_FIELD, value.getTooltip());
+        }
+    }
 
     /**
      * Creates a combobox and selects the first value. For each item there should be one
@@ -75,13 +87,33 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
             add(item);
             i++;
         }
+    }
 
-        for (int j = 0; j < getStore().getCount(); j++)
+    /**
+     * Adds the values to the list.
+     * 
+     * @param values the values
+     */
+    @Override
+    public void add(List<LabeledItem<T>> values)
+    {
+        List<ExtendedSimpleComboValue<T>> list = new ArrayList<ExtendedSimpleComboValue<T>>();
+        for (LabeledItem<T> t : values)
         {
-            SimpleComboValue<LabeledItem<T>> item = getStore().getAt(j);
-            item.set(LabeledItem.LABEL_FIELD, item.getValue().toString());
-            item.set(LabeledItem.TOOLTIP_FIELD, item.getValue().getTooltip());
+            list.add(new ExtendedSimpleComboValue<T>(t));
         }
+        store.add(list);
+    }
+
+    /**
+     * Adds the value.
+     * 
+     * @param value the value
+     */
+    @Override
+    public void add(@SuppressWarnings("hiding") LabeledItem<T> value)
+    {
+        store.add(new ExtendedSimpleComboValue<T>(value));
     }
 
     public T getChosenItem()
