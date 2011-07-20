@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.ReportingBased
 public class ScreeningReportingBasedProcessingPlugin extends ReportingBasedProcessingPlugin
 {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * @param properties
      * @param storeRoot
@@ -39,6 +41,5 @@ public class ScreeningReportingBasedProcessingPlugin extends ReportingBasedProce
                 properties, storeRoot);
     }
 
-    private static final long serialVersionUID = 1L;
 
 }
