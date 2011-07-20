@@ -102,6 +102,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                         entityKind.getEntityClass().getSimpleName());
         int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
         hibernateTemplate.flush();
+        hibernateTemplate.clear();
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
     }
 
