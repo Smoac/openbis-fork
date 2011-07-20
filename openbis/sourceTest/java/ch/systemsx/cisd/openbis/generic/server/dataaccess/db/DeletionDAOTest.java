@@ -84,17 +84,19 @@ public class DeletionDAOTest extends AbstractDAOTest
                 .getRegistrationDate().getTime() < dateAfterRegistration.getTime());
     }
 
-    // @Test(dependsOnMethods = "testFindTrashedEntities")
     @Test
-    public void testRevertFirstDeletion()
+    public void testRevertDeletion()
     {
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
         List<DeletionPE> allDeletions = deletionDAO.listAllEntities();
 
-        assertTrashedEntitiesFound(0, 5, 1, allDeletions.get(0));
-        DeletionPE deletion = allDeletions.get(0);
-
-        testRevertDeletion(deletionDAO, deletion);
+        // - all deletions should be revertable,
+        // - there are different connections in different deletions
+        // (samples with data sets, experiments with samples...)
+        for (DeletionPE deletion : allDeletions)
+        {
+            testRevertDeletion(deletionDAO, deletion);
+        }
     }
 
     private void testRevertDeletion(IDeletionDAO deletionDAO, DeletionPE deletion)
