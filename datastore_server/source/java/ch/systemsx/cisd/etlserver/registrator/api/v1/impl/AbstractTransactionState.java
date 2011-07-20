@@ -258,26 +258,53 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
         {
+            // See if we already have an updatable version of the data set
+            DataSetUpdatable result = findDataSetLocally(dataSetCode);
+            if (result != null)
+            {
+                return result;
+            }
+            
             ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
             if (dataSet == null)
             {
                 return null;
             } else
             {
-                DataSetUpdatable result = new DataSetUpdatable(dataSet);
+                result = new DataSetUpdatable(dataSet);
                 dataSetsToBeUpdated.add(result);
                 return result;
             }
+        }
+
+        private DataSetUpdatable findDataSetLocally(String dataSetCode)
+        {
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
+            {
+                if (dataSet.getDataSetCode().equals(dataSetCode))
+                {
+                    return dataSet;
+                }
+            }
+            return null;
         }
 
         public ISample getSampleForUpdate(String sampleIdentifierString)
         {
             SampleIdentifier sampleIdentifier =
                     new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
+
+            // Check if we already have an updatable sample for this one
+            Sample result = findSampleLocally(sampleIdentifier);
+            if (result != null)
+            {
+                return result;
+            }
+
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openBisService.tryGetSampleWithExperiment(sampleIdentifier);
 
-            Sample result = null;
             if (sample != null)
             {
                 result = new Sample(sample);
@@ -285,6 +312,20 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             }
 
             return result;
+        }
+
+        private Sample findSampleLocally(SampleIdentifier sampleIdentifier)
+        {
+            String sampleIdentifierString = sampleIdentifier.toString();
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (Sample sample : samplesToBeUpdated)
+            {
+                if (sample.getSampleIdentifier().equals(sampleIdentifierString))
+                {
+                    return sample;
+                }
+            }
+            return null;
         }
 
         public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
