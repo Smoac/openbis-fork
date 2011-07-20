@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenExperimentBrowserTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
@@ -324,8 +323,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                 protected void process(Void result)
                 {
                     super.process(result);
-                    GWTUtils.displayInfo(viewContext.getMessage(Dict.USE_TRASH_BROWSER),
-                            DisplayInfoTime.LONG);
+                    GWTUtils.displayInfo(viewContext.getMessage(Dict.USE_TRASH_BROWSER));
                 }
             };
     }
