@@ -93,9 +93,9 @@ public class ExperimentLister extends AbstractBaSynthecClient
      */
     public void run(List<String> projectIdentifiers)
     {
-        printHeader();
         retrieveInformationFromOpenBis(projectIdentifiers);
 
+        printHeader();
         for (Experiment experiment : experiments)
         {
             printExperiment(experiment);
@@ -213,6 +213,9 @@ public class ExperimentLister extends AbstractBaSynthecClient
     private void printRegisteredByOn(EntityRegistrationDetails registrationDetails, StringBuffer sb)
     {
         sb.append("\t");
-        sb.append(registrationDetails.getUserEmail());
+        if (null != registrationDetails)
+        {
+            sb.append(registrationDetails.getUserEmail());
+        }
     }
 }

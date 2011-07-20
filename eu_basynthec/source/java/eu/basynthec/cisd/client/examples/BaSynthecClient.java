@@ -16,6 +16,7 @@
 
 package eu.basynthec.cisd.client.examples;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -133,7 +134,8 @@ public class BaSynthecClient extends AbstractBaSynthecClient
 
         List<String> strainNames = Arrays.asList("MGP100");
         logInfo("Listing data sets containing data for strains " + strainNames + "...");
-        DataSetSearch dataSetSearch = new DataSetSearch(openBis);
+        File downloadFolder = new File("targets/downloads/");
+        DataSetSearch dataSetSearch = new DataSetSearch(openBis, downloadFolder);
         dataSetSearch.run(strainNames);
 
     }

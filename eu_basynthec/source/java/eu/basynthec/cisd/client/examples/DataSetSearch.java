@@ -16,11 +16,14 @@
 
 package eu.basynthec.cisd.client.examples;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
@@ -46,6 +49,8 @@ public class DataSetSearch extends AbstractBaSynthecClient
 
     private static final String DATA_SET_HEADER = "Data Set";
 
+    private static final String PATH_HEADER = "Data Path";
+
     /**
      * An enum for keeping track of the metadata fields we are interested in, in the order we want
      * to display them.
@@ -65,6 +70,9 @@ public class DataSetSearch extends AbstractBaSynthecClient
         private final String headerText;
     }
 
+    // Where to store the data we download
+    private final File downloadFolder;
+
     // State we compute as part of the operation of this class
 
     // The data sets we are interested in
@@ -76,14 +84,18 @@ public class DataSetSearch extends AbstractBaSynthecClient
     // A mapping from experiments to data sets
     private HashMap<String, ArrayList<DataSet>> experimentDataSets;
 
+    // A mapping from data sets to paths where the data is stored
+    private HashMap<DataSet, File> dataSetFiles;
+
     /**
      * The public constructor
      * 
      * @param facade The facade for interacting with openBIS.
      */
-    public DataSetSearch(IOpenbisServiceFacade facade)
+    public DataSetSearch(IOpenbisServiceFacade facade, File downloadFolder)
     {
         super(facade);
+        this.downloadFolder = downloadFolder;
     }
 
     /**
@@ -101,9 +113,10 @@ public class DataSetSearch extends AbstractBaSynthecClient
      */
     public void run(List<String> strainNames)
     {
-        printHeader();
         retrieveInformationFromOpenBis(strainNames);
+        downloadDataSets();
 
+        printHeader();
         for (Experiment experiment : experiments)
         {
             printExperiment(experiment);
@@ -124,7 +137,13 @@ public class DataSetSearch extends AbstractBaSynthecClient
         {
             experimentIdentifiers.add(dataSet.getExperimentIdentifier());
         }
-        experiments = openBis.getExperiments(experimentIdentifiers);
+        if (experimentIdentifiers.isEmpty())
+        {
+            experiments = new ArrayList<Experiment>();
+        } else
+        {
+            experiments = openBis.getExperiments(experimentIdentifiers);
+        }
 
         // Create a map from experiment to data set
         experimentDataSets = new HashMap<String, ArrayList<DataSet>>();
@@ -142,6 +161,21 @@ public class DataSetSearch extends AbstractBaSynthecClient
     }
 
     /**
+     * Connect to openBis to download the data sets
+     */
+    private void downloadDataSets()
+    {
+        dataSetFiles = new HashMap<DataSet, File>();
+        for (DataSet dataSet : matchingDataSets)
+        {
+            // This method retrieves a link to the data set if the file system it is on can be
+            // mounted locally. In this case, it cannot be mounted locally, so don't even try.
+            File location = dataSet.getLinkOrCopyOfContent(null, downloadFolder, "original/tsv");
+            dataSetFiles.put(dataSet, location);
+        }
+    }
+
+    /**
      * Find data sets that contain data for the specified strains.
      */
     private List<DataSet> retrieveDataSetsReferencingStrains(List<String> strainNames)
@@ -154,8 +188,6 @@ public class DataSetSearch extends AbstractBaSynthecClient
             searchCriteria.addMatchClause(MatchClause.createPropertyMatch(STRAIN_NAMES_PROPERTY,
                     strainName));
         }
-        println("Searching for data sets that match the following criteria: ");
-        println(searchCriteria.toString());
         return openBis.searchForDataSets(searchCriteria);
     }
 
@@ -174,6 +206,8 @@ public class DataSetSearch extends AbstractBaSynthecClient
         sb.append(DATA_SET_HEADER);
         sb.append("\t");
         sb.append(STRAINS_HEADER);
+        sb.append("\t");
+        sb.append(PATH_HEADER);
         println(sb.toString());
     }
 
@@ -217,6 +251,8 @@ public class DataSetSearch extends AbstractBaSynthecClient
 
     /**
      * Get the strains for the experiment and print them to the string buffer.
+     * 
+     * @throws IOException
      */
     private void printDataSetsOn(Experiment experiment, StringBuffer sb)
     {
@@ -230,6 +266,14 @@ public class DataSetSearch extends AbstractBaSynthecClient
         {
             String dataSetCode = dataSet.getCode();
             String strainNames = dataSet.getProperties().get(STRAIN_NAMES_PROPERTY);
+            String path;
+            try
+            {
+                path = dataSetFiles.get(dataSet).getCanonicalPath();
+            } catch (IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            }
             if (false == isFirstLine)
             {
                 sb.append("\n");
@@ -238,6 +282,9 @@ public class DataSetSearch extends AbstractBaSynthecClient
             sb.append(dataSetCode);
             sb.append("\t");
             sb.append(strainNames);
+            sb.append("\t");
+            sb.append(path);
+            isFirstLine = false;
         }
     }
 
