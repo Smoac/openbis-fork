@@ -88,11 +88,21 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
             dataSetInfo.setInstanceCode(sampleId.getSpaceLevel().getDatabaseInstanceCode());
         }
 
+        if (null != userProvidedDataSetInformationOrNull.tryToGetSample())
+        {
+            dataSetInfo.setSample(userProvidedDataSetInformationOrNull.tryToGetSample());
+        }
+
         ExperimentIdentifier experimentId =
                 userProvidedDataSetInformationOrNull.getExperimentIdentifier();
         if (null != experimentId)
         {
             dataSetInfo.setExperimentIdentifier(experimentId);
+        }
+
+        if (null != userProvidedDataSetInformationOrNull.tryToGetExperiment())
+        {
+            dataSetInfo.setExperiment(userProvidedDataSetInformationOrNull.tryToGetExperiment());
         }
 
         DataSetType type = userProvidedDataSetInformationOrNull.getDataSetType();
@@ -105,6 +115,12 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         if (false == props.isEmpty())
         {
             dataSetInfo.setDataSetProperties(props);
+        }
+
+        if (userProvidedDataSetInformationOrNull.getParentDataSetCodes() != null)
+        {
+            dataSetInfo.setParentDataSetCodes(userProvidedDataSetInformationOrNull
+                    .getParentDataSetCodes());
         }
     }
 

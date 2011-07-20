@@ -138,7 +138,11 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
             {
                 dataSetInformation.setSpaceCode(space.getCode());
             }
-            setExperiment(sample.getSample().getExperiment());
+
+            if (sample.getSample().getExperiment() != null)
+            {
+                setExperiment(sample.getSample().getExperiment());
+            }
         }
     }
 
