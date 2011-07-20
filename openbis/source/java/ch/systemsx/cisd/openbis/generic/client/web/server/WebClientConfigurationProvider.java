@@ -72,11 +72,7 @@ public class WebClientConfigurationProvider
 
     private static final String ALLOW_ADDING_UNOFFICIAL_TERMS = "allow-adding-unofficial-terms";
 
-    private static final String ENABLE_TRASH = "enable-trash";
-
     private static final boolean DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS = false;
-
-    private static final boolean DEFAULT_ENABLE_TRASH = false;
 
     static final String TECHNOLOGIES = "technologies";
 
@@ -105,7 +101,6 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
         webClientConfiguration.setMaxEntityVisits(DEFAULT_MAX_ENTITY_VISITS);
         webClientConfiguration.setAllowAddingUnofficialTerms(DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
-        webClientConfiguration.setEnableTrash(DEFAULT_ENABLE_TRASH);
     }
 
     private void init(Properties properties)
@@ -115,7 +110,6 @@ public class WebClientConfigurationProvider
         webClientConfiguration.setMaxVisibleColumns(extractMaxVisibleColumns(properties));
         webClientConfiguration
                 .setAllowAddingUnofficialTerms(extractAllowAddingUnofficialTerms(properties));
-        webClientConfiguration.setEnableTrash(extractEnableTrash(properties));
         webClientConfiguration.setMaxEntityVisits(PropertyUtils.getInt(properties,
                 MAX_ENTITY_VISITS, DEFAULT_MAX_ENTITY_VISITS));
         webClientConfiguration
@@ -225,11 +219,6 @@ public class WebClientConfigurationProvider
     {
         return PropertyUtils.getBoolean(properties, ALLOW_ADDING_UNOFFICIAL_TERMS,
                 DEFAULT_ALLOW_ADDING_UNOFFICIAL_TERMS);
-    }
-
-    private boolean extractEnableTrash(Properties properties)
-    {
-        return PropertyUtils.getBoolean(properties, ENABLE_TRASH, DEFAULT_ENABLE_TRASH);
     }
 
     public WebClientConfiguration getWebClientConfiguration()
