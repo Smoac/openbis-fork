@@ -42,8 +42,11 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
 
         ExperimentIdentifierSearchCriteria experimentCriteriaOrNull =
                 tryGetExperimentIdentifierSearchCriteria(locator);
+
         AnalysisProcedureCriteria analysisProcedureCriteria =
+                ScreeningResolverUtils.
                 extractAnalysisProcedureCriteria(locator);
+
         openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentCriteriaOrNull,
                 analysisProcedureCriteria);
     }
@@ -82,16 +85,6 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
             return ExperimentIdentifierSearchCriteria.createSearchAll();
         }
         return null;
-    }
-
-    private AnalysisProcedureCriteria extractAnalysisProcedureCriteria(ViewLocator locator)
-    {
-        String analysisProcedureCode =
-                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
-
-        return StringUtils.isBlank(analysisProcedureCode) ? AnalysisProcedureCriteria
-                .createAllProcedures() : AnalysisProcedureCriteria
-                .createFromCode(analysisProcedureCode);
     }
 
     /**

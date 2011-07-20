@@ -54,6 +54,8 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private static final int PANEL_WIDTH_PX = COMBOX_WIDTH_PX + 40;
 
+    private final static String UNSPECIFIED_PROCEDURE = "Unspecified";
+
     /**
      * Can be used from external classes wishing to be notified when the analysis procedure
      * selection changes.
@@ -85,8 +87,6 @@ class AnalysisProcedureChooser extends LayoutContainer
         return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
                 selectedAnalysisProcedureOrNull, selectionListener, layoutPanel);
     }
-
-    private final static String ANY_ANALYSIS_PROCEDURE = "Any";
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
     private final IAnalysisProcedureSelectionListener selectionListener;
@@ -189,8 +189,8 @@ class AnalysisProcedureChooser extends LayoutContainer
         Collections.sort(sortedCodes);
 
         // unspecified is always an option and is always displayed at the end
-        sortedCodes.remove(ANY_ANALYSIS_PROCEDURE);
-        sortedCodes.add(ANY_ANALYSIS_PROCEDURE);
+        sortedCodes.remove(UNSPECIFIED_PROCEDURE);
+        sortedCodes.add(UNSPECIFIED_PROCEDURE);
 
         return sortedCodes;
     }
@@ -205,7 +205,6 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void setInitialSelection(String value)
     {
-        // TODO KE: this is a logic we might want to review
         String analysisProcedureOrNull = value;
         if (StringUtils.isBlank(analysisProcedureOrNull))
         {
@@ -214,7 +213,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
         String comboBoxValue = analysisCodeToComboBoxValue(analysisProcedureOrNull);
 
-        if (ANY_ANALYSIS_PROCEDURE.equals(comboBoxValue)
+        if (UNSPECIFIED_PROCEDURE.equals(comboBoxValue)
                 || analysisProceduresComboBox.findModel(comboBoxValue) == null)
         {
             comboBoxValue = getFirstValueFromCombo();
@@ -241,7 +240,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         String selection = analysisProceduresComboBox.getSimpleValue();
         String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
         return StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
-                .createAllProcedures() : AnalysisProcedureCriteria
+                .createNoProcedures() : AnalysisProcedureCriteria
                 .createFromCode(analysisProcedureOrNull);
     }
 
@@ -265,12 +264,12 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private String analysisCodeToComboBoxValue(String analysisProcedureOrNull)
     {
-        return StringUtils.isBlank(analysisProcedureOrNull) ? ANY_ANALYSIS_PROCEDURE
+        return StringUtils.isBlank(analysisProcedureOrNull) ? UNSPECIFIED_PROCEDURE
                 : analysisProcedureOrNull;
     }
 
     private String comboBoxValueToAnalysisProcedure(String comboBoxValue)
     {
-        return ANY_ANALYSIS_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
+        return UNSPECIFIED_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
     }
 }

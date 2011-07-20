@@ -178,7 +178,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             return createImagingMaterialViewerTabFactory(entity, null,
-                    AnalysisProcedureCriteria.createAllProcedures(), getViewContext());
+                    AnalysisProcedureCriteria.createNoProcedures(), getViewContext());
         }
     }
 

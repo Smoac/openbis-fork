@@ -435,7 +435,7 @@ public class WellContentDialog extends Dialog
                     // TODO KE: pass analysis procedure from plate layout to material detail view
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openImagingMaterialViewer(material, getExperimentCriteria(),
-                                    AnalysisProcedureCriteria.createAllProcedures(),
+                                    AnalysisProcedureCriteria.createNoProcedures(),
                                     viewContext);
                 }
 

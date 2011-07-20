@@ -111,7 +111,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
         {
             ClientPluginFactory.openImagingMaterialViewer(material,
                     createExperimentSearchCriteria(),
-                    AnalysisProcedureCriteria.createAllProcedures(), screeningViewContext);
+                    AnalysisProcedureCriteria.createNoProcedures(), screeningViewContext);
         } else
         {
             super.showEntityViewer(material, editMode, active);

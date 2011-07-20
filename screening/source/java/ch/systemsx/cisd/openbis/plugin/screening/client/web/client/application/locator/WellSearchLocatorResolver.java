@@ -49,9 +49,6 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                 getMandatoryBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_IS_EXACT_PARAMETER_KEY);
 
-        String analysisProcedureOrNull =
-                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
-
         boolean showCombinedResults =
                 getOptionalBooleanParameter(locator,
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
@@ -65,9 +62,7 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                 MaterialSearchCriteria.create(materialCodesCriteria);
 
         AnalysisProcedureCriteria analysisProcedureCriteria =
-                StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
-                        .createAllProcedures()
-                        : AnalysisProcedureCriteria.createFromCode(analysisProcedureOrNull);
+                ScreeningResolverUtils.extractAnalysisProcedureCriteria(locator);
 
         if (StringUtils.isBlank(experimentPermId))
         {

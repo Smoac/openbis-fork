@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
@@ -36,21 +35,11 @@ public class ExperimentAnalysisSummaryResolver extends AbstractViewLocatorResolv
                         ScreeningLinkExtractor.RESTRICT_GLOBAL_SEARCH_TO_PROJECT, false);
 
         AnalysisProcedureCriteria analysisProcedureCriteria =
-                extractAnalysisProcedureCriteria(locator);
+                ScreeningResolverUtils.extractAnalysisProcedureCriteria(locator);
 
         ExperimentAnalysisSummaryViewer.openTab(viewContext, experimentPermId,
                 restrictGlobalScopeLinkToProject, analysisProcedureCriteria);
 
-    }
-
-    private AnalysisProcedureCriteria extractAnalysisProcedureCriteria(ViewLocator locator)
-    {
-        String analysisProcedureCode =
-                getOptionalParameter(locator, ScreeningLinkExtractor.ANALYSIS_PROCEDURE_KEY);
-
-        return StringUtils.isBlank(analysisProcedureCode) ? AnalysisProcedureCriteria
-                .createAllProcedures() : AnalysisProcedureCriteria
-                .createFromCode(analysisProcedureCode);
     }
 
 }
