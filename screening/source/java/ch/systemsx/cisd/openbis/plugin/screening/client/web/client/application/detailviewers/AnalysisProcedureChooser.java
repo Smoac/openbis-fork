@@ -69,23 +69,27 @@ class AnalysisProcedureChooser extends LayoutContainer
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
             String selectedAnalysisProcedureOrNull,
-            IAnalysisProcedureSelectionListener selectionListener)
+            IAnalysisProcedureSelectionListener selectionListener,
+            boolean triggerInitialSelectionEvent)
     {
         return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
-                selectedAnalysisProcedureOrNull, selectionListener, new HorizontalPanel());
+                selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
+                new HorizontalPanel());
     }
 
     public static final AnalysisProcedureChooser createVertical(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
             String selectedAnalysisProcedureOrNull,
-            IAnalysisProcedureSelectionListener selectionListener)
+            IAnalysisProcedureSelectionListener selectionListener,
+            boolean triggerInitialSelectionEvent)
     {
 
         final VerticalPanel layoutPanel = new VerticalPanel();
         layoutPanel.setWidth(PANEL_WIDTH_PX);
         return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
-                selectedAnalysisProcedureOrNull, selectionListener, layoutPanel);
+                selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
+                layoutPanel);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
@@ -108,7 +112,8 @@ class AnalysisProcedureChooser extends LayoutContainer
     private AnalysisProcedureChooser(IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
             String selectedAnalysisProcedureOrNull,
-            IAnalysisProcedureSelectionListener selectionListener, LayoutContainer layoutPanel)
+            IAnalysisProcedureSelectionListener selectionListener,
+            boolean triggerInitialSelectionEvent, LayoutContainer layoutPanel)
     {
         this.viewContext = viewContext;
         this.selectionListener = selectionListener;
@@ -121,7 +126,23 @@ class AnalysisProcedureChooser extends LayoutContainer
         layoutPanel.add(createComboLabel());
         layoutPanel.add(analysisProceduresComboBox);
 
+        initSelection(selectedAnalysisProcedureOrNull, triggerInitialSelectionEvent);
+    }
+
+    private void initSelection(String selectedAnalysisProcedureOrNull, boolean triggerEvents)
+    {
+        if (false == triggerEvents)
+        {
+            disableEvents(true);
+        }
+
         refresh(selectedAnalysisProcedureOrNull);
+
+        if (false == triggerEvents)
+        {
+            enableEvents(true);
+        }
+
     }
 
     public void updateAnalysisProcedures()

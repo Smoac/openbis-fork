@@ -106,7 +106,6 @@ class MaterialMergedSummarySection extends DisposableTabContent
         IDisposableComponent allExperimentsComponent =
                 MaterialFeaturesFromAllExperimentsComponent.createComponent(screeningViewContext,
                         material, experimentSearchCriteria, analysisProcedureListenerHolder);
-        setInitialAnalysisProcedureCriteriaAndReset();
         return allExperimentsComponent;
     }
 
@@ -116,22 +115,7 @@ class MaterialMergedSummarySection extends DisposableTabContent
                 MaterialReplicaSummaryComponent
                         .createViewer(screeningViewContext, experiment, material,
                                 restrictGlobalScopeLinkToProject, analysisProcedureListenerHolder);
-        setInitialAnalysisProcedureCriteriaAndReset();
         return viewer;
-    }
-
-    /**
-     * The first time when the grid is shown, we set the initial analysis procedure. Later on the
-     * user choice is kept.
-     */
-    private void setInitialAnalysisProcedureCriteriaAndReset()
-    {
-        if (initialAnalysisProcedureCriteriaOrNull != null)
-        {
-            analysisProcedureListenerHolder.getAnalysisProcedureListener()
-                    .analysisProcedureSelected(initialAnalysisProcedureCriteriaOrNull);
-            initialAnalysisProcedureCriteriaOrNull = null;
-        }
     }
 
     @Override
@@ -163,8 +147,13 @@ class MaterialMergedSummarySection extends DisposableTabContent
 
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
+        String initialAnalysisProcedureOrNull =
+                (initialAnalysisProcedureCriteriaOrNull == null) ? null
+                        : initialAnalysisProcedureCriteriaOrNull.tryGetAnalysisProcedureCode();
+
         return AnalysisProcedureChooser.createVertical(screeningViewContext,
-                experimentSearchCriteriaHolder, null, createAnalysisProcedureListener());
+                experimentSearchCriteriaHolder, initialAnalysisProcedureOrNull,
+                createAnalysisProcedureListener(), false);
     }
 
     private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()

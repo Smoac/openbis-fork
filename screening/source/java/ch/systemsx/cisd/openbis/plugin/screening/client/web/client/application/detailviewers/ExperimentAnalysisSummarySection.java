@@ -81,7 +81,7 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
         ExperimentSearchCriteriaHolder criteriaHolder = new ExperimentSearchCriteriaHolder(experimentCriteria);
 
         return AnalysisProcedureChooser.createHorizontal(screeningViewContext, criteriaHolder,
-                null, getGridAsListener());
+                null, getGridAsListener(), true);
     }
 
 }

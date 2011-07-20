@@ -569,7 +569,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         AnalysisProcedureChooser analysisProcedureChooser =
                 AnalysisProcedureChooser.createVertical(viewContext, experimentCriteriaHolder,
-                        null, this);
+                        null, this, true);
         return analysisProcedureChooser;
     }
 
