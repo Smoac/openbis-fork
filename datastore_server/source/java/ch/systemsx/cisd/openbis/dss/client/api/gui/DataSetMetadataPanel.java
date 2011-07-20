@@ -284,6 +284,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     private ArrayList<JComponent> getAllEditableWidgets()
     {
         ArrayList<JComponent> editableWidgets = new ArrayList<JComponent>();
+        editableWidgets.add(dataSetIdText);
         editableWidgets.add(sampleIdText);
         editableWidgets.add(experimentPicker);
         editableWidgets.add(dataSetFileButton);
@@ -416,6 +417,29 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                 public void focusLost(FocusEvent e)
                 {
                     setOwnerId(experimentPicker.getText());
+                }
+
+                public void focusGained(FocusEvent e)
+                {
+                    // Do nothing
+                }
+            });
+
+        dataSetIdText.addActionListener(new ActionListener()
+            {
+
+                public void actionPerformed(ActionEvent e)
+                {
+                    setOwnerId(dataSetIdText.getText());
+                }
+
+            });
+        dataSetIdText.addFocusListener(new FocusListener()
+            {
+
+                public void focusLost(FocusEvent e)
+                {
+                    setOwnerId(dataSetIdText.getText());
                 }
 
                 public void focusGained(FocusEvent e)
