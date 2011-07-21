@@ -57,28 +57,50 @@ public class MaterialReplicaFeatureSummaryGrid extends
 
     private AnalysisProcedureCriteria analysisProcedureCriteria;
 
+    public static IDisposableComponent createFroEmbeddedMode(
+            IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId,
+            TechId materialId, AnalysisProcedureCriteria selectedAnalysisProcedure)
+    {
+        assert selectedAnalysisProcedure != null : "selected analysis procedure cannot be null";
+
+        return new MaterialReplicaFeatureSummaryGrid(viewContext, experimentId, materialId,
+                selectedAnalysisProcedure, null).asDisposableWithoutToolbar();
+    }
+
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId,
-            TechId materialId, AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+            TechId materialId,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
-        return new MaterialReplicaFeatureSummaryGrid(viewContext, experimentId, materialId,
+        assert analysisProcedureListenerHolder != null : "must not be null. Otherwise analysis "
+                + "procedure selection changes won't be visible to the grid.";
+
+        return new MaterialReplicaFeatureSummaryGrid(viewContext, experimentId, materialId, null,
                 analysisProcedureListenerHolder).asDisposableWithoutToolbar();
     }
 
     MaterialReplicaFeatureSummaryGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId experimentId, TechId materialId,
-            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+            AnalysisProcedureCriteria initialAnalysisProcedureOrNull,
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolderOrNull)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, false,
+        super(viewContext.getCommonViewContext(), BROWSER_ID,
+                initialAnalysisProcedureOrNull != null,
                 DisplayTypeIDGenerator.MATERIAL_REPLICA_SUMMARY_SECTION);
         this.specificViewContext = viewContext;
         this.experimentId = experimentId;
         this.materialId = materialId;
+        this.analysisProcedureCriteria = initialAnalysisProcedureOrNull;
 
         setBorders(true);
-        IAnalysisProcedureSelectionListener analysisProcedureListener =
-                createAnalysisProcedureListener();
-        analysisProcedureListenerHolder.setAnalysisProcedureListener(analysisProcedureListener);
+
+        if (analysisProcedureListenerHolderOrNull != null)
+        {
+            IAnalysisProcedureSelectionListener analysisProcedureListener =
+                    createAnalysisProcedureListener();
+            analysisProcedureListenerHolderOrNull
+                    .setAnalysisProcedureListener(analysisProcedureListener);
+        }
     }
 
     private IAnalysisProcedureSelectionListener createAnalysisProcedureListener()

@@ -88,7 +88,7 @@ public class MaterialReplicaSummaryComponent
             AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialReplicaSummaryComponent(screeningViewContext,
-                restrictGlobalScopeLinkToProject, experiment, null).createViewer(material,
+                restrictGlobalScopeLinkToProject, experiment, null).createViewer(material, 
                 analysisProcedureListenerHolder);
     }
 
@@ -360,18 +360,24 @@ public class MaterialReplicaSummaryComponent
 
     private IDisposableComponent createViewer(Material material)
     {
-        AnalysisProcedureListenerHolder holder = new AnalysisProcedureListenerHolder();
-        IDisposableComponent view = createViewer(material, holder);
-        if (initialAnalysisProcedureCriteriaOrNull != null)
-        {
-            holder.getAnalysisProcedureListener().analysisProcedureSelected(
-                    initialAnalysisProcedureCriteriaOrNull);
-        }
-        return view;
+        final IDisposableComponent gridComponent =
+                MaterialReplicaFeatureSummaryGrid.createFroEmbeddedMode(screeningViewContext,
+                        new TechId(experiment), new TechId(material),
+                        initialAnalysisProcedureCriteriaOrNull);
+        return createViewer(material, gridComponent);
     }
 
     private IDisposableComponent createViewer(Material material,
-            AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
+            AnalysisProcedureListenerHolder analysisProcedureListenerHolderOrNull)
+    {
+        final IDisposableComponent gridComponent =
+                MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, new TechId(
+                        experiment), new TechId(material), analysisProcedureListenerHolderOrNull);
+        return createViewer(material, gridComponent);
+    }
+
+    private IDisposableComponent createViewer(Material material,
+            final IDisposableComponent gridComponent)
     {
         final LayoutContainer panel = new LayoutContainer();
         panel.setLayout(new RowLayout(Orientation.VERTICAL));
@@ -382,9 +388,6 @@ public class MaterialReplicaSummaryComponent
 
         TechId materialTechId = new TechId(material);
         TechId experimentTechId = new TechId(experiment);
-        final IDisposableComponent gridComponent =
-                MaterialReplicaFeatureSummaryGrid.create(screeningViewContext, experimentTechId,
-                        materialTechId, analysisProcedureListenerHolder);
         // NOTE: if the width is 100% then the vertical scrollbar of the grid is not visible
         panel.add(gridComponent.getComponent(), new RowData(0.97, 400));
 
