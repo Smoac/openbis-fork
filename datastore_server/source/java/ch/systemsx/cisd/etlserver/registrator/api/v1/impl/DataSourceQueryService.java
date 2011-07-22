@@ -48,7 +48,7 @@ public class DataSourceQueryService implements IDataSourceQueryService
     public DataSet<Map<String, Object>> select(String dataSourceName, String query,
             Object... parameters)
     {
-        DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
+        final DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
         try
         {
             return QueryTool.select(dataSource, query, parameters);
@@ -63,6 +63,25 @@ public class DataSourceQueryService implements IDataSourceQueryService
             throws IllegalArgumentException
     {
         return select(dataSourceName, query, new Object[0]);
+    }
+
+    public int update(String dataSourceName, String query, Object... parameters)
+            throws IllegalArgumentException
+    {
+        final DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
+        try
+        {
+            return QueryTool.update(dataSource, query, parameters);
+        } catch (InvalidQueryException ex)
+        {
+            operationLog.error(ex.getCause().getMessage());
+            throw ex;
+        }
+    }
+
+    public int update(String dataSourceName, String query) throws IllegalArgumentException
+    {
+        return update(dataSourceName, query, new Object[0]);
     }
 
 }

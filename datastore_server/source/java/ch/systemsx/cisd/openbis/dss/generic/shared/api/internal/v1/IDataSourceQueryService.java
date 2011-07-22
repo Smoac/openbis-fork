@@ -79,4 +79,36 @@ public interface IDataSourceQueryService
      */
     DataSet<Map<String, Object>> select(String dataSourceName, String query, Object... parameters)
             throws IllegalArgumentException;
+
+    /**
+     * Execute an update against the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
+     * @return Either the row count (for <code>INSERT</code>, <code>UPDATE</code>, or
+     *         <code>DELETE</code> statements) or 0 for SQL statements that return nothing
+     * @throw IllegalArgumentException Throws if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
+     */
+    int update(String dataSourceName, String query) throws IllegalArgumentException;
+
+    /**
+     * Execute an update against the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
+     * @param parameters The values for filling in the query parameters.
+     * @return Either the row count (for <code>INSERT</code>, <code>UPDATE</code>, or
+     *         <code>DELETE</code> statements) or 0 for SQL statements that return nothing
+     * @throw IllegalArgumentException Thrown if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
+     */
+    int update(String dataSourceName, String query, Object... parameters)
+            throws IllegalArgumentException;
 }
