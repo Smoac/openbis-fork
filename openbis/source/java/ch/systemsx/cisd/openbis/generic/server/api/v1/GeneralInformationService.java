@@ -162,7 +162,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 10;
+        return 11;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()

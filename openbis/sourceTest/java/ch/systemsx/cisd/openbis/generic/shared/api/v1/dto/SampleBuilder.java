@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 
 /**
@@ -30,6 +31,9 @@ public class SampleBuilder
     public SampleBuilder(long id)
     {
         initializer.setId(id);
+        EntityRegistrationDetailsInitializer entityRegInitializer =
+                new EntityRegistrationDetailsInitializer();
+        initializer.setRegistrationDetails(new EntityRegistrationDetails(entityRegInitializer));
     }
     
     public Sample getSample()

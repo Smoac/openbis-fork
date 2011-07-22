@@ -83,7 +83,8 @@ public class Translator
 
     static Project translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
     {
-        return new Project(project.getSpace().getCode(), project.getCode());
+        EntityRegistrationDetails registrationDetails = translateRegistrationDetails(project);
+        return new Project(project.getSpace().getCode(), project.getCode(), registrationDetails);
     }
 
     public static List<Sample> translateSamples(
@@ -119,6 +120,9 @@ public class Translator
         {
             initializer.setExperimentIdentifierOrNull(experimentOrNull.getIdentifier());
         }
+
+        EntityRegistrationDetails registrationDetails = translateRegistrationDetails(privateSample);
+        initializer.setRegistrationDetails(registrationDetails);
 
         return new Sample(initializer);
     }
@@ -249,9 +253,11 @@ public class Translator
                 new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortedTerms)
         {
+            EntityRegistrationDetails registrationDetails =
+                    translateRegistrationDetails(privateTerm);
             terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
                     privateTerm.getCodeOrLabel(), privateTerm.getOrdinal(), privateTerm
-                            .isOfficial()));
+                            .isOfficial(), registrationDetails));
         }
 
         return terms;
@@ -276,7 +282,6 @@ public class Translator
         initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
         initializer.setSampleIdentifierOrNull(externalDatum.getSampleIdentifier());
         initializer.setDataSetTypeCode(externalDatum.getDataSetType().getCode());
-        initializer.setRegistrationDate(externalDatum.getRegistrationDate());
         List<IEntityProperty> properties = externalDatum.getProperties();
         for (IEntityProperty prop : properties)
         {
@@ -299,6 +304,8 @@ public class Translator
                     break;
             }
         }
+        EntityRegistrationDetails registrationDetails = translateRegistrationDetails(externalDatum);
+        initializer.setRegistrationDetails(registrationDetails);
 
         return new DataSet(initializer);
     }
@@ -309,10 +316,13 @@ public class Translator
         Person registrator = thingWithRegistrationDetails.getRegistrator();
         EntityRegistrationDetails.EntityRegistrationDetailsInitializer initializer =
                 new EntityRegistrationDetails.EntityRegistrationDetailsInitializer();
-        initializer.setEmail(registrator.getEmail());
-        initializer.setFirstName(registrator.getFirstName());
-        initializer.setLastName(registrator.getLastName());
-        initializer.setUserId(registrator.getUserId());
+        if (registrator != null)
+        {
+            initializer.setEmail(registrator.getEmail());
+            initializer.setFirstName(registrator.getFirstName());
+            initializer.setLastName(registrator.getLastName());
+            initializer.setUserId(registrator.getUserId());
+        }
         initializer.setRegistrationDate(thingWithRegistrationDetails.getRegistrationDate());
         return new EntityRegistrationDetails(initializer);
     }

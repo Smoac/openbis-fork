@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
@@ -555,4 +557,46 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment},[]]]",
                 result.toString());
     }
+
+    @Test
+    public void testRegistrationDetailsAvailable()
+    {
+        // project
+        List<Project> projects = generalInformationService.listProjects(sessionToken);
+        assertTrue(projects.size() > 0);
+        checkRegistrationDetails(projects.get(0).getRegistrationDetails());
+
+        // experiment
+        List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
+        assertTrue(experiments.size() > 0);
+        checkRegistrationDetails(experiments.get(0).getRegistrationDetails());
+
+        // sample
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CP-TEST-1"));
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        assertTrue(samples.size() > 0);
+        Sample sample = samples.get(0);
+        checkRegistrationDetails(sample.getRegistrationDetails());
+
+        // data set
+        List<DataSet> dataSets =
+                generalInformationService.listDataSetsForSample(sessionToken, sample, false);
+        assertTrue(dataSets.size() > 0);
+        assertNotNull(dataSets.get(0).getRegistrationDetails()
+                .getRegistrationDate());
+    }
+
+    private void checkRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        assertNotNull(registrationDetails);
+        assertEquals("test", registrationDetails.getUserId());
+        assertEquals("franz-josef.elmer@systemsx.ch", registrationDetails.getUserEmail());
+        assertEquals("John", registrationDetails.getUserFirstName());
+        assertEquals("Doe", registrationDetails.getUserLastName());
+        assertNotNull(registrationDetails.getRegistrationDate());
+
+    }
+
 }

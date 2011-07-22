@@ -32,6 +32,8 @@ public final class Project implements Serializable
 
     private final String code;
 
+    private final EntityRegistrationDetails registrationDetails;
+
     /**
      * Creates a new instance for the specified space code and project code.
      * 
@@ -39,6 +41,17 @@ public final class Project implements Serializable
      *             an empty string.
      */
     public Project(String spaceCode, String code)
+    {
+        this(spaceCode, code, null);
+    }
+
+    /**
+     * Creates a new instance for the specified space code and project code.
+     * 
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
+     *             an empty string.
+     */
+    public Project(String spaceCode, String code, EntityRegistrationDetails registrationDetails)
     {
         if (spaceCode == null || spaceCode.length() == 0)
         {
@@ -50,6 +63,7 @@ public final class Project implements Serializable
             throw new IllegalArgumentException("Unspecified code.");
         }
         this.code = code;
+        this.registrationDetails = registrationDetails;
     }
 
     /**
@@ -66,6 +80,16 @@ public final class Project implements Serializable
     public String getCode()
     {
         return code;
+    }
+
+    /**
+     * Return the vocabulary term registration details.
+     * 
+     * @since 1.11
+     */
+    public EntityRegistrationDetails getRegistrationDetails()
+    {
+        return registrationDetails;
     }
 
     @Override

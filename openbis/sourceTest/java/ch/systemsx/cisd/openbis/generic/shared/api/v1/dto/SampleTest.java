@@ -20,6 +20,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 
 /**
@@ -52,6 +53,10 @@ public class SampleTest extends AssertJUnit
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
+
         sample = new Sample(initializer);
     }
 
@@ -67,6 +72,9 @@ public class SampleTest extends AssertJUnit
     @Test
     public void testEquals()
     {
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
         initializer.setPermId(SAMPLE_PERM_ID);
@@ -75,6 +83,7 @@ public class SampleTest extends AssertJUnit
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
+        initializer.setRegistrationDetails(registrationDetails);
         Sample mySample = new Sample(initializer);
         assertTrue("Samples with the same id should be equal.", sample.equals(mySample));
         assertEquals(sample.hashCode(), mySample.hashCode());
@@ -86,6 +95,7 @@ public class SampleTest extends AssertJUnit
         initializer.setIdentifier("/a/different-identifier");
         initializer.setSampleTypeId(new Long(2));
         initializer.setSampleTypeCode("new-code");
+        initializer.setRegistrationDetails(registrationDetails);
         mySample = new Sample(initializer);
         assertTrue("Samples with the same id should be equal.", sample.equals(mySample));
         assertEquals(sample.hashCode(), mySample.hashCode());
@@ -97,6 +107,7 @@ public class SampleTest extends AssertJUnit
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
+        initializer.setRegistrationDetails(registrationDetails);
         mySample = new Sample(initializer);
         assertFalse("Samples with the different ids should not be equal.", sample.equals(mySample));
     }

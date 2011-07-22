@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -46,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -74,6 +77,10 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
     private final static String PASSWORD = "password";
 
     private final static String SESSION_TOKEN = "sessionToken";
+
+    private final static Date OLD_REGISTRATION_DATE = new GregorianCalendar(2010, 0, 1).getTime();
+
+    private final static Date NEW_REGISTRATION_DATE = new GregorianCalendar(2010, 1, 1).getTime();
 
     private Mockery context;
 
@@ -145,6 +152,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                     sampInitializer.setPermId("GRID-PERM-ID");
                     sampInitializer.setSampleTypeCode("GRID-SAMPLE-TYPE");
                     sampInitializer.setSampleTypeId((long) 2);
+                    sampInitializer.setRegistrationDetails(createRegistrationDetails(null));
                     gridSamples.add(new Sample(sampInitializer));
 
                     one(service).searchForSamples(SESSION_TOKEN, gridSearchCriteria);
@@ -159,8 +167,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                         dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
                         dsInitializer
                                 .setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
-                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1)
-                                .getTime());
+                        dsInitializer.setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                         dataSets.add(new DataSet(dsInitializer));
 
                         dsInitializer = new DataSetInitializer();
@@ -168,8 +175,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                         dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                         dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
                         dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1)
-                                .getTime());
+                        dsInitializer.setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                         dataSets.add(new DataSet(dsInitializer));
 
                         dsInitializer = new DataSetInitializer();
@@ -177,8 +183,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                         dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                         dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
                         dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1)
-                                .getTime());
+                        dsInitializer.setRegistrationDetails(createRegistrationDetails(NEW_REGISTRATION_DATE));
                         dataSets.add(new DataSet(dsInitializer));
                     }
 
@@ -187,7 +192,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
                     dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dsInitializer.setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                     dataSets.add(new DataSet(dsInitializer));
 
                     one(service).listDataSetsForSample(SESSION_TOKEN, gridSamples.get(0), false);
@@ -195,6 +200,15 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
 
                 }
             });
+    }
+
+    private EntityRegistrationDetails createRegistrationDetails(Date registrationDate)
+    {
+        EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetailsInitializer();
+        initializer.setRegistrationDate(registrationDate);
+        EntityRegistrationDetails regDetails = new EntityRegistrationDetails(initializer);
+        return regDetails;
     }
 
     private void setupDownloadDataSetExpectations(final String sampleCode) throws IOException
@@ -452,6 +466,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                     sampInitializer.setPermId("GRID-PERM-ID");
                     sampInitializer.setSampleTypeCode("GRID-SAMPLE-TYPE");
                     sampInitializer.setSampleTypeId((long) 2);
+                    sampInitializer.setRegistrationDetails(createRegistrationDetails(null));
                     gridSamples.add(new Sample(sampInitializer));
 
                     one(service).searchForSamples(SESSION_TOKEN, gridSearchCriteria);

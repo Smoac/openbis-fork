@@ -21,6 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -42,6 +43,10 @@ public class DataSetTest extends AssertJUnit
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
         initializer.putProperty("PROP2", "value2");
         initializer.putProperty("PROP1", "value1");
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
+
         dataSet = new DataSet(initializer);
     }
 
@@ -57,10 +62,14 @@ public class DataSetTest extends AssertJUnit
     @Test
     public void testEquals()
     {
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(DATA_SET_CODE);
         initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
+        initializer.setRegistrationDetails(registrationDetails);
         DataSet myDataSet = new DataSet(initializer);
         assertTrue("Data sets with the same code should be equal.", dataSet.equals(myDataSet));
         assertEquals(dataSet.hashCode(), myDataSet.hashCode());
@@ -69,6 +78,7 @@ public class DataSetTest extends AssertJUnit
         initializer.setCode(DATA_SET_CODE);
         initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode("new-code");
+        initializer.setRegistrationDetails(registrationDetails);
         myDataSet = new DataSet(initializer);
         assertTrue("Data sets with the same code should be equal.", dataSet.equals(myDataSet));
         assertEquals(dataSet.hashCode(), myDataSet.hashCode());
@@ -78,6 +88,7 @@ public class DataSetTest extends AssertJUnit
         initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
+        initializer.setRegistrationDetails(registrationDetails);
         myDataSet = new DataSet(initializer);
         assertFalse("Data sets with the different ids should not be equal.",
                 dataSet.equals(myDataSet));

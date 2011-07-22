@@ -23,6 +23,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -59,6 +61,7 @@ public class SampleToDataSetRelatedEntitiesTranslatorTest extends AssertJUnit
     private ArrayList<Sample> createSamples()
     {
         ArrayList<Sample> samples = new ArrayList<Sample>();
+
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
         initializer.setPermId(SAMPLE_PERM_ID);
@@ -66,6 +69,9 @@ public class SampleToDataSetRelatedEntitiesTranslatorTest extends AssertJUnit
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
         Sample sample = new Sample(initializer);
         samples.add(sample);
         return samples;

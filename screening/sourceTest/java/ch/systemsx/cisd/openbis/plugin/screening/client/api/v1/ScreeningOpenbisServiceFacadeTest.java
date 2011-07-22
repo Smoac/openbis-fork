@@ -56,6 +56,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleBuilder;
@@ -1080,11 +1082,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     ds1.getProperties().put(ScreeningConstants.ANALYSIS_PROCEDURE, "FZ-87");
                     ds1.setExperimentIdentifier(experimentIdentifier.toString());
                     ds1.setDataSetTypeCode("my-type");
+                    ds1.setRegistrationDetails(entityRegistrationDetails());
                     DataSetInitializer ds2 = new DataSetInitializer();
                     ds2.setCode("ds2");
                     ds2.getProperties().put(ScreeningConstants.ANALYSIS_PROCEDURE, "ALPHA-42");
                     ds2.setExperimentIdentifier(experimentIdentifier.toString());
                     ds2.setDataSetTypeCode("my-type");
+                    ds2.setRegistrationDetails(entityRegistrationDetails());
                     will(returnValue(Arrays.asList(new DataSet(ds1), new DataSet(ds2))));
                 }
             });
@@ -1272,7 +1276,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         initializer.setPermId("s-1");
         initializer.setSampleTypeId(1L);
         initializer.setSampleTypeCode("my-type");
+        initializer.setRegistrationDetails(entityRegistrationDetails());
         return initializer;
+    }
+
+    private EntityRegistrationDetails entityRegistrationDetails()
+    {
+        EntityRegistrationDetailsInitializer entityRegInitializer =
+                new EntityRegistrationDetailsInitializer();
+        return new EntityRegistrationDetails(entityRegInitializer);
     }
 
     private DataSetInitializer dataSetInitializer(String code)
@@ -1281,6 +1293,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         initializer.setDataSetTypeCode(MY_DATA_SET_TYPE);
         initializer.setExperimentIdentifier("/S/P/E");
         initializer.setCode(code);
+        initializer.setRegistrationDetails(entityRegistrationDetails());
         return initializer;
     }
 }

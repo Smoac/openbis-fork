@@ -46,12 +46,16 @@ public class ControlledVocabularyPropertyType extends PropertyType
 
         private final Boolean isOfficial;
 
-        public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial)
+        private final EntityRegistrationDetails registrationDetails;
+
+        public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial,
+                EntityRegistrationDetails registrationDetails)
         {
             this.code = code;
             this.label = label;
             this.ordinal = ordinal;
             this.isOfficial = isOfficial == null ? Boolean.TRUE : isOfficial;
+            this.registrationDetails = registrationDetails;
         }
 
         public String getCode()
@@ -72,6 +76,16 @@ public class ControlledVocabularyPropertyType extends PropertyType
         public Boolean isOfficial()
         {
             return isOfficial;
+        }
+
+        /**
+         * Return the vocabulary term registration details.
+         * 
+         * @since 1.11
+         */
+        public EntityRegistrationDetails getRegistrationDetails()
+        {
+            return registrationDetails;
         }
 
         @Override

@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.jmock.Expectations;
@@ -44,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -72,6 +75,10 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     private final static String PASSWORD = "password";
 
     private final static String SESSION_TOKEN = "sessionToken";
+
+    private final static Date OLD_REGISTRATION_DATE = new GregorianCalendar(2010, 0, 1).getTime();
+
+    private final static Date NEW_REGISTRATION_DATE = new GregorianCalendar(2010, 1, 1).getTime();
 
     private Mockery context;
 
@@ -139,6 +146,8 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     sampInitializer.setPermId("PERM-ID");
                     sampInitializer.setSampleTypeCode("SAMPLE-TYPE");
                     sampInitializer.setSampleTypeId((long) 1);
+                    sampInitializer
+                            .setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                     replicaSamples.add(new Sample(sampInitializer));
 
                     one(service).searchForSamples(SESSION_TOKEN, replicaSearchCriteria);
@@ -150,7 +159,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
                     dsInitializer.setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dsInitializer.setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                     dataSets.add(new DataSet(dsInitializer));
 
                     dsInitializer = new DataSetInitializer();
@@ -158,7 +167,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
                     dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dsInitializer.setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                     dataSets.add(new DataSet(dsInitializer));
 
                     dsInitializer = new DataSetInitializer();
@@ -166,7 +175,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
                     dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
+                    dsInitializer.setRegistrationDetails(createRegistrationDetails(NEW_REGISTRATION_DATE));
                     dataSets.add(new DataSet(dsInitializer));
 
                     one(service).listDataSets(SESSION_TOKEN, replicaSamples);
@@ -181,10 +190,21 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     sampInitializer.setPermId("GRID-PERM-ID");
                     sampInitializer.setSampleTypeCode("GRID-SAMPLE-TYPE");
                     sampInitializer.setSampleTypeId((long) 2);
+                    sampInitializer
+                            .setRegistrationDetails(createRegistrationDetails(OLD_REGISTRATION_DATE));
                     gridSamples.add(new Sample(sampInitializer));
 
                 }
             });
+    }
+
+    private EntityRegistrationDetails createRegistrationDetails(Date registrationDate)
+    {
+        EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetailsInitializer();
+        initializer.setRegistrationDate(registrationDate);
+        EntityRegistrationDetails regDetails = new EntityRegistrationDetails(initializer);
+        return regDetails;
     }
 
     private void setupDownloadDataSetExpectations(final String sampleCode) throws IOException

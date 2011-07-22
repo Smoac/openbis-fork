@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -342,6 +344,10 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         initializer.setIdentifier("/space/code");
         initializer.setSampleTypeId(new Long(1));
         initializer.setSampleTypeCode("sample-type");
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
+
         Sample owner = new Sample(initializer);
         List<DataSet> result =
                 service.listDataSets(SESSION_TOKEN, Collections.singletonList(owner));
@@ -403,6 +409,10 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         initializer.setIdentifier("/space/code");
         initializer.setSampleTypeId(new Long(1));
         initializer.setSampleTypeCode("sample-type");
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
+
         Sample owner = new Sample(initializer);
         List<DataSet> result = service.listDataSetsForSample(SESSION_TOKEN, owner, true);
         assertEquals(1, result.size());

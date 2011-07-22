@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -516,6 +516,10 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
 
     private Sample createSample(String code, String experimentIdentifierOrNull)
     {
+        EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetailsInitializer();
+        EntityRegistrationDetails registrationDetails = new EntityRegistrationDetails(initializer);
+
         SampleInitializer init = new SampleInitializer();
         init.setCode(code);
         init.setIdentifier(sampleIdentifier(code));
@@ -524,18 +528,23 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setSampleTypeCode("sample-type-code");
         init.setSampleTypeId(1L);
         init.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
+        init.setRegistrationDetails(registrationDetails);
         return new Sample(init);
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createDataSet(String code,
             String exprimentId, String sampleIdOrNull)
     {
+        EntityRegistrationDetailsInitializer initializer =
+                new EntityRegistrationDetailsInitializer();
+        EntityRegistrationDetails registrationDetails = new EntityRegistrationDetails(initializer);
+
         DataSetInitializer init = new DataSetInitializer();
         init.setCode(code);
         init.setDataSetTypeCode("data-set-type");
-        init.setRegistrationDate(new Date());
         init.setExperimentIdentifier(exprimentId);
         init.setSampleIdentifierOrNull(sampleIdOrNull);
+        init.setRegistrationDetails(registrationDetails);
         return new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(init);
     }
 

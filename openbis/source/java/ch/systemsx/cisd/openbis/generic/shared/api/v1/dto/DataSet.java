@@ -60,13 +60,13 @@ public final class DataSet implements Serializable
 
         private String dataSetTypeCode;
 
-        private Date registrationDate;
-
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
         private ArrayList<String> parentCodes = new ArrayList<String>();
 
         private HashMap<String, String> properties = new HashMap<String, String>();
+
+        private EntityRegistrationDetails registrationDetails;
 
         public String getCode()
         {
@@ -108,16 +108,6 @@ public final class DataSet implements Serializable
             return dataSetTypeCode;
         }
 
-        public void setRegistrationDate(Date registrationDate)
-        {
-            this.registrationDate = registrationDate;
-        }
-
-        public Date getRegistrationDate()
-        {
-            return registrationDate;
-        }
-
         public HashMap<String, String> getProperties()
         {
             return properties;
@@ -149,6 +139,17 @@ public final class DataSet implements Serializable
         {
             return parentCodes;
         }
+
+        public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+        {
+            this.registrationDetails = registrationDetails;
+        }
+
+        public EntityRegistrationDetails getRegistrationDetails()
+        {
+            return registrationDetails;
+        }
+
     }
 
     private final String code;
@@ -159,14 +160,14 @@ public final class DataSet implements Serializable
 
     private final String dataSetTypeCode;
 
-    private final Date registrationDate;
-
     private final HashMap<String, String> properties;
 
     // For handling connections to entities
     private final EnumSet<Connections> retrievedConnections;
 
     private final List<String> parentCodes;
+
+    private final EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance with the provided initializer
@@ -189,17 +190,29 @@ public final class DataSet implements Serializable
         checkValidString(initializer.getDataSetTypeCode(), "Unspecified data set type code.");
         this.dataSetTypeCode = initializer.getDataSetTypeCode();
 
-        this.registrationDate = initializer.getRegistrationDate();
-
         this.properties = initializer.getProperties();
 
         this.retrievedConnections = initializer.getRetrievedConnections();
         this.parentCodes = initializer.getParentCodes();
+
+        checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                "Unspecified entity registration details.");
+        this.registrationDetails = initializer.getRegistrationDetails();
+
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
     {
         if (string == null || string.length() == 0)
+        {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private void checkValidRegistrationDetails(EntityRegistrationDetails details, String message)
+            throws IllegalArgumentException
+    {
+        if (details == null)
         {
             throw new IllegalArgumentException(message);
         }
@@ -230,7 +243,7 @@ public final class DataSet implements Serializable
 
     public Date getRegistrationDate()
     {
-        return registrationDate;
+        return getRegistrationDetails().getRegistrationDate();
     }
 
     public HashMap<String, String> getProperties()
@@ -246,6 +259,16 @@ public final class DataSet implements Serializable
     public List<String> getParentCodes()
     {
         return Collections.unmodifiableList(parentCodes);
+    }
+
+    /**
+     * Return the data set registration details.
+     * 
+     * @since 1.11
+     */
+    public EntityRegistrationDetails getRegistrationDetails()
+    {
+        return registrationDetails;
     }
 
     @Override

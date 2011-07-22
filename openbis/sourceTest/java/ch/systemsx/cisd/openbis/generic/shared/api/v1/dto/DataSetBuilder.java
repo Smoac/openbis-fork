@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 
 /**
  * Builder of {@link DataSet} instances.
@@ -25,7 +26,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitial
  */
 public class DataSetBuilder
 {
-    private DataSetInitializer initializer = new DataSetInitializer();
+    private DataSetInitializer initializer;
+
+    public DataSetBuilder()
+    {
+        initializer = new DataSetInitializer();
+        EntityRegistrationDetails registrationDetails =
+                new EntityRegistrationDetails(new EntityRegistrationDetailsInitializer());
+        initializer.setRegistrationDetails(registrationDetails);
+    }
     
     public DataSet getDataSet()
     {

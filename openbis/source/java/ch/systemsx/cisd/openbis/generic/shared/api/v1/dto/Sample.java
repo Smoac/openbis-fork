@@ -62,6 +62,8 @@ public final class Sample implements Serializable
 
         private HashMap<String, String> properties = new HashMap<String, String>();
 
+        private EntityRegistrationDetails registrationDetails;
+
         public void setId(Long id)
         {
             this.id = id;
@@ -142,6 +144,15 @@ public final class Sample implements Serializable
             properties.put(propCode, value);
         }
 
+        public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+        {
+            this.registrationDetails = registrationDetails;
+        }
+
+        public EntityRegistrationDetails getRegistrationDetails()
+        {
+            return registrationDetails;
+        }
     }
 
     private final Long id;
@@ -159,6 +170,8 @@ public final class Sample implements Serializable
     private final String sampleTypeCode;
 
     private final HashMap<String, String> properties;
+
+    private final EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance with the provided initializer
@@ -188,6 +201,11 @@ public final class Sample implements Serializable
         this.sampleTypeCode = initializer.getSampleTypeCode();
 
         this.properties = initializer.getProperties();
+
+        checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                "Unspecified entity registration details.");
+        this.registrationDetails = initializer.getRegistrationDetails();
+
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
@@ -201,6 +219,15 @@ public final class Sample implements Serializable
     private void checkValidLong(Long longValue, String message) throws IllegalArgumentException
     {
         if (longValue == null || longValue == 0)
+        {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private void checkValidRegistrationDetails(EntityRegistrationDetails details, String message)
+            throws IllegalArgumentException
+    {
+        if (details == null)
         {
             throw new IllegalArgumentException(message);
         }
@@ -262,6 +289,16 @@ public final class Sample implements Serializable
     public Map<String, String> getProperties()
     {
         return Collections.unmodifiableMap(properties);
+    }
+
+    /**
+     * Return the sample registration details.
+     * 
+     * @since 1.11
+     */
+    public EntityRegistrationDetails getRegistrationDetails()
+    {
+        return registrationDetails;
     }
 
     @Override
