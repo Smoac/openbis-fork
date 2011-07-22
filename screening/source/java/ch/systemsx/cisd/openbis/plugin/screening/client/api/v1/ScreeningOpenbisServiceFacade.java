@@ -1296,7 +1296,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             String error =
                     String.format("No thumbnail images for data set '%s' have been "
-                            + "found on the server", imageMetadata);
+                            + "found on the server", imageMetadata.getImageDataset()
+                            .getDatasetCode());
             throw new RuntimeException(error);
         }
 

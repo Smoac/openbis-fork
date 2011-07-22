@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -897,6 +898,41 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals("Image for [dataset ds1, well [1, 3], channel DAPI, tile 1], hello 1\n"
                 + "Image for [dataset ds1, well [1, 3], channel DAPI, tile 2], hello 2\n",
                 plateImageHandler.toString());
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testLoadNonExistingThumbnails() throws IOException
+    {
+        final IImageDatasetIdentifier imageDataSetId =
+                new ImageDatasetReference("ds1", null, URL1, null, null, null, null, null, null);
+        final String channel = "dapi";
+        final PlateImageReference imageRef =
+                new PlateImageReference(1, 3, 1, channel, imageDataSetId);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).listImageMetadata(with(equal(SESSION_TOKEN)),
+                            with(any(List.class)));
+
+                    ImageDatasetMetadata imgMetaData =
+                            new ImageDatasetMetadata(imageDataSetId, Collections
+                                    .<String> emptyList(),
+                                    Collections.<String> emptyList(), 3, 3, 1024, 768, 1024, 768);
+
+                    will(returnValue(Arrays.asList(imgMetaData)));
+                }
+            });
+
+        try {
+            facade.loadThumbnailImageWellCaching(imageRef);
+            fail("RuntimeException expected");
+        } catch (RuntimeException rex) {
+            assertEquals("No thumbnail images for data set 'ds1' have been found on the server",
+                    rex.getMessage());
+        }
 
         context.assertIsSatisfied();
     }
