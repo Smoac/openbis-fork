@@ -1292,6 +1292,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 new ImageDatasetReference(imageReference.getDatasetCode(), null,
                         imageReference.getDatastoreServerUrl(), null, null, null, null, null, null);
         final ImageDatasetMetadata imageMetadata = listImageMetadata(imageDatasetId);
+        if (false == imageMetadata.hasThumbnails())
+        {
+            String error =
+                    String.format("No thumbnail images for data set '%s' have been "
+                            + "found on the server", imageMetadata);
+            throw new RuntimeException(error);
+        }
+
         final WellImages images =
                 imageCache.getWellImages(
                         imageReference,
@@ -1312,6 +1320,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             images.putImage(plateImageReference, imageFileBytes);
                         }
                     });
+
             } catch (IOException ex)
             {
                 images.cancel(ex);
