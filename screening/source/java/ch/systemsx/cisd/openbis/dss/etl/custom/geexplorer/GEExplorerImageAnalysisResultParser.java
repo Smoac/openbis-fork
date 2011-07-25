@@ -241,12 +241,12 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
 
     public String getAnalysisProcedureName()
     {
-        if (StringUtils.isEmpty(assayWithVersion))
+        if (StringUtils.isEmpty(analysisProtocolWithVersion))
         {
-            return analysisProtocolWithVersion;
+            return assayWithVersion;
         } else
         {
-            return analysisProtocolWithVersion + "_" + assayWithVersion;
+            return assayWithVersion + "_" + analysisProtocolWithVersion;
         }
     }
 
