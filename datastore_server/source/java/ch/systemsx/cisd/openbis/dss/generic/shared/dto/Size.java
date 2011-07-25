@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 public final class Size
 {
+    /**
+     * NULL_SIZE can be encode special conditions e.g. "no thumbnails available"
+     */
+    public final static Size NULL_SIZE = new Size(0, 0);
+
     private final int width;
 
     private final int height;
