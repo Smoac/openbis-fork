@@ -176,12 +176,7 @@ public class ImageDatasetMetadata implements Serializable
      */
     public boolean hasThumbnails()
     {
-        return isInRange(thumbnailHeight, 0, height) && isInRange(thumbnailWidth, 0, width);
-    }
-
-    private boolean isInRange(int value, int lowerBound, int upperBound)
-    {
-        return lowerBound < value && value < upperBound;
+        return thumbnailHeight > 0 && thumbnailWidth > 0;
     }
 
     @Override

@@ -56,6 +56,17 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
             Location wellLocationOrNull, RequestedImageSize imageSize);
 
     /**
+     * Tries to find a representative thumbnail of this dataset in a given channel. Returns NULL if
+     * no thumbnail was found.
+     * 
+     * @param channelCode channel code for which representative image is requested
+     * @param wellLocationOrNull if not null the returned images are restricted to one well.
+     *            Otherwise the dataset is assumed to have no container and spots.
+     */
+    AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,
+            Location wellLocationOrNull);
+
+    /**
      * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail
      * has been stored.
      * <p>
@@ -63,7 +74,7 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * It will just plain give you the byte array that has been stored for the thumbnail.
      * 
      * @param channelCode The code of the channel to get the thumbnail for.
-     * @param channelStackReference Specifies well and tile of the thumbnail. 
+     * @param channelStackReference Specifies well and tile of the thumbnail.
      */
     IContent tryGetThumbnail(String channelCode, ImageChannelStackReference channelStackReference);
 

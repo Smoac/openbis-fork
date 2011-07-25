@@ -295,6 +295,37 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return createAbsoluteImageReference(imageDTO, channel, imageSize, useNativeImageLibrary);
     }
 
+    private ImgImageDTO tryGetRepresentativeThumbnailImageDTO(long channelId,
+            Location wellLocationOrNull)
+    {
+        if (wellLocationOrNull == null)
+        {
+            return query.tryGetMicroscopyRepresentativeThumbnail(dataset.getId(), channelId);
+        } else
+        {
+            return query.tryGetHCSRepresentativeThumbnail(dataset.getId(), wellLocationOrNull,
+                    channelId);
+        }
+    }
+
+    public AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,
+            Location wellLocationOrNull)
+    {
+        ImgChannelDTO channel = tryLoadChannel(channelCode);
+        if (channel == null)
+        {
+            return null;
+        }
+        ImgImageDTO imageDTO =
+                tryGetRepresentativeThumbnailImageDTO(channel.getId(), wellLocationOrNull);
+        if (imageDTO == null)
+        {
+            return null;
+        }
+        return createAbsoluteImageReference(imageDTO, channel, new RequestedImageSize(
+                Size.NULL_SIZE, false), false);
+    }
+
     public IContent tryGetThumbnail(String channelCode,
             ImageChannelStackReference channelStackReference)
     {
@@ -338,4 +369,5 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             return null;
         }
     }
+
 }

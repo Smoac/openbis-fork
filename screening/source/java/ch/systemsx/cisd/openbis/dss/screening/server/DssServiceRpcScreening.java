@@ -104,10 +104,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
      */
     public static final int MINOR_VERSION = 8;
 
-    /**
-     * NULL_SIZE encodes for "no thumbnails available"
-     */
-    private final static Size NULL_SIZE = new Size(0, 0);
 
     static
     {
@@ -221,8 +217,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         final IImagingDatasetLoader imageAccessor =
                 createImageLoader(dataset.getDatasetCode(), datasetRoot);
-        final Size imageSize = getImageSize(dataset, imageAccessor, false);
-        final Size thumbnailSize = getImageSize(dataset, imageAccessor, true);
+        final Size imageSize = getOriginalImageSize(dataset, imageAccessor);
+        final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
         return new ImageDatasetMetadata(dataset, params.getChannelsCodes(),
                 params.getChannelsLabels(), params.getTileRowsNum(), params.getTileColsNum(),
@@ -230,31 +226,56 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 thumbnailSize.getHeight());
     }
 
-    private static Size getImageSize(IImageDatasetIdentifier dataset,
-            IImagingDatasetLoader imageAccessor, boolean thumbnailsRequired)
+    private static Size getOriginalImageSize(IImageDatasetIdentifier dataset,
+            IImagingDatasetLoader imageAccessor)
     {
-        BufferedImage image = getAnyImage(imageAccessor, dataset, thumbnailsRequired);
+        BufferedImage image = getAnyImage(imageAccessor, dataset);
         Size imageSize = new Size(image.getWidth(), image.getHeight());
         return imageSize;
     }
 
+    private static Size getThumbnailImageSize(IImageDatasetIdentifier dataset,
+            IImagingDatasetLoader imageAccessor)
+    {
+        BufferedImage image = getAnyThumbnailImage(imageAccessor, dataset);
+        if (image != null)
+        {
+            return new Size(image.getWidth(), image.getHeight());
+        } else
+        {
+            return Size.NULL_SIZE;
+        }
+    }
+
     private static BufferedImage getAnyImage(IImagingDatasetLoader imageAccessor,
-            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
+            IImageDatasetIdentifier dataset)
     {
         if (imageAccessor.getImageParameters().tryGetRowsNum() == null)
         {
-            return getAnyMicroscopyImage(imageAccessor, dataset, thumbnailsRequired);
+            return getAnyMicroscopyImage(imageAccessor, dataset);
         } else
         {
-            return getAnyHCSImage(imageAccessor, dataset, thumbnailsRequired);
+            return getAnyHCSImage(imageAccessor, dataset);
+        }
+    }
+
+    private static BufferedImage getAnyThumbnailImage(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset)
+    {
+        if (imageAccessor.getImageParameters().tryGetRowsNum() == null)
+        {
+            return getAnyMicroscopyThumbnail(imageAccessor, dataset);
+        } else
+        {
+            return getAnyHCSThumbnail(imageAccessor, dataset);
         }
     }
 
     private static BufferedImage getAnyMicroscopyImage(IImagingDatasetLoader imageAccessor,
-            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
+            IImageDatasetIdentifier dataset)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
-        RequestedImageSize originalOrThumbnail = createOriginalOrThumbnail(thumbnailsRequired);
+        RequestedImageSize originalOrThumbnail = RequestedImageSize.createOriginal();
         for (String channelCode : params.getChannelsCodes())
         {
             AbsoluteImageReference image =
@@ -267,19 +288,50 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
-    private static RequestedImageSize createOriginalOrThumbnail(boolean thumbnailsRequired)
+    private static BufferedImage getAnyMicroscopyThumbnail(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset)
     {
-        // exact thumbnail size does not matter, we just want to mark that we do not want the
-        // original image
-        return thumbnailsRequired ? new RequestedImageSize(NULL_SIZE, false) : RequestedImageSize
-                .createOriginal();
+        ImageDatasetParameters params = imageAccessor.getImageParameters();
+        for (String channelCode : params.getChannelsCodes())
+        {
+            AbsoluteImageReference image =
+                    imageAccessor.tryGetRepresentativeThumbnail(channelCode, null);
+            if (image != null)
+            {
+                return image.getImage();
+            }
+        }
+        return null;
+    }
+
+    private static BufferedImage getAnyHCSThumbnail(IImagingDatasetLoader imageAccessor,
+            IImageDatasetIdentifier dataset)
+    {
+        ImageDatasetParameters params = imageAccessor.getImageParameters();
+        for (int row = 1; row <= params.tryGetRowsNum(); row++)
+        {
+            for (int col = 1; col <= params.tryGetColsNum(); col++)
+            {
+                for (String channelCode : params.getChannelsCodes())
+                {
+                    AbsoluteImageReference image =
+                            imageAccessor.tryGetRepresentativeThumbnail(channelCode, new Location(
+                                    col, row));
+                    if (image != null)
+                    {
+                        return image.getImage();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private static BufferedImage getAnyHCSImage(IImagingDatasetLoader imageAccessor,
-            IImageDatasetIdentifier dataset, boolean thumbnailsRequired)
+            IImageDatasetIdentifier dataset)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
-        RequestedImageSize originalOrThumbnail = createOriginalOrThumbnail(thumbnailsRequired);
+        RequestedImageSize originalOrThumbnail = RequestedImageSize.createOriginal();
         for (int row = 1; row <= params.tryGetRowsNum(); row++)
         {
             for (int col = 1; col <= params.tryGetColsNum(); col++)

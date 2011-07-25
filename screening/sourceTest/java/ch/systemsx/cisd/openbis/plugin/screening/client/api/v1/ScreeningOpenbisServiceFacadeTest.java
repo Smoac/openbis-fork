@@ -921,8 +921,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     ImageDatasetMetadata imgMetaData =
                             new ImageDatasetMetadata(imageDataSetId, Collections
-                                    .<String> emptyList(),
-                                    Collections.<String> emptyList(), 3, 3, 1024, 768, 1024, 768);
+                                    .<String> emptyList(), Collections.<String> emptyList(), 3, 3,
+                                    1024, 768, 0, 0);
 
                     will(returnValue(Arrays.asList(imgMetaData)));
                 }
