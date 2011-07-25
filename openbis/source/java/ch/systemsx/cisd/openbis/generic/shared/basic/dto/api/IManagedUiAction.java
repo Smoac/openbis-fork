@@ -48,8 +48,8 @@ public interface IManagedUiAction extends ISerializable
     public void addInputWidgets(IManagedInputWidgetDescription... widgets);
 
     /**
-     * Returns list of objects describing input widgets that will be used in user interface user
-     * interface for modification of the managed property.
+     * Returns list of objects describing input widgets that will be used in user interface for
+     * modification of the managed property.
      */
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions();
 
