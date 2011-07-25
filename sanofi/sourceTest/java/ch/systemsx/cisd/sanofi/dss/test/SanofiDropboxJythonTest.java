@@ -329,7 +329,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         createDataSetHandler(false, true);
         final Sample plate =
-                plateWithLibTemplateAndGeometry("1.45\t\tH\n0.12\t0.002\tL", "6_WELLS_10X10");
+                plateWithLibTemplateAndGeometry("145.034E-0002\t\tH\n0.12E4\t0.002\tL",
+                        "6_WELLS_10X10");
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A1"));
@@ -382,9 +383,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         assertEquals(5, registeredSamples.size());
         assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
-        assertCompoundWell(registeredSamples, "A1", "1.45");
+        assertCompoundWell(registeredSamples, "A1", "1.45034");
         assertPositiveControl(registeredSamples, "A3");
-        assertCompoundWell(registeredSamples, "B1", "0.12");
+        assertCompoundWell(registeredSamples, "B1", "1200");
         assertCompoundWell(registeredSamples, "B2", "0.002");
         assertNegativeControl(registeredSamples, "B3");
 

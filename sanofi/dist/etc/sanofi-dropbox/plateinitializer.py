@@ -4,6 +4,7 @@ import os
 import utilfunctions as util
 
 from java.lang import RuntimeException
+from java.text import DecimalFormat
 
 from ch.systemsx.cisd.common.geometry import Point, ConversionUtils
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
@@ -66,6 +67,7 @@ class PlateInitializer:
         self.experiment = experiment
         self.experimentId = experiment.getExperimentIdentifier()
         self.testMode = testMode
+        self.numberParser = DecimalFormat()
         
     def getWellCode(self, x, y):
         return ConversionUtils.convertToSpreadsheetLocation(Point(x,y))
@@ -109,7 +111,7 @@ class PlateInitializer:
         for x in range(0, len(tsvLists)):
             for y in range(0, len(tsvLists[0])):
                 wellCode = self.getWellCode(x,y)
-                library[wellCode] = tsvLists[x][y].strip()
+                library[wellCode] = tsvLists[x][y].strip().upper()
                  
         return library
     
@@ -194,11 +196,15 @@ class PlateInitializer:
             
         return None
     
-    def isCompoundWell(self, libraryValue):        
+    def parseConcentration(self, value):
+        number = self.numberParser.parse(value)
+        return str(number)
+    
+    def isCompoundWell(self, libraryValue):
        try:
-           float(libraryValue)
+           self.parseConcentration(libraryValue)
            return True
-       except ValueError:
+       except:
            return False
        
     def createWells(self, template, sanofiMaterials, openbisMaterials):
@@ -218,23 +224,18 @@ class PlateInitializer:
                well = self.transaction.createNewSample(wellIdentifier, wellType)
                well.setContainer(self.plate)
                
-           elif self.isCompoundWell(templateValue): 
+           else: 
                # COMPOUND_WELL
                sanofiMaterial = self.getByWellCode(wellCode, sanofiMaterials)
                if sanofiMaterial:
                    # only create when they exist in the ABASE DB
                    well = self.transaction.createNewSample(wellIdentifier, self.COMPOUND_WELL_TYPE)
                    well.setContainer(self.plate)
-                   well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, templateValue)
+                   concentration = self.parseConcentration(templateValue)
+                   well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
                    materialCode = sanofiMaterial.materialCode
                    material = openbisMaterials[materialCode]
                    well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
-               
-           else:
-               raise ValidationException("The specified value for well '%s' in the property "  
-                                  " '%s' of experiment '%s' is invalid. Allowed values are 'H', 'L'"
-                                  " or a number, but '%s' was found." % 
-               (wellCode, self.LIBRARY_TEMPLATE_PROPNAME, self.experimentId, templateValue))
        
     def validate(self, template, sanofiMaterials):
         for sanofiMaterial in sanofiMaterials:
