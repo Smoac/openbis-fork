@@ -404,7 +404,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         NewExternalData analysisDataSet = dataSetsRegistered.get(2);
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
-        assertEquals("MatlabGeneral_1.1_NRF2ProdAnalysis_1.1",
+        assertEquals("MatlabGeneral_v1.1_NRF2ProdAnalysis_v1.1",
                 extractAnalysisProcedureCode(analysisDataSet));
 
 

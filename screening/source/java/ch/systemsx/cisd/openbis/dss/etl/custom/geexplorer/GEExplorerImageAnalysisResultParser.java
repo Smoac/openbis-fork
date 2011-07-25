@@ -259,7 +259,7 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
             return name;
         } else
         {
-            return name + "_" + version;
+            return name + "_v" + version;
         }
     }
 
