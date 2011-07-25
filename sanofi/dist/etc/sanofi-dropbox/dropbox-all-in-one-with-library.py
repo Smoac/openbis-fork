@@ -373,7 +373,8 @@ if incoming.isDirectory():
     analysisFile = util.findFileByExt(incoming, "xml")
     if analysisFile is not None:
         analysisCSVFile = File(analysisFile.getPath() + ".csv")
-        GEExplorerImageAnalysisResultParser(analysisFile.getPath()).writeCSV(analysisCSVFile)
+        geXmlParser = GEExplorerImageAnalysisResultParser(analysisFile.getPath())
+        geXmlParser.writeCSV(analysisCSVFile)
         
         featureProps = Properties()
         featureProps.setProperty("separator", ",")
@@ -381,7 +382,7 @@ if incoming.isDirectory():
         featureProps.setProperty("well-name-col", "Well")
         
         analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisCSVFile.getPath(), featureProps)
-        analysisProcedureCode = util.extractFileBasename(analysisFile.getName())
+        analysisProcedureCode = geXmlParser.getAnalysisProcedureName()
         analysisDataSetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
         analysisDataSet = transaction.createNewDataSet(analysisDataSetDetails)
         analysisDataSet.setSample(imageDataSet.getSample())

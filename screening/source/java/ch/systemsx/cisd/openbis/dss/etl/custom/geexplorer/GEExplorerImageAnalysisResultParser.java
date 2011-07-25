@@ -31,6 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -49,16 +50,22 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
 
     private static final String WELL_TAG = "Well";
 
-    private static final String TABLE_TAG = "Table";
-
     private static final String DATA_TAG = "Data";
+
+    private static final String ANALYSIS_TAG = "AutoLeadAnalysisProtocol";
+
+    private static final String ASSAY_TAG = "AutoLeadAssay";
 
     private enum State
     {
-        INIT, DATA, TABLE, WELL, FINISHED
+        INIT, ANALYSIS, DATA, TABLE, WELL, FINISHED
     }
 
     private State state = State.INIT;
+
+    private String analysisProtocolWithVersion = StringUtils.EMPTY;
+
+    private String assayWithVersion = StringUtils.EMPTY;
 
     private String currentWellId;
 
@@ -99,8 +106,16 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
                 }
                 break;
             case DATA:
-                if (TABLE_TAG.equals(qName) && "Wells Summary".equals(attributes.getValue("title")))
+                if (ANALYSIS_TAG.equals(qName))
                 {
+                    analysisProtocolWithVersion = parseNameAndVersion(attributes);
+                    state = State.ANALYSIS;
+                }
+                break;
+            case ANALYSIS:
+                if (ASSAY_TAG.equals(qName))
+                {
+                    assayWithVersion = parseNameAndVersion(attributes);
                     state = State.TABLE;
                 }
                 break;
@@ -223,5 +238,36 @@ public class GEExplorerImageAnalysisResultParser extends DefaultHandler
         }
         out.close();
     }
+
+    public String getAnalysisProcedureName()
+    {
+        if (StringUtils.isEmpty(assayWithVersion))
+        {
+            return analysisProtocolWithVersion;
+        } else
+        {
+            return analysisProtocolWithVersion + "_" + assayWithVersion;
+        }
+    }
+
+    private String parseNameAndVersion(Attributes attributes)
+    {
+        String name = parseAttribute("name", attributes);
+        String version = parseAttribute("version", attributes);
+        if (StringUtils.isEmpty(version))
+        {
+            return name;
+        } else
+        {
+            return name + "_" + version;
+        }
+    }
+
+    private String parseAttribute(String attrName, Attributes attributes)
+    {
+        String attrValue = attributes.getValue(attrName);
+        return StringUtils.trimToEmpty(attrValue);
+    }
+
 
 }

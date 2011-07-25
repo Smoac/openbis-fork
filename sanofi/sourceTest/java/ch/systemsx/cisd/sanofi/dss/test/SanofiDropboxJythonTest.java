@@ -404,6 +404,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         NewExternalData analysisDataSet = dataSetsRegistered.get(2);
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
+        assertEquals("NRF2ProdAnalysis_1.1_MatlabGeneral_1.1",
+                extractAnalysisProcedureCode(analysisDataSet));
 
 
         AssertionUtil
@@ -412,6 +414,14 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                                 + "http://openbis-test-bw.sanofi.com:8080/openbis#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=plateCode.variant",
                         email.recordedObject());
         context.assertIsSatisfied();
+    }
+
+    private String extractAnalysisProcedureCode(NewExternalData analysisDataSet)
+    {
+        NewProperty property =
+                EntityHelper.tryFindProperty(analysisDataSet.getDataSetProperties(),
+                        ScreeningConstants.ANALYSIS_PROCEDURE);
+        return (property != null) ? property.getValue() : null;
     }
 
     @Test
