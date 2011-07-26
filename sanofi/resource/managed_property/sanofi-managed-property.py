@@ -55,9 +55,9 @@ def configureUI():
     
     if lines:
         width = getMaxWidth(lines)
-        header = [ str(item) for item in range(1, width + 1) ]
-        header.insert(0, " ")  
-        tableBuilder.addFullHeader(header)
+        headers = [ " " ] + range(1, width + 1)
+        for header in headers:
+            tableBuilder.addHeader(str(header), 70)
 
         for i in range(0, len(lines)):
             rowLetterCode = ConversionUtils.translateRowNumberIntoLetterCode(i+1)
