@@ -1,20 +1,30 @@
-"""
-    This file contains the managed property for the 
-    Sanofi LIBRARY_TEMPLATE property.
-    
-    The script displays a tab-separated property as a table
-    having each value in a separate cell. Additionally,
-    users can edit the property value as plain text.  
-"""
+DELETE 
+   FROM scripts 
+   WHERE NAME = 'SANOFI_LIBRARY_TEMPLATE';
+
+INSERT
+  INTO scripts 
+      (id, dbin_id, name, description, pers_id_registerer, entity_kind, script_type, script) 
+  
+  VALUES
+     ( 
+       nextval('script_id_seq'), 
+       (select max(id) from database_instances),
+       'SANOFI_LIBRARY_TEMPLATE',
+       'Script for managed property library template',
+       (select id from persons where user_id='admin'),
+       'EXPERIMENT',
+       'MANAGED_PROPERTY',
+  E'
 from java.text import DecimalFormat
 from ch.systemsx.cisd.common.geometry import ConversionUtils
 
 def parseLines(value):
     lines = []
     if value:
-        lines = value.strip().split("\n")
+        lines = value.strip().split("\\n")
         
-    return [ line.split("\t") for line in lines ]
+    return [ line.split("\\t") for line in lines ]
 
 def getMaxWidth(lines):
   maxWidth = 0
@@ -86,5 +96,14 @@ def updateFromUI(action):
         else:
             property.setValue(newValue)
     
-
-
+');
+  
+  
+UPDATE experiment_type_property_types 
+SET 
+   is_managed_internally=True,
+   script_id=(select id from scripts where name='SANOFI_LIBRARY_TEMPLATE')
+WHERE
+   prty_id = (select id from property_types where code='LIBRARY_TEMPLATE')
+ AND
+   exty_id = (select id from experiment_types where code='COMPOUND_HCS')
