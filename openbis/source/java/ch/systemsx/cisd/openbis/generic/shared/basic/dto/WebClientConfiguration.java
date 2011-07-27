@@ -53,6 +53,8 @@ public class WebClientConfiguration implements ISerializable
 
     private int maxEntityVisits;
 
+    private boolean enableTrash;
+
     private boolean allowAddingUnofficielTerms;
 
     public String getPropertyOrNull(String technology, String key)
@@ -134,6 +136,16 @@ public class WebClientConfiguration implements ISerializable
     public void setAllowAddingUnofficialTerms(boolean allowAddingUnofficialTerms)
     {
         this.allowAddingUnofficielTerms = allowAddingUnofficialTerms;
+    }
+
+    public boolean getEnableTrash()
+    {
+        return enableTrash;
+    }
+
+    public void setEnableTrash(boolean enableTrash)
+    {
+        this.enableTrash = enableTrash;
     }
 
     public WebClientConfiguration()

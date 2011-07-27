@@ -22,21 +22,20 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListTrashDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
+// TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class DataSetListDeletionConfirmationDialog extends
-        AbstractDataListTrashDeletionConfirmationDialog<ExternalData>
+        AbstractDataListDeletionConfirmationDialog<ExternalData>
 {
-
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
@@ -44,8 +43,7 @@ public final class DataSetListDeletionConfirmationDialog extends
     private final ExternalData singleData;
 
     public DataSetListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> callback,
+            IViewContext<ICommonClientServiceAsync> viewContext, AsyncCallback<Void> callback,
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback);
@@ -57,7 +55,7 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> deletionCallback, ExternalData data)
+            AsyncCallback<Void> deletionCallback, ExternalData data)
     {
         super(viewContext, Collections.singletonList(data), deletionCallback);
         this.viewContext = viewContext;

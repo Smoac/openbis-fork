@@ -24,6 +24,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -128,9 +129,11 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
             {
                 public void execute()
                 {
+                    final AsyncCallback<Void> callback =
+                            isTrashEnabled() ? createDeletionCallback()
+                                    : createPermanentDeletionCallback();
                     new ExperimentListDeletionConfirmationDialog(
-                            viewContext.getCommonViewContext(), createDeletionCallback(),
-                            getOriginalData()).show();
+                            viewContext.getCommonViewContext(), callback, getOriginalData()).show();
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()

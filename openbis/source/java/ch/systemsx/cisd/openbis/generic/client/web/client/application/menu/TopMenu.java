@@ -124,7 +124,11 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new SearchWidget(viewContext));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new InfoButton(viewContext));
-        toolBar.add(new TrashButton(viewContext, componentProvider));
+        if (viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                .getEnableTrash())
+        {
+            toolBar.add(new TrashButton(viewContext, componentProvider));
+        }
         toolBar.add(new LoggedUserMenu(viewContext, componentProvider));
     }
 

@@ -23,11 +23,10 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListTrashDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -35,8 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
+//TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> extends
-        AbstractDataListTrashDeletionConfirmationDialog<T>
+        AbstractDataListDeletionConfirmationDialog<T>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -47,8 +47,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> callback,
-            DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
+            AsyncCallback<Void> callback, DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
         super(viewContext, data, callback);
         this.withRadio();
@@ -59,7 +58,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
 
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> deletionCallback, T sample)
+            AsyncCallback<Void> deletionCallback, T sample)
     {
         super(viewContext, data, deletionCallback);
         this.viewContext = viewContext;

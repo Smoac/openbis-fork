@@ -146,8 +146,11 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             {
                 public void execute()
                 {
+                    final AsyncCallback<Void> callback =
+                            isTrashEnabled() ? createDeletionCallback()
+                                    : createPermanentDeletionCallback();
                     new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            createDeletionCallback(), getOriginalData()).show();
+                            callback, getOriginalData()).show();
                 }
 
             }));

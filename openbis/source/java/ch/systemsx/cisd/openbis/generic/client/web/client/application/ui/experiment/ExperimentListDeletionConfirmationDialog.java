@@ -22,11 +22,10 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid.DisplayedAndSelectedExperiments;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListTrashDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -35,8 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
+// TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class ExperimentListDeletionConfirmationDialog extends
-        AbstractDataListTrashDeletionConfirmationDialog<Experiment>
+        AbstractDataListDeletionConfirmationDialog<Experiment>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -46,8 +46,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
     private final Experiment singleDataOrNull;
 
     public ExperimentListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> callback,
+            IViewContext<ICommonClientServiceAsync> viewContext, AsyncCallback<Void> callback,
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
         super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
@@ -59,7 +58,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> deletionCallback, Experiment experiment)
+            AsyncCallback<Void> deletionCallback, Experiment experiment)
     {
         super(viewContext, Collections.singletonList(experiment), deletionCallback);
         this.viewContext = viewContext;

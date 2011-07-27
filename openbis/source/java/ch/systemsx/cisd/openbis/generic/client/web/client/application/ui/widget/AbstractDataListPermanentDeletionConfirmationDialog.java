@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
@@ -33,12 +34,13 @@ public abstract class AbstractDataListPermanentDeletionConfirmationDialog<T> ext
         AbstractDataListDeletionConfirmationDialog<T>
 {
     public AbstractDataListPermanentDeletionConfirmationDialog(IViewContext<?> viewContext,
-            List<T> data, AbstractAsyncCallback<Void> deletionCallback)
+            List<T> data, AsyncCallback<Void> deletionCallback)
     {
         super(viewContext, data, deletionCallback);
     }
 
-    protected final DeletionType getDeletionType()
+    @Override
+    protected DeletionType getDeletionType()
     {
         return DeletionType.PERMANENT;
     }

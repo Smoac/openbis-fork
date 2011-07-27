@@ -310,6 +310,12 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return BorderLayoutDataFactory.create(region);
     }
 
+    protected final boolean isTrashEnabled()
+    {
+        return viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                .getEnableTrash();
+    }
+
     protected final AbstractAsyncCallback<Void> createPermanentDeletionCallback()
     {
         return new CloseViewerCallback(viewContext);

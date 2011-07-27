@@ -162,9 +162,11 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 @SuppressWarnings("unchecked")
                 public void execute()
                 {
+                    final AsyncCallback<Void> callback =
+                            isTrashEnabled() ? createDeletionCallback()
+                                    : createPermanentDeletionCallback();
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalDataAsSingleton(), createDeletionCallback(),
-                            getOriginalData()).show();
+                            getOriginalDataAsSingleton(), callback, getOriginalData()).show();
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()

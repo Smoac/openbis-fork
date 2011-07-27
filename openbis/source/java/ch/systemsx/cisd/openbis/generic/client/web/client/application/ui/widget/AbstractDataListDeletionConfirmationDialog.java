@@ -22,12 +22,12 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 
 /**
  * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
@@ -48,7 +48,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     protected final IViewContext<?> viewContext;
 
-    private final AbstractAsyncCallback<Void> deletionCallback;
+    private final AsyncCallback<Void> deletionCallback;
 
     private boolean withRadio = false;
 
@@ -57,7 +57,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
     protected ReasonField reason;
 
     public AbstractDataListDeletionConfirmationDialog(IViewContext<?> viewContext, List<T> data,
-            AbstractAsyncCallback<Void> deletionCallback)
+            AsyncCallback<Void> deletionCallback)
     {
         super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
@@ -110,9 +110,32 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     protected abstract void executeDeletion(AsyncCallback<Void> callback);
 
-    abstract String getOperationName();
+    // property based enabling of trash is only a temporary solution
 
-    abstract String getProgressMessage();
+    protected DeletionType getDeletionType()
+    {
+        return isTrashEnabled() ? DeletionType.TRASH : DeletionType.PERMANENT;
+    }
+
+    String getOperationName()
+    {
+        final String dictKey = isTrashEnabled() ? Dict.DELETING : Dict.DELETING_PERMANENTLY;
+        return viewContext.getMessage(dictKey);
+    }
+
+    String getProgressMessage()
+    {
+        final String dictKey =
+                isTrashEnabled() ? Dict.DELETE_PROGRESS_MESSAGE
+                        : Dict.DELETE_PERMANENTLY_PROGRESS_MESSAGE;
+        return viewContext.getMessage(dictKey);
+    }
+
+    private final boolean isTrashEnabled()
+    {
+        return viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                .getEnableTrash();
+    }
 
     @Override
     protected final void executeConfirmedAction()

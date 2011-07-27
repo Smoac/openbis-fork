@@ -38,7 +38,8 @@ public abstract class AbstractDataListTrashDeletionConfirmationDialog<T> extends
         super(viewContext, data, deletionCallback);
     }
 
-    protected final DeletionType getDeletionType()
+    @Override
+    protected DeletionType getDeletionType()
     {
         return DeletionType.TRASH;
     }
