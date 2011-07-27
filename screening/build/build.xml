@@ -22,9 +22,9 @@
   <property name="classes.common" value="../common/targets/ant/classes" />
 	
   <!-- absolute path referenced from IzPack Ant task -->
-  <property name="installer.basedir" value="${basedir}/dist/installer" />
+  <property name="installer.basedir" value="${basedir}/dist/tarball/installer" />
   <!-- relative path referenced from within the installer compilation --> 
-  <property name="installer.resourcedir" value="dist/installer" />
+  <property name="installer.resourcedir" value="dist/tarball/installer" />
   <property name="installer.dist.dir" value="${basedir}/${dist}/installer" />
 	<path id="izpack.classpath">
 	    <pathelement path="${classpath}"/>
@@ -46,7 +46,7 @@
 	
   <target name="dist" depends="create-installer, screening-api"/>
   
-	<target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
+  <target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
 
 		<mkdir dir="${installer.dist.dir}" />
 		<unzip src="${dss.dist.file}" dest="${installer.dist.dir}"/>
@@ -54,7 +54,7 @@
 		
 		<!-- make the "admin" directory available to the installer as "bin" -->
 		<copy todir="${installer.dist.dir}/bin">
-		    <fileset dir="${installer.basedir}/../admin">
+		    <fileset dir="${installer.basedir}/../../admin">
 		      <include name="**/*"/>
 		      <exclude name="svn-update.sh"/>
 		      <exclude name="**/.svn/*"/>
