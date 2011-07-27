@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -40,10 +42,14 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
@@ -300,7 +306,6 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
         Object[][] plates = OpenBISScreeningML.listPlates("/S/P/E1");
 
-        sort(plates);
         assertEquals("/S/PLATE-1", plates[0][0]);
         assertEquals("s-1", plates[0][1]);
         assertEquals("S", plates[0][2]);
@@ -314,6 +319,35 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
     
+    @Test
+    public void testListPlatesByExperimentAndAnalysisProcedure()
+    {
+
+        final String analysisProcedure = "PROCEDURE";
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).listPlates(eId1, analysisProcedure);
+                    will(returnValue(Arrays.asList(p1)));
+                }
+            });
+
+        Object[][] plates = OpenBISScreeningML.listPlates("/S/P/E1", analysisProcedure);
+
+        assertEquals("/S/PLATE-1", plates[0][0]);
+        assertEquals("s-1", plates[0][1]);
+        assertEquals("S", plates[0][2]);
+        assertEquals("PLATE-1", plates[0][3]);
+        assertEquals("/S/P/E1", plates[0][4]);
+        assertEquals("e-1", plates[0][5]);
+        assertEquals("S", plates[0][6]);
+        assertEquals("P", plates[0][7]);
+        assertEquals("E1", plates[0][8]);
+        assertEquals(1, plates.length);
+        context.assertIsSatisfied();
+    }
+
     @Test
     public void testListFeatures()
     {
@@ -607,21 +641,20 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         final String datasetTypePattern = "blablaCode";
         final String mountPoint = "/mount/openbis/store";
         final RecordingMatcher<IDataSetFilter> filterMatcher = new RecordingMatcher<IDataSetFilter>();
+
+        final DataSet dataSet1 = createDataSet("ds-1", ds1);
+        final DataSet dataSet2 = createDataSet("ds-2", ds2);
+
         context.checking(new Expectations()
             {
                 {
-                    one(openbis).getDataSets(with(new Plate("PLATE-1", "S", "s-1", eId1)),
+                    one(openbis).getFullDataSets(with(new Plate("PLATE-1", "S", "s-1", eId1)),
                             with(filterMatcher));
-                    will(returnValue(Arrays.asList(ds1, ds2)));
-
-                    one(ds1).getCode();
-                    will(returnValue("ds-1"));
+                    will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
                     one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
                     will(returnValue(ds1Folder));
 
-                    one(ds2).getCode();
-                    will(returnValue("ds-2"));
                 }
             });
 
@@ -631,8 +664,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         assertEquals("Type:blablaCode AND Properties:[]", filterMatcher.recordedObject().toString());
         assertEquals("ds-1", result[0][0]);
         assertEquals(ds1Folder.getPath(), result[0][1]);
+        assertEqualProperties(dataSet1.getProperties(), (Object[][]) result[0][2]);
         assertEquals("ds-2", result[1][0]);
         assertEquals(ds2Folder.getPath(), result[1][1]);
+        assertEqualProperties(dataSet2.getProperties(), (Object[][]) result[1][2]);
         assertEquals(2, result.length);
         context.assertIsSatisfied();
     }
@@ -641,40 +676,46 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testLoadDataSetsFilteredOnProperties()
     {
         final File dataSetFolder =
-            new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
         File ds2Folder = new File(dataSetFolder, "ds-2");
         ds2Folder.mkdirs();
         final String datasetTypePattern = "blablaCode";
         final String mountPoint = "/mount/openbis/store";
-        final RecordingMatcher<IDataSetFilter> filterMatcher = new RecordingMatcher<IDataSetFilter>();
+        final RecordingMatcher<IDataSetFilter> filterMatcher =
+                new RecordingMatcher<IDataSetFilter>();
+
+        final DataSet dataSet1 = createDataSet("ds-1", ds1);
+        final DataSet dataSet2 = createDataSet("ds-2", ds2);
+
         context.checking(new Expectations()
-        {
             {
-                one(openbis).getDataSets(with(new Plate("PLATE-1", "S", "s-1", eId1)),
-                        with(filterMatcher));
-                will(returnValue(Arrays.asList(ds1, ds2)));
-                
-                one(ds1).getCode();
-                will(returnValue("ds-1"));
-                
-                one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
-                will(returnValue(ds1Folder));
-                
-                one(ds2).getCode();
-                will(returnValue("ds-2"));
-            }
-        });
-        
-        Object[][] properties = new Object[][] {new Object[] {"a", "alpha"}, new Object[] {"b", "beta"}};
+                {
+                    one(openbis).getFullDataSets(with(new Plate("PLATE-1", "S", "s-1", eId1)),
+                            with(filterMatcher));
+                    will(returnValue(Arrays.asList(dataSet1, dataSet2)));
+
+                    one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
+                    will(returnValue(ds1Folder));
+                }
+            });
+
+        Object[][] properties = new Object[][]
+            { new Object[]
+                { "a", "alpha" }, new Object[]
+                { "b", "beta" } };
         Object[][] result =
-            OpenBISScreeningML.loadDataSets("/S/PLATE-1", datasetTypePattern, properties, mountPoint);
-        
-        assertEquals("Type:blablaCode AND Properties:[a=alpha, b=beta]", filterMatcher.recordedObject().toString());
+                OpenBISScreeningML.loadDataSets("/S/PLATE-1", datasetTypePattern, properties,
+                        mountPoint);
+
+        assertEquals("Type:blablaCode AND Properties:[a=alpha, b=beta]", filterMatcher
+                .recordedObject().toString());
         assertEquals("ds-1", result[0][0]);
         assertEquals(ds1Folder.getPath(), result[0][1]);
+        assertEqualProperties(dataSet1.getProperties(), (Object[][]) result[0][2]);
         assertEquals("ds-2", result[1][0]);
         assertEquals(ds2Folder.getPath(), result[1][1]);
+        assertEqualProperties(dataSet2.getProperties(), (Object[][]) result[1][2]);
         assertEquals(2, result.length);
         context.assertIsSatisfied();
     }
@@ -896,6 +937,44 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListAnalysisProcedures()
+    {
+
+        final String[] analysisProcedures = new String[]
+            { "PROC-1", "PROC-2", "PROC-3" };
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).listAnalysisProcedures(eId1);
+                    will(returnValue(Arrays.asList(analysisProcedures)));
+                }
+            });
+
+        Object[][] result = OpenBISScreeningML.listAnalysisProcedures("/S/P/E1");
+        String[] returnedAnalysisProcedures = new String[result.length];
+        for (int i = 0; i < result.length; i++)
+        {
+            returnedAnalysisProcedures[i] = (String) result[i][0];
+        }
+
+        assertEquals(Arrays.toString(analysisProcedures),
+                Arrays.toString(returnedAnalysisProcedures));
+        context.assertIsSatisfied();
+    }
+
+    private void assertEqualProperties(Map<String, String> properties, Object[][] matlabProps)
+    {
+        TreeMap<String, String> expected = new TreeMap<String, String>(properties);
+        TreeMap<String, String> actual = new TreeMap<String, String>();
+        for (Object[] prop : matlabProps)
+        {
+            actual.put((String) prop[0], (String) prop[1]);
+        }
+        assertEquals(expected.toString(), actual.toString());
+    }
+
     private String getImagePath(Object[][][] result, int i)
     {
         return result[0][i][0].toString().substring(tempDir.getPath().length());
@@ -912,4 +991,34 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
     }
 
+    private DataSet createDataSet(String code, IDataSetDss dataSetDss)
+    {
+        EntityRegistrationDetailsInitializer entityRegInitializer =
+                new EntityRegistrationDetailsInitializer();
+        EntityRegistrationDetails regDetails = new EntityRegistrationDetails(entityRegInitializer);
+
+        DataSetInitializer dsInitializer = new DataSetInitializer();
+        dsInitializer.setRegistrationDetails(regDetails);
+        dsInitializer.setCode(code);
+        dsInitializer.setExperimentIdentifier("EXPERIMENT");
+        dsInitializer.setDataSetTypeCode("ds-type");
+
+        Map<String, String> properties = createProperties(code);
+        for (String propKey : properties.keySet())
+        {
+            dsInitializer.putProperty(propKey, properties.get(propKey));
+        }
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata = 
+                new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(dsInitializer);
+        return new DataSet(null, null, metadata, dataSetDss);
+    }
+
+    private Map<String, String> createProperties(String dataSetCode)
+    {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(dataSetCode + "-key1", dataSetCode + "value1");
+        properties.put(dataSetCode + "-key2", dataSetCode + "value2");
+        return properties;
+    }
 }

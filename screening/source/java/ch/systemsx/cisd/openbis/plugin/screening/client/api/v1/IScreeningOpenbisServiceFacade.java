@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
@@ -259,6 +260,18 @@ public interface IScreeningOpenbisServiceFacade
      *             the server.
      */
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * A list of data sets owned by specified plate and passing specified filter. The data set
+     * objects provide metadata (e.g. code, properties etc. from the openBIS AS) as well as data
+     * (e.g. files from from openBIS DSS).
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<DataSet> getFullDataSets(PlateIdentifier plateIdentifier,
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
     /**

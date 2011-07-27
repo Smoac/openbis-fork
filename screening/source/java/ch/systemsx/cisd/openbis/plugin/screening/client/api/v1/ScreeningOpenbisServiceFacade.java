@@ -558,6 +558,36 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
+            PlateIdentifier plateIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException
+    {
+        checkASMinimalMinorVersion("getPlateSample", PlateIdentifier.class);
+        Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
+        return getFullDataSets(sample, dataSetFilter);
+    }
+
+    private List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
+            final Sample sample, IDataSetFilter filter)
+    {
+        final List<DataSet> dataSets =
+                generalInformationService.listDataSetsForSample(sessionToken, sample, true);
+        final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
+                new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();
+        for (DataSet dataSet : dataSets)
+        {
+            if (filter.pass(dataSet))
+            {
+                ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet fullDataset =
+                        new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
+                                openbisServiceFacade, dssComponent, dataSet, null);
+
+                result.add(fullDataset);
+            }
+        }
+        return result;
+    }
+
     /**
      * Upload a new data set to the DSS for a well.
      * 

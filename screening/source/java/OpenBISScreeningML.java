@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
@@ -462,6 +463,37 @@ public class OpenBISScreeningML
         return listPlates(experimentPlates);
     }
 
+    /**
+     * Lists the plates of <var>experiment</var> and analysis procedure. Each returned plate has at
+     * least one data set with the specified analysis procedure.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get all plates having data sets with analysis procedure 'PROC' in the experiment MYEXP in project PROJ of space SPACE
+     * plates = OpenBISScreeningML.listPlates('/SPACE/PROJ/MYEXP', 'PROC');
+     * % Get all information about plate 2
+     * plate2 = plates(2,:)
+     * % Get the augmented plate codes for all plates
+     * acodes = plates(:,1)
+     * </pre>
+     * 
+     * @param experiment The augmented code of the experiment to list the plates for
+     * @param analysisProcedure The analysis procedure
+     * @return Each row contains information about one plate:
+     *         <p>
+     *         <code>{ plate augmented code, plate perm id, plate space code, plate code, 
+     *         experiment augmented code, experiment perm id, experiment space code, 
+     *         experiment project code, experiment code }</code>
+     */
+    public static Object[][] listPlates(String experiment, String analysisProcedure)
+    {
+        checkLoggedIn();
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifierOrFail(experiment);
+        List<Plate> resultPlates = openbis.listPlates(experimentIdentifier, analysisProcedure);
+        return listPlates(resultPlates);
+    }
+
     private static Object[][] listPlates(final List<Plate> list)
     {
         final Object[][] result = new Object[list.size()][9];
@@ -477,6 +509,44 @@ public class OpenBISScreeningML
                                 list.get(i).getExperimentIdentifier().getProjectCode(),
                                 list.get(i).getExperimentIdentifier().getExperimentCode(), };
             System.arraycopy(annotations, 0, result[i], 0, annotations.length);
+        }
+        return result;
+    }
+
+    /**
+     * Returns an alphabetically sorted list of analysis procedure codes of all data sets of a
+     * specified experiment.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get the analysis procedures for experiment MYEXP in project PROJ of space SPACE
+     * analysisProcedures = OpenBISScreeningML.listAnalysisProcedures('/SPACE/PROJ/MYEXP');
+     * % How many analysis procedures do we have?
+     * length(analysisProcedures)
+     * % Get all the analysis procedure codes 
+     * acodes = analysisProcedures(:,1)
+     * </pre>
+     * 
+     * @param experiment The augmented code of the experiment to list analysis procedures for
+     * @return Each row contains information about one analysis procedure:
+     *         <p>
+     *         <code>{ analysis procedure code }</code>
+     */
+    public static Object[][] listAnalysisProcedures(String experiment)
+    {
+        checkLoggedIn();
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifierOrFail(experiment);
+        List<String> proceduresList = openbis.listAnalysisProcedures(experimentIdentifier);
+        return listAnalysisProcedures(proceduresList);
+    }
+
+    private static Object[][] listAnalysisProcedures(final List<String> list)
+    {
+        final Object[][] result = new Object[list.size()][1];
+        for (int i = 0; i < list.size(); ++i)
+        {
+            result[i][0] = list.get(i);
         }
         return result;
     }
@@ -506,16 +576,8 @@ public class OpenBISScreeningML
         checkLoggedIn();
         WellPosition wellPosition = new WellPosition(row, column);
         WellIdentifier wellIdentifier = getWell(augmentedPlateCode, wellPosition);
-        List<Map.Entry<String, String>> list =
-                new ArrayList<Map.Entry<String, String>>(openbis.getWellProperties(wellIdentifier)
-                        .entrySet());
-        Object[][] result = new Object[list.size()][2];
-        for (int i = 0; i < list.size(); i++)
-        {
-            result[i] = new Object[]
-                { list.get(i).getKey(), list.get(i).getValue() };
-        }
-        return result;
+        Map<String, String> wellProperties = openbis.getWellProperties(wellIdentifier);
+        return listProperties(wellProperties);
     }
 
     /**
@@ -696,7 +758,7 @@ public class OpenBISScreeningML
         }
         return result;
     }
-    
+
     /**
      * Loads data sets for specified plate code. For each data set the path to the root of the data
      * set is returned. If it is possible the path points directly into the data set store. No data
@@ -713,6 +775,12 @@ public class OpenBISScreeningML
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
      * dsginfo(1,2)
+     * % Get the properties for the first data set
+     * props = dsginfo(1,3)
+     * % Get property key of first property
+     * props(1,1)
+     * % Get property value of first property
+     * props(1,2)
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
@@ -723,7 +791,7 @@ public class OpenBISScreeningML
      *            system mounts.
      * @return Each row contains information about one data set:
      *         <p>
-     *         <code>{ data set code, data set root path  }</code>
+     *         <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...} }</code>
      */
     public static Object[][] loadDataSets(String augmentedPlateCode, String dataSetTypeCodePattern,
             String overrideStoreRootPathOrNull)
@@ -749,6 +817,12 @@ public class OpenBISScreeningML
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
      * dsginfo(1,2)
+     * % Get the properties for the first data set
+     * props = dsginfo(1,3)
+     * % Get property key of first property
+     * props(1,1)
+     * % Get property value of first property
+     * props(1,2)
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
@@ -761,8 +835,8 @@ public class OpenBISScreeningML
      * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
      *            the DSS' store root. If null, paths are returned in the context of the DSS' file
      *            system mounts.
-     *         <p>
-     *         <code>{ data set code, data set root path  }</code>
+     *            <p>
+     *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...} }</code>
      */
     public static Object[][] loadDataSets(String augmentedPlateCode,
             final String dataSetTypeCodePattern, final Object[][] properties,
@@ -770,8 +844,9 @@ public class OpenBISScreeningML
     {
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
-        List<IDataSetDss> dataSets =
-                openbis.getDataSets(plateIdentifier, new AndDataSetFilter(new TypeBasedDataSetFilter(
+        List<DataSet> dataSets =
+                openbis.getFullDataSets(plateIdentifier, new AndDataSetFilter(
+                        new TypeBasedDataSetFilter(
                         dataSetTypeCodePattern), new PropertiesBasedDataSetFilter(
                         createMap(properties))));
         Object[][] result = new Object[dataSets.size()][];
@@ -779,7 +854,7 @@ public class OpenBISScreeningML
         {
             for (int i = 0; i < dataSets.size(); i++)
             {
-                IDataSetDss dataSet = dataSets.get(i);
+                DataSet dataSet = dataSets.get(i);
                 String code = dataSet.getCode();
                 File file = new File(dataSetsDir, code);
                 if (file.exists() == false)
@@ -788,8 +863,9 @@ public class OpenBISScreeningML
                             dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
                                     dataSetsDir);
                 }
+                Object[][] dataSetProperties = listProperties(dataSet.getProperties());
                 result[i] = new Object[]
-                    { code, file.getPath() };
+                    { code, file.getPath(), dataSetProperties };
             }
             return result;
         } catch (Exception ex)
@@ -1870,6 +1946,24 @@ public class OpenBISScreeningML
         return result;
     }
 
+    private static Object[][] listProperties(Map<String, String> properties)
+    {
+        if (properties == null || properties.isEmpty())
+        {
+            return new Object[0][];
+        }
+
+        List<Map.Entry<String, String>> list =
+                new ArrayList<Map.Entry<String, String>>(properties.entrySet());
+        Object[][] result = new Object[list.size()][2];
+        for (int i = 0; i < list.size(); i++)
+        {
+            result[i] = new Object[]
+                { list.get(i).getKey(), list.get(i).getValue() };
+        }
+        return result;
+    }
+
     private static Plate getPlate(String augmentedPlateCode)
     {
         Plate plateIdentifier = plateCodeToPlateMap.get(augmentedPlateCode);
@@ -1879,6 +1973,17 @@ public class OpenBISScreeningML
                     + "' found.");
         }
         return plateIdentifier;
+    }
+
+    private static ExperimentIdentifier getExperimentIdentifierOrFail(String experiment)
+    {
+        ExperimentIdentifier experimentIdentifier = experimentCodeToExperimentMap.get(experiment);
+        if (experimentIdentifier == null)
+        {
+            String errorMessage = String.format("No experiment with code '%s' found.", experiment);
+            throw new RuntimeException(errorMessage);
+        }
+        return experimentIdentifier;
     }
 
     private static String createPlateWellDescription(PlateIdentifier p, FeatureVector f)
@@ -1957,4 +2062,5 @@ public class OpenBISScreeningML
             }
         }
     }
+
 }
