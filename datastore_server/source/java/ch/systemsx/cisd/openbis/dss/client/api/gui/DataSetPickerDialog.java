@@ -42,6 +42,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.tree.FilterableMutableTreeNode;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -49,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 /**
  * @author Pawel Glyzewski
  */
-public class SamplePickerDialog extends JDialog implements TreeWillExpandListener
+public class DataSetPickerDialog extends JDialog implements TreeWillExpandListener
 {
     private static final long serialVersionUID = 1L;
 
@@ -70,10 +71,10 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
      * @param experiments
      * @param openbisService
      */
-    public SamplePickerDialog(JFrame mainWindow, List<Experiment> experiments,
+    public DataSetPickerDialog(JFrame mainWindow, List<Experiment> experiments,
             final IOpenbisServiceFacade openbisService)
     {
-        super(mainWindow, "Pick a sample", true);
+        super(mainWindow, "Pick a data set", true);
 
         this.mainWindow = mainWindow;
         this.openbisService = openbisService;
@@ -170,7 +171,7 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
         return filterField;
     }
 
-    public String pickSample()
+    public String pickDataSet()
     {
         this.pack();
 
@@ -199,23 +200,57 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
 
     public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException
     {
-        // if top level, then finish
-        if (((TreeNode) event.getPath().getLastPathComponent()).getParent() == null)
+        final DefaultMutableTreeNode node =
+                (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
+        if (node.toString().equals("Data Sets"))
         {
             return;
         }
-
-        List<Sample> samples =
-                openbisService.listSamplesForExperiments(Collections.singletonList(event.getPath()
-                        .getLastPathComponent().toString()));
-
-        final DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
-
         node.removeAllChildren();
-        for (Sample s : samples)
+
+        if (node.getPath().length == 3) // get datasets for samples
         {
-            node.add(new DefaultMutableTreeNode(s.getIdentifier()));
+            List<DataSet> dataSets =
+                    openbisService.listDataSetsForSamples(Collections.singletonList(event.getPath()
+                            .getLastPathComponent().toString()));
+
+            for (DataSet dataSet : dataSets)
+            {
+                node.add(new DefaultMutableTreeNode(dataSet.getCode()));
+            }
+        } else
+        // get datasets and samples for experiment
+        {
+            // if top level, then finish
+            if (((TreeNode) event.getPath().getLastPathComponent()).getParent() == null)
+            {
+                return;
+            }
+
+            List<Sample> samples =
+                    openbisService.listSamplesForExperiments(Collections.singletonList(event
+                            .getPath().getLastPathComponent().toString()));
+
+            List<DataSet> dataSets =
+                    openbisService.listDataSetsForExperiments(Collections.singletonList(event
+                            .getPath().getLastPathComponent().toString()));
+
+            if (dataSets.size() > 0)
+            {
+                DefaultMutableTreeNode dataSetsNode = new DefaultMutableTreeNode("Data Sets");
+                node.add(dataSetsNode);
+                for (DataSet dataSet : dataSets)
+                {
+                    dataSetsNode.add(new DefaultMutableTreeNode(dataSet.getCode()));
+                }
+            }
+
+            for (Sample s : samples)
+            {
+                DefaultMutableTreeNode sampleNode = new DefaultMutableTreeNode(s.getIdentifier());
+                sampleNode.add(new DefaultMutableTreeNode("dummy child"));
+                node.add(sampleNode);
+            }
         }
 
         if (node.getChildCount() == 0)

@@ -27,26 +27,26 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 /**
  * @author Pawel Glyzewski
  */
-public class SamplePickerPanel extends AbstractEntityPickerPanel
+public class DataSetPickerPanel extends AbstractEntityPickerPanel
 {
     private static final long serialVersionUID = 1L;
 
-    private final SamplePickerDialog dialog;
+    private final DataSetPickerDialog dialog;
 
-    public SamplePickerPanel(final JFrame mainWindow, List<Experiment> experiments,
+    public DataSetPickerPanel(final JFrame mainWindow, List<Experiment> experiments,
             IOpenbisServiceFacade openbisService)
     {
         super(mainWindow, experiments, openbisService);
 
-        dialog = new SamplePickerDialog(mainWindow, experiments, openbisService);
+        dialog = new DataSetPickerDialog(mainWindow, experiments, openbisService);
     }
 
     public void actionPerformed(ActionEvent e)
     {
-        String sampleId = dialog.pickSample();
-        if (sampleId != null)
+        String dataSetId = dialog.pickDataSet();
+        if (dataSetId != null)
         {
-            textField.setText(sampleId);
+            textField.setText(dataSetId);
             textField.fireActionPerformed();
         }
     }
@@ -54,6 +54,6 @@ public class SamplePickerPanel extends AbstractEntityPickerPanel
     @Override
     protected String getButtonToolTipText()
     {
-        return "Pick a Sample";
+        return "Pick a Data Set";
     }
 }

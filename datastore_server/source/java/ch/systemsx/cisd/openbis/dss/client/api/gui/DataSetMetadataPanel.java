@@ -46,7 +46,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetPropertiesPanel.Observer;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
@@ -142,7 +141,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
     private final SamplePickerPanel samplePanel;
 
-    private final JTextField dataSetIdText;
+    private final DataSetPickerPanel dataSetPanel;
 
     private final ExperimentPickerPanel experimentPicker;
 
@@ -187,15 +186,19 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         samplePanel =
                 new SamplePickerPanel(mainWindow, clientModel.getExperiments(),
                         clientModel.getOpenBISService());
-        dataSetIdText = new JTextField();
-        experimentPicker = new ExperimentPickerPanel(mainWindow, clientModel.getExperiments());
+        dataSetPanel =
+                new DataSetPickerPanel(mainWindow, clientModel.getExperiments(),
+                        clientModel.getOpenBISService());
+        experimentPicker =
+                new ExperimentPickerPanel(mainWindow, clientModel.getExperiments(),
+                        clientModel.getOpenBISService());
 
         ownerIdPanel = new JPanel(new CardLayout());
         ownerComboBox = new JComboBox(DataSetOwnerType.values());
 
         ownerIdPanel.add(experimentPicker, DataSetOwnerType.EXPERIMENT.toString());
         ownerIdPanel.add(samplePanel, DataSetOwnerType.SAMPLE.toString());
-        ownerIdPanel.add(dataSetIdText, DataSetOwnerType.DATA_SET.toString());
+        ownerIdPanel.add(dataSetPanel, DataSetOwnerType.DATA_SET.toString());
 
         dataSetTypeComboBox = new JComboBox();
         dataSetTypePanel = new JPanel();
@@ -245,7 +248,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                     samplePanel.setText(builder.getDataSetOwnerIdentifier());
                     break;
                 case DATA_SET:
-                    dataSetIdText.setText(builder.getDataSetOwnerIdentifier());
+                    dataSetPanel.setText(builder.getDataSetOwnerIdentifier());
                     break;
             }
         }
@@ -286,7 +289,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     private ArrayList<JComponent> getAllEditableWidgets()
     {
         ArrayList<JComponent> editableWidgets = new ArrayList<JComponent>();
-        editableWidgets.add(dataSetIdText);
+        editableWidgets.add(dataSetPanel);
         editableWidgets.add(samplePanel);
         editableWidgets.add(experimentPicker);
         editableWidgets.add(dataSetFileButton);
@@ -382,6 +385,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         ownerIdLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
         samplePanel.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        samplePanel.setToolTipText("Sample identifier");
         samplePanel.addActionListener(new ActionListener()
             {
 
@@ -406,6 +410,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             });
 
         experimentPicker.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        experimentPicker.setToolTipText("Experiment identifier");
         experimentPicker.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -427,21 +432,23 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                 }
             });
 
-        dataSetIdText.addActionListener(new ActionListener()
+        dataSetPanel.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        dataSetPanel.setToolTipText("Parent Data Set code");
+        dataSetPanel.addActionListener(new ActionListener()
             {
 
                 public void actionPerformed(ActionEvent e)
                 {
-                    setOwnerId(dataSetIdText.getText());
+                    setOwnerId(dataSetPanel.getText());
                 }
 
             });
-        dataSetIdText.addFocusListener(new FocusListener()
+        dataSetPanel.addFocusListener(new FocusListener()
             {
 
                 public void focusLost(FocusEvent e)
                 {
-                    setOwnerId(dataSetIdText.getText());
+                    setOwnerId(dataSetPanel.getText());
                 }
 
                 public void focusGained(FocusEvent e)
@@ -670,7 +677,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             case SAMPLE:
                 return samplePanel.getText();
             case DATA_SET:
-                return dataSetIdText.getText();
+                return dataSetPanel.getText();
         }
 
         return null;
