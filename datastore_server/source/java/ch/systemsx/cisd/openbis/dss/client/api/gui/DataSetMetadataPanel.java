@@ -140,7 +140,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
     private final JLabel ownerIdLabel;
 
-    private final JTextField sampleIdText;
+    private final SamplePickerPanel samplePanel;
 
     private final JTextField dataSetIdText;
 
@@ -184,7 +184,9 @@ public class DataSetMetadataPanel extends JPanel implements Observer
 
         // Initialize the fields in the gui
         ownerIdLabel = new JLabel("Owner:", JLabel.TRAILING);
-        sampleIdText = new JTextField();
+        samplePanel =
+                new SamplePickerPanel(mainWindow, clientModel.getExperiments(),
+                        clientModel.getOpenBISService());
         dataSetIdText = new JTextField();
         experimentPicker = new ExperimentPickerPanel(mainWindow, clientModel.getExperiments());
 
@@ -192,7 +194,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         ownerComboBox = new JComboBox(DataSetOwnerType.values());
 
         ownerIdPanel.add(experimentPicker, DataSetOwnerType.EXPERIMENT.toString());
-        ownerIdPanel.add(sampleIdText, DataSetOwnerType.SAMPLE.toString());
+        ownerIdPanel.add(samplePanel, DataSetOwnerType.SAMPLE.toString());
         ownerIdPanel.add(dataSetIdText, DataSetOwnerType.DATA_SET.toString());
 
         dataSetTypeComboBox = new JComboBox();
@@ -220,7 +222,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     {
         if (null == newDataSetInfo)
         {
-            sampleIdText.setText(EMPTY_FILE_SELECTION);
+            samplePanel.setText(EMPTY_FILE_SELECTION);
             experimentPicker.setText(EMPTY_FILE_SELECTION);
             updateFileLabel();
             disableAllWidgets();
@@ -240,7 +242,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
                     experimentPicker.setText(builder.getDataSetOwnerIdentifier());
                     break;
                 case SAMPLE:
-                    sampleIdText.setText(builder.getDataSetOwnerIdentifier());
+                    samplePanel.setText(builder.getDataSetOwnerIdentifier());
                     break;
                 case DATA_SET:
                     dataSetIdText.setText(builder.getDataSetOwnerIdentifier());
@@ -285,7 +287,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     {
         ArrayList<JComponent> editableWidgets = new ArrayList<JComponent>();
         editableWidgets.add(dataSetIdText);
-        editableWidgets.add(sampleIdText);
+        editableWidgets.add(samplePanel);
         editableWidgets.add(experimentPicker);
         editableWidgets.add(dataSetFileButton);
         editableWidgets.add(ownerComboBox);
@@ -379,22 +381,22 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         // The owner row
         ownerIdLabel.setPreferredSize(new Dimension(LABEL_WIDTH, BUTTON_HEIGHT));
 
-        sampleIdText.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        sampleIdText.addActionListener(new ActionListener()
+        samplePanel.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        samplePanel.addActionListener(new ActionListener()
             {
 
                 public void actionPerformed(ActionEvent e)
                 {
-                    setOwnerId(sampleIdText.getText());
+                    setOwnerId(samplePanel.getText());
                 }
 
             });
-        sampleIdText.addFocusListener(new FocusListener()
+        samplePanel.addFocusListener(new FocusListener()
             {
 
                 public void focusLost(FocusEvent e)
                 {
-                    setOwnerId(sampleIdText.getText());
+                    setOwnerId(samplePanel.getText());
                 }
 
                 public void focusGained(FocusEvent e)
@@ -666,7 +668,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
             case EXPERIMENT:
                 return experimentPicker.getText();
             case SAMPLE:
-                return sampleIdText.getText();
+                return samplePanel.getText();
             case DATA_SET:
                 return dataSetIdText.getText();
         }
