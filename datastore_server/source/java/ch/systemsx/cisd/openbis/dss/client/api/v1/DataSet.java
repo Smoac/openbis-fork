@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 
@@ -36,7 +35,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
  */
 public class DataSet
 {
-    private final OpenbisServiceFacade facade;
+    private final IOpenbisServiceFacade facade;
+
+    private final IDssComponent dssComponent;
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
 
@@ -49,11 +50,12 @@ public class DataSet
      * @param metadata The metadata. May be null if not available at construction time.
      * @param dataSetDss The data. May be null if not available at construction time.
      */
-    public DataSet(OpenbisServiceFacade facade,
+    public DataSet(IOpenbisServiceFacade facade, IDssComponent dssComponent,
             ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata,
             IDataSetDss dataSetDss)
     {
         this.facade = facade;
+        this.dssComponent = dssComponent;
         this.metadata = metadata;
         this.dataSetDss = dataSetDss;
 
@@ -228,7 +230,7 @@ public class DataSet
         // lazily initialize the ivar.
         if (null == dataSetDss)
         {
-            dataSetDss = facade.getDataSetDss(getMetadata().getCode());
+            dataSetDss = dssComponent.getDataSet(getMetadata().getCode());
         }
         return dataSetDss;
     }
@@ -238,10 +240,13 @@ public class DataSet
      */
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet getMetadata()
     {
-        // lazily initialize the ivar.
         if (null == metadata)
         {
-            metadata = facade.tryRawDataSet(dataSetDss.getCode());
+            DataSet dataSetWithMetaData = facade.getDataSet(dataSetDss.getCode());
+            if (dataSetWithMetaData != null)
+            {
+                metadata = dataSetWithMetaData.getMetadata();
+            }
         }
         return metadata;
     }

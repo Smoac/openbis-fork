@@ -258,23 +258,6 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
     }
 
-    /**
-     * Internal method used by the {@link DataSet} object to initialize an ivar if necessary.
-     */
-    public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet tryRawDataSet(
-            String dataSetCode) throws EnvironmentFailureException
-    {
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
-                dataSetCode));
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> matches =
-                service.searchForDataSets(sessionToken, searchCriteria);
-
-        // Codes are guaranteed to be unique, so there is either 1 or 0 matches
-        return (matches.size() > 0) ? matches.get(0) : null;
-    }
-
     public List<DataSet> listDataSetsForExperiments(final List<String> experimentIdentifiers)
             throws EnvironmentFailureException
     {
@@ -335,7 +318,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             throws EnvironmentFailureException
     {
         IDataSetDss dataSetDss = dssComponent.putDataSet(newDataset, dataSetFile);
-        return new DataSet(this, null, dataSetDss);
+        return new DataSet(this, dssComponent, null, dataSetDss);
     }
 
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -449,7 +432,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         ArrayList<DataSet> convertedDataSets = new ArrayList<DataSet>(internalDataSets.size());
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : internalDataSets)
         {
-            DataSet converted = new DataSet(this, dataSet, null);
+            DataSet converted = new DataSet(this, dssComponent, dataSet, null);
             convertedDataSets.add(converted);
         }
 
