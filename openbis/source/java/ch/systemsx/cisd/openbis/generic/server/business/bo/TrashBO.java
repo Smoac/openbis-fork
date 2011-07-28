@@ -21,8 +21,11 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -34,6 +37,48 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
+    private static class TrashBatchOperation implements IBatchOperation<TechId>
+    {
+        private final EntityKind entityKind;
+
+        private final List<TechId> entityIds;
+
+        private final DeletionPE deletion;
+
+        private final IDeletionDAO deletionDAO;
+
+        private int counter = 0;
+
+        public TrashBatchOperation(EntityKind entityKind, List<TechId> entityIds,
+                DeletionPE deletion, IDeletionDAO deletionDAO)
+        {
+            this.entityKind = entityKind;
+            this.entityIds = entityIds;
+            this.deletion = deletion;
+            this.deletionDAO = deletionDAO;
+        }
+
+        public void execute(List<TechId> entities)
+        {
+            counter += deletionDAO.trash(entityKind, entities, deletion);
+        }
+
+        public List<TechId> getAllEntities()
+        {
+            return entityIds;
+        }
+
+        public String getEntityName()
+        {
+            return entityKind.getLabel();
+        }
+
+        public String getOperationName()
+        {
+            return "trash";
+        }
+    }
+
     private DeletionPE deletion;
 
     public TrashBO(IDAOFactory daoFactory, Session session)
@@ -55,32 +100,44 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    public void trashSamples(List<TechId> sampleIds)
+    public void trashSamples(final List<TechId> sampleIds)
     {
         assert deletion != null;
-        int trashedCount = getDeletionDAO().trash(EntityKind.SAMPLE, sampleIds, deletion);
-        if (trashedCount > 0)
+
+        TrashBatchOperation batchOperation =
+                new TrashBatchOperation(EntityKind.SAMPLE, sampleIds, deletion, getDeletionDAO());
+        BatchOperationExecutor.executeInBatches(batchOperation);
+
+        if (batchOperation.counter > 0)
         {
             trashSampleDependentChildrenAndComponents(sampleIds);
             trashSampleDependentDataSets(sampleIds);
         }
     }
 
-    public void trashExperiments(List<TechId> experimentIds)
+    public void trashExperiments(final List<TechId> experimentIds)
     {
         assert deletion != null;
-        int trashedCount = getDeletionDAO().trash(EntityKind.EXPERIMENT, experimentIds, deletion);
-        if (trashedCount > 0)
+
+        TrashBatchOperation batchOperation =
+                new TrashBatchOperation(EntityKind.EXPERIMENT, experimentIds, deletion,
+                        getDeletionDAO());
+        BatchOperationExecutor.executeInBatches(batchOperation);
+
+        if (batchOperation.counter > 0)
         {
             trashExperimentDependentDataSets(experimentIds);
             trashExperimentDependentSamples(experimentIds);
         }
     }
 
-    public void trashDataSets(List<TechId> dataSetIds)
+    public void trashDataSets(final List<TechId> dataSetIds)
     {
         assert deletion != null;
-        getDeletionDAO().trash(EntityKind.DATA_SET, dataSetIds, deletion);
+
+        TrashBatchOperation batchOperation =
+                new TrashBatchOperation(EntityKind.DATA_SET, dataSetIds, deletion, getDeletionDAO());
+        BatchOperationExecutor.executeInBatches(batchOperation);
         // NOTE: data set children are not cascade trashed - a conscious decision made by Tomek
     }
 
