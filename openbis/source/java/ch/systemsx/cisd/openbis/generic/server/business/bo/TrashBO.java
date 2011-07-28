@@ -17,14 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -76,6 +78,52 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         public String getOperationName()
         {
             return "trash";
+        }
+    }
+
+    private abstract static class AbstractQueryBatchOperation implements IBatchOperation<TechId>
+    {
+        private final EntityKind entityKind;
+
+        private final List<TechId> entityIds;
+
+        private final String operationName;
+
+        private final Set<TechId> results = new HashSet<TechId>();
+
+        public AbstractQueryBatchOperation(EntityKind entityKind, List<TechId> entityIds,
+                String operationName)
+        {
+            this.entityKind = entityKind;
+            this.entityIds = entityIds;
+            this.operationName = operationName;
+        }
+
+        public abstract Collection<TechId> listAction(List<TechId> entities);
+
+        public void execute(List<TechId> entities)
+        {
+            results.addAll(listAction(entities));
+        }
+
+        public List<TechId> getAllEntities()
+        {
+            return entityIds;
+        }
+
+        public String getEntityName()
+        {
+            return entityKind.getLabel();
+        }
+
+        public String getOperationName()
+        {
+            return operationName;
+        }
+
+        public List<TechId> getResults()
+        {
+            return new ArrayList<TechId>(results);
         }
     }
 
@@ -143,27 +191,81 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
     private void trashSampleDependentChildrenAndComponents(List<TechId> sampleIds)
     {
-        ISampleDAO sampleDAO = getSampleDAO();
-        trashSamples(new ArrayList<TechId>(sampleDAO.listSampleIdsByParentIds(sampleIds)));
-        trashSamples(sampleDAO.listSampleIdsByContainerIds(sampleIds));
+        final ISampleDAO sampleDAO = getSampleDAO();
+
+        AbstractQueryBatchOperation batchOperation =
+                new AbstractQueryBatchOperation(EntityKind.SAMPLE, sampleIds,
+                        "listSampleIdsByParentIds")
+                    {
+                        @Override
+                        public Collection<TechId> listAction(List<TechId> entities)
+                        {
+                            return sampleDAO.listSampleIdsByParentIds(entities);
+                        }
+                    };
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        trashSamples(batchOperation.getResults());
+
+        batchOperation =
+                new AbstractQueryBatchOperation(EntityKind.SAMPLE, sampleIds,
+                        "listSampleIdsByContainerIds")
+                    {
+                        @Override
+                        public Collection<TechId> listAction(List<TechId> entities)
+                        {
+                            return sampleDAO.listSampleIdsByContainerIds(entities);
+                        }
+                    };
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        trashSamples(batchOperation.getResults());
     }
 
     private void trashSampleDependentDataSets(List<TechId> sampleIds)
     {
-        IDataDAO dataDAO = getDataDAO();
-        trashDataSets(dataDAO.listDataSetIdsBySampleIds(sampleIds));
+        AbstractQueryBatchOperation batchOperation =
+                new AbstractQueryBatchOperation(EntityKind.DATA_SET, sampleIds,
+                        "listDataSetIdsBySampleIds")
+                    {
+                        @Override
+                        public List<TechId> listAction(List<TechId> entities)
+                        {
+                            return getDataDAO().listDataSetIdsBySampleIds(entities);
+                        }
+                    };
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        trashDataSets(batchOperation.getResults());
     }
 
     private void trashExperimentDependentSamples(List<TechId> experimentIds)
     {
-        ISampleDAO sampleDAO = getSampleDAO();
-        trashSamples(sampleDAO.listSampleIdsByExperimentIds(experimentIds));
+        AbstractQueryBatchOperation batchOperation =
+                new AbstractQueryBatchOperation(EntityKind.SAMPLE, experimentIds,
+                        "listSampleIdsByExperimentIds")
+                    {
+                        @Override
+                        public List<TechId> listAction(List<TechId> entities)
+                        {
+                            return getSampleDAO().listSampleIdsByExperimentIds(entities);
+                        }
+                    };
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        trashSamples(batchOperation.getResults());
     }
 
     private void trashExperimentDependentDataSets(List<TechId> experimentIds)
     {
-        IDataDAO dataDAO = getDataDAO();
-        trashDataSets(dataDAO.listDataSetIdsByExperimentIds(experimentIds));
+        AbstractQueryBatchOperation batchOperation =
+                new AbstractQueryBatchOperation(EntityKind.DATA_SET, experimentIds,
+                        "listDataSetIdsByExperimentIds")
+                    {
+                        @Override
+                        public List<TechId> listAction(List<TechId> entities)
+                        {
+                            return getDataDAO().listDataSetIdsByExperimentIds(entities);
+                        }
+                    };
+        BatchOperationExecutor.executeInBatches(batchOperation);
+        trashDataSets(batchOperation.getResults());
     }
 
     public void revertDeletion(TechId deletionId)
