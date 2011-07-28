@@ -10,13 +10,13 @@ createUser()
   username=$1
   password=$2
   
-  pushd .
+  pushd . > /dev/null
   cd $BASE/../../servers/openBIS-server/jetty
   
   echo "Creating user $username ..."
   ./bin/passwd.sh add -p "$password" $username
   
-  popd  
+  popd  > /dev/null
 }
 
 BASE=`dirname "$0"`
