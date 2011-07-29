@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
@@ -64,15 +63,15 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
-    private static final String CELL_PLATE_EXAMPLE = "3VCP1";
+    private static final String CELL_PLATE_EXAMPLE = "3VCP5";
 
     private static final String CELL_PLATE_EXAMPLE_ID = CISD_ID_PREFIX + CELL_PLATE_EXAMPLE;
 
-    private static final String CELL_PLATE_EXAMPLE_EXPERIMENT_ID = "/CISD/NEMO/EXP1";
+    private static final String CELL_PLATE_EXAMPLE_EXPERIMENT_ID = "/CISD/NEMO/EXP10";
 
     private static final String CONTROL_LAYOUT_EXAMPLE_PERM_ID = "200811050919915-8";
 
-    private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
+    private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-979";
 
     private static final String CONTROL_LAYOUT_EXAMPLE_PERMLINK = StringEscapeUtils
             .escapeHtml(String.format(PERMLINK_TEMPLATE, CONTROL_LAYOUT_EXAMPLE_PERM_ID));
@@ -120,8 +119,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
         checkUserProperty(sDetails.getProperties(), "DESCRIPTION", "test control layout");
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public void testGetCellPlateDetails()
     {
         logIntoCommonClientService();
@@ -155,13 +153,9 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .getIdentifier());
         assertEquals(CELL_PLATE_EXAMPLE_EXPERIMENT_ID, sDetails.getExperiment().getIdentifier());
 
-        assertEquals("Doe", sDetails.getDeletion().getRegistrator().getLastName());
-        assertEquals("wrong-code", sDetails.getDeletion().getReason());
-
         assertEquals(1, sDetails.getParents().size());
         final Sample parent = sDetails.getParents().iterator().next();
-        assertEquals("3V-123", parent.getCode());
-        assertNotNull(parent.getDeletion());
+        assertEquals("3V-125", parent.getCode());
 
         assertEquals(sListed.getProperties().size(), sDetails.getProperties().size());
 
