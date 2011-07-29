@@ -383,8 +383,10 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     public void delete(final List<TechId> sampleIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
-        final String sqlPermId =
-                "SELECT perm_id FROM " + TableNames.SAMPLES_VIEW + " WHERE id = :sId";
+        // NOTE: we use SAMPLES_ALL_TABLE, not DELETED_SAMPLES_VIEW because we still want to be
+        // able to directly delete samples without going to trash (trash may be disabled)
+        final String samplesTable = TableNames.SAMPLES_ALL_TABLE;
+        final String sqlPermId = "SELECT perm_id FROM " + samplesTable + " WHERE id = :sId";
         final String sqlDeleteProperties =
                 "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :sId";
         final String sqlAttachmentContentIds =
@@ -393,8 +395,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                 "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
         final String sqlDeleteAttachments =
                 "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
-        final String sqlDeleteSample =
-                "DELETE FROM " + TableNames.SAMPLES_VIEW + " WHERE id = :sId";
+        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id = :sId";
         final String sqlInsertEvent =
                 String.format(
                         "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
