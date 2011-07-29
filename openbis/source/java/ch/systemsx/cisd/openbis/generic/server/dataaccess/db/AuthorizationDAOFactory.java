@@ -109,7 +109,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
         relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
-        deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance);
+        deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance, persistencyResources);
     }
 
     public final PersistencyResources getPersistencyResources()
