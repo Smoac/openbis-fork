@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityL
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findCode;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -46,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link ISampleListingQuery}.
@@ -97,9 +98,9 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    public void testDataset()
+    public void testGetDatasetById()
     {
-        long datasetId = 2;
+        long datasetId = 5;
         DatasetRecord dataset = query.getDataset(datasetId);
         assertDatasetCorrect(dataset);
     }
@@ -110,6 +111,14 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         assertNotNull(dataset.location);
         assertNotNull(dataset.code);
         assertNotNull(dataset.registration_timestamp);
+    }
+
+    @Test
+    public void testGetDeletedDatasetById()
+    {
+        long datasetId = 2;
+        DatasetRecord dataset = query.getDataset(datasetId);
+        assertNull(dataset);
     }
 
     @Test
@@ -204,16 +213,16 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testParentDatasetsForChild()
     {
-        long datasetId = 4;
+        long datasetId = 9;
         List<DatasetRecord> parents = asList(query.getParentDatasetsForChild(datasetId));
-        assertEquals(1, parents.size());
+        assertEquals(3, parents.size()); // the data set has 4 parents but 1 is deleted
     }
 
     @Test
     public void testChildDatasetsForParent()
     {
         LongSet datasetIds = new LongOpenHashSet(new long[]
-            { 2 });
+            { 9 });
         List<DatasetRecord> children = asList(query.getChildDatasetsForParents(datasetIds));
         assertEquals(2, children.size());
     }

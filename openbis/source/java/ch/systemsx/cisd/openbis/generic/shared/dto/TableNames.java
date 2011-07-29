@@ -39,7 +39,11 @@ public final class TableNames
     public static final String DATA_STORE_SERVICES_DATASET_TYPES_TABLE =
             "DATA_STORE_SERVICE_DATA_SET_TYPES";
 
-    public static final String DATA_TABLE = "data";
+    public static final String DATA_VIEW = "data"; // view
+
+    public static final String DELETED_DATA_VIEW = "data_deleted"; // view
+
+    public static final String DATA_ALL_TABLE = "data_all";
 
     public static final String DATA_SET_PROPERTIES_TABLE = "data_set_properties";
 
@@ -64,7 +68,11 @@ public final class TableNames
 
     public static final String EXPERIMENT_TYPES_TABLE = "experiment_types";
 
-    public static final String EXPERIMENTS_TABLE = "experiments";
+    public static final String EXPERIMENTS_VIEW = "experiments"; // view
+
+    public static final String DELETED_EXPERIMENTS_VIEW = "experiments_deleted"; // view
+
+    public static final String EXPERIMENTS_ALL_TABLE = "experiments_all";
 
     public static final String EXTERNAL_DATA_TABLE = "external_data";
 
@@ -104,7 +112,11 @@ public final class TableNames
 
     public static final String SAMPLE_TYPES_TABLE = "sample_types";
 
-    public static final String SAMPLES_TABLE = "samples";
+    public static final String SAMPLES_VIEW = "samples"; // view
+
+    public static final String DELETED_SAMPLES_VIEW = "samples_deleted"; // view
+
+    public static final String SAMPLES_ALL_TABLE = "samples_all";
 
     public static final String SAMPLE_RELATIONSHIPS_TABLE = "sample_relationships";
 

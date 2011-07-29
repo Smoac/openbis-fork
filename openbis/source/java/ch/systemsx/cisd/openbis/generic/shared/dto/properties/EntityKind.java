@@ -20,6 +20,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -27,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
@@ -45,23 +49,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  */
 public enum EntityKind
 {
-    MATERIAL(TableNames.MATERIALS_TABLE, "material", MaterialPE.class, MaterialTypePE.class,
+    MATERIAL(TableNames.MATERIALS_TABLE, "material", MaterialPE.class, null, MaterialTypePE.class,
             MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
 
-    EXPERIMENT(TableNames.EXPERIMENTS_TABLE, "experiment", ExperimentPE.class,
-            ExperimentTypePE.class, ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
+    EXPERIMENT(TableNames.EXPERIMENTS_VIEW, "experiment", ExperimentPE.class,
+            DeletedExperimentPE.class, ExperimentTypePE.class, ExperimentTypePropertyTypePE.class,
+            ExperimentPropertyPE.class),
 
-    SAMPLE(TableNames.SAMPLES_TABLE, "sample", SamplePE.class, SampleTypePE.class,
-            SampleTypePropertyTypePE.class, SamplePropertyPE.class),
+    SAMPLE(TableNames.SAMPLES_VIEW, "sample", SamplePE.class, DeletedSamplePE.class,
+            SampleTypePE.class, SampleTypePropertyTypePE.class, SamplePropertyPE.class),
 
-    DATA_SET(TableNames.DATA_TABLE, "dataSet", DataPE.class, DataSetTypePE.class,
-            DataSetTypePropertyTypePE.class, DataSetPropertyPE.class);
+    DATA_SET(TableNames.DATA_VIEW, "dataSet", DataPE.class, DeletedDataPE.class,
+            DataSetTypePE.class, DataSetTypePropertyTypePE.class, DataSetPropertyPE.class);
 
     private final String entityTableName;
 
     private final String entityLabel;
 
     private transient final Class<? extends IEntityInformationWithPropertiesHolder> entityClass;
+
+    private transient final Class<? extends IDeletablePE> deletedEntityClass;
 
     private transient final Class<?> typeClass;
 
@@ -71,11 +78,13 @@ public enum EntityKind
 
     private EntityKind(final String entityTableName, final String entityLabel,
             final Class<? extends IEntityInformationWithPropertiesHolder> entityClass,
-            final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass)
+            final Class<? extends IDeletablePE> deletedEntityClass, final Class<?> typeClass,
+            final Class<?> assignmentClass, Class<?> propertyClass)
     {
         this.entityTableName = entityTableName;
         this.entityLabel = entityLabel;
         this.entityClass = entityClass;
+        this.deletedEntityClass = deletedEntityClass;
         this.typeClass = typeClass;
         this.assignmentClass = assignmentClass;
         this.propertyClass = propertyClass;
@@ -115,6 +124,16 @@ public enum EntityKind
     public final <T extends IEntityInformationWithPropertiesHolder> Class<T> getEntityClass()
     {
         return cast(entityClass);
+    }
+
+    public final <T extends IDeletablePE> Class<T> getDeletedEntityClass()
+    {
+        if (deletedEntityClass == null)
+        {
+            throw new UnsupportedOperationException("No deleted entity class is specified for "
+                    + name());
+        }
+        return cast(deletedEntityClass);
     }
 
     public final String getEntityTypeFieldName()

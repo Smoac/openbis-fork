@@ -31,15 +31,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * A small <code>StandardSequenceNameMapper</code> which can handle sequencers that are not
  * constructed the standard way.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class SequenceNameMapper extends StandardSequenceNameMapper
 {
     private static final Map<String, String> createMap()
     {
         final HashMap<String, String> map = new HashMap<String, String>();
+        map.put(TableNames.DATA_VIEW, SequenceNames.DATA_SEQUENCE); // needed for old migrations
+        map.put(TableNames.DATA_ALL_TABLE, SequenceNames.DATA_SEQUENCE);
+        map.put(TableNames.SAMPLES_ALL_TABLE, SequenceNames.SAMPLE_SEQUENCE);
+        map.put(TableNames.EXPERIMENTS_ALL_TABLE, SequenceNames.EXPERIMENT_SEQUENCE);
         map.put(TableNames.MATERIAL_BATCHES_TABLE, SequenceNames.MATERIAL_BATCH_SEQUENCE);
-        map.put(TableNames.DATA_TABLE, SequenceNames.DATA_SEQUENCE);
         map.put(TableNames.DATA_STORES_TABLE, SequenceNames.DATA_STORE_SEQUENCE);
         map.put(TableNames.MATERIAL_PROPERTIES_TABLE, SequenceNames.MATERIAL_PROPERTY_SEQUENCE);
         map.put(TableNames.MATERIAL_TYPE_PROPERTY_TYPE_TABLE,

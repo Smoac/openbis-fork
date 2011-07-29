@@ -76,11 +76,10 @@ public class ExperimentBrowsingTest extends SystemTestCase
         TypedTableResultSet<Experiment> resultSet = commonClientService.listExperiments(criteria);
         Experiment e1 = getOriginalObjectByCode(resultSet, "EXP-REUSE");
         assertEquals(null, e1.getDeletion());
-        Experiment e2 = getOriginalObjectByCode(resultSet, "EXP-X");
-        assertEquals("no reason", e2.getDeletion().getReason());
+        assertObjectWithCodeDoesNotExists(resultSet, "EXP-X"); // deleted
         assertEquals(false, resultSet.getResultSet().isPartial());
-        assertEquals(3, resultSet.getResultSet().getTotalLength());
-        assertEquals(3, resultSet.getResultSet().getList().size());
+        assertEquals(1, resultSet.getResultSet().getTotalLength());
+        assertEquals(1, resultSet.getResultSet().getList().size());
     }
 
     @Test

@@ -312,13 +312,19 @@ public final class SqlUnitMigrationTest
     {
         final DatabaseConfigurationContext originalDatabaseContext =
                 createDatabaseContext("test_migration_original");
-        originalDatabaseContext.setScriptFolder(ORIGINAL_SQL_SOURCE);
-        DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(originalDatabaseContext,
-                DatabaseVersionHolder.getDatabaseVersion());
-        final File originalSchemaFile =
-                new File(unitTestRootDirectory, "currentDatabaseSchema.sql");
-        dumpSchema(originalDatabaseContext, originalSchemaFile);
-        return originalSchemaFile;
+        try
+        {
+            originalDatabaseContext.setScriptFolder(ORIGINAL_SQL_SOURCE);
+            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(originalDatabaseContext,
+                    DatabaseVersionHolder.getDatabaseVersion());
+            final File originalSchemaFile =
+                    new File(unitTestRootDirectory, "currentDatabaseSchema.sql");
+            dumpSchema(originalDatabaseContext, originalSchemaFile);
+            return originalSchemaFile;
+        } finally
+        {
+            originalDatabaseContext.closeConnections();
+        }
     }
 
     private static String compareSchemas(final File currentSchemaFile, final File expectedSchemaFile)

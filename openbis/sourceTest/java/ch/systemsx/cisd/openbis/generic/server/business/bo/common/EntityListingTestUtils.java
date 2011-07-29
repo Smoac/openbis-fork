@@ -101,6 +101,17 @@ public class EntityListingTestUtils
         return null; // for compiler
     }
 
+    public static <T extends CodeRecord> void assertCodeNotFound(Iterable<T> items, String code)
+    {
+        for (T item : items)
+        {
+            if (item.code.equalsIgnoreCase(code))
+            {
+                fail("Code found " + code);
+            }
+        }
+    }
+
     public static <T extends Code<?>> T findCode(List<T> items, String code)
     {
         for (T item : items)
@@ -157,8 +168,7 @@ public class EntityListingTestUtils
         if (found.size() != 1)
         {
             fail(String
-                    .format(
-                            "Exactly 1 property expected for sample id %d and property type id %d, but %d found.",
+                    .format("Exactly 1 property expected for sample id %d and property type id %d, but %d found.",
                             entityId, propertyTypeId, found.size()));
         }
         return found.get(0);

@@ -45,14 +45,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     {
             @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
                     + "FROM "
-                    + TableNames.SAMPLES_TABLE
+                    + TableNames.SAMPLES_VIEW
                     + " s, "
                     + TableNames.SPACES_TABLE
                     + " g "
                     + "WHERE s.id in (:ids) and s.space_id = g.id", resultSetMapping = "implicit1"),
             @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
                     + "FROM "
-                    + TableNames.SAMPLES_TABLE
+                    + TableNames.SAMPLES_VIEW
                     + " s, "
                     + TableNames.DATABASE_INSTANCES_TABLE
                     + " dbi "

@@ -39,94 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
-    private static class TrashBatchOperation implements IBatchOperation<TechId>
-    {
-        private final EntityKind entityKind;
-
-        private final List<TechId> entityIds;
-
-        private final DeletionPE deletion;
-
-        private final IDeletionDAO deletionDAO;
-
-        private int counter = 0;
-
-        public TrashBatchOperation(EntityKind entityKind, List<TechId> entityIds,
-                DeletionPE deletion, IDeletionDAO deletionDAO)
-        {
-            this.entityKind = entityKind;
-            this.entityIds = entityIds;
-            this.deletion = deletion;
-            this.deletionDAO = deletionDAO;
-        }
-
-        public void execute(List<TechId> entities)
-        {
-            counter += deletionDAO.trash(entityKind, entities, deletion);
-        }
-
-        public List<TechId> getAllEntities()
-        {
-            return entityIds;
-        }
-
-        public String getEntityName()
-        {
-            return entityKind.getLabel();
-        }
-
-        public String getOperationName()
-        {
-            return "trash";
-        }
-    }
-
-    private abstract static class AbstractQueryBatchOperation implements IBatchOperation<TechId>
-    {
-        private final EntityKind entityKind;
-
-        private final List<TechId> entityIds;
-
-        private final String operationName;
-
-        private final Set<TechId> results = new HashSet<TechId>();
-
-        public AbstractQueryBatchOperation(EntityKind entityKind, List<TechId> entityIds,
-                String operationName)
-        {
-            this.entityKind = entityKind;
-            this.entityIds = entityIds;
-            this.operationName = operationName;
-        }
-
-        public abstract Collection<TechId> listAction(List<TechId> entities);
-
-        public void execute(List<TechId> entities)
-        {
-            results.addAll(listAction(entities));
-        }
-
-        public List<TechId> getAllEntities()
-        {
-            return entityIds;
-        }
-
-        public String getEntityName()
-        {
-            return entityKind.getLabel();
-        }
-
-        public String getOperationName()
-        {
-            return operationName;
-        }
-
-        public List<TechId> getResults()
-        {
-            return new ArrayList<TechId>(results);
-        }
-    }
-
     private DeletionPE deletion;
 
     public TrashBO(IDAOFactory daoFactory, Session session)
@@ -277,6 +189,94 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Deletion");
+        }
+    }
+
+    private static class TrashBatchOperation implements IBatchOperation<TechId>
+    {
+        private final EntityKind entityKind;
+
+        private final List<TechId> entityIds;
+
+        private final DeletionPE deletion;
+
+        private final IDeletionDAO deletionDAO;
+
+        private int counter = 0;
+
+        public TrashBatchOperation(EntityKind entityKind, List<TechId> entityIds,
+                DeletionPE deletion, IDeletionDAO deletionDAO)
+        {
+            this.entityKind = entityKind;
+            this.entityIds = entityIds;
+            this.deletion = deletion;
+            this.deletionDAO = deletionDAO;
+        }
+
+        public void execute(List<TechId> entities)
+        {
+            counter += deletionDAO.trash(entityKind, entities, deletion);
+        }
+
+        public List<TechId> getAllEntities()
+        {
+            return entityIds;
+        }
+
+        public String getEntityName()
+        {
+            return entityKind.getLabel();
+        }
+
+        public String getOperationName()
+        {
+            return "trash";
+        }
+    }
+
+    private abstract static class AbstractQueryBatchOperation implements IBatchOperation<TechId>
+    {
+        private final EntityKind entityKind;
+
+        private final List<TechId> entityIds;
+
+        private final String operationName;
+
+        private final Set<TechId> results = new HashSet<TechId>();
+
+        public AbstractQueryBatchOperation(EntityKind entityKind, List<TechId> entityIds,
+                String operationName)
+        {
+            this.entityKind = entityKind;
+            this.entityIds = entityIds;
+            this.operationName = operationName;
+        }
+
+        public abstract Collection<TechId> listAction(List<TechId> entities);
+
+        public void execute(List<TechId> entities)
+        {
+            results.addAll(listAction(entities));
+        }
+
+        public List<TechId> getAllEntities()
+        {
+            return entityIds;
+        }
+
+        public String getEntityName()
+        {
+            return entityKind.getLabel();
+        }
+
+        public String getOperationName()
+        {
+            return operationName;
+        }
+
+        public List<TechId> getResults()
+        {
+            return new ArrayList<TechId>(results);
         }
     }
 

@@ -172,7 +172,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         ec.addMatchClause(MatchClause.createPropertyMatch("DESCRIPTION", "A simple experiment"));
         sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(ec));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(5, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3VCP*"));
         sc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(cc));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
     }
 
     @Test
@@ -223,7 +223,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         // Search for Samples first
         SearchCriteria sc = new SearchCriteria();
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(true, result.size() > 1000);
+        assertEquals(true, result.size() > 600);
         // Add experiment criteria limiting results to 7
         SearchCriteria ec = new SearchCriteria();
         ec.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP-REUSE"));
@@ -505,10 +505,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<DataSet> result =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
-        assertEquals(4, result.size());
+        assertEquals(3, result.size());
         assertEquals(
-                "[DataSet[20081105092158673-1,/CISD/NEMO/EXP1,/CISD/3VCP1,HCS_IMAGE,{COMMENT=no comment},[]], "
-                        + "DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=null, BACTERIUM=null, COMMENT=no comment, GENDER=null},[]], "
+                "[DataSet[20081105092159111-1,/CISD/NEMO/EXP-TEST-1,/CISD/CP-TEST-1,HCS_IMAGE,{ANY_MATERIAL=null, BACTERIUM=null, COMMENT=no comment, GENDER=null},[]], "
                         + "DataSet[20081105092159222-2,/CISD/NOE/EXP-TEST-2,/CISD/CP-TEST-2,HCS_IMAGE,{COMMENT=no comment},[]], "
                         + "DataSet[20081105092159333-3,/CISD/NEMO/EXP-TEST-2,/CISD/CP-TEST-3,HCS_IMAGE,{COMMENT=no comment},[]]]",
                 result.toString());
@@ -584,8 +583,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.listDataSetsForSample(sessionToken, sample, false);
         assertTrue(dataSets.size() > 0);
-        assertNotNull(dataSets.get(0).getRegistrationDetails()
-                .getRegistrationDate());
+        assertNotNull(dataSets.get(0).getRegistrationDetails().getRegistrationDate());
     }
 
     private void checkRegistrationDetails(EntityRegistrationDetails registrationDetails)

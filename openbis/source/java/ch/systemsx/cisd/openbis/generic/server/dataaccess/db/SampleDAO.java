@@ -384,7 +384,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             throws DataAccessException
     {
         final String sqlPermId =
-                "SELECT perm_id FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
+                "SELECT perm_id FROM " + TableNames.SAMPLES_VIEW + " WHERE id = :sId";
         final String sqlDeleteProperties =
                 "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :sId";
         final String sqlAttachmentContentIds =
@@ -394,7 +394,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final String sqlDeleteAttachments =
                 "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
         final String sqlDeleteSample =
-                "DELETE FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
+                "DELETE FROM " + TableNames.SAMPLES_VIEW + " WHERE id = :sId";
         final String sqlInsertEvent =
                 String.format(
                         "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
@@ -495,6 +495,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final String query =
                 "SELECT sample_id_child FROM " + TableNames.SAMPLE_RELATIONSHIPS_TABLE
                         + " WHERE sample_id_parent IN (:ids)";
+
         @SuppressWarnings("unchecked")
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
@@ -538,10 +539,11 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         criteria.setProjection(Projections.id());
         criteria.add(Restrictions.in("experimentInternal.id", longIds));
         final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
-        // if (operationLog.isDebugEnabled())
-        // {
-        operationLog.info(String.format("found %s samples for given experiments", results.size()));
-        // }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.info(String.format("found %s samples for given experiments",
+                    results.size()));
+        }
         return transformNumbers2TechIdList(results);
     }
 

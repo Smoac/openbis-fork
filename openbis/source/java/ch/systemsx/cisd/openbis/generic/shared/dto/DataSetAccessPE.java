@@ -37,8 +37,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
         + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
         + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g, "
         + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
-        + "(select e.proj_id from " + TableNames.DATA_TABLE + " ds, "
-        + TableNames.EXPERIMENTS_TABLE + " e "
+        + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
+        + TableNames.EXPERIMENTS_VIEW + " e "
         + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
         + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
 public class DataSetAccessPE

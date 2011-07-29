@@ -56,7 +56,7 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasets()
     {
-        LongSet ids = createSet(2, 4);
+        LongSet ids = createSet(2, 4, 7);
         Iterable<DatasetRecord> datasets = query.getDatasets(ids);
         int count = 0;
         for (DatasetRecord dataset : datasets)
@@ -65,7 +65,8 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
             assertRecursiveEqual(dataset, sameDataset);
             count++;
         }
-        assertEquals(ids.size(), count);
+        // data set with id 2 is deleted and should not be listed
+        assertEquals(ids.size() - 1, count);
     }
 
     @Test

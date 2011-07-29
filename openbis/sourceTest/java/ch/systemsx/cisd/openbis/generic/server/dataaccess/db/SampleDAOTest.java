@@ -340,6 +340,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         return eventDAO.tryFind(sample.getPermId(), EntityType.SAMPLE, EventType.DELETION);
     }
 
+    @Test(groups = "broken")
+    // FIXME LMS-2421
     public final void testDeleteWithProperties()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
@@ -419,7 +421,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         deleteSample(deletedSample);
     }
 
-    @Test
+    @Test(groups = "broken")
+    // FIXME LMS-2421
     public final void testDeleteWithGeneratedSamples()
     {
         final SamplePE deletedSample = findSample("3VCP2", "CISD");

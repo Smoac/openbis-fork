@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.assertCodeNotFound;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findCode;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -46,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -76,9 +76,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private static final String DEFAULT_SPACE_CODE = "CISD";
 
-    private static final String DILUTION_PLATE_CODE_1 = "3V-123";
+    private static final String DILUTION_PLATE_CODE_1 = "DP1-A";
 
-    private static final String DILUTION_PLATE_CODE_2 = "3V-125";
+    private static final String DILUTION_PLATE_CODE_2 = "DP1-B";
 
     private long dbInstanceId;
 
@@ -143,7 +143,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleCount()
     {
-        assertEquals(1023, query.getSampleCount(dbInstanceId));
+        assertEquals(689, query.getSampleCount(dbInstanceId)); // without deleted
     }
 
     @Test
@@ -176,8 +176,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
                 daoFactory.getSampleDAO().tryFindByCodeAndSpace(DILUTION_PLATE_CODE_1, group);
         dilutionPlate2 =
                 daoFactory.getSampleDAO().tryFindByCodeAndSpace(DILUTION_PLATE_CODE_2, group);
-        final int children1 = 3;
-        final int children2 = 6;
+        final int children1 = 2;
+        final int children2 = 1;
         assertEquals(children1, dilutionPlate1.getGenerated().size());
         assertEquals(children2, dilutionPlate2.getGenerated().size());
         LongSet dilutionPlateIdSet = new LongOpenHashSet(new long[]
@@ -185,7 +185,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         LongSet childrenIds =
                 new LongOpenHashSet(query.getChildrenIds(parentChildRelationshipTypeId,
                         dilutionPlateIdSet));
-        assertEquals(8, childrenIds.size()); // one of the children has both parents
+        assertEquals(children1 + children2, childrenIds.size());
         int sampleCount1 = 0;
         int sampleCount2 = 0;
         for (SampleRelationRecord sample : query.getParentRelations(parentChildRelationshipTypeId,
@@ -266,7 +266,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             ++sampleCount;
         }
-        assertEquals(41, sampleCount);
+        assertEquals(29, sampleCount); // without deleted
     }
 
     @Test
@@ -275,7 +275,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         long sampleTypeId = getSampleTypeId(SAMPLE_TYPE_CODE_CELL_PLATE);
         List<SampleRecord> samples =
                 asList(query.getSpaceSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
-        assertTrue(samples.size() >= 15);
+        assertTrue(samples.size() >= 11);
         SampleRecord sample = findCode(samples, "CP-TEST-1");
         assertEquals(18, sample.expe_id.longValue());
         assertEquals(1042, sample.id);
@@ -284,8 +284,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertNotNull(sample.perm_id);
         assertNull(sample.samp_id_part_of);
 
-        SampleRecord sample2 = findCode(samples, "3VCP1");
-        assertNull(sample2.samp_id_part_of);
+        assertCodeNotFound(samples, "3VCP1"); // deleted
     }
 
     private Long getSampleTypeId(String sampleTypeCode)
@@ -296,8 +295,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testQueryExperimentSamples()
     {
-        final ExperimentPE experiment = daoFactory.getExperimentDAO().listExperiments().get(0);
-        final long experimentId = experiment.getId();
+        final long experimentId = 8; // EXP-REUSE
 
         int sampleCount = 0;
         for (SampleRecord sample : query.getListableSamplesForExperiment(experimentId))
@@ -308,7 +306,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertEquals(msg, experimentId, sample.expe_id.longValue());
             ++sampleCount;
         }
-        assertEquals(3, sampleCount);
+        assertEquals(7, sampleCount);
     }
 
     @Test
@@ -324,7 +322,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertNotNull(msg, sample.expe_id);
             ++sampleCount;
         }
-        assertEquals(18, sampleCount);
+        assertEquals(12, sampleCount); // without deleted
     }
 
     @Test

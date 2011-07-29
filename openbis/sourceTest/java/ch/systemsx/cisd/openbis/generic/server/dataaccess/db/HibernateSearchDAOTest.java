@@ -71,6 +71,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
 
+    private static final String FILE_TYPE_TIFF = "TIFF";
+
+    private static final String FILE_TYPE_3VPROPRIETARY = "3VPROPRIETARY";
+
+    private static final String FILE_TYPE_XML = "XML";
+
     @SuppressWarnings("unused")
     @DataProvider(name = "registratorTerm")
     private final static Object[][] getRegistratorTerm()
@@ -147,7 +153,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
                         createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
-        assertEquals(6, hits.size());
+        assertEquals(4, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
@@ -279,8 +285,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
      * resutls.
      */
     private void assertAtLeastDatasetsFound(DetailedSearchCriteria criteria,
-            int expectedTotalResults,
-            DSLoc... expectedLocations)
+            int expectedTotalResults, DSLoc... expectedLocations)
     {
         List<ExternalDataPE> dataSets =
                 searchForDatasets(criteria,
@@ -336,8 +341,23 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // enumerates existing dataset locations in the database
     private static enum DSLoc
     {
-        LOC1("a/3"), LOC2("a/2"), LOC3("a/1"), LOC4("xxx/yyy/zzz"), LOC5("analysis/result"), LOC6(
-                "xml/result-12");
+        A_1("a/1"),
+
+        A_2("a/2"),
+
+        A_3("a/3"),
+
+        ANALYSIS_RESULT("analysis/result"),
+
+        CONTAINED_1("contained/1"),
+
+        CONTAINED_2("contained/2"),
+
+        XML_RESULT_11("xml/result-11"),
+
+        XML_RESULT_12("xml/result-12"),
+
+        XXX_YYY_ZZZ("xxx/yyy/zzz");
 
         private final String location;
 
@@ -357,66 +377,75 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return DetailedSearchField.createAnyField(propertyTypes);
     }
 
-    private DetailedSearchCriterion createAnyFieldCriterion()
+    private DetailedSearchCriterion createAnyFieldCriterion(String queryText)
     {
         List<String> propertyTypes = fetchPropertyTypeCodes();
-        return mkCriterion(createAnySearchField(propertyTypes), "*3*");
+        return mkCriterion(createAnySearchField(propertyTypes), queryText);
     }
 
-    private DetailedSearchCriterion createSimpleFieldCriterion()
+    private DetailedSearchCriterion createFieldTypeCriterion(String fieldType)
     {
         return mkCriterion(
                 DetailedSearchField.createAttributeField(DataSetAttributeSearchFieldKind.FILE_TYPE),
-                "TIFF");
+                fieldType);
     }
 
     @Test
     public final void testSearchForDataSetsAnyField()
     {
-        DetailedSearchCriterion criterion = createAnyFieldCriterion();
+        DetailedSearchCriterion criterion = createAnyFieldCriterion("*-1*");
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertAtLeastDatasetsFound(criteria, 7, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
-                DSLoc.LOC6);
+        assertAtLeastDatasetsFound(criteria, 4, DSLoc.A_1, DSLoc.XML_RESULT_11, DSLoc.CONTAINED_1,
+                DSLoc.CONTAINED_2);
     }
 
     @Test
     public final void testSearchForDataSetsSimpleField()
     {
-        DetailedSearchCriterion criterion = createSimpleFieldCriterion();
+        DetailedSearchCriterion criterion = createFieldTypeCriterion(FILE_TYPE_3VPROPRIETARY);
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
+        assertCorrectDatasetsFound(criteria, DSLoc.A_2, DSLoc.ANALYSIS_RESULT);
+    }
+
+    @Test
+    public final void testSearchForDataSetsSimpleFieldWithDeletedFilteredOut()
+    {
+        DetailedSearchCriterion criterion = createFieldTypeCriterion(FILE_TYPE_TIFF);
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
+        assertCorrectDatasetsFound(criteria, DSLoc.A_1); // without deleted DSLoc.XXX_YYY_ZZZ
     }
 
     @Test(dependsOnMethods = "testSearchForDataSetsSimpleField")
     public final void testSearchForDataSetsSimpleFieldWithExperiment()
     {
-        DetailedSearchCriterion criterion = createSimpleFieldCriterion();
+        DetailedSearchCriterion criterion = createFieldTypeCriterion(FILE_TYPE_3VPROPRIETARY);
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         DetailedSearchAssociationCriteria association =
                 new DetailedSearchAssociationCriteria(AssociatedEntityKind.EXPERIMENT,
                         Collections.singleton(new Long(2L)));
-        // compared to testSearchForDataSetsSimpleField() DSLoc.LOC3 should be filtered
+        // compared to testSearchForDataSetsSimpleField() DSLoc.A_2 should be filtered
         // because of different experiment
-        assertCorrectDatasetsFound(criteria, association, DSLoc.LOC4);
+        assertCorrectDatasetsFound(criteria, association, DSLoc.ANALYSIS_RESULT);
     }
 
     @Test
     public final void testSearchForDataSetsComplexAndQuery()
     {
-        DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
-        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DetailedSearchCriterion criterion1 = createAnyFieldCriterion("*-1*");
+        DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_XML);
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
+        assertCorrectDatasetsFound(criteria, DSLoc.XML_RESULT_11, DSLoc.CONTAINED_1,
+                DSLoc.CONTAINED_2);
     }
 
     @Test
     public final void testSearchForDataSetsComplexOrQuery()
     {
-        DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
-        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DetailedSearchCriterion criterion1 = createAnyFieldCriterion("*-1*");
+        DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_XML);
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertAtLeastDatasetsFound(criteria, 8, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
-                DSLoc.LOC5, DSLoc.LOC6);
+        assertAtLeastDatasetsFound(criteria, 8, DSLoc.A_1, DSLoc.XML_RESULT_11,
+                DSLoc.XML_RESULT_12, DSLoc.CONTAINED_1, DSLoc.CONTAINED_2);
     }
 
     // @Test
@@ -532,11 +561,11 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String propertyCode = "COMMENT";
         DetailedSearchCriterion criterion1 =
                 mkCriterion(DetailedSearchField.createPropertyField(propertyCode), "no comment");
-        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_TIFF);
 
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
 
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
+        assertCorrectDatasetsFound(criteria, DSLoc.A_1, DSLoc.XXX_YYY_ZZZ);
 
         // This data set has "no comment" value as a COMMENT property and TIFF file type.
         // We change it and check if it is removed from results.
@@ -544,7 +573,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String newValue = "sth";
         changeExternalDataProperty(externalData, propertyCode, newValue);
         flushSearchIndices();
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
+        assertCorrectDatasetsFound(criteria, DSLoc.XXX_YYY_ZZZ);
         TestInitializer.restoreSearchIndex();
     }
 

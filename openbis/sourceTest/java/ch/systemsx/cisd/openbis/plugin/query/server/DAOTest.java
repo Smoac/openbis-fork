@@ -53,7 +53,7 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
     public void testQuery()
     {
         String query =
-                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where id < 5 order by id";
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where id < 6 order by id";
         testQueryWithBindings(query, null);
     }
 
@@ -62,7 +62,7 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         String query =
                 "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where id < ${id} order by id";
         QueryParameterBindings bindings = new QueryParameterBindings();
-        bindings.addBinding("id", "5");
+        bindings.addBinding("id", "6");
         testQueryWithBindings(query, bindings);
     }
 
@@ -83,8 +83,10 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         assertColumnHeader("is_valid", DataTypeCode.VARCHAR, headers.get(3));
         assertEquals(4, headers.size());
         List<TableModelRow> rows = model.getRows();
-        assertRow("2\t20081105092158673-1\tWed Nov 05 09:21:58 CET 2008\ttrue", rows.get(0));
-        assertRow("4\t20081105092159188-3\tWed Nov 05 09:21:59 CET 2008\ttrue", rows.get(1));
+        // NOTE: only 2 data sets should be found even though there is a data set with id 2
+        // but it is deleted
+        assertRow("4\t20081105092159188-3\tWed Nov 05 09:21:59 CET 2008\ttrue", rows.get(0));
+        assertRow("5\t20081105092159111-1\tMon Feb 09 12:20:21 CET 2009\ttrue", rows.get(1));
         assertEquals(2, rows.size());
     }
 

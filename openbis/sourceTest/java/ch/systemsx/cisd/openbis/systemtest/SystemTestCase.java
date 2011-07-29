@@ -67,7 +67,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected ICommonServerForInternalUse commonServer;
 
     protected IGenericServer genericServer;
-    
+
     protected ICommonClientService commonClientService;
 
     protected IGenericClientService genericClientService;
@@ -113,7 +113,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         this.genericServer = genericServer;
     }
-    
+
     /**
      * Sets <code>commonClientService</code>.
      * <p>
@@ -164,12 +164,14 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected void uploadFile(String fileName, String fileContent)
     {
         UploadedFilesBean bean = new UploadedFilesBean();
-        bean.addMultipartFile(new MockMultipartFile(fileName, fileName, null, fileContent.getBytes()));
+        bean.addMultipartFile(new MockMultipartFile(fileName, fileName, null, fileContent
+                .getBytes()));
         HttpSession session = request.getSession();
         session.setAttribute(SESSION_KEY, bean);
     }
 
-    protected <T extends CodeWithRegistration<?>> T getOriginalObjectByCode(TypedTableResultSet<T> resultSet, String code)
+    protected <T extends CodeWithRegistration<?>> T getOriginalObjectByCode(
+            TypedTableResultSet<T> resultSet, String code)
     {
         GridRowModels<TableModelRowWithObject<T>> list = resultSet.getResultSet().getList();
         List<String> codes = new ArrayList<String>();
@@ -186,10 +188,34 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         AssertJUnit.fail("No row with code " + code + " found in " + codes);
         return null;
     }
-    
-    protected void assertProperties(String expectedProperties, IEntityPropertiesHolder propertiesHolder)
+
+    protected <T extends CodeWithRegistration<?>> void assertObjectWithCodeDoesNotExists(
+            TypedTableResultSet<T> resultSet, String code)
     {
-        List<IEntityProperty> properties = new ArrayList<IEntityProperty>(propertiesHolder.getProperties());
+        GridRowModels<TableModelRowWithObject<T>> list = resultSet.getResultSet().getList();
+        List<String> codes = new ArrayList<String>();
+        boolean rowFound = false;
+        for (GridRowModel<TableModelRowWithObject<T>> gridRowModel : list)
+        {
+            T originalObject = gridRowModel.getOriginalObject().getObjectOrNull();
+            String objectCode = originalObject.getCode();
+            if (objectCode.equals(code))
+            {
+                rowFound = true;
+            }
+            codes.add(objectCode);
+        }
+        if (rowFound)
+        {
+            AssertJUnit.fail("Row with code " + code + " was found in " + codes);
+        }
+    }
+
+    protected void assertProperties(String expectedProperties,
+            IEntityPropertiesHolder propertiesHolder)
+    {
+        List<IEntityProperty> properties =
+                new ArrayList<IEntityProperty>(propertiesHolder.getProperties());
         Collections.sort(properties, new Comparator<IEntityProperty>()
             {
                 public int compare(IEntityProperty p1, IEntityProperty p2)

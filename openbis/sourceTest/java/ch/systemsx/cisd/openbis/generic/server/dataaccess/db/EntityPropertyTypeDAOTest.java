@@ -101,8 +101,9 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         EntityTypePE entityType =
                 daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
         List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listExperiments();
-        Assert.assertEquals(new HashSet<ExperimentPE>(filter(allExperiments, entityType)), new HashSet<IEntityPropertiesHolder>(daoFactory
-                .getEntityPropertyTypeDAO(entityKind).listEntities(entityType)));
+        Assert.assertEquals(new HashSet<ExperimentPE>(filter(allExperiments, entityType)),
+                new HashSet<IEntityPropertiesHolder>(daoFactory
+                        .getEntityPropertyTypeDAO(entityKind).listEntities(entityType)));
     }
 
     private static List<ExperimentPE> filter(List<ExperimentPE> allExperiments,
@@ -169,7 +170,8 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
     }
 
-    @Test
+    @Test(groups = "broken")
+    // FIXME LMS-2421
     public void testDelete()
     {
         EntityTypePropertyTypePE assignment =

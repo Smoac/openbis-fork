@@ -87,8 +87,8 @@ public class SetSessionUserTest extends SystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("It is not allowed to change the user from remote host localhost", ex
-                    .getMessage());
+            assertEquals("It is not allowed to change the user from remote host localhost",
+                    ex.getMessage());
         }
     }
 
@@ -119,10 +119,10 @@ public class SetSessionUserTest extends SystemTestCase
         String[] logContent = logRecorder.getLogContent().split("\n");
         assertEquals(3, logContent.length);
         String logLine = logContent[2];
-        assertTrue("Following log line does start as expected: " + logLine, logLine
-                .startsWith("[USER:'test' SPACE:'CISD' HOST:'localhost'"));
-        assertTrue("Following log line does end as expected: " + logLine, logLine
-                .endsWith("set_session_user  USER('observer')"));
+        assertTrue("Following log line does start as expected: " + logLine,
+                logLine.startsWith("[USER:'test' SPACE:'CISD' HOST:'localhost'"));
+        assertTrue("Following log line does end as expected: " + logLine,
+                logLine.endsWith("set_session_user  USER('observer')"));
 
         commonServer.logout(sessionToken);
 
@@ -143,8 +143,8 @@ public class SetSessionUserTest extends SystemTestCase
         sampleType.setId(3l);
         criteria.setSampleType(sampleType);
         criteria.setIncludeSpace(true);
-        // INSTANCE ADMIN sees all samples
-        assertEquals(16, commonServer.listSamples(sessionToken, criteria).size());
+        // INSTANCE ADMIN sees all samples that were not deleted
+        assertEquals(11, commonServer.listSamples(sessionToken, criteria).size());
 
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'

@@ -135,7 +135,7 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testListAllDataSetsFor()
     {
         HashSet<String> samplePermIDs =
-                new HashSet<String>(Arrays.asList("200811050946559-983", "200902091219327-1025"));
+                new HashSet<String>(Arrays.asList("200902091250077-1026", "200902091225616-1027"));
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
         List<Sample> samples = SampleTranslator.translate(samplePEs, "");
 
@@ -145,24 +145,22 @@ public class DatasetListerTest extends AbstractDAOTest
         for (Sample sample : samples)
         {
             builder.append(sample.getCode());
-            appendChildren(builder, dataSets.get(sample), "   ");
+            appendChildren(builder, dataSets.get(sample), "  ");
             builder.append('\n');
         }
-        assertEquals("3VCP1\n   20081105092158673-1 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "     20081105092159188-3 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "     20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "       20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "       20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "CP-TEST-1\n"
-                + "   20081105092159111-1 (HCS_IMAGE) [ANY_MATERIAL: 1000_C (SIRNA), "
-                + "BACTERIUM: BACTERIUM1 (BACTERIUM), COMMENT: no comment, GENDER: FEMALE]\n"
-                + "     20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "       20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "       20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
-                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n",
+        assertEquals("CP-TEST-3\n  20081105092159333-3 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "    20081105092259000-8 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "    20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "      20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "      20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "CP-TEST-2\n  20081105092159222-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "    20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "      20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "      20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n",
                 builder.toString());
         Map<String, ExternalData> dataSetsByCode = new HashMap<String, ExternalData>();
         for (Sample sample : samples)
@@ -171,14 +169,15 @@ public class DatasetListerTest extends AbstractDAOTest
             assertSameDataSetsForSameCode(dataSetsByCode, rootDataSets);
         }
     }
-    
+
     @Test
     public void testListDataSetsByCode()
     {
+        // 1st is deleted, 2nd has fake code, 3rd & 4th are ok
         List<ExternalData> dataSets =
                 lister.listByDatasetCode(Arrays.asList("20081105092158673-1", "blabla",
-                        "20081105092159188-3"));
-        
+                        "20081105092159111-1", "20081105092159188-3"));
+
         Collections.sort(dataSets, new Comparator<ExternalData>()
             {
                 public int compare(ExternalData o1, ExternalData o2)
@@ -187,21 +186,22 @@ public class DatasetListerTest extends AbstractDAOTest
                 }
             });
         DataSet dataSet0 = dataSets.get(0).tryGetAsDataSet();
-        assertEquals(2L, dataSet0.getId().longValue());
-        assertEquals("20081105092158673-1", dataSet0.getCode());
-        assertEquals("xxx/yyy/zzz", dataSet0.getLocation());
-        assertEquals(4711L, dataSet0.getSize().longValue());
-        assertEquals(42, dataSet0.getSpeedHint());
+        assertEquals(4L, dataSet0.getId().longValue());
+        assertEquals("20081105092159188-3", dataSet0.getCode());
+        assertEquals("analysis/result", dataSet0.getLocation());
+        assertEquals(null, dataSet0.getSize());
+        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet0.getSpeedHint());
 
         DataSet dataSet1 = dataSets.get(1).tryGetAsDataSet();
-        assertEquals(4L, dataSet1.getId().longValue());
-        assertEquals("20081105092159188-3", dataSet1.getCode());
-        assertEquals("analysis/result", dataSet1.getLocation());
-        assertEquals(null, dataSet1.getSize());
-        assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet1.getSpeedHint());
+        assertEquals(5L, dataSet1.getId().longValue());
+        assertEquals("20081105092159111-1", dataSet1.getCode());
+        assertEquals("a/1", dataSet1.getLocation());
+        assertEquals(4711L, dataSet1.getSize().longValue());
+        assertEquals(42, dataSet1.getSpeedHint());
+
         assertEquals(2, dataSets.size());
     }
-    
+
     @Test
     public void testListByTrackingCriteriaWithNoSample()
     {
@@ -284,12 +284,12 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20110509092359990-11", containedDataSets.get(0).getCode());
         assertEquals("20110509092359990-12", containedDataSets.get(1).getCode());
     }
-    
+
     @Test
     public void testListByDataStore()
     {
         List<ExternalData> list = lister.listByDataStore(1);
-        
+
         Collections.sort(list, new Comparator<ExternalData>()
             {
                 public int compare(ExternalData o1, ExternalData o2)
@@ -297,24 +297,29 @@ public class DatasetListerTest extends AbstractDAOTest
                     return o1.getCode().compareTo(o2.getCode());
                 }
             });
-        assertEquals(2L, list.get(0).getId().longValue());
-        assertEquals("20081105092158673-1", list.get(0).getCode());
-        assertEquals("HCS_IMAGE", list.get(0).getDataSetType().getCode());
-        assertEquals("STANDARD", list.get(0).getDataStore().getCode());
-        assertEquals(1225873318798L, list.get(0).getRegistrationDate().getTime());
-        assertEquals(1225873318688L, list.get(0).getProductionDate().getTime());
-        assertEquals("EXP1", list.get(0).getExperiment().getCode());
-        assertEquals("NEMO", list.get(0).getExperiment().getProject().getCode());
-        assertEquals("CISD", list.get(0).getExperiment().getProject().getSpace().getCode());
-        assertEquals("CISD", list.get(0).getExperiment().getProject().getSpace().getInstance().getCode());
-        assertEquals("3VCP1", list.get(0).getSample().getCode());
-        assertEquals("CISD", list.get(0).getSample().getSpace().getCode());
-        assertEquals("[COMMENT: no comment]", list.get(0).getProperties().toString());
-        assertEquals("xxx/yyy/zzz", ((DataSet) list.get(0)).getLocation());
-        assertEquals("42", ((DataSet) list.get(0)).getShareId());
-        assertEquals(4711L, ((DataSet) list.get(0)).getSize().longValue());
-        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) list.get(0)).getStatus());
-        assertEquals(13, list.size());
+        // NOTE: deleted data set with id 2 is ommited
+        ExternalData dataSet = list.get(0);
+        assertEquals(5L, dataSet.getId().longValue());
+        assertEquals("20081105092159111-1", dataSet.getCode());
+        assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
+        assertEquals("STANDARD", dataSet.getDataStore().getCode());
+        assertEquals(1234178421646L, dataSet.getRegistrationDate().getTime());
+        assertEquals(1225873319203L, dataSet.getProductionDate().getTime());
+        assertEquals("EXP-TEST-1", dataSet.getExperiment().getCode());
+        assertEquals("NEMO", dataSet.getExperiment().getProject().getCode());
+        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getCode());
+        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getInstance()
+                .getCode());
+        assertEquals("CP-TEST-1", dataSet.getSample().getCode());
+        assertEquals("CISD", dataSet.getSample().getSpace().getCode());
+        assertEquals(
+                "[COMMENT: no comment, GENDER: FEMALE, BACTERIUM: BACTERIUM1 (BACTERIUM), ANY_MATERIAL: 1000_C (SIRNA)]",
+                dataSet.getProperties().toString());
+        assertEquals("a/1", ((DataSet) dataSet).getLocation());
+        assertEquals("42", ((DataSet) dataSet).getShareId());
+        assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
+        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
+        assertEquals(12, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
