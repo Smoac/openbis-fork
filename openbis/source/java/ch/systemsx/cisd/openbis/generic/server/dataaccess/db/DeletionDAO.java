@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -34,6 +35,10 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -54,9 +59,14 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DeletionDAO.class);
 
-    DeletionDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    private final PersistencyResources persistencyResources;
+
+    DeletionDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
+            final PersistencyResources persistencyResources)
     {
         super(sessionFactory, databaseInstance, DeletionPE.class);
+
+        this.persistencyResources = persistencyResources;
     }
 
     //
@@ -96,6 +106,9 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         assert deletion != null : "Unspecified deletion";
         assert entityKind != null : "Unspecified entity kind";
 
+        List<TechId> ids =
+                findTrashedEntityIds(Collections.singletonList(TechId.create(deletion)), entityKind);
+
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         String query =
                 String.format("UPDATE VERSIONED %s SET deletion = NULL WHERE deletion = ?",
@@ -103,6 +116,9 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
         hibernateTemplate.flush();
         hibernateTemplate.clear();
+
+        scheduleDynamicPropertiesEvaluationByIds(TechId.asLongs(ids), entityKind);
+
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
     }
 
@@ -176,7 +192,32 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             operationLog.info(String.format("trashing %d %ss", updatedRows, entityKind.getLabel()));
         }
         hibernateTemplate.flush();
+
+        List<Long> ids = TechId.asLongs(entityIds);
+        scheduleRemoveFromFullTextIndex(ids, entityKind);
+
         return updatedRows;
     }
 
+    protected IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
+    {
+        return persistencyResources.getIndexUpdateScheduler();
+    }
+
+    protected IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluatorScheduler()
+    {
+        return persistencyResources.getDynamicPropertyEvaluationScheduler();
+    }
+
+    protected void scheduleRemoveFromFullTextIndex(List<Long> ids, EntityKind entityKind)
+    {
+        getIndexUpdateScheduler().scheduleUpdate(
+                IndexUpdateOperation.remove(entityKind.getEntityClass(), ids));
+    }
+
+    protected void scheduleDynamicPropertiesEvaluationByIds(List<Long> ids, EntityKind entityKind)
+    {
+        scheduleDynamicPropertiesEvaluationForIds(getDynamicPropertyEvaluatorScheduler(),
+                entityKind.getEntityClass(), ids);
+    }
 }
