@@ -41,7 +41,7 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
     public void test()
     {
         ExperimentLoader loader = new ExperimentLoader(daoFactory);
-        List<Sample> samples = loadSamples(980l, 981l, 982l, 983l, 984l);
+        List<Sample> samples = loadSamples(980L, 981L, 986L);
         
         loader.enrichWithExperiments(samples);
         
@@ -59,9 +59,7 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
         }
         assertEquals("980 3V-126\n" 
                    + "981 DP\n"
-                   + "982 3VCP1: EXP1 [DESCRIPTION: A simple experiment, GENDER: MALE]\n"
-                   + "983 3VCP2\n"
-                   + "984 3VCP3: EXP1 [DESCRIPTION: A simple experiment, GENDER: MALE]\n",
+                   + "986 3VCP5: EXP10 [DESCRIPTION: A simple experiment, GENDER: MALE]\n",
                 builder.toString());
     }
     
