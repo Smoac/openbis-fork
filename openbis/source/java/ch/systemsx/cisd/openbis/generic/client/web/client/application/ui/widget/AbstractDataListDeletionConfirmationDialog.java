@@ -128,7 +128,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         final String dictKey =
                 isTrashEnabled() ? Dict.DELETE_PROGRESS_MESSAGE
                         : Dict.DELETE_PERMANENTLY_PROGRESS_MESSAGE;
-        return viewContext.getMessage(dictKey);
+        return viewContext.getMessage(dictKey, getEntityName());
     }
 
     private final boolean isTrashEnabled()
