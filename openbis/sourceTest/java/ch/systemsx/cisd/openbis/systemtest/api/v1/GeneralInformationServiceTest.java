@@ -198,7 +198,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         cc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3VCP*"));
         sc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(cc));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test

@@ -55,14 +55,14 @@ public class SampleListingWorkerTest extends AbstractDAOTest
 
     private final long GRANDPARENT1_ID = 325L;
 
-    private final long PARENT2_ID = 977L;
+    private final long PARENT2_ID = 976L;
 
-    private final long GRANDPARENT2_ID = 4L;
+    private final long GRANDPARENT2_ID = 3L;
 
-    private final long CHILD_WITH_2_PARENTS_ID = 984L;
+    private final long CHILD_WITH_2_PARENTS_ID = 987L;
 
     private final Long[] CHILDREN_IDS =
-        { CHILD_WITH_2_PARENTS_ID, 985L, 986L, 987L, 988L, 989L };
+        { 986L, CHILD_WITH_2_PARENTS_ID, 988L, 989L };
 
     private SampleListerDAO sampleListerDAO;
 
@@ -96,8 +96,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         }
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testListSamplesById()
     {
         final LongSet sampleIds = new LongOpenHashSet();
@@ -133,8 +132,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         }
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testListSamplesForParent()
     {
         final ListSampleCriteria baseCriteria =
@@ -152,8 +150,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         }
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testListSamplesForChild()
     {
         final ListSampleCriteria baseCriteria =
@@ -181,8 +178,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         }
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testListSamplesForChildren()
     {
         final ListSampleCriteria baseCriteria =
@@ -210,11 +206,10 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         }
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testListSamplesForExperiment()
     {
-        final long expId = 2L;
+        final long expId = 3L;
         final ListSampleCriteria baseCriteria =
                 ListSampleCriteria.createForExperiment(new TechId(expId));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
