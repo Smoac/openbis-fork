@@ -70,9 +70,9 @@ public final class DataDAOTest extends AbstractDAOTest
 
     private static final int SPEED_HINT = Constants.DEFAULT_SPEED_HINT / 4;
 
-    private final String PARENT_CODE = "20081105092158673-1";
+    private final String PARENT_CODE = "20081105092159333-3";
 
-    private final String CHILD_CODE = "20081105092159188-3";
+    private final String CHILD_CODE = "20081105092259000-8";
 
     private final String CONTAINER_CODE = "20110509092359990-10";
 
@@ -316,8 +316,7 @@ public final class DataDAOTest extends AbstractDAOTest
         assertFalse(externalData.isContainer());
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testUpdateDataSetWithParent()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -482,8 +481,7 @@ public final class DataDAOTest extends AbstractDAOTest
         return null; // to make the compiler happy
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testCreateDataSetWithBothSampleAndParent()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -497,8 +495,7 @@ public final class DataDAOTest extends AbstractDAOTest
         dataDAO.createDataSet(data);
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testUpdateOfDataSetAddParentWhenThereIsSampleConnected()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -511,8 +508,7 @@ public final class DataDAOTest extends AbstractDAOTest
         dataDAO.updateDataSet(dataSetConnectedWithSample);
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test()
     public void testUpdateOfDataSetConnectSampleWhenThereIsParent()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
