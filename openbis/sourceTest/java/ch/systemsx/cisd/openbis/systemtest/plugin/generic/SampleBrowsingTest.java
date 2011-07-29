@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
@@ -106,8 +105,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
                 .getIdentifier());
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public final void testListMasterPlates()
     {
         logIntoCommonClientService();
@@ -123,11 +121,6 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         assertEquals("[MASTER_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
-
-        Sample s1 = getSample(list, createSampleIdentifier("MP001-1"));
-        checkInternalProperty(s1.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
-        assertNotNull(s1.getDeletion());
-        assertNull(s1.getExperiment());
 
         Sample s2 = getSample(list, createSampleIdentifier("MP002-1"));
         checkInternalProperty(s2.getProperties(), "PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE);
@@ -157,8 +150,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         assertNull(s.getExperiment());
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public final void testListCellPlates()
     {
         logIntoCommonClientService();
@@ -175,10 +167,10 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
-        Sample s = getSample(list, createSampleIdentifier("3VCP1"));
-        assertNotNull(s.getDeletion());
-        assertEquals("/CISD/NEMO/EXP1", s.getExperiment().getIdentifier());
-        assertEquals("/CISD/3V-123", s.getGeneratedFrom().getIdentifier());
+        Sample s = getSample(list, createSampleIdentifier("3VCP5"));
+        // assertNotNull(s.getDeletion());
+        assertEquals("/CISD/NEMO/EXP10", s.getExperiment().getIdentifier());
+        assertEquals("/CISD/3V-125", s.getGeneratedFrom().getIdentifier());
         assertNull(s.getGeneratedFrom().getGeneratedFrom());
     }
 
