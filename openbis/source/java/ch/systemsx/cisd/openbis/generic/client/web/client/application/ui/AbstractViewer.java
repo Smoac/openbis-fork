@@ -323,7 +323,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected final AbstractAsyncCallback<Void> createDeletionCallback()
     {
-        return new RefreshViewerCallback(viewContext)
+        return new CloseViewerCallback(viewContext)
             {
                 @Override
                 protected void process(Void result)
@@ -339,7 +339,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         return new RefreshViewerCallback(viewContext);
     }
 
-    private final class CloseViewerCallback extends AbstractAsyncCallback<Void>
+    private class CloseViewerCallback extends AbstractAsyncCallback<Void>
     {
         public CloseViewerCallback(IViewContext<?> viewContext)
         {
