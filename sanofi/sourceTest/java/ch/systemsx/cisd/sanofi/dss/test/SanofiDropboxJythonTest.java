@@ -107,7 +107,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL";
 
-    private static final String COMPOUND_WELL_TYPE = "COMPOUND_BATCH_WELL";
+    private static final String COMPOUND_WELL_TYPE = "COMPOUND_WELL";
 
     private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M";
 
