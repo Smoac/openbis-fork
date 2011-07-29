@@ -55,10 +55,7 @@ public class SampleLoaderTest extends AbstractLoaderTestCase
             builder.append(" <- ").append(parent.getCode()).append(" ");
             builder.append(getSortedProperties(parent)).append('\n');
         }
-        assertEquals("3VCP1 [] <- 3V-123 [OFFSET: 42]\n"
-                   + "3VCP2 [] <- 3V-123 [OFFSET: 42]\n"
-                   + "3VCP4 [] <- 3V-125 [OFFSET: 49]\n"
-                   + "3VCP5 [] <- 3V-125 [OFFSET: 49]\n"
+        assertEquals("3VCP5 [] <- 3V-125 [OFFSET: 49]\n"
                    + "3VCP6 [] <- 3V-125 [OFFSET: 49]\n"
                    + "3VCP7 [COMMENT: test comment, ORGANISM: RAT, SIZE: 4711] <- 3V-125 [OFFSET: 49]\n"
                    + "3VCP8 [] <- 3V-125 [OFFSET: 49]\n" 
