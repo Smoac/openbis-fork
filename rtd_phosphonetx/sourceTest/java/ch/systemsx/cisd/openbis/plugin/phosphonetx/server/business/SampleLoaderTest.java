@@ -56,7 +56,6 @@ public class SampleLoaderTest extends AbstractLoaderTestCase
             builder.append(getSortedProperties(parent)).append('\n');
         }
         assertEquals("3VCP5 [] <- 3V-125 [OFFSET: 49]\n"
-                   + "3VCP6 [] <- 3V-125 [OFFSET: 49]\n"
                    + "3VCP7 [COMMENT: test comment, ORGANISM: RAT, SIZE: 4711] <- 3V-125 [OFFSET: 49]\n"
                    + "3VCP8 [] <- 3V-125 [OFFSET: 49]\n" 
                    + "CP-TEST-1 [ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-X (BACTERIUM), "
