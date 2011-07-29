@@ -36,12 +36,17 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Data access object for {@link ExperimentPE}.
@@ -296,6 +301,44 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             operationLog.debug(String.format("ADD: experiment '%s'.", experiment));
         }
+    }
+
+    public void delete(final List<TechId> experimentIds, final PersonPE registrator,
+            final String reason) throws DataAccessException
+    {
+        // FIXME delete placeholders
+
+        // NOTE: we use EXPERIMENT_ALL_TABLE, not DELETED_EXPERIMENTS_VIEW because we still want to
+        // be able to directly delete samples without going to trash (trash may be disabled)
+        final String experimentsTable = TableNames.EXPERIMENTS_ALL_TABLE;
+        final String sqlPermId =
+                "SELECT perm_id FROM " + experimentsTable + " WHERE id = :entityId";
+        final String sqlDeleteProperties =
+                "DELETE FROM " + TableNames.EXPERIMENT_PROPERTIES_TABLE
+                        + " WHERE expe_id = :entityId";
+        final String sqlAttachmentContentIds =
+                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
+                        + " WHERE expe_id = :entityId";
+        final String sqlDeleteAttachmentContents =
+                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
+        final String sqlDeleteAttachments =
+                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :entityId";
+        final String sqlDeleteSample = "DELETE FROM " + experimentsTable + " WHERE id = :entityId";
+        final String sqlInsertEvent =
+                String.format(
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
+
+        executeDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason, sqlPermId,
+                sqlDeleteProperties, sqlAttachmentContentIds, sqlDeleteAttachmentContents,
+                sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent);
+    }
+
+    @Override
+    Logger getLogger()
+    {
+        return operationLog;
     }
 
 }

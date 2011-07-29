@@ -571,4 +571,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return transformNumbers2TechIdList(results);
     }
 
+    @Override
+    Logger getLogger()
+    {
+        return operationLog;
+    }
+
 }

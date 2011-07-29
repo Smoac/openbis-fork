@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -604,38 +603,22 @@ public final class ExperimentBOTest extends AbstractBOTest
     @Test
     public void testDelete()
     {
-        final TechId experimentId = CommonTestUtils.TECH_ID;
-        final ExperimentPE experiment = createExperiment(EXP_CODE);
-        experiment.setId(experimentId.getId());
+        final List<TechId> experimentIds = new ArrayList<TechId>();
+        experimentIds.add(new TechId(1L));
+        experimentIds.add(new TechId(2L));
+        experimentIds.add(new TechId(3L));
         final String reason = "reason";
-
-        prepareAnyDaoCreation();
-        prepareTryToLoadOfExperimentWithId(experiment);
         context.checking(new Expectations()
             {
                 {
-                    PersonPE person = EXAMPLE_SESSION.tryGetPerson();
-                    EventPE event = ExperimentBO.createDeletionEvent(experiment, person, reason);
-                    one(eventDAO).persist(event);
-                    one(experimentDAO).delete(experiment);
+                    PersonPE registrator = EXAMPLE_SESSION.tryGetPerson();
+                    one(experimentDAO).delete(experimentIds, registrator, reason);
                 }
             });
 
         final ExperimentBO expBO = createExperimentBO();
-        expBO.deleteByTechIds(Collections.singletonList(experimentId), reason);
+        expBO.deleteByTechIds(experimentIds, reason);
         context.assertIsSatisfied();
-    }
-
-    private void prepareTryToLoadOfExperimentWithId(final ExperimentPE experiment)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(experimentDAO).tryGetByTechId(with(new TechId(experiment.getId())),
-                            with(any(String[].class)));
-                    will(returnValue(experiment));
-                }
-            });
     }
 
     private static ExperimentPE createExperiment(String code)

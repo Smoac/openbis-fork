@@ -545,4 +545,10 @@ final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<Exter
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
+    @Override
+    Logger getLogger()
+    {
+        return operationLog;
+    }
+
 }

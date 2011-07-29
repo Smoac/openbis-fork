@@ -207,7 +207,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
-    public void deleteByTechIds(List<TechId> experimentIds, String reason)
+    public void deleteByTechIdsOld(List<TechId> experimentIds, String reason)
             throws UserFailureException
     {
         for (TechId experimentId : experimentIds)
@@ -215,7 +215,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             loadDataByTechId(experimentId);
             try
             {
-                deleteZombieDatasetPlaceholders();
+                deleteZombieDatasetPlaceholders(); // FIXME do this on deletion
                 getExperimentDAO().delete(experiment);
                 getEventDAO().persist(
                         createDeletionEvent(experiment, session.tryGetPerson(), reason));
@@ -224,6 +224,21 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
                         EntityKind.EXPERIMENT);
             }
+        }
+
+    }
+
+    public void deleteByTechIds(List<TechId> experimentIds, String reason)
+            throws UserFailureException
+    {
+        try
+        {
+            getSessionFactory().getCurrentSession().flush();
+            getSessionFactory().getCurrentSession().clear();
+            getExperimentDAO().delete(experimentIds, session.tryGetPerson(), reason);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Experiment", EntityKind.EXPERIMENT);
         }
     }
 

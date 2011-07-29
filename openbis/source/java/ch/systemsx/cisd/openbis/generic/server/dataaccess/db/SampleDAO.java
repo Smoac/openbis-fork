@@ -25,9 +25,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -43,9 +41,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -386,83 +383,26 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         // NOTE: we use SAMPLES_ALL_TABLE, not DELETED_SAMPLES_VIEW because we still want to be
         // able to directly delete samples without going to trash (trash may be disabled)
         final String samplesTable = TableNames.SAMPLES_ALL_TABLE;
-        final String sqlPermId = "SELECT perm_id FROM " + samplesTable + " WHERE id = :sId";
+        final String sqlPermId = "SELECT perm_id FROM " + samplesTable + " WHERE id = :entityId";
         final String sqlDeleteProperties =
-                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :sId";
+                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :entityId";
         final String sqlAttachmentContentIds =
-                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
+                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
+                        + " WHERE samp_id = :entityId";
         final String sqlDeleteAttachmentContents =
                 "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
         final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :sId";
-        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id = :sId";
+                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :entityId";
+        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id = :entityId";
         final String sqlInsertEvent =
                 String.format(
                         "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
                                 + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
-        executeStatelessAction(new StatelessHibernateCallback()
-            {
-                public Object doInStatelessSession(StatelessSession session)
-                {
-                    final SQLQuery sqlQueryPermId = session.createSQLQuery(sqlPermId);
-                    final SQLQuery sqlQueryDeleteProperties =
-                            session.createSQLQuery(sqlDeleteProperties);
-                    final SQLQuery sqlQueryDeleteSample = session.createSQLQuery(sqlDeleteSample);
-                    final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
-                    final SQLQuery sqlQueryAttachmentContentIds =
-                            session.createSQLQuery(sqlAttachmentContentIds);
-                    final SQLQuery sqlQueryDeleteAttachments =
-                            session.createSQLQuery(sqlDeleteAttachments);
-                    final SQLQuery sqlQueryDeleteAttachmentContents =
-                            session.createSQLQuery(sqlDeleteAttachmentContents);
-                    sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
-                    sqlQueryInsertEvent.setParameter("reason", reason);
-                    sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
-                    sqlQueryInsertEvent.setParameter("entityType", EntityType.SAMPLE.name());
-                    int counter = 0;
-                    for (TechId techId : sampleIds)
-                    {
-                        sqlQueryPermId.setParameter("sId", techId.getId());
-                        final String permIdOrNull = tryGetEntity(sqlQueryPermId.uniqueResult());
-                        if (permIdOrNull != null)
-                        {
-                            // delete properties
-                            sqlQueryDeleteProperties.setParameter("sId", techId.getId());
-                            sqlQueryDeleteProperties.executeUpdate();
-                            // delete attachments
-                            sqlQueryAttachmentContentIds.setParameter("sId", techId.getId());
-                            List<Long> attachmentContentIds =
-                                    cast(sqlQueryAttachmentContentIds.list());
-                            if (attachmentContentIds.size() > 0)
-                            {
-                                sqlQueryDeleteAttachments.setParameter("sId", techId.getId());
-                                sqlQueryDeleteAttachments.executeUpdate();
-                                sqlQueryDeleteAttachmentContents.setParameterList("aIds",
-                                        attachmentContentIds);
-                                sqlQueryDeleteAttachmentContents.executeUpdate();
-                            }
-                            // delete sample
-                            sqlQueryDeleteSample.setParameter("sId", techId.getId());
-                            sqlQueryDeleteSample.executeUpdate();
-                            // create event
-                            sqlQueryInsertEvent.setParameter("description", permIdOrNull);
-                            sqlQueryInsertEvent.setParameter("identifier", permIdOrNull);
-                            sqlQueryInsertEvent.executeUpdate();
-                            if (++counter % 1000 == 0)
-                            {
-                                operationLog.info(String.format("%d samples have been deleted...",
-                                        counter));
-                            }
-                        }
-                    }
-                    return null;
-                }
-            });
-
-        List<Long> ids = TechId.asLongs(sampleIds);
-        scheduleRemoveFromFullTextIndex(ids);
+        executeDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlPermId,
+                sqlDeleteProperties, sqlAttachmentContentIds, sqlDeleteAttachmentContents,
+                sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent);
     }
 
     public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
@@ -548,4 +488,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return transformNumbers2TechIdList(results);
     }
 
+    @Override
+    Logger getLogger()
+    {
+        return operationLog;
+    }
 }

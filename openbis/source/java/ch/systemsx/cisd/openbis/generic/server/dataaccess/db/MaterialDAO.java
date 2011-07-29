@@ -170,8 +170,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
         final String sqlCodeAndType =
                 String.format("SELECT m.code, mt.code as typeCode "
                         + " FROM %s as m, %s as mt WHERE m.id = :mId AND m.maty_id = mt.id",
-                        TableNames.MATERIALS_TABLE,
-                        TableNames.MATERIAL_TYPES_TABLE);
+                        TableNames.MATERIALS_TABLE, TableNames.MATERIAL_TYPES_TABLE);
         final String sqlDeleteProperties =
                 "DELETE FROM " + TableNames.MATERIAL_PROPERTIES_TABLE + " WHERE mate_id = :mId";
         final String sqlDeleteSample =
@@ -181,7 +180,6 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                         "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
                                 + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
-
 
         executeStatelessAction(new StatelessHibernateCallback()
             {
@@ -215,8 +213,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                                 sqlQueryDeleteSample.setParameter("mId", techId.getId());
                                 sqlQueryDeleteSample.executeUpdate();
                                 // create event
-                                sqlQueryInsertEvent.setParameter("description",
-                                        permId);
+                                sqlQueryInsertEvent.setParameter("description", permId);
                                 sqlQueryInsertEvent.setParameter("identifier", materialCode);
                                 sqlQueryInsertEvent.executeUpdate();
                                 if (++counter % 1000 == 0)
@@ -240,6 +237,12 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
         List<Long> ids = TechId.asLongs(materialIds);
         scheduleRemoveFromFullTextIndex(ids);
+    }
+
+    @Override
+    Logger getLogger()
+    {
+        return operationLog;
     }
 
 }
