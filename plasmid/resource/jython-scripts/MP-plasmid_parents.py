@@ -187,12 +187,26 @@ def updateFromBatchInput(bindings):
     
     inputPattern = re.compile(INPUT_PATTERN, re.VERBOSE)
     input = bindings.get('')
+    print 'input: ' + input
     plasmids = input.split(',')
     elements = []
     for p in plasmids:
         (code, g, relationship, annotation) = _group(inputPattern, p.strip())
         sampleLink = _createSampleLink(code, relationship, annotation)
         elements.append(sampleLink)
+    
+    parentsInput = bindings.get(originalColumnNameBindingKey('YEAST_PARENTS'))
+    if parentsInput is not None:
+        parents = parentsInput.split(',')
+        for parent in parents:
+            print 'parent: ' + parent
+            permId = entityInformationProvider().getSamplePermId(SPACE, parent)
+            parentPlasmids = entityInformationProvider().getSamplePropertyValue(permId, 'PLASMIDS')
+            print parentPlasmids
+            parentElements = list(propertyConverter().convertStringToElements(parentPlasmids))
+            for parentLink in parentElements:
+                elements.append(parentLink)     
+        
     property.value = propertyConverter().convertToString(elements)
 
 
