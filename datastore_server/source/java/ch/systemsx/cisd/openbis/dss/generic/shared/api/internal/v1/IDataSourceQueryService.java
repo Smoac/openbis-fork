@@ -44,6 +44,11 @@ import net.lemnik.eodsql.DataSet;
  *     result.close()
  * </pre>
  * 
+ * {@link #update(String, String, Object...)} and {@link #insert(String, String, Object...)} are for
+ * performing statements that don't return a result. Use {@link #insert(String, String, Object...)}
+ * if you need to get an auto-generated key of an insert statement, that is if you have a key that
+ * is doing an <code>AUTO_INCREMENT</code> of some sort.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IDataSourceQueryService
@@ -110,5 +115,35 @@ public interface IDataSourceQueryService
      *        the given parameters.
      */
     int update(String dataSourceName, String query, Object... parameters)
+            throws IllegalArgumentException;
+
+    /**
+     * Execute an insert against the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
+     * @return The generated key of the insert statement, or -1, of no key was generated
+     * @throw IllegalArgumentException Throws if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
+     */
+    long insert(String dataSourceName, String query) throws IllegalArgumentException;
+
+    /**
+     * Execute an insert against the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @param query The SQL query to execute, possibly including parameters marked by '?{X}' where X
+     *            is the parameter number.
+     * @param parameters The values for filling in the query parameters.
+     * @return The generated key of the insert statement, or -1, of no key was generated
+     * @throw IllegalArgumentException Thrown if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
+     */
+    long insert(String dataSourceName, String query, Object... parameters)
             throws IllegalArgumentException;
 }

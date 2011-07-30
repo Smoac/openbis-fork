@@ -84,4 +84,23 @@ public class DataSourceQueryService implements IDataSourceQueryService
         return update(dataSourceName, query, new Object[0]);
     }
 
+    public long insert(String dataSourceName, String query, Object... parameters)
+            throws IllegalArgumentException
+    {
+        final DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
+        try
+        {
+            return QueryTool.insert(dataSource, query, parameters);
+        } catch (InvalidQueryException ex)
+        {
+            operationLog.error(ex.getCause().getMessage());
+            throw ex;
+        }
+    }
+
+    public long insert(String dataSourceName, String query) throws IllegalArgumentException
+    {
+        return insert(dataSourceName, query, new Object[0]);
+    }
+
 }
