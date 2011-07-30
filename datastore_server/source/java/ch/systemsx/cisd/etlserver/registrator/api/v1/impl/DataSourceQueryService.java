@@ -103,4 +103,24 @@ public class DataSourceQueryService implements IDataSourceQueryService
         return insert(dataSourceName, query, new Object[0]);
     }
 
+    public Map<String, Object> insertMultiKeys(String dataSourceName, String[] generatedIdColumns,
+            String query, Object... parameters) throws IllegalArgumentException
+    {
+        final DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
+        try
+        {
+            return QueryTool.insertMultiKeys(dataSource, generatedIdColumns, query, parameters);
+        } catch (InvalidQueryException ex)
+        {
+            operationLog.error(ex.getCause().getMessage());
+            throw ex;
+        }
+    }
+
+    public Map<String, Object> insertMultiKeys(String dataSourceName, String[] generatedIdColumns,
+            String query) throws IllegalArgumentException
+    {
+        return insertMultiKeys(dataSourceName, generatedIdColumns, query, new Object[0]);
+    }
+
 }
