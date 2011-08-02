@@ -46,12 +46,12 @@
         // Task for creating distributions
   -->
 	
-  <target name="dist" depends="create-installation-tarball, screening-api"/>
+  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api, create-installation-tarball"/>
 
 	<target name="create-installation-tarball" depends="create-installer">
 	  <property name="tarball.file" value="${basedir}/${dist}/${tarball.basename}.tar.gz" />
 		
-		<tar destfile="${tarball.file}">
+		<tar destfile="${tarball.file}" compression="gzip">
 		  <tarfileset dir="${basedir}/dist/tarball"
 		              prefix="${tarball.basename}/">
 		    <include name="*.*"/>
@@ -69,11 +69,16 @@
 		</tar>		
 	</target>
 	
-  <target name="create-installer" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, prepare-installer">
+  <target name="create-installer" depends="prepare-installer">
 
 		<mkdir dir="${installer.dist.dir}" />
-		<unzip src="${dss.dist.file}" dest="${installer.dist.dir}"/>
-		<unzip src="${server.dist.file}" dest="${installer.dist.dir}"/>
+		
+  	<unzip dest="${installer.dist.dir}">
+		    <fileset dir=".">
+		        <include name="${dist}/openBIS-server${variant}-S*.zip"/>
+	          <include name="${dist}/datastore_server${variant}-S*.zip"/>
+		    </fileset>
+		</unzip>
 		
 		<!-- make the "admin" directory available to the installer as "bin" -->
 		<copy todir="${installer.dist.dir}/bin">
@@ -124,12 +129,8 @@
 	</target>
 	
 	<target name="prepare-installer">
-		<!-- KE: there is no easy way to get the ${dss.dist.file} property as we 
-		     refer to the DSS build via "antcall"-s and they do not have return values -->  
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-    <property name="dss.dist.file"
-              value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
 		
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 	  <property name="tarball.basename" value="openBIS-installation${variant}-${version.number}-r${revision.number}" />
 		
   	<zip update="true" destfile="${server.dist.file}">

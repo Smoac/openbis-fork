@@ -58,7 +58,16 @@ public class PostgresToolsPathValidator implements DataValidator
 
         data.setVariable(POSTGRES_BIN_VARNAME, selectedPath);
 
-        return (valid) ? Status.OK : Status.ERROR;
+        if (valid)
+        {
+            return Status.OK;
+        } else
+        {
+            // only useful for console installations
+            System.err.println(getErrorMessageId());
+            return Status.ERROR;
+        }
+
     }
 
 }

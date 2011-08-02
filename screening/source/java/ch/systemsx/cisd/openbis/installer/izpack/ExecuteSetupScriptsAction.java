@@ -64,7 +64,10 @@ public class ExecuteSetupScriptsAction implements PanelAction
     private void executRestoreConfigScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, RESTORE_CONFIG_FROM_BACKUP_SCRIPT);
-        executeAdminScript(null, script, data.getVariable("BACKUP_FOLDER"));
+        String backupConfigFolder =
+                data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME)
+                        + "/config-backup";
+        executeAdminScript(null, script, backupConfigFolder);
     }
 
     private void executePostInstallationScript(AutomatedInstallData data)

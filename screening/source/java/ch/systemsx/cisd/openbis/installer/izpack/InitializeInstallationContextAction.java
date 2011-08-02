@@ -32,6 +32,11 @@ public class InitializeInstallationContextAction implements PanelAction
     public void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
         GlobalInstallationContext.initialize(data);
+
+        if (GlobalInstallationContext.isUpdateInstallation)
+        {
+            new PrepareInstallationBackupAction().executeAction(data, arg1);
+        }
     }
 
     public void initialize(PanelActionConfiguration arg0)

@@ -4,8 +4,7 @@
     <appname>openBIS</appname>
     <appversion>@{version.number}</appversion>
     <url>http://www.cisd.ethz.ch/software/openBIS</url>
-    <!--  TODO KE: cannot disable uninstaller -->
-    <!--  uninstaller write="no"/-->
+    <uninstaller write="no"/>
     <javaversion>1.6</javaversion>
     <requiresjdk>yes</requiresjdk>
     <os>
@@ -99,11 +98,7 @@
     
     
     <!--  create backup if needed -->
-    <panel classname="com.izforge.izpack.panels.process.ProcessPanel" condition="isUpdateInstallation" >
-      <actions>
-        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.PrepareInstallationBackupAction" />
-      </actions>
-    </panel>
+    <panel classname="com.izforge.izpack.panels.process.ProcessPanel" condition="isUpdateInstallation" />
     
     <panel classname="com.izforge.izpack.panels.packs.PacksPanel"/>
     <panel classname="com.izforge.izpack.panels.install.InstallPanel">
@@ -142,12 +137,12 @@
     <pack name="Datastore Server" required="yes" loose="yes">
       <description>The data store server managing raw data</description>
       <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
-      <file src="@{installer.dist.dir}/data/dropboxes" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.dist.dir}/data/incoming-simple" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.dist.dir}/data/incoming-hcs" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.dist.dir}/data/samples" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.dist.dir}/data/store" targetdir="$DSS.ROOT-DIR" />
-      <file src="@{installer.dist.dir}/data/log" targetdir="$INSTALL_DSS_PATH" />
+      <file src="@{installer.dist.dir}/data/dropboxes" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
+      <file src="@{installer.dist.dir}/data/incoming-simple" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
+      <file src="@{installer.dist.dir}/data/incoming-hcs" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
+      <file src="@{installer.dist.dir}/data/samples" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
+      <file src="@{installer.dist.dir}/data/store" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
+      <file src="@{installer.dist.dir}/data/log" targetdir="$INSTALL_DSS_PATH" condition="isFirstTimeInstallation"/>
       
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
     </pack>
@@ -155,21 +150,13 @@
     <pack name="Administration Scripts" required="yes" loose="yes">
       <description>Scripts to facilitate openBIS administration</description>
       <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
-      <file src="@{installer.dist.dir}/data/doc" targetdir="$DSS.ROOT-DIR" />
+      <file src="@{installer.dist.dir}/data/doc" targetdir="$DSS.ROOT-DIR" condition="isFirstTimeInstallation"/>
       
       <parsable targetfile="$INSTALL_BIN_PATH/env" />
-      <parsable targetfile="$DSS.ROOT-DIR/doc/getting-started-with-openBIS.html" />
+      <parsable targetfile="$DSS.ROOT-DIR/doc/getting-started-with-openBIS.html" condition="isFirstTimeInstallation"/>
 
       <!--  set all *.sh files executable -->      
-      <executable targetfile="$INSTALL_BIN_PATH/chmodx-all-scripts.sh" stage="postinstall" keep="false"/>
-      
-      <!-- restore the config from the pre-existing installation -->
-      <executable targetfile="$INSTALL_BIN_PATH/restore-config-from-backup.sh" 
-        stage="postinstall" condition="isUpdateInstallation" keep="true">
-        <args>
-          <arg value="$BACKUP_FOLDER/config-backup" />
-        </args>
-      </executable>
+      <executable targetfile="${INSTALL_BIN_PATH}/chmodx-all-scripts.sh" stage="postinstall" keep="false"/>
     </pack>
     
   </packs>

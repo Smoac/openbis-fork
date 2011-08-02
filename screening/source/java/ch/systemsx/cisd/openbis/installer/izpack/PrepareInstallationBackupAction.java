@@ -32,9 +32,6 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class PrepareInstallationBackupAction implements PanelAction
 {
-
-    private static final String BACKUP_FOLDER_VARNAME = "BACKUP_FOLDER";
-
     private static final String BACK_FOLDER_PATTERN = "yyyy-MM-dd-HHmm";
 
     private static final String BACKUP_ROOT = "backup";
@@ -64,7 +61,7 @@ public class PrepareInstallationBackupAction implements PanelAction
     private String setInstallationWideBackupDirVariable(AutomatedInstallData data)
     {
         String backupDirPath = backupDir.getAbsolutePath();
-        data.setVariable(BACKUP_FOLDER_VARNAME, backupDirPath);
+        data.setVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME, backupDirPath);
         return backupDirPath;
     }
 

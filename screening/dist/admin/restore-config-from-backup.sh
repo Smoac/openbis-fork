@@ -16,7 +16,7 @@ fi
 source $BASE/common-functions.sh
 ROOT=$BASE/../servers
 
-echo "Restorting configuration backup from $CONF to $ROOT ..."
+echo "Restoring configuration backup from $CONF to $ROOT ..."
 
 # -- GLOBAL
 if [ -e "$CONF/env" ]; then

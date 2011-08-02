@@ -35,6 +35,8 @@ public class GlobalInstallationContext
 
     public static final String DATA_DIR_VARNAME = "DSS.ROOT-DIR";
 
+    public static final String BACKUP_FOLDER_VARNAME = "BACKUP_FOLDER";
+
     /**
      * set to true if the installation process is trying to update an existing openBIS installation.
      */
