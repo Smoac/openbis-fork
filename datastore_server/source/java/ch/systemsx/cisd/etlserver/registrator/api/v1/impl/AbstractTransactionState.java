@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.lemnik.eodsql.DynamicTransactionQuery;
+import net.lemnik.eodsql.QueryTool;
+
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -116,6 +119,9 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Sample> samplesToBeUpdated = new ArrayList<Sample>();
 
         private final List<Material> materialsToBeRegistered = new ArrayList<Material>();
+
+        private final List<DynamicTransactionQuery> queriesToCommit =
+                new ArrayList<DynamicTransactionQuery>();
 
         private String userIdOrNull = null;
 
@@ -264,7 +270,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 return result;
             }
-            
+
             ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
             if (dataSet == null)
             {
@@ -433,6 +439,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return dstFile.getAbsolutePath();
         }
 
+        public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)
+        {
+            DynamicTransactionQuery query = QueryTool.getQuery(DynamicTransactionQuery.class);
+            queriesToCommit.add(query);
+            return query;
+        }
+
         public void deleteFile(String src)
         {
             throw new NotImplementedException();
@@ -467,6 +480,12 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
+            for (DynamicTransactionQuery query : queriesToCommit)
+            {
+                query.commit();
+                query.close(false);
+            }
+
             return datasets.isEmpty() == false;
         }
 
@@ -478,6 +497,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             rollbackStack.rollbackAll();
             registeredDataSets.clear();
+            for (DynamicTransactionQuery query : queriesToCommit)
+            {
+                query.rollback();
+                query.close(false);
+            }
         }
 
         /**
@@ -611,7 +635,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             return false;
         }
-
     }
 
     private static abstract class TerminalTransactionState<T extends DataSetInformation> extends

@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
@@ -355,7 +354,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private void invokeDidCommitTransaction()
     {
-        try {
+        try
+        {
             registrationService.didCommitTransaction(this);
         } catch (Throwable t)
         {
@@ -453,6 +453,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)
             throws IllegalArgumentException
     {
-        return QueryTool.getQuery(DynamicTransactionQuery.class);
+        return getStateAsLiveState().getDatabaseQuery(dataSourceName);
     }
 }
