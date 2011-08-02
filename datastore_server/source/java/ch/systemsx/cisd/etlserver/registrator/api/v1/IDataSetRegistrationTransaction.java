@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -209,5 +211,17 @@ public interface IDataSetRegistrationTransaction
      * @return The search service for this transaction.
      */
     ISearchService getSearchService();
+    
+    /**
+     * Returns a database query for the data source with the specified name.
+     * 
+     * @param dataSourceName The name of the data source to query against, as declared in the
+     *            service.properties file.
+     * @return The query.
+     * @throw IllegalArgumentException Thrown if there is no data source with the given name.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
+     *        the given parameters.
+     */
+    DynamicTransactionQuery getDatabaseQuery(String dataSourceName) throws IllegalArgumentException;
 
 }
