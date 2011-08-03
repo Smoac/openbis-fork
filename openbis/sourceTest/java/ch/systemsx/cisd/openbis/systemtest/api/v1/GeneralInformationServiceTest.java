@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -584,6 +586,16 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.listDataSetsForSample(sessionToken, sample, false);
         assertTrue(dataSets.size() > 0);
         assertNotNull(dataSets.get(0).getRegistrationDetails().getRegistrationDate());
+
+        // vocabularies
+        Map<Vocabulary, List<VocabularyTerm>> termMap =
+                generalInformationService.getVocabularyTermsMap(sessionToken);
+        ArrayList<Vocabulary> vocabs = new ArrayList<Vocabulary>(termMap.keySet().size());
+        vocabs.addAll(termMap.keySet());
+        List<VocabularyTerm> terms = termMap.get(vocabs.get(0));
+        assertTrue(terms.size() > 0);
+        assertNotNull(terms.get(0).getRegistrationDetails().getUserId());
+        assertNotNull(terms.get(0).getRegistrationDetails().getRegistrationDate());
     }
 
     private void checkRegistrationDetails(EntityRegistrationDetails registrationDetails)
