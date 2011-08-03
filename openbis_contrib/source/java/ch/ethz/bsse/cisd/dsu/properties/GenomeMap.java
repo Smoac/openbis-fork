@@ -69,4 +69,16 @@ public class GenomeMap
     {
         return bowtieIndex.get(genome);
     }
+    
+    private static HashMap<Integer, String> numberOfCycles = new HashMap<Integer, String>();
+    static
+    {
+        numberOfCycles.put(58, "51+7");
+    }
+
+    public static String getNumberOfCycles(int i)
+    {
+        return numberOfCycles.get(i);
+    }
+    
 }
