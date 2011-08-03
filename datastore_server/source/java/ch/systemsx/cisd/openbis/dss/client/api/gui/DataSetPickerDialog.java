@@ -97,7 +97,7 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
         final JScrollPane scrollPane = new JScrollPane(tree);
 
         Object[] objects = new Object[]
-            { "Filter experiments: ", filterField, "Select Sample:", scrollPane };
+            { "Filter experiments: ", filterField, "Select data set:", scrollPane };
         final JOptionPane optionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
@@ -110,8 +110,8 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
                         if (((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION
                                 && tree.getSelectionPath() == null)
                         {
-                            JOptionPane.showMessageDialog(parent, "Sample needs to be selected!",
-                                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(parent, "Data set needs to be selected!",
+                                    "No data set selected!", JOptionPane.WARNING_MESSAGE);
                             optionPane.setValue(optionPane.getInitialValue());
                         } else if (((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION
                                 && tree.getSelectionPath().getPath().length < 3)
