@@ -70,7 +70,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(29, samples.getResultSet().getTotalLength());
+        assertEquals(30, samples.getResultSet().getTotalLength());
 
         List<BasicEntityType> availableEntityTypes = new ArrayList<BasicEntityType>();
         availableEntityTypes.addAll(samples.getAvailableEntityTypes());
@@ -162,7 +162,7 @@ public class SampleBrowsingTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(11, samples.getResultSet().getTotalLength());
+        assertEquals(12, samples.getResultSet().getTotalLength());
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();

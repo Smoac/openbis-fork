@@ -144,7 +144,7 @@ public class SetSessionUserTest extends SystemTestCase
         criteria.setSampleType(sampleType);
         criteria.setIncludeSpace(true);
         // INSTANCE ADMIN sees all samples that were not deleted
-        assertEquals(11, commonServer.listSamples(sessionToken, criteria).size());
+        assertEquals(12, commonServer.listSamples(sessionToken, criteria).size());
 
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'

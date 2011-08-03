@@ -152,7 +152,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
                         projectDefault, null);
         Collections.sort(experiments);
-        assertEquals(1, experiments.size());
+        assertEquals(2, experiments.size());
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
         assertNotContains(experiments, CISD_CISD_DEFAULT_EXP_X);
     }
@@ -176,7 +176,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, null,
                         spaceCisd);
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
+        assertEquals(6, experiments.size());
         assertContains(experiments, CISD_CISD_NEMO_EXP10);
         assertContains(experiments, CISD_CISD_NEMO_EXP11);
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
