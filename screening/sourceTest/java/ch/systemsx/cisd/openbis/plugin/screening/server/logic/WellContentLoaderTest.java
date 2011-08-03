@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * @author Kaloyan Enimanev
  */
 @Test(groups =
-    { "db", "screening" })
+    { "db", "screening", "slow" })
 public class WellContentLoaderTest extends AbstractScreeningDAOTest
 {
 
@@ -53,9 +53,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     @Autowired
     IGenericServer server;
 
-    @Test(groups =
-        { "slow", "broken" })
-    // FIXME LMS-2421
+    @Test
     public void testLoadWellContentsWithProperties()
     {
         String[] materialCodes = new String[]
@@ -81,8 +79,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
      * Test that the same well is not displayed twice if the search query matches two different
      * materials inside the well.
      */
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public void testDuplicateWellsFilteredOut()
     {
         String[] materialCodes = new String[]
