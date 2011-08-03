@@ -1,7 +1,3 @@
-DELETE 
-   FROM scripts 
-   WHERE NAME = 'SANOFI_LIBRARY_TEMPLATE';
-
 INSERT
   INTO scripts 
       (id, dbin_id, name, description, pers_id_registerer, entity_kind, script_type, script) 
@@ -106,4 +102,4 @@ SET
 WHERE
    prty_id = (select id from property_types where code='LIBRARY_TEMPLATE')
  AND
-   exty_id = (select id from experiment_types where code='COMPOUND_HCS')
+   exty_id = (select id from experiment_types where code='COMPOUND_HCS');
