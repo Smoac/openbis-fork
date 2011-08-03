@@ -57,7 +57,7 @@ public class MaterialReplicaFeatureSummaryGrid extends
 
     private AnalysisProcedureCriteria analysisProcedureCriteria;
 
-    public static IDisposableComponent createFroEmbeddedMode(
+    public static IDisposableComponent createForEmbeddedMode(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId experimentId,
             TechId materialId, AnalysisProcedureCriteria selectedAnalysisProcedure)
     {

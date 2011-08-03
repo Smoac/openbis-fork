@@ -361,7 +361,7 @@ public class MaterialReplicaSummaryComponent
     private IDisposableComponent createViewer(Material material)
     {
         final IDisposableComponent gridComponent =
-                MaterialReplicaFeatureSummaryGrid.createFroEmbeddedMode(screeningViewContext,
+                MaterialReplicaFeatureSummaryGrid.createForEmbeddedMode(screeningViewContext,
                         new TechId(experiment), new TechId(material),
                         initialAnalysisProcedureCriteriaOrNull);
         return createViewer(material, gridComponent);
