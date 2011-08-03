@@ -70,7 +70,7 @@ public class LoadImagesScreeningClientApiTest
 
         // Another way: PlateIdentifier.createFromAugmentedCode("/SPACE_CODE/MY_PLATE_CODE")
         // PlateIdentifier plate = new PlateIdentifier("MY_PLATE_CODE", "SPACE_CODE", null);
-        String plateCode = "PLATE2"; // "PLATE-2-A";
+        String plateCode = "PLATE-2-A";
         PlateIdentifier plate = new PlateIdentifier(plateCode, "TEST", null);
         List<ImageDatasetReference> imageDatasets =
                 facade.listRawImageDatasets(Arrays.asList(plate));
