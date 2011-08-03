@@ -120,8 +120,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final List<Material> materialsToBeRegistered = new ArrayList<Material>();
 
-        private final List<DynamicTransactionQuery> queriesToCommit =
-                new ArrayList<DynamicTransactionQuery>();
+        private final Map<String, DynamicTransactionQuery> queriesToCommit =
+                new HashMap<String, DynamicTransactionQuery>();
 
         private String userIdOrNull = null;
 
@@ -441,8 +441,12 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)
         {
-            DynamicTransactionQuery query = QueryTool.getQuery(DynamicTransactionQuery.class);
-            queriesToCommit.add(query);
+            DynamicTransactionQuery query = queriesToCommit.get(dataSourceName);
+            if (null == query)
+            {
+                query = QueryTool.getQuery(DynamicTransactionQuery.class);
+                queriesToCommit.put(dataSourceName, query);
+            }
             return query;
         }
 
@@ -480,7 +484,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
-            for (DynamicTransactionQuery query : queriesToCommit)
+            for (DynamicTransactionQuery query : queriesToCommit.values())
             {
                 query.commit();
                 query.close(false);
@@ -497,7 +501,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             rollbackStack.rollbackAll();
             registeredDataSets.clear();
-            for (DynamicTransactionQuery query : queriesToCommit)
+            for (DynamicTransactionQuery query : queriesToCommit.values())
             {
                 query.rollback();
                 query.close(false);
