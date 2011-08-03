@@ -213,7 +213,7 @@ public interface IDataSetRegistrationTransaction
     ISearchService getSearchService();
     
     /**
-     * Returns a database query for the data source with the specified name.
+     * Gets a database query object for the data source with the specified name.
      * 
      * @param dataSourceName The name of the data source to query against, as declared in the
      *            service.properties file.
