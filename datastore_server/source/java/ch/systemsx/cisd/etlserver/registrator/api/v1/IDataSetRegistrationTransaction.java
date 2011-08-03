@@ -147,7 +147,7 @@ public interface IDataSetRegistrationTransaction
     IMaterialImmutable getMaterial(String materialCode, String materialType);
 
     /**
-     * Create a new space to register with the openBIS AS.
+     * Create a new material to register with the openBIS AS.
      * 
      * @param materialCode the code of the material
      * @param materialType the type of the material
