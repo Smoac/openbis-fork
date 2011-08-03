@@ -140,7 +140,7 @@ public interface IDataSetRegistrationTransaction
     ISpaceImmutable getSpace(String spaceCode);
 
     /**
-     * Get a material from the openBIS AS. Returns null if the space does not exist.
+     * Get a material from the openBIS AS. Returns null if the material does not exist.
      * 
      * @return A material or null
      */
