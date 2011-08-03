@@ -329,7 +329,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         createDataSetHandler(false, true);
         final Sample plate =
-                plateWithLibTemplateAndGeometry("145.034E-0002\t\tH\n0.12E4\t0.002\tL",
+                plateWithLibTemplateAndGeometry("145.034E-0002\t\tH\n0.12E+04\t0.002\tL",
                         "6_WELLS_10X10");
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();

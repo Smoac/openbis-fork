@@ -197,7 +197,7 @@ class PlateInitializer:
         return None
     
     def parseConcentration(self, value):
-        number = self.numberParser.parse(value)
+        number = self.numberParser.parse(value.replace("+", ""))
         return str(number)
     
     def isCompoundWell(self, libraryValue):

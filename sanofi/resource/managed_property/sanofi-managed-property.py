@@ -28,7 +28,7 @@ def isControlWell(value):
 def isCompoundWell(value):
     try:
         numberParser = DecimalFormat()
-        numberParser.parse(value)
+        numberParser.parse(value.replace("+", ""))
         return True
     except:
         return False
