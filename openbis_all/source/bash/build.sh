@@ -67,7 +67,7 @@ function copy_to_cisd_server {
 		OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
 		SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
 		mkdir -p $SPRINT_DIR
-		cp -p *$FULL_VER*.{zip,jar} $SPRINT_DIR/
+		cp -p *$FULL_VER*.{zip,gz} $SPRINT_DIR/
 		chmod g+w -R $SPRINT_DIR
 	fi
 	state_end
