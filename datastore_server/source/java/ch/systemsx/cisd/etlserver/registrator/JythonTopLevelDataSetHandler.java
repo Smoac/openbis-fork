@@ -301,6 +301,20 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         {
             return createDataSetRegistrationDetails();
         }
+        
+        /**
+         * Returns the Java class for the given class name.
+         */
+        public Class<?> getClass(String className)
+        {
+            try
+            {
+                return Class.forName(className);
+            } catch (ClassNotFoundException ex)
+            {
+                return null;
+            }
+        }
     }
 
     protected static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
