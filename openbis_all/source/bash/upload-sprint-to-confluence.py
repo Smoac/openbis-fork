@@ -84,7 +84,7 @@ def uploadToConfluenceAndPrintPageText(version):
   processFile("Application Server (AS)", "openBIS-server-screening", version, 2)
   processFile("Data Store Server (DSS)", "datastore_server-screening", version, 2)
 
-  processFile("Installation Wizard (AS+DSS)", "openBIS-installer-screening", version)
+  processFile("Installation Wizard (AS+DSS)", "openBIS-installation-screening", version)
 
   processFile("API", "screening-api", version)
 
