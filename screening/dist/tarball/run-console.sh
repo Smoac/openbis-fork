@@ -12,7 +12,7 @@ function readAdminPassword()
 	    read -s -p "Re-type password for openBIS 'admin' user : " ADMIN_PASSWORD2
 	    echo ""
 	    
-	    if [ "$ADMIN_PASSWORD" -ne "$ADMIN_PASSWORD2" ]; then
+	    if [ "$ADMIN_PASSWORD" != "$ADMIN_PASSWORD2" ]; then
 	        echo "Administrator passwords do not match. Aborting installation."
 	        exit 2
 	    fi
@@ -45,6 +45,13 @@ fi
 install_path=$( grep -e "^INSTALL_PATH=.*$" $BASE/console.properties | sed "s/INSTALL_PATH=//" )
 if [ -z "$install_path" ]; then
     echo "The property INSTALL_PATH must be configured in $BASE/console.properties."
+    echo "Please edit the file and run the installation script again."
+    exit 1
+fi
+
+dss_root_dir=$( grep -e "^DSS.ROOT-DIR=.*$" $BASE/console.properties | sed "s/DSS.ROOT-DIR=//" )
+if [ -z "$dss_root_dir" ]; then
+    echo "The property DSS.ROOT-DIR= must be configured in $BASE/console.properties."
     echo "Please edit the file and run the installation script again."
     exit 1
 fi
