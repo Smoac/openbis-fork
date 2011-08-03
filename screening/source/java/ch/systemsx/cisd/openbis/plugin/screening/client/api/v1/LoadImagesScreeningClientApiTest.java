@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
@@ -69,7 +70,8 @@ public class LoadImagesScreeningClientApiTest
 
         // Another way: PlateIdentifier.createFromAugmentedCode("/SPACE_CODE/MY_PLATE_CODE")
         // PlateIdentifier plate = new PlateIdentifier("MY_PLATE_CODE", "SPACE_CODE", null);
-        PlateIdentifier plate = new PlateIdentifier("PLATE-2-A", "TEST", null);
+        String plateCode = "PLATE2"; // "PLATE-2-A";
+        PlateIdentifier plate = new PlateIdentifier(plateCode, "TEST", null);
         List<ImageDatasetReference> imageDatasets =
                 facade.listRawImageDatasets(Arrays.asList(plate));
         if (imageDatasets.size() == 0)
@@ -77,8 +79,26 @@ public class LoadImagesScreeningClientApiTest
             System.err.println("No image datasets connected to plate " + plate);
             System.exit(1);
         }
-        // take the first image dataset
-        ImageDatasetReference imageDataset = imageDatasets.get(0);
+
+        printImagesMetadata(facade, imageDatasets);
+        loadOneImage(facade, imageDatasets.get(0));
+
+        facade.logout();
+    }
+
+    private static void printImagesMetadata(IScreeningOpenbisServiceFacade facade,
+            List<ImageDatasetReference> imageDatasets)
+    {
+        List<ImageDatasetMetadata> imageMetadatas = facade.listImageMetadata(imageDatasets);
+        for (ImageDatasetMetadata imageMetadata : imageMetadatas)
+        {
+            System.out.println(imageMetadata);
+        }
+    }
+
+    private static void loadOneImage(IScreeningOpenbisServiceFacade facade,
+            ImageDatasetReference imageDataset) throws IOException
+    {
         // You could get to know more about the image dataset metadata with:
         // facade.listImageMetadata(imageDataset);
         // Here we will make some assumptions.
@@ -92,8 +112,6 @@ public class LoadImagesScreeningClientApiTest
         WellPosition well = new WellPosition(row, column);
         PlateImageReference imageRef = new PlateImageReference(tile, channel, well, imageDataset);
         loadImage(facade, imageRef);
-
-        facade.logout();
     }
 
     private static File createImageFile(PlateImageReference imageRef)
