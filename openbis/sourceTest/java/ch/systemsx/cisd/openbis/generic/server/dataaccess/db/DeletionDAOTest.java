@@ -38,8 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  * @author Piotr Buczek
  */
 @Test(groups =
-    { "db", "broken" })
-// FIXME LMS-2421
+    { "db" })
 public class DeletionDAOTest extends AbstractDAOTest
 {
 
@@ -52,12 +51,49 @@ public class DeletionDAOTest extends AbstractDAOTest
         assertEquals(countRowsInTable(TableNames.DELETIONS_TABLE), allDeletions.size());
         assertEquals(4, allDeletions.size());
 
-        assertTrashedEntitiesFound(0, 5, 1, allDeletions.get(0));
-        assertTrashedEntitiesFound(0, 3, 0, allDeletions.get(1));
-        assertTrashedEntitiesFound(0, 323, 0, allDeletions.get(2));
-        assertTrashedEntitiesFound(2, 3, 0, allDeletions.get(3));
+        int e0 = 0, s0 = 5, d0 = 1;
+        checkTrashFor(allDeletions.get(0)).hasExperiments(e0).hasSamples(s0).hasDataSets(d0);
+        int e1 = 0, s1 = 3, d1 = 0;
+        checkTrashFor(allDeletions.get(1)).hasExperiments(e1).hasSamples(s1).hasDataSets(d1);
+        int e2 = 0, s2 = 323, d2 = 0;
+        checkTrashFor(allDeletions.get(2)).hasExperiments(e2).hasSamples(s2).hasDataSets(d2);
+        int e3 = 2, s3 = 3, d3 = 0;
+        checkTrashFor(allDeletions.get(3)).hasExperiments(e3).hasSamples(s3).hasDataSets(d3);
 
-        assertTrashedEntitiesFound(2, 334, 1, allDeletions);
+        int eAll = e0 + e1 + e2 + e3, sAll = s0 + s1 + s2 + s3, dAll = d0 + d1 + d2 + d3;
+        checkTrashFor(allDeletions).hasExperiments(eAll).hasSamples(sAll).hasDataSets(dAll);
+
+        assertEquals(eAll, countRowsInTable(TableNames.DELETED_EXPERIMENTS_VIEW));
+        assertEquals(sAll, countRowsInTable(TableNames.DELETED_SAMPLES_VIEW));
+        assertEquals(dAll, countRowsInTable(TableNames.DELETED_DATA_VIEW));
+    }
+
+    @Test
+    public void testViews()
+    {
+        // simple test checking that views for our entities sum up to the whole table
+
+        assertEquals(countRowsInTable(TableNames.EXPERIMENTS_ALL_TABLE),
+                countRowsInTable(TableNames.EXPERIMENTS_VIEW)
+                        + countRowsInTable(TableNames.DELETED_EXPERIMENTS_VIEW));
+
+        assertEquals(countRowsInTable(TableNames.SAMPLES_ALL_TABLE),
+                countRowsInTable(TableNames.SAMPLES_VIEW)
+                        + countRowsInTable(TableNames.DELETED_SAMPLES_VIEW));
+
+        assertEquals(countRowsInTable(TableNames.DATA_ALL_TABLE),
+                countRowsInTable(TableNames.DATA_VIEW)
+                        + countRowsInTable(TableNames.DELETED_DATA_VIEW));
+    }
+
+    private TrashedEntityExpectations checkTrashFor(DeletionPE deletion)
+    {
+        return checkTrashFor(Collections.singletonList(deletion));
+    }
+
+    private TrashedEntityExpectations checkTrashFor(List<DeletionPE> deletions)
+    {
+        return new TrashedEntityExpectations(deletions);
     }
 
     @Test
@@ -133,7 +169,7 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("sample with id %s is expected %s be deleted;", id,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted, sampleDAO.getByTechId(id).getDeletion() != null);
+            assertEquals(errorMsg, expectedDeleted, sampleDAO.tryGetByTechId(id) == null);
         }
     }
 
@@ -145,8 +181,7 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("experiment with id %s is expected %s be deleted;", id,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted,
-                    experimentDAO.getByTechId(id).getDeletion() != null);
+            assertEquals(errorMsg, expectedDeleted, experimentDAO.tryGetByTechId(id) == null);
         }
     }
 
@@ -158,32 +193,45 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("data set '%s' is expected %s be deleted;", code,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted, dataDAO.tryToFindDataSetByCode(code)
-                    .getDeletion() != null);
+            assertEquals(errorMsg, expectedDeleted, dataDAO.tryToFindDataSetByCode(code) == null);
         }
     }
 
-    private void assertTrashedEntitiesFound(int expectedExperiments, int expectedSamples,
-            int expectedDataSets, DeletionPE deletion)
+    private class TrashedEntityExpectations
     {
-        assertTrashedEntitiesFound(expectedExperiments, expectedSamples, expectedDataSets,
-                Collections.singletonList(deletion));
-    }
+        private final List<TechId> deletionIds;
 
-    private void assertTrashedEntitiesFound(int expectedExperiments, int expectedSamples,
-            int expectedDataSets, List<DeletionPE> deletions)
-    {
-        List<TechId> deletionIds = TechId.createList(deletions);
-        IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
+        private final IDeletionDAO deletionDAO;
 
-        List<TechId> foundExperimentIds = deletionDAO.findTrashedExperimentIds(deletionIds);
-        assertEquals(deletionIds.toString(), expectedExperiments, foundExperimentIds.size());
-        assertExperimentsDeleted(true, foundExperimentIds);
-        List<TechId> foundSampleIds = deletionDAO.findTrashedSampleIds(deletionIds);
-        assertEquals(deletionIds.toString(), expectedSamples, foundSampleIds.size());
-        assertSamplesDeleted(true, foundSampleIds);
-        List<String> foundDataSetCodes = deletionDAO.findTrashedDataSetCodes(deletionIds);
-        assertEquals(deletionIds.toString(), expectedDataSets, foundDataSetCodes.size());
-        assertDataSetsDeleted(true, foundDataSetCodes);
+        public TrashedEntityExpectations(List<DeletionPE> deletions)
+        {
+            deletionIds = TechId.createList(deletions);
+            deletionDAO = daoFactory.getDeletionDAO();
+        }
+
+        public TrashedEntityExpectations hasExperiments(int expectedExperiments)
+        {
+            List<TechId> foundExperimentIds = deletionDAO.findTrashedExperimentIds(deletionIds);
+            assertEquals(deletionIds.toString(), expectedExperiments, foundExperimentIds.size());
+            assertExperimentsDeleted(true, foundExperimentIds);
+            return this;
+        }
+
+        public TrashedEntityExpectations hasSamples(int expectedSamples)
+        {
+            List<TechId> foundSampleIds = deletionDAO.findTrashedSampleIds(deletionIds);
+            assertEquals(deletionIds.toString(), expectedSamples, foundSampleIds.size());
+            assertSamplesDeleted(true, foundSampleIds);
+            return this;
+        }
+
+        public TrashedEntityExpectations hasDataSets(int expectedDataSets)
+        {
+            List<String> foundDataSetCodes = deletionDAO.findTrashedDataSetCodes(deletionIds);
+            assertEquals(deletionIds.toString(), expectedDataSets, foundDataSetCodes.size());
+            assertDataSetsDeleted(true, foundDataSetCodes);
+            return this;
+        }
+
     }
 }
