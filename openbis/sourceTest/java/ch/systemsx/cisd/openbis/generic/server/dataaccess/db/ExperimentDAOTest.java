@@ -245,7 +245,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteWithProperties()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
@@ -278,7 +278,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteWithAttachments()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
@@ -312,7 +312,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
     // @Test(expectedExceptions = DataIntegrityViolationException.class)
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteFailWithDataSets()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();

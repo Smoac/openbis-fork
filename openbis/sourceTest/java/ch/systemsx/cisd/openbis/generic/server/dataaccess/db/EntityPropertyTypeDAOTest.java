@@ -171,7 +171,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public void testDelete()
     {
         EntityTypePropertyTypePE assignment =

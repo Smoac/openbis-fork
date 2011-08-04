@@ -341,7 +341,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteWithProperties()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
@@ -422,7 +422,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteWithGeneratedSamples()
     {
         final SamplePE deletedSample = findSample("3VCP2", "CISD");

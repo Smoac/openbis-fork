@@ -339,7 +339,7 @@ public final class DataDAOTest extends AbstractDAOTest
     }
 
     @Test(groups = "broken")
-    // FIXME LMS-2421
+    // FIXME LMS-2440
     public final void testDeleteWithPropertiesButParentPreserved()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -392,8 +392,8 @@ public final class DataDAOTest extends AbstractDAOTest
         assertNull(preservedComponent.getContainer());
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test(groups = "broken-deletion")
+    // FIXME LMS-2440
     public final void testDeleteParentPreservesChildren()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
