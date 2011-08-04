@@ -176,7 +176,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
-        assertEquals(11, samples.getResultSet().getTotalLength());
+        assertEquals(12, samples.getResultSet().getTotalLength());
         assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
 
         GridRowModels<Sample> list = samples.getResultSet().getList();

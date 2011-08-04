@@ -57,7 +57,7 @@ public class DeletionDAOTest extends AbstractDAOTest
         checkTrashFor(allDeletions.get(1)).hasExperiments(e1).hasSamples(s1).hasDataSets(d1);
         int e2 = 0, s2 = 323, d2 = 0;
         checkTrashFor(allDeletions.get(2)).hasExperiments(e2).hasSamples(s2).hasDataSets(d2);
-        int e3 = 2, s3 = 3, d3 = 0;
+        int e3 = 1, s3 = 0, d3 = 0;
         checkTrashFor(allDeletions.get(3)).hasExperiments(e3).hasSamples(s3).hasDataSets(d3);
 
         int eAll = e0 + e1 + e2 + e3, sAll = s0 + s1 + s2 + s3, dAll = d0 + d1 + d2 + d3;
