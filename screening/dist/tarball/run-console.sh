@@ -51,7 +51,7 @@ fi
 
 dss_root_dir=$( grep -e "^DSS.ROOT-DIR=.*$" $BASE/console.properties | sed "s/DSS.ROOT-DIR=//" )
 if [ -z "$dss_root_dir" ]; then
-    echo "The property DSS.ROOT-DIR= must be configured in $BASE/console.properties."
+    echo "The property DSS.ROOT-DIR must be configured in $BASE/console.properties."
     echo "Please edit the file and run the installation script again."
     exit 1
 fi
