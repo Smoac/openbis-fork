@@ -56,7 +56,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static final String CISD_ID_PREFIX = "/CISD/";
 
-    private static final String DEFAULT_GROUP = "CISD";
+    private static final String DEFAULT_SPACE = "CISD";
 
     private static final String PERMLINK_TEMPLATE =
             "http://localhost/openbis/index.html?viewMode=SIMPLE#entity=SAMPLE&permId=%s";
@@ -65,9 +65,14 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static final String CELL_PLATE_EXAMPLE = "3VCP5";
 
-    private static final String CELL_PLATE_EXAMPLE_ID = CISD_ID_PREFIX + CELL_PLATE_EXAMPLE;
-
     private static final String CELL_PLATE_EXAMPLE_EXPERIMENT_ID = "/CISD/NEMO/EXP10";
+
+    private static final String CELL_PLATE_WITH_DATA_EXAMPLE = "CP-TEST-2";
+
+    private static final String CELL_PLATE_WITH_DATA_EXAMPLE_ID = CISD_ID_PREFIX
+            + CELL_PLATE_WITH_DATA_EXAMPLE;
+
+    private static final String CELL_PLATE_WITH_DATA_EXAMPLE_EXPERIMENT_ID = "/CISD/NOE/EXP-TEST-2";
 
     private static final String CONTROL_LAYOUT_EXAMPLE_PERM_ID = "200811050919915-8";
 
@@ -79,9 +84,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
     private static final String CELL_PLATE_EXAMPLE_PERMLINK = StringEscapeUtils.escapeHtml(String
             .format(PERMLINK_TEMPLATE, CELL_PLATE_EXAMPLE_PERM_ID));
 
-    private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
-
-    private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
+    private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159222-2";
 
     private static final String DEFAULT_DATA_SET_TYPE = "HCS_IMAGE";
 
@@ -161,8 +164,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public void testGetSampleDataSets()
     {
         logIntoCommonClientService();
@@ -179,7 +181,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         GridRowModels<Sample> list = samples.getResultSet().getList();
 
-        Sample sample = getSample(list, createSampleIdentifier(CELL_PLATE_EXAMPLE));
+        Sample sample = getSample(list, createSampleIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE));
 
         // directly connected
         boolean showOnlyDirectlyConnected = true;
@@ -196,8 +198,11 @@ public class SampleDetailsTest extends GenericSystemTestCase
         final DataSet directlyConnectedDataSet =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
                         DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
-        checkDataSet(directlyConnectedDataSet, DIRECTLY_CONNECTED_DATA_SET_CODE,
-                CELL_PLATE_EXAMPLE_ID, CELL_PLATE_EXAMPLE_EXPERIMENT_ID, "TIFF", "xxx/yyy/zzz");
+        DataSetExpectations.checkThat(directlyConnectedDataSet)
+                .hasCode(DIRECTLY_CONNECTED_DATA_SET_CODE)
+                .hasSampleWithIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE_ID)
+                .hasExperimentWithIdentifier(CELL_PLATE_WITH_DATA_EXAMPLE_EXPERIMENT_ID)
+                .hasFileFormatType("3VPROPRIETARY").hasLocation("a/2");
 
         // indirectly connected
         showOnlyDirectlyConnected = false;
@@ -211,20 +216,88 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .iterator().next().getCode());
         assertEquals(6, indirectlyConnectedResults.getResultSet().getTotalLength());
 
+        // the directly connected data set should still be retrieved
         DataSet directlyConnectedDataSet2 =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
                         DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
-        checkDataSet(directlyConnectedDataSet2, directlyConnectedDataSet.getCode(),
-                directlyConnectedDataSet.getSample().getIdentifier(), directlyConnectedDataSet
-                        .getExperiment().getIdentifier(), directlyConnectedDataSet
-                        .getFileFormatType().getCode(), directlyConnectedDataSet.getLocation());
+        DataSetExpectations
+                .checkThat(directlyConnectedDataSet2)
+                .hasCode(directlyConnectedDataSet.getCode())
+                .hasSampleWithIdentifier(directlyConnectedDataSet.getSample().getIdentifier())
+                .hasExperimentWithIdentifier(
+                        directlyConnectedDataSet.getExperiment().getIdentifier())
+                .hasFileFormatType(directlyConnectedDataSet.getFileFormatType().getCode())
+                .hasLocation(directlyConnectedDataSet.getDataSetLocation());
 
-        DataSet indirectlyConnectedDataSet =
+        final String indirectlyConnectedDataSetCode1 = "20081105092159111-1";
+        DataSet indirectlyConnectedDataSetThroughChildSample =
                 getDataSet(indirectlyConnectedResults.getResultSet().getList(),
-                        INDIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
-        checkDataSet(indirectlyConnectedDataSet, INDIRECTLY_CONNECTED_DATA_SET_CODE, null,
-                CELL_PLATE_EXAMPLE_EXPERIMENT_ID, "3VPROPRIETARY", "analysis/result");
-        // TODO 2010-09-21, Piotr Buczek: check datasets connected to a different experiment
+                        indirectlyConnectedDataSetCode1).tryGetAsDataSet();
+        DataSetExpectations.checkThat(indirectlyConnectedDataSetThroughChildSample)
+                .hasCode(indirectlyConnectedDataSetCode1)
+                .hasSampleWithIdentifier(CISD_ID_PREFIX + "CP-TEST-1")
+                .hasExperimentWithIdentifier("/CISD/NEMO/EXP-TEST-1").hasFileFormatType("TIFF")
+                .hasLocation("a/1");
+
+        final String indirectlyConnectedDataSetCode2 = "20081105092259000-9";
+        DataSet indirectlyConnectedDataSetThroughChildDataSet =
+                getDataSet(indirectlyConnectedResults.getResultSet().getList(),
+                        indirectlyConnectedDataSetCode2).tryGetAsDataSet();
+        DataSetExpectations.checkThat(indirectlyConnectedDataSetThroughChildDataSet)
+                .hasCode(indirectlyConnectedDataSetCode2).hasNoSample()
+                .hasExperimentWithIdentifier("/CISD/DEFAULT/EXP-REUSE").hasFileFormatType("XML")
+                .hasLocation("xml/result-9");
+    }
+
+    private static class DataSetExpectations
+    {
+        public static DataSetExpectations checkThat(DataSet dataSet)
+        {
+            return new DataSetExpectations(dataSet);
+        }
+
+        private DataSet dataSet;
+
+        private DataSetExpectations(DataSet dataSet)
+        {
+            this.dataSet = dataSet;
+        }
+
+        public DataSetExpectations hasCode(String expectedCode)
+        {
+            assertEquals(expectedCode, dataSet.getCode());
+            return this;
+        }
+
+        public DataSetExpectations hasSampleWithIdentifier(String expectedSampleIdentifier)
+        {
+            assertEquals(expectedSampleIdentifier, dataSet.getSample().getIdentifier());
+            return this;
+        }
+
+        public DataSetExpectations hasNoSample()
+        {
+            assertEquals(null, dataSet.getSample());
+            return this;
+        }
+
+        public DataSetExpectations hasExperimentWithIdentifier(String expectedExperimentIdentifier)
+        {
+            assertEquals(expectedExperimentIdentifier, dataSet.getExperiment().getIdentifier());
+            return this;
+        }
+
+        public DataSetExpectations hasFileFormatType(String expectedFileFormatTypeCode)
+        {
+            assertEquals(expectedFileFormatTypeCode, dataSet.getFileFormatType().getCode());
+            return this;
+        }
+
+        public DataSetExpectations hasLocation(String expectedLocation)
+        {
+            assertEquals(expectedLocation, dataSet.getLocation());
+            return this;
+        }
     }
 
     private void checkUserProperty(List<IEntityProperty> properties, String propertyCode,
@@ -256,7 +329,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static String createSampleIdentifier(String sampleCode)
     {
-        return createSampleIdentifier(DEFAULT_GROUP, sampleCode);
+        return createSampleIdentifier(DEFAULT_SPACE, sampleCode);
     }
 
     private static String createSampleIdentifier(String spaceCode, String sampleCode)
@@ -314,23 +387,6 @@ public class SampleDetailsTest extends GenericSystemTestCase
         }
         fail("No data set found for identifier " + identifier);
         return null; // satisfy compiler
-    }
-
-    private static void checkDataSet(DataSet dataSet, String expectedCode,
-            String expectedSampleIdentifierOrNull, String expectedExperimentIdentifier,
-            String expectedFileFormatType, String expectedLocation)
-    {
-        assertEquals(expectedCode, dataSet.getCode());
-        if (expectedSampleIdentifierOrNull == null)
-        {
-            assertEquals(null, dataSet.getSample());
-        } else
-        {
-            assertEquals(expectedSampleIdentifierOrNull, dataSet.getSample().getIdentifier());
-        }
-        assertEquals(expectedExperimentIdentifier, dataSet.getExperiment().getIdentifier());
-        assertEquals(expectedFileFormatType, dataSet.getFileFormatType().getCode());
-        assertEquals(expectedLocation, dataSet.getLocation());
     }
 
 }
