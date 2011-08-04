@@ -61,14 +61,35 @@ final class BioFormatsImageUtils
      */
     public static IFormatReader tryToCreateReaderForFile(String fileName)
     {
-        for (IFormatReader r : READERS)
+        for (IFormatReader reader : READERS)
         {
-            if (r.isThisType(fileName))
+            try
             {
-                return createReader(r.getClass());
+                if (reader.isThisType(fileName))
+                {
+                    return createReader(reader.getClass());
+                }
+
+            } finally
+            {
+                // "r.isThisType(fileName)" line can open a file handle,
+                // so we need to close it
+                closeOpenedFiles(reader);
             }
         }
         return null;
+    }
+
+    private static void closeOpenedFiles(IFormatReader r)
+    {
+        try
+        {
+            r.close(true);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+
     }
 
     /**

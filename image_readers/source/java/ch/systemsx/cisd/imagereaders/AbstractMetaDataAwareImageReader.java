@@ -41,7 +41,13 @@ public abstract class AbstractMetaDataAwareImageReader extends AbstractImageRead
             throws IOExceptionUnchecked
     {
         IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
-        return readMetaData(raf, imageID, params);
+        try
+        {
+            return readMetaData(raf, imageID, params);
+        } finally
+        {
+            raf.close();
+        }
     }
 
     @Override

@@ -57,7 +57,14 @@ public abstract class AbstractImageReader implements IImageReader
 
     public final List<ImageID> getImageIDs(File file) throws IOExceptionUnchecked
     {
-        return getImageIDs(new RandomAccessFileImpl(file, "r"));
+        RandomAccessFileImpl raf = new RandomAccessFileImpl(file, "r");
+        try
+        {
+            return getImageIDs(raf);
+        } finally
+        {
+            raf.close();
+        }
     }
 
     public final List<ImageID> getImageIDs(byte[] bytes)
@@ -73,7 +80,13 @@ public abstract class AbstractImageReader implements IImageReader
     public BufferedImage readImage(File file, ImageID imageID, IReadParams params) throws IOExceptionUnchecked
     {
         IRandomAccessFile raf = new RandomAccessFileImpl(file, "r");
-        return readImage(raf, imageID, params);
+        try
+        {
+            return readImage(raf, imageID, params);
+        } finally
+        {
+            raf.close();
+        }
     }
 
     public BufferedImage readImage(byte[] bytes, ImageID imageID, IReadParams params)
