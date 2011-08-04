@@ -524,20 +524,21 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertTrue(exceptionThrown);
     }
 
-    @Test(groups = "broken")
-    // FIXME LMS-2421
+    @Test
     public final void testListExperimentsBySimpleProperty()
     {
         final IExperimentDAO dao = daoFactory.getExperimentDAO();
         ProjectPE project =
-                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "DEFAULT");
+                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "NEMO");
 
         List<ExperimentPE> entities =
                 dao.listExperimentsByProjectAndProperty("DESCRIPTION", "A simple experiment",
                         project);
 
-        assertEquals(1, entities.size());
-        assertEquals("EXP-X", entities.get(0).getCode());
+        assertEquals(3, entities.size());
+        assertContains(entities, CISD_CISD_NEMO_EXP1);
+        assertContains(entities, CISD_CISD_NEMO_EXP10);
+        assertContains(entities, CISD_CISD_NEMO_EXP11);
     }
 
     @Test
