@@ -417,7 +417,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         deleteSample(deletedSample);
     }
 
-    @Test
+    @Test(groups = "broken-deletion")
+    // FIXME LMS-2440
     public final void testDeleteWithGeneratedSamples()
     {
         final SamplePE deletedSample = findSample("3VCP2-NEW", "CISD");
