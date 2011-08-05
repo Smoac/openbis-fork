@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -104,17 +105,24 @@ public class ExcelFileReader
     {
         final String extension = FilenameUtils.getExtension(file.getName()).toLowerCase();
         final FileInputStream stream = new FileInputStream(file);
-        if ("xls".equals(extension))
+        try
         {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            return new HSSFWorkbook(poifsFileSystem);
-        } else if ("xlsx".equals(extension))
+            if ("xls".equals(extension))
+            {
+                POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
+                return new HSSFWorkbook(poifsFileSystem);
+            } else if ("xlsx".equals(extension))
+            {
+                return new XSSFWorkbook(stream);
+            } else
+            {
+                throw new IllegalArgumentException(
+                        "Expected an Excel file with 'xls' or 'xlsx' extension, got "
+                                + file.getName());
+            }
+        } finally
         {
-            return new XSSFWorkbook(stream);
-        } else
-        {
-            throw new IllegalArgumentException(
-                    "Expected an Excel file with 'xls' or 'xlsx' extension, got " + file.getName());
+            IOUtils.closeQuietly(stream);
         }
     }
 
