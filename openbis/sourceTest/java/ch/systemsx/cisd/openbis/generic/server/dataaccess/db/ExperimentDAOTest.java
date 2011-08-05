@@ -42,13 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
 
@@ -152,7 +151,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType,
                         projectDefault, null);
         Collections.sort(experiments);
-        assertEquals(2, experiments.size());
+        assertEquals(3, experiments.size());
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
         assertNotContains(experiments, CISD_CISD_DEFAULT_EXP_X);
     }
@@ -176,7 +175,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(expType, null,
                         spaceCisd);
         Collections.sort(experiments);
-        assertEquals(6, experiments.size());
+        assertEquals(7, experiments.size());
         assertContains(experiments, CISD_CISD_NEMO_EXP10);
         assertContains(experiments, CISD_CISD_NEMO_EXP11);
         assertContains(experiments, CISD_CISD_DEFAULT_EXP_REUSE);
@@ -244,17 +243,19 @@ public class ExperimentDAOTest extends AbstractDAOTest
         return experiment;
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test
     public final void testDeleteWithProperties()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
+        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-Y");
 
         // Deleted experiment should have all collections which prevent it from deletion empty.
-        assertTrue(deletedExperiment.getAttachments().isEmpty());
         assertTrue(deletedExperiment.getDataSets().isEmpty());
         assertTrue(deletedExperiment.getSamples().isEmpty());
+
+        // Remember how many rows are in the properties table before we delete
+        int beforeDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
 
         // delete
         experimentDAO.delete(deletedExperiment);
@@ -262,17 +263,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // test successful deletion of experiment
         assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
 
-        // test successful deletion of sample properties
-        assertFalse(deletedExperiment.getProperties().isEmpty());
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).listEntityPropertyTypes(
-                        deletedExperiment.getEntityType());
-        for (ExperimentPropertyPE property : deletedExperiment.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
+        int afterDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
+        assertEquals(beforeDeletionPropertiesRowCount - 1, afterDeletionPropertiesRowCount);
     }
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";

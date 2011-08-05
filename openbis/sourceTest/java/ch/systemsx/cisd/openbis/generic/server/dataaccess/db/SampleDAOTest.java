@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -53,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -340,8 +339,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         return eventDAO.tryFind(sample.getPermId(), EntityType.SAMPLE, EventType.DELETION);
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test
     public final void testDeleteWithProperties()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
@@ -354,6 +352,9 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(deletedSample.getContained().isEmpty());
         assertFalse(deletedSample.getProperties().isEmpty());
 
+        // Remember how many rows are in the properties table before we delete
+        int beforeDeletionPropertiesRowCount = countRowsInTable(TableNames.SAMPLE_PROPERTIES_TABLE);
+
         // delete
         deleteSample(deletedSample);
 
@@ -361,15 +362,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
 
         // test successful deletion of sample properties
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.SAMPLE).listEntityPropertyTypes(
-                        deletedSample.getEntityType());
-        for (SamplePropertyPE property : deletedSample.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
+        int afterDeletionPropertiesRowCount = countRowsInTable(TableNames.SAMPLE_PROPERTIES_TABLE);
+
+        assertEquals(afterDeletionPropertiesRowCount, beforeDeletionPropertiesRowCount
+                - deletedSample.getProperties().size());
     }
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
@@ -421,11 +417,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         deleteSample(deletedSample);
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test
     public final void testDeleteWithGeneratedSamples()
     {
-        final SamplePE deletedSample = findSample("3VCP2", "CISD");
+        final SamplePE deletedSample = findSample("3VCP2-NEW", "CISD");
 
         // Deleted sample should have 'generated' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.

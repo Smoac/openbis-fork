@@ -78,8 +78,8 @@ public class ExperimentBrowsingTest extends SystemTestCase
         assertEquals(null, e1.getDeletion());
         assertObjectWithCodeDoesNotExists(resultSet, "EXP-X"); // deleted
         assertEquals(false, resultSet.getResultSet().isPartial());
-        assertEquals(2, resultSet.getResultSet().getTotalLength());
-        assertEquals(2, resultSet.getResultSet().getList().size());
+        assertEquals(3, resultSet.getResultSet().getTotalLength());
+        assertEquals(3, resultSet.getResultSet().getList().size());
     }
 
     @Test

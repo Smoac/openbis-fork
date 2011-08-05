@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
@@ -170,25 +170,20 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test
     public void testDelete()
     {
         EntityTypePropertyTypePE assignment =
                 tryToGetAssignment(EntityKind.EXPERIMENT, "SIRNA_HCS", "DESCRIPTION");
-        assertEquals(false, assignment.getPropertyValues().isEmpty());
-        ExperimentPropertyPE propertyValue =
-                (ExperimentPropertyPE) (assignment.getPropertyValues().iterator().next());
-        ExperimentPE experiment = propertyValue.getEntity();
-        long id = experiment.getId();
-        int totalProps = experiment.getProperties().size();
-
+        // Remember how many rows are in the properties table before we delete
+        int beforeDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
+        assertEquals(true, beforeDeletionPropertiesRowCount > 0);
         daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT).delete(assignment);
 
-        // load the experiment once again - it was cleared from session
-        experiment = new ExperimentPE();
-        daoFactory.getSessionFactory().getCurrentSession().load(experiment, id);
-        assertEquals(totalProps - 1, experiment.getProperties().size());
+        int afterDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.EXPERIMENT_PROPERTIES_TABLE);
+        assertEquals(beforeDeletionPropertiesRowCount - 7, afterDeletionPropertiesRowCount);
     }
 
     private EntityTypePropertyTypePE tryToGetAssignment(EntityKind entityKind,
