@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
@@ -127,9 +128,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
      */
     private static RollbackStack createNewRollbackStack(File rollBackStackParentFolder)
     {
+        // Add a random number to the prefix to distinguish between rollback stacks created in the
+        // same millisecond.
         String fileNamePrefix =
                 DateFormatUtils.format(new Date(), ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN)
-                        + "-";
+                        + "-" + new Random().nextInt(10000) + "-";
         return new RollbackStack(new File(rollBackStackParentFolder, fileNamePrefix
                 + ROLLBACK_QUEUE1_FILE_NAME_SUFFIX), new File(rollBackStackParentFolder,
                 fileNamePrefix + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX));
