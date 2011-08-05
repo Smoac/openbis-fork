@@ -43,7 +43,7 @@ public class Hdf5Container
         /**
          * Run code using a writer. Implementations do <b>not</b> need to close the writer.
          */
-        public void runWithSimpleWriter(IHDF5SimpleWriter writer);
+        public void runWithSimpleWriter(IHDF5ContainerWriter writer);
     }
 
     /**
@@ -92,16 +92,10 @@ public class Hdf5Container
      * @param isContentCompressed Pass in true to have byte arrays transparently compressed.
      * @return A new IHDF5SimpleWriter
      */
-    private IHDF5SimpleWriter createSimpleWriter(boolean isContentCompressed)
+    private IHDF5ContainerWriter createSimpleWriter(boolean isContentCompressed)
     {
-        if (isContentCompressed)
-        {
-            return new CompressingHdf5WriterWrapper(this, HDF5FactoryProvider.get().open(
-                    hdf5Container));
-        } else
-        {
-            return HDF5FactoryProvider.get().open(hdf5Container);
-        }
+        return new CompressingHdf5WriterWrapper(this, HDF5FactoryProvider.get().open(
+                hdf5Container), isContentCompressed);
     }
 
     /**
@@ -110,7 +104,7 @@ public class Hdf5Container
      */
     public void runWriterClient(boolean isContentCompressed, IHdf5WriterClient client)
     {
-        IHDF5SimpleWriter writer = createSimpleWriter(isContentCompressed);
+        IHDF5ContainerWriter writer = createSimpleWriter(isContentCompressed);
         try
         {
             client.runWithSimpleWriter(writer);

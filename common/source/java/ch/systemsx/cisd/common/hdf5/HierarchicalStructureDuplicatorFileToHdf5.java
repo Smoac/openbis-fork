@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
  * Takes the hierarchical structure of a file and applies it to an HDF5 container.
@@ -35,7 +34,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5
 {
     private final File file;
 
-    private final IHDF5SimpleWriter writer;
+    private final IHDF5ContainerWriter writer;
 
     /**
      * Utility class that adapts to the IHdf5WriterClient interface
@@ -51,7 +50,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5
             this.file = file;
         }
 
-        public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+        public void runWithSimpleWriter(IHDF5ContainerWriter writer)
         {
             HierarchicalStructureDuplicatorFileToHdf5.makeDuplicate(file, writer);
         }
@@ -67,12 +66,12 @@ public class HierarchicalStructureDuplicatorFileToHdf5
      * @throws CheckedExceptionTunnel Thrown if an underlying error occurs
      * @throws IOExceptionUnchecked Thrown if an underlying error occurs
      */
-    public static void makeDuplicate(File file, IHDF5SimpleWriter writer)
+    public static void makeDuplicate(File file, IHDF5ContainerWriter writer)
     {
         new HierarchicalStructureDuplicatorFileToHdf5(file, writer).makeDuplicate();
     }
 
-    private HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5SimpleWriter writer)
+    private HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5ContainerWriter writer)
     {
         this.file = file;
         this.writer = writer;

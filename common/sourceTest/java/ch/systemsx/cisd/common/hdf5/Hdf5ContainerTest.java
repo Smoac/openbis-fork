@@ -24,11 +24,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -51,7 +49,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runWriterClient(false, new IHdf5WriterClient()
             {
-                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeByteArray("/test-bytes", byteArray);
 
@@ -77,7 +75,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runWriterClient(true, new IHdf5WriterClient()
             {
-                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeByteArray("/test-bytes", byteArray);
 
@@ -103,7 +101,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
         Hdf5Container hdf5ContentUncompressed = new Hdf5Container(hdf5FileUncompressed);
         hdf5ContentUncompressed.runWriterClient(false, new IHdf5WriterClient()
             {
-                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeByteArray("/test-bytes", byteArray);
 
@@ -114,7 +112,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
         Hdf5Container hdf5ContentCompressed = new Hdf5Container(hdf5FileCompressed);
         hdf5ContentCompressed.runWriterClient(true, new IHdf5WriterClient()
             {
-                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                public void runWithSimpleWriter(IHDF5ContainerWriter writer)
                 {
                     writer.writeByteArray("/test-bytes", byteArray);
 

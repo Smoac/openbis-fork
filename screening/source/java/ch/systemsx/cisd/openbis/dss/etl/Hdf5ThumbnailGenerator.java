@@ -36,13 +36,13 @@ import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
+import ch.systemsx.cisd.common.hdf5.IHDF5ContainerWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -90,7 +90,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
      *            the thumbnail. Using it allows not to allocate memory each time when a thumbnail
      *            is generated.
      */
-    private Status generateThumbnail(IHDF5SimpleWriter writer, AcquiredSingleImage plateImage,
+    private Status generateThumbnail(IHDF5ContainerWriter writer, AcquiredSingleImage plateImage,
             ByteArrayOutputStream bufferOutputStream)
     {
         RelativeImageReference imageReference = plateImage.getImageReference();
@@ -214,7 +214,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     }
 
     private ITaskExecutor<AcquiredSingleImage> createThumbnailGenerator(
-            final IHDF5SimpleWriter writer)
+            final IHDF5ContainerWriter writer)
     {
         return new ITaskExecutor<AcquiredSingleImage>()
             {
@@ -239,7 +239,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             };
     }
 
-    public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+    public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
         Collection<FailureRecord<AcquiredSingleImage>> errors =
                 ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
