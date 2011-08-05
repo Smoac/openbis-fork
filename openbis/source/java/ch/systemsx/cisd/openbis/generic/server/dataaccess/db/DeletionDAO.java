@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -51,6 +52,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements IDeletionDAO
 {
+
+    private static final String DELETION_ID = "deletion.id";
+
+    private static final String CONTAINER_ID = "containerId";
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -127,6 +132,18 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE);
     }
 
+    public List<TechId> findTrashedNonComponentSampleIds(final List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
+                Restrictions.isNull(CONTAINER_ID));
+    }
+
+    public List<TechId> findTrashedComponentSampleIds(final List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
+                Restrictions.isNotNull(CONTAINER_ID));
+    }
+
     public List<TechId> findTrashedExperimentIds(final List<TechId> deletionIds)
     {
         return findTrashedEntityIds(deletionIds, EntityKind.EXPERIMENT);
@@ -138,7 +155,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 DetachedCriteria.forClass(EntityKind.DATA_SET.getDeletedEntityClass());
         final List<Long> longIds = TechId.asLongs(deletionIds);
         criteria.setProjection(Projections.property("code"));
-        criteria.add(Restrictions.in("deletion.id", longIds));
+        criteria.add(Restrictions.in(DELETION_ID, longIds));
         final List<String> results = cast(getHibernateTemplate().findByCriteria(criteria));
         operationLog.info(String.format("found %s trashed %s(s)", results.size(),
                 EntityKind.DATA_SET.name()));
@@ -146,13 +163,17 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     }
 
     private List<TechId> findTrashedEntityIds(final List<TechId> deletionIds,
-            final EntityKind entityKind)
+            final EntityKind entityKind, Criterion... additionalCriteria)
     {
         final DetachedCriteria criteria =
                 DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
         final List<Long> longIds = TechId.asLongs(deletionIds);
         criteria.setProjection(Projections.id());
-        criteria.add(Restrictions.in("deletion.id", longIds));
+        criteria.add(Restrictions.in(DELETION_ID, longIds));
+        for (Criterion criterion : additionalCriteria)
+        {
+            criteria.add(criterion);
+        }
         final List<Long> results = cast(getHibernateTemplate().findByCriteria(criteria));
         operationLog
                 .info(String.format("found %s trashed %s(s)", results.size(), entityKind.name()));

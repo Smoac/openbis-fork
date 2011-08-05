@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -46,6 +47,8 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
 
     private transient Long id;
 
+    private Long containerId;
+
     @Id
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
@@ -58,6 +61,17 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     public void setId(final Long id)
     {
         this.id = id;
+    }
+
+    @Column(name = ColumnNames.PART_OF_SAMPLE_COLUMN, nullable = false, insertable = false, updatable = false)
+    public Long getContainerId()
+    {
+        return containerId;
+    }
+
+    public void setContainerId(final Long containerId)
+    {
+        this.containerId = containerId;
     }
 
     //

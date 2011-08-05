@@ -2410,9 +2410,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         checkSession(sessionToken);
 
         IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
-        // NOTE:
-        // - we can't do bulk deletions to preserve original reason
-        // - we keep findTrashed... methods with collections as arguments for future use
+        // NOTE: we can't do bulk deletions to preserve original reasons
         for (TechId deletionId : deletionIds)
         {
             DeletionPE deletion = deletionDAO.getByTechId(deletionId);
@@ -2423,8 +2421,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
             deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType);
 
-            List<TechId> trashedSamples = deletionDAO.findTrashedSampleIds(singletonList);
-            deleteSamples(sessionToken, trashedSamples, deletionReason, deletionType);
+            // we need to first delete components and then containers not to break constraints
+            List<TechId> trashedComponentSamples =
+                    deletionDAO.findTrashedComponentSampleIds(singletonList);
+            deleteSamples(sessionToken, trashedComponentSamples, deletionReason, deletionType);
+            List<TechId> trashedNonComponentSamples =
+                    deletionDAO.findTrashedNonComponentSampleIds(singletonList);
+            deleteSamples(sessionToken, trashedNonComponentSamples, deletionReason, deletionType);
+            // List<TechId> trashedSamples = deletionDAO.findTrashedSampleIds(singletonList);
+            // deleteSamples(sessionToken, trashedSamples, deletionReason, deletionType);
 
             List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
             deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);
