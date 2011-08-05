@@ -151,6 +151,8 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> experimentIds = EXAMPLE_ID_LIST;
+        final List<TechId> dataSetIds = TechId.createList(60, 61);
+        final RecordingMatcher<List<TechId>> dsIdsMatcher = new RecordingMatcher<List<TechId>>();
         context.checking(new Expectations()
             {
                 {
@@ -168,14 +170,19 @@ public final class TrashBOTest extends AbstractBOTest
                     will(returnValue(0));
 
                     // trash dependent data sets
-                    List<TechId> dataSetIds = TechId.createList(60, 61);
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
-                    one(deletionDAO).trash(EntityKind.DATA_SET, dataSetIds, deletion);
+                    oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
+                            with(same(deletion)));
                     will(returnValue(0));
                 }
             });
         trashBO.trashExperiments(experimentIds);
+
+        // Check that the data set ids match
+        List<TechId> usedDsIds = dsIdsMatcher.getRecordedObjects().get(0);
+        assertEquals(new HashSet<TechId>().addAll(dataSetIds),
+                new HashSet<TechId>().addAll(usedDsIds));
         context.assertIsSatisfied();
     }
 

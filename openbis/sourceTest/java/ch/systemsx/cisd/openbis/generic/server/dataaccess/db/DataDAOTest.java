@@ -42,20 +42,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -71,6 +69,8 @@ public final class DataDAOTest extends AbstractDAOTest
     private static final int SPEED_HINT = Constants.DEFAULT_SPEED_HINT / 4;
 
     private final String PARENT_CODE = "20081105092159333-3";
+
+    private final String PARENT_WITH_NO_CHILDREN_IN_TRASH = "20110805092359990-17";
 
     private final String CHILD_CODE = "20081105092259000-8";
 
@@ -338,8 +338,6 @@ public final class DataDAOTest extends AbstractDAOTest
         assertTrue(extractedParents.contains(anotherDataSet));
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
     public final void testDeleteWithPropertiesButParentPreserved()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -347,6 +345,10 @@ public final class DataDAOTest extends AbstractDAOTest
 
         // Deleted data set should have all collections which prevent it from deletion empty.
         assertTrue(deletedData.getChildren().isEmpty());
+
+        // Remember how many rows are in the properties table before we delete
+        int beforeDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.DATA_SET_PROPERTIES_TABLE);
 
         // delete
         dataDAO.delete(deletedData);
@@ -356,15 +358,9 @@ public final class DataDAOTest extends AbstractDAOTest
 
         // test successful deletion of data set properties
         assertFalse(deletedData.getProperties().isEmpty());
-        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
-                daoFactory.getEntityPropertyTypeDAO(EntityKind.DATA_SET).listEntityPropertyTypes(
-                        deletedData.getEntityType());
-        for (DataSetPropertyPE property : deletedData.getProperties())
-        {
-            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
-            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
-            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
-        }
+        int afterDeletionPropertiesRowCount =
+                countRowsInTable(TableNames.DATA_SET_PROPERTIES_TABLE);
+        assertEquals(beforeDeletionPropertiesRowCount - 1, afterDeletionPropertiesRowCount);
 
         // deleted data set had parent connected that should not have been deleted
         // NOTE: somehow cannot get parents even though connection is the same as with children
@@ -392,12 +388,10 @@ public final class DataDAOTest extends AbstractDAOTest
         assertNull(preservedComponent.getContainer());
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
     public final void testDeleteParentPreservesChildren()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
-        final DataPE deletedData = findData(PARENT_CODE);
+        final DataPE deletedData = findData(PARENT_WITH_NO_CHILDREN_IN_TRASH);
 
         // Deleted data set should have 'child' data sets.
         assertFalse(deletedData.getChildren().isEmpty());

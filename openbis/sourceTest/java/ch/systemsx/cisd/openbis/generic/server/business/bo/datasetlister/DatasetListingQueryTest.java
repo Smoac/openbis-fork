@@ -157,7 +157,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         }
 
         assertEquals(1, counters.getCountOf(experiment1.getId()));
-        assertEquals(1, counters.getCountOf(experiment2.getId()));
+        assertEquals(2, counters.getCountOf(experiment2.getId()));
         assertEquals(2, counters.getNumberOfDifferentObjectsCounted());
     }
 

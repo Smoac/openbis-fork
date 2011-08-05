@@ -155,6 +155,8 @@ public class DatasetListerTest extends AbstractDAOTest
                 + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "      20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "  20110805092359990-17 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "    20081105092259000-18 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "CP-TEST-2\n  20081105092159222-2 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "    20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "      20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
@@ -216,7 +218,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(6, dataSets.size());
+        assertEquals(8, dataSets.size());
     }
 
     @Test
@@ -235,7 +237,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());
         assertEquals(1, dataSets.get(0).getProperties().size());
-        assertEquals(1, dataSets.size());
+        assertEquals(2, dataSets.size());
     }
 
     @Test
@@ -319,7 +321,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(12, list.size());
+        assertEquals(14, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
