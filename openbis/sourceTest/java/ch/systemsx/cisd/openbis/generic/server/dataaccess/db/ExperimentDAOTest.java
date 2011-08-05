@@ -312,9 +312,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(rowsInAttachmentContents - 1, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
-    // @Test(expectedExceptions = DataIntegrityViolationException.class)
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithDataSets()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
@@ -330,7 +328,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment);
 
         final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-13");
-        final ExternalDataPE dataSet = findExternalData("20081105092158673-1");
+        final ExternalDataPE dataSet = findExternalData("20110805092359990-17");
         dataSet.setExperiment(deletedExperiment);
         daoFactory.getDataDAO().validateAndSaveUpdatedEntity(dataSet);
 
