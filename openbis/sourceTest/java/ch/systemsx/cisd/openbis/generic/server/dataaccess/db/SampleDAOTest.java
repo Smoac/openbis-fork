@@ -421,7 +421,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     // FIXME LMS-2440
     public final void testDeleteWithGeneratedSamples()
     {
-        final SamplePE deletedSample = findSample("3VCP2-NEW", "CISD");
+        final SamplePE deletedSample = findSample("3VCP2", "CISD");
 
         // Deleted sample should have 'generated' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
