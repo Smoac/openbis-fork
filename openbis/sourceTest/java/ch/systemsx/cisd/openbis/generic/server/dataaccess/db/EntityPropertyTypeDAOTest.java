@@ -170,7 +170,7 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         assertEquals("FLY", properties.get(0).getVocabularyTerm().getCode());
     }
 
-    @Test(groups = "broken")
+    @Test(groups = "broken-deletion")
     // FIXME LMS-2440
     public void testDelete()
     {

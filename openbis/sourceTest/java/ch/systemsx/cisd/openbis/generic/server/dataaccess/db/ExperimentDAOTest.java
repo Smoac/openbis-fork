@@ -244,7 +244,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         return experiment;
     }
 
-    @Test(groups = "broken")
+    @Test(groups = "broken-deletion")
     // FIXME LMS-2440
     public final void testDeleteWithProperties()
     {
@@ -277,7 +277,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
 
-    @Test(groups = "broken")
+    @Test(groups = "broken-deletion")
     // FIXME LMS-2440
     public final void testDeleteWithAttachments()
     {
@@ -311,7 +311,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     }
 
     // @Test(expectedExceptions = DataIntegrityViolationException.class)
-    @Test(groups = "broken")
+    @Test(groups = "broken-deletion")
     // FIXME LMS-2440
     public final void testDeleteFailWithDataSets()
     {

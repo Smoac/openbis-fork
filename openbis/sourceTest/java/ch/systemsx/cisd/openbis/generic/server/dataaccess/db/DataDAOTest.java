@@ -338,7 +338,7 @@ public final class DataDAOTest extends AbstractDAOTest
         assertTrue(extractedParents.contains(anotherDataSet));
     }
 
-    @Test(groups = "broken")
+    @Test(groups = "broken-deletion")
     // FIXME LMS-2440
     public final void testDeleteWithPropertiesButParentPreserved()
     {
