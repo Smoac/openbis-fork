@@ -46,14 +46,22 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     /** Reverts given deletion. The deletion record will be removed from DB. */
     void revert(DeletionPE deletion);
 
-    /** Returns list of ids of samples moved to trash in specified deletions. */
-    @Deprecated
+    /**
+     * Returns list of ids of samples moved to trash in specified deletions.
+     */
+    // This method is kept for consistency with other find methods and for tests.
     List<TechId> findTrashedSampleIds(List<TechId> deletionIds);
 
-    /** Returns list of ids of non-comonent samples (having no container) moved to trash in specified deletions. */
+    /**
+     * Returns list of ids of non-comonent samples (having no container) moved to trash in specified
+     * deletions.
+     */
     List<TechId> findTrashedNonComponentSampleIds(List<TechId> deletionIds);
 
-    /** Returns list of ids of component samples (samples with container) moved to trash in specified deletions. */
+    /**
+     * Returns list of ids of component samples (samples with container) moved to trash in specified
+     * deletions.
+     */
     List<TechId> findTrashedComponentSampleIds(List<TechId> deletionIds);
 
     /** Returns list of ids of experiments moved to trash in specified deletions. */

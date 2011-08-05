@@ -2428,8 +2428,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<TechId> trashedNonComponentSamples =
                     deletionDAO.findTrashedNonComponentSampleIds(singletonList);
             deleteSamples(sessionToken, trashedNonComponentSamples, deletionReason, deletionType);
-            // List<TechId> trashedSamples = deletionDAO.findTrashedSampleIds(singletonList);
-            // deleteSamples(sessionToken, trashedSamples, deletionReason, deletionType);
 
             List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
             deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);

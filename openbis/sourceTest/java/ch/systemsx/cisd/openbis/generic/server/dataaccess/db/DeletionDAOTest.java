@@ -56,7 +56,8 @@ public class DeletionDAOTest extends AbstractDAOTest
         int e1 = 0, s1 = 3, d1 = 0;
         checkTrashFor(allDeletions.get(1)).hasExperiments(e1).hasSamples(s1).hasDataSets(d1);
         int e2 = 0, s2 = 323, d2 = 0;
-        checkTrashFor(allDeletions.get(2)).hasExperiments(e2).hasSamples(s2).hasDataSets(d2);
+        checkTrashFor(allDeletions.get(2)).hasExperiments(e2).hasSamples(s2)
+                .hasNonComponentSamples(3).hasComponentSamples(320).hasDataSets(d2);
         int e3 = 1, s3 = 0, d3 = 0;
         checkTrashFor(allDeletions.get(3)).hasExperiments(e3).hasSamples(s3).hasDataSets(d3);
 
@@ -214,6 +215,22 @@ public class DeletionDAOTest extends AbstractDAOTest
             List<TechId> foundExperimentIds = deletionDAO.findTrashedExperimentIds(deletionIds);
             assertEquals(deletionIds.toString(), expectedExperiments, foundExperimentIds.size());
             assertExperimentsDeleted(true, foundExperimentIds);
+            return this;
+        }
+
+        public TrashedEntityExpectations hasComponentSamples(int expectedSamples)
+        {
+            List<TechId> foundSampleIds = deletionDAO.findTrashedComponentSampleIds(deletionIds);
+            assertEquals(deletionIds.toString(), expectedSamples, foundSampleIds.size());
+            assertSamplesDeleted(true, foundSampleIds);
+            return this;
+        }
+
+        public TrashedEntityExpectations hasNonComponentSamples(int expectedSamples)
+        {
+            List<TechId> foundSampleIds = deletionDAO.findTrashedNonComponentSampleIds(deletionIds);
+            assertEquals(deletionIds.toString(), expectedSamples, foundSampleIds.size());
+            assertSamplesDeleted(true, foundSampleIds);
             return this;
         }
 
