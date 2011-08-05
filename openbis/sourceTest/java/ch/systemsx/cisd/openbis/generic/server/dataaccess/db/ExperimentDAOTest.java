@@ -277,12 +277,10 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
     public final void testDeleteWithAttachments()
     {
         final IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
-        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-X");
+        final ExperimentPE deletedExperiment = findExperiment("/CISD/DEFAULT/EXP-Y");
 
         // Deleted experiment should have attachments which prevent it from deletion.
         // Other connections which also prevent experiment deletion should be empty in this test.
@@ -295,6 +293,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         attachment.setRegistrator(deletedExperiment.getRegistrator());
         daoFactory.getAttachmentDAO().createAttachment(attachment, deletedExperiment);
 
+        // We just added an attachment to the experiment
         assertEquals(rowsInAttachmentContents + 1, countRowsInTable(ATT_CONTENTS_TABLE));
 
         assertFalse(deletedExperiment.getAttachments().isEmpty());
@@ -307,7 +306,10 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // test successful deletion of experiment, attachment & content
         assertNull(experimentDAO.tryGetByTechId(TechId.create(deletedExperiment)));
         assertNull(daoFactory.getAttachmentDAO().tryGetByTechId(TechId.create(attachment)));
-        assertEquals(rowsInAttachmentContents, countRowsInTable(ATT_CONTENTS_TABLE));
+
+        // We deleted the attachment we added as well as the one that was already connected to the
+        // experiment
+        assertEquals(rowsInAttachmentContents - 1, countRowsInTable(ATT_CONTENTS_TABLE));
     }
 
     // @Test(expectedExceptions = DataIntegrityViolationException.class)
