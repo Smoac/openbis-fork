@@ -36,14 +36,6 @@ import com.google.gwt.user.client.Timer;
 public class ToolTipAction
 {
 
-    /**
-     * Setup given <var>action</var> to be invoked as tooltip action for given <var>component</var>.
-     */
-    public static void init(Component component, IDelegatedAction action)
-    {
-        new ToolTipAction(component).setAction(action);
-    }
-
     private final Component target;
 
     private final Listener<ComponentEvent> listener;
