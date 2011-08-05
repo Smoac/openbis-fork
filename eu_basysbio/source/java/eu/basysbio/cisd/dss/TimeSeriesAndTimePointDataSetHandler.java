@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
@@ -50,7 +49,6 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     @Private
     static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
-
 
     private static enum TypeOfDerivedDataSet
     {
@@ -153,17 +151,17 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     }
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, TimeSeriesAndTimePointDataSetHandler.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TimeSeriesAndTimePointDataSetHandler.class);
 
     private static final FilenameFilter LCA_MIC_TIME_SERIES_FILE_FILTER = new FilenameFilter()
-    {
-
-        public boolean accept(File dir, String name)
         {
-            return name.startsWith(DataSetHandler.LCA_MIC_TIME_SERIES);
-        }
-    };
+
+            public boolean accept(File dir, String name)
+            {
+                return name.startsWith(DataSetHandler.LCA_MIC_TIME_SERIES);
+            }
+        };
 
     private final IDataSetHandler delegator;
 
@@ -171,24 +169,19 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
 
     private final ITimeProvider timeProvider;
 
-    private final IEncapsulatedOpenBISService service;
-
     public TimeSeriesAndTimePointDataSetHandler(Properties parentProperties,
-            IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
+            IDataSetHandler delegator)
     {
         this.delegator = delegator;
-        this.service = openbisService;
         this.mailClient = new MailClient(parentProperties);
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
 
     @Private
-    TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator,
-            IEncapsulatedOpenBISService openbisService, IMailClient mailClient,
+    TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator, IMailClient mailClient,
             ITimeProvider timeProvider)
     {
         this.delegator = delegator;
-        service = openbisService;
         this.mailClient = mailClient;
         this.timeProvider = timeProvider;
     }
@@ -205,28 +198,21 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             {
                 DataSetInformation dataSetInformation = result.get(0);
                 MessageBuilder builder =
-                    new MessageBuilder(dataSetInformation.tryGetUploadingUserEmail(), timeProvider);
+                        new MessageBuilder(dataSetInformation.tryGetUploadingUserEmail(),
+                                timeProvider);
                 builder.setDataSetFileName(dataSet);
                 File[] files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
                 handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
-                        dataSetInfos, builder);                
+                        dataSetInfos, builder);
                 DataSetType dataSetType = dataSetInformation.getDataSetType();
                 boolean lcaMicTimeSeries =
-                    dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
-                builder.logSendEMailAndHandlerError(operationLog, mailClient, lcaMicTimeSeries == false);
+                        dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
+                builder.logSendEMailAndHandlerError(operationLog, mailClient,
+                        lcaMicTimeSeries == false);
             } catch (RuntimeException ex)
             {
-                // Data sets are deleted in reverse order because of possible parent-child relationships.
-                for (int i = dataSetInfos.size() - 1; i >= 0; i--)
-                {
-                    String dataSetCode = dataSetInfos.get(i).getDataSetCode();
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("Delete data set " + dataSetCode);
-                    }
-                    service.deleteDataSet(dataSetCode, "Rollback registration");
-                }
-                throw ex;
+                // NOTE: the code to delete data sets is not supported any more
+                throw new RuntimeException("Exception can't be handled properly any more.", ex);
             }
         }
         return dataSetInfos;

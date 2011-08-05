@@ -40,16 +40,13 @@ import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=TimeSeriesAndTimePointDataSetHandler.class)
+@Friend(toClasses = TimeSeriesAndTimePointDataSetHandler.class)
 public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystemTestCase
 {
     private static final class StringMatcher extends BaseMatcher<String>
@@ -77,15 +74,20 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
             description.appendText(expectedString);
         }
     }
-    
+
     private Mockery context;
+
     private IDataSetHandler delegator;
+
     private IMailClient mailClient;
+
     private IDataSetHandler handler;
+
     private File dropBox;
+
     private File timePointFolder;
+
     private ITimeProvider timeProvider;
-    private IEncapsulatedOpenBISService service;
 
     @BeforeMethod
     public void beforeMethod() throws Exception
@@ -94,15 +96,12 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         LogInitializer.init();
         context = new Mockery();
         delegator = context.mock(IDataSetHandler.class, "delegator");
-        service = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
         timeProvider = context.mock(ITimeProvider.class);
         dropBox = new File(workingDirectory, "drop-box");
         timePointFolder = new File(workingDirectory, "time-point-folder");
         timePointFolder.mkdirs();
-        handler =
-                new TimeSeriesAndTimePointDataSetHandler(delegator, service, mailClient,
-                        timeProvider);
+        handler = new TimeSeriesAndTimePointDataSetHandler(delegator, mailClient, timeProvider);
     }
 
     @AfterMethod
@@ -112,7 +111,7 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFailingTimeSeriesRegistration()
     {
@@ -123,9 +122,9 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
                     will(returnValue(Arrays.asList()));
                 }
             });
-        
+
         List<DataSetInformation> dataSets = handler.handleDataSet(dropBox);
-        
+
         assertEquals(0, dataSets.size());
         context.assertIsSatisfied();
     }
@@ -185,7 +184,7 @@ public class TimeSeriesAndTimePointDataSetHandlerTest extends AbstractFileSystem
         assertSame(dataSetInformation, dataSets.get(0));
         context.assertIsSatisfied();
     }
-    
+
     private void prepareSendingEMail(final String expectedSubject, final String expectedMessage,
             final DataSetInformation dataSetInformation, final boolean alsoToHelpDesk)
     {

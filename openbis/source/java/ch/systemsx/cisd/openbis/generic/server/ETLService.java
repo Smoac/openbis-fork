@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -73,7 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -154,13 +152,13 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -692,21 +690,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         final Session session = getSession(sessionToken);
         registerDataSetInternal(session, experimentIdentifier, externalData);
-    }
-
-    public void deleteDataSet(String sessionToken, String dataSetCode, String reason)
-            throws UserFailureException
-    {
-        Session session = getSession(sessionToken);
-        IDataDAO dataSetDAO = getDAOFactory().getDataDAO();
-        DataPE dataSet = dataSetDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
-        if (dataSet != null && dataSet.isExternalData())
-        {
-            DataSetTypePE dataSetType = dataSet.getDataSetType();
-            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.deleteDataSets(session, Collections.singletonList(dataSet), reason,
-                    DeletionType.PERMANENT);
-        }
     }
 
     public void addPropertiesToDataSet(String sessionToken, List<NewProperty> properties,
