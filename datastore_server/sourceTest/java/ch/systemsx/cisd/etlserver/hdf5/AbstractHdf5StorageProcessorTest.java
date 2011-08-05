@@ -24,8 +24,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.FileToHdf5DuplicationVerifier;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * Tests for {@link Hdf5StorageProcessor}.
@@ -72,7 +72,7 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         container.runReaderClient(new IHdf5ReaderClient()
             {
 
-                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     FileToHdf5DuplicationVerifier verifier =
                             new FileToHdf5DuplicationVerifier(incomingDataSetDirectory, container,

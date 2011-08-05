@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
@@ -56,7 +57,7 @@ public class Hdf5Container
         /**
          * Run code using a reader. Implementations do <b>not</b> need to close the reader.
          */
-        public void runWithSimpleReader(IHDF5SimpleReader reader);
+        public void runWithSimpleReader(IHDF5ContainerReader reader);
     }
 
     /**
@@ -80,9 +81,37 @@ public class Hdf5Container
      * 
      * @return A new IHDF5SimpleReader
      */
-    public IHDF5SimpleReader createSimpleReader()
+    public IHDF5ContainerReader createSimpleReader()
     {
-        return HDF5FactoryProvider.get().openForReading(hdf5Container);
+        return new IHDF5ContainerReader()
+            {
+                final IHDF5SimpleReader innerReader = HDF5FactoryProvider.get().openForReading(hdf5Container);
+
+                public void close()
+                {
+                    innerReader.close();
+                }
+
+                public boolean exists(String objectPath)
+                {
+                    return innerReader.exists(objectPath);
+                }
+
+                public boolean isGroup(String objectPath)
+                {
+                    return innerReader.isGroup(objectPath);
+                }
+
+                public List<String> getGroupMembers(String groupPath)
+                {
+                    return innerReader.getGroupMembers(groupPath);
+                }
+
+                public byte[] readAsByteArray(String objectPath)
+                {
+                    return innerReader.readAsByteArray(objectPath);
+                }
+            };
     }
 
     /**
@@ -120,7 +149,7 @@ public class Hdf5Container
      */
     public void runReaderClient(IHdf5ReaderClient client)
     {
-        IHDF5SimpleReader reader = createSimpleReader();
+        IHDF5ContainerReader reader = createSimpleReader();
         try
         {
             client.runWithSimpleReader(reader);

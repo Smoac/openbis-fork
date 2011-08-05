@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -130,7 +129,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         container.runReaderClient(new IHdf5ReaderClient()
             {
-                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     FileToHdf5DuplicationVerifier verifier =
                             new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container, reader);

@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -58,7 +57,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runReaderClient(new IHdf5ReaderClient()
             {
-                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     byte[] readData = reader.readAsByteArray("/test-bytes");
                     assertEquals(byteArray, readData);
@@ -84,7 +83,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
 
         hdf5Content.runReaderClient(new IHdf5ReaderClient()
             {
-                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
                     byte[] readData = reader.readAsByteArray("/test-bytes");
                     assertEquals(byteArray, readData);

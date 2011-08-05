@@ -24,11 +24,11 @@ import java.util.List;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.common.io.HDF5DataSetBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * {@link IHierarchicalContent} implementation for HDF5 container.
@@ -47,7 +47,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
     }
 
-    private IHDF5SimpleReader createReader()
+    private IHDF5ContainerReader createReader()
     {
         return hdf5Container.createSimpleReader();
     }
@@ -63,7 +63,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     @Override
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
-        IHDF5SimpleReader reader = createReader();
+        IHDF5ContainerReader reader = createReader();
         try
         {
             List<String> childPaths = reader.getGroupMembers("/");
@@ -82,7 +82,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     /** @return child node with given path relative to this container */
     public IHierarchicalContentNode getChildNode(String childPath)
     {
-        IHDF5SimpleReader reader = createReader();
+        IHDF5ContainerReader reader = createReader();
         try
         {
             return getChildNode(reader, childPath);
@@ -92,7 +92,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
     }
 
-    private IHierarchicalContentNode getChildNode(IHDF5SimpleReader reader, String childPath)
+    private IHierarchicalContentNode getChildNode(IHDF5ContainerReader reader, String childPath)
     {
         String fileName = FileUtilities.getFileNameFromRelativePath(childPath);
         if (reader.isGroup(childPath))
@@ -204,7 +204,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         @Override
         protected List<IHierarchicalContentNode> doGetChildNodes()
         {
-            IHDF5SimpleReader reader = createReader();
+            IHDF5ContainerReader reader = createReader();
             try
             {
                 List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();

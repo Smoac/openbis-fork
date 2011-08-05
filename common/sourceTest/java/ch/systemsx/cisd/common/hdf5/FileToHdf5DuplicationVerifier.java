@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
 import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * Helper class that verifies that a file structure is matched by the HDF5 structure.
@@ -37,7 +36,7 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
 
     private final Hdf5Container container;
 
-    private final IHDF5SimpleReader reader;
+    private final IHDF5ContainerReader reader;
 
     public static IHdf5ReaderClient createVerifierClient(File sourceFolderOrFile,
             Hdf5Container container)
@@ -57,7 +56,7 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
             this.container = container;
         }
 
-        public void runWithSimpleReader(IHDF5SimpleReader reader)
+        public void runWithSimpleReader(IHDF5ContainerReader reader)
         {
             new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container, reader)
                     .verifyDuplicate();
@@ -65,7 +64,7 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
     }
 
     public FileToHdf5DuplicationVerifier(File sourceFolderOrFile, Hdf5Container container,
-            IHDF5SimpleReader reader)
+            IHDF5ContainerReader reader)
     {
         this.sourceFolderOrFile = sourceFolderOrFile;
         this.container = container;
