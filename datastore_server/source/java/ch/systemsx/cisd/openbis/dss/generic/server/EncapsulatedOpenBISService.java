@@ -282,11 +282,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    public void deleteDataSet(String dataSetCode, String reason) throws UserFailureException
-    {
-        service.deleteDataSet(session.getToken(), dataSetCode, reason);
-    }
-
     public final void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException
 

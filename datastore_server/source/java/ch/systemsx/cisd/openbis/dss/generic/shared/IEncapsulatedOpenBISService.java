@@ -263,14 +263,6 @@ public interface IEncapsulatedOpenBISService
             final NewExternalData data) throws UserFailureException;
 
     /**
-     * Deletes specified data set if it exists.
-     * 
-     * @param reason for deletion.
-     */
-    @ManagedAuthentication
-    public void deleteDataSet(String dataSetCode, String reason) throws UserFailureException;
-
-    /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
      * specified sample identifier.
      * 
