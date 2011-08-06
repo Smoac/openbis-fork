@@ -723,10 +723,6 @@
       <lib dir="${lib}/jython">
         <include name="jython.jar" />
       </lib>
-      <!-- modules for jython scripting -->
-      <webinf dir="${lib}/jython/">
-        <include name="jython-lib/**/*.*" />
-      </webinf>  	  
     </war>
     <!-- Does some cleaning. -->
     <delete file="${jar.file}" failonerror="true" />
