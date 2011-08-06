@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.base.io;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
+
 /**
  * Test cases for {@link RandomAccessFileImpl}.
  *
@@ -34,6 +41,54 @@ public class ByteBufferRandomAccessFileTests extends IRandomAccessFileTests
     protected IRandomAccessFile createRandomAccessFile(String name, byte[] content)
     {
         return new ByteBufferRandomAccessFile(content);
+    }
+
+    public static void main(String[] args) throws Throwable
+    {
+        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + ByteBufferRandomAccessFileTests.class.getSimpleName());
+        System.out.println();
+        final ByteBufferRandomAccessFileTests test = new ByteBufferRandomAccessFileTests();
+        try
+        {
+            for (Method m : ByteBufferRandomAccessFileTests.class.getMethods())
+            {
+                final Test testAnnotation = m.getAnnotation(Test.class);
+                if (testAnnotation == null)
+                {
+                    continue;
+                }
+                if (m.getParameterTypes().length == 0)
+                {
+                    System.out.println("Running " + m.getName());
+                    test.setUp();
+                    try
+                    {
+                        m.invoke(test);
+                    } catch (InvocationTargetException wrapperThrowable)
+                    {
+                        final Throwable th = wrapperThrowable.getCause();
+                        boolean exceptionFound = false;
+                        for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                        {
+                            if (expectedExClazz == th.getClass())
+                            {
+                                exceptionFound = true;
+                                break;
+                            }
+                        }
+                        if (exceptionFound == false)
+                        {
+                            throw th;
+                        }
+                    }
+                }
+            }
+            System.out.println("Tests OK!");
+        } finally
+        {
+            test.afterClass();
+        }
     }
 
 }

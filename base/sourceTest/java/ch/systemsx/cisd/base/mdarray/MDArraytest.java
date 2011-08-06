@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.base.mdarray;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
-import ch.systemsx.cisd.base.mdarray.MDFloatArray;
-
-import static org.testng.AssertJUnit.*;
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
 
 /**
  * Test cases for {@link MDAbstractArray}.
@@ -175,4 +177,46 @@ public class MDArraytest
             assertTrue(Arrays.equals(matrix1[i], matrix2[i]));
         }
     }
+
+    public static void main(String[] args) throws Throwable
+    {
+        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + MDArraytest.class.getSimpleName());
+        System.out.println();
+        final MDArraytest test = new MDArraytest();
+        for (Method m : MDArraytest.class.getMethods())
+        {
+            final Test testAnnotation = m.getAnnotation(Test.class);
+            if (testAnnotation == null)
+            {
+                continue;
+            }
+            if (m.getParameterTypes().length == 0)
+            {
+                System.out.println("Running " + m.getName());
+                try
+                {
+                    m.invoke(test);
+                } catch (InvocationTargetException wrapperThrowable)
+                {
+                    final Throwable th = wrapperThrowable.getCause();
+                    boolean exceptionFound = false;
+                    for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                    {
+                        if (expectedExClazz == th.getClass())
+                        {
+                            exceptionFound = true;
+                            break;
+                        }
+                    }
+                    if (exceptionFound == false)
+                    {
+                        throw th;
+                    }
+                }
+            }
+        }
+        System.out.println("Tests OK!");
+    }
+
 }

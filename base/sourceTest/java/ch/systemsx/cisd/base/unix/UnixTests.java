@@ -272,6 +272,7 @@ public class UnixTests extends AbstractFileSystemTestCase
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + UnixTests.class.getSimpleName());
         System.out.println();
         if (Unix.isOperational() == false)
         {

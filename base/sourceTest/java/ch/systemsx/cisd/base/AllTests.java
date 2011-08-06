@@ -18,6 +18,10 @@ package ch.systemsx.cisd.base;
 
 import ch.systemsx.cisd.base.convert.NativeDataTests;
 import ch.systemsx.cisd.base.convert.NativeTaggedArrayTests;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUncheckedTests;
+import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFileTests;
+import ch.systemsx.cisd.base.io.RandomAccessFileImplTests;
+import ch.systemsx.cisd.base.mdarray.MDArraytest;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.base.unix.UnixTests;
 
@@ -31,14 +35,22 @@ public class AllTests
 
     public static void main(String[] args) throws Throwable
     {
+        NativeDataTests.main(args);
+        System.out.println();
+        NativeTaggedArrayTests.main(args);
+        System.out.println();
+        IOExceptionUncheckedTests.main(args);
+        System.out.println();
+        ByteBufferRandomAccessFileTests.main(args);
+        System.out.println();
+        RandomAccessFileImplTests.main(args);
+        System.out.println();
+        MDArraytest.main(args);
+        System.out.println();
         if (Unix.isOperational())
         {
             UnixTests.main(args);
         }
-        System.out.println();
-        NativeDataTests.main(args);
-        System.out.println();
-        NativeTaggedArrayTests.main(args);
     }
 
 }

@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package exceptions;
+package ch.systemsx.cisd.base.exceptions;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 
@@ -91,6 +98,47 @@ public class IOExceptionUncheckedTests
             assertEquals("Some message", ex.getMessage());
             assertNull(ex.getCause());
         }
+    }
+
+    public static void main(String[] args) throws Throwable
+    {
+        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + IOExceptionUncheckedTests.class.getSimpleName());
+        System.out.println();
+        final IOExceptionUncheckedTests test = new IOExceptionUncheckedTests();
+        for (Method m : IOExceptionUncheckedTests.class.getMethods())
+        {
+            final Test testAnnotation = m.getAnnotation(Test.class);
+            if (testAnnotation == null)
+            {
+                continue;
+            }
+            if (m.getParameterTypes().length == 0)
+            {
+                System.out.println("Running " + m.getName());
+                try
+                {
+                    m.invoke(test);
+                } catch (InvocationTargetException wrapperThrowable)
+                {
+                    final Throwable th = wrapperThrowable.getCause();
+                    boolean exceptionFound = false;
+                    for (Class<?> expectedExClazz : testAnnotation.expectedExceptions())
+                    {
+                        if (expectedExClazz == th.getClass())
+                        {
+                            exceptionFound = true;
+                            break;
+                        }
+                    }
+                    if (exceptionFound == false)
+                    {
+                        throw th;
+                    }
+                }
+            }
+        }
+        System.out.println("Tests OK!");
     }
 
 }

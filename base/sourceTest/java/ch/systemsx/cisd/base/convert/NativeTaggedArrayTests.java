@@ -424,6 +424,7 @@ public class NativeTaggedArrayTests
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + NativeTaggedArrayTests.class.getSimpleName());
         System.out.println();
         NativeData.ensureNativeLibIsLoaded();
         final NativeTaggedArrayTests test = new NativeTaggedArrayTests();

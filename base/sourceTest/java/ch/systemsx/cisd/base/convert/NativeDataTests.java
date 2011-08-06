@@ -421,9 +421,11 @@ public class NativeDataTests
     {
     }
 
+    @SuppressWarnings("null")
     public static void main(String[] args) throws Throwable
     {
         System.out.println(BuildAndEnvironmentInfo.INSTANCE);
+        System.out.println("Test class: " + NativeDataTests.class.getSimpleName());
         System.out.println();
         NativeData.ensureNativeLibIsLoaded();
         final NativeDataTests test = new NativeDataTests();
