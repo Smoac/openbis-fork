@@ -19,8 +19,8 @@ package ch.systemsx.cisd.base.exceptions;
 import java.io.IOException;
 
 /**
- * A {@link CheckedExceptionTunnel} for an {@link IOException}. 
- *
+ * A {@link CheckedExceptionTunnel} for an {@link IOException}.
+ * 
  * @author Bernd Rinn
  */
 public class IOExceptionUnchecked extends CheckedExceptionTunnel
@@ -28,7 +28,7 @@ public class IOExceptionUnchecked extends CheckedExceptionTunnel
     private static final long serialVersionUID = 1L;
 
     /**
-     * Returns an unchecked exception from a <var>checkedException</var>.
+     * Returns an <code>IOExceptionUnchecked</code> from a <code>IOException</code>.
      * 
      * @param checkedException The checked exception to tunnel.
      */
@@ -37,6 +37,39 @@ public class IOExceptionUnchecked extends CheckedExceptionTunnel
         super(checkedException);
 
         assert checkedException != null;
+    }
+
+    /**
+     * Returns an <code>IOExceptionUnchecked</code> from a newly created <code>IOException</code>
+     * with given <var>msg</var>.
+     * 
+     * @param msg The checked exception to tunnel.
+     */
+    public IOExceptionUnchecked(final String msg)
+    {
+        this(new IOException(msg));
+    }
+
+    private static IOException createIOException(final Throwable throwable)
+    {
+        final IOException ioe =
+                new IOException(throwable.getClass().getSimpleName() + ": "
+                        + throwable.getMessage());
+        ioe.initCause(throwable);
+        return ioe;
+    }
+
+    /**
+     * Returns an <code>IOExceptionUnchecked</code> from newly created <code>IOException</code> with
+     * given <var>throwable</var> as its cause.
+     * 
+     * @param throwable The throwable to use the cause of the created <code>IOException</code>.
+     */
+    public IOExceptionUnchecked(final Throwable throwable)
+    {
+        super(createIOException(throwable));
+
+        assert throwable != null;
     }
 
     @Override
