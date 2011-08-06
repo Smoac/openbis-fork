@@ -1,3 +1,5 @@
+package ch.systemsx.cisd.common.evaluator;
+
 /*
  * Copyright 2009 ETH Zuerich, CISD
  *
@@ -14,26 +16,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.evaluator;
-
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.python.core.CompileMode;
-import org.python.core.CompilerFlags;
-import org.python.core.Py;
-import org.python.core.PyBoolean;
 import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
+import org.python.core.PyJavaInstance;
+import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
+import org.python.core.__builtin__;
 import org.python.util.PythonInterpreter;
 
 /**
@@ -72,7 +73,7 @@ public final class Evaluator
      */
     public enum ReturnType
     {
-        BOOLEAN, INTEGER, BIGINT, DOUBLE, STRING, OTHER
+        INTEGER_OR_BOOLEAN, BIGINT, DOUBLE, STRING, OTHER
     }
 
     /**
@@ -172,7 +173,7 @@ public final class Evaluator
             if (pyObject instanceof PyFunction == false)
             {
                 throw new PyException(new PyString("Not a function"), "'" + functionName
-                        + "' is of type " + pyObject.getType().getName() + ".");
+                        + "' is of type " + pyObject.getType().getFullName() + ".");
             }
             PyFunction func = (PyFunction) pyObject;
             PyObject[] pyArgs = new PyObject[args.length];
@@ -203,7 +204,7 @@ public final class Evaluator
         {
             return new PyString((String) javaObject);
         }
-        return Py.java2py(javaObject);
+        return new PyJavaInstance(javaObject);
     }
 
     /**
@@ -214,8 +215,8 @@ public final class Evaluator
     {
         try
         {
-            return Py.compile_flags("__result__=(" + expression + ")", "expression: " + expression,
-                    CompileMode.exec, new CompilerFlags());
+            return __builtin__.compile("__result__=(" + expression + ")", "expression: "
+                    + expression, "exec");
         } catch (PyException ex)
         {
             throw toEvaluatorException(ex, expression);
@@ -254,12 +255,9 @@ public final class Evaluator
     {
         doEval();
         final Object obj = getInterpreterResult();
-        if (obj instanceof PyBoolean)
+        if (obj instanceof PyInteger)
         {
-            return ReturnType.BOOLEAN;
-        } else if (obj instanceof PyInteger)
-        {
-            return ReturnType.INTEGER;
+            return ReturnType.INTEGER_OR_BOOLEAN;
         } else if (obj instanceof PyLong)
         {
             return ReturnType.BIGINT;
@@ -298,7 +296,35 @@ public final class Evaluator
 
     private Object translateToJava(final PyObject obj)
     {
-        return (obj == null) ? null : obj.__tojava__(Object.class);
+        if (obj instanceof PyInteger)
+        {
+            return new Long(((PyInteger) obj).getValue());
+        } else if (obj instanceof PyLong)
+        {
+            return new Long(((PyLong) obj).getValue().longValue());
+        } else if (obj instanceof PyFloat)
+        {
+            return new Double(((PyFloat) obj).getValue());
+        } else if (obj instanceof PyNone)
+        {
+            return null;
+        } else if (obj instanceof PyList)
+        {
+            PyList pyList = (PyList) obj;
+            PyObject[] array = pyList.getArray();
+            List<Object> list = new ArrayList<Object>();
+            for (int i = 0, n = pyList.size(); i < n; i++)
+            {
+                list.add(translateToJava(array[i]));
+            }
+            return list;
+        } else if (obj instanceof PyJavaInstance)
+        {
+            return ((PyJavaInstance) obj).__tojava__(Object.class);
+        } else
+        {
+            return obj == null ? null : obj.toString();
+        }
     }
 
     private PyObject getInterpreterResult()
@@ -320,7 +346,7 @@ public final class Evaluator
         {
             final ReturnType type = getType();
             throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.INTEGER + ", found " + type);
+                    + ReturnType.INTEGER_OR_BOOLEAN + ", found " + type);
         }
     }
 
@@ -338,7 +364,7 @@ public final class Evaluator
         {
             final ReturnType type = getType();
             throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.INTEGER + ", found " + type);
+                    + ReturnType.INTEGER_OR_BOOLEAN + ", found " + type);
         }
     }
 
@@ -410,10 +436,13 @@ public final class Evaluator
     {
         Exception exception = null;
         PyObject value = ex.value;
-        Object object = value.__tojava__(Object.class);
-        if (object instanceof Exception)
+        if (value instanceof PyJavaInstance)
         {
-            exception = (Exception) object;
+            Object object = ((PyJavaInstance) value).__tojava__(Object.class);
+            if (object instanceof Exception)
+            {
+                exception = (Exception) object;
+            }
         }
         String msg = extractExceptionMessage(ex);
         if (expressionOrNull != null)

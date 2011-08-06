@@ -150,6 +150,9 @@
     <copy file="${lib}/jython/jython.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/mina/mina-core.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/ftpserver/ftpserver-core.jar" todir="${dist.datastore_server.lib}" />
+    <copy todir="${dist.datastore_server.lib}/jython-lib" >
+    	<fileset 	dir="${lib}/jython/jython-lib" />
+    </copy>
     <copy file="${lib}/truezip/truezip.jar" todir="${dist.datastore_server.lib}" />
     <copy todir="${dist.datastore_server.lib}/${dss_upload_gui}" >
     	<fileset 	dir="${dist.dss_upload_gui.lib}" />
@@ -280,7 +283,7 @@
     <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
   	<copy file="${lib}/jline/jline.jar" todir="${dist.dss_client.lib}" />
-  	<copy file="${lib}/jython/jython.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/jython/standalone/jython.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/poi/poi-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/poi/poi-ooxml-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
     <copy file="${lib}/poi/poi-ooxml-schemas-3.7-20101029.jar" todir="${dist.dss_client.lib}" />
@@ -397,7 +400,7 @@
 			<param name="jar" value="stream-supporting-httpinvoker.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
-			<param name="dir" value="${lib}/jython" />
+			<param name="dir" value="${lib}/jython/standalone" />
 			<param name="jar" value="jython.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">

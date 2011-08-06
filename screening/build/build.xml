@@ -353,7 +353,7 @@
 			<param name="jar" value="ij.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
-			<param name="dir" value="${lib}/jython" />
+			<param name="dir" value="${lib}/jython/standalone" />
 			<param name="jar" value="jython.jar" />
 		</antcall>
 		<zip destfile="${jars.to.be.signed.zip}"
@@ -501,7 +501,7 @@
       <zipfileset src="${lib}/jline/jline.jar" />     
       <zipfileset src="${lib}/cisd-args4j/cisd-args4j.jar" />     
       <zipfileset src="${lib}/cisd-base/cisd-base.jar" />     
-      <zipfileset src="${lib}/jython/jython.jar" />     
+      <zipfileset src="${lib}/jython/standalone/jython.jar" />     
   	</recursive-jar>
   	<recursive-jar destfile="${dist.screening-api-batteries-included.jar}">
       <zipfileset src="${dist.screening-api.lib}/spring-ext.jar" />
@@ -570,7 +570,7 @@
       <zipfileset src="${lib}/jline/jline.jar" />     
       <zipfileset src="${lib}/cisd-args4j/cisd-args4j.jar" />     
       <zipfileset src="${lib}/cisd-base/cisd-base.jar" />     
-      <zipfileset src="${lib}/jython/jython.jar" />     
+      <zipfileset src="${lib}/jython/standalone/jython.jar" />     
   	</recursive-jar>
   	<recursive-jar destfile="${dist.screening-api-batteries-included.jar}">
       <zipfileset src="${dist.screening-api.lib}/spring-ext.jar" />

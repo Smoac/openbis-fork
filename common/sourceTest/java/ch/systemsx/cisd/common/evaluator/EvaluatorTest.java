@@ -99,12 +99,12 @@ public class EvaluatorTest extends AssertJUnit
 
     public static class Functions
     {
-        public static double MinDbl(double a, double b)
+        public static double Min(double a, double b)
         {
             return (a < b) ? a : b;
         }
 
-        public static double MinDbl(double[] vals)
+        public static double Min(double... vals)
         {
             double result = Double.MAX_VALUE;
             for (double v : vals)
@@ -117,21 +117,20 @@ public class EvaluatorTest extends AssertJUnit
             return result;
         }
 
-        public static int MinInt(int a, int b)
+        public static int Min(int a, int b)
         {
             return (a < b) ? a : b;
         }
-
     }
 
     @Test
     public void testFunctionEval()
     {
-        Evaluator eval = new Evaluator("MinInt(1,2)", Functions.class, null);
+        Evaluator eval = new Evaluator("Min(1,2)", Functions.class, null);
         assertEquals(1, eval.evalToInt());
-        eval = new Evaluator("MinDbl([1,2,0.1])", Functions.class, null);
+        eval = new Evaluator("Min([1,2,0.1])", Functions.class, null);
         assertEquals(0.1, eval.evalToDouble(), 1e-15);
-        eval = new Evaluator("MinDbl(v)", Functions.class, null);
+        eval = new Evaluator("Min(v)", Functions.class, null);
         eval.set("v", new double[]
             { 1, 2, -99.9, 3 });
         assertEquals(-99.9, eval.evalToDouble(), 1e-15);
@@ -150,7 +149,7 @@ public class EvaluatorTest extends AssertJUnit
     {
         final Evaluator eval = new Evaluator("a");
         eval.set("a", 2);
-        assertEquals(ReturnType.INTEGER, eval.getType());
+        assertEquals(ReturnType.INTEGER_OR_BOOLEAN, eval.getType());
         eval.set("a", "2");
         assertEquals(ReturnType.STRING, eval.getType());
     }
@@ -179,16 +178,15 @@ public class EvaluatorTest extends AssertJUnit
     {
         final Evaluator eval = new Evaluator("a");
         eval.set("a", true);
-        assertEquals(ReturnType.BOOLEAN, eval.getType());
-        assertEquals("true", eval.evalAsString());
+        assertEquals(ReturnType.INTEGER_OR_BOOLEAN, eval.getType());
+        assertEquals("1", eval.evalAsString());
         try
         {
             eval.evalToDouble();
-            fail("Type mismatch not detected.");
         } catch (EvaluatorException ex)
         {
             assertEquals(ex.getMessage(),
-                    "Expected a result of type DOUBLE, found BOOLEAN", ex.getMessage());
+                    "Expected a result of type DOUBLE, found INTEGER_OR_BOOLEAN", ex.getMessage());
         }
     }
 
@@ -247,7 +245,7 @@ public class EvaluatorTest extends AssertJUnit
         Evaluator evaluator = new Evaluator("", null, "def get():\n  return ['a','b']");
         Object result = evaluator.evalFunction("get");
         assertEquals("Result " + result.getClass(), true, result instanceof List);
-        assertEquals("['a', 'b']", result.toString());
+        assertEquals("[a, b]", result.toString());
     }
 
     @Test
@@ -260,9 +258,7 @@ public class EvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals(
-                    "Error evaluating 'hello(world)': NameError: global name 'unknown' is not defined",
-                    ex.getMessage());
+            assertEquals("Error evaluating 'hello(world)': NameError: unknown", ex.getMessage());
         }
     }
 
@@ -320,7 +316,7 @@ public class EvaluatorTest extends AssertJUnit
         } catch (EvaluatorException ex)
         {
             assertEquals("Error evaluating 'hello()': TypeError: "
-                    + "hello() takes exactly 1 argument (0 given)", ex.getMessage());
+                    + "hello() takes at least 1 argument (0 given)", ex.getMessage());
         }
     }
 
@@ -335,7 +331,7 @@ public class EvaluatorTest extends AssertJUnit
         } catch (EvaluatorException ex)
         {
             assertEquals("Error evaluating 'hello(world, universe)': TypeError: "
-                    + "hello() takes exactly 1 argument (2 given)", ex.getMessage());
+                    + "hello() too many arguments; expected 1 got 2", ex.getMessage());
         }
     }
 
@@ -351,7 +347,7 @@ public class EvaluatorTest extends AssertJUnit
         } catch (EvaluatorException ex)
         {
             assertEquals("Error evaluating 'get(world, universe)': AttributeError: "
-                    + "'str' object has no attribute 'get'", ex.getMessage());
+                    + "'string' object has no attribute 'get'", ex.getMessage());
         }
     }
 
