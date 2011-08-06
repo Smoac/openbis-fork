@@ -16,41 +16,42 @@
 
 package ch.systemsx.cisd.common.hdf5;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
-import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5ReaderClient;
 
 /**
  * Helper class that verifies that a file structure is matched by the HDF5 structure.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileToHdf5DuplicationVerifier extends AssertJUnit
+public class FileToHDF5DuplicationVerifier extends AssertJUnit
 {
 
     private final File sourceFolderOrFile;
 
-    private final Hdf5Container container;
+    private final HDF5Container container;
 
     private final IHDF5ContainerReader reader;
 
-    public static IHdf5ReaderClient createVerifierClient(File sourceFolderOrFile,
-            Hdf5Container container)
+    public static IHDF5ReaderClient createVerifierClient(File sourceFolderOrFile,
+            HDF5Container container)
     {
         return new ReaderClient(sourceFolderOrFile, container);
     }
 
-    private static class ReaderClient implements IHdf5ReaderClient
+    private static class ReaderClient implements IHDF5ReaderClient
     {
         private final File sourceFolderOrFile;
 
-        private final Hdf5Container container;
+        private final HDF5Container container;
 
-        private ReaderClient(File sourceFolderOrFile, Hdf5Container container)
+        private ReaderClient(File sourceFolderOrFile, HDF5Container container)
         {
             this.sourceFolderOrFile = sourceFolderOrFile;
             this.container = container;
@@ -58,12 +59,12 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
 
         public void runWithSimpleReader(IHDF5ContainerReader reader)
         {
-            new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container, reader)
+            new FileToHDF5DuplicationVerifier(sourceFolderOrFile, container, reader)
                     .verifyDuplicate();
         }
     }
 
-    public FileToHdf5DuplicationVerifier(File sourceFolderOrFile, Hdf5Container container,
+    public FileToHDF5DuplicationVerifier(File sourceFolderOrFile, HDF5Container container,
             IHDF5ContainerReader reader)
     {
         this.sourceFolderOrFile = sourceFolderOrFile;
@@ -73,7 +74,7 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
 
     public void verifyDuplicate()
     {
-        assertTrue(container.getHdf5File().length() > 0);
+        assertTrue(container.getHDF5File().length() > 0);
 
         if (sourceFolderOrFile.isFile())
         {
@@ -112,7 +113,9 @@ public class FileToHdf5DuplicationVerifier extends AssertJUnit
         try
         {
             byte[] fileContent = FileUtils.readFileToByteArray(file);
-            byte[] content = reader.readAsByteArray(hdf5Path);
+            final ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+            reader.readFromHDF5Container(hdf5Path, ostream);
+            byte[] content = ostream.toByteArray();
             assertEquals(file.getAbsolutePath() + " does not equal " + hdf5Path, fileContent,
                     content);
         } catch (IOException ex)

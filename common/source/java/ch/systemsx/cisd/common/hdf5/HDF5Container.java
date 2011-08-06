@@ -17,10 +17,9 @@
 package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
-import java.util.List;
+
 
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class Hdf5Container
+public class HDF5Container
 {
     private final File hdf5Container;
 
@@ -39,7 +38,7 @@ public class Hdf5Container
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static interface IHdf5WriterClient
+    public static interface IHDF5WriterClient
     {
         /**
          * Run code using a writer. Implementations do <b>not</b> need to close the writer.
@@ -52,7 +51,7 @@ public class Hdf5Container
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static interface IHdf5ReaderClient
+    public static interface IHDF5ReaderClient
     {
         /**
          * Run code using a reader. Implementations do <b>not</b> need to close the reader.
@@ -66,12 +65,12 @@ public class Hdf5Container
      * @param hdf5Container A file designated to be the hdf5 container. The file need not exist --
      *            it will be created when a writer is accessed.
      */
-    public Hdf5Container(File hdf5Container)
+    public HDF5Container(File hdf5Container)
     {
         this.hdf5Container = hdf5Container;
     }
 
-    public File getHdf5File()
+    public File getHDF5File()
     {
         return hdf5Container;
     }
@@ -83,35 +82,7 @@ public class Hdf5Container
      */
     public IHDF5ContainerReader createSimpleReader()
     {
-        return new IHDF5ContainerReader()
-            {
-                final IHDF5SimpleReader innerReader = HDF5FactoryProvider.get().openForReading(hdf5Container);
-
-                public void close()
-                {
-                    innerReader.close();
-                }
-
-                public boolean exists(String objectPath)
-                {
-                    return innerReader.exists(objectPath);
-                }
-
-                public boolean isGroup(String objectPath)
-                {
-                    return innerReader.isGroup(objectPath);
-                }
-
-                public List<String> getGroupMembers(String groupPath)
-                {
-                    return innerReader.getGroupMembers(groupPath);
-                }
-
-                public byte[] readAsByteArray(String objectPath)
-                {
-                    return innerReader.readAsByteArray(objectPath);
-                }
-            };
+        return new HDF5ContainerReader(hdf5Container);
     }
 
     /**
@@ -123,15 +94,15 @@ public class Hdf5Container
      */
     private IHDF5ContainerWriter createSimpleWriter(boolean isContentCompressed)
     {
-        return new CompressingHdf5WriterWrapper(this, HDF5FactoryProvider.get().open(
-                hdf5Container), isContentCompressed);
+        return new HDF5ContainerWriter(this, HDF5FactoryProvider.get().open(hdf5Container),
+                isContentCompressed);
     }
 
     /**
      * Run a writer client on this Hdf5 container. Ensures that the writer is closed when the client
      * finishes running.
      */
-    public void runWriterClient(boolean isContentCompressed, IHdf5WriterClient client)
+    public void runWriterClient(boolean isContentCompressed, IHDF5WriterClient client)
     {
         IHDF5ContainerWriter writer = createSimpleWriter(isContentCompressed);
         try
@@ -147,7 +118,7 @@ public class Hdf5Container
      * Run a reader client on this Hdf5 container. Ensures that the reader is closed when the client
      * finishes running.
      */
-    public void runReaderClient(IHdf5ReaderClient client)
+    public void runReaderClient(IHDF5ReaderClient client)
     {
         IHDF5ContainerReader reader = createSimpleReader();
         try

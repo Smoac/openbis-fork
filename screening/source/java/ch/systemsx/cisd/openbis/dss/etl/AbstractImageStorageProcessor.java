@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
-import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -510,9 +510,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private static void saveInHdf5(File sourceFolder, File hdf5DestinationFile,
             boolean compressFiles)
     {
-        Hdf5Container container = new Hdf5Container(hdf5DestinationFile);
+        HDF5Container container = new HDF5Container(hdf5DestinationFile);
         container.runWriterClient(compressFiles,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
     }
 
     private File moveToStore(File incomingDataSetDirectory, File rootDirectory)
@@ -541,7 +541,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 imageStorageConfiguraton.getThumbnailsStorageFormat();
         if (thumbnailsStorageFormatOrNull != null)
         {
-            Hdf5Container container = new Hdf5Container(thumbnailsFile);
+            HDF5Container container = new HDF5Container(thumbnailsFile);
             ImageLibraryInfo imageLibrary = imageStorageConfiguraton.tryGetImageLibrary();
             Hdf5ThumbnailGenerator thumbnailsGenerator =
                     new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,

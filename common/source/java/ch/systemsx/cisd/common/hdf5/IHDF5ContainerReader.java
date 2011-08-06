@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.hdf5;
 
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -52,11 +53,10 @@ public interface IHDF5ContainerReader
     public boolean isGroup(final String objectPath);
 
     /**
-     * Reads the data set <var>objectPath</var> as byte array (of rank 1).
+     * Reads the data set <var>objectPath</var> into the <var>ostream</var>.
      * 
      * @param objectPath The name (including path information) of the data set object in the file.
-     * @return The data read from the data set.
      */
-    public byte[] readAsByteArray(final String objectPath);
+    public void readFromHDF5Container(final String objectPath, final OutputStream ostream);
 
 }

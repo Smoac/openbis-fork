@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.io.HDF5DataSetRandomAccessFile;
+import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
 
 /**
  * An {@link IContent} implementation based on an HDF5 dataset.
@@ -85,7 +86,7 @@ public class HDF5DataSetBasedContent implements IContent, Closeable
     public IRandomAccessFile getReadOnlyRandomAccessFile()
     {
         final HDF5DataSetRandomAccessFile randomAccessFile =
-                HDF5DataSetRandomAccessFile.createForReading(hdf5File, dataSetPath);
+                HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, dataSetPath);
         randomAccessFiles.add(randomAccessFile);
         return randomAccessFile;
     }

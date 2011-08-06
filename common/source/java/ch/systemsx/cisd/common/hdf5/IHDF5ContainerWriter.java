@@ -16,21 +16,27 @@
 
 package ch.systemsx.cisd.common.hdf5;
 
+import java.io.InputStream;
+
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+
 /**
  * A simple abstraction of the methods needed to write an HDF5 container.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IHDF5ContainerWriter
 {
     /**
-     * Writes out a <code>byte</code> array (of rank 1). Uses a compact storage layout. Should only
-     * be used for small data sets.
+     * Write the given <code>istream</code> to a new data set named <code>objectPath</code>.
      * 
-     * @param objectPath The name (including path information) of the data set object in the file.
-     * @param data The data to write. Must not be <code>null</code>.
+     * @param objectPath The path of the data set to write the {@link InputStream} to.
+     * @param istream The stream to get the data from. This method will <i>not</i> close the
+     *            <code>istream</code>!</i>
+     * @param size The size of the file represented by the <var>istream</var>.
      */
-    public void writeByteArray(final String objectPath, final byte[] data);
+    void writeToHDF5Container(final String objectPath, final InputStream istream, final long size)
+            throws IOExceptionUnchecked;
 
     /**
      * Closes this object and the file referenced by this object. This object must not be used after

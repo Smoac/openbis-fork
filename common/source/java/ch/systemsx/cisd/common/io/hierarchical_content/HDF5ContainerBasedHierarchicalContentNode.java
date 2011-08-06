@@ -23,7 +23,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.common.io.HDF5DataSetBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
@@ -38,13 +38,13 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentN
 public class HDF5ContainerBasedHierarchicalContentNode extends
         DefaultFileBasedHierarchicalContentNode
 {
-    private final Hdf5Container hdf5Container;
+    private final HDF5Container hdf5Container;
 
     public HDF5ContainerBasedHierarchicalContentNode(IHierarchicalContent root,
             File hdf5ContainerFile)
     {
         super(root, hdf5ContainerFile);
-        this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
+        this.hdf5Container = new HDF5Container(hdf5ContainerFile);
     }
 
     private IHDF5ContainerReader createReader()
@@ -112,7 +112,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     public String toString()
     {
         return "HDF5ContainerBasedHierarchicalContentNode [root=" + root + ", container="
-                + hdf5Container.getHdf5File() + "]";
+                + hdf5Container.getHDF5File() + "]";
     }
 
     @Override
@@ -120,7 +120,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + hdf5Container.getHdf5File().hashCode();
+        result = prime * result + hdf5Container.getHDF5File().hashCode();
         result = prime * result + root.hashCode();
         return result;
     }
@@ -142,7 +142,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
         HDF5ContainerBasedHierarchicalContentNode other =
                 (HDF5ContainerBasedHierarchicalContentNode) obj;
-        if (!hdf5Container.getHdf5File().equals(other.hdf5Container.getHdf5File()))
+        if (!hdf5Container.getHDF5File().equals(other.hdf5Container.getHDF5File()))
         {
             return false;
         }

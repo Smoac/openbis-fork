@@ -24,17 +24,19 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class Hdf5StorageProcessorNoCompressionTest extends AbstractHdf5StorageProcessorTest
+public class HDF5StorageProcessorWithCompressionTest extends AbstractHDF5StorageProcessorTest
 {
 
-    public Hdf5StorageProcessorNoCompressionTest()
+    public HDF5StorageProcessorWithCompressionTest()
     {
         super(createProperties());
     }
 
     private static Properties createProperties()
     {
-        return new Properties();
+        Properties props = new Properties();
+        props.setProperty(HDF5StorageProcessor.COMPRESS_DATA_PROPERTY, "true");
+        return props;
     }
 
     @Override
@@ -65,5 +67,4 @@ public class Hdf5StorageProcessorNoCompressionTest extends AbstractHdf5StoragePr
     {
         super.testStoreDataNullValues();
     }
-
 }

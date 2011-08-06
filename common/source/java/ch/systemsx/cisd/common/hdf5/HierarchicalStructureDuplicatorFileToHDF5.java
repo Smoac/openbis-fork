@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.common.hdf5;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
+import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class HierarchicalStructureDuplicatorFileToHdf5
+public class HierarchicalStructureDuplicatorFileToHDF5
 {
     private final File file;
 
@@ -41,7 +41,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static class DuplicatorWriterClient implements Hdf5Container.IHdf5WriterClient
+    public static class DuplicatorWriterClient implements HDF5Container.IHDF5WriterClient
     {
         private final File file;
 
@@ -52,7 +52,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5
 
         public void runWithSimpleWriter(IHDF5ContainerWriter writer)
         {
-            HierarchicalStructureDuplicatorFileToHdf5.makeDuplicate(file, writer);
+            HierarchicalStructureDuplicatorFileToHDF5.makeDuplicate(file, writer);
         }
 
     }
@@ -68,10 +68,10 @@ public class HierarchicalStructureDuplicatorFileToHdf5
      */
     public static void makeDuplicate(File file, IHDF5ContainerWriter writer)
     {
-        new HierarchicalStructureDuplicatorFileToHdf5(file, writer).makeDuplicate();
+        new HierarchicalStructureDuplicatorFileToHDF5(file, writer).makeDuplicate();
     }
 
-    private HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5ContainerWriter writer)
+    private HierarchicalStructureDuplicatorFileToHDF5(File file, IHDF5ContainerWriter writer)
     {
         this.file = file;
         this.writer = writer;
@@ -97,7 +97,6 @@ public class HierarchicalStructureDuplicatorFileToHdf5
             // Mirror the whole file structure
             mirrorGroup(file, "/");
         }
-
     }
 
     private void mirrorGroup(File directory, String groupPath)
@@ -127,13 +126,31 @@ public class HierarchicalStructureDuplicatorFileToHdf5
                     "Symbolic links are not supported for mirroring in a HDF5 container.");
         }
 
+        InputStream istream = null;
+        IOException e = null;
         try
         {
-            byte[] data = FileUtils.readFileToByteArray(normalFile);
-            writer.writeByteArray(hdf5Path, data);
+            istream = new FileInputStream(normalFile); 
+            writer.writeToHDF5Container(hdf5Path, istream, normalFile.length());
         } catch (IOException ex)
         {
+            e = ex;
             throw new IOExceptionUnchecked(ex);
+        } finally
+        {
+            if (istream != null)
+            {
+                try
+                {
+                    istream.close();
+                } catch (IOException ex)
+                {
+                    if (e == null)
+                    {
+                        throw new IOExceptionUnchecked(ex);
+                    }
+                }
+            }
         }
 
     }

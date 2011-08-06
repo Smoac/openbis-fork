@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5WriterClient;
+import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5WriterClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -52,7 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class Hdf5ThumbnailGenerator implements IHdf5WriterClient
+class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 {
     private static final File convertUtilityOrNull = OSUtilities.findExecutable("convert");
 
@@ -117,7 +118,8 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
             }
             synchronized (writer)
             {
-                writer.writeByteArray(thumbnailPath, byteArray);
+                writer.writeToHDF5Container(thumbnailPath, new ByteArrayInputStream(byteArray),
+                        byteArray.length);
             }
         } catch (IOException ex)
         {

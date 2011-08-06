@@ -21,28 +21,28 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.hdf5.FileToHdf5DuplicationVerifier;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.FileToHDF5DuplicationVerifier;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5ReaderClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 
 /**
- * Tests for {@link Hdf5StorageProcessor}.
+ * Tests for {@link HDF5StorageProcessor}.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCase
+abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCase
 {
-    protected final Hdf5StorageProcessor storageProcessor;
+    protected final HDF5StorageProcessor storageProcessor;
 
     protected final IStorageProcessorTransaction transaction;
 
-    protected AbstractHdf5StorageProcessorTest(Properties properties)
+    protected AbstractHDF5StorageProcessorTest(Properties properties)
     {
         super();
 
-        storageProcessor = new Hdf5StorageProcessor(properties);
+        storageProcessor = new HDF5StorageProcessor(properties);
         storageProcessor.setStoreRootDirectory(workingDirectory);
         transaction = storageProcessor.createTransaction();
     }
@@ -63,19 +63,19 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         assertTrue(incomingDataSetDirectory.exists());
         assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
-        File hdf5ContainerFile = Hdf5StorageProcessor.getHdf5ContainerFile(rootDir);
+        File hdf5ContainerFile = HDF5StorageProcessor.getHDF5ContainerFile(rootDir);
         assertTrue(hdf5ContainerFile.exists());
         assertTrue(hdf5ContainerFile.isFile());
 
-        final Hdf5Container container = Hdf5StorageProcessor.getHdf5Container(rootDir);
+        final HDF5Container container = HDF5StorageProcessor.getHdf5Container(rootDir);
 
-        container.runReaderClient(new IHdf5ReaderClient()
+        container.runReaderClient(new IHDF5ReaderClient()
             {
 
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
-                    FileToHdf5DuplicationVerifier verifier =
-                            new FileToHdf5DuplicationVerifier(incomingDataSetDirectory, container,
+                    FileToHDF5DuplicationVerifier verifier =
+                            new FileToHDF5DuplicationVerifier(incomingDataSetDirectory, container,
                                     reader);
                     verifier.verifyDuplicate();
                 }
@@ -96,7 +96,7 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         assertTrue(incomingDataSetDirectory.exists());
         assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
-        File hdf5ContainerFile = Hdf5StorageProcessor.getHdf5ContainerFile(rootDir);
+        File hdf5ContainerFile = HDF5StorageProcessor.getHDF5ContainerFile(rootDir);
         assertTrue(hdf5ContainerFile.exists());
         assertTrue(hdf5ContainerFile.isFile());
 

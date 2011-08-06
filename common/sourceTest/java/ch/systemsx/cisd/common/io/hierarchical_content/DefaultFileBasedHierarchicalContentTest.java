@@ -34,10 +34,8 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
-import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
-import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -496,7 +494,10 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
         // file info access
         assertEquals("File: " + expectedFile, expectedFile.getName(), fileNode.getName());
         assertEquals("File: " + expectedFile, expectedFile.length(), fileNode.getFileLength());
-        assertEquals("File: " + expectedFile, expectedFile.lastModified(), fileNode.getLastModified());
+        assertTrue("File: " + expectedFile,
+                fileNode.getLastModified() >= expectedFile.lastModified());
+        assertTrue("File: " + expectedFile,
+                fileNode.getLastModified() - expectedFile.lastModified() <= 1000);
 
         final String expectedFileData = expectedFile.getName() + " data";
         // check random access to file content
@@ -513,9 +514,9 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     /** creates HDF5 container file with <var>containedDir</var> content */
     private static void createHDF5Container(File containerFile, File containedDir)
     {
-        Hdf5Container container = new Hdf5Container(containerFile);
+        HDF5Container container = new HDF5Container(containerFile);
         container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(containedDir));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(containedDir));
     }
 
     private static IHierarchicalContentNode createDummyFileBasedRootNode(final File root)

@@ -20,8 +20,8 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container;
-import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class Hdf5StorageProcessor extends AbstractStorageProcessor
+public class HDF5StorageProcessor extends AbstractStorageProcessor
 {
     private static final String HDF5_CONTAINER_FILE_NAME = "container.h5";
 
@@ -48,7 +48,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
      * 
      * @param properties
      */
-    public Hdf5StorageProcessor(Properties properties)
+    public HDF5StorageProcessor(Properties properties)
     {
         super(properties);
         isDataCompressed = PropertyUtils.getBoolean(properties, COMPRESS_DATA_PROPERTY, false);
@@ -75,9 +75,9 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
                 {
                     checkParameters(incomingDataSetDirectory, rootDir);
 
-                    Hdf5Container container = getHdf5Container(rootDir);
+                    HDF5Container container = getHdf5Container(rootDir);
                     container.runWriterClient(isDataCompressed,
-                            new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(
+                            new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(
                                     incomingDataSetDirectory));
 
                     fileBeingProcessed = incomingDataSetDirectory;
@@ -88,7 +88,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
                 {
                     // Just delete the file in the store -- no need to touch the incomingDataSet
                     // because we haven't done anything to it.
-                    File storedFile = getHdf5ContainerFile(storedDirectory);
+                    File storedFile = getHDF5ContainerFile(storedDirectory);
                     storedFile.delete();
 
                     fileBeingProcessed = null;
@@ -123,19 +123,19 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
      * 
      * @return A file with HDF5 content
      */
-    public static File getHdf5ContainerFile(final File storedDataDirectory)
+    public static File getHDF5ContainerFile(final File storedDataDirectory)
     {
         return new File(storedDataDirectory, HDF5_CONTAINER_FILE_NAME);
     }
 
     /**
-     * Given a directory in the store, return an {@link Hdf5Container} object wrapping the file.
+     * Given a directory in the store, return an {@link HDF5Container} object wrapping the file.
      * 
-     * @return An Hdf5Container object.
+     * @return An HDF5Container object.
      */
-    public static Hdf5Container getHdf5Container(final File storedDataDirectory)
+    public static HDF5Container getHdf5Container(final File storedDataDirectory)
     {
-        return new Hdf5Container(getHdf5ContainerFile(storedDataDirectory));
+        return new HDF5Container(getHDF5ContainerFile(storedDataDirectory));
     }
 
 }

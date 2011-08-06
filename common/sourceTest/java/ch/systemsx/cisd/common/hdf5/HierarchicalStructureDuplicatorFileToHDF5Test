@@ -23,16 +23,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.common.hdf5.HDF5Container.IHdf5ReaderClient;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileSystemTestCase
+public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileSystemTestCase
 {
     private File containerFile;
 
-    private Hdf5Container container;
+    private HDF5Container container;
 
     @BeforeMethod
     @Override
@@ -41,7 +41,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
         super.setUp();
 
         containerFile = new File(workingDirectory, "test-container.h5");
-        container = new Hdf5Container(containerFile);
+        container = new HDF5Container(containerFile);
     }
 
     /**
@@ -53,7 +53,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFolder = getTestData("basic-file-structure");
         container.runWriterClient(false,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
         verifyDuplicate(sourceFolder);
     }
 
@@ -66,7 +66,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFolder = getTestData("basic-file-structure");
         container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
         verifyDuplicate(sourceFolder);
     }
 
@@ -78,7 +78,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFolder = getTestData("basic-file-structure/file0.txt");
         container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
         verifyDuplicate(sourceFolder);
     }
 
@@ -90,11 +90,11 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFile = getTestData("basic-file-structure/file0.txt");
         container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFile));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFile));
 
         File sourceFolder = getTestData("basic-file-structure");
         container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
 
         verifyDuplicate(sourceFolder);
     }
@@ -108,7 +108,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFolder = getTestData("file-structure-with-links");
         container.runWriterClient(false,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
     }
 
     @Test(expectedExceptions =
@@ -117,7 +117,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     {
         File sourceFolder = getTestData("does-not-exist");
         container.runWriterClient(false,
-                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
     }
 
     private File getTestData(String folderOrFile)
@@ -131,8 +131,8 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
             {
                 public void runWithSimpleReader(IHDF5ContainerReader reader)
                 {
-                    FileToHdf5DuplicationVerifier verifier =
-                            new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container, reader);
+                    FileToHDF5DuplicationVerifier verifier =
+                            new FileToHDF5DuplicationVerifier(sourceFolderOrFile, container, reader);
                     verifier.verifyDuplicate();
                 }
             });
