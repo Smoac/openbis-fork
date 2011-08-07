@@ -363,7 +363,7 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyBoolean) getInterpreterResult()).getValue() > 0;
+            return ((PyBoolean) getInterpreterResult()).getBooleanValue();
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
