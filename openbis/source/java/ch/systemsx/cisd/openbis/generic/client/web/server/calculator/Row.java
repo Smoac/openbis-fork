@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
  * 
  * @author Franz-Josef Elmer
  */
-final class Row
+public final class Row
 {
     private final Map<String, List<ColumnDefinition>> definitionsByProperties =
         new HashMap<String, List<ColumnDefinition>>();

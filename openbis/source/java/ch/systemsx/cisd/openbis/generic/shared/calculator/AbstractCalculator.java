@@ -49,7 +49,7 @@ public class AbstractCalculator
 
     public PrimitiveValue getTypedResult()
     {
-        Object value = evaluator.eval();
+        Object value = evaluator.evalLegacy2_2();
         if (value == null)
         {
             return PrimitiveValue.NULL;
@@ -88,12 +88,12 @@ public class AbstractCalculator
 
     public String evalAsString() throws EvaluatorException
     {
-        return evaluator.evalAsString();
+        return evaluator.evalAsStringLegacy2_2();
     }
 
     public Object eval() throws EvaluatorException
     {
-        return evaluator.eval();
+        return evaluator.evalLegacy2_2();
     }
 
 }

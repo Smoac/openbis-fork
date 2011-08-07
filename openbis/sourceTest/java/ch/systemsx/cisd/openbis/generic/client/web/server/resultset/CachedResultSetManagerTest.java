@@ -115,7 +115,6 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         {
             resultSetConfig.setAvailableColumns(new LinkedHashSet<IColumnDefinition<DataHolder>>(
                     cols.values()));
-            System.out.println(resultSetConfig.getAvailableColumns().size());
             if (columnFilters.isEmpty() == false)
             {
                 resultSetConfig.setFilters(GridFilters.createColumnFilter(columnFilters));

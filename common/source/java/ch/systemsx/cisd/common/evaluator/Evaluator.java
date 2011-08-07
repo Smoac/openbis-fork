@@ -1,5 +1,3 @@
-package ch.systemsx.cisd.common.evaluator;
-
 /*
  * Copyright 2009 ETH Zuerich, CISD
  *
@@ -16,17 +14,22 @@ package ch.systemsx.cisd.common.evaluator;
  * limitations under the License.
  */
 
+package ch.systemsx.cisd.common.evaluator;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.python.core.CompileMode;
+import org.python.core.CompilerFlags;
+import org.python.core.Py;
+import org.python.core.PyBoolean;
 import org.python.core.PyCode;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
-import org.python.core.PyJavaInstance;
 import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyNone;
@@ -34,7 +37,6 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
-import org.python.core.__builtin__;
 import org.python.util.PythonInterpreter;
 
 /**
@@ -45,7 +47,7 @@ import org.python.util.PythonInterpreter;
  * <ol>
  * <li>Construct an {@link Evaluator} with an appropriate expression.</li>
  * <li>Set all variables needed for evaluation via {@link #set(String, Object)}</li>
- * <li>Call one of {@link #getType()}, {@link #evalAsString()}, {@link #evalToBoolean()},
+ * <li>Call one of {@link #getType()}, {@link #evalAsString}, {@link #evalToBoolean()},
  * {@link #evalToInt()}, {@link #evalToBigInt()}, {@link #evalToDouble()}.</li>
  * <li>Repeat from step 2</li>
  * </ol>
@@ -73,7 +75,7 @@ public final class Evaluator
      */
     public enum ReturnType
     {
-        INTEGER_OR_BOOLEAN, BIGINT, DOUBLE, STRING, OTHER
+        BOOLEAN, INTEGER, BIGINT, DOUBLE, STRING, OTHER
     }
 
     /**
@@ -173,7 +175,7 @@ public final class Evaluator
             if (pyObject instanceof PyFunction == false)
             {
                 throw new PyException(new PyString("Not a function"), "'" + functionName
-                        + "' is of type " + pyObject.getType().getFullName() + ".");
+                        + "' is of type " + pyObject.getType().getName() + ".");
             }
             PyFunction func = (PyFunction) pyObject;
             PyObject[] pyArgs = new PyObject[args.length];
@@ -204,7 +206,7 @@ public final class Evaluator
         {
             return new PyString((String) javaObject);
         }
-        return new PyJavaInstance(javaObject);
+        return Py.java2py(javaObject);
     }
 
     /**
@@ -215,8 +217,8 @@ public final class Evaluator
     {
         try
         {
-            return __builtin__.compile("__result__=(" + expression + ")", "expression: "
-                    + expression, "exec");
+            return Py.compile_flags("__result__=(" + expression + ")", "expression: " + expression,
+                    CompileMode.exec, new CompilerFlags());
         } catch (PyException ex)
         {
             throw toEvaluatorException(ex, expression);
@@ -255,9 +257,12 @@ public final class Evaluator
     {
         doEval();
         final Object obj = getInterpreterResult();
-        if (obj instanceof PyInteger)
+        if (obj instanceof PyBoolean)
         {
-            return ReturnType.INTEGER_OR_BOOLEAN;
+            return ReturnType.BOOLEAN;
+        } else if (obj instanceof PyInteger)
+        {
+            return ReturnType.INTEGER;
         } else if (obj instanceof PyLong)
         {
             return ReturnType.BIGINT;
@@ -276,16 +281,19 @@ public final class Evaluator
     /**
      * Evaluates the expression of this evaluator and returns the result. Use this method if you do
      * not know what will be the result type.
+     * <p>
+     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which will only
+     * return Long, Double or String and doesn't know boolean.</i>
      * 
      * @return evaluation result which can be of Long, Double or String type. All other types are
      *         converted to String representation except {@link PyNone} that represents null value
      *         and will be converted to <code>null</code>.
      */
-    public Object eval()
+    public Object evalLegacy2_2()
     {
         doEval();
         final PyObject obj = getInterpreterResult();
-        Object result = translateToJava(obj);
+        Object result = translateToJavaLegacy(obj);
         if (result != null && result instanceof Long == false && result instanceof Double == false
                 && result instanceof String == false)
         {
@@ -294,7 +302,19 @@ public final class Evaluator
         return result;
     }
 
-    private Object translateToJava(final PyObject obj)
+    /**
+     * Evaluates the expression of this evaluator and returns the result. Use this method if you do
+     * not know what will be the result type.
+     * 
+     * @return evaluation result as translated by the Jython interpreter..
+     */
+    public Object eval()
+    {
+        doEval();
+        return translateToJava(getInterpreterResult());
+    }
+
+    private Object translateToJavaLegacy(final PyObject obj)
     {
         if (obj instanceof PyInteger)
         {
@@ -315,16 +335,18 @@ public final class Evaluator
             List<Object> list = new ArrayList<Object>();
             for (int i = 0, n = pyList.size(); i < n; i++)
             {
-                list.add(translateToJava(array[i]));
+                list.add(translateToJavaLegacy(array[i]));
             }
             return list;
-        } else if (obj instanceof PyJavaInstance)
-        {
-            return ((PyJavaInstance) obj).__tojava__(Object.class);
         } else
         {
-            return obj == null ? null : obj.toString();
+            return translateToJava(obj);
         }
+    }
+
+    private Object translateToJava(final PyObject obj)
+    {
+        return (obj == null) ? null : obj.__tojava__(Object.class);
     }
 
     private PyObject getInterpreterResult()
@@ -341,12 +363,12 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyInteger) getInterpreterResult()).getValue() > 0;
+            return ((PyBoolean) getInterpreterResult()).getValue() > 0;
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
-            throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.INTEGER_OR_BOOLEAN + ", found " + type);
+            throw new EvaluatorException("Expected a result of type " + ReturnType.INTEGER
+                    + ", found " + type);
         }
     }
 
@@ -363,8 +385,8 @@ public final class Evaluator
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
-            throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.INTEGER_OR_BOOLEAN + ", found " + type);
+            throw new EvaluatorException("Expected a result of type " + ReturnType.INTEGER
+                    + ", found " + type);
         }
     }
 
@@ -408,6 +430,21 @@ public final class Evaluator
      * Evaluates the expression of this evaluator and returns the result as a String. This method
      * can always be called.
      * <p>
+     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which first
+     * translates to Long and Double and doesn't know boolean.</i>
+     * <p>
+     * NOTE: null will be returned if expression results in {@link PyNone}
+     */
+    public String evalAsStringLegacy2_2() throws EvaluatorException
+    {
+        Object result = evalLegacy2_2();
+        return result == null ? null : result.toString();
+    }
+
+    /**
+     * Evaluates the expression of this evaluator and returns the result as a String. This method
+     * can always be called.
+     * <p>
      * NOTE: null will be returned if expression results in {@link PyNone}
      */
     public String evalAsString() throws EvaluatorException
@@ -436,13 +473,10 @@ public final class Evaluator
     {
         Exception exception = null;
         PyObject value = ex.value;
-        if (value instanceof PyJavaInstance)
+        Object object = value.__tojava__(Object.class);
+        if (object instanceof Exception)
         {
-            Object object = ((PyJavaInstance) value).__tojava__(Object.class);
-            if (object instanceof Exception)
-            {
-                exception = (Exception) object;
-            }
+            exception = (Exception) object;
         }
         String msg = extractExceptionMessage(ex);
         if (expressionOrNull != null)

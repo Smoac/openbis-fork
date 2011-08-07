@@ -25,7 +25,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
  * 
  * @author Franz-Josef Elmer
  */
-class ColumnDefinition
+public class ColumnDefinition
 {
     private final String columnID;
     private final ITableDataProvider provider;

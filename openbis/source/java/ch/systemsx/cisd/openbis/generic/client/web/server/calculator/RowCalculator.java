@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
 /**
  * @author Franz-Josef Elmer
  */
-class RowCalculator extends AbstractCalculator
+public class RowCalculator extends AbstractCalculator
 {
     private final Row row;
 

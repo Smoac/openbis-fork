@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
  * 
  * @author Piotr Buczek
  */
-class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
+public class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
 {
     /** state of lazy evaluation of the property value (analogy to graph search) */
     private enum State

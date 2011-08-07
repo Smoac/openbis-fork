@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author Franz-Josef Elmer
  */
-class ColumnGroup
+public class ColumnGroup
 {
     private final String propertyValue;
     private final List<Object> values;

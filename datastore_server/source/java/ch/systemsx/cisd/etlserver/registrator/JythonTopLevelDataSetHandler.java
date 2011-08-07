@@ -101,7 +101,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
-    protected void handleDataSet(File dataSetFile, DataSetRegistrationService<T> genericService)
+    public void handleDataSet(File dataSetFile, DataSetRegistrationService<T> genericService)
             throws Throwable
     {
         // Load the script
@@ -221,7 +221,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         try
         {
-            PyFunction function = (PyFunction) interpreter.get(functionName, PyFunction.class);
+            PyFunction function = interpreter.get(functionName, PyFunction.class);
             return function;
         } catch (Exception e)
         {
@@ -317,7 +317,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    protected static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
+    public static class JythonDataSetRegistrationService<T extends DataSetInformation> extends
             DataSetRegistrationService<T>
     {
         private final PythonInterpreter interpreter;

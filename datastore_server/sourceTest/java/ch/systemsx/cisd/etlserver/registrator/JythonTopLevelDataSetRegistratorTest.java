@@ -1150,7 +1150,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackServiceFunctionRun =
-                    (Boolean) interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
+                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
         }
 
         @Override
@@ -1165,7 +1165,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackDataSetRegistrationFunctionRun =
-                    (Boolean) interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
+                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
         }
 
         @Override
@@ -1182,7 +1182,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didRollbackTransactionFunctionRunHappen =
-                    (Boolean) interpreter.get("didTransactionRollbackHappen", Boolean.class);
+                    interpreter.get("didTransactionRollbackHappen", Boolean.class);
         }
 
         @Override
@@ -1196,7 +1196,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     ((JythonDataSetRegistrationService<DataSetInformation>) service)
                             .getInterpreter();
             didCommitTransactionFunctionRunHappen =
-                    (Boolean) interpreter.get("didTransactionCommitHappen", Boolean.class);
+                    interpreter.get("didTransactionCommitHappen", Boolean.class);
         }
 
         @Override

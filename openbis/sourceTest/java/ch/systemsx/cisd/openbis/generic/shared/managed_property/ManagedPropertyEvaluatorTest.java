@@ -71,8 +71,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
-            assertEquals("SyntaxError: ('invalid syntax', ('<string>', 1, 4, 'a ='))",
-                    ex.getMessage());
+            assertEquals("SyntaxError: (\"no viable alternative at input '='\", "
+                    + "('<string>', 1, 2, 'a =\\n'))", ex.getMessage());
         }
     }
 
@@ -306,7 +306,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         } catch (EvaluatorException ex)
         {
             assertEquals("Function 'batchColumnNames' doesn't return a List "
-                    + "but an object of type 'java.lang.Long': 42", ex.getMessage());
+                    + "but an object of type 'java.lang.Integer': 42", ex.getMessage());
         }
     }
 

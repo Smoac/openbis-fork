@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
  * 
  * @author Piotr Buczek
  */
-final class DynamicPropertyFunctions
+public final class DynamicPropertyFunctions
 {
     /**
      * @return String representation of material identifier for given material code and material

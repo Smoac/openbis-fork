@@ -39,6 +39,7 @@ public class CustomColumnUtilsTest extends AssertJUnit
     private static final class MockDataProvider implements ITableDataProvider
     {
         private final String expectedColumnID;
+
         private final List<List<? extends Comparable<?>>> rows;
 
         MockDataProvider(String expectedColumnID, List<? extends Comparable<?>>... rows)
@@ -74,7 +75,7 @@ public class CustomColumnUtilsTest extends AssertJUnit
             return null;
         }
     }
-    
+
     GridCustomColumn customColumn;
 
     List<GridCustomColumn> customColumns;
@@ -105,9 +106,10 @@ public class CustomColumnUtilsTest extends AssertJUnit
     public void testCorrectExpression()
     {
         customColumn.setExpression("row.col('VALUE') + 10");
-        
-        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
-        
+
+        List<PrimitiveValue> values =
+                GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
+
         assertEquals("[52]", values.toString());
 
     }
@@ -120,9 +122,12 @@ public class CustomColumnUtilsTest extends AssertJUnit
         // incorrect expression
         customColumn.setExpression("junk + 10");
 
-        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
-        
-        assertEquals("[Error. Please contact 'Jane Doe <jane.doe@nowhere.com>', who defined this column.]", values.toString());
+        List<PrimitiveValue> values =
+                GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
+
+        assertEquals(
+                "[Error. Please contact 'Jane Doe <jane.doe@nowhere.com>', who defined this column.]",
+                values.toString());
     }
 
     @Test
@@ -131,10 +136,12 @@ public class CustomColumnUtilsTest extends AssertJUnit
         // incorrect expression
         customColumn.setExpression("junk + 10");
 
-        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, true);
+        List<PrimitiveValue> values =
+                GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, true);
 
-        assertEquals("[Error: (Error evaluating 'junk + 10': NameError: junk).]", values.toString());
+        assertEquals(
+                "[Error: (Error evaluating 'junk + 10': NameError: name 'junk' is not defined).]",
+                values.toString());
     }
-
 
 }

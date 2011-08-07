@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
  * 
  * @author Piotr Buczek
  */
-class XmlPropertyAdaptor extends BasicPropertyAdaptor
+public class XmlPropertyAdaptor extends BasicPropertyAdaptor
 {
     private final String xsltTransformation;
 

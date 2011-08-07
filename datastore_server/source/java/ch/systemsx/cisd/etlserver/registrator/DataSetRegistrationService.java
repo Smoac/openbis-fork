@@ -298,7 +298,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return encounteredErrors;
     }
 
-    protected IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
+    public IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
     {
         return dataSetRegistrationDetailsFactory;
     }

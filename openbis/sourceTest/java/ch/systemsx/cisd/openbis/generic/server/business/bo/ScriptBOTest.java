@@ -53,10 +53,13 @@ public final class ScriptBOTest extends AbstractBOTest
             {
                         {
                                 ScriptType.DYNAMIC_PROPERTY,
-                                "Error evaluating '1+': SyntaxError: ('invalid syntax', "
-                                        + "('expression: 1+', 1, 15, '__result__=(1+)'))" },
-                        { ScriptType.MANAGED_PROPERTY,
-                                "SyntaxError: ('invalid syntax', ('<string>', 1, 3, '1+'))" }
+                                "Error evaluating '1+': SyntaxError: "
+                                        + "(\"no viable alternative at input ')'\", "
+                                        + "('expression: 1+', 1, 14, '__result__=(1+)\\n'))" },
+                        {
+                                ScriptType.MANAGED_PROPERTY,
+                                "SyntaxError: (\"no viable alternative at input '\\\\n\\\\n'\", "
+                                        + "('<string>', 1, 2, '1+\\n'))" }
 
             };
     }
@@ -126,7 +129,8 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test(dataProvider = "scriptTypes")
-    public final void testDefineAndSaveScriptCompilationFail(ScriptType scriptType, String expectedErrorMessage)
+    public final void testDefineAndSaveScriptCompilationFail(ScriptType scriptType,
+            String expectedErrorMessage)
     {
         final ScriptBO scriptBO = createScriptBO();
         final DatabaseInstancePE instance = createDatabaseInstance();
@@ -239,7 +243,8 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test(dataProvider = "scriptTypes")
-    public void testUpdateScriptNotChanged(ScriptType scriptType, String expectedErrorMessage) throws Exception
+    public void testUpdateScriptNotChanged(ScriptType scriptType, String expectedErrorMessage)
+            throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
 
@@ -282,7 +287,8 @@ public final class ScriptBOTest extends AbstractBOTest
 
     @SuppressWarnings("deprecation")
     @Test(dataProvider = "scriptTypes")
-    public void testUpdateScriptChanged(final ScriptType scriptType, String expectedErrorMessage) throws Exception
+    public void testUpdateScriptChanged(final ScriptType scriptType, String expectedErrorMessage)
+            throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
 

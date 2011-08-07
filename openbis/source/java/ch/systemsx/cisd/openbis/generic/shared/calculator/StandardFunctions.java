@@ -41,7 +41,7 @@ import ch.systemsx.cisd.common.utilities.ExceptionUtils;
  * 
  * @author Franz-Josef Elmer
  */
-final class StandardFunctions
+public final class StandardFunctions
 {
     static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
 

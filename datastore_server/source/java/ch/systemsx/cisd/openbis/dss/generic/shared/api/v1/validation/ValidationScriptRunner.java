@@ -146,7 +146,7 @@ public class ValidationScriptRunner
     {
         try
         {
-            PyFunction function = (PyFunction) interpreter.get(functionName, PyFunction.class);
+            PyFunction function = interpreter.get(functionName, PyFunction.class);
             return function;
         } catch (Exception e)
         {
