@@ -103,7 +103,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -1955,14 +1954,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.loadByTechId(authorizationGroupId);
         bo.removePersons(personsCodes);
         bo.save();
-    }
-
-    public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
-            Long lastSeenDeletionEventIdOrNull, Date maxDeletionDataOrNull)
-    {
-        checkSession(sessionToken);
-        return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull,
-                maxDeletionDataOrNull);
     }
 
     // --- grid custom filters and columns
