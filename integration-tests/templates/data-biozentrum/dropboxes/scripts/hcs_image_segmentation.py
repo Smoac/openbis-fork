@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # This is a dropbox for importing HCS segmentation image datasets
 
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import OriginalDataStorageFormat
 import commonImageDropbox
 import commonDropbox
 
