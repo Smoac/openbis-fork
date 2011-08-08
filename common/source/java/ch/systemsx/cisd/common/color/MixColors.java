@@ -63,7 +63,7 @@ public class MixColors
         for (int i = 0; i < weights.length; ++i)
         {
             hue += weights[i] * colors[i].getHue();
-            brightness = Math.max(brightness, colors[i].getBrightness());
+            brightness = Math.max(brightness, intensities[i] * colors[i].getBrightness());
         }
 
         return new PureHSBColor(hue, brightness);
