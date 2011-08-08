@@ -39,6 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class TrashBO extends AbstractBusinessObject implements ITrashBO
 {
+    private enum CascadeSampleDependentComponents
+    {
+        TRUE, FALSE
+    }
+
     private DeletionPE deletion;
 
     public TrashBO(IDAOFactory daoFactory, Session session)
@@ -63,6 +68,13 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashSamples(final List<TechId> sampleIds)
     {
         assert deletion != null;
+        trashSamples(sampleIds, CascadeSampleDependentComponents.TRUE);
+    }
+
+    void trashSamples(final List<TechId> sampleIds,
+            final CascadeSampleDependentComponents cascadeType)
+    {
+        assert deletion != null;
 
         TrashBatchOperation batchOperation =
                 new TrashBatchOperation(EntityKind.SAMPLE, sampleIds, deletion, getDeletionDAO());
@@ -70,7 +82,11 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
         if (batchOperation.counter > 0)
         {
-            trashSampleDependentChildrenAndComponents(sampleIds);
+            trashSampleDependentChildren(sampleIds);
+            if (cascadeType == CascadeSampleDependentComponents.TRUE)
+            {
+                trashSampleDependentComponents(sampleIds);
+            }
             trashSampleDependentDataSets(sampleIds);
         }
     }
@@ -101,7 +117,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         // NOTE: data set children are not cascade trashed - a conscious decision made by Tomek
     }
 
-    private void trashSampleDependentChildrenAndComponents(List<TechId> sampleIds)
+    private void trashSampleDependentChildren(List<TechId> sampleIds)
     {
         final ISampleDAO sampleDAO = getSampleDAO();
 
@@ -117,8 +133,13 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
         trashSamples(batchOperation.getResults());
+    }
+    
+    private void trashSampleDependentComponents(List<TechId> sampleIds)
+    {
+        final ISampleDAO sampleDAO = getSampleDAO();
 
-        batchOperation =
+        AbstractQueryBatchOperation batchOperation =
                 new AbstractQueryBatchOperation(EntityKind.SAMPLE, sampleIds,
                         "listSampleIdsByContainerIds")
                     {
@@ -129,7 +150,9 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashSamples(batchOperation.getResults());
+        // We have a business rule that there is just 1 level of components and using this here
+        // improves performance.
+        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.FALSE);
     }
 
     private void trashSampleDependentDataSets(List<TechId> sampleIds)
