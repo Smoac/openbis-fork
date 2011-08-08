@@ -116,8 +116,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         String query =
-                String.format("UPDATE VERSIONED %s SET deletion = NULL WHERE deletion = ?",
-                        entityKind.getDeletedEntityClass().getSimpleName());
+                String.format("UPDATE %s SET deletion = NULL WHERE deletion = ?", entityKind
+                        .getDeletedEntityClass().getSimpleName());
         int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
         hibernateTemplate.flush();
         hibernateTemplate.clear();
