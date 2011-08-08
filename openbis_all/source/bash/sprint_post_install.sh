@@ -155,7 +155,7 @@ case "$SERVER" in
 	create_individual_greeting_message
 	;;
 	*)
-	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
-	exit 1;
+	restore_config_files
+  create_individual_greeting_message
 	;;
 esac
