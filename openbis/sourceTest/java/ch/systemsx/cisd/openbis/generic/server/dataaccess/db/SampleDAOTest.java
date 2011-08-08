@@ -287,24 +287,24 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithParentAndExperimentPreserved()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE deletedSample = findSample("3VCP5", "CISD");
+        final SamplePE sampleToDelete = findSample("3VCP5", "CISD");
 
         // Deleted sample should have all collections which prevent it from deletion empty.
-        assertTrue(deletedSample.getAttachments().isEmpty());
-        assertTrue(deletedSample.getDatasets().isEmpty());
-        assertTrue(deletedSample.getGenerated().isEmpty());
-        assertTrue(deletedSample.getContained().isEmpty());
+        assertTrue(sampleToDelete.getAttachments().isEmpty());
+        assertTrue(sampleToDelete.getDatasets().isEmpty());
+        assertTrue(sampleToDelete.getGenerated().isEmpty());
+        assertTrue(sampleToDelete.getContained().isEmpty());
 
-        SamplePE generatedFrom = deletedSample.getGeneratedFrom();
+        SamplePE generatedFrom = sampleToDelete.getGeneratedFrom();
         assertNotNull(generatedFrom);
-        ExperimentPE experiment = deletedSample.getExperiment();
+        ExperimentPE experiment = sampleToDelete.getExperiment();
         assertNotNull(experiment);
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
 
         // test successful deletion of sample
-        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
 
         // deleted sample had objects connected that should not be deleted:
         // - a parent
@@ -343,29 +343,29 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithProperties()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE deletedSample = findSample("EMPTY-MP", "CISD");
+        final SamplePE sampleToDelete = findSample("EMPTY-MP", "CISD");
 
         // Deleted sample should have all collections which prevent it from deletion empty.
-        assertTrue(deletedSample.getAttachments().isEmpty());
-        assertTrue(deletedSample.getDatasets().isEmpty());
-        assertTrue(deletedSample.getGenerated().isEmpty());
-        assertTrue(deletedSample.getContained().isEmpty());
-        assertFalse(deletedSample.getProperties().isEmpty());
+        assertTrue(sampleToDelete.getAttachments().isEmpty());
+        assertTrue(sampleToDelete.getDatasets().isEmpty());
+        assertTrue(sampleToDelete.getGenerated().isEmpty());
+        assertTrue(sampleToDelete.getContained().isEmpty());
+        assertFalse(sampleToDelete.getProperties().isEmpty());
 
         // Remember how many rows are in the properties table before we delete
         int beforeDeletionPropertiesRowCount = countRowsInTable(TableNames.SAMPLE_PROPERTIES_TABLE);
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
 
         // test successful deletion of sample
-        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
 
         // test successful deletion of sample properties
         int afterDeletionPropertiesRowCount = countRowsInTable(TableNames.SAMPLE_PROPERTIES_TABLE);
 
         assertEquals(afterDeletionPropertiesRowCount, beforeDeletionPropertiesRowCount
-                - deletedSample.getProperties().size());
+                - sampleToDelete.getProperties().size());
     }
 
     private static final String ATT_CONTENTS_TABLE = "attachment_contents";
@@ -374,23 +374,23 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testDeleteWithAttachments()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE deletedSample = findSample("3VCP6", "CISD");
+        final SamplePE sampleToDelete = findSample("3VCP6", "CISD");
 
         // Deleted sample should have attachments which should be deleted as well as the sample.
-        assertFalse(deletedSample.getAttachments().isEmpty());
-        List<TechId> attachmentIds = TechId.createList(deletedSample.getAttachments());
+        assertFalse(sampleToDelete.getAttachments().isEmpty());
+        List<TechId> attachmentIds = TechId.createList(sampleToDelete.getAttachments());
         // Other connections which would prevent sample deletion should be empty in this test.
-        assertTrue(deletedSample.getDatasets().isEmpty());
-        assertTrue(deletedSample.getGenerated().isEmpty());
-        assertTrue(deletedSample.getContained().isEmpty());
+        assertTrue(sampleToDelete.getDatasets().isEmpty());
+        assertTrue(sampleToDelete.getGenerated().isEmpty());
+        assertTrue(sampleToDelete.getContained().isEmpty());
 
         int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
 
         // test successful deletion of sample
-        assertNull(sampleDAO.tryGetByTechId(TechId.create(deletedSample)));
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
 
         // test successful deletion of attachments & their contents
         for (TechId attachmentId : attachmentIds)
@@ -404,50 +404,50 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithDatasets()
     {
-        final SamplePE deletedSample = findSample("CP-TEST-1", "CISD");
+        final SamplePE sampleToDelete = findSample("CP-TEST-1", "CISD");
 
         // Deleted sample should have data sets which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
-        assertTrue(deletedSample.getAttachments().isEmpty());
-        assertFalse(deletedSample.getDatasets().isEmpty());
-        assertTrue(deletedSample.getGenerated().isEmpty());
-        assertTrue(deletedSample.getContained().isEmpty());
+        assertTrue(sampleToDelete.getAttachments().isEmpty());
+        assertFalse(sampleToDelete.getDatasets().isEmpty());
+        assertTrue(sampleToDelete.getGenerated().isEmpty());
+        assertTrue(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
     }
 
-    @Test(groups = "broken-deletion")
-    // FIXME LMS-2440
+    @Test(expectedExceptions = DataIntegrityViolationException.class, groups = "broken")
+    // FIXME we expect permanent deletion of parent to fail if it has children
     public final void testDeleteWithGeneratedSamples()
     {
-        final SamplePE deletedSample = findSample("3VCP2", "CISD");
+        final SamplePE sampleToDelete = findSample("3V-125", "CISD");
 
         // Deleted sample should have 'generated' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
-        assertTrue(deletedSample.getAttachments().isEmpty());
-        assertTrue(deletedSample.getDatasets().isEmpty());
-        assertFalse(deletedSample.getGenerated().isEmpty());
-        assertTrue(deletedSample.getContained().isEmpty());
+        assertTrue(sampleToDelete.getAttachments().isEmpty());
+        assertTrue(sampleToDelete.getDatasets().isEmpty());
+        assertFalse(sampleToDelete.getGenerated().isEmpty());
+        assertTrue(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFailWithContainedSamples()
     {
-        final SamplePE deletedSample = findSample("C1", "CISD");
+        final SamplePE sampleToDelete = findSample("C1", "CISD");
 
         // Deleted sample should have 'contained' samples which prevent it from deletion.
         // Other connections which also prevent sample deletion should be empty in this test.
-        assertTrue(deletedSample.getAttachments().isEmpty());
-        assertTrue(deletedSample.getDatasets().isEmpty());
-        assertTrue(deletedSample.getGenerated().isEmpty());
-        assertFalse(deletedSample.getContained().isEmpty());
+        assertTrue(sampleToDelete.getAttachments().isEmpty());
+        assertTrue(sampleToDelete.getDatasets().isEmpty());
+        assertTrue(sampleToDelete.getGenerated().isEmpty());
+        assertFalse(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(deletedSample);
+        deleteSample(sampleToDelete);
     }
 
     private SpacePE findSpace(String spaceCode)
