@@ -36,6 +36,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -301,7 +303,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNotNull(experiment);
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
@@ -314,23 +316,54 @@ public final class SampleDAOTest extends AbstractDAOTest
                 new TechId(HibernateUtils.getId(experiment))));
     }
 
-    private void deleteSample(SamplePE sample)
+    public final void testDeleteMultipleSamples()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        final SamplePE sample1 = findSample("3VCP5", "CISD");
+        final SamplePE sample2 = findSample("EMPTY-MP", "CISD");
+
+        // delete
+        deleteSamples(new SamplePE[]
+            { sample1, sample2 });
+
+        // test successful deletion of sample
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(sample1)));
+        assertNull(sampleDAO.tryGetByTechId(TechId.create(sample2)));
+    }
+
+    private void deleteSamples(SamplePE... samples)
     {
         // before deletion there shouldn't be any entry about deletion of the sample in event table
-        assertNull(tryGetDeletionEvent(sample));
+        for (SamplePE sample : samples)
+        {
+            assertNull(tryGetDeletionEvent(sample));
+        }
 
-        List<TechId> sampleIds = new ArrayList<TechId>();
-        sampleIds.add(TechId.create(sample));
         final PersonPE registrator = getSystemPerson();
-        final String reason = "reason" + sample.getPermId();
+        List<TechId> sampleIds = new ArrayList<TechId>();
+        List<String> identifiers = new ArrayList<String>();
+
+        for (SamplePE sample : samples)
+        {
+            identifiers.add(sample.getPermId());
+            sampleIds.add(TechId.create(sample));
+        }
+
+        String commaSeparatedIdentifiers =
+                CollectionUtils.abbreviate(identifiers, -1, CollectionStyle.NO_BOUNDARY);
+        final String reason = "reason " + commaSeparatedIdentifiers;
 
         daoFactory.getSampleDAO().delete(sampleIds, registrator, reason);
 
         // after deletion there should be an entry about deletion of the sample in event table
-        final EventPE event = tryGetDeletionEvent(sample);
-        assertNotNull(event);
-        assertEquals(reason, event.getReason());
-        assertEquals(registrator, event.getRegistrator());
+        for (SamplePE sample : samples)
+        {
+            final EventPE event = tryGetDeletionEvent(sample);
+            assertNotNull(event);
+            assertEquals(reason, event.getReason());
+            assertEquals(commaSeparatedIdentifiers, event.getIdentifiers());
+            assertEquals(registrator, event.getRegistrator());
+        }
     }
 
     private EventPE tryGetDeletionEvent(SamplePE sample)
@@ -356,7 +389,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         int beforeDeletionPropertiesRowCount = countRowsInTable(TableNames.SAMPLE_PROPERTIES_TABLE);
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
@@ -387,7 +420,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         int rowsInAttachmentContents = countRowsInTable(ATT_CONTENTS_TABLE);
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(sampleToDelete)));
@@ -414,7 +447,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class, groups = "broken")
@@ -431,7 +464,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertTrue(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)
@@ -447,7 +480,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertFalse(sampleToDelete.getContained().isEmpty());
 
         // delete
-        deleteSample(sampleToDelete);
+        deleteSamples(sampleToDelete);
     }
 
     private SpacePE findSpace(String spaceCode)
