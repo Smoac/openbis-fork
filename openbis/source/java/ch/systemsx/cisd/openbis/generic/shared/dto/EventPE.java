@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -35,6 +38,8 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -50,6 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 @Friend(toClasses = DataPE.class)
 public class EventPE extends HibernateAbstractRegistrationHolder implements IIdHolder, Serializable
 {
+
+    public static final String IDENTIFIER_SEPARATOR = ", ";
+
     private static final long serialVersionUID = IServer.VERSION;
 
     public enum EntityType
@@ -64,7 +72,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     private EntityType entityType;
 
-    private String identifiers;
+    private List<String> identifiers;
 
     private String description;
 
@@ -109,16 +117,29 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.entityType = entityType;
     }
 
+    @SuppressWarnings("unused")
     @NotNull(message = ValidationMessages.IDENTIFIER_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.IDENTIFIERS)
-    public String getIdentifiers()
+    private String getIdentifiersInternal()
+    {
+        return CollectionUtils.abbreviate(identifiers, -1, CollectionStyle.NO_BOUNDARY);
+    }
+
+    @SuppressWarnings("unused")
+    private void setIdentifiersInternal(String identifier)
+    {
+        this.identifiers = Arrays.asList(identifier.split(IDENTIFIER_SEPARATOR));
+    }
+
+    @Transient
+    public List<String> getIdentifiers()
     {
         return identifiers;
     }
 
-    public void setIdentifiers(String identifier)
+    public void setIdentifiers(List<String> identifiers)
     {
-        this.identifiers = identifier;
+        this.identifiers = identifiers;
     }
 
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)

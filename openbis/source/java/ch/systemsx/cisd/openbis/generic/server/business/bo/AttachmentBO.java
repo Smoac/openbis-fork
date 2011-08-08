@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -71,7 +72,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         final String identifier = createDeletionIdentifier(holder, fileName);
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.ATTACHMENT);
-        event.setIdentifiers(identifier);
+        event.setIdentifiers(Collections.singletonList(identifier));
         event.setDescription(identifier);
         event.setReason(reason);
         event.setRegistrator(registrator);

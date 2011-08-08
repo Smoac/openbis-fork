@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Collections;
+
 import javax.xml.validation.Schema;
 
 import org.springframework.dao.DataAccessException;
@@ -37,13 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
@@ -231,7 +233,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.PROPERTY_TYPE);
-        event.setIdentifiers(propertyTypePE.getCode());
+        event.setIdentifiers(Collections.singletonList(propertyTypePE.getCode()));
         event.setDescription(getDeletionDescription(propertyTypePE));
         event.setReason(reason);
         event.setRegistrator(registrator);

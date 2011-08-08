@@ -386,7 +386,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.VOCABULARY);
-        event.setIdentifiers(vocabularyPE.getCode());
+        event.setIdentifiers(Collections.singletonList(vocabularyPE.getCode()));
         event.setDescription(getDeletionDescription(vocabularyPE));
         event.setReason(reason);
         event.setRegistrator(registrator);

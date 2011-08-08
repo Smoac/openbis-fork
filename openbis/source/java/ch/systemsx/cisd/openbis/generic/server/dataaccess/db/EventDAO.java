@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
@@ -66,7 +68,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         assert eventType != null : "Unspecified eventType.";
 
         final Criteria criteria = getSession().createCriteria(EventPE.class);
-        criteria.add(Restrictions.like("identifiers", identifier, MatchMode.ANYWHERE));
+        criteria.add(Restrictions.like("identifiersInternal", identifier, MatchMode.ANYWHERE));
         criteria.add(Restrictions.eq("entityType", entityType));
         criteria.add(Restrictions.eq("eventType", eventType));
         final EventPE result = tryGetEntity(criteria.uniqueResult());
@@ -102,11 +104,29 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
                     "%s(%s): %d data set deletion events(s) have been found.", MethodUtils
                             .getCurrentMethod().getName(), lastDesc, list.size()));
         }
+
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
-            result.add(new DeletedDataSet(event.getIdentifiers(), event.getDescription(), event
-                    .getId()));
+            List<String> identifiers = event.getIdentifiers();
+            List<String> locations =
+                    Arrays.asList(event.getDescription().split(EventPE.IDENTIFIER_SEPARATOR));
+            if (identifiers.size() != locations.size())
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Number of deleted dataset codes %s does not match "
+                                + "the number of deleted data set locations %s in eventId='%s'",
+                                identifiers.size(), locations.size(), event.getId());
+            }
+            int pos = 0;
+            for (pos = 0; pos < identifiers.size(); pos++)
+            {
+                String dataSetCode = identifiers.get(pos);
+                String dataSetLocation = locations.get(pos);
+                DeletedDataSet deletedDataSet =
+                        new DeletedDataSet(dataSetCode, dataSetLocation, event.getId());
+                result.add(deletedDataSet);
+            }
         }
         return result;
     }

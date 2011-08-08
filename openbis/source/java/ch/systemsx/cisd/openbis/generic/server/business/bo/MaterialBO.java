@@ -142,7 +142,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.MATERIAL);
-        event.setIdentifiers(material.getCode());
+        event.setIdentifiers(Collections.singletonList(material.getCode()));
         event.setDescription(material.getPermId());
         event.setReason(reason);
         event.setRegistrator(registrator);

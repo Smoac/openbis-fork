@@ -361,7 +361,10 @@ public final class SampleDAOTest extends AbstractDAOTest
             final EventPE event = tryGetDeletionEvent(sample);
             assertNotNull(event);
             assertEquals(reason, event.getReason());
-            assertEquals(commaSeparatedIdentifiers, event.getIdentifiers());
+            String persistedIdentifiers =
+                    CollectionUtils.abbreviate(event.getIdentifiers(), -1,
+                            CollectionStyle.NO_BOUNDARY);
+            assertEquals(commaSeparatedIdentifiers, persistedIdentifiers);
             assertEquals(registrator, event.getRegistrator());
         }
     }

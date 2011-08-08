@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -271,7 +272,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.EXPERIMENT);
-        event.setIdentifiers(experiment.getPermId());
+        event.setIdentifiers(Collections.singletonList(experiment.getPermId()));
         event.setDescription(getDeletionDescription(experiment));
         event.setReason(reason);
         event.setRegistrator(registrator);

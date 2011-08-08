@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -31,10 +32,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 
 /**
  * {@link IAuthorizationGroupBO} implementation.
@@ -147,7 +148,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.AUTHORIZATION_GROUP);
-        event.setIdentifiers(groupCode);
+        event.setIdentifiers(Collections.singletonList(groupCode));
         event.setDescription(groupCode);
         event.setReason(reason);
         event.setRegistrator(registrator);
