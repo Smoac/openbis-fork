@@ -2,7 +2,8 @@
 # This is an example Jython dropbox for importing HCS image datasets
  
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import *
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata
      
 class MyImageDataSetConfig(SimpleImageDataConfig):
     def extractImageMetadata(self, imagePath):
