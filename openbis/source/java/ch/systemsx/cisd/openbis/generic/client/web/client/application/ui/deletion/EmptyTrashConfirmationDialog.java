@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deleti
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
@@ -35,15 +37,15 @@ public final class EmptyTrashConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
+    private final AsyncCallback<Void> callback;
 
     public EmptyTrashConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractAsyncCallback<Void> callback)
+            AsyncCallback<Void> callback)
     {
         super(viewContext, Collections.<Deletion> emptyList(), viewContext
                 .getMessage(Dict.EMPTY_TRASH_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.callback = callback;
+        this.callback = AsyncCallbackWithProgressBar.decorate(callback, "Emptying trash...");
     }
 
     @Override

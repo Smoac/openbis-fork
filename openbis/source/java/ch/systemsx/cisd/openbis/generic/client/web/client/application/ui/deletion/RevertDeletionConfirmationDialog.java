@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deleti
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
@@ -40,12 +42,12 @@ public final class RevertDeletionConfirmationDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final AbstractAsyncCallback<Void> callback;
+    private final AsyncCallback<Void> callback;
 
     private final IEntityWithDeletionInformation deletedEntityOrNull;
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<Deletion> deletions, AbstractAsyncCallback<Void> callback)
+            List<Deletion> deletions, AsyncCallback<Void> callback)
     {
         super(viewContext, deletions, viewContext
                 .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
@@ -55,18 +57,18 @@ public final class RevertDeletionConfirmationDialog extends
     }
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            Deletion deletion, AbstractAsyncCallback<Void> callback)
+            Deletion deletion, AsyncCallback<Void> callback)
     {
         this(viewContext, Collections.singletonList(deletion), callback);
     }
 
     public RevertDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            IEntityWithDeletionInformation deletedEntity, AbstractAsyncCallback<Void> callback)
+            IEntityWithDeletionInformation deletedEntity, AsyncCallback<Void> callback)
     {
         super(viewContext, Collections.singletonList(deletedEntity.getDeletion()), viewContext
                 .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.callback = callback;
+        this.callback = AsyncCallbackWithProgressBar.decorate(callback, "Reverting deletion(s)...");
         this.deletedEntityOrNull = deletedEntity;
     }
 
