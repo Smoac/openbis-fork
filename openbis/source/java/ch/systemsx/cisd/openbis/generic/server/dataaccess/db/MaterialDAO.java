@@ -167,6 +167,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     public void delete(final List<TechId> materialIds, final PersonPE registrator,
             final String reason) throws DataAccessException
     {
+        // TODO KE: speed up material bulk deletion
         final String sqlCodeAndType =
                 String.format("SELECT m.code, mt.code as typeCode "
                         + " FROM %s as m, %s as mt WHERE m.id = :mId AND m.maty_id = mt.id",
@@ -177,7 +178,7 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                 "DELETE FROM " + TableNames.MATERIALS_TABLE + " WHERE id = :mId";
         final String sqlInsertEvent =
                 String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
                                 + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 

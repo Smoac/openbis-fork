@@ -246,6 +246,8 @@ public final class ColumnNames
 
     public static final String IDENTIFIER = "identifier";
 
+    public static final String IDENTIFIERS = "identifiers";
+
     public static final String MATERIAL_PROP_COLUMN = "mate_prop_id";
 
     public static final String PROPERTY_MATERIAL_TYPE_COLUMN = "maty_prop_id";

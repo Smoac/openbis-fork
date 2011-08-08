@@ -383,21 +383,23 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         // NOTE: we use SAMPLES_ALL_TABLE, not DELETED_SAMPLES_VIEW because we still want to be
         // able to directly delete samples without going to trash (trash may be disabled)
         final String samplesTable = TableNames.SAMPLES_ALL_TABLE;
-        final String sqlPermId = "SELECT perm_id FROM " + samplesTable + " WHERE id = :entityId";
+        final String sqlPermId =
+                "SELECT perm_id FROM " + samplesTable + " WHERE id IN (:entityIds)";
         final String sqlDeleteProperties =
-                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE + " WHERE samp_id = :entityId";
+                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE
+                        + " WHERE samp_id IN (:entityIds)";
         final String sqlAttachmentContentIds =
                 "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
-                        + " WHERE samp_id = :entityId";
+                        + " WHERE samp_id IN (:entityIds)";
         final String sqlDeleteAttachmentContents =
                 "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
         final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :entityId";
-        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id = :entityId";
+                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id IN (:entityIds)";
+        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id IN (:entityIds)";
         final String sqlInsertEvent =
                 String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
         executeDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlPermId,

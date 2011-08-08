@@ -169,7 +169,7 @@ public class EventDAOTest extends AbstractDAOTest
         assertCorrectResult(2, result);
     }
 
-    private void saveEvent(EventType eventType, EntityType entityType, String identifier,
+    private void saveEvent(EventType eventType, EntityType entityType, String identifiers,
             long eventId, Date date)
     {
         String description = eventType.name() + " " + entityType.name();
@@ -177,9 +177,9 @@ public class EventDAOTest extends AbstractDAOTest
         Long personId = HibernateUtils.getId(person);
         simpleJdbcTemplate
                 .update("insert into events "
-                        + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifier, entity_type) "
+                        + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifiers, entity_type) "
                         + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(), description,
-                        description, personId, date, identifier, entityType.name());
+                        description, personId, date, identifiers, entityType.name());
     }
 
     private void saveEvent(EventType eventType, EntityType entityType, String identifier,

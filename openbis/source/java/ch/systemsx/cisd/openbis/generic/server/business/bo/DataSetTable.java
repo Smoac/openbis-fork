@@ -303,7 +303,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.DATASET);
-        event.setIdentifier(dataSet.getCode());
+        event.setIdentifiers(dataSet.getCode());
         event.setDescription(getDeletionDescription(dataSet));
         event.setReason(reason);
         event.setRegistrator(registrator);

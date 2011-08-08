@@ -145,7 +145,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.SPACE);
-        event.setIdentifier(group.getCode());
+        event.setIdentifiers(group.getCode());
         event.setDescription(getDeletionDescription(group));
         event.setReason(reason);
         event.setRegistrator(registrator);

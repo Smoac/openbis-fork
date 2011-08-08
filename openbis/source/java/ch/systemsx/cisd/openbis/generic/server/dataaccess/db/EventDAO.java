@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
 
@@ -65,7 +66,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         assert eventType != null : "Unspecified eventType.";
 
         final Criteria criteria = getSession().createCriteria(EventPE.class);
-        criteria.add(Restrictions.eq("identifier", identifier));
+        criteria.add(Restrictions.like("identifiers", identifier, MatchMode.ANYWHERE));
         criteria.add(Restrictions.eq("entityType", entityType));
         criteria.add(Restrictions.eq("eventType", eventType));
         final EventPE result = tryGetEntity(criteria.uniqueResult());
@@ -104,7 +105,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
-            result.add(new DeletedDataSet(event.getIdentifier(), event.getDescription(), event
+            result.add(new DeletedDataSet(event.getIdentifiers(), event.getDescription(), event
                     .getId()));
         }
         return result;

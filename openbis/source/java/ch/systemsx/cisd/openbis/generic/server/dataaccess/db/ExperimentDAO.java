@@ -312,22 +312,23 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         // be able to directly delete samples without going to trash (trash may be disabled)
         final String experimentsTable = TableNames.EXPERIMENTS_ALL_TABLE;
         final String sqlPermId =
-                "SELECT perm_id FROM " + experimentsTable + " WHERE id = :entityId";
+                "SELECT perm_id FROM " + experimentsTable + " WHERE id IN (:entityIds)";
         final String sqlDeleteProperties =
                 "DELETE FROM " + TableNames.EXPERIMENT_PROPERTIES_TABLE
-                        + " WHERE expe_id = :entityId";
+                        + " WHERE expe_id IN (:entityIds)";
         final String sqlAttachmentContentIds =
                 "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
-                        + " WHERE expe_id = :entityId";
+                        + " WHERE expe_id IN (:entityIds)";
         final String sqlDeleteAttachmentContents =
-                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
+                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id IN (:aIds)";
         final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id = :entityId";
-        final String sqlDeleteSample = "DELETE FROM " + experimentsTable + " WHERE id = :entityId";
+                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id IN (:entityIds)";
+        final String sqlDeleteSample =
+                "DELETE FROM " + experimentsTable + " WHERE id IN (:entityIds)";
         final String sqlInsertEvent =
                 String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
                         TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
         executeDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason, sqlPermId,

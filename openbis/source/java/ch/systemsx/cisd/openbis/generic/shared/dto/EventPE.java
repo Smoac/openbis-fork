@@ -64,7 +64,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     private EntityType entityType;
 
-    private String identifier;
+    private String identifiers;
 
     private String description;
 
@@ -110,15 +110,15 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
     }
 
     @NotNull(message = ValidationMessages.IDENTIFIER_NOT_NULL_MESSAGE)
-    @Column(name = ColumnNames.IDENTIFIER)
-    public String getIdentifier()
+    @Column(name = ColumnNames.IDENTIFIERS)
+    public String getIdentifiers()
     {
-        return identifier;
+        return identifiers;
     }
 
-    public void setIdentifier(String identifier)
+    public void setIdentifiers(String identifier)
     {
-        this.identifier = identifier;
+        this.identifiers = identifier;
     }
 
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)

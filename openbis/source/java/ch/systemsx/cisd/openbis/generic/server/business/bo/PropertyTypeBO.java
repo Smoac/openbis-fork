@@ -231,7 +231,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.PROPERTY_TYPE);
-        event.setIdentifier(propertyTypePE.getCode());
+        event.setIdentifiers(propertyTypePE.getCode());
         event.setDescription(getDeletionDescription(propertyTypePE));
         event.setReason(reason);
         event.setRegistrator(registrator);

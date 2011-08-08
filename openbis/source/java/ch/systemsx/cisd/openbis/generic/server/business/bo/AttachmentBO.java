@@ -71,7 +71,7 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
         final String identifier = createDeletionIdentifier(holder, fileName);
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.ATTACHMENT);
-        event.setIdentifier(identifier);
+        event.setIdentifiers(identifier);
         event.setDescription(identifier);
         event.setReason(reason);
         event.setRegistrator(registrator);

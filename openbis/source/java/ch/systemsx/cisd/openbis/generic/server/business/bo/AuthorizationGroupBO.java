@@ -147,7 +147,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.AUTHORIZATION_GROUP);
-        event.setIdentifier(groupCode);
+        event.setIdentifiers(groupCode);
         event.setDescription(groupCode);
         event.setReason(reason);
         event.setRegistrator(registrator);

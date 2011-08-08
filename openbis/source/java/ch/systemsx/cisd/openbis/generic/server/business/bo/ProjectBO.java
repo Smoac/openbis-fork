@@ -278,7 +278,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.PROJECT);
-        event.setIdentifier(project.getIdentifier());
+        event.setIdentifiers(project.getIdentifier());
         event.setDescription(getDeletionDescription(project));
         event.setReason(reason);
         event.setRegistrator(registrator);

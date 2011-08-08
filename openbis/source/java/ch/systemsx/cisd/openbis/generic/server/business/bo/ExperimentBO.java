@@ -271,7 +271,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.EXPERIMENT);
-        event.setIdentifier(experiment.getPermId());
+        event.setIdentifiers(experiment.getPermId());
         event.setDescription(getDeletionDescription(experiment));
         event.setReason(reason);
         event.setRegistrator(registrator);
