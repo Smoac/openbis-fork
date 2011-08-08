@@ -49,20 +49,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  */
 public enum EntityKind
 {
-    MATERIAL(TableNames.MATERIALS_TABLE, "material", MaterialPE.class, null, MaterialTypePE.class,
-            MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
+    MATERIAL(TableNames.MATERIALS_TABLE, null, "material", MaterialPE.class, null,
+            MaterialTypePE.class, MaterialTypePropertyTypePE.class, MaterialPropertyPE.class),
 
-    EXPERIMENT(TableNames.EXPERIMENTS_VIEW, "experiment", ExperimentPE.class,
-            DeletedExperimentPE.class, ExperimentTypePE.class, ExperimentTypePropertyTypePE.class,
-            ExperimentPropertyPE.class),
+    EXPERIMENT(TableNames.EXPERIMENTS_VIEW, TableNames.EXPERIMENTS_ALL_TABLE, "experiment",
+            ExperimentPE.class, DeletedExperimentPE.class, ExperimentTypePE.class,
+            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
 
-    SAMPLE(TableNames.SAMPLES_VIEW, "sample", SamplePE.class, DeletedSamplePE.class,
-            SampleTypePE.class, SampleTypePropertyTypePE.class, SamplePropertyPE.class),
+    SAMPLE(TableNames.SAMPLES_VIEW, TableNames.SAMPLES_ALL_TABLE, "sample", SamplePE.class,
+            DeletedSamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
+            SamplePropertyPE.class),
 
-    DATA_SET(TableNames.DATA_VIEW, "dataSet", DataPE.class, DeletedDataPE.class,
-            DataSetTypePE.class, DataSetTypePropertyTypePE.class, DataSetPropertyPE.class);
+    DATA_SET(TableNames.DATA_VIEW, TableNames.DATA_ALL_TABLE, "dataSet", DataPE.class,
+            DeletedDataPE.class, DataSetTypePE.class, DataSetTypePropertyTypePE.class,
+            DataSetPropertyPE.class);
 
     private final String entityTableName;
+
+    private final String allEntitiesTableName;
 
     private final String entityLabel;
 
@@ -76,12 +80,14 @@ public enum EntityKind
 
     private transient final Class<?> propertyClass;
 
-    private EntityKind(final String entityTableName, final String entityLabel,
+    private EntityKind(final String entityTableName, final String allEntitiesTableName,
+            final String entityLabel,
             final Class<? extends IEntityInformationWithPropertiesHolder> entityClass,
             final Class<? extends IDeletablePE> deletedEntityClass, final Class<?> typeClass,
             final Class<?> assignmentClass, Class<?> propertyClass)
     {
         this.entityTableName = entityTableName;
+        this.allEntitiesTableName = allEntitiesTableName;
         this.entityLabel = entityLabel;
         this.entityClass = entityClass;
         this.deletedEntityClass = deletedEntityClass;
@@ -104,6 +110,11 @@ public enum EntityKind
     public final String getTableName()
     {
         return entityTableName;
+    }
+
+    public final String getAllTableName()
+    {
+        return allEntitiesTableName;
     }
 
     public final <T extends EntityTypePE> Class<T> getTypeClass()

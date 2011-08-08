@@ -22,8 +22,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -44,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * <i>Data Access Object</i> implementation for {@link IDeletionDAO}.
@@ -106,7 +109,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         super.delete(deletion);
     }
 
-    private void revertDeletionOfEntities(final DeletionPE deletion, final EntityKind entityKind)
+    @SuppressWarnings("unused")
+    private void revertDeletionOfEntitiesOld(final DeletionPE deletion, final EntityKind entityKind)
     {
         assert deletion != null : "Unspecified deletion";
         assert entityKind != null : "Unspecified entity kind";
@@ -121,6 +125,34 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
         hibernateTemplate.flush();
         hibernateTemplate.clear();
+
+        scheduleDynamicPropertiesEvaluationByIds(TechId.asLongs(ids), entityKind);
+
+        operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
+    }
+
+    private void revertDeletionOfEntities(final DeletionPE deletion, final EntityKind entityKind)
+    {
+        assert deletion != null : "Unspecified deletion";
+        assert entityKind != null : "Unspecified entity kind";
+
+        List<TechId> ids =
+                findTrashedEntityIds(Collections.singletonList(TechId.create(deletion)), entityKind);
+
+        int updatedRows = (Integer) executeStatelessAction(new StatelessHibernateCallback()
+            {
+
+                public Object doInStatelessSession(StatelessSession session)
+                {
+                    String query =
+                            String.format("UPDATE %s SET del_id = NULL WHERE del_id = :dId",
+                                    entityKind.getAllTableName());
+                    final SQLQuery sqlQuery = session.createSQLQuery(query);
+                    sqlQuery.setParameter("dId", HibernateUtils.getId(deletion));
+                    return sqlQuery.executeUpdate();
+                }
+
+            });
 
         scheduleDynamicPropertiesEvaluationByIds(TechId.asLongs(ids), entityKind);
 
