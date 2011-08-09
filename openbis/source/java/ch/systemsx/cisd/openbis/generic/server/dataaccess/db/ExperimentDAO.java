@@ -314,7 +314,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(experimentsTable);
         final String sqlDeleteProperties =
-                SQLBuilder.createDeleteProperties(TableNames.EXPERIMENT_PROPERTIES_TABLE,
+                SQLBuilder.createDeletePropertiesSQL(TableNames.EXPERIMENT_PROPERTIES_TABLE,
                         ColumnNames.EXPERIMENT_COLUMN);
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.EXPERIMENT_COLUMN);

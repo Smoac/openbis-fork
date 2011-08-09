@@ -476,7 +476,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // FIXME use code
         final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(dataTable);
         final String sqlDeleteProperties =
-                SQLBuilder.createDeleteProperties(TableNames.DATA_SET_PROPERTIES_TABLE,
+                SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE,
                         ColumnNames.DATA_SET_COLUMN);
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.DATA_SET_COLUMN);

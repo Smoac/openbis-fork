@@ -386,7 +386,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(samplesTable);
         final String sqlDeleteProperties =
-                SQLBuilder.createDeleteProperties(TableNames.SAMPLE_PROPERTIES_TABLE,
+                SQLBuilder.createDeletePropertiesSQL(TableNames.SAMPLE_PROPERTIES_TABLE,
                         ColumnNames.SAMPLE_COLUMN);
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.SAMPLE_COLUMN);
