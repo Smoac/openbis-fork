@@ -84,7 +84,7 @@ public class ConcatenatedFileOutputStreamWriter
 
     /**
      * block size if there is a next block in the stream and it is non-empty. Returns 0 if the
-     * blockminor: remove trash is empty, -1 if there are no more blocks to read.<br>
+     * block is empty, -1 if there are no more blocks to read.<br>
      * Can be called only at the beginning or if the end of the previous block has been reached.
      * 
      * @throws IOException when the stream is corrupted and the size of the block cannot be read
