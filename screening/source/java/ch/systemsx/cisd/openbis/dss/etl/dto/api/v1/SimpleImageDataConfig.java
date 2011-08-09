@@ -341,7 +341,7 @@ abstract public class SimpleImageDataConfig
 
     /**
      * Sets parameters for the 'convert' command line tool, which will be used to apply an image
-     * transformation before persisting the images in the data store.
+     * transformation on the fly when an image is fetched.
      */
     public void setConvertTransformationCliArguments(String convertTransformationCliArguments)
     {
