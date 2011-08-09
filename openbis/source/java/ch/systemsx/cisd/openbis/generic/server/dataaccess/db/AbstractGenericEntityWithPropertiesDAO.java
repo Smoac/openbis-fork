@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,14 +97,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final PersonPE registrator, final String reason, final String sqlPermId,
             final String sqlDeleteProperties, final String sqlAttachmentContentIds,
             final String sqlDeleteAttachmentContents, final String sqlDeleteAttachments,
-            final String sqlDeleteEntity, final String sqlInsertEvent)
+            final String sqlDeleteEntity, final String sqlInsertEvent,
+            final String... additionalQueries)
     {
 
-        DeletePermanentlyBatchOperation deleteOperation = 
+        DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityKind, entityIds, registrator, reason,
                         sqlPermId, sqlDeleteProperties, sqlAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntity,
-                        sqlInsertEvent);
+                        sqlInsertEvent, additionalQueries);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -115,6 +117,22 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     class DeletePermanentlyBatchOperation implements IBatchOperation<TechId>
     {
+
+        static final String IDENTIFIERS_PARAM = "identifiers";
+
+        static final String DESCRIPTION_PARAM = "description";
+
+        static final String ENTITY_TYPE_PARAM = "entityType";
+
+        static final String REGISTRATOR_ID_PARAM = "registratorId";
+
+        static final String REASON_PARAM = "reason";
+
+        static final String EVENT_TYPE_PARAM = "eventType";
+
+        static final String ENTITY_IDS_PARAM = "entityIds";
+
+        static final String ATTACHMENT_IDS_PARAM = "aIds";
 
         private final EntityKind entityKind;
 
@@ -138,10 +156,13 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlInsertEvent;
 
+        private final String[] additionalQueries;
+
         DeletePermanentlyBatchOperation(EntityKind entityKind, List<TechId> entityIds,
                 PersonPE registrator, String reason, String sqlPermId, String sqlDeleteProperties,
                 String sqlAttachmentContentIds, String sqlDeleteAttachmentContents,
-                String sqlDeleteAttachments, String sqlDeleteEntity, String sqlInsertEvent)
+                String sqlDeleteAttachments, String sqlDeleteEntity, String sqlInsertEvent,
+                String... additionalQueries)
         {
             this.entityKind = entityKind;
             this.entityIds = entityIds;
@@ -154,6 +175,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlDeleteAttachments = sqlDeleteAttachments;
             this.sqlDeleteEntity = sqlDeleteEntity;
             this.sqlInsertEvent = sqlInsertEvent;
+            this.additionalQueries = additionalQueries;
         }
 
         public void execute(final List<TechId> batchTechIds)
@@ -175,14 +197,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         final SQLQuery sqlQueryDeleteAttachmentContents =
                                 session.createSQLQuery(sqlDeleteAttachmentContents);
 
-                        sqlQueryInsertEvent.setParameter("eventType", EventType.DELETION.name());
-                        sqlQueryInsertEvent.setParameter("reason", reason);
-                        sqlQueryInsertEvent.setParameter("registratorId", registrator.getId());
-                        sqlQueryInsertEvent.setParameter("entityType", entityKind.name());
+                        final List<SQLQuery> additionalSqlQueries = new ArrayList<SQLQuery>();
+                        for (String queryString : additionalQueries)
+                        {
+                            additionalSqlQueries.add(session.createSQLQuery(queryString));
+                        }
 
                         List<Long> techIds = TechId.asLongs(batchTechIds);
-                        sqlQueryPermId.setParameterList("entityIds", techIds);
 
+                        sqlQueryPermId.setParameterList(ENTITY_IDS_PARAM, techIds);
                         final List<String> permIdsOrNull = cast(sqlQueryPermId.list());
                         if (permIdsOrNull == null || permIdsOrNull.isEmpty())
                         {
@@ -190,33 +213,46 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         }
 
                         // delete properties
-                        sqlQueryDeleteProperties.setParameterList("entityIds", techIds);
+                        sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, techIds);
                         sqlQueryDeleteProperties.executeUpdate();
 
                         // delete attachments
-                        sqlQueryAttachmentContentIds.setParameterList("entityIds", techIds);
+                        sqlQueryAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, techIds);
                         List<Long> attachmentContentIds = cast(sqlQueryAttachmentContentIds.list());
                         if (attachmentContentIds.size() > 0)
                         {
-                            sqlQueryDeleteAttachments.setParameterList("entityIds", techIds);
+                            sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, techIds);
                             sqlQueryDeleteAttachments.executeUpdate();
-                            sqlQueryDeleteAttachmentContents.setParameterList("aIds",
+                            sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_IDS_PARAM,
                                     attachmentContentIds);
                             sqlQueryDeleteAttachmentContents.executeUpdate();
                         }
+
+                        // additional queries (optional)
+                        for (SQLQuery query : additionalSqlQueries)
+                        {
+                            query.setParameter(ENTITY_IDS_PARAM, techIds);
+                            query.executeUpdate();
+                        }
+
                         // delete mainEntity
-                        sqlQueryDeleteEntity.setParameterList("entityIds", techIds);
+                        sqlQueryDeleteEntity.setParameterList(ENTITY_IDS_PARAM, techIds);
                         sqlQueryDeleteEntity.executeUpdate();
+
                         // create event
+                        sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
+                        sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
+                        sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
+                        sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityKind.name());
                         final String description =
                                 CollectionUtils.abbreviate(permIdsOrNull, 3,
                                         CollectionStyle.NO_BOUNDARY);
-                        sqlQueryInsertEvent.setParameter("description", description);
+                        sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM, description);
 
                         final String allPermIdsAsString =
                                 CollectionUtils.abbreviate(permIdsOrNull, -1,
                                         CollectionStyle.NO_BOUNDARY);
-                        sqlQueryInsertEvent.setParameter("identifiers", allPermIdsAsString);
+                        sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
                         sqlQueryInsertEvent.executeUpdate();
                         return null;
                     }
@@ -235,7 +271,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         public String getOperationName()
         {
-            return "deleting from trash";
+            return "permanently deleting";
         }
 
     }
