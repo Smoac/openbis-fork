@@ -164,13 +164,14 @@ public class OpenBISScreeningML
     private static final class IndexSet<T extends Comparable<T>>
     {
         private final Map<T, Integer> indexMap = new HashMap<T, Integer>();
+
         private final Set<T> set = new TreeSet<T>();
-        
+
         public void add(T item)
         {
             set.add(item);
         }
-        
+
         public int getIndex(T item)
         {
             if (set.size() != indexMap.size())
@@ -188,7 +189,7 @@ public class OpenBISScreeningML
             }
             return index;
         }
-        
+
         public int size()
         {
             return set.size();
@@ -811,14 +812,14 @@ public class OpenBISScreeningML
      * 
      * <pre>
      * % Load all data sets of plate P005 in space SPACE
-     * properties = {'ANALYSIS_PROCEDURE' AX87}
+     * properties = {'ANALYSIS_PROCEDURE' 'AX87'}
      * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/P005', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', properties, '/mount/openbis-store')
      * % Get the data set codes
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
-     * dsginfo(1,2)
+     * dsinfo(1,2)
      * % Get the properties for the first data set
-     * props = dsginfo(1,3)
+     * props = dsinfo(1,3)
      * % Get property key of first property
      * props(1,1)
      * % Get property value of first property
@@ -846,9 +847,8 @@ public class OpenBISScreeningML
         Plate plateIdentifier = getPlate(augmentedPlateCode);
         List<DataSet> dataSets =
                 openbis.getFullDataSets(plateIdentifier, new AndDataSetFilter(
-                        new TypeBasedDataSetFilter(
-                        dataSetTypeCodePattern), new PropertiesBasedDataSetFilter(
-                        createMap(properties))));
+                        new TypeBasedDataSetFilter(dataSetTypeCodePattern),
+                        new PropertiesBasedDataSetFilter(createMap(properties))));
         Object[][] result = new Object[dataSets.size()][];
         try
         {
@@ -874,7 +874,7 @@ public class OpenBISScreeningML
                     + "' failed: " + ex, ex);
         }
     }
-    
+
     /**
      * Loads file/folder of specified data set and specified file/folder path inside the data set.
      * If it is possible the path points directly into the data set store. No data is copied.
@@ -899,16 +899,18 @@ public class OpenBISScreeningML
      *            system mounts.
      * @return path to the down loaded file/folder.
      */
-    public static Object loadDataSetFile(String dataSetCode, String pathInDataSet, String overrideStoreRootPathOrNull)
+    public static Object loadDataSetFile(String dataSetCode, String pathInDataSet,
+            String overrideStoreRootPathOrNull)
     {
         checkLoggedIn();
         IDataSetDss dataSet = openbis.getDataSet(dataSetCode);
-        return dataSet.getLinkOrCopyOfContent(overrideStoreRootPathOrNull, temporarySessionDir, pathInDataSet).toString();
+        return dataSet.getLinkOrCopyOfContent(overrideStoreRootPathOrNull, temporarySessionDir,
+                pathInDataSet).toString();
     }
-    
+
     /**
      * Lists all files of all data sets for specifies plate and data set type code matching
-     * specified regular expression pattern. 
+     * specified regular expression pattern.
      * <p>
      * Matlab example:
      * 
@@ -929,7 +931,8 @@ public class OpenBISScreeningML
      *            will be returned. To fetch all data sets specify ".*".
      * @return <code>{data set code, file/folder paths}</code>
      */
-    public static Object[][][] listDataSetsFiles(String augmentedPlateCode, String dataSetTypeCodePattern)
+    public static Object[][][] listDataSetsFiles(String augmentedPlateCode,
+            String dataSetTypeCodePattern)
     {
         checkLoggedIn();
         Plate plateIdentifier = getPlate(augmentedPlateCode);
@@ -944,7 +947,8 @@ public class OpenBISScreeningML
             FileInfoDssDTO[] fileInfos = dataSet.listFiles("/", true);
             String code = dataSet.getCode();
             result[i] = new Object[2][];
-            result[i][0] = new Object[] {code};
+            result[i][0] = new Object[]
+                { code };
             result[i][1] = new Object[fileInfos.length];
             for (int j = 0; j < fileInfos.length; j++)
             {
@@ -1233,8 +1237,8 @@ public class OpenBISScreeningML
     public static Object[][][] loadSegmentationImages(String plate, int row, int col,
             final int tile, String[] objectNamesOrNull, String analysisProcedureOrNull)
     {
-        return loadSegmentationImages(plate, row, col, objectNamesOrNull, createSingleTileIterator(tile),
-                analysisProcedureOrNull);
+        return loadSegmentationImages(plate, row, col, objectNamesOrNull,
+                createSingleTileIterator(tile), analysisProcedureOrNull);
     }
 
     private static ITileNumberIterable createSingleTileIterator(final int tile)
@@ -1431,7 +1435,8 @@ public class OpenBISScreeningML
     private static List<ImageDatasetReference> listSegmentationImageDatasets(final Plate plateId,
             String analysisProcedureOrNull)
     {
-        return openbis.listSegmentationImageDatasets(Arrays.asList(plateId), analysisProcedureOrNull);
+        return openbis.listSegmentationImageDatasets(Arrays.asList(plateId),
+                analysisProcedureOrNull);
     }
 
     /**
@@ -1529,8 +1534,8 @@ public class OpenBISScreeningML
      * @param gene The gene code (stored as material code in openBIS, usually it is gene id)
      * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
      *            features. That is, the result is restricted to feature vector data sets with a
-     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. 
-     *            If <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
+     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
      * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
      *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
      *            all features are returned.
@@ -1540,14 +1545,14 @@ public class OpenBISScreeningML
      *         <ol>
      *         <li>feature matrix: 2. dimension is feature vector, 3. dimension is location number,
      *         4. dimension is data set number. If for a particular location and a particular data
-     *         set the corresponding feature value does not exists <code>NaN</code> will be returned. 
-     *         <li>annotations: 2. dimension is location number, 3. dimension is data set number, 4.
-     *         dimension is location annotations in the following order: <code>{plate well
-     *         description, plate augmented code, plate perm id, plate space code, plate code, row,
-     *         column, experiment augmented code, experiment perm id, experiment space code,
-     *         experiment project code, experiment code, data set code, data set type}</code> 
-     *         <li>feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
-     *         dimension are meaningless (i.e. they have length one) 
+     *         set the corresponding feature value does not exists <code>NaN</code> will be
+     *         returned. <li>annotations: 2. dimension is location number, 3. dimension is data set
+     *         number, 4. dimension is location annotations in the following order: <code>{plate
+     *         well description, plate augmented code, plate perm id, plate space code, plate code,
+     *         row, column, experiment augmented code, experiment perm id, experiment space code,
+     *         experiment project code, experiment code, data set code, data set type}</code> <li>
+     *         feature codes: 2. dimension is feature codes in alphabetical order. 3. and 4.
+     *         dimension are meaningless (i.e. they have length one)
      *         </ol>
      */
     public static Object[][][][] getFeatureMatrix(String experiment, String gene,
@@ -1567,7 +1572,7 @@ public class OpenBISScreeningML
         }
         final List<FeatureVectorWithDescription> featureVectors =
                 openbis.loadFeaturesForPlateWells(experimentId, new MaterialIdentifier(
-                        MaterialTypeIdentifier.GENE, gene), analysisProcedureOrNull, 
+                        MaterialTypeIdentifier.GENE, gene), analysisProcedureOrNull,
                         (featuresOrNull == null) ? null : Arrays.asList(featuresOrNull));
         return getFeatureMatrix(featureVectors);
     }
@@ -1661,8 +1666,7 @@ public class OpenBISScreeningML
             wellPositions.add(wellPosition);
             dataSetCodes.add(featureVector.getDatasetWellReference().getDatasetCode());
         }
-        result[0] =
-                new Object[featureCodes.size()][wellPositions.size()][dataSetCodes.size()];
+        result[0] = new Object[featureCodes.size()][wellPositions.size()][dataSetCodes.size()];
         result[1] = new Object[wellPositions.size()][dataSetCodes.size()][14];
         for (FeatureVectorWithDescription vector : featureVectors)
         {
@@ -1708,8 +1712,8 @@ public class OpenBISScreeningML
      * @param plate augmented code of the plate for which features should be loaded
      * @param analysisProcedureOrNull The code of the analysis procedure used to calculate requested
      *            features. That is, the result is restricted to feature vector data sets with a
-     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. 
-     *            If <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
+     *            value of property <code>ANALYSIS_PROCEDURE</code> as specified. If
+     *            <code>null</code> (or <code>[]</code> in MatLab) no restriction applies.
      * @param featuresOrNull The codes of the features to contain the feature matrix. Unknown
      *            feature codes will be ignored. If <code>null</code> (or <code>[]</code> in MatLab)
      *            all features are returned.
@@ -1763,8 +1767,7 @@ public class OpenBISScreeningML
             }
         }
         int numberOfDataSets = dataSets.size();
-        result[0] =
-                new Object[featureCodes.size()][wellPositions.size()][numberOfDataSets];
+        result[0] = new Object[featureCodes.size()][wellPositions.size()][numberOfDataSets];
         result[1] = new Object[wellPositions.size()][numberOfDataSets][14];
         for (int dataSetIndex = 0; dataSetIndex < numberOfDataSets; dataSetIndex++)
         {
@@ -1827,10 +1830,10 @@ public class OpenBISScreeningML
                 Object[][] f = result[0][featureIndex];
                 Object[] d = f[wellIndex];
                 d[dataSetIndex] = valueObjects.get(i);
-                
+
             } catch (Exception ex)
             {
-                throw new RuntimeException(featureIndex+"."+wellIndex+"."+dataSetIndex, ex);
+                throw new RuntimeException(featureIndex + "." + wellIndex + "." + dataSetIndex, ex);
             }
         }
     }
@@ -1855,7 +1858,7 @@ public class OpenBISScreeningML
                             dataSetRef.getDatasetCode(), dataSetRef.getDataSetType() };
         System.arraycopy(annotations, 0, result[1][wellIndex][dataSetIndex], 0, annotations.length);
     }
-    
+
     private static List<String> getFeatureCodes(List<? extends IFeatureCodesProvider> dataSets)
     {
         Set<String> codes = new HashSet<String>();
