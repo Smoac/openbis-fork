@@ -120,8 +120,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         String query =
-                String.format("UPDATE %s SET deletion = NULL WHERE deletion = ?", entityKind
-                        .getDeletedEntityClass().getSimpleName());
+                String.format("UPDATE VERSIONED %s SET deletion = NULL WHERE deletion = ?",
+                        entityKind.getDeletedEntityClass().getSimpleName());
         int updatedRows = hibernateTemplate.bulkUpdate(query, deletion);
         hibernateTemplate.flush();
         hibernateTemplate.clear();
@@ -145,10 +145,11 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 public Object doInStatelessSession(StatelessSession session)
                 {
                     String query =
-                            String.format("UPDATE %s SET del_id = NULL WHERE del_id = :dId",
+                            String.format("UPDATE %s SET modification_timestamp = now(), "
+                                    + "del_id = NULL WHERE del_id = :deletionId",
                                     entityKind.getAllTableName());
                     final SQLQuery sqlQuery = session.createSQLQuery(query);
-                    sqlQuery.setParameter("dId", HibernateUtils.getId(deletion));
+                    sqlQuery.setParameter("deletionId", HibernateUtils.getId(deletion));
                     return sqlQuery.executeUpdate();
                 }
 
