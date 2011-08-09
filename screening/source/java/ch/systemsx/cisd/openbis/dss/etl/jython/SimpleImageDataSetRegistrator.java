@@ -148,8 +148,16 @@ public class SimpleImageDataSetRegistrator
      */
     protected List<ImageTokensWithPath> parseImageTokens(File incomingDirectory)
     {
-        List<ImageTokensWithPath> imageTokensList = new ArrayList<ImageTokensWithPath>();
         List<File> imageFiles = listImageFiles(incomingDirectory);
+        if (imageFiles.isEmpty())
+        {
+            throw UserFailureException.fromTemplate(
+                    "Incoming directory '%s' contains no images with extensions %s!",
+                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
+                            simpleImageConfig.getRecognizedImageExtensions(), -1));
+        }
+
+        List<ImageTokensWithPath> imageTokensList = new ArrayList<ImageTokensWithPath>();
         ImageLibraryInfo imageLibraryInfoOrNull =
                 simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
         for (File imageFile : imageFiles)
@@ -183,10 +191,10 @@ public class SimpleImageDataSetRegistrator
                 imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
             }
         }
-        if (imageTokensList.size() == 0)
+        if (imageTokensList.isEmpty())
         {
             throw UserFailureException.fromTemplate(
-                    "Incoming directory '%s' contains no images with extensions %s!",
+                            "No image tokens could be parsed from incoming directory '%s' for extensions %s!",
                     incomingDirectory.getPath(), CollectionUtils.abbreviate(
                             simpleImageConfig.getRecognizedImageExtensions(), -1));
         }
