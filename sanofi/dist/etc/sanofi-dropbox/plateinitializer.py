@@ -1,7 +1,7 @@
 import re
 import os
 
-import utilfunctions as util
+import utils
 
 from java.lang import RuntimeException
 from java.text import DecimalFormat
@@ -102,7 +102,7 @@ class PlateInitializer:
                                % (self.experimentId, self.LIBRARY_TEMPLATE_PROPNAME))
         
         lines = template.splitlines()
-        lines = util.removeTrailingEmptyElements(lines)
+        lines = utils.removeTrailingEmptyElements(lines)
         tsvLists = [ line.split("\t") for line in lines ]
                 
         self.validateLibraryDimensions(tsvLists)

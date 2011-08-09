@@ -1,213 +1,50 @@
-import re
-import os
+"""
+This is the dropbox which registers raw images, segmentation images and analysis results
+at the same time.
+Each directory should contain:
+- raw images on the main level
+- optionally: segmentation images in the directory containin "_ROITiff"
+- optionally: analysis results in the xml file 
+If all kinds of data are provided, 3 datasets will be registered for each incoming directory. 
+Segmentation and analysis dataset will be linked to the raw images dataset.
+"""
 
-import utilfunctions as util
-import plateinitializer as plateinit
+import utils
+import config
+import plateinitializer
+import notifications 
+import registration
 
-from java.lang import RuntimeException
-from java.io import File
-from java.util import Properties
-
-from org.apache.commons.lang.exception import ExceptionUtils
-from ch.systemsx.cisd.common.mail import From
-from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, MatchClauseAttribute
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, OriginalDataStorageFormat, Location 
-from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
-from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
-# Switch this off if there is more then one dropbox using this module,
-# in this case it should be switched on manually only after the module's code has been changed on the fly
-reload(plateinit)
+reload(utils)
+reload(config)
+# Can be switched on manually only after the module's code has been changed on the fly:
+#reload(plateinitializer)
+#reload(notifications)
+#reload(registration)
 
-""" Switch to True in development environment to use a mock of Abase database """
-TEST_MODE=False
-
-""" the url of the Sanofi's openBIS installation """
-OPENBIS_URL = "http://openbis-test-bw.sanofi.com:8080/openbis"
-
-EXPERIMENT_RECIPIENTS_PROPCODE = "OBSERVER_EMAILS"
-
-""" the sample type identifying plates """
-PLATE_TYPE = "PLATE"
-
-""" file format code of files in a new image dataset """
-IMAGE_DATASET_FILE_FORMAT = "TIFF"
-IMAGE_DATASET_BATCH_PROPCODE = "ACQUISITION_BATCH"
-
-"""
-Allows to recognize that the subdirectory of the incoming dataset directory contains overlay images.
-This text has to appear in the subdirectory name.
-"""
-OVERLAYS_DIR_PATTERN = "_ROITiff"
-""" file format of the image overlay dataset """
-OVERLAY_IMAGE_FILE_FORMAT = "PNG"
-""" name of the color which should be treated as transparent in overlays """
-OVERLAYS_TRANSPARENT_COLOR = "black"
-
-""" file format of the analysis dataset """
-ANALYSIS_FILE_FORMAT = "CSV"
-    
-""" should thumbnails be generated? """
-GENERATE_THUMBNAILS = True
-
-""" the maximal width and height of the generated thumbnails """
-MAX_THUMNAIL_WIDTH_AND_HEIGHT = 256
-
-"""
-Number of threads that are used for thumbnail generation will be equal to:
-   this constant * number of processor cores
-Set to 1/<number-of-cores> if ImageMagic 'convert' tool is not installed.
-"""
-ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION = 1.0
-
-""" should all dataset in one experiment use the same channels? """
-STORE_CHANNELS_ON_EXPERIMENT_LEVEL = False
-
-""" should the original data be stored in the original form or should we pack them into one container? """
-ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
-
-""" Change to 'False' if 'convert' tool is not installed """
-USE_IMAGE_MAGIC_CONVERT_TOOL = True
-
-def isUserError(ex):
-    if ex.value and hasattr(ex.value, "getClass"):
-        return (ex.value.getClass() == ValidationException("").getClass())
-    
-    return False
-
-def getAdminEmails():
-    admins = state.getOpenBisService().listAdministrators()
-    adminEmails = [ admin.getEmail() for admin in admins if admin.getEmail() ]
-    return adminEmails
-
-def getUserEmails():
+def createEmailUtils():
     global experiment
-    
-    recipients = []
-    
-    if experiment:
-        recipientsProp = experiment.getPropertyValue(EXPERIMENT_RECIPIENTS_PROPCODE)
-        if recipientsProp:
-           recipients = [ email.strip() for email in recipientsProp.split(",") ]
-        
-    return recipients
+    global plateCode
 
-def getAllEmailRecipients():
-    return getAdminEmails() + getUserEmails()
+    return notifications.EmailUtils(state, incoming, experiment, plateCode)
 
 def commit_transaction(service, transaction):
-    global plateCode
-    
-    incomingFileName = incoming.getName()
-    plateLink = createPlateLink(OPENBIS_URL, plateCode)
-    sendEmail("openBIS: New data registered for %s" % (plateCode), 
-"""Dear openBIS user,
-New data from folder '%(incomingFileName)s' has been successfully registered for plate %(plateLink)s.
-       
-This email has been generated automatically.
-      
-Have a nice day!
-Administrator""" % vars(), getAllEmailRecipients())
+    createEmailUtils().sendSuccessConfirmation()
 
 def rollback_service(service, ex):
-    if isUserError(ex):
-        shortErrorMessage = ex.getMessage()
-        if not shortErrorMessage:
-            shortErrorMessage = ex.value.getMessage()
-        sendUserError(service, shortErrorMessage, getAllEmailRecipients())
-    else:
-        fullErrorMessage = ExceptionUtils.getFullStackTrace(ex)
-        sendAdminError(service, fullErrorMessage, getAdminEmails())
-        sendSystemErrorNotificationToUser(service, getUserEmails())
-        
-def sendUserError(service, errorDetails, recipients):        
-    global plateCode
+    createEmailUtils().sendRollbackError(ex)
     
-    localPlateCode = plateCode
-    incomingFileName = incoming.getName()
-        
-    if localPlateCode:
-        sendEmail("openBIS: Data registration failed for %s" % (localPlateCode), 
-"""Dear openBIS user,
-Registering new data for plate %(localPlateCode)s has failed with error '%(errorDetails)s'.
-The name of the incoming folder '%(incomingFileName)s' was added to '.faulty_paths'. Please,
-repair the problem and remove the entry from '.faulty_paths' to retry registration.
-       
-This email has been generated automatically.
-      
-Administrator""" % vars(), recipients)
-    else:
-        sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), 
-"""Dear openBIS user,
-openBIS was unable to understand the name of an incoming folder. 
-Detailed error message was '%(errorDetails)s'.
-      
-This email has been generated automatically.
-      
-Administrator""" % vars(), recipients)
-    
-def sendAdminError(service, errorDetails, recipients):        
-    incomingFileName = incoming.getName()
-        
-    sendEmail("openBIS System Error: Data registration failed for %s" % (incomingFileName), 
-"""Dear openBIS Administrator,
-    
-The registration of data sets from incoming folder '%(incomingFileName)s' has failed
-in an unexpected way. The most probable cause is a misconfiguration of the system. It may be also a bug. 
-Here is a full description of the encountered error:
-      
-%(errorDetails)s
-      
-Please, repair the problem and remove the entry from '.faulty_paths' to retry registration.
-      
-openBIS""" % vars(), recipients)
-        
-def sendSystemErrorNotificationToUser(service, recipients):        
-    incomingFileName = incoming.getName()
-        
-    sendEmail("openBIS: Data registration failed for folder '%s'" % (incomingFileName), 
-"""Dear openBIS user,
-Registering new data from incoming folder '%(incomingFileName)s' has failed due to a system error.
-      
-openBIS has sent a notification to the responsible system administrators and they should be 
-fixing the problem as soon as possible. 
-      
-We are sorry for any inconveniences this may have caused. 
-      
-openBIS Administrators""" % vars(), recipients)
-
-def sendEmail(title, content, recipients):
-    global experiment
-    
-    if not recipients:
-        if experiment:
-            experimentMsg = ("Please, fill in e-mail recipients list in the property '%s' of experiment '%s'." % (EXPERIMENT_RECIPIENTS_PROPCODE, experiment.getExperimentIdentifier()))
-        else:
-            experimentMsg = "" 
-        state.operationLog.error("Failed to detect e-mail recipients for incoming folder '%s'.%s"
-                                 " No e-mails will be sent." 
-                                 "\nEmail title: %s" 
-                                 "\nEmail content: %s" % 
-                                 (incoming.getName(), experimentMsg, title, content))
-        return
-    
-    fromAddress = From("openbis@sanofi-aventis.com")
-    replyTo = None
-    state.mailClient.sendMessage(title, content, replyTo, fromAddress, recipients)
-
-def createPlateLink(openbisUrl, code):
-    return "%(openbisUrl)s#entity=SAMPLE&sample_type=PLATE&action=SEARCH&code=%(code)s" % vars()
-
 def findPlateByCode(transaction, code):
     """
        Finds a plate (openBIS sample) matching a specified bar code.
     """
     criteria = SearchCriteria()
-    criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, PLATE_TYPE))
+    criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, config.PLATE_TYPE))
     criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code))
     
     searchService = transaction.getSearchService()
@@ -237,93 +74,15 @@ def parseIncomingDirname(dirName):
     return (acquisitionBatch, plateCode)
     
 
-def convertToPng(dir, transparentColor):
-    delete_original_files = True
-    strategy = Tiff2PngConversionStrategy(transparentColor, 0, delete_original_files)
-    # Uses cores * machineLoad threads for the conversion, but not more than maxThreads
-    machineLoad = ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION
-    maxThreads = 100
-    errorMsg = FileConverter.performConversion(File(dir), strategy, machineLoad, maxThreads)
-    if errorMsg:
-        raise RuntimeException("Error converting overlays:" + errorMsg)
-
 # ---------------------
-
-class MyImageDataSetConfig(SimpleImageDataConfig):
-    
-    def __init__(self, incomingDir, imageRootDir):
-        self.incomingDir = incomingDir
-        self.imageRootDir = imageRootDir
-        self.setStorageConfiguration()
-        
-    def setStorageConfiguration(self):
-        self.setStoreChannelsOnExperimentLevel(STORE_CHANNELS_ON_EXPERIMENT_LEVEL)
-        self.setOriginalDataStorageFormat(ORIGINAL_DATA_STORAGE_FORMAT)
-        if GENERATE_THUMBNAILS:
-            self.setGenerateThumbnails(True)
-            #self.setUseImageMagicToGenerateThumbnails(True)
-            self.setAllowedMachineLoadDuringThumbnailsGeneration(ALLOWED_MACHINE_LOAD_DURING_THUMBNAIL_GENERATION)
-            self.setMaxThumbnailWidthAndHeight(MAX_THUMNAIL_WIDTH_AND_HEIGHT)
-    
-    """
-    Creates ImageFileInfo for a given ImageTokens.
-    Converts tile number to coordinates on the 'well matrix'.
-    Example file name: A - 1(fld 1 wv Cy5 - Cy5).tif
-    Returns:
-        ImageTokens
-    """
-    def extractImageMetadata(self, path):
-        imageTokens = ImageMetadata()
-        
-        imageFile = File(self.incomingDir, path)
-        if not self.imageRootDir.equals(imageFile.getParentFile()):
-            return None
-    
-        basename = os.path.splitext(imageFile.name)[0]
-        wellText = basename[0:util.find(basename, "(")] # A - 1
-        imageTokens.well = wellText.replace(" - ", "")
-        
-        if " wv " in basename:
-            fieldText = basename[util.find(basename, "fld ") + 4 : util.find(basename, " wv")]
-            imageTokens.channelCode = basename[util.rfind(basename, " - ") + 3 :-1]
-        else:
-            fieldText = basename[util.find(basename, "fld ") + 4 : util.find(basename, ")")]
-            imageTokens.channelCode = "DEFAULT"
-        
-        try:
-            imageTokens.tileNumber = int(fieldText)
-        except ValueError:
-            raise ValidationException("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
-    
-        return imageTokens
-    
-    def getTileCoordinates(self, tileNumber, tileGeometry):
-        columns = tileGeometry.getWidth()
-        row = ((tileNumber - 1) / columns) + 1
-        col = ((tileNumber - 1) % columns) + 1
-        return Location(row, col)
-    
-    def getTileGeometry(self, imageMetadataList, maxTile):
-        if maxTile % 4 == 0 and maxTile != 4:
-            (cols, rows) = (maxTile / 4, 4)
-        elif maxTile % 3 == 0:
-            (cols, rows) = (maxTile / 3, 3)
-        elif maxTile % 2 == 0:
-            (cols, rows) = (maxTile / 2, 2)
-        else:
-            (cols, rows) = (maxTile, 1)
-        
-        return Geometry.createFromRowColDimensions(cols, rows);
 
 
 global experiment
 global plateCode 
-global plate 
 
 if incoming.isDirectory():
     experiment = None
     plateCode = None
-    plate = None
     
     transaction = service.transaction(incoming, factory)
     
@@ -338,56 +97,21 @@ if incoming.isDirectory():
     # reload the sample with all contained samples
     plate = transaction.getSample(plate.getSampleIdentifier())
     if len(plate.getContainedSamples()) == 0:
-        plateInitializer = plateinit.PlateInitializer(transaction, state, plate, experiment, TEST_MODE)
+        plateInitializer = plateinitializer.PlateInitializer(transaction, state, plate, experiment, config.TEST_MODE)
         plateInitializer.createWellsAndMaterials()
         
-    imageDatasetConfig = MyImageDataSetConfig(incoming, incoming)
-    imageDatasetConfig.setRawImageDatasetType()
-    imageDatasetConfig.setFileFormatType(IMAGE_DATASET_FILE_FORMAT)
-    imageDatasetConfig.setUseImageMagicToGenerateThumbnails(USE_IMAGE_MAGIC_CONVERT_TOOL)
-    # Available in the next release:
-    #imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
-    imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
-    imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
-    imageDataSet.setPropertyValue(IMAGE_DATASET_BATCH_PROPCODE, batchName)
-    imageDataSet.setSample(plate)
-    
-    # check for overlays folder
-    overlaysDir = util.findDir(incoming, OVERLAYS_DIR_PATTERN)
-    if overlaysDir is not None:
-        convertToPng(overlaysDir.getPath(), OVERLAYS_TRANSPARENT_COLOR)
-        overlayDatasetConfig = MyImageDataSetConfig(overlaysDir, overlaysDir)
-        overlayDatasetConfig.setSegmentationImageDatasetType()
-        overlayDatasetConfig.setFileFormatType(OVERLAY_IMAGE_FILE_FORMAT)
-        overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(USE_IMAGE_MAGIC_CONVERT_TOOL)
-        # Available in the next release:
-        #overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+    imageDataSet = registration.createRawImagesDataset(incoming, plate, batchName, transaction, factory)
+    imageDataSetCode = imageDataSet.getDataSetCode()
 
-        overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
-        overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
-        overlayDataset.setSample(imageDataSet.getSample())
-        overlayDataset.setParentDatasets([ imageDataSet.getDataSetCode() ])
-        transaction.moveFile(overlaysDir.getPath(), overlayDataset, "overlays")
+    # check for overlays folder
+    overlaysDir = utils.findDir(incoming, config.OVERLAYS_DIR_PATTERN)
+    if overlaysDir is not None:
+        registration.registerSegmentationImages(overlaysDir, plate, imageDataSetCode, transaction, factory)
     
     # transform and move analysis file
-    analysisFile = util.findFileByExt(incoming, "xml")
+    analysisFile = utils.findFileByExt(incoming, "xml")
     if analysisFile is not None:
-        analysisCSVFile = File(analysisFile.getPath() + ".csv")
-        geXmlParser = GEExplorerImageAnalysisResultParser(analysisFile.getPath())
-        geXmlParser.writeCSV(analysisCSVFile)
-        
-        featureProps = Properties()
-        featureProps.setProperty("separator", ",")
-        featureProps.setProperty("well-name-row", "Well")
-        featureProps.setProperty("well-name-col", "Well")
-        
-        analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisCSVFile.getPath(), featureProps)
-        analysisProcedureCode = geXmlParser.getAnalysisProcedureName()
-        analysisDataSetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
-        analysisDataSet = transaction.createNewDataSet(analysisDataSetDetails)
-        analysisDataSet.setSample(imageDataSet.getSample())
-        analysisDataSet.setParentDatasets([ imageDataSet.getDataSetCode() ])
-        analysisDataSet.setFileFormatType(ANALYSIS_FILE_FORMAT)
-        transaction.moveFile(analysisCSVFile.getPath(), analysisDataSet)
+        registration.registerAnalysisData(analysisFile, plate, imageDataSetCode, transaction, factory)
     
-    imageDataSetFolder = transaction.moveFile(incoming.getPath(), imageDataSet)
+    transaction.moveFile(incoming.getPath(), imageDataSet)
+      
