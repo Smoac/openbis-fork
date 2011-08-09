@@ -23,6 +23,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.NotTransactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -61,9 +62,9 @@ public class DeletionTestCase extends SystemTestCase
 
     private String sessionToken;
 
-    private List<Experiment> registeredExperiments = new ArrayList<Experiment>();
+    private List<Experiment> registeredExperiments;
 
-    private List<Sample> registeredSamples = new ArrayList<Sample>();
+    private List<Sample> registeredSamples;
 
     private List<DeletionPE> preExistingDeletions;
 
@@ -81,6 +82,9 @@ public class DeletionTestCase extends SystemTestCase
 
     @BeforeMethod
     public void setUp() {
+        registeredExperiments = new ArrayList<Experiment>();
+        registeredSamples = new ArrayList<Sample>();
+
         SessionContext sessionContext = logIntoCommonClientService();
         sessionToken = sessionContext.getSessionID();
         deletionDAO = daoFactory.getDeletionDAO();
@@ -136,16 +140,26 @@ public class DeletionTestCase extends SystemTestCase
     @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
-        commonServer.deleteExperiments(sessionToken, TechId.createList(registeredExperiments),
-                "test reason", DeletionType.TRASH);
+        List<Experiment> existingExperiments = new ArrayList<Experiment>();
+        for (Experiment exp : registeredExperiments)
+        {
+            if (isExistingExperiment(exp.getCode()))
+            {
+                existingExperiments.add(exp);
+            }
+        }
+        commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
+                REASON, DeletionType.TRASH);
         commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()));
     }
 
     @Test
+    @NotTransactional
     public void testDeleteExperimentE1()
     {
         Experiment e1 = findExperimentByCode("E1");
         final TechId experimentId = new TechId(e1);
+        // delete
         commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
                 REASON, DeletionType.TRASH);
         
@@ -155,24 +169,86 @@ public class DeletionTestCase extends SystemTestCase
         List<DeletionPE> deletions = listDeletions();
         Assert.assertEquals(1, deletions.size());
         
-        final TechId deletionId = TechId.create(deletions.get(0));
-        commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId));
+        // revert
+        final TechId deletionId1 = TechId.create(deletions.get(0));
+        commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
 
-        Experiment revertedExperiment = commonServer.getExperimentInfo(sessionToken, experimentId);
-        Assert.assertNotNull(revertedExperiment);
+        assertExperimentExists(e1.getCode());
+        assertSamplesExist(registeredSamples);
+
+        // delete permanently
+        commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
+                REASON, DeletionType.TRASH);
+        final TechId deletionId2 = TechId.create(listDeletions().get(0));
+        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2));
+        assertExperimentDoesNotExist(e1.getCode());
+        assertSamplesDoNotExist(registeredSamples);
+    }
+
+    @Test
+    @NotTransactional
+    public void testDeleteSampleS14()
+    {
+        Sample s14 = findSampleByCode("S1.4");
+        final TechId sampleId = new TechId(s14);
+        // delete
+        commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
+                DeletionType.TRASH);
+
+        List<Sample> deletedSamples = getSamplesWithPrefix(s14.getCode());
+        assertExperimentExists("E1");
+        assertSamplesDoNotExist(deletedSamples);
+
+        List<DeletionPE> deletions = listDeletions();
+        Assert.assertEquals(1, deletions.size());
+
+        // revert
+        final TechId deletionId1 = TechId.create(deletions.get(0));
+        commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
+
+        assertSamplesExist(deletedSamples);
+
+        // delete permanently
+        commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
+                DeletionType.TRASH);
+        final TechId deletionId2 = TechId.create(listDeletions().get(0));
+        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2));
+        assertExperimentExists("E1");
+        assertSamplesDoNotExist(deletedSamples);
+    }
+
+    private void assertExperimentExists(String expCode)
+    {
+        final String error = String.format("Experiment '%s' must exist", expCode);
+        Assert.assertTrue(error, isExistingExperiment(expCode));
     }
 
     private void assertExperimentDoesNotExist(String expCode)
+    {
+        final String error = String.format("Experiment '%s' should not exist", expCode);
+        Assert.assertFalse(error, isExistingExperiment(expCode));
+    }
+
+    private boolean isExistingExperiment(String expCode)
     {
         Experiment experiment = findExperimentByCode(expCode);
         try
         {
             commonServer.getExperimentInfo(sessionToken, new TechId(experiment));
-            final String error = String.format("Experiment '%s' should not exist", expCode);
-            Assert.fail(error);
+            return true;
         } catch (UserFailureException ufe)
         {
-            // OK
+            return false;
+        }
+
+    }
+
+    private void assertSamplesExist(List<Sample> samples)
+    {
+        for (Sample sample : samples)
+        {
+            // will fail if sample is not found
+            commonServer.getSampleInfo(sessionToken, new TechId(sample));
         }
     }
 
@@ -191,6 +267,19 @@ public class DeletionTestCase extends SystemTestCase
                 // OK
             }
         }
+    }
+
+    private List<Sample> getSamplesWithPrefix(String codePrefix)
+    {
+        List<Sample> result = new ArrayList<Sample>();
+        for (Sample sample : registeredSamples)
+        {
+            if (sample.getCode().startsWith(codePrefix))
+            {
+                result.add(sample);
+            }
+        }
+        return result;
     }
 
     private void createExperiment(String code)
