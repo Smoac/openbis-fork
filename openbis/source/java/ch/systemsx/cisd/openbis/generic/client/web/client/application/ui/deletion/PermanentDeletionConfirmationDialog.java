@@ -46,7 +46,7 @@ public final class PermanentDeletionConfirmationDialog extends
         super(viewContext, deletions, viewContext
                 .getMessage(Dict.PERMANENT_DELETIONS_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.callback = AsyncCallbackWithProgressBar.decorate(callback, "Deleting permanently...");
+        this.callback = callback;
     }
 
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -58,7 +58,10 @@ public final class PermanentDeletionConfirmationDialog extends
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().deletePermanently(TechId.createList(data), callback);
+        viewContext.getCommonService().deletePermanently(
+                TechId.createList(data),
+                AsyncCallbackWithProgressBar.decorate(callback,
+                        viewContext.getMessage(Dict.PREMANENT_DELETIONS_PROGRESS)));
     }
 
     @Override

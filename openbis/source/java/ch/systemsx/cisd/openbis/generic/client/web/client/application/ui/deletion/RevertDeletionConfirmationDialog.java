@@ -68,14 +68,17 @@ public final class RevertDeletionConfirmationDialog extends
         super(viewContext, Collections.singletonList(deletedEntity.getDeletion()), viewContext
                 .getMessage(Dict.REVERT_DELETIONS_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.callback = AsyncCallbackWithProgressBar.decorate(callback, "Reverting deletion(s)...");
+        this.callback = callback;
         this.deletedEntityOrNull = deletedEntity;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().revertDeletions(TechId.createList(data), callback);
+        viewContext.getCommonService().revertDeletions(
+                TechId.createList(data),
+                AsyncCallbackWithProgressBar.decorate(callback,
+                        viewContext.getMessage(Dict.REVERT_DELETIONS_PROGRESS)));
     }
 
     @Override

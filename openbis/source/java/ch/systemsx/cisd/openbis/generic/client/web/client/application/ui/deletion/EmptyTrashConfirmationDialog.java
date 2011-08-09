@@ -45,13 +45,15 @@ public final class EmptyTrashConfirmationDialog extends
         super(viewContext, Collections.<Deletion> emptyList(), viewContext
                 .getMessage(Dict.EMPTY_TRASH_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
-        this.callback = AsyncCallbackWithProgressBar.decorate(callback, "Emptying trash...");
+        this.callback = callback;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().emptyTrash(callback);
+        viewContext.getCommonService().emptyTrash(
+                AsyncCallbackWithProgressBar.decorate(callback,
+                        viewContext.getMessage(Dict.EMPTY_TRASH_PROGRESS)));
     }
 
     @Override

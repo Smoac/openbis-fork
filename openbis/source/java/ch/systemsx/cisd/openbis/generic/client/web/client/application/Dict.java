@@ -530,6 +530,8 @@ public abstract class Dict
     public static final String REVERT_DELETIONS_CONFIRMATION_MSG =
             "revert_deletions_confirmation_msg";
 
+    public static final String REVERT_DELETIONS_PROGRESS = "revert_deletions_progress";
+
     public static final String REVERT_ENTITY_DELETION_CONFIRMATION_MSG =
             "revert_entity_deletion_confirmation_msg";
 
@@ -539,6 +541,8 @@ public abstract class Dict
     public static final String PERMANENT_DELETIONS_CONFIRMATION_MSG =
             "permanent_deletions_confirmation_msg";
 
+    public static final String PREMANENT_DELETIONS_PROGRESS = "permanent_deletions_progress";
+
     public static final String USE_TRASH_BROWSER = "use_trash_browser";
 
     public static final String TRASH_BUTTON_TOOLTIP = "trash_button_tooltip";
@@ -546,6 +550,8 @@ public abstract class Dict
     public static final String EMPTY_TRASH_CONFIRMATION_TITLE = "empty_trash_confirmation_title";
 
     public static final String EMPTY_TRASH_CONFIRMATION_MSG = "empty_trash_confirmation_msg";
+
+    public static final String EMPTY_TRASH_PROGRESS = "empty_trash_progress";
 
     //
     // Sample Viewer
