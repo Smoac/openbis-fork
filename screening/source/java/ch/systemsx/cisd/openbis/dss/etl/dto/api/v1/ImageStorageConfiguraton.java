@@ -112,7 +112,7 @@ public class ImageStorageConfiguraton extends AbstractHashable
     }
 
     /**
-     * Allows for applying an image transformation before persisting an image in the store.
+     * Allows for applying an image transformation on the fly when an image is fetched.
      */
     public void setImageTransformerFactory(IImageTransformerFactory transformerFactory)
     {
