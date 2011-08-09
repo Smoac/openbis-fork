@@ -107,6 +107,9 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      */
     public void createOrUpdateExperiments(List<ExperimentPE> experiments);
 
+    /**
+     * Delete experiments with given ids by specified registrator with specified reason.
+     */
     public void delete(List<TechId> experimentIds, PersonPE tryGetPerson, String reason);
 
 }
