@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -125,4 +126,9 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
 
+    /**
+     * Delete data sets with given ids by specified registrator with specified reason.
+     */
+    void delete(List<TechId> dataIds, PersonPE registrator, String reason)
+            throws DataAccessException;
 }
