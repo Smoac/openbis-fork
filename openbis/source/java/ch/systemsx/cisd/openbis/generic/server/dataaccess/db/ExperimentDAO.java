@@ -323,7 +323,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final String sqlDeleteExperiments = SQLBuilder.createDeleteEnitiesSQL(experimentsTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
 
-        executeDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason,
+        executePermanentDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments, sqlInsertEvent);
     }

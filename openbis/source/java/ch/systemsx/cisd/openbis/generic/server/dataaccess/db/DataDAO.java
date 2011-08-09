@@ -488,7 +488,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
         final String sqlDeleteComponentConnections = createDeleteComponentConnectionsSQL();
 
-        executeDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason, sqlSelectPermIds,
+        executePermanentDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason, sqlSelectPermIds,
                 sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
                 sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent,
                 sqlDeleteChildrenConnections, sqlDeleteComponentConnections);

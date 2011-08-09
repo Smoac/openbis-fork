@@ -95,14 +95,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 getEntityClass(), ids);
     }
 
-    protected void executeDeleteAction(final EntityKind entityKind, final List<TechId> entityIds,
-            final PersonPE registrator, final String reason, final String sqlSelectPermIds,
-            final String sqlDeleteProperties, final String sqlSelectAttachmentContentIds,
-            final String sqlDeleteAttachmentContents, final String sqlDeleteAttachments,
-            final String sqlDeleteEntities, final String sqlInsertEvent,
-            final String... additionalQueries)
+    protected void executePermanentDeleteAction(final EntityKind entityKind,
+            final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
+            final String sqlSelectPermIds, final String sqlDeleteProperties,
+            final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
+            final String sqlDeleteAttachments, final String sqlDeleteEntities,
+            final String sqlInsertEvent, final String... additionalQueries)
     {
-
+        List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityKind, entityIds, registrator, reason,
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
@@ -111,8 +111,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
-        List<Long> ids = TechId.asLongs(entityIds);
-        scheduleRemoveFromFullTextIndex(ids);
+        scheduleRemoveFromFullTextIndex(entityIds);
     }
 
     abstract Logger getLogger();
@@ -191,12 +190,12 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     }
 
-    class DeletePermanentlyBatchOperation implements IBatchOperation<TechId>
+    class DeletePermanentlyBatchOperation implements IBatchOperation<Long>
     {
 
         private final EntityKind entityKind;
 
-        private final List<TechId> entityTechIds;
+        private final List<Long> allEntityIds;
 
         private final PersonPE registrator;
 
@@ -218,14 +217,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String[] additionalQueries;
 
-        DeletePermanentlyBatchOperation(EntityKind entityKind, List<TechId> entityTechIds,
+        DeletePermanentlyBatchOperation(EntityKind entityKind, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
                 String sqlDeleteEntities, String sqlInsertEvent, String... additionalQueries)
         {
             this.entityKind = entityKind;
-            this.entityTechIds = entityTechIds;
+            this.allEntityIds = allEntityIds;
             this.registrator = registrator;
             this.reason = reason;
             this.sqlSelectPermIds = sqlSelectPermIds;
@@ -238,7 +237,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.additionalQueries = additionalQueries;
         }
 
-        public void execute(final List<TechId> batchEntityTechIds)
+        public void execute(final List<Long> batchEntityIds)
         {
             executeStatelessAction(new StatelessHibernateCallback()
                 {
@@ -257,75 +256,101 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                                 session.createSQLQuery(sqlDeleteAttachments);
                         final SQLQuery sqlQueryDeleteAttachmentContents =
                                 session.createSQLQuery(sqlDeleteAttachmentContents);
-
                         final List<SQLQuery> additionalSqlQueries = new ArrayList<SQLQuery>();
                         for (String queryString : additionalQueries)
                         {
                             additionalSqlQueries.add(session.createSQLQuery(queryString));
                         }
 
-                        List<Long> entityIds = TechId.asLongs(batchEntityTechIds);
-
-                        sqlQuerySelectPermIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                        final List<String> permIdsOrNull = cast(sqlQuerySelectPermIds.list());
-                        if (permIdsOrNull == null || permIdsOrNull.isEmpty())
+                        final List<String> permIds =
+                                selectPermIds(batchEntityIds, sqlQuerySelectPermIds);
+                        if (permIds.isEmpty())
                         {
                             return null;
                         }
+                        deleteProperties(sqlQueryDeleteProperties, batchEntityIds);
+                        deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,
+                                sqlQueryDeleteAttachments, sqlQueryDeleteAttachmentContents,
+                                batchEntityIds);
+                        executeAdditionalQueries(additionalSqlQueries, batchEntityIds);
+                        deleteMainEntities(sqlQueryDeleteEntities, batchEntityIds);
+                        insertEvent(sqlQueryInsertEvent, permIds);
+                        return null;
+                    }
 
-                        // delete properties
+                    private List<String> selectPermIds(final List<Long> entityIds,
+                            final SQLQuery sqlQuerySelectPermIds)
+                    {
+                        sqlQuerySelectPermIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                        final List<String> permIdsOrNull = cast(sqlQuerySelectPermIds.list());
+                        return permIdsOrNull == null ? Collections.<String> emptyList()
+                                : permIdsOrNull;
+                    }
+
+                    private void deleteProperties(final SQLQuery sqlQueryDeleteProperties,
+                            List<Long> entityIds)
+                    {
                         sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         sqlQueryDeleteProperties.executeUpdate();
+                    }
 
-                        // delete attachments
-                        sqlQuerySelectAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM,
-                                entityIds);
-                        List<Long> attachmentContentIds =
-                                cast(sqlQuerySelectAttachmentContentIds.list());
+                    private void deleteAttachmentsWithContents(
+                            final SQLQuery sqlQueryAttachmentContentIds,
+                            final SQLQuery sqlQueryDeleteAttachments,
+                            final SQLQuery sqlQueryDeleteAttachmentContents, List<Long> entityIds)
+                    {
+                        sqlQueryAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                        List<Long> attachmentContentIds = cast(sqlQueryAttachmentContentIds.list());
                         if (attachmentContentIds.size() > 0)
                         {
-                            sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                            sqlQueryDeleteAttachments.executeUpdate();
+                            deleteProperties(sqlQueryDeleteAttachments, entityIds);
                             sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_IDS_PARAM,
                                     attachmentContentIds);
                             sqlQueryDeleteAttachmentContents.executeUpdate();
                         }
+                    }
 
-                        // additional queries (optional)
+                    private void executeAdditionalQueries(
+                            final List<SQLQuery> additionalSqlQueries, List<Long> entityIds)
+                    {
                         for (SQLQuery query : additionalSqlQueries)
                         {
                             query.setParameter(ENTITY_IDS_PARAM, entityIds);
                             query.executeUpdate();
                         }
+                    }
 
-                        // delete mainEntity
+                    private void deleteMainEntities(final SQLQuery sqlQueryDeleteEntities,
+                            List<Long> entityIds)
+                    {
                         sqlQueryDeleteEntities.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         sqlQueryDeleteEntities.executeUpdate();
+                    }
 
-                        // create event
+                    private void insertEvent(final SQLQuery sqlQueryInsertEvent,
+                            final List<String> permIds)
+                    {
+                        final String description =
+                                CollectionUtils.abbreviate(permIds, 3, CollectionStyle.NO_BOUNDARY);
+                        sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM, description);
                         sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM,
                                 EventType.DELETION.name());
                         sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
                         sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
                         sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityKind.name());
-                        final String description =
-                                CollectionUtils.abbreviate(permIdsOrNull, 3,
-                                        CollectionStyle.NO_BOUNDARY);
-                        sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM, description);
 
                         final String allPermIdsAsString =
-                                CollectionUtils.abbreviate(permIdsOrNull, -1,
-                                        CollectionStyle.NO_BOUNDARY);
+                                CollectionUtils
+                                        .abbreviate(permIds, -1, CollectionStyle.NO_BOUNDARY);
                         sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
                         sqlQueryInsertEvent.executeUpdate();
-                        return null;
                     }
                 });
         }
 
-        public List<TechId> getAllEntities()
+        public List<Long> getAllEntities()
         {
-            return entityTechIds;
+            return allEntityIds;
         }
 
         public String getEntityName()

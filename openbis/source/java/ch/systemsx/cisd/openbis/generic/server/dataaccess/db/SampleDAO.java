@@ -395,7 +395,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final String sqlDeleteSamples = SQLBuilder.createDeleteEnitiesSQL(samplesTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
 
-        executeDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlSelectPermIds,
+        executePermanentDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlSelectPermIds,
                 sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
                 sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
     }
