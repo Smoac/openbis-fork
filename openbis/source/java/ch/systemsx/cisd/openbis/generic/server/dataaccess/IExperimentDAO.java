@@ -85,16 +85,6 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public void createOrUpdateExperiment(ExperimentPE experiment) throws DataAccessException;
 
     /**
-     * Deletes all datasets that are connected to given {@link ExperimentPE} and are supposed to be
-     * placeholders without children.
-     * 
-     * @throws DataAccessException assuming that all datasets that are connected with given
-     *             experiment this exception shold be thrown only if one of these placeholders has
-     *             children in other experiments.
-     */
-    public void deleteZombiePlaceholders(ExperimentPE experiment) throws DataAccessException;
-
-    /**
      * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if
      * no experiment with the given perm id exists.
      */

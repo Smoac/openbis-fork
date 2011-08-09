@@ -222,18 +222,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return samples;
     }
 
-    public void deleteZombiePlaceholders(ExperimentPE experiment) throws DataAccessException
-    {
-        // it will happen very rarely so it doesn't have to be optimized in terms of performance
-        getHibernateTemplate().deleteAll(experiment.getDataSets());
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "Zombie placeholders connected with experiment '%s' have been deleted.",
-                    experiment.getCode()));
-        }
-    }
-
     public ExperimentPE tryGetByPermID(String permId)
     {
         final Criteria criteria = getSession().createCriteria(getEntityClass());
@@ -306,8 +294,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     public void delete(final List<TechId> experimentIds, final PersonPE registrator,
             final String reason) throws DataAccessException
     {
-        // FIXME delete placeholders
-
         // NOTE: we use EXPERIMENT_ALL_TABLE, not DELETED_EXPERIMENTS_VIEW because we still want to
         // be able to directly delete samples without going to trash (trash may be disabled)
         final String experimentsTable = TableNames.EXPERIMENTS_ALL_TABLE;
@@ -325,7 +311,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         executePermanentDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments, sqlInsertEvent);
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
+                sqlInsertEvent);
     }
 
     @Override

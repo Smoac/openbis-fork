@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -208,27 +207,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
-    public void deleteByTechIdsOld(List<TechId> experimentIds, String reason)
-            throws UserFailureException
-    {
-        for (TechId experimentId : experimentIds)
-        {
-            loadDataByTechId(experimentId);
-            try
-            {
-                deleteZombieDatasetPlaceholders(); // FIXME do this on deletion
-                getExperimentDAO().delete(experiment);
-                getEventDAO().persist(
-                        createDeletionEvent(experiment, session.tryGetPerson(), reason));
-            } catch (final DataAccessException ex)
-            {
-                throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
-                        EntityKind.EXPERIMENT);
-            }
-        }
-
-    }
-
     public void deleteByTechIds(List<TechId> experimentIds, String reason)
             throws UserFailureException
     {
@@ -240,29 +218,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Experiment", EntityKind.EXPERIMENT);
-        }
-    }
-
-    /** if all datasets connected to experiment are placeholders delete them, otherwise do nothing */
-    private void deleteZombieDatasetPlaceholders()
-    {
-        if (experiment.getDataSets().size() > 0)
-        {
-            getDataDAO().listDataSets(experiment);
-            boolean onlyPlaceholders = true;
-            for (DataPE data : experiment.getDataSets())
-            {
-                if (data.isPlaceholder() == false)
-                {
-                    onlyPlaceholders = false;
-                    break;
-                }
-            }
-            if (onlyPlaceholders)
-            {
-                getExperimentDAO().deleteZombiePlaceholders(experiment);
-            }
-            // otherwise a default exception will be thrown on experiment deletion attempt
         }
     }
 
