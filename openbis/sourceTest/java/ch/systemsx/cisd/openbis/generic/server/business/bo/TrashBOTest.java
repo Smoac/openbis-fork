@@ -288,6 +288,8 @@ public final class TrashBOTest extends AbstractBOTest
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
                             with(dataSetIdsMatcher), with(same(deletion)));
                     will(returnValue(2));
+
+                    verifyRecordedLists(sampleIds, sampleIdsMatcher);
                 }
             });
     }
