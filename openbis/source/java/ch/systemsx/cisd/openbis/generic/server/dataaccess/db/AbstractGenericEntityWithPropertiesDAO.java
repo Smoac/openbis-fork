@@ -116,80 +116,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     abstract Logger getLogger();
 
-    static final String IDENTIFIERS_PARAM = "identifiers";
-
-    static final String DESCRIPTION_PARAM = "description";
-
-    static final String ENTITY_TYPE_PARAM = "entityType";
-
-    static final String REGISTRATOR_ID_PARAM = "registratorId";
-
-    static final String REASON_PARAM = "reason";
-
-    static final String EVENT_TYPE_PARAM = "eventType";
-
-    static final String ENTITY_IDS_PARAM = "entityIds";
-
-    static final String ATTACHMENT_IDS_PARAM = "aIds";
-
-    protected static class SQLBuilder
-    {
-
-        protected static String createSelectPermIdsSQL(final String entitiesTable)
-        {
-            return "SELECT perm_id FROM " + entitiesTable + " WHERE id " + inEntityIds();
-        }
-
-        protected static String createDeleteProperties(final String propertiesTable,
-                String ownerColumnName)
-        {
-            return "DELETE FROM " + propertiesTable + " WHERE " + ownerColumnName + " "
-                    + inEntityIds();
-        }
-
-        protected static String createSelectAttachmentContentIdsSQL(final String ownerColumnName)
-        {
-            return "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE "
-                    + ownerColumnName + " " + inEntityIds();
-        }
-
-        protected static String createDeleteAttachmentContentsSQL()
-        {
-            return "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id "
-                    + in(ATTACHMENT_IDS_PARAM);
-        }
-
-        protected static String createDeleteAttachmentsSQL()
-        {
-            return "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id "
-                    + inEntityIds();
-        }
-
-        protected static String createDeleteEnitiesSQL(final String entitiesTable)
-        {
-            return "DELETE FROM " + entitiesTable + " WHERE id " + inEntityIds();
-        }
-
-        protected static String createInsertEventSQL()
-        {
-            return String
-                    .format("INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                            + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
-                            TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
-        }
-
-        protected static String inEntityIds()
-        {
-            return in(ENTITY_IDS_PARAM);
-        }
-
-        protected static String in(String paramName)
-        {
-            return "IN (:" + paramName + ")";
-        }
-
-    }
-
     class DeletePermanentlyBatchOperation implements IBatchOperation<Long>
     {
 
@@ -365,4 +291,79 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     }
 
+    static final String IDENTIFIERS_PARAM = "identifiers";
+
+    static final String DESCRIPTION_PARAM = "description";
+
+    static final String ENTITY_TYPE_PARAM = "entityType";
+
+    static final String REGISTRATOR_ID_PARAM = "registratorId";
+
+    static final String REASON_PARAM = "reason";
+
+    static final String EVENT_TYPE_PARAM = "eventType";
+
+    static final String ENTITY_IDS_PARAM = "entityIds";
+
+    static final String ATTACHMENT_IDS_PARAM = "aIds";
+
+    protected static class SQLBuilder
+    {
+
+        protected static String createSelectPermIdsSQL(final String entitiesTable)
+        {
+            return "SELECT perm_id FROM " + entitiesTable + " WHERE id " + inEntityIds();
+        }
+
+        protected static String createDeleteProperties(final String propertiesTable,
+                String ownerColumnName)
+        {
+            return "DELETE FROM " + propertiesTable + " WHERE " + ownerColumnName + " "
+                    + inEntityIds();
+        }
+
+        protected static String createSelectAttachmentContentIdsSQL(final String ownerColumnName)
+        {
+            return "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE "
+                    + ownerColumnName + " " + inEntityIds();
+        }
+
+        protected static String createDeleteAttachmentContentsSQL()
+        {
+            return "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id "
+                    + in(ATTACHMENT_IDS_PARAM);
+        }
+
+        protected static String createDeleteAttachmentsSQL()
+        {
+            return "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id "
+                    + inEntityIds();
+        }
+
+        protected static String createDeleteEnitiesSQL(final String entitiesTable)
+        {
+            return "DELETE FROM " + entitiesTable + " WHERE id " + inEntityIds();
+        }
+
+        protected static String createInsertEventSQL()
+        {
+            return String
+                    .format("INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
+                            + "VALUES (nextval('%s'), :%s, :%s, :%s, :%s, :%s, :%s)",
+                            TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE,
+                            EVENT_TYPE_PARAM, DESCRIPTION_PARAM, REASON_PARAM,
+                            REGISTRATOR_ID_PARAM, ENTITY_TYPE_PARAM, IDENTIFIERS_PARAM);
+        }
+
+        protected static String inEntityIds()
+        {
+            return in(ENTITY_IDS_PARAM);
+        }
+
+        protected static String in(String paramName)
+        {
+            return "IN (:" + paramName + ")";
+        }
+
+    }
 }
