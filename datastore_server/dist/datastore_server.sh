@@ -133,12 +133,11 @@ else
 fi
 
 command=$1
-ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore -Dpython.path=lib/jython-lib $JAVA_OPTS"
 
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
 CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
 
-CMD="${JAVA_BIN} ${ALL_JAVA_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
+CMD="${JAVA_BIN} ${JAVA_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 
 # ensure that we ignore a possible prefix "--" for any command 
 command="${command#--*}"
