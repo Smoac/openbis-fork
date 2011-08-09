@@ -136,7 +136,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final EntityKind entityKind;
 
-        private final List<TechId> entityIds;
+        private final List<TechId> entityTechIds;
 
         private final PersonPE registrator;
 
@@ -158,14 +158,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String[] additionalQueries;
 
-        DeletePermanentlyBatchOperation(EntityKind entityKind, List<TechId> entityIds,
+        DeletePermanentlyBatchOperation(EntityKind entityKind, List<TechId> entityTechIds,
                 PersonPE registrator, String reason, String sqlPermId, String sqlDeleteProperties,
                 String sqlAttachmentContentIds, String sqlDeleteAttachmentContents,
                 String sqlDeleteAttachments, String sqlDeleteEntity, String sqlInsertEvent,
                 String... additionalQueries)
         {
             this.entityKind = entityKind;
-            this.entityIds = entityIds;
+            this.entityTechIds = entityTechIds;
             this.registrator = registrator;
             this.reason = reason;
             this.sqlPermId = sqlPermId;
@@ -178,7 +178,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.additionalQueries = additionalQueries;
         }
 
-        public void execute(final List<TechId> batchTechIds)
+        public void execute(final List<TechId> batchEntityTechIds)
         {
             executeStatelessAction(new StatelessHibernateCallback()
                 {
@@ -203,9 +203,9 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                             additionalSqlQueries.add(session.createSQLQuery(queryString));
                         }
 
-                        List<Long> techIds = TechId.asLongs(batchTechIds);
+                        List<Long> entityIds = TechId.asLongs(batchEntityTechIds);
 
-                        sqlQueryPermId.setParameterList(ENTITY_IDS_PARAM, techIds);
+                        sqlQueryPermId.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         final List<String> permIdsOrNull = cast(sqlQueryPermId.list());
                         if (permIdsOrNull == null || permIdsOrNull.isEmpty())
                         {
@@ -213,15 +213,15 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         }
 
                         // delete properties
-                        sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, techIds);
+                        sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         sqlQueryDeleteProperties.executeUpdate();
 
                         // delete attachments
-                        sqlQueryAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, techIds);
+                        sqlQueryAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         List<Long> attachmentContentIds = cast(sqlQueryAttachmentContentIds.list());
                         if (attachmentContentIds.size() > 0)
                         {
-                            sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, techIds);
+                            sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, entityIds);
                             sqlQueryDeleteAttachments.executeUpdate();
                             sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_IDS_PARAM,
                                     attachmentContentIds);
@@ -231,16 +231,17 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         // additional queries (optional)
                         for (SQLQuery query : additionalSqlQueries)
                         {
-                            query.setParameter(ENTITY_IDS_PARAM, techIds);
+                            query.setParameter(ENTITY_IDS_PARAM, entityIds);
                             query.executeUpdate();
                         }
 
                         // delete mainEntity
-                        sqlQueryDeleteEntity.setParameterList(ENTITY_IDS_PARAM, techIds);
+                        sqlQueryDeleteEntity.setParameterList(ENTITY_IDS_PARAM, entityIds);
                         sqlQueryDeleteEntity.executeUpdate();
 
                         // create event
-                        sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
+                        sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM,
+                                EventType.DELETION.name());
                         sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
                         sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
                         sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityKind.name());
@@ -261,7 +262,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         public List<TechId> getAllEntities()
         {
-            return entityIds;
+            return entityTechIds;
         }
 
         public String getEntityName()
