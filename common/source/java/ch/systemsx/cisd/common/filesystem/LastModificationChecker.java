@@ -66,8 +66,7 @@ public class LastModificationChecker implements ILastModificationChecker
             UnknownLastChangedException ex)
     {
         String errorMsg =
-                String.format("Could not determine \"last changed time\" of %s: %s", item, ex
-                        .getCause());
+                String.format("Could not determine \"last changed time\" of '%s'.", item);
         return StatusWithResult.<Long> createError(errorMsg);
     }
 
