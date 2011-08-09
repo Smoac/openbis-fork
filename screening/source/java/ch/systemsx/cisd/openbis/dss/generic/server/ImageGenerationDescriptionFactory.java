@@ -75,6 +75,11 @@ class ImageGenerationDescriptionFactory
         List<DatasetAcquiredImagesReference> overlayChannels =
                 getOverlayChannels(request, channelStackReference);
 
+        if (channelsToMerge == null && overlayChannels.size() == 0)
+        {
+            throw new UserFailureException(
+                    "Neither channels nor segmentation objects have been specified!");
+        }
         return new ImageGenerationDescription(channelsToMerge, overlayChannels, sessionId,
                 thumbnailSizeOrNull);
     }

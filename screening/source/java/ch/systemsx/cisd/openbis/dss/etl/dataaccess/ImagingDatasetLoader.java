@@ -184,8 +184,9 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             ImgContainerDTO container = tryGetContainer();
             if (container != null)
             {
-                assert hcsRef.getWellLocation().getX() <= container.getNumberOfColumns();
-                assert hcsRef.getWellLocation().getY() <= container.getNumberOfRows();
+                Location wellLocation = hcsRef.getWellLocation();
+                assert wellLocation.getX() <= container.getNumberOfColumns();
+                assert wellLocation.getY() <= container.getNumberOfRows();
             }
         } else if (micRef != null)
         {
@@ -195,8 +196,12 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
 
     private void validateTileReference(Location tileLocation)
     {
-        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns();
-        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
+        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns() : "Tile x coordinate "
+                + tileLocation.getX() + " is bigger then number of well's columns "
+                + getDataset().getFieldNumberOfColumns();
+        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows() : "Tile y coordinate "
+                + tileLocation.getY() + " is bigger then number of well's rows "
+                + getDataset().getFieldNumberOfRows();
     }
 
     private ImgImageDTO tryGetOriginalImage(long channelId,

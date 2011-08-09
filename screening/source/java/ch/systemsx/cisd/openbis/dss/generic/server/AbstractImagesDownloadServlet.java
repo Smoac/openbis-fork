@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
@@ -88,7 +89,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         try
         {
             responseStream = createImageResponse(params, createDatasetDirectoryProvider(session));
-        } catch (EnvironmentFailureException e)
+        } catch (HighLevelException e)
         {
             operationLog.warn(e.getMessage());
             printErrorResponse(response, e.getMessage());
@@ -123,7 +124,10 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
     private void ensureDatasetAccessible(DatasetAcquiredImagesReference dataset,
             HttpSession session, String sessionId)
     {
-        ensureDatasetAccessible(dataset.getDatasetCode(), session, sessionId);
+        if (dataset != null)
+        {
+            ensureDatasetAccessible(dataset.getDatasetCode(), session, sessionId);
+        }
     }
 
     protected final static void logImageDelivery(ImageGenerationDescription params,
