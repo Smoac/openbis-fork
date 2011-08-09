@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.color;
 
+
 /**
  * A class for calculating a mixed color from a set of pure colors of different relative
  * intensities.
@@ -27,7 +28,7 @@ package ch.systemsx.cisd.common.color;
 public class MixColors
 {
 
-    private static float[] calcWeights(PureHSBColor[] colors, float[] intensities)
+    private static float[] calcWeights(HSBColor[] colors, float[] intensities)
     {
         final float[] effectiveIntensities = new float[intensities.length];
         float sum = 0.0f;
@@ -50,7 +51,7 @@ public class MixColors
      * @param colors The colors to mix.
      * @param intensities The intensities of each color. Has to be the same length as
      *            <var>colors</var>.
-     * @return The mixed color.
+     * @return The mixed (pure) color.
      */
     public static PureHSBColor calcMixedColor(PureHSBColor[] colors, float[] intensities)
     {
@@ -67,6 +68,33 @@ public class MixColors
         }
 
         return new PureHSBColor(hue, brightness);
+    }
+
+    /**
+     * Calculates a mixed color from given <var>colors</var>.
+     * 
+     * @param colors The colors to mix.
+     * @param intensities The intensities of each color. Has to be the same length as
+     *            <var>colors</var>.
+     * @return The mixed color.
+     */
+    public static HSBColor calcMixedColor(HSBColor[] colors, float[] intensities)
+    {
+        assert colors.length == intensities.length;
+
+        final float[] weights = calcWeights(colors, intensities);
+        
+        float hue = 0.0f;
+        float saturation = 0.0f;
+        float brightness = 0.0f;
+        for (int i = 0; i < weights.length; ++i)
+        {
+            hue += weights[i] * colors[i].getHue();
+            saturation += weights[i] * colors[i].getSaturation();
+            brightness = Math.max(brightness, intensities[i] * colors[i].getBrightness());
+        }
+
+        return new HSBColor(hue, saturation, brightness);
     }
 
 }

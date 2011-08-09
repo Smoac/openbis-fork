@@ -150,4 +150,11 @@ public class HSBColor
     {
         return Color.getHSBColor(hue, saturation, brightness);
     }
+
+    @Override
+    public String toString()
+    {
+        return "HSBColor [hue=" + hue + ", saturation=" + saturation + ", brightness=" + brightness
+                + "]";
+    }
 }

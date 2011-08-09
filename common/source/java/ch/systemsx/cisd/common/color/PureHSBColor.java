@@ -21,14 +21,14 @@ import java.awt.Color;
 /**
  * A pure color object in the HSB (Hue, Saturation, Brightness) color space.
  * <p>
- * A pure color is defined by having saturation = 1.0. 
+ * A pure color is defined by having saturation = 1.0.
  * 
  * @author Bernd Rinn
  */
 public class PureHSBColor extends HSBColor
 {
     /**
-     * Constructs a PureHSBColor from the given {@link java.awt.Color}. 
+     * Constructs a PureHSBColor from the given {@link java.awt.Color}.
      * 
      * @throw {@link IllegalArgumentException} if <var>color</var> is not pure.
      */
@@ -51,6 +51,12 @@ public class PureHSBColor extends HSBColor
     public boolean isPure()
     {
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PureHSBColor [hue=" + getHueDegree() + ", brightness=" + getBrightness() + "]";
     }
 
 }
