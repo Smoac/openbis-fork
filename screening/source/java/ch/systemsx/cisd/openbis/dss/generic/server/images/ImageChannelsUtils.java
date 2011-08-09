@@ -36,6 +36,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -129,6 +130,10 @@ public class ImageChannelsUtils
                     image = overlayImage.getBufferedImage();
                 }
             }
+        }
+        if (image == null)
+        {
+            throw new UserFailureException("No image is available for parameters: " + params);
         }
         return createResponseContentStream(image, null);
     }
