@@ -38,13 +38,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
@@ -311,29 +311,21 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         // NOTE: we use EXPERIMENT_ALL_TABLE, not DELETED_EXPERIMENTS_VIEW because we still want to
         // be able to directly delete samples without going to trash (trash may be disabled)
         final String experimentsTable = TableNames.EXPERIMENTS_ALL_TABLE;
-        final String sqlPermId =
-                "SELECT perm_id FROM " + experimentsTable + " WHERE id IN (:entityIds)";
-        final String sqlDeleteProperties =
-                "DELETE FROM " + TableNames.EXPERIMENT_PROPERTIES_TABLE
-                        + " WHERE expe_id IN (:entityIds)";
-        final String sqlAttachmentContentIds =
-                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
-                        + " WHERE expe_id IN (:entityIds)";
-        final String sqlDeleteAttachmentContents =
-                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id IN (:aIds)";
-        final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id IN (:entityIds)";
-        final String sqlDeleteSample =
-                "DELETE FROM " + experimentsTable + " WHERE id IN (:entityIds)";
-        final String sqlInsertEvent =
-                String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
-                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
-        executeDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason, sqlPermId,
-                sqlDeleteProperties, sqlAttachmentContentIds, sqlDeleteAttachmentContents,
-                sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent);
+        final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(experimentsTable);
+        final String sqlDeleteProperties =
+                SQLBuilder.createDeleteProperties(TableNames.EXPERIMENT_PROPERTIES_TABLE,
+                        ColumnNames.EXPERIMENT_COLUMN);
+        final String sqlSelectAttachmentContentIds =
+                SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.EXPERIMENT_COLUMN);
+        final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
+        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
+        final String sqlDeleteExperiments = SQLBuilder.createDeleteEnitiesSQL(experimentsTable);
+        final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
+
+        executeDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason,
+                sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments, sqlInsertEvent);
     }
 
     @Override

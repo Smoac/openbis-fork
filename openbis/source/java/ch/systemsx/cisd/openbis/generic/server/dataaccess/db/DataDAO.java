@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -56,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -472,34 +472,38 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // NOTE: we use DATA_ALL_TABLE, not DELETED_DATA_VIEW because we still want to be
         // able to directly delete data without going to trash (trash may be disabled)
         final String dataTable = TableNames.DATA_ALL_TABLE;
-        final String sqlPermId = "SELECT perm_id FROM " + dataTable + " WHERE id IN (:entityIds)";
-        final String sqlDeleteProperties =
-                "DELETE FROM " + TableNames.DATA_SET_PROPERTIES_TABLE
-                        + " WHERE ds_id IN (:entityIds)";
-        final String sqlDeleteChildrenConnections =
-                "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE
-                        + " WHERE data_id_parent IN (:entityIds)";
-        final String sqlDeleteComponentConnections =
-                "UPDATE " + TableNames.DATA_ALL_TABLE
-                        + " SET ctnr_id = NULL WHERE ctnr_id IN (:entityIds)";
-        final String sqlAttachmentContentIds =
-                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
-                        + " WHERE samp_id IN (:entityIds)";
-        final String sqlDeleteAttachmentContents =
-                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id IN (:aIds)";
-        final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id IN (:entityIds)";
-        final String sqlDeleteSample = "DELETE FROM " + dataTable + " WHERE id IN (:entityIds)";
-        final String sqlInsertEvent =
-                String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
-                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
-        executeDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason, sqlPermId,
-                sqlDeleteProperties, sqlAttachmentContentIds, sqlDeleteAttachmentContents,
+        // FIXME use code
+        final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(dataTable);
+        final String sqlDeleteProperties =
+                SQLBuilder.createDeleteProperties(TableNames.DATA_SET_PROPERTIES_TABLE,
+                        ColumnNames.DATA_SET_COLUMN);
+        final String sqlSelectAttachmentContentIds =
+                SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.DATA_SET_COLUMN);
+        final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
+        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
+        final String sqlDeleteSample = SQLBuilder.createDeleteEnitiesSQL(dataTable);
+        final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
+        // data set specific queries
+        final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
+        final String sqlDeleteComponentConnections = createDeleteComponentConnectionsSQL();
+
+        executeDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason, sqlSelectPermIds,
+                sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
                 sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent,
                 sqlDeleteChildrenConnections, sqlDeleteComponentConnections);
+    }
+
+    private static String createDeleteChildrenConnectionsSQL()
+    {
+        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE + " WHERE data_id_parent "
+                + SQLBuilder.inEntityIds();
+    }
+
+    private static String createDeleteComponentConnectionsSQL()
+    {
+        return "UPDATE " + TableNames.DATA_ALL_TABLE + " SET ctnr_id = NULL WHERE ctnr_id "
+                + SQLBuilder.inEntityIds();
     }
 
     @SuppressWarnings("unchecked")

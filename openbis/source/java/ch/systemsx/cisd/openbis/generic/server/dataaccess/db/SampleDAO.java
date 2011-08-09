@@ -42,11 +42,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -383,28 +383,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         // NOTE: we use SAMPLES_ALL_TABLE, not DELETED_SAMPLES_VIEW because we still want to be
         // able to directly delete samples without going to trash (trash may be disabled)
         final String samplesTable = TableNames.SAMPLES_ALL_TABLE;
-        final String sqlPermId =
-                "SELECT perm_id FROM " + samplesTable + " WHERE id IN (:entityIds)";
-        final String sqlDeleteProperties =
-                "DELETE FROM " + TableNames.SAMPLE_PROPERTIES_TABLE
-                        + " WHERE samp_id IN (:entityIds)";
-        final String sqlAttachmentContentIds =
-                "SELECT exac_id FROM " + TableNames.ATTACHMENTS_TABLE
-                        + " WHERE samp_id IN (:entityIds)";
-        final String sqlDeleteAttachmentContents =
-                "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id in (:aIds)";
-        final String sqlDeleteAttachments =
-                "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id IN (:entityIds)";
-        final String sqlDeleteSample = "DELETE FROM " + samplesTable + " WHERE id IN (:entityIds)";
-        final String sqlInsertEvent =
-                String.format(
-                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
-                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifiers)",
-                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
-        executeDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlPermId,
-                sqlDeleteProperties, sqlAttachmentContentIds, sqlDeleteAttachmentContents,
-                sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent);
+        final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(samplesTable);
+        final String sqlDeleteProperties =
+                SQLBuilder.createDeleteProperties(TableNames.SAMPLE_PROPERTIES_TABLE,
+                        ColumnNames.SAMPLE_COLUMN);
+        final String sqlSelectAttachmentContentIds =
+                SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.SAMPLE_COLUMN);
+        final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
+        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
+        final String sqlDeleteSamples = SQLBuilder.createDeleteEnitiesSQL(samplesTable);
+        final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
+
+        executeDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlSelectPermIds,
+                sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
+                sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
     }
 
     public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
