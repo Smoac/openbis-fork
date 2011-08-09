@@ -1092,7 +1092,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
 
-    public void loadImages(List<PlateImageReference> imageReferences, final boolean convertToPNG,
+    public void loadImages(final List<PlateImageReference> imageReferences,
+            final boolean convertToPNG,
             final IPlateImageHandler plateImageHandler) throws IOException
     {
         try
@@ -1119,39 +1120,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                             dssService.getService().loadImages(sessionToken,
                                                     references);
                                 }
-                                try
-                                {
-                                    final ConcatenatedFileOutputStreamWriter imagesWriter =
-                                            new ConcatenatedFileOutputStreamWriter(stream);
-                                    int index = 0;
-                                    long size;
-                                    do
-                                    {
-                                        final ByteArrayOutputStream outputStream =
-                                                new ByteArrayOutputStream();
-                                        size = imagesWriter.writeNextBlock(outputStream);
-                                        if (size > 0)
-                                        {
-                                            plateImageHandler.handlePlateImage(
-                                                    references.get(index),
-                                                    outputStream.toByteArray());
-                                        }
-                                        index++;
-                                    } while (size >= 0);
-                                } catch (IOException ex)
-                                {
-                                    throw new WrappedIOException(ex);
-                                } finally
-                                {
-                                    try
-                                    {
-                                        stream.close();
-                                    } catch (IOException ex)
-                                    {
-                                        throw new WrappedIOException(ex);
-                                    }
-                                }
 
+                                processImagesStreamUnchecked(plateImageHandler, imageReferences, stream);
                             }
                         });
         } catch (WrappedIOException ex)
@@ -1200,21 +1170,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         checkDSSMinimalMinorVersion(dssServiceHolder, "loadImages", List.class, ImageSize.class);
         final InputStream stream =
                 service.loadImages(sessionToken, plateImageReferences, thumbnailSizeOrNull);
-        final ConcatenatedFileOutputStreamWriter imagesWriter =
-                new ConcatenatedFileOutputStreamWriter(stream);
-        int index = 0;
-        long size;
-        do
-        {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            size = imagesWriter.writeNextBlock(outputStream);
-            if (size > 0)
-            {
-                plateImageHandler.handlePlateImage(plateImageReferences.get(index),
-                        outputStream.toByteArray());
-            }
-            index++;
-        } while (size >= 0);
+        processImagesStream(plateImageHandler, plateImageReferences, stream);
     }
 
     public byte[] loadImageWellCaching(final PlateImageReference imageReference,
@@ -1277,38 +1233,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
                                             sizeOrNull);
-                            try
-                            {
-                                final ConcatenatedFileOutputStreamWriter imagesWriter =
-                                        new ConcatenatedFileOutputStreamWriter(stream);
-                                int index = 0;
-                                long size;
-                                do
-                                {
-                                    final ByteArrayOutputStream outputStream =
-                                            new ByteArrayOutputStream();
-                                    size = imagesWriter.writeNextBlock(outputStream);
-                                    if (size > 0)
-                                    {
-                                        plateImageHandler.handlePlateImage(references.get(index),
-                                                outputStream.toByteArray());
-                                    }
-                                    index++;
-                                } while (size >= 0);
-                            } catch (IOException ex)
-                            {
-                                throw new WrappedIOException(ex);
-                            } finally
-                            {
-                                try
-                                {
-                                    stream.close();
-                                } catch (IOException ex)
-                                {
-                                    throw new WrappedIOException(ex);
-                                }
-                            }
-
+                            
+                            processImagesStreamUnchecked(plateImageHandler, references, stream);
                         }
                     });
     }
@@ -1384,37 +1310,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             final InputStream stream =
                                     dssService.getService().loadThumbnailImages(sessionToken,
                                             references);
-                            try
-                            {
-                                final ConcatenatedFileOutputStreamWriter imagesWriter =
-                                        new ConcatenatedFileOutputStreamWriter(stream);
-                                int index = 0;
-                                long size;
-                                do
-                                {
-                                    final ByteArrayOutputStream outputStream =
-                                            new ByteArrayOutputStream();
-                                    size = imagesWriter.writeNextBlock(outputStream);
-                                    if (size > 0)
-                                    {
-                                        plateImageHandler.handlePlateImage(references.get(index),
-                                                outputStream.toByteArray());
-                                    }
-                                    index++;
-                                } while (size >= 0);
-                            } catch (IOException ex)
-                            {
-                                throw new WrappedIOException(ex);
-                            } finally
-                            {
-                                try
-                                {
-                                    stream.close();
-                                } catch (IOException ex)
-                                {
-                                    throw new WrappedIOException(ex);
-                                }
-                            }
+                            processImagesStreamUnchecked(plateImageHandler, references, stream);
 
                         }
                     });
@@ -1742,40 +1638,51 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
                                             configuration);
-                            try
-                            {
-                                final ConcatenatedFileOutputStreamWriter imagesWriter =
-                                        new ConcatenatedFileOutputStreamWriter(stream);
-                                int index = 0;
-                                long size;
-                                do
-                                {
-                                    final ByteArrayOutputStream outputStream =
-                                            new ByteArrayOutputStream();
-                                    size = imagesWriter.writeNextBlock(outputStream);
-                                    if (size > 0)
-                                    {
-                                        plateImageHandler.handlePlateImage(references.get(index),
-                                                outputStream.toByteArray());
-                                    }
-                                    index++;
-                                } while (size >= 0);
-                            } catch (IOException ex)
-                            {
-                                throw new WrappedIOException(ex);
-                            } finally
-                            {
-                                try
-                                {
-                                    stream.close();
-                                } catch (IOException ex)
-                                {
-                                    throw new WrappedIOException(ex);
-                                }
-                            }
+                            processImagesStreamUnchecked(plateImageHandler, references, stream);
 
                         }
                     });
+    }
+
+    private void processImagesStreamUnchecked(final IPlateImageHandler plateImageHandler,
+            List<PlateImageReference> references, final InputStream stream)
+    {
+        try
+        {
+            processImagesStream(plateImageHandler, references, stream);
+        } catch (IOException ex)
+        {
+            throw new WrappedIOException(ex);
+        } finally
+        {
+            try
+            {
+                stream.close();
+            } catch (IOException ex)
+            {
+                throw new WrappedIOException(ex);
+            }
+        }
+    }
+
+    private void processImagesStream(final IPlateImageHandler plateImageHandler,
+            List<PlateImageReference> references, final InputStream stream) throws IOException
+    {
+        final ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+        int index = 0;
+        long size;
+        do
+        {
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            size = imagesWriter.writeNextBlock(outputStream);
+            if (size >= 0)
+            {
+                plateImageHandler.handlePlateImage(references.get(index),
+                        outputStream.toByteArray());
+            }
+            index++;
+        } while (size >= 0);
     }
 
 }
