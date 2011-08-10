@@ -69,40 +69,21 @@ public class WavelengthColor
     }
 
     /**
-     * Creates a physiological HSB color for the given <var>wavelength<var> in nanometer.
-     * <p>
-     * Does not perform a Gamma correction.
-     */
-    public static PureHSBColor getHSBColorForWavelength(int wavelength)
-    {
-        return PureHSBColor.createFromRGBColor(getRGBColorForWavelength(wavelength, NO_GAMMA));
-    }
-
-    /**
      * Creates a physiological RGB color for the given <var>wavelength<var> in nanometer.
      * <p>
      * Does not perform a Gamma correction.
      */
-    public static Color getRGBColorForWavelength(int wavelength)
+    public static Color getColorForWavelength(int wavelength)
     {
-        return getRGBColorForWavelength(wavelength, NO_GAMMA);
+        return getColorForWavelength(wavelength, NO_GAMMA);
     }
 
-    /**
-     * Creates a physiological HSB color for the given <var>wavelength<var> in nano-meters.
-     * <p>
-     * Performs a Gamma correction with the given <var>gamma</var> value.
-     */
-    public static PureHSBColor getHSBColorForWavelength(int wavelength, float gamma)
-    {
-        return PureHSBColor.createFromRGBColor(getRGBColorForWavelength(wavelength, gamma));
-    }
     /**
      * Creates a physiological RGB color for the given <var>wavelength<var> in nano-meters.
      * <p>
      * Performs a Gamma correction with the given <var>gamma</var> value.
      */
-    public static Color getRGBColorForWavelength(int wavelength, float gamma)
+    public static Color getColorForWavelength(int wavelength, float gamma)
     {
         final float red, green, blue;
 

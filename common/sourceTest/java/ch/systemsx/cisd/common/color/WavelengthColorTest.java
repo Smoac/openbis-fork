@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.color;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.awt.Color;
 
 import org.testng.annotations.Test;
 
@@ -28,21 +30,22 @@ import org.testng.annotations.Test;
 public class WavelengthColorTest
 {
 
+    private static String hex(Color c)
+    {
+        return String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+    }
+    
     @Test
     public void testCommonDyes()
     {
-        PureHSBColor dapi = WavelengthColor.getHSBColorForWavelength(461);
-        assertEquals(214.8f, dapi.getHueDegree(), 0.05f);
-        assertEquals(1.0f, dapi.getBrightness());
-        PureHSBColor gfp = WavelengthColor.getHSBColorForWavelength(509);
-        assertEquals(123.1f, gfp.getHueDegree(), 0.05f);
-        assertEquals(1.0f, gfp.getBrightness());
-        PureHSBColor fitc = WavelengthColor.getHSBColorForWavelength(521);
-        assertEquals(110.6f, fitc.getHueDegree(), 0.05f);
-        assertEquals(1.0f, fitc.getBrightness());
-        PureHSBColor cy5 = WavelengthColor.getHSBColorForWavelength(660);
-        assertEquals(0.0f, cy5.getHueDegree());
-        assertEquals(1.0f, cy5.getBrightness());
+        Color dapi = WavelengthColor.getColorForWavelength(461);
+        assertEquals("006bff", hex(dapi));
+        Color gfp = WavelengthColor.getColorForWavelength(509);
+        assertEquals("00ff0d", hex(gfp));
+        Color fitc = WavelengthColor.getColorForWavelength(521);
+        assertEquals("28ff00", hex(fitc));
+        Color cy5 = WavelengthColor.getColorForWavelength(660);
+        assertEquals("ff0000", hex(cy5));
     }
     
 }

@@ -16,118 +16,135 @@
 
 package ch.systemsx.cisd.common.color;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.awt.Color;
 
 import org.testng.annotations.Test;
 
 /**
- * Test cases fir {@link MixColors}.
+ * Test cases for {@link MixColors}.
  * 
  * @author Bernd Rinn
  */
 public class MixColorsTest
 {
+    private static String tohex(Color c)
+    {
+        return String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    private static Color fromhex(String hex)
+    {
+        int red = Integer.valueOf(hex.substring(0, 2), 16);
+        int green = Integer.valueOf(hex.substring(2, 4), 16);
+        int blue = Integer.valueOf(hex.substring(4, 6), 16);
+        return new Color(red, green, blue);
+    }
+
     @Test
     public void testMixTwoPureColorsFullIntensity()
     {
-        PureHSBColor color = MixColors.calcMixedColor(new PureHSBColor[]
-            { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(0.5f, 1.0f) }, new float[]
-            { 1f, 1f });
-        assertEquals(90.0f, color.getHueDegree());
-        assertEquals(1.0f, color.getBrightness());
+        Color[] colors = new Color[]
+            { fromhex("ff0000"), fromhex("00cccc") };
+        assertEquals("ffcccc", tohex(MixColors.calcMixedColorLinear(colors)));
+        assertEquals("ffa3a3", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
 
     @Test
-    public void testMixTwoPureColorsFullAndHalfIntensity()
+    public void testMixTwoPureColorsLowBrightness()
     {
-        PureHSBColor color = MixColors.calcMixedColor(new PureHSBColor[]
-            { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(0.5f, 1.0f) }, new float[]
-            { 1f, 0.5f });
-        assertEquals(60.0f, color.getHueDegree());
-        assertEquals(1.0f, color.getBrightness());
+        Color[] colors = new Color[]
+            { fromhex("100000"), fromhex("000808") };
+        assertEquals("100808", tohex(MixColors.calcMixedColorLinear(colors)));
+        assertEquals("100404", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
 
     @Test
-    public void testMixTwoPureColorsFullAndHalfBrightness()
+    public void testMixTwoPureColorsLowBrightnessIncreasing()
     {
-        PureHSBColor color = MixColors.calcMixedColor(new PureHSBColor[]
-            { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(0.5f, 0.5f) }, new float[]
-            { 1f, 1f });
-        assertEquals(60.0f, color.getHueDegree());
-        assertEquals(1.0f, color.getBrightness());
+        Color[] colors = new Color[]
+                { fromhex("100000"), fromhex("080808") };
+        assertEquals("180808", tohex(MixColors.calcMixedColorLinear(colors)));
+        assertEquals("180505", tohex(MixColors.calcMixedColorQuadratic(colors)));
     }
 
     @Test
-    public void testMixTwoPureColorsZeroAndFullIntensity()
+    public void testMixTwoPureColorsLowIntensity()
     {
-        PureHSBColor color = MixColors.calcMixedColor(new PureHSBColor[]
-            { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(2f / 3f, 1.0f) }, new float[]
-            { 0f, 1f });
-        assertEquals(240.0f, color.getHueDegree());
-        assertEquals(1.0f, color.getBrightness());
+        Color[] colors = new Color[]
+            { fromhex("FF0000"), fromhex("00FFFF") };
+        float[] intensities = new float[] { 0.063f, 0.0314f };
+        assertEquals("100808", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
+        assertEquals("100404", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
     }
 
     @Test
-    public void testMixThreePureColorsFullQuarterQuarterIntensity()
+    public void testMixTwoPureColorsLowIntensityBrightnessIncreaseing()
     {
-        PureHSBColor color =
-                MixColors.calcMixedColor(new PureHSBColor[]
-                    { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(1f / 6f, 1.0f),
-                            new PureHSBColor(2f / 3f, 1.0f) }, new float[]
-                    { 1f, 0.25f, 0.25f });
-        assertEquals(50.0f, color.getHueDegree(), 1e-5f);
-        assertEquals(1.0f, color.getBrightness());
+        Color[] colors = new Color[]
+                { fromhex("FF0000"), fromhex("FFFFFF") };
+        float[] intensities = new float[] { 0.063f, 0.0314f };
+        assertEquals("180808", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
+        assertEquals("180505", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
     }
 
     @Test
-    public void testMixThreePureColorsFullQuarterHalfIntensityHalfBrightness()
+    public void testMixDAPIGFPCY5()
     {
-        PureHSBColor color =
-                MixColors.calcMixedColor(new PureHSBColor[]
-                    { new PureHSBColor(0.0f, 1.0f), new PureHSBColor(1f / 6f, 0.5f),
-                            new PureHSBColor(2f / 3f, 1.0f) }, new float[]
-                    { 1f, 0.5f, 0.25f });
-        assertEquals(50.0f, color.getHueDegree(), 1e-5f);
-        assertEquals(1.0f, color.getBrightness());
+        Color dapi = WavelengthColor.getColorForWavelength(461); // 006bff
+        Color gfp = WavelengthColor.getColorForWavelength(509);  // 00ff0d 
+        Color cy5 = WavelengthColor.getColorForWavelength(660);  // ff0000
+
+        assertEquals("3ee5ff", tohex(MixColors.calcMixedColorLinear(new Color[]
+            { dapi, gfp, cy5 }, new float[]
+            { 1f, 0.5f, 0.25f })));
+        assertEquals("10a9ff", tohex(MixColors.calcMixedColorQuadratic(new Color[]
+            { dapi, gfp, cy5 }, new float[]
+            { 1f, 0.5f, 0.25f })));
+
+        assertEquals("7ea9ff", tohex(MixColors.calcMixedColorLinear(new Color[]
+            { dapi, gfp, cy5 }, new float[]
+            { 1f, 0.25f, 0.5f })));
+        assertEquals("407bff", tohex(MixColors.calcMixedColorQuadratic(new Color[]
+            { dapi, gfp, cy5 }, new float[]
+            { 1f, 0.25f, 0.5f })));
+    }
+    
+    @Test
+    public void testManyLowIntensityColors()
+    {
+        Color[] colors = new Color[100];
+        float[] intensities = new float[colors.length];
+        colors[0] = fromhex("0000ff");
+        intensities[0] = 1.0f;
+        for (int i = 1; i < colors.length; ++i)
+        {
+            colors[i] = fromhex("ffff00");
+            intensities[i] = 0.01f;
+        }
+        // Linear: pretty white
+        assertEquals("fcfcff", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
+        // Quadratic: still blue
+        assertEquals("0303ff", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
     }
 
     @Test
-    public void testMixFourPureColorsFullQuarterHalfIntensityHalfBrightness()
+    public void testManyColors()
     {
-        PureHSBColor color =
-                MixColors.calcMixedColor(new PureHSBColor[]
-                    { new PureHSBColor(1f / 3f, 1.0f), new PureHSBColor(0f, 0.5f),
-                            new PureHSBColor(2f / 3f, 0.5f), new PureHSBColor(15f / 18f, 0.25f) },
-                        new float[]
-                            { 0.9f, 0.1f, 0.1f, 0.1f });
-        assertEquals(124.39f, color.getHueDegree(), 5e-4f);
-        assertEquals(0.9f, color.getBrightness());
-    }
-
-    @Test
-    public void testMixTwoColorsFullIntensityDifferentSaturation()
-    {
-        HSBColor color = MixColors.calcMixedColor(new HSBColor[]
-            { new HSBColor(0.0f, 1.0f, 1.0f), new HSBColor(0.5f, 0.5f, 1.0f) }, new float[]
-            { 1f, 1f });
-        assertEquals(90.0f, color.getHueDegree());
-        assertEquals(0.75f, color.getSaturation());
-        assertEquals(1.0f, color.getBrightness());
-    }
-
-    @Test
-    public void testMixFourColorsFullQuarterHalfIntensityHalfBrightness()
-    {
-        HSBColor color =
-                MixColors.calcMixedColor(new HSBColor[]
-                    { new HSBColor(1f / 3f, 1.0f), new HSBColor(0f, 0.5f, 0.5f),
-                            new HSBColor(2f / 3f, 0.5f, 0.5f),
-                            new HSBColor(15f / 18f, 0.25f, 0.25f) }, new float[]
-                    { 1f, 0.1f, 0.1f, 0.1f });
-        System.out.println(color);
-        assertEquals(124f, color.getHueDegree());
-        assertEquals(0.9389f, color.getSaturation(), 1e-4f);
-        assertEquals(1f, color.getBrightness());
+        Color[] colors = new Color[100];
+        float[] intensities = new float[colors.length];
+        colors[0] = fromhex("0000ff");
+        intensities[0] = 1.0f;
+        for (int i = 1; i < colors.length; ++i)
+        {
+            colors[i] = fromhex("ffff00");
+            intensities[i] = 0.1f;
+        }
+        // Linear: yellow
+        assertEquals("ffff1a", tohex(MixColors.calcMixedColorLinear(colors, intensities)));
+        // Quadratic: white
+        assertEquals("fcfcff", tohex(MixColors.calcMixedColorQuadratic(colors, intensities)));
     }
 
 }
