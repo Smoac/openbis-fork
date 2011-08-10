@@ -85,6 +85,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE</value>
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExternalDataPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE</value>
 
