@@ -96,6 +96,8 @@ public class NewDataSetMetadataDTO implements Serializable
 
     /**
      * The codes of the parent data sets for this new data set. The list may be empty.
+     * 
+     * @since 1.3
      */
     public List<String> getParentDataSetCodes()
     {
@@ -106,6 +108,7 @@ public class NewDataSetMetadataDTO implements Serializable
      * Sets the parent data sets of this data set.
      * 
      * @param codesOrNull If the value is null, the parents are cleared.
+     * @since 1.3
      */
     public void setParentDataSetCodes(List<String> codesOrNull)
     {

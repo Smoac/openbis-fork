@@ -156,7 +156,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     public int getMinorVersion()
     {
-        return 2;
+        return 3;
     }
 
     /**
