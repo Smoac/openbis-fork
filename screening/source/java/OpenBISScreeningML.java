@@ -1001,6 +1001,103 @@ public class OpenBISScreeningML
         }
     }
 
+    /**
+     * Uploads specified data set for specified plate. The data set code will be returned.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Upload data set /path/to/my-data-set with properties DESCRIPTION and NUMBER for 
+     * % plate P005 in space SPACE
+     * % with data set  201007091122-928 as the parent
+     * properties = {'DESCRIPTION' 'hello example'; 'NUMBER' 3.14}
+     * parents = {'201007091122-928' }
+     * datasetcode = OpenBISScreeningML.uploadDataSetForPlateAndParents('/SPACE/P005', parents, '/path/to/my-data-set', 'HCS_IMAGE', properties)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code.
+     * @param parentDataSetCodeObjects The codes of the parents of this data set
+     * @param dataSetFilePath Path to the data set file/folder to be uploaded.
+     * @param dataSetType Data set type.
+     * @param dataSetProperties A two dimensional array where the first column contains the property
+     *            codes and the second column the corresponding property values.
+     */
+    public static Object uploadDataSetForPlateAndParents(String augmentedPlateCode,
+            Object[] parentDataSetCodeObjects, String dataSetFilePath, String dataSetType,
+            Object[][] dataSetProperties)
+    {
+        checkLoggedIn();
+        Plate plateIdentifier = getPlate(augmentedPlateCode);
+        List<String> dataSetCodes = createStringList(parentDataSetCodeObjects);
+        File dataSetFile = new File(dataSetFilePath);
+        if (dataSetFile.exists() == false)
+        {
+            throw new RuntimeException("Unknown data set file path '" + dataSetFilePath + "'.");
+        }
+        try
+        {
+            Map<String, String> map = createMap(dataSetProperties);
+            IDataSetDss dataSet =
+                    openbis.putDataSet(plateIdentifier, dataSetFile, new NewDataSetMetadataDTO(
+                            dataSetType, map, dataSetCodes));
+            return dataSet.getCode();
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Couldn't upload data set for plate '" + augmentedPlateCode
+                    + "'.", ex);
+        }
+    }
+
+    /**
+     * Uploads a data set to the specified experiment, setting the data set parents. The data set
+     * code will be returned.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Upload data set /path/to/my-data-set with property DESCRIPTION and N 
+     * % to experiment E103 in project PROJECT and space SPACE 
+     * % with data set  201007091122-928 as the parent
+     * properties = {'DESCRIPTION' 'hello example' }
+     * parents = {'201007091122-928' }
+     * datasetcode = OpenBISScreeningML.uploadDataSetWithParents('/SPACE/PROJECT/E103', parents, '/path/to/my-data-set', 'HCS_IMAGE', properties)
+     * </pre>
+     * 
+     * @param augmentedExperimentCode The augmented experiment code.
+     * @param parentDataSetCodeObjects The codes of the parents of this data set
+     * @param dataSetFilePath Path to the data set file/folder to be uploaded.
+     * @param dataSetType Data set type.
+     * @param dataSetProperties A two dimensional array where the first column contains the property
+     *            codes and the second column the corresponding property values.
+     */
+    public static Object uploadDataSetForExperimentAndParents(String augmentedExperimentCode,
+            Object[] parentDataSetCodeObjects, String dataSetFilePath, String dataSetType,
+            Object[][] dataSetProperties)
+    {
+        checkLoggedIn();
+        ExperimentIdentifier experimentIdentifier =
+                getExperimentIdentifierOrFail(augmentedExperimentCode);
+        List<String> dataSetCodes = createStringList(parentDataSetCodeObjects);
+        File dataSetFile = new File(dataSetFilePath);
+        if (dataSetFile.exists() == false)
+        {
+            throw new RuntimeException("Unknown data set file path '" + dataSetFilePath + "'.");
+        }
+        try
+        {
+            Map<String, String> map = createMap(dataSetProperties);
+            IDataSetDss dataSet =
+                    openbis.putDataSet(experimentIdentifier, dataSetFile,
+                            new NewDataSetMetadataDTO(dataSetType, map, dataSetCodes));
+            return dataSet.getCode();
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Couldn't upload data set for experiment '"
+                    + augmentedExperimentCode + "' and parents '"
+                    + Arrays.toString(parentDataSetCodeObjects) + "'.", ex);
+        }
+    }
+
     private static Map<String, String> createMap(Object[][] properties)
     {
         Map<String, String> map = new HashMap<String, String>();
@@ -1013,6 +1110,16 @@ public class OpenBISScreeningML
             }
         }
         return map;
+    }
+
+    private static List<String> createStringList(Object[] identifiers)
+    {
+        List<String> list = new ArrayList<String>();
+        for (Object identifier : identifiers)
+        {
+            list.add(identifier.toString());
+        }
+        return list;
     }
 
     //

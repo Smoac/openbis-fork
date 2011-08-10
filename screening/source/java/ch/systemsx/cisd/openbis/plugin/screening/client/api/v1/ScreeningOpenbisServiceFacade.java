@@ -559,8 +559,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
-            PlateIdentifier plateIdentifier,
-            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException
+            PlateIdentifier plateIdentifier, IDataSetFilter dataSetFilter)
+            throws IllegalStateException, EnvironmentFailureException
     {
         checkASMinimalMinorVersion("getPlateSample", PlateIdentifier.class);
         Sample sample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
@@ -615,19 +615,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
     }
 
-    /**
-     * Upload a new data set to the DSS for a plate.
-     * 
-     * @param plateIdentifier Identifier of a plate that should become owner of the new data set
-     * @param dataSetFile A file or folder containing the data
-     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
-     *            data set
-     * @return A proxy to the newly added data set
-     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
-     * @throws IOException when accessing the data set file or folder fails
-     */
     public IDataSetDss putDataSet(PlateIdentifier plateIdentifier, File dataSetFile,
             NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
             EnvironmentFailureException, IOException
@@ -636,14 +623,33 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return createDataSetDss(sample, dataSetMetadataOrNull, dataSetFile);
     }
 
-    private IDataSetDss createDataSetDss(Sample sample,
-            NewDataSetMetadataDTO dataSetMetadataOrNull, File dataSetFile) throws IOException
+    public IDataSetDss putDataSet(ExperimentIdentifier experimentIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
+            EnvironmentFailureException, IOException
     {
+        final DataSetOwner dataSetOwner =
+                new DataSetOwner(DataSetOwnerType.EXPERIMENT,
+                        experimentIdentifier.getAugmentedCode());
         final NewDataSetMetadataDTO dataSetMetadata =
                 (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO()
                         : dataSetMetadataOrNull;
+        return createDatasetDss(dataSetMetadata, dataSetFile, dataSetOwner);
+    }
+
+    private IDataSetDss createDataSetDss(Sample sample,
+            NewDataSetMetadataDTO dataSetMetadataOrNull, File dataSetFile) throws IOException
+    {
         final DataSetOwner dataSetOwner =
                 new DataSetOwner(DataSetOwnerType.SAMPLE, sample.getIdentifier());
+        final NewDataSetMetadataDTO dataSetMetadata =
+                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO()
+                        : dataSetMetadataOrNull;
+        return createDatasetDss(dataSetMetadata, dataSetFile, dataSetOwner);
+    }
+
+    private IDataSetDss createDatasetDss(NewDataSetMetadataDTO dataSetMetadata, File dataSetFile,
+            final DataSetOwner dataSetOwner) throws IOException
+    {
         final String dataSetFolderNameOrNull =
                 dataSetFile.isDirectory() ? dataSetFile.getName() : null;
         final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
@@ -1643,7 +1649,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     });
     }
-
     private void processImagesStreamUnchecked(final IPlateImageHandler plateImageHandler,
             List<PlateImageReference> references, final InputStream stream)
     {

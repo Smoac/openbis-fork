@@ -292,6 +292,24 @@ public interface IScreeningOpenbisServiceFacade
             EnvironmentFailureException, IOException;
 
     /**
+     * Upload a new data set to the DSS for a plate.
+     * 
+     * @param experimentIdentifier Identifier of a experiment that should become owner of the new
+     *            data set
+     * @param dataSetFile A file or folder containing the data
+     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
+     *            data set
+     * @return A proxy to the newly added data set
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     * @throws IOException when accessing the data set file or folder fails
+     */
+    public IDataSetDss putDataSet(ExperimentIdentifier experimentIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
+            EnvironmentFailureException, IOException;
+
+    /**
      * Converts the given list of {@link PlateWellReferenceWithDatasets} into a list of
      * {@link FeatureVectorDatasetWellReference}.
      * 
