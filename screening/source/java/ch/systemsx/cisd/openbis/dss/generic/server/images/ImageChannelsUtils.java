@@ -771,9 +771,10 @@ public class ImageChannelsUtils
     private static void setColorComponentsForChannelIndex(int[] colorBuffer, Color singleColor,
             ImageChannelColor channelColor)
     {
+        int maxIngredient = extractMaxColorIngredient(singleColor);
         for (int i : getRGBColorIndexes(channelColor))
         {
-            colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
+            colorBuffer[i] = Math.max(colorBuffer[i], maxIngredient);
         }
     }
 
