@@ -41,4 +41,8 @@ echo "Creating database dumps for $OPENBIS_DB and $IMAGING_DB..."
 echo "$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp"
 $PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp
 
+# screening-specific
+echo "$PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp"
+$PG_DUMP -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB.dmp
+
 echo "DONE"

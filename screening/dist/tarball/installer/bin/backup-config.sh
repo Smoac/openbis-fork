@@ -38,3 +38,6 @@ cp $ROOT/datastore_server/etc/datastore_server.conf $CONF/datastore_server.conf
 # not always present
 copyIfExists $ROOT/datastore_server/etc/openBIS.keystore $CONF/.keystore 
 copyIfExists $ROOT/datastore_server/ext-lib $CONF
+
+# screening-specific
+cp $ROOT/datastore_server/etc/tabular-data-graph.properties $CONF/tabular-data-graph.properties
