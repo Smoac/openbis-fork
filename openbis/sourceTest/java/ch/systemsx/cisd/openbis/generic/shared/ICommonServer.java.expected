@@ -751,7 +751,7 @@ public interface ICommonServer extends IServer
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
     /**
-     * Deletes/Invalidates specified data sets.
+     * Deletes/Trashes specified data sets.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
@@ -759,10 +759,10 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
-            String reason, DeletionType type);
+            String reason, DeletionType type, boolean isTrashEnabled);
 
     /**
-     * Deletes/Invalidates specified samples.
+     * Deletes/Trashes specified samples.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
@@ -774,7 +774,7 @@ public interface ICommonServer extends IServer
             String reason, DeletionType type);
 
     /**
-     * Deletes/Invalidates specified experiments.
+     * Deletes/Trashes specified experiments.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)

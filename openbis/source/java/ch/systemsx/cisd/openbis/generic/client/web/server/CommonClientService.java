@@ -1305,7 +1305,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = Collections.singletonList(singleData);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+                isTrashEnabled());
     }
 
     public void deleteDataSets(
@@ -1315,7 +1316,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType);
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+                isTrashEnabled());
     }
 
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
@@ -2241,4 +2243,5 @@ public final class CommonClientService extends AbstractClientService implements
         List<Deletion> deletions = commonServer.listDeletions(sessionToken);
         commonServer.deletePermanently(sessionToken, TechId.createList(deletions));
     }
+
 }

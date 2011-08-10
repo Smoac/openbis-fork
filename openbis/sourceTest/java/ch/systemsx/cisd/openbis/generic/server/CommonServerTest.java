@@ -31,7 +31,6 @@ import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
@@ -1368,21 +1367,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unused")
-    @DataProvider
-    private final static Object[][] deletionTypes()
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testPermanentlyDeleteDataSets()
     {
-        return new Object[][]
-            {
-                { DeletionType.PERMANENT },
-                { DeletionType.TRASH }
-
-            };
-    }
-
-    @Test(dataProvider = "deletionTypes")
-    public void testDeleteDataSets(final DeletionType deletionType)
-    {
+        final DeletionType deletionType = DeletionType.PERMANENT;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
@@ -1398,20 +1387,23 @@ public final class CommonServerTest extends AbstractServerTestCase
                     DataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), "reason", deletionType);
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
-                            "reason", deletionType);
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                            Arrays.asList(ds1, ds2), "reason");
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                            Arrays.asList(ds3), "reason");
                 }
             });
 
-        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType);
+        // TODO test new implementation of deletion as well
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType, false);
 
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testDeleteDataSets()
+    // FIXME
+    @SuppressWarnings("deprecation")
+    @Test(groups = "broken")
+    public void testTrashDataSets()
     {
         final DeletionType deletionType = DeletionType.TRASH;
         prepareGetSession();
@@ -1429,14 +1421,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     DataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), "reason", deletionType);
-                    one(dataSetTypeSlaveServerPlugin).deleteDataSets(SESSION, Arrays.asList(ds3),
-                            "reason", deletionType);
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                            Arrays.asList(ds1, ds2), "reason");
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                            Arrays.asList(ds3), "reason");
                 }
             });
 
-        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType);
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType, true);
 
         context.assertIsSatisfied();
     }

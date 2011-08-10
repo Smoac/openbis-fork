@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -1095,9 +1096,42 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType deletionType)
+            DeletionType deletionType, boolean isTrashEnabled)
     {
+        // TODO 2011-08-09, Piotr Buczek: simplify it when we remove the switch turning off trash
+        // provide data set ids directly (no need to use codes)
         Session session = getSession(sessionToken);
+        // NOTE: logical deletion and new implementation of permanent deletion doesn't use
+        // IDataSetTypeSlaveServerPlugin (we have just 1 implementation!)
+        switch (deletionType)
+        {
+            case PERMANENT:
+                if (isTrashEnabled)
+                {
+                    IDeletedDataSetTable deletedDataSetTable =
+                            businessObjectFactory.createDeletedDataSetTable(session);
+                    deletedDataSetTable.loadByDataSetCodes(dataSetCodes);
+                    deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason);
+                } else
+                {
+                    permanentlyDeleteDataSets(session, dataSetCodes, reason);
+                }
+                break;
+            case TRASH:
+                IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+                dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+                List<DataPE> dataSets = dataSetTable.getDataSets();
+                ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
+                trashBO.createDeletion(reason);
+                trashBO.trashDataSets(TechId.createList(dataSets));
+                break;
+        }
+    }
+
+    @Deprecated
+    /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
+    private void permanentlyDeleteDataSets(Session session, List<String> dataSetCodes, String reason)
+    {
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
         dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
@@ -1119,7 +1153,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DataSetTypePE dataSetType = entry.getKey();
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.deleteDataSets(session, entry.getValue(), reason, deletionType);
+            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason);
         }
     }
 
@@ -2410,7 +2444,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             List<TechId> singletonList = Collections.singletonList(deletionId);
             List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
-            deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType);
+            deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType, true);
 
             // we need to first delete components and then containers not to break constraints
             List<TechId> trashedComponentSamples =

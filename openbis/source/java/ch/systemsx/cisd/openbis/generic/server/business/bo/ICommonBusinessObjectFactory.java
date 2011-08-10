@@ -45,6 +45,8 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
 
     public IDataSetTable createDataSetTable(final Session session);
 
+    public IDeletedDataSetTable createDeletedDataSetTable(final Session session);
+
     public IExperimentTable createExperimentTable(final Session session);
 
     public IExperimentBO createExperimentBO(final Session session);

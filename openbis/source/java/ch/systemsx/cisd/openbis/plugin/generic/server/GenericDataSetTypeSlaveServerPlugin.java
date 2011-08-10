@@ -25,10 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -49,22 +46,11 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     {
     }
 
-    public void deleteDataSets(Session session, List<DataPE> dataSets, String reason,
-            DeletionType deletionType)
+    public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason)
     {
-        switch (deletionType)
-        {
-            case PERMANENT:
-                IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-                dataSetTable.setDataSets(dataSets);
-                dataSetTable.deleteLoadedDataSets(reason);
-                break;
-            case TRASH:
-                ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
-                trashBO.createDeletion(reason);
-                trashBO.trashDataSets(TechId.createList(dataSets));
-                break;
-        }
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.setDataSets(dataSets);
+        dataSetTable.deleteLoadedDataSets(reason);
     }
 
     public void updateDataSets(Session session, List<NewDataSet> newDataSets)

@@ -440,6 +440,11 @@ public abstract class AbstractClientService implements IClientService,
         return webClientConfigurationProvider.getWebClientConfiguration();
     }
 
+    protected boolean isTrashEnabled()
+    {
+        return getWebClientConfiguration().getEnableTrash();
+    }
+
     protected String getVersion()
     {
         return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();

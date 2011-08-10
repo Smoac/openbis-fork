@@ -575,7 +575,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType deletionType)
+            DeletionType deletionType, boolean isTrashEnabled)
     {
         logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s)",
                 deletionType, abbreviate(dataSetCodes), reason);
@@ -1141,4 +1141,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "deletePermanently", "ID(%s)", abbreviate(deletionIds));
     }
+
 }
