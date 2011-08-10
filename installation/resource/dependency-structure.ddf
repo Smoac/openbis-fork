@@ -1,0 +1,7 @@
+#show allResults
+
+{root} = ch.systemsx.cisd.openbis.installer
+
+######################################################################
+# Check dependencies to openbis
+

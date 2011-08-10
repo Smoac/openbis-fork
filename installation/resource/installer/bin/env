@@ -1,0 +1,25 @@
+# This variable does not exist in older installations of openBIS.
+# It is a marker instructing the backup scripts to backup/restore the "env" file.
+RESTORE_ENV_FROM_BACKUP=1
+
+# name of the openbis core database
+OPENBIS_DB=openbis_productive
+
+# postgres user name with admin rights
+DB_USER_NAME=postgres
+
+PATH_TO_PSQL=$POSTGRES_BIN
+
+PSQL=psql
+if [ -e "$PATH_TO_PSQL/psql" ]; then
+  PSQL="$PATH_TO_PSQL/psql"
+fi 
+
+PG_DUMP=pg_dump
+if [ -e "$PATH_TO_PSQL/pg_dump" ]; then
+  PG_DUMP="$PATH_TO_PSQL/pg_dump"
+fi
+ 
+# Unalias rm and cp commands
+alias cp='cp'
+alias rm='rm'
