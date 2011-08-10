@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServerTest.PersonWithDispla
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -135,6 +136,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IDataSetTable dataSetTable;
 
+    protected IDeletedDataSetTable deletedDataSetTable;
+
     protected IExperimentTable experimentTable;
 
     protected IMaterialTable materialTable;
@@ -231,6 +234,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         trashBO = context.mock(ITrashBO.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);
+        deletedDataSetTable = context.mock(IDeletedDataSetTable.class);
         sampleTable = context.mock(ISampleTable.class);
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);

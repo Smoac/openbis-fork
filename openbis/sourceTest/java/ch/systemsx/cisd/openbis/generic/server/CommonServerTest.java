@@ -112,6 +112,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 public final class CommonServerTest extends AbstractServerTestCase
 {
 
+    private static final String EXAMPLE_REASON = "reason";
+
     private final static String BASE_INDEX_URL = "baseIndexURL";
 
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
@@ -884,7 +886,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testDeleteMaterials()
     {
         final List<TechId> materialIds = Arrays.asList(new TechId(1L), new TechId(2L));
-        final String reason = "reason";
+        final String reason = EXAMPLE_REASON;
 
         prepareGetSession();
         context.checking(new Expectations()
@@ -1369,9 +1371,10 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testPermanentlyDeleteDataSets()
+    public void testPermanentlyDeleteDataSetsWithTrashDisabled()
     {
-        final DeletionType deletionType = DeletionType.PERMANENT;
+        final boolean enableTrash = false;
+        final String reason = EXAMPLE_REASON;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
@@ -1388,24 +1391,47 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
                     one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), "reason");
+                            Arrays.asList(ds1, ds2), reason);
                     one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds3), "reason");
+                            Arrays.asList(ds3), reason);
                 }
             });
 
-        // TODO test new implementation of deletion as well
-        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType, false);
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, reason, DeletionType.PERMANENT,
+                enableTrash);
 
         context.assertIsSatisfied();
     }
 
-    // FIXME
-    @SuppressWarnings("deprecation")
-    @Test(groups = "broken")
+    @Test
+    public void testPermanentlyDeleteDataSetsWithTrashEnabled()
+    {
+        final boolean enableTrash = true;
+        final String reason = EXAMPLE_REASON;
+        prepareGetSession();
+        final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createDeletedDataSetTable(SESSION);
+                    will(returnValue(deletedDataSetTable));
+
+                    one(deletedDataSetTable).loadByDataSetCodes(dataSetCodes);
+                    one(deletedDataSetTable).permanentlyDeleteLoadedDataSets(reason);
+                }
+            });
+
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, reason, DeletionType.PERMANENT,
+                enableTrash);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testTrashDataSets()
     {
-        final DeletionType deletionType = DeletionType.TRASH;
+        final boolean enableTrash = true;
+        final String reason = EXAMPLE_REASON;
         prepareGetSession();
         final List<String> dataSetCodes = Arrays.asList("ds1", "ds2", "ds3");
         context.checking(new Expectations()
@@ -1417,18 +1443,23 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
                     one(dataSetTable).getDataSets();
                     DataPE ds1 = createDataSet("ds1", "type1");
+                    ds1.setId(1L);
                     DataPE ds2 = createDataSet("ds2", "type1");
+                    ds1.setId(2L);
                     DataPE ds3 = createDataSet("ds3", "type2");
-                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
+                    ds1.setId(3L);
+                    List<DataPE> dataSets = Arrays.asList(ds1, ds2, ds3);
+                    will(returnValue(dataSets));
 
-                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds1, ds2), "reason");
-                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
-                            Arrays.asList(ds3), "reason");
+                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    will(returnValue(trashBO));
+                    one(trashBO).createDeletion(reason);
+                    one(trashBO).trashDataSets(TechId.createList(dataSets));
                 }
             });
 
-        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, "reason", deletionType, true);
+        createServer().deleteDataSets(SESSION_TOKEN, dataSetCodes, reason, DeletionType.TRASH,
+                enableTrash);
 
         context.assertIsSatisfied();
     }
