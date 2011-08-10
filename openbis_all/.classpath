@@ -17,5 +17,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_cina"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/plasmid"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/eu_basynthec"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/installation"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
