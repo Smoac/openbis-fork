@@ -60,7 +60,6 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -80,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Entity
 @Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
 @Inheritance(strategy = InheritanceType.JOINED)
-@Friend(toClasses = EventPE.class)
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE

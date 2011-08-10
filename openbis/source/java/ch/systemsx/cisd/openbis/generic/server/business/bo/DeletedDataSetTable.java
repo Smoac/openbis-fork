@@ -34,17 +34,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -59,10 +55,10 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     // private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
     // DeletedDataSetTable.class);
 
-    private static void assertDatasetsAreDeletable(List<DataPE> datasets)
+    private static void assertDatasetsAreDeletable(List<DeletedDataPE> datasets)
     {
         List<String> notDeletableDatasets = new ArrayList<String>();
-        for (DataPE dataSet : datasets)
+        for (DeletedDataPE dataSet : datasets)
         {
             if (dataSet.isDeletable() == false)
             {
@@ -80,7 +76,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
 
     private final IDataStoreServiceFactory dssFactory;
 
-    private List<DataPE> dataSets;
+    private List<DeletedDataPE> deletedDataSets;
 
     public DeletedDataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             final Session session)
@@ -97,29 +93,29 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     {
         IDataDAO dataDAO = getDataDAO();
 
-        dataSets = new ArrayList<DataPE>();
-        dataSets.addAll(dataDAO.tryToFindFullDataSetsByCodes(dataSetCodes, false, false));
+        deletedDataSets = new ArrayList<DeletedDataPE>();
+        deletedDataSets.addAll(dataDAO.tryToFindDeletedDataSetsByCodes(dataSetCodes));
     }
 
     public void permanentlyDeleteLoadedDataSets(String reason)
     {
-        assertDatasetsAreDeletable(dataSets);
+        assertDatasetsAreDeletable(deletedDataSets);
 
-        Map<DataStorePE, List<DataPE>> allToBeDeleted = groupDataSetsByDataStores();
-        Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
+        Map<DataStorePE, List<DeletedDataPE>> allToBeDeleted = groupDataSetsByDataStores();
+        Map<DataStorePE, List<DeletedExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
         assertDataSetsAreKnown(availableDatasets);
-        for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
+        for (Map.Entry<DataStorePE, List<DeletedDataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<DataPE> allDataSets = entry.getValue();
+            List<DeletedDataPE> allDataSets = entry.getValue();
             deleteLocallyFromDB(reason, allDataSets);
             deleteRemotelyFromDataStore(availableDatasets, dataStore);
         }
     }
 
-    private void deleteLocallyFromDB(String reason, List<DataPE> dataSetsToDelete)
+    private void deleteLocallyFromDB(String reason, List<DeletedDataPE> dataSetsToDelete)
     {
         deleteByTechIds(TechId.createList(dataSetsToDelete), reason);
     }
@@ -139,26 +135,25 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     }
 
     private void deleteRemotelyFromDataStore(
-            Map<DataStorePE, List<ExternalDataPE>> availableDatasets, DataStorePE dataStore)
+            Map<DataStorePE, List<DeletedExternalDataPE>> availableDatasets, DataStorePE dataStore)
     {
-        List<ExternalDataPE> availableDatasetsInStore = availableDatasets.get(dataStore);
+        List<DeletedExternalDataPE> availableDatasetsInStore = availableDatasets.get(dataStore);
         deleteDataSets(dataStore, createDatasetDescriptions(availableDatasetsInStore));
     }
 
-    private Map<DataStorePE, List<ExternalDataPE>> filterAvailableDatasets(
-            Map<DataStorePE, List<DataPE>> map)
+    private Map<DataStorePE, List<DeletedExternalDataPE>> filterAvailableDatasets(
+            Map<DataStorePE, List<DeletedDataPE>> map)
     {
-        Map<DataStorePE, List<ExternalDataPE>> result =
-                new HashMap<DataStorePE, List<ExternalDataPE>>();
-        for (Map.Entry<DataStorePE, List<DataPE>> entry : map.entrySet())
+        Map<DataStorePE, List<DeletedExternalDataPE>> result =
+                new HashMap<DataStorePE, List<DeletedExternalDataPE>>();
+        for (Map.Entry<DataStorePE, List<DeletedDataPE>> entry : map.entrySet())
         {
-            ArrayList<ExternalDataPE> available = new ArrayList<ExternalDataPE>();
-            for (DataPE data : entry.getValue())
+            ArrayList<DeletedExternalDataPE> available = new ArrayList<DeletedExternalDataPE>();
+            for (DeletedDataPE data : entry.getValue())
             {
-                ExternalDataPE externalData = data.tryAsExternalData();
+                DeletedExternalDataPE externalData = data.tryAsExternalData();
                 if (externalData != null && externalData.isAvailable())
                 {
-
                     available.add(externalData);
                 }
             }
@@ -167,23 +162,19 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return result;
     }
 
-    private <D extends DataPE> void assertDataSetsAreKnown(Map<DataStorePE, List<D>> map)
+    private void assertDataSetsAreKnown(Map<DataStorePE, List<DeletedExternalDataPE>> map)
     {
         // Set<String> knownLocations = new LinkedHashSet<String>();
         List<String> unknownDataSets = new ArrayList<String>();
-        for (Map.Entry<DataStorePE, List<D>> entry : map.entrySet())
+        for (Map.Entry<DataStorePE, List<DeletedExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> externalDatas = filterRealDataSets(entry.getValue());
+            List<DeletedExternalDataPE> externalDataSets = entry.getValue();
             Set<String> knownLocations =
-                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas));
-            for (ExternalDataPE dataSet : externalDatas)
+                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDataSets));
+            for (DeletedExternalDataPE dataSet : externalDataSets)
             {
-                if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
-                {
-                    // archived datasets are currently not available in the data store
-                    // but can be deleted
-                } else if (knownLocations.contains(dataSet.getLocation()) == false)
+                if (knownLocations.contains(dataSet.getLocation()) == false)
                 {
                     unknownDataSets.add(dataSet.getCode());
                 }
@@ -198,30 +189,22 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         }
     }
 
-    private List<ExternalDataPE> filterRealDataSets(List<? extends DataPE> mixedDataSets)
+    /**
+     * groups all deleted data sets (both virtual and non-virtual) by data stores
+     * 
+     * @param deletedDataSets
+     */
+    private Map<DataStorePE, List<DeletedDataPE>> groupDataSetsByDataStores()
     {
-        List<ExternalDataPE> realDataSets = new ArrayList<ExternalDataPE>();
-        for (DataPE dataSet : mixedDataSets)
-        {
-            if (dataSet instanceof ExternalDataPE)
-            {
-                realDataSets.add((ExternalDataPE) dataSet);
-            }
-        }
-        return realDataSets;
-    }
-
-    /** groups all data sets (both virtual and non-virtual) by data stores */
-    private Map<DataStorePE, List<DataPE>> groupDataSetsByDataStores()
-    {
-        Map<DataStorePE, List<DataPE>> map = new LinkedHashMap<DataStorePE, List<DataPE>>();
-        for (DataPE dataSet : dataSets)
+        Map<DataStorePE, List<DeletedDataPE>> map =
+                new LinkedHashMap<DataStorePE, List<DeletedDataPE>>();
+        for (DeletedDataPE dataSet : deletedDataSets)
         {
             DataStorePE dataStore = dataSet.getDataStore();
-            List<DataPE> list = map.get(dataStore);
+            List<DeletedDataPE> list = map.get(dataStore);
             if (list == null)
             {
-                list = new ArrayList<DataPE>();
+                list = new ArrayList<DeletedDataPE>();
                 map.put(dataStore, list);
             }
             list.add(dataSet);
@@ -273,59 +256,37 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions));
     }
 
-    private List<DatasetDescription> createDatasetDescriptions(List<ExternalDataPE> datasets)
+    private List<DatasetDescription> createDatasetDescriptions(List<DeletedExternalDataPE> datasets)
     {
         List<DatasetDescription> result = new ArrayList<DatasetDescription>();
-        for (ExternalDataPE dataset : datasets)
+        for (DeletedExternalDataPE dataset : datasets)
         {
             result.add(createDatasetDescription(dataset));
         }
         return result;
     }
 
-    private DatasetDescription createDatasetDescription(DataPE dataSet)
+    private DatasetDescription createDatasetDescription(DeletedExternalDataPE dataSet)
     {
         assert dataSet != null;
 
+        // TODO we don't need most of fields in DatasetDescription to delete a data set
+        // use IDatasetLocation instead
+        
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSet.getCode());
-        if (dataSet.isExternalData())
-        {
-            ExternalDataPE externalData = dataSet.tryAsExternalData();
-            description.setDataSetLocation(externalData.getLocation());
-            description.setDataSetSize(externalData.getSize());
-            description.setSpeedHint(externalData.getSpeedHint());
-        }
-        SamplePE sample = dataSet.tryGetSample();
-        if (sample != null)
-        {
-            description.setSampleCode(sample.getCode());
-            description.setSampleIdentifier(sample.getIdentifier());
-            description.setSampleTypeCode(sample.getSampleType().getCode());
-        }
-        ExperimentPE experiment = dataSet.getExperiment();
-        description.setExperimentIdentifier(experiment.getIdentifier());
-        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
-        description.setExperimentCode(experiment.getCode());
-        ProjectPE project = experiment.getProject();
-        description.setProjectCode(project.getCode());
-        SpacePE group = project.getSpace();
-        description.setSpaceCode(group.getCode());
-        description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
+
+        DeletedExternalDataPE externalData = dataSet;
+        description.setDataSetLocation(externalData.getLocation());
+        description.setDataSetSize(externalData.getSize());
+        description.setSpeedHint(externalData.getSpeedHint());
+
         DataSetTypePE dataSetType = dataSet.getDataSetType();
         description.setMainDataSetPath(dataSetType.getMainDataSetPath());
         description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
         description.setDatasetTypeCode(dataSetType.getCode());
 
         return description;
-    }
-
-    public void loadByDataStore(DataStorePE dataStore)
-    {
-        assert dataStore != null : "Unspecified data store";
-        assert dataSets == null : "Data already loaded";
-        dataSets = new ArrayList<DataPE>();
-        dataSets.addAll(getDataDAO().listExternalData(dataStore));
     }
 
 }

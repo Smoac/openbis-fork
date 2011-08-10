@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -82,6 +83,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      */
     public List<DataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
             boolean withPropertyTypes, boolean lockForUpdate);
+
+    /**
+     * Tries to get the deleted data sets for the specified codes.
+     */
+    public List<DeletedDataPE> tryToFindDeletedDataSetsByCodes(Collection<String> dataSetCodes);
 
     /**
      * Sets status of datasets with given codes.

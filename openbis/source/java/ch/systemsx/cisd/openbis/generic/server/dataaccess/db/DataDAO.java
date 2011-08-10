@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -206,6 +207,32 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             operationLog.debug(String.format("%s(%s): '%s'.", methodName, dataSetCode, entity));
         }
         return entity;
+    }
+
+    public List<DeletedDataPE> tryToFindDeletedDataSetsByCodes(Collection<String> dataSetCodes)
+    {
+        assert dataSetCodes != null : "Unspecified collection";
+
+        if (dataSetCodes.size() == 0)
+        {
+            return Collections.emptyList();
+        }
+
+        final Criterion codeIn = Restrictions.in("code", dataSetCodes);
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(DeletedDataPE.class);
+        criteria.add(codeIn);
+        criteria.setFetchMode("dataSetType", FetchMode.SELECT);
+        criteria.setFetchMode("dataStore", FetchMode.SELECT);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        final List<DeletedDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Found '%s' data sets for codes '%s'.", list.size(),
+                    dataSetCodes));
+        }
+        return list;
     }
 
     public List<DataPE> tryToFindFullDataSetsByCodes(Collection<String> dataSetCodes,
@@ -473,30 +500,63 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // able to directly delete data without going to trash (trash may be disabled)
         final String dataTable = TableNames.DATA_ALL_TABLE;
 
-        // FIXME use code
-        final String sqlSelectPermIds = SQLBuilder.createSelectPermIdsSQL(dataTable);
+        // For data sets we load codes, which are logically the same as perm ids.
+        // We load them ordered by ID because locations need to be loaded in the same order.
+        final String sqlSelectPermIds = createSelectCodesOrderByIdSQL(dataTable);
         final String sqlDeleteProperties =
                 SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE,
                         ColumnNames.DATA_SET_COLUMN);
+        // FIXME
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.DATA_SET_COLUMN);
         final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
         final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
-        final String sqlDeleteSample = SQLBuilder.createDeleteEnitiesSQL(dataTable);
+        final String sqlDeleteDataSets = SQLBuilder.createDeleteEnitiesSQL(dataTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
         // data set specific queries
+        // FIXME use locations in events
+        // final String sqlSelectLocationsOrderById = createSelectLocationsOrderByIdSQL(dataTable);
         final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
+        final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL();
         final String sqlDeleteComponentConnections = createDeleteComponentConnectionsSQL();
 
-        executePermanentDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason, sqlSelectPermIds,
-                sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
-                sqlDeleteAttachments, sqlDeleteSample, sqlInsertEvent,
-                sqlDeleteChildrenConnections, sqlDeleteComponentConnections);
+        executePermanentDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason,
+                sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteDataSets,
+                sqlInsertEvent,
+                // sqlSelectLocationsOrderById,
+                sqlDeleteChildrenConnections, sqlDeleteParentConnections,
+                sqlDeleteComponentConnections);
+    }
+
+//    @Override
+//    protected boolean debugDeletion()
+//    {
+//        return true;
+//    }
+
+    protected static String createSelectCodesOrderByIdSQL(final String dataSetsTable)
+    {
+        return "SELECT code FROM " + dataSetsTable + " WHERE id " + SQLBuilder.inEntityIds()
+                + " ORDER BY id";
+    }
+
+    protected static String createSelectLocationsOrderByIdSQL(final String dataSetsTable)
+    {
+        return "SELECT ed.location FROM " + dataSetsTable + " d "
+                + "LEFT OUTER JOIN external_data ed ON (d.id = ed.data_id) WHERE id "
+                + SQLBuilder.inEntityIds() + " ORDER BY id";
     }
 
     private static String createDeleteChildrenConnectionsSQL()
     {
         return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE + " WHERE data_id_parent "
+                + SQLBuilder.inEntityIds();
+    }
+
+    private static String createDeleteParentConnectionsSQL()
+    {
+        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE + " WHERE data_id_child "
                 + SQLBuilder.inEntityIds();
     }
 

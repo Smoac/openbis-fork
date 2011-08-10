@@ -24,20 +24,17 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Persistence Entity representing deleted experiment.
@@ -59,13 +56,10 @@ abstract class AbstractDeletedEntityPE implements IIdAndCodeHolder, IDeletablePE
 
     private String code;
 
-    private String permId;
-
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -75,6 +69,9 @@ abstract class AbstractDeletedEntityPE implements IIdAndCodeHolder, IDeletablePE
     {
         this.code = code;
     }
+
+    @Transient
+    abstract String getPermId();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
@@ -121,21 +118,6 @@ abstract class AbstractDeletedEntityPE implements IIdAndCodeHolder, IDeletablePE
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
-    }
-
-    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
-    @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
-    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.PERM_ID)
-    public String getPermId()
-    {
-        return permId;
-    }
-
-    public void setPermId(String permId)
-    {
-        this.permId = permId;
     }
 
 }

@@ -23,11 +23,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.validator.Length;
+import org.hibernate.validator.NotNull;
+import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -48,6 +52,8 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     private transient Long id;
 
     private Long containerId;
+
+    private String permIdInternal;
 
     @Id
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
@@ -72,6 +78,27 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     public void setContainerId(final Long containerId)
     {
         this.containerId = containerId;
+    }
+
+    @Transient
+    @Override
+    String getPermId()
+    {
+        return getPermIdInternal();
+    }
+
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
+    private String getPermIdInternal()
+    {
+        return permIdInternal;
+    }
+
+    void setPermIdInternal(String permIdInternal)
+    {
+        this.permIdInternal = permIdInternal;
     }
 
     //
