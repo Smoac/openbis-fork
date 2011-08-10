@@ -222,7 +222,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(DeletedDataPE.class);
         criteria.add(codeIn);
-        criteria.setFetchMode("dataSetType", FetchMode.SELECT);
         criteria.setFetchMode("dataStore", FetchMode.SELECT);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         final List<DeletedDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
@@ -529,11 +528,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 sqlDeleteComponentConnections);
     }
 
-//    @Override
-//    protected boolean debugDeletion()
-//    {
-//        return true;
-//    }
+    // @Override
+    // protected boolean debugDeletion()
+    // {
+    // return true;
+    // }
 
     protected static String createSelectCodesOrderByIdSQL(final String dataSetsTable)
     {
