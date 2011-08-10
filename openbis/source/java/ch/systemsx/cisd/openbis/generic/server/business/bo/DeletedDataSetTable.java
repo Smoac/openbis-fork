@@ -34,10 +34,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -51,9 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class DeletedDataSetTable extends AbstractDataSetBusinessObject implements
         IDeletedDataSetTable
 {
-
-    // private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-    // DeletedDataSetTable.class);
 
     private static void assertDatasetsAreDeletable(List<DeletedDataPE> datasets)
     {
@@ -138,7 +134,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             Map<DataStorePE, List<DeletedExternalDataPE>> availableDatasets, DataStorePE dataStore)
     {
         List<DeletedExternalDataPE> availableDatasetsInStore = availableDatasets.get(dataStore);
-        deleteDataSets(dataStore, createDatasetDescriptions(availableDatasetsInStore));
+        deleteDataSets(dataStore, extractDatasetLocations(availableDatasetsInStore));
     }
 
     private Map<DataStorePE, List<DeletedExternalDataPE>> filterAvailableDatasets(
@@ -164,14 +160,13 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
 
     private void assertDataSetsAreKnown(Map<DataStorePE, List<DeletedExternalDataPE>> map)
     {
-        // Set<String> knownLocations = new LinkedHashSet<String>();
         List<String> unknownDataSets = new ArrayList<String>();
         for (Map.Entry<DataStorePE, List<DeletedExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
             List<DeletedExternalDataPE> externalDataSets = entry.getValue();
             Set<String> knownLocations =
-                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDataSets));
+                    getKnownDataSets(dataStore, extractDatasetLocations(externalDataSets));
             for (DeletedExternalDataPE dataSet : externalDataSets)
             {
                 if (knownLocations.contains(dataSet.getLocation()) == false)
@@ -212,9 +207,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return map;
     }
 
-    // TODO old, not modified, should be extracted
-
-    private void deleteDataSets(DataStorePE dataStore, List<DatasetDescription> list)
+    private void deleteDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets)
     {
         IDataStoreService service = tryGetDataStoreService(dataStore);
         if (service == null)
@@ -223,7 +216,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             return;
         }
         String sessionToken = dataStore.getSessionToken();
-        service.deleteDataSets(sessionToken, list);
+        service.deleteDataSets(sessionToken, dataSets);
     }
 
     // null if DSS URL has not been specified
@@ -237,15 +230,14 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return dssFactory.create(remoteURL);
     }
 
-    private Set<String> getKnownDataSets(DataStorePE dataStore,
-            List<DatasetDescription> dataSetDescriptions)
+    private Set<String> getKnownDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets)
     {
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
         {
             // Assuming dummy data store "knows" all locations
             Set<String> locations = new HashSet<String>();
-            for (DatasetDescription dataSet : dataSetDescriptions)
+            for (IDatasetLocation dataSet : dataSets)
             {
                 locations.add(dataSet.getDataSetLocation());
             }
@@ -253,40 +245,36 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         }
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
-        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions));
+        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSets));
     }
 
-    private List<DatasetDescription> createDatasetDescriptions(List<DeletedExternalDataPE> datasets)
+    private List<IDatasetLocation> extractDatasetLocations(List<DeletedExternalDataPE> datasets)
     {
-        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        List<IDatasetLocation> result = new ArrayList<IDatasetLocation>();
         for (DeletedExternalDataPE dataset : datasets)
         {
-            result.add(createDatasetDescription(dataset));
+            result.add(asDatasetLocation(dataset));
         }
         return result;
     }
 
-    private DatasetDescription createDatasetDescription(DeletedExternalDataPE dataSet)
+    private IDatasetLocation asDatasetLocation(final DeletedExternalDataPE dataSet)
     {
         assert dataSet != null;
 
-        // TODO we don't need most of fields in DatasetDescription to delete a data set
-        // use IDatasetLocation instead
-        
-        DatasetDescription description = new DatasetDescription();
-        description.setDataSetCode(dataSet.getCode());
+        return new IDatasetLocation()
+            {
 
-        DeletedExternalDataPE externalData = dataSet;
-        description.setDataSetLocation(externalData.getLocation());
-        description.setDataSetSize(externalData.getSize());
-        description.setSpeedHint(externalData.getSpeedHint());
+                public String getDataSetLocation()
+                {
+                    return dataSet.getLocation();
+                }
 
-        DataSetTypePE dataSetType = dataSet.getDataSetType();
-        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
-        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
-        description.setDatasetTypeCode(dataSetType.getCode());
-
-        return description;
+                public String getDataSetCode()
+                {
+                    return dataSet.getCode();
+                }
+            };
     }
 
 }

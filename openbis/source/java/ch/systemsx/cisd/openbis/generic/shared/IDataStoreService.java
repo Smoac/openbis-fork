@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -52,11 +53,11 @@ public interface IDataStoreService
      * Returns from the specified data sets those known by the Data Store Server.
      * 
      * @param sessionToken Valid token to identify authorised access.
-     * @return locations of known data sets
+     * @return locations (as strings) of known data sets
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public List<String> getKnownDataSets(String sessionToken, List<DatasetDescription> dataSets)
-            throws InvalidAuthenticationException;
+    public List<String> getKnownDataSets(String sessionToken,
+            List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException;
 
     /**
      * Deletes the specified data sets.
@@ -64,7 +65,7 @@ public interface IDataStoreService
      * @param sessionToken Valid token to identify authorised access.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public void deleteDataSets(String sessionToken, List<DatasetDescription> dataSets)
+    public void deleteDataSets(String sessionToken, List<? extends IDatasetLocation> dataSets)
             throws InvalidAuthenticationException;
 
     /**
