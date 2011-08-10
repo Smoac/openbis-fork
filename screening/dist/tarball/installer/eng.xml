@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<langpack>
-    <str id="data.validation.error.title"  txt="Error" />
-    <str id="installer.reversetitle"  txt="$APP_NAME installation" />
-    <str id="TargetPanel.info" txt="Select openBIS installation directory: " />
-    <str id="TargetPanel.warn" txt="Installation folder already exists. The process will run openBIS upgrade. Continue ?" />    
-</langpack>

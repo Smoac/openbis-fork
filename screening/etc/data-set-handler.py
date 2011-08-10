@@ -7,6 +7,13 @@ from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
     
 class ImageDataSetFlexible(SimpleImageDataConfig):
+    
+    def parseIntOrFail(self, text):
+        try:
+            return int(text)
+        except ValueError:
+            raise Exception("Cannot parse field number from '" + fieldText + "' in an incoming file name.")
+        
     """
     Extracts tile number, channel code and well code for a given relative path to an image.
     Will be called for each file found in the incoming directory which has the allowed image extension.
@@ -19,19 +26,16 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         image_tokens = ImageMetadata()
     
         basename = os.path.splitext(imagePath)[0]
-        # 
+        
         token_dict = {}
         for token in basename.split("_"):
             token_dict[token[:1]] = token[1:]
         
         image_tokens.well = token_dict["w"]
-        fieldText = token_dict["s"]
-        try:
-            image_tokens.tileNumber = int(fieldText)
-        except ValueError:
-            raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
-    
         image_tokens.channelCode = token_dict["c"]
+        image_tokens.tileNumber = self.parseIntOrFail(token_dict["s"])
+        image_tokens.timepoint = self.parseIntOrFail((token_dict["t"]))
+        image_tokens.depth = self.parseIntOrFail((token_dict["z"]))
         return image_tokens
 
     """
@@ -63,10 +67,30 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         row = ((tileNumber - 1) / columns) + 1
         col = ((tileNumber - 1) % columns) + 1
         return Location(row, col)
-
+    
 if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
     imageDataset.setRawImageDatasetType()
-    imageDataset.setPlate("TEST", incoming.getName())
-    factory.registerImageDataset(imageDataset, incoming, service)
+    imageDataset.setPlate("TEST", "MY-PLATE")
+    imageDataset.setFileFormatType("PNG")
+    #imageDataset.setGenerateThumbnails(True)
+    #imageDataset.setMaxThumbnailWidthAndHeight(200)
+    imageDataset.setRecognizedImageExtensions(["png"])    
+    imageDataset.setStoreChannelsOnExperimentLevel(False)
+    #imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
+    imageDataset.setConvertTransformationCliArguments(" -contrast-stretch 0 -edge 1 -threshold 1 -transparent black ")
+
+    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+    tr = service.transaction(incoming, factory)
+    
+    dataset = tr.createNewDataSet(imageRegistrationDetails)
+    imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
+    
+    #info = imageRegistrationDetails.getDataSetInformation()
+    #info.getImageStorageConfiguraton().getThumbnailsStorageFormat().setHighQuality(True)
+    #imageDataset.setGenerateThumbnails(True)
+    #imageDataset.setMaxThumbnailWidthAndHeight(256)
+    #imageDataset.setUseImageMagicToGenerateThumbnails(True)
+    #imageDataset.setFileFormatType("PNG")
+    #factory.registerImageDataset(imageDataset, incoming, service)
 

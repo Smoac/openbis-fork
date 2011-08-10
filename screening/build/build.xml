@@ -21,117 +21,13 @@
   <property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
 	
-  <!-- absolute path referenced from IzPack Ant task -->
-  <property name="installer.basedir" value="${basedir}/dist/tarball/installer" />
-  <!-- relative path referenced from within the installer compilation --> 
-  <property name="installer.resourcedir" value="dist/tarball/installer" />
-  <property name="installer.dist.dir" value="${basedir}/${dist}/installer" />
-  <property name="installer.jar.file" value="${basedir}/${dist}/openBIS-installer.jar" />
-	
-	<path id="izpack.classpath">
-	    <pathelement path="${classpath}"/>
-	    <fileset dir="${lib}">
-	        <include name="izpack/*.jar"/>
-	        <include name="commons-io/commons-io.jar"/>
-	        <include name="commons-lang/commons-lang.jar"/>
-	    </fileset>
-	</path>
-  <taskdef name="izpack" classpathref="izpack.classpath" classname="com.izforge.izpack.ant.IzPackTask"/>
-	
   <target name="compile" depends="build-common.compile, clean" />
-	
-	
 
   <!--
         // Task for creating distributions
   -->
 	
-  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api, create-installation-tarball"/>
-
-	<target name="create-installation-tarball" depends="create-installer">
-	  <property name="tarball.file" value="${basedir}/${dist}/${tarball.basename}.tar.gz" />
-		
-		<tar destfile="${tarball.file}" compression="gzip">
-		  <tarfileset dir="${basedir}/dist/tarball"
-		              prefix="${tarball.basename}/">
-		    <include name="*.*"/>
-		  	<exclude name="*.sh"/>
-		  </tarfileset>
-		  <tarfileset dir="${basedir}/dist/tarball"
-		              prefix="${tarball.basename}/"
-		  	          filemode="755">
-		    <include name="*.sh"/>
-		  </tarfileset>
-		  <tarfileset dir="${dist}"
-		              prefix="${tarball.basename}/">
-		    <include name="*-installer.jar"/>
-		  </tarfileset>
-		</tar>		
-	</target>
-	
-  <target name="create-installer" depends="prepare-installer">
-
-		<mkdir dir="${installer.dist.dir}" />
-		
-  	<unzip dest="${installer.dist.dir}">
-		    <fileset dir=".">
-		        <include name="${dist}/openBIS-server${variant}-S*.zip"/>
-	          <include name="${dist}/datastore_server${variant}-S*.zip"/>
-		    </fileset>
-		</unzip>
-		
-		<!-- make the "admin" directory available to the installer as "bin" -->
-		<copy todir="${installer.dist.dir}/bin">
-		    <fileset dir="${installer.basedir}/../../admin">
-		      <include name="**/*"/>
-		      <exclude name="svn-update.sh"/>
-		      <exclude name="**/.svn/*"/>
-		    </fileset>
-		</copy>
-		<copy todir="${installer.dist.dir}/data">
-			    <fileset dir="${installer.basedir}/data">
-			      <exclude name="**/.svn/*"/>
-			    </fileset>
-		</copy>
-		
-		
-		<exec executable="/usr/bin/python" failonerror="true">
-		    <arg value="${basedir}/build/merge-prop-files.py"/>
-		    <arg value="${installer.basedir}/dss-service.properties"/>
-		    <arg value="${installer.dist.dir}/datastore_server/etc/service.properties"/>
-		</exec>		
-		
-		<!-- this suffix will be used by the installer to check if there are database connections -->
-	  <property name="installer.database.kind" value="screening" />
-				
-		<izpack input="${installer.basedir}/install.xml"
-		        output="${installer.jar.file}"
-			      inheritAll="true"
-		        installerType="standard"
-		        basedir="${basedir}"/>
-		
-    <jar update="true" destfile="${installer.jar.file}">
-    	<fileset dir="${classes.screening}">
-    		<include name="ch/systemsx/cisd/openbis/installer/izpack/**/*"/>
-    	</fileset>
-    	<fileset dir="${classes.common}">
-    		<include name="**/utilities/*.class"/>
-    	</fileset>
-    	
-    	<zipfileset src="${lib}/postgresql/postgresql.jar">
-    		<exclude name="META_INF/*"/>
-    		<include name="**/*"/>
-    	</zipfileset>
-    </jar>
-		
-		<delete dir="${installer.dist.dir}" />
-
-	</target>
-	
-	<target name="prepare-installer">
-		
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-	  <property name="tarball.basename" value="openBIS-installation${variant}-${version.number}-r${revision.number}" />
+  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
 		
   	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>

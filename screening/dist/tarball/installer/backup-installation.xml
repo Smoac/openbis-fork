@@ -1,7 +1,0 @@
-<processing>
-  <job name="Backup existing installation">
-    <executefile name="$INSTALL_BIN_PATH/backup-installation.sh">
-      <arg>$BACKUP_FOLDER</arg>
-    </executefile>
-  </job>
-</processing>
