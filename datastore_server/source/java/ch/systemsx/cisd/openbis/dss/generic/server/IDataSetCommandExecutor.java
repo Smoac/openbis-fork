@@ -42,11 +42,6 @@ public interface IDataSetCommandExecutor extends IDataSetDeleter
     void start();
 
     /**
-     * Schedules deletion of all specified data sets.
-     */
-    void scheduleDeletionOfDataSets(List<DatasetDescription> dataSets);
-
-    /**
      * Schedules uploading of all data sets to CIFEX using the specified upload context.
      * 
      * @param cifexServiceFactory Factory for creating CIFEX upload service.

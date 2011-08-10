@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -130,7 +131,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         thread.start();
     }
 
-    public void scheduleDeletionOfDataSets(List<DatasetDescription> dataSets)
+    public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets)
     {
         scheduleCommand(new DeletionCommand(dataSets));
     }

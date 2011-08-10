@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -229,14 +230,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return IDataStoreService.VERSION;
     }
 
-    public List<String> getKnownDataSets(String sessionToken, List<DatasetDescription> dataSets)
-            throws InvalidAuthenticationException
+    public List<String> getKnownDataSets(String sessionToken,
+            List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         List<String> knownLocations = new ArrayList<String>();
         IShareIdManager manager = getShareIdManager();
-        for (DatasetDescription dataSet : dataSets)
+        for (IDatasetLocation dataSet : dataSets)
         {
             String datasetCode = dataSet.getDataSetCode();
             String location = dataSet.getDataSetLocation();
@@ -257,7 +258,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return knownLocations;
     }
 
-    public void deleteDataSets(String sessionToken, final List<DatasetDescription> dataSets)
+    public void deleteDataSets(String sessionToken, final List<? extends IDatasetLocation> dataSets)
             throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);

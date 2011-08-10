@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -85,13 +86,14 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     public List<String> getKnownDataSets(String sessionToken,
-            List<DatasetDescription> dataSetLocations) throws InvalidAuthenticationException
+            List<? extends IDatasetLocation> dataSetLocations)
+            throws InvalidAuthenticationException
     {
         log("getKnownDataSets", "DATA_SETS(%s)", dataSetLocations);
         return null;
     }
 
-    public void deleteDataSets(String sessionToken, List<DatasetDescription> dataSets)
+    public void deleteDataSets(String sessionToken, List<? extends IDatasetLocation> dataSets)
             throws InvalidAuthenticationException
     {
         log("deleteDataSets", "DATA_SETS(%s)", dataSets);

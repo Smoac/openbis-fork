@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * @author Kaloyan Enimanev
@@ -29,6 +29,6 @@ public interface IDataSetDeleter
     /**
      * Schedules deletion of all specified data sets.
      */
-    void scheduleDeletionOfDataSets(List<DatasetDescription> dataSets);
+    void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets);
 
 }

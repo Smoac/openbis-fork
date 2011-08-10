@@ -33,21 +33,21 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * A command for deleting data sets, based on their location relative to the data store root.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
+class DeletionCommand extends AbstractDataSetLocationBasedCommand
 {
     private static final long serialVersionUID = 1L;
-    
-    private final static Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DeletionCommand.class);
-    
-    DeletionCommand(List<DatasetDescription> dataSets)
+
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DeletionCommand.class);
+
+    DeletionCommand(List<? extends IDatasetLocation> dataSets)
     {
         super(dataSets);
     }
@@ -59,7 +59,7 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
         final ThreadPoolExecutor executor =
                 new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
                         new LinkedBlockingQueue<Runnable>());
-        for (final DatasetDescription dataSet : dataSets)
+        for (final IDatasetLocation dataSet : dataSets)
         {
             executor.submit(new Runnable()
                 {
@@ -81,16 +81,17 @@ class DeletionCommand extends AbstractDataSetDescriptionBasedCommand
         }
     }
 
-    @Private ISimpleLogger createLogger()
+    @Private
+    ISimpleLogger createLogger()
     {
         return new Log4jSimpleLogger(operationLog);
     }
-    
+
     public String getDescription()
     {
         final StringBuilder b = new StringBuilder();
         b.append("Delete data sets: ");
-        for (DatasetDescription dataset : dataSets)
+        for (IDatasetLocation dataset : dataSets)
         {
             b.append(dataset.getDataSetCode());
             b.append(',');
