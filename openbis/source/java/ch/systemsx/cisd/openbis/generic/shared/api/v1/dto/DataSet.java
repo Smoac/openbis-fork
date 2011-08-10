@@ -256,9 +256,24 @@ public final class DataSet implements Serializable
         return retrievedConnections;
     }
 
-    public List<String> getParentCodes()
+    /**
+     * Return the parent codes. This throws an IllegalArgumentException if the parent codes were not
+     * retrieved.
+     * 
+     * @return A list of parent data set codes or an empty list if there are no parents.
+     * @throws IllegalArgumentException Thrown if the parent codes were not retireved from the
+     *             server.
+     */
+    public List<String> getParentCodes() throws IllegalArgumentException
     {
-        return Collections.unmodifiableList(parentCodes);
+        if (getRetrievedConnections().contains(Connections.PARENTS))
+        {
+            return Collections.unmodifiableList(parentCodes);
+        } else
+        {
+            throw new IllegalArgumentException("Parent codes were not retrieved for data set "
+                    + getCode() + ".");
+        }
     }
 
     /**

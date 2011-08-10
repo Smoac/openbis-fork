@@ -405,7 +405,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
                 commonServer.searchForDataSets(sessionToken, detailedSearchCriteria);
 
-        return Translator.translate(privateDataSets, EnumSet.allOf(Connections.class));
+        // The underlying search, as currently implemented, does not return any of the connections
+        return Translator.translate(privateDataSets, EnumSet.noneOf(Connections.class));
     }
 
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
