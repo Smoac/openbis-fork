@@ -19,7 +19,16 @@
 
 <P>
   By now you have a fully functional openBIS instance, but it makes little sense 
-  if it has no data in it. To test the data import process select a random directory or file and copy it to <i>incoming-simple</i>
+  if it has no data in it. To test the data import process please execute the following steps
+  
+  <ul>
+    <li>Log into the openBIS web application as 'admin'</li>
+    <li>Go to Administration -&gt; Spaces. Add a new space 'TEST'</li>
+    <li>Go to Administration -&gt; Project -&gt; New. Create a project 'TEST-PROJECT' in space 'TEST'</li>
+    <li>Go to Experiment -&gt; Types -&gt; New. Create a new experiment type 'TEST-EXPERIMENT-TYPE'</li>
+    <li>Select a random file or folder and copy it to  <i>incoming-simple</i> as shown below</li>
+  </ul>
+  
   
   <DIV style="background-color: #EEEEEE; fontfamily: monospace; padding-top: 10px; padding-bottom: 10px; margin: 15px 0px 15px 0px;">
  cp -R &lt;my-file-or-directory&gt; ${DSS_ROOT_DIR}/incoming-simple
