@@ -33,7 +33,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
@@ -42,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
- * Persistence Entity representing deleted data set.
+ * Persistence Entity representing a deleted data set mapping only those attributes that are needed.
  * 
  * @author Piotr Buczek
  */
@@ -57,8 +56,6 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
 
     private DataStorePE dataStore;
 
-    private DataSetTypePE dataSetType;
-    
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
@@ -158,18 +155,4 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
         this.dataStore = dataStorePE;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
-    public DataSetTypePE getDataSetType()
-    {
-        return dataSetType;
-    }
-
-    /** Sets <code>dataSetType</code>. */
-    public void setDataSetType(final DataSetTypePE dataSetType)
-    {
-        this.dataSetType = dataSetType;
-    }
 }
