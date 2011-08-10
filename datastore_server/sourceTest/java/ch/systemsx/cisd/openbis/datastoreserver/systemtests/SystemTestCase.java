@@ -120,8 +120,25 @@ public abstract class SystemTestCase extends AssertJUnit
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default",
                 "dss-system-test-thread");
+
+        // Create a standard dss-system-test-thread configuration
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs",
+                "dss-system-test-thread");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + "dss-system-test-thread.incoming-dir", "${root-dir}/incoming-simple");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + "dss-system-test-thread.incoming-data-completeness-condition", "auto-detection");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + "dss-system-test-thread.top-level-data-set-handler",
+                "ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + "dss-system-test-thread.storage-processor",
+                "ch.systemsx.cisd.etlserver.DefaultStorageProcessor");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
+                + "dss-system-test-thread.script-path",
+                "sourceTest/java/ch/systemsx/cisd/openbis/datastoreserver/systemtests/data-set-handler.py");
+
         DataStoreServer.main(new String[0]);
         ETLDaemon.runForTesting(new String[0]);
     }
-
 }

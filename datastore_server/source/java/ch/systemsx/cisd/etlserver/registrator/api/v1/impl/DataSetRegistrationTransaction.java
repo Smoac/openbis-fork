@@ -426,6 +426,14 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     /**
+     * Write something to the operation log.
+     */
+    public void logInfo(Object message)
+    {
+        operationLog.info(message);
+    }
+
+    /**
      * Return the state as live state. Throw an EnvironmentFailureException if this is not possible.
      */
     private LiveTransactionState<T> getStateAsLiveState()

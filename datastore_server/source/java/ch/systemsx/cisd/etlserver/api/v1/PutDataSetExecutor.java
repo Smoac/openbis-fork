@@ -280,8 +280,11 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                     {
                         dataSetInfo.setSample(parentDataSet.getSample());
                     }
-                    dataSetInfo.setParentDataSetCodes(Collections.singletonList(parentDataSet
-                            .getCode()));
+                    ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+                    // Add this parent as the first parent
+                    parentDataSetCodes.add(parentDataSet.getCode());
+                    parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+                    dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
                     break;
                 }
                 break;
@@ -302,6 +305,12 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             }
             dataSetInfo.setDataSetProperties(properties);
         }
+
+        // Add any parents to the end of the list of parents
+        ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+        parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+        parentDataSetCodes.addAll(newDataSet.getParentDataSetCodes());
+        dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
 
         return dataSetInfo;
     }
@@ -712,8 +721,10 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                         {
                             dataSetInfo.setSample(parentDataSet.getSample());
                         }
-                        dataSetInfo.setParentDataSetCodes(Collections.singletonList(parentDataSet
-                                .getCode()));
+                        ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+                        parentDataSetCodes.add(parentDataSet.getCode());
+                        parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+                        dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
                         break;
                     }
             }

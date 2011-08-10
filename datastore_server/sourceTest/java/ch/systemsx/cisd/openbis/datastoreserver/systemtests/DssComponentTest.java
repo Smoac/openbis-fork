@@ -94,6 +94,18 @@ public class DssComponentTest extends SystemTestCase
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
+    public void testPutDataSetWithParent() throws Exception
+    {
+        String code = getCodeOfLatestDataSet().getDataSetCode();
+
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        newDataset.setParentDataSetCodes(Arrays.asList(code));
+        IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
+        checkDataSet(dataSet);
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet")
     public void testGetDataSetGetFile() throws Exception
     {
         String code = getCodeOfLatestDataSet().getDataSetCode();

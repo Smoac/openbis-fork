@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -202,8 +201,12 @@ class PutDataSetTopLevelDataSetHandler
                     {
                         dataSetInfo.setSample(parentDataSet.getSample());
                     }
-                    dataSetInfo.setParentDataSetCodes(Collections.singletonList(parentDataSet
-                            .getCode()));
+
+                    ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+                    // Add this parent as the first parent
+                    parentDataSetCodes.add(parentDataSet.getCode());
+                    parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+                    dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
                 }
                 break;
 
@@ -224,6 +227,12 @@ class PutDataSetTopLevelDataSetHandler
             }
             dataSetInfo.setDataSetProperties(properties);
         }
+
+        // Add any parents to the end of the list of parents
+        ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+        parentDataSetCodes.addAll(dataSetInfo.getParentDataSetCodes());
+        parentDataSetCodes.addAll(newDataSet.getParentDataSetCodes());
+        dataSetInfo.setParentDataSetCodes(parentDataSetCodes);
 
         return dataSetInfo;
     }

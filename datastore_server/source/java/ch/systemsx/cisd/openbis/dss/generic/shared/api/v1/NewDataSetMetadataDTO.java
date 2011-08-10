@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * Represents optional metadata (data set type and properties) of a new data set that the DSS should
- * register. The metadata will override those inferred by the server.
+ * register. The server may override the metadata specified here.
  * 
  * @author Piotr Buczek
  */
@@ -38,10 +41,19 @@ public class NewDataSetMetadataDTO implements Serializable
 
     private String dataSetTypeOrNull;
 
+    private final ArrayList<String> parentDataSetCodes = new ArrayList<String>();
+
     public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, String> propertiesOrNull)
+    {
+        this(dataSetTypeOrNull, propertiesOrNull, null);
+    }
+
+    public NewDataSetMetadataDTO(String dataSetTypeOrNull, Map<String, String> propertiesOrNull,
+            List<String> parentDataSetCodesOrNull)
     {
         this.dataSetTypeOrNull = dataSetTypeOrNull;
         setProperties(propertiesOrNull);
+        setParentDataSetCodes(parentDataSetCodesOrNull);
     }
 
     public NewDataSetMetadataDTO()
@@ -79,6 +91,28 @@ public class NewDataSetMetadataDTO implements Serializable
         if (props != null)
         {
             properties.putAll(props);
+        }
+    }
+
+    /**
+     * The codes of the parent data sets for this new data set. The list may be empty.
+     */
+    public List<String> getParentDataSetCodes()
+    {
+        return Collections.unmodifiableList(parentDataSetCodes);
+    }
+
+    /**
+     * Sets the parent data sets of this data set.
+     * 
+     * @param codesOrNull If the value is null, the parents are cleared.
+     */
+    public void setParentDataSetCodes(List<String> codesOrNull)
+    {
+        parentDataSetCodes.clear();
+        if (codesOrNull != null)
+        {
+            parentDataSetCodes.addAll(codesOrNull);
         }
     }
 

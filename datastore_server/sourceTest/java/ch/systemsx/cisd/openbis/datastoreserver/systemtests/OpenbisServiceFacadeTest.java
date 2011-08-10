@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -43,7 +44,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -82,6 +85,44 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
         checkDataSet(dataSet);
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet")
+    public void testPutDataSetWithParent() throws Exception
+    {
+        String code = getCodeOfLatestDataSet().getDataSetCode();
+
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        newDataset.setParentDataSetCodes(Arrays.asList(code));
+        DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
+        checkDataSet(dataSet);
+
+        // We need to take a different route to get the data set we just registered to check if it
+        // has a parent.
+        List<Sample> samples = serviceFacade.getSamples(Arrays.asList("/CISD/CP-TEST-1"));
+        List<DataSet> dataSets =
+                serviceFacade.listDataSets(samples, EnumSet.allOf(Connections.class));
+
+        List<String> parentCodes = null;
+        for (DataSet sampleDataSet : dataSets)
+        {
+            if (dataSet.getCode().equals(sampleDataSet.getCode()))
+            {
+                parentCodes = sampleDataSet.getParentCodes();
+                break;
+            }
+        }
+
+        assertEquals(Arrays.asList(code), parentCodes);
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = IllegalArgumentException.class)
+    public void testFailureAccessingParentFromSearchResult() throws Exception
+    {
+        String code = getCodeOfLatestDataSet().getDataSetCode();
+        DataSet dataSet = serviceFacade.getDataSet(code);
+        dataSet.getParentCodes();
     }
 
     @Test(dependsOnMethods = "testPutDataSet")

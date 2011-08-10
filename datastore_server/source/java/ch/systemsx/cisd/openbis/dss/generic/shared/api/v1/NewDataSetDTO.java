@@ -256,4 +256,14 @@ public class NewDataSetDTO implements Serializable
     {
         dataSetMetadata.setProperties(props);
     }
+
+    public List<String> getParentDataSetCodes()
+    {
+        return dataSetMetadata.getParentDataSetCodes();
+    }
+
+    public void setParentDataSetCodes(List<String> codesOrNull)
+    {
+        dataSetMetadata.setParentDataSetCodes(codesOrNull);
+    }
 }
