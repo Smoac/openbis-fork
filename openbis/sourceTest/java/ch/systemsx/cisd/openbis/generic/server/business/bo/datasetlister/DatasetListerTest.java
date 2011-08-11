@@ -343,7 +343,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals(null, dataSet1.getShareId()); // having no share id shouldn't fail
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
-        assertEquals(42L, dataSet2.getShareId());
+        assertEquals("42", dataSet2.getShareId());
         assertEquals(15, list.size());
     }
 
