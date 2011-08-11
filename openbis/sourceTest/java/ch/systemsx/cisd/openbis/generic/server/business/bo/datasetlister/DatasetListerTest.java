@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
@@ -322,6 +323,28 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
         assertEquals(14, list.size());
+    }
+
+    @Test
+    public void testListAllDataSetShareIdsByDataStore()
+    {
+        List<DataSetShareId> list = lister.listAllDataSetShareIdsByDataStore(1);
+
+        Collections.sort(list, new Comparator<DataSetShareId>()
+            {
+                public int compare(DataSetShareId o1, DataSetShareId o2)
+                {
+                    return o1.getDataSetCode().compareTo(o2.getDataSetCode());
+                }
+            });
+        // NOTE: deleted data set "20081105092158673-1" is NOT ommited
+        DataSetShareId dataSet1 = list.get(0);
+        assertEquals("20081105092158673-1", dataSet1.getDataSetCode());
+        assertEquals(null, dataSet1.getShareId()); // having no share id shouldn't fail
+        DataSetShareId dataSet2 = list.get(1);
+        assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
+        assertEquals(42L, dataSet2.getShareId());
+        assertEquals(15, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,

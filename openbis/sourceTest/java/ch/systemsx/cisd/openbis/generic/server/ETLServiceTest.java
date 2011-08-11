@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -191,6 +192,44 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals("DB", dataSets.get(0).getDatabaseInstanceCode());
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListShareIds()
+    {
+        prepareGetSession();
+
+        final List<DataSetShareId> list =
+                Arrays.asList(createDataSetShareId(1), createDataSetShareId(2),
+                        createDataSetShareId(3));
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
+                    DataStorePE store = new DataStorePE();
+                    store.setId(DSS_ID);
+                    store.setCode(DSS_CODE);
+                    will(returnValue(store));
+
+                    one(boFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
+
+                    one(datasetLister).listAllDataSetShareIdsByDataStore(DSS_ID);
+                    will(returnValue(list));
+                }
+            });
+
+        List<DataSetShareId> result = createService().listShareIds(SESSION_TOKEN, DSS_CODE);
+        assertEquals(list, result);
+        context.assertIsSatisfied();
+    }
+
+    private DataSetShareId createDataSetShareId(int nr)
+    {
+        DataSetShareId result = new DataSetShareId();
+        result.setDataSetCode("ds-" + nr);
+        result.setShareId("share-" + nr);
+        return result;
     }
 
     @Test
