@@ -37,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -305,14 +305,15 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.EXPERIMENT_COLUMN);
         final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
-        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
+        final String sqlDeleteAttachments =
+                SQLBuilder.createDeleteAttachmentsSQL(ColumnNames.EXPERIMENT_COLUMN);
         final String sqlDeleteExperiments = SQLBuilder.createDeleteEnitiesSQL(experimentsTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
 
-        executePermanentDeleteAction(EntityKind.EXPERIMENT, experimentIds, registrator, reason,
+        executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
-                sqlInsertEvent);
+                sqlSelectAttachmentContentIds, sqlDeleteAttachments, sqlDeleteAttachmentContents,
+                sqlDeleteExperiments, sqlInsertEvent);
     }
 
     @Override

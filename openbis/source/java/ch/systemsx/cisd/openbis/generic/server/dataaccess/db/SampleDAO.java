@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -391,13 +391,14 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         final String sqlSelectAttachmentContentIds =
                 SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.SAMPLE_COLUMN);
         final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
-        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
+        final String sqlDeleteAttachments =
+                SQLBuilder.createDeleteAttachmentsSQL(ColumnNames.SAMPLE_COLUMN);
         final String sqlDeleteSamples = SQLBuilder.createDeleteEnitiesSQL(samplesTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
 
-        executePermanentDeleteAction(EntityKind.SAMPLE, sampleIds, registrator, reason, sqlSelectPermIds,
-                sqlDeleteProperties, sqlSelectAttachmentContentIds, sqlDeleteAttachmentContents,
-                sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
+        executePermanentDeleteAction(EntityType.SAMPLE, sampleIds, registrator, reason,
+                sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
     }
 
     public Set<TechId> listSampleIdsByChildrenIds(final Collection<TechId> children,
