@@ -583,7 +583,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 + SQLBuilder.inEntityIds();
     }
 
-    // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO 
+    // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
     protected class DeleteDataSetsPermanentlyBatchOperation implements IBatchOperation<Long>
     {
 
@@ -742,14 +742,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
                         public String toString(Object value)
                         {
-                            return value == null ? "" : delegatee.toString();
+                            return value == null ? "" : delegatee.toString(value);
                         }
                     };
                 final String allPermIdsAsString =
                         CollectionUtils.abbreviate(permIds, -1, toStringConverter,
                                 CollectionStyle.NO_BOUNDARY);
                 sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
-                // FIXME handle null locations for containers
                 final String description =
                         CollectionUtils.abbreviate(locations, -1, toStringConverter,
                                 CollectionStyle.NO_BOUNDARY);
