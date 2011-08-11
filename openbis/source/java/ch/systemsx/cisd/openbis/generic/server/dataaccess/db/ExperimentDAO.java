@@ -312,8 +312,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         executePermanentDeleteAction(EntityType.EXPERIMENT, experimentIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlSelectAttachmentContentIds, sqlDeleteAttachments, sqlDeleteAttachmentContents,
-                sqlDeleteExperiments, sqlInsertEvent);
+                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteExperiments,
+                sqlInsertEvent);
     }
 
     @Override

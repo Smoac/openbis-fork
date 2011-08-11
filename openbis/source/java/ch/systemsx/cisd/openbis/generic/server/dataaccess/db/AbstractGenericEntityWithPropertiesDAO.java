@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -116,14 +115,14 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final String sqlSelectPermIds, final String sqlDeleteProperties,
             final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
             final String sqlDeleteAttachments, final String sqlDeleteEntities,
-            final String sqlInsertEvent, final String... additionalQueries)
+            final String sqlInsertEvent)
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
                 new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
-                        sqlInsertEvent, additionalQueries);
+                        sqlInsertEvent);
         BatchOperationExecutor.executeInBatches(deleteOperation);
 
         // FIXME remove this when we remove the switch to disable trash
@@ -157,13 +156,11 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String sqlInsertEvent;
 
-        private final String[] additionalQueries;
-
         DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
-                String sqlDeleteEntities, String sqlInsertEvent, String... additionalQueries)
+                String sqlDeleteEntities, String sqlInsertEvent)
         {
             this.entityType = entityType;
             this.allEntityIds = allEntityIds;
@@ -176,7 +173,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             this.sqlDeleteAttachments = sqlDeleteAttachments;
             this.sqlDeleteEntities = sqlDeleteEntities;
             this.sqlInsertEvent = sqlInsertEvent;
-            this.additionalQueries = additionalQueries;
         }
 
         public List<Long> getAllEntities()
@@ -227,11 +223,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                         session.createSQLQuery(sqlDeleteAttachments);
                 final SQLQuery sqlQueryDeleteAttachmentContents =
                         session.createSQLQuery(sqlDeleteAttachmentContents);
-                final List<SQLQuery> additionalSqlQueries = new ArrayList<SQLQuery>();
-                for (String queryString : additionalQueries)
-                {
-                    additionalSqlQueries.add(session.createSQLQuery(queryString));
-                }
 
                 final List<String> permIds =
                         selectPermIds(sqlQuerySelectPermIds, entityIdsToDelete);
@@ -243,7 +234,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 deleteAttachmentsWithContents(sqlQuerySelectAttachmentContentIds,
                         sqlQueryDeleteAttachments, sqlQueryDeleteAttachmentContents,
                         entityIdsToDelete);
-                executeAdditionalQueries(additionalSqlQueries, entityIdsToDelete);
                 deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
                 insertEvent(sqlQueryInsertEvent, permIds);
                 return null;
@@ -278,16 +268,6 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                     sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_CONTENT_IDS_PARAM,
                             attachmentContentIds);
                     sqlQueryDeleteAttachmentContents.executeUpdate();
-                }
-            }
-
-            private void executeAdditionalQueries(final List<SQLQuery> additionalSqlQueries,
-                    List<Long> entityIds)
-            {
-                for (SQLQuery query : additionalSqlQueries)
-                {
-                    query.setParameter(ENTITY_IDS_PARAM, entityIds);
-                    query.executeUpdate();
                 }
             }
 
