@@ -813,6 +813,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
             throws UserFailureException
     {
+        // FIXME trashed data sets are not listed
         List<ExternalData> dataSets = loadDataSets(sessionToken, dataStore);
         ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
         for (ExternalData dataSet : dataSets)
