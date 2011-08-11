@@ -199,6 +199,12 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = SELECT_ALL + " where data.dast_id = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId);
 
+    // NOTE: we list ALL data sets (even those in trash) using data_all table here
+    @Select(sql = "SELECT code, share_id FROM data_all LEFT OUTER JOIN external_data "
+            + "ON data_all.id = external_data.data_id WHERE data_all.dast_id = ?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetCodeWithShareIdRecord> getAllDatasetsWithShareIdsByDataStoreId(
+            long dataStoreId);
+
     /**
      * Returns the children dataset ids of the specified datasets.
      */

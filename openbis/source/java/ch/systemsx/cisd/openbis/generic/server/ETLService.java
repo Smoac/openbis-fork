@@ -65,7 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -810,24 +809,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return SampleTranslator.translate(sampleTable.getSamples(), "");
     }
 
-    public List<DataSetShareId> listShareIds(String sessionToken, String dataStore)
+    public List<DataSetShareId> listShareIds(String sessionToken, String dataStoreCode)
             throws UserFailureException
     {
-        // FIXME trashed data sets are not listed
-        List<ExternalData> dataSets = loadDataSets(sessionToken, dataStore);
-        ArrayList<DataSetShareId> shareIds = new ArrayList<DataSetShareId>();
-        for (ExternalData dataSet : dataSets)
-        {
-            DataSetShareId dataSetShareId = new DataSetShareId();
-            dataSetShareId.setDataSetCode(dataSet.getCode());
-            DataSet ds = dataSet.tryGetAsDataSet();
-            if (ds != null)
-            {
-                dataSetShareId.setShareId(ds.getShareId());
-            }
-            shareIds.add(dataSetShareId);
-        }
-        return shareIds;
+        Session session = getSession(sessionToken);
+        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        return datasetLister.listAllDataSetShareIdsByDataStore(dataStore.getId());
     }
 
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
@@ -872,14 +860,20 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private List<ExternalData> loadDataSets(String sessionToken, String dataStoreCode)
     {
         Session session = getSession(sessionToken);
+        DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        return datasetLister.listByDataStore(dataStore.getId());
+    }
+
+    private DataStorePE loadDataStore(Session session, String dataStoreCode)
+    {
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)
         {
             throw new UserFailureException(String.format("Unknown data store '%s'", dataStoreCode));
         }
-        return datasetLister.listByDataStore(dataStore.getId());
+        return dataStore;
     }
 
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,

@@ -422,7 +422,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Lists share ids of all data sets belonging to chosen data store.
+     * Lists share ids of all data sets belonging to chosen data store (even the ones in trash!). // TODO
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)

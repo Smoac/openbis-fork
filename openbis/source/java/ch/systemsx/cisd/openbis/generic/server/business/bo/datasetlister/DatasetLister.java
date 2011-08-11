@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 
 /**
@@ -347,6 +348,22 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     public List<ExternalData> listByDataStore(long dataStoreID)
     {
         return enrichDatasets(query.getDatasetsByDataStoreId(dataStoreID));
+    }
+
+    public List<DataSetShareId> listAllDataSetShareIdsByDataStore(long dataStoreID)
+    {
+        List<DataSetShareId> results = new ArrayList<DataSetShareId>();
+
+        DataIterator<DatasetCodeWithShareIdRecord> records =
+                query.getAllDatasetsWithShareIdsByDataStoreId(dataStoreID);
+        for (DatasetCodeWithShareIdRecord record : records)
+        {
+            DataSetShareId dataSetShareId = new DataSetShareId();
+            dataSetShareId.setDataSetCode(record.code);
+            dataSetShareId.setShareId(record.share_id);
+            results.add(dataSetShareId);
+        }
+        return results;
     }
 
     public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
@@ -816,4 +833,5 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         return result;
     }
+
 }

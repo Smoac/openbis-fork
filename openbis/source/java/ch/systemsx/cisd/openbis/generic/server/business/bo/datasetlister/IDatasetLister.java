@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 
 /**
  * A class for fast dataset listing.
@@ -79,9 +80,15 @@ public interface IDatasetLister
     List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
 
     /**
-     * Lists all data sets of specified data store. Unenriched data sets will be returned.
+     * Lists all data sets of specified data store. Unenriched data sets will be returned (FIXME -
+     * the last sentence is not true).
      */
     List<ExternalData> listByDataStore(long dataStoreID);
+
+    /**
+     * Lists {@link DataSetShareId}s of all data sets (even those in trash) in specified data store.
+     */
+    List<DataSetShareId> listAllDataSetShareIdsByDataStore(long dataStoreID);
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
@@ -101,4 +108,5 @@ public interface IDatasetLister
      * @return properties of given type for given dataset ids
      */
     Map<Long, GenericEntityPropertyRecord> fetchProperties(List<Long> ids, String propertyTypeCode);
+
 }

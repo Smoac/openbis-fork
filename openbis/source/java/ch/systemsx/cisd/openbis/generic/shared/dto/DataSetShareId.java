@@ -22,13 +22,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Share id of a data set.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetShareId implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private String dataSetCode;
 
     private String shareId;
@@ -51,6 +51,12 @@ public class DataSetShareId implements Serializable
     public void setShareId(String dataSetShareId)
     {
         this.shareId = dataSetShareId;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DataSetShareId [dataSetCode=" + dataSetCode + ", shareId=" + shareId + "]";
     }
 
 }
