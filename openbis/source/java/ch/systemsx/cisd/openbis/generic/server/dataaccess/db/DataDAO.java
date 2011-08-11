@@ -29,7 +29,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -38,22 +40,29 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import ch.systemsx.cisd.common.collections.CollectionStyle;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
+import ch.systemsx.cisd.common.collections.ToStringDefaultConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -502,49 +511,58 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // For data sets we load codes, which are logically the same as perm ids.
         // We load them ordered by ID because locations need to be loaded in the same order.
         final String sqlSelectPermIds = createSelectCodesOrderByIdSQL(dataTable);
+        final String sqlSelectLocations = createSelectLocationsOrderByIdSQL(dataTable);
         final String sqlDeleteProperties =
                 SQLBuilder.createDeletePropertiesSQL(TableNames.DATA_SET_PROPERTIES_TABLE,
                         ColumnNames.DATA_SET_COLUMN);
-        // FIXME
-        final String sqlSelectAttachmentContentIds =
-                SQLBuilder.createSelectAttachmentContentIdsSQL(ColumnNames.DATA_SET_COLUMN);
-        final String sqlDeleteAttachmentContents = SQLBuilder.createDeleteAttachmentContentsSQL();
-        final String sqlDeleteAttachments = SQLBuilder.createDeleteAttachmentsSQL();
         final String sqlDeleteDataSets = SQLBuilder.createDeleteEnitiesSQL(dataTable);
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
         // data set specific queries
-        // FIXME use locations in events
-        // final String sqlSelectLocationsOrderById = createSelectLocationsOrderByIdSQL(dataTable);
+        final String sqlDeleteExternalData = createDeleteExternalDataSQL();
         final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
         final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL();
         final String sqlDeleteComponentConnections = createDeleteComponentConnectionsSQL();
 
-        executePermanentDeleteAction(EntityKind.DATA_SET, dataIds, registrator, reason,
-                sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
-                sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteDataSets,
-                sqlInsertEvent,
-                // sqlSelectLocationsOrderById,
-                sqlDeleteChildrenConnections, sqlDeleteParentConnections,
-                sqlDeleteComponentConnections);
+        executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason,
+                sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties, sqlDeleteDataSets,
+                sqlInsertEvent, sqlDeleteExternalData, sqlDeleteChildrenConnections,
+                sqlDeleteParentConnections, sqlDeleteComponentConnections);
     }
 
-    // @Override
-    // protected boolean debugDeletion()
-    // {
-    // return true;
-    // }
+    protected void executePermanentDeleteOfDataSets(final EntityType entityType,
+            final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
+            final String sqlSelectPermIds, final String sqlSelectLocations,
+            final String sqlDeleteProperties, final String sqlDeleteEntities,
+            final String sqlInsertEvent, final String... additionalQueries)
+    {
+        List<Long> entityIds = TechId.asLongs(entityTechIds);
+        DeleteDataSetsPermanentlyBatchOperation deleteOperation =
+                new DeleteDataSetsPermanentlyBatchOperation(entityType, entityIds, registrator,
+                        reason, sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties,
+                        sqlDeleteEntities, sqlInsertEvent, additionalQueries);
+        BatchOperationExecutor.executeInBatches(deleteOperation);
 
-    protected static String createSelectCodesOrderByIdSQL(final String dataSetsTable)
+        // FIXME remove this when we remove the switch to disable trash
+        scheduleRemoveFromFullTextIndex(entityIds);
+    }
+
+    private static String createSelectCodesOrderByIdSQL(final String dataSetsTable)
     {
         return "SELECT code FROM " + dataSetsTable + " WHERE id " + SQLBuilder.inEntityIds()
                 + " ORDER BY id";
     }
 
-    protected static String createSelectLocationsOrderByIdSQL(final String dataSetsTable)
+    private static String createSelectLocationsOrderByIdSQL(final String dataSetsTable)
     {
         return "SELECT ed.location FROM " + dataSetsTable + " d "
                 + "LEFT OUTER JOIN external_data ed ON (d.id = ed.data_id) WHERE id "
                 + SQLBuilder.inEntityIds() + " ORDER BY id";
+    }
+
+    private static String createDeleteExternalDataSQL()
+    {
+        return "DELETE FROM " + TableNames.EXTERNAL_DATA_TABLE + " WHERE data_id "
+                + SQLBuilder.inEntityIds();
     }
 
     private static String createDeleteChildrenConnectionsSQL()
@@ -563,6 +581,184 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         return "UPDATE " + TableNames.DATA_ALL_TABLE + " SET ctnr_id = NULL WHERE ctnr_id "
                 + SQLBuilder.inEntityIds();
+    }
+
+    // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO 
+    protected class DeleteDataSetsPermanentlyBatchOperation implements IBatchOperation<Long>
+    {
+
+        private final EntityType entityType;
+
+        private final List<Long> allEntityIds;
+
+        private final PersonPE registrator;
+
+        private final String reason;
+
+        private final String sqlSelectPermIds;
+
+        private final String sqlSelectLocations;
+
+        private final String sqlDeleteProperties;
+
+        private final String sqlDeleteEntities;
+
+        private final String sqlInsertEvent;
+
+        private final String[] additionalQueries;
+
+        public DeleteDataSetsPermanentlyBatchOperation(EntityType entityType,
+                List<Long> allEntityIds, PersonPE registrator, String reason,
+                String sqlSelectPermIds, String sqlSelectLocations, String sqlDeleteProperties,
+                String sqlDeleteEntities, String sqlInsertEvent, String... additionalQueries)
+        {
+            this.entityType = entityType;
+            this.allEntityIds = allEntityIds;
+            this.registrator = registrator;
+            this.reason = reason;
+            this.sqlSelectPermIds = sqlSelectPermIds;
+            this.sqlSelectLocations = sqlSelectLocations;
+            this.sqlDeleteProperties = sqlDeleteProperties;
+            this.sqlDeleteEntities = sqlDeleteEntities;
+            this.sqlInsertEvent = sqlInsertEvent;
+            this.additionalQueries = additionalQueries;
+        }
+
+        public List<Long> getAllEntities()
+        {
+            return allEntityIds;
+        }
+
+        public String getEntityName()
+        {
+            return entityType.name();
+        }
+
+        public String getOperationName()
+        {
+            return "permanently deleting";
+        }
+
+        public void execute(final List<Long> batchEntityIds)
+        {
+            executeStatelessAction(createPermanentDeleteAction(batchEntityIds));
+        }
+
+        private StatelessHibernateCallback createPermanentDeleteAction(
+                final List<Long> entityIdsToDelete)
+        {
+            return new PermanentDeletionAction(entityIdsToDelete);
+        }
+
+        private class PermanentDeletionAction implements StatelessHibernateCallback
+        {
+            private final List<Long> entityIdsToDelete;
+
+            public PermanentDeletionAction(List<Long> entityIdsToDelete)
+            {
+                this.entityIdsToDelete = entityIdsToDelete;
+            }
+
+            public Object doInStatelessSession(StatelessSession session)
+            {
+                final SQLQuery sqlQuerySelectPermIds = session.createSQLQuery(sqlSelectPermIds);
+                final SQLQuery sqlQuerySelectLocations = session.createSQLQuery(sqlSelectLocations);
+                final SQLQuery sqlQueryDeleteProperties =
+                        session.createSQLQuery(sqlDeleteProperties);
+                final SQLQuery sqlQueryDeleteEntities = session.createSQLQuery(sqlDeleteEntities);
+                final SQLQuery sqlQueryInsertEvent = session.createSQLQuery(sqlInsertEvent);
+                final List<SQLQuery> additionalSqlQueries = new ArrayList<SQLQuery>();
+                for (String queryString : additionalQueries)
+                {
+                    additionalSqlQueries.add(session.createSQLQuery(queryString));
+                }
+
+                final List<String> permIds =
+                        selectPermIds(sqlQuerySelectPermIds, entityIdsToDelete);
+                if (permIds.isEmpty())
+                {
+                    return null;
+                }
+                final List<String> locations =
+                        selectLocations(sqlQuerySelectLocations, entityIdsToDelete);
+                deleteProperties(sqlQueryDeleteProperties, entityIdsToDelete);
+                executeAdditionalQueries(additionalSqlQueries, entityIdsToDelete);
+                deleteMainEntities(sqlQueryDeleteEntities, entityIdsToDelete);
+                insertEvent(sqlQueryInsertEvent, permIds, locations);
+                return null;
+            }
+
+            private List<String> selectPermIds(final SQLQuery sqlQuerySelectPermIds,
+                    final List<Long> entityIds)
+            {
+                sqlQuerySelectPermIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                final List<String> permIdsOrNull = cast(sqlQuerySelectPermIds.list());
+                return permIdsOrNull == null ? Collections.<String> emptyList() : permIdsOrNull;
+            }
+
+            private List<String> selectLocations(final SQLQuery sqlQuerySelectLocations,
+                    final List<Long> entityIds)
+            {
+                sqlQuerySelectLocations.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                return cast(sqlQuerySelectLocations.list());
+            }
+
+            private void deleteProperties(final SQLQuery sqlQueryDeleteProperties,
+                    List<Long> entityIds)
+            {
+                sqlQueryDeleteProperties.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                sqlQueryDeleteProperties.executeUpdate();
+            }
+
+            private void executeAdditionalQueries(final List<SQLQuery> additionalSqlQueries,
+                    List<Long> entityIds)
+            {
+                for (SQLQuery query : additionalSqlQueries)
+                {
+                    query.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                    query.executeUpdate();
+                }
+            }
+
+            private void deleteMainEntities(final SQLQuery sqlQueryDeleteEntities,
+                    List<Long> entityIds)
+            {
+                sqlQueryDeleteEntities.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                sqlQueryDeleteEntities.executeUpdate();
+            }
+
+            private void insertEvent(final SQLQuery sqlQueryInsertEvent,
+                    final List<String> permIds, final List<String> locations)
+            {
+                sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
+                sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
+                sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
+                sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityType.name());
+
+                IToStringConverter<Object> toStringConverter = new IToStringConverter<Object>()
+                    {
+                        IToStringConverter<Object> delegatee = ToStringDefaultConverter
+                                .getInstance();
+
+                        public String toString(Object value)
+                        {
+                            return value == null ? "" : delegatee.toString();
+                        }
+                    };
+                final String allPermIdsAsString =
+                        CollectionUtils.abbreviate(permIds, -1, toStringConverter,
+                                CollectionStyle.NO_BOUNDARY);
+                sqlQueryInsertEvent.setParameter(IDENTIFIERS_PARAM, allPermIdsAsString);
+                // FIXME handle null locations for containers
+                final String description =
+                        CollectionUtils.abbreviate(locations, -1, toStringConverter,
+                                CollectionStyle.NO_BOUNDARY);
+                sqlQueryInsertEvent.setParameter(DESCRIPTION_PARAM, description);
+
+                sqlQueryInsertEvent.executeUpdate();
+            }
+        }
+
     }
 
     @SuppressWarnings("unchecked")

@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -50,21 +50,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityInformationWithPropertiesHolder>
         extends AbstractGenericEntityDAO<T>
 {
-    private static final String ATTACHMENT_IDS_PARAM = "attachmentIds";
+    protected static final String ATTACHMENT_CONTENT_IDS_PARAM = "attachmentContentIds";
 
-    private static final String DESCRIPTION_PARAM = "description";
+    protected static final String DESCRIPTION_PARAM = "description";
 
-    private static final String ENTITY_IDS_PARAM = "entityIds";
+    protected static final String ENTITY_IDS_PARAM = "entityIds";
 
-    private static final String ENTITY_TYPE_PARAM = "entityType";
+    protected static final String ENTITY_TYPE_PARAM = "entityType";
 
-    private static final String EVENT_TYPE_PARAM = "eventType";
+    protected static final String EVENT_TYPE_PARAM = "eventType";
 
-    private static final String IDENTIFIERS_PARAM = "identifiers";
+    protected static final String IDENTIFIERS_PARAM = "identifiers";
 
-    private static final String REGISTRATOR_ID_PARAM = "registratorId";
+    protected static final String REGISTRATOR_ID_PARAM = "registratorId";
 
-    private static final String REASON_PARAM = "reason";
+    protected static final String REASON_PARAM = "reason";
 
     private final PersistencyResources persistencyResources;
 
@@ -111,7 +111,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 getEntityClass(), ids);
     }
 
-    protected void executePermanentDeleteAction(final EntityKind entityKind,
+    protected void executePermanentDeleteAction(final EntityType entityType,
             final List<TechId> entityTechIds, final PersonPE registrator, final String reason,
             final String sqlSelectPermIds, final String sqlDeleteProperties,
             final String sqlSelectAttachmentContentIds, final String sqlDeleteAttachmentContents,
@@ -120,7 +120,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     {
         List<Long> entityIds = TechId.asLongs(entityTechIds);
         DeletePermanentlyBatchOperation deleteOperation =
-                new DeletePermanentlyBatchOperation(entityKind, entityIds, registrator, reason,
+                new DeletePermanentlyBatchOperation(entityType, entityIds, registrator, reason,
                         sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                         sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteEntities,
                         sqlInsertEvent, additionalQueries);
@@ -135,7 +135,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     protected class DeletePermanentlyBatchOperation implements IBatchOperation<Long>
     {
 
-        private final EntityKind entityKind;
+        private final EntityType entityType;
 
         private final List<Long> allEntityIds;
 
@@ -159,13 +159,13 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         private final String[] additionalQueries;
 
-        DeletePermanentlyBatchOperation(EntityKind entityKind, List<Long> allEntityIds,
+        DeletePermanentlyBatchOperation(EntityType entityType, List<Long> allEntityIds,
                 PersonPE registrator, String reason, String sqlSelectPermIds,
                 String sqlDeleteProperties, String sqlSelectAttachmentContentIds,
                 String sqlDeleteAttachmentContents, String sqlDeleteAttachments,
                 String sqlDeleteEntities, String sqlInsertEvent, String... additionalQueries)
         {
-            this.entityKind = entityKind;
+            this.entityType = entityType;
             this.allEntityIds = allEntityIds;
             this.registrator = registrator;
             this.reason = reason;
@@ -186,7 +186,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
         public String getEntityName()
         {
-            return entityKind.getDescription();
+            return entityType.name();
         }
 
         public String getOperationName()
@@ -264,16 +264,18 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 sqlQueryDeleteProperties.executeUpdate();
             }
 
-            private void deleteAttachmentsWithContents(final SQLQuery sqlQueryAttachmentContentIds,
+            private void deleteAttachmentsWithContents(
+                    final SQLQuery sqlQuerySelectAttachmentContentIds,
                     final SQLQuery sqlQueryDeleteAttachments,
                     final SQLQuery sqlQueryDeleteAttachmentContents, List<Long> entityIds)
             {
-                sqlQueryAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
-                List<Long> attachmentContentIds = cast(sqlQueryAttachmentContentIds.list());
+                sqlQuerySelectAttachmentContentIds.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                List<Long> attachmentContentIds = cast(sqlQuerySelectAttachmentContentIds.list());
                 if (attachmentContentIds.size() > 0)
                 {
-                    deleteProperties(sqlQueryDeleteAttachments, entityIds);
-                    sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_IDS_PARAM,
+                    sqlQueryDeleteAttachments.setParameterList(ENTITY_IDS_PARAM, entityIds);
+                    sqlQueryDeleteAttachments.executeUpdate();
+                    sqlQueryDeleteAttachmentContents.setParameterList(ATTACHMENT_CONTENT_IDS_PARAM,
                             attachmentContentIds);
                     sqlQueryDeleteAttachmentContents.executeUpdate();
                 }
@@ -304,7 +306,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
                 sqlQueryInsertEvent.setParameter(EVENT_TYPE_PARAM, EventType.DELETION.name());
                 sqlQueryInsertEvent.setParameter(REASON_PARAM, reason);
                 sqlQueryInsertEvent.setParameter(REGISTRATOR_ID_PARAM, registrator.getId());
-                sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityKind.name());
+                sqlQueryInsertEvent.setParameter(ENTITY_TYPE_PARAM, entityType.name());
 
                 final String allPermIdsAsString =
                         CollectionUtils.abbreviate(permIds, -1, CollectionStyle.NO_BOUNDARY);
@@ -339,13 +341,13 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
         protected static String createDeleteAttachmentContentsSQL()
         {
             return "DELETE FROM " + TableNames.ATTACHMENT_CONTENT_TABLE + " WHERE id "
-                    + in(ATTACHMENT_IDS_PARAM);
+                    + in(ATTACHMENT_CONTENT_IDS_PARAM);
         }
 
-        protected static String createDeleteAttachmentsSQL()
+        protected static String createDeleteAttachmentsSQL(final String ownerColumnName)
         {
-            return "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE samp_id "
-                    + inEntityIds();
+            return "DELETE FROM " + TableNames.ATTACHMENTS_TABLE + " WHERE " + ownerColumnName
+                    + " " + inEntityIds();
         }
 
         protected static String createDeleteEnitiesSQL(final String entitiesTable)
