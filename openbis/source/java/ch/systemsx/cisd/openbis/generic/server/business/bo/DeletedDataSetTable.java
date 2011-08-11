@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -261,20 +262,10 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     private IDatasetLocation asDatasetLocation(final DeletedExternalDataPE dataSet)
     {
         assert dataSet != null;
-
-        return new IDatasetLocation()
-            {
-
-                public String getDataSetLocation()
-                {
-                    return dataSet.getLocation();
-                }
-
-                public String getDataSetCode()
-                {
-                    return dataSet.getCode();
-                }
-            };
+        final DatasetLocation result = new DatasetLocation();
+        result.setDatasetCode(dataSet.getCode());
+        result.setDataSetLocation(dataSet.getLocation());
+        return result;
     }
 
 }
