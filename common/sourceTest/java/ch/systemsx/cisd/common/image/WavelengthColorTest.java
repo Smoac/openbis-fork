@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.color;
+package ch.systemsx.cisd.common.image;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.awt.Color;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.image.WavelengthColor;
 
 /**
  * Test cases for the {@link WavelengthColor} class.

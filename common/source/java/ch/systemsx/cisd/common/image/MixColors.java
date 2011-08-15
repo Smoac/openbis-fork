@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.color;
+package ch.systemsx.cisd.common.image;
 
 import java.awt.Color;
 
