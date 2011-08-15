@@ -37,6 +37,7 @@ public class ShareFactoryTest extends AssertJUnit
         Share share = readShare("share-1");
         assertEquals(70, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
+        assertEquals(false, share.isWithdrawShare());
     }
 
     @Test
@@ -45,6 +46,7 @@ public class ShareFactoryTest extends AssertJUnit
         Share share = readShare("share-2");
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.MOVE_TO_EXTENSION, share.getShufflePriority());
+        assertEquals(true, share.isWithdrawShare());
     }
 
     @Test
@@ -53,6 +55,7 @@ public class ShareFactoryTest extends AssertJUnit
         Share share = readShare("share-3");
         assertEquals(70, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
+        assertEquals(false, share.isWithdrawShare());
     }
 
     @Test
@@ -61,6 +64,7 @@ public class ShareFactoryTest extends AssertJUnit
         Share share = readShare("share-4");
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
+        assertEquals(false, share.isWithdrawShare());
     }
 
     private Share readShare(String shareName)

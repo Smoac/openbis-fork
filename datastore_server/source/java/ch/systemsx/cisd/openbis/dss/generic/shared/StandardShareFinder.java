@@ -74,7 +74,10 @@ public class StandardShareFinder implements IShareFinder
         Share homeShare = findDataSetShare(dataSet, shares);
         for (Share share : shares)
         {
-
+            if (share.isWithdrawShare())
+            {
+                continue;
+            }
             if (share.equals(homeShare) || canMoveShareTo(dataSet, share))
             {
                 CandidateShare candidate = createCandidate(dataSet, homeShare, share);

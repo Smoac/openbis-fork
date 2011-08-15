@@ -183,9 +183,10 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         spaceProvider.addFreeSpaceExpectationFor(share1, 100l);
         final Share share2 = new Share(new File(store, "2"), 0, spaceProvider);
+        share2.setWithdrawShare(true);
         final SimpleDataSetInformationDTO ds4 = dataSet("ds4", "2", 2 * ONE_MB);
         share2.addDataSet(ds4);
-        spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
+        spaceProvider.addFreeSpaceExpectationFor(share2, 2500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
         spaceProvider.addFreeSpaceExpectationFor(share2, 500l);
@@ -205,7 +206,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                 {
                     allowing(service).listDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
-                    one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 1");
+                    one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to be moved for share 1");
                     one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1994752 bytes (1948.00 kB, 1.90 MB)");
                     one(logger).log(LogLevel.INFO, "\tInspecting 3 data sets.");
                     one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 1");
@@ -217,10 +218,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
                     one(dataSetMover).moveDataSetToAnotherShare(new File(share1.getShare(), STORE_PATH + "ds3"), share3.getShare(), logger);
                     one(logger).log(LogLevel.INFO, "Data set ds3 successfully moved from share 1 to 3.");
                     
-                    one(logger).log(LogLevel.INFO, "BEGIN Computing number of data sets to move for share 2");
-                    one(logger).log(LogLevel.INFO, "\tSpace needed to free: 1585152 bytes (1548.00 kB, 1.51 MB)");
-                    one(logger).log(LogLevel.INFO, "\tInspecting 1 data sets.");
-                    one(logger).log(LogLevel.INFO, "END Computing number of data sets to move for share 2");
+                    one(logger).log(LogLevel.INFO, "All 1 data sets should be moved for share 2");
                     one(shareIdManager).getShareId(ds2.getDataSetCode());
                     will(returnValue(ds2.getDataSetShareId()));
                     

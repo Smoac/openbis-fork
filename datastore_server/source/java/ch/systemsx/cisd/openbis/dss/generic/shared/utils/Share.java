@@ -80,6 +80,8 @@ public final class Share
     private long size;
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
+    
+    private boolean withdrawShare;
 
     public Share(File share, int speed, IFreeSpaceProvider freeSpaceProvider)
     {
@@ -171,5 +173,15 @@ public final class Share
     public void setShufflePriority(ShufflePriority shufflePriority)
     {
         this.shufflePriority = shufflePriority;
+    }
+
+    public boolean isWithdrawShare()
+    {
+        return withdrawShare;
+    }
+
+    public void setWithdrawShare(boolean withdrawShare)
+    {
+        this.withdrawShare = withdrawShare;
     }
 }

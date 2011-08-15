@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share.ShufflePriority;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
@@ -35,23 +36,29 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
  * 
  * @author Kaloyan Enimanev
  */
-class ShareFactory
+@Private 
+public class ShareFactory
 {
     @Private
     static final String SPEED_FILE = "speed";
 
     @Private
-    static final String SHARE_PROPS_FILE = "share.properties";
+    public static final String SHARE_PROPS_FILE = "share.properties";
 
     @Private
     static final String SPEED_HINT_PROP = "speed";
 
     @Private
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
+    
+    @Private
+    public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
 
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
+    
+    private boolean withdrawShare;
 
     Share createShare(File shareRoot, IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
     {
@@ -59,6 +66,7 @@ class ShareFactory
         readSharePropertiesFile(shareRoot, log);
         Share share = new Share(shareRoot, speed, freeSpaceProvider);
         share.setShufflePriority(shufflePriority);
+        share.setWithdrawShare(withdrawShare);
         return share;
 
     }
@@ -107,6 +115,8 @@ class ShareFactory
                     log.log(LogLevel.WARN, errorMsg);
                 }
             }
+            
+            withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
 
         }
         

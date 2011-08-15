@@ -107,20 +107,30 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         List<ShareAndFreeSpace> fullShares = getFullShares(sourceShares);
         for (ShareAndFreeSpace fullShare : fullShares)
         {
-            List<SimpleDataSetInformationDTO> dataSets =
-                    fullShare.getShare().getDataSetsOrderedBySize();
+            Share share = fullShare.getShare();
+            List<SimpleDataSetInformationDTO> dataSets = share.getDataSetsOrderedBySize();
             long initalFreeSpaceAboveMinimum = fullShare.getFreeSpace() - minimumFreeSpace;
 
-            logger.log(INFO, "BEGIN Computing number of data sets to move for share "
-                    + fullShare.getShare().getShareId());
-            int numberOfDataSetsToMove =
-                    getNumberOfDataSetsToMove(dataSets, initalFreeSpaceAboveMinimum, logger);
-            logger.log(INFO, "END Computing number of data sets to move for share "
-                    + fullShare.getShare().getShareId());
-            if (numberOfDataSetsToMove < 0)
+            int numberOfDataSetsToMove;
+            if (share.isWithdrawShare())
             {
-                throw new IllegalStateException("Share " + fullShare.getShare().getShareId()
-                        + " has not enough free space even if it is empty.");
+                numberOfDataSetsToMove = dataSets.size();
+                logger.log(INFO, "All " + numberOfDataSetsToMove
+                        + " data sets should be moved for share " + share.getShareId());
+            }
+            else
+            {
+                logger.log(INFO,
+                        "BEGIN Computing number of data sets to be moved for share " + share.getShareId());
+                numberOfDataSetsToMove = getNumberOfDataSetsToMove(dataSets,
+                        initalFreeSpaceAboveMinimum, logger);
+                logger.log(INFO,
+                        "END Computing number of data sets to move for share " + share.getShareId());
+                if (numberOfDataSetsToMove < 0)
+                {
+                    throw new IllegalStateException("Share " + share.getShareId()
+                            + " has not enough free space even if it is empty.");
+                }
             }
             for (int i = 0; i < numberOfDataSetsToMove; i++)
             {
@@ -167,7 +177,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
         List<ShareAndFreeSpace> fullShares = new ArrayList<ShareAndFreeSpace>();
         for (ShareAndFreeSpace shareState : getSortedShares(sourceShares))
         {
-            if (shareState.getFreeSpace() < minimumFreeSpace)
+            if (shareState.getShare().isWithdrawShare() || shareState.getFreeSpace() < minimumFreeSpace)
             {
                 fullShares.add(shareState);
             }

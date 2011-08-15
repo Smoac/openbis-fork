@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -116,6 +117,9 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SegmentedStoreShufflingTask.class);
 
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            SegmentedStoreShufflingTask.class);
+    
     private final Set<String> incomingShares;
 
     private final IEncapsulatedOpenBISService service;
@@ -200,20 +204,42 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
     public void execute()
     {
         operationLog.info("Starting segmented store shuffling.");
-        List<Share> shares =
-                SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
-                        Collections.<String> emptySet(), freeSpaceProvider, service,
-                        operationLogger);
+        List<Share> shares = listShares();
         List<Share> sourceShares = new ArrayList<Share>();
+        Set<String> nonEmptyShares = new TreeSet<String>();
         for (Share share : shares)
         {
-            if (incomingShares.contains(share.getShareId()))
+            if (incomingShares.contains(share.getShareId()) || share.isWithdrawShare())
             {
                 sourceShares.add(share);
+            }
+            if (share.getDataSetsOrderedBySize().isEmpty() == false)
+            {
+                nonEmptyShares.add(share.getShareId());
             }
         }
         shuffling.shuffleDataSets(sourceShares, shares, service, dataSetMover, operationLogger);
         operationLog.info("Segmented store shuffling finished.");
+        Set<String> emptyShares = new TreeSet<String>();
+        for (Share share : listShares())
+        {
+            if (share.getDataSetsOrderedBySize().isEmpty()
+                    && nonEmptyShares.contains(share.getShareId()))
+            {
+                emptyShares.add(share.getShareId());
+            }
+        }
+        if (emptyShares.isEmpty() == false)
+        {
+            notificationLog.info("The following shares are just emptied by shuffeling: " + emptyShares);
+        }
+    }
+
+    private List<Share> listShares()
+    {
+        return SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
+                Collections.<String> emptySet(), freeSpaceProvider, service,
+                operationLogger);
     }
 
     /**
