@@ -120,10 +120,11 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
-                        protected void showEntityViewer(TableModelRowWithObject<Sample> row,
-                                boolean editMode, boolean active)
+                        protected ICellListenerAndLinkGenerator<Sample> tryGetCellListenerAndLinkGenerator(
+                                String columnId)
                         {
-                            // do nothing - avoid showing the details after double click
+                            // No links in choosers needed
+                            return null;
                         }
                     };
         browserGrid.addGridRefreshListener(toolbar);

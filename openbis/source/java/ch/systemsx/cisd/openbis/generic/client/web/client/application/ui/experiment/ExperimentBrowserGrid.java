@@ -99,10 +99,11 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
                 @Override
-                protected void showEntityViewer(TableModelRowWithObject<Experiment> experiment,
-                        boolean editMode, boolean active)
+                protected ICellListenerAndLinkGenerator<Experiment> tryGetCellListenerAndLinkGenerator(
+                        String columnId)
                 {
-                    // do nothing - avoid showing the details after double click
+                    // No links in choosers needed
+                    return null;
                 }
             };
         browserGrid.addGridRefreshListener(toolbar);
