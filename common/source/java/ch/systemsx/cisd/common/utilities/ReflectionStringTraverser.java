@@ -243,9 +243,9 @@ class ReflectionStringTraverser
         {
             return;
         }
-        Class<?> componentType = figureElementClass(collection);
+        Class<?> componentType = tryFigureElementClass(collection);
 
-        if (componentType.isPrimitive())
+        if (componentType == null || componentType.isPrimitive())
         {
             return; // do nothing
         }
@@ -342,10 +342,17 @@ class ReflectionStringTraverser
     }
 
     // assumes that all elements are of the same type
-    private static Class<?> figureElementClass(Collection<?> collection)
+    private static Class<?> tryFigureElementClass(Collection<?> collection)
     {
-        Object firstElem = collection.iterator().next();
-        return firstElem.getClass();
+        for (Object elem : collection)
+        {
+            if (elem != null)
+            {
+                return elem.getClass();
+            }
+        }
+        return null; // all elements are null
+
     }
 
     @SuppressWarnings("unchecked")
@@ -387,8 +394,8 @@ class ReflectionStringTraverser
         {
             return false;
         }
-        Class<?> elementClass = figureElementClass(collection);
-        return isStringClass(elementClass);
+        Class<?> elementClass = tryFigureElementClass(collection);
+        return elementClass != null && isStringClass(elementClass);
     }
 
     private static boolean isStringCollection(final Object o)
