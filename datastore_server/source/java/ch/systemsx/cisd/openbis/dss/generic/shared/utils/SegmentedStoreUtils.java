@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -54,6 +55,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class SegmentedStoreUtils
 {
+    private static final IFreeSpaceProvider DUMMY_FREE_SPACE_PROVIDER = new IFreeSpaceProvider()
+        {
+            public long freeSpaceKb(HostAwareFile path) throws IOException
+            {
+                return Long.MAX_VALUE;
+            }
+        };
+
     private static final String RSYNC_EXEC = "rsync";
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
@@ -84,7 +93,7 @@ public class SegmentedStoreUtils
      */
     public static File[] getShares(File storeRootDir)
     {
-        File[] files = storeRootDir.listFiles(SegmentedStoreUtils.FILTER_ON_SHARES);
+        File[] files = storeRootDir.listFiles(FILTER_ON_SHARES);
         Arrays.sort(files);
         return files;
     }
@@ -93,7 +102,7 @@ public class SegmentedStoreUtils
      * Returns first the id of the first incoming share folder of specified store root which allows
      * to move a file from specified incoming folder to the incoming share.
      */
-    public static String findIncomingShare(File incomingFolder, File storeRoot)
+    public static String findIncomingShare(File incomingFolder, File storeRoot, ISimpleLogger logger)
     {
         if (incomingFolder.isDirectory() == false)
         {
@@ -105,16 +114,7 @@ public class SegmentedStoreUtils
             throw new ConfigurationFailureException(
                     "Store root does not exist or is not a folder: " + storeRoot);
         }
-        return findIncomingShare(incomingFolder, storeRoot.listFiles(FILTER_ON_SHARES));
-    }
-
-    /**
-     * Returns the name of the first share folder which allows to move a file from specified
-     * incoming folder to that share folder.
-     */
-    public static String findIncomingShare(File incomingDataDirectory, File[] shares)
-    {
-        File testFile = new File(incomingDataDirectory, ".DDS_TEST");
+        File testFile = new File(incomingFolder, ".DDS_TEST");
         try
         {
             testFile.createNewFile();
@@ -122,20 +122,29 @@ public class SegmentedStoreUtils
         {
             throw new ConfigurationFailureException(
                     "Couldn't create a test file in the following incoming folder: "
-                            + incomingDataDirectory, ex);
+                            + incomingFolder, ex);
         }
-        File matchingShare = findShare(testFile, shares);
+        File matchingShare = findShare(testFile, storeRoot, logger);
         return matchingShare.getName();
     }
 
-    private static File findShare(File testFile, File[] shares)
+    private static File findShare(File testFile, File storeRoot, ISimpleLogger logger)
     {
-        for (File share : shares)
+        for (File share : getShares(storeRoot))
         {
             File destination = new File(share, testFile.getName());
             if (testFile.renameTo(destination))
             {
                 destination.delete();
+                Share shareObject =
+                        new ShareFactory().createShare(share, DUMMY_FREE_SPACE_PROVIDER, logger);
+                if (shareObject.isWithdrawShare())
+                {
+                    logger.log(LogLevel.WARN, "Incoming folder [" + testFile.getParent()
+                            + "] can not be assigned to share " + shareObject.getShareId()
+                            + " because its property " + ShareFactory.WITHDRAW_SHARE_PROP
+                            + " is set to true.");
+                }
                 return share;
             }
         }

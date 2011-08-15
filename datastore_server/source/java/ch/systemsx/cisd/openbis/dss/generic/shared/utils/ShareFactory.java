@@ -51,7 +51,6 @@ public class ShareFactory
     @Private
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
     
-    @Private
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
 
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);

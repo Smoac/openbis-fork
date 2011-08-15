@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
@@ -240,7 +241,9 @@ public class PutDataSetService
                         + storeDirectory);
             }
         }
-        shareId = SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory);
+        shareId =
+                SegmentedStoreUtils.findIncomingShare(incomingDir, storeDirectory,
+                        new Log4jSimpleLogger(operationLog));
         operationLog.info("Data sets registered via RPC are stored in share " + shareId + ".");
 
         registratorMap = initializer.getRegistratorMap(shareId, openBisService, mailClient);

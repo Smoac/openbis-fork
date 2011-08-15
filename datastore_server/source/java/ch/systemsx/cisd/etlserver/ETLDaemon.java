@@ -51,6 +51,7 @@ import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -228,12 +229,13 @@ public final class ETLDaemon
         final IDataSourceQueryService dataSourceQueryService =
                 ServiceProvider.getDataSourceQueryService();
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
-        File[] shares = SegmentedStoreUtils.getShares(storeRootDir);
         List<String> incomingShares = new ArrayList<String>();
         for (final ThreadParameters threadParameters : threads)
         {
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
-            String shareId = SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, shares);
+            String shareId =
+                    SegmentedStoreUtils.findIncomingShare(incomingDataDirectory, storeRootDir,
+                            new Log4jSimpleLogger(operationLog));
             incomingShares.add(shareId);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share " + shareId + ".");

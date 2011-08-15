@@ -273,6 +273,25 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         log.assertNoMoreLogMessages();
     }
     
+    @Test
+    public void testFindIncomingShare()
+    {
+        File incomingFolder = new File(workingDirectory, "incoming");
+        incomingFolder.mkdirs();
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+        FileUtilities.writeToFile(new File(share1, "share.properties"), "withdraw-share = true");
+        
+        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
+        
+        assertEquals("1", share);
+        assertEquals(
+                "WARN: Incoming folder [targets/unit-test-wd/"
+                        + SegmentedStoreUtilsTest.class.getName()
+                        + "/incoming] can not be assigned to share 1 because its property "
+                        + "withdraw-share is set to true.\n", log.toString());
+    }
+    
     private File dataSetFile(String shareId, boolean empty)
     {
         File share = new File(store, shareId);
