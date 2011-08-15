@@ -185,8 +185,19 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             if (container != null)
             {
                 Location wellLocation = hcsRef.getWellLocation();
-                assert wellLocation.getX() <= container.getNumberOfColumns();
-                assert wellLocation.getY() <= container.getNumberOfRows();
+                if (wellLocation.getX() > container.getNumberOfColumns())
+                {
+                    throw new IllegalArgumentException("Well column coordinate "
+                            + wellLocation.getX()
+                            + " is bigger then the number of plate's columns "
+                            + container.getNumberOfColumns());
+                }
+                if (wellLocation.getY() > container.getNumberOfRows())
+                {
+                    throw new IllegalArgumentException("Well row coordinate " + wellLocation.getY()
+                            + " is bigger then the number of plate's rows "
+                            + container.getNumberOfRows());
+                }
             }
         } else if (micRef != null)
         {
@@ -196,12 +207,18 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
 
     private void validateTileReference(Location tileLocation)
     {
-        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns() : "Tile x coordinate "
-                + tileLocation.getX() + " is bigger then number of well's columns "
-                + getDataset().getFieldNumberOfColumns();
-        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows() : "Tile y coordinate "
-                + tileLocation.getY() + " is bigger then number of well's rows "
-                + getDataset().getFieldNumberOfRows();
+        if (tileLocation.getX() > getDataset().getFieldNumberOfColumns())
+        {
+            throw new IllegalArgumentException("Tile x coordinate " + tileLocation.getX()
+                    + " is bigger then number of well's columns "
+                    + getDataset().getFieldNumberOfColumns());
+        }
+        if (tileLocation.getY() > getDataset().getFieldNumberOfRows())
+        {
+            throw new IllegalArgumentException("Tile y coordinate " + tileLocation.getY()
+                    + " is bigger then number of well's rows "
+                    + getDataset().getFieldNumberOfRows());
+        }
     }
 
     private ImgImageDTO tryGetOriginalImage(long channelId,
