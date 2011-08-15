@@ -59,7 +59,7 @@ public class ConfigProvider implements IConfigProvider
 
     public String getOpenBisServerUrl()
     {
-        return DssPropertyParametersUtil.getDataStoreCode(properties);
+        return DssPropertyParametersUtil.getOpenBisServerUrl(properties);
     }
 
 }
