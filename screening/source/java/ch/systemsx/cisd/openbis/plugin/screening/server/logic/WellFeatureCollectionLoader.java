@@ -26,13 +26,14 @@ import org.apache.commons.lang.time.StopWatch;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
-import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
@@ -144,7 +145,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
                 Collection<DatasetReference> datasets)
         {
             GroupByMap<String/* datastore code */, DatasetReference> datastoreToDatasetsMap =
-                    GroupByMap.create(datasets, new IKeyExtractor<String, DatasetReference>()
+                    GroupByMap.create(datasets, new IGroupKeyExtractor<String, DatasetReference>()
                         {
                             public String getKey(DatasetReference datasetReference)
                             {

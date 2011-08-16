@@ -26,11 +26,11 @@ import java.util.Map;
 
 import org.apache.commons.collections.comparators.NullComparator;
 
-import ch.systemsx.cisd.common.collections.GroupByMap;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 
 /**
  * Provides sequence numbers for technical and biological well replicates for a fixed material.
@@ -88,7 +88,7 @@ class ReplicateSequenceProvider
     private GroupByMap<Double, IEntityPropertiesHolder> groupByBiologicalReplicate(
             List<? extends IEntityPropertiesHolder> wells)
     {
-        return GroupByMap.create(wells, new IKeyExtractor<Double, IEntityPropertiesHolder>()
+        return GroupByMap.create(wells, new IGroupKeyExtractor<Double, IEntityPropertiesHolder>()
             {
                 public Double getKey(IEntityPropertiesHolder well)
                 {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collections;
+package ch.systemsx.cisd.openbis.generic.shared.basic.utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +29,9 @@ import org.testng.annotations.Test;
  */
 public class GroupByMapTest extends AssertJUnit
 {
-    private IKeyExtractor<Integer, Integer> createKeyExtractor()
+    private IGroupKeyExtractor<Integer, Integer> createKeyExtractor()
     {
-        return new IKeyExtractor<Integer, Integer>()
+        return new IGroupKeyExtractor<Integer, Integer>()
             {
                 public Integer getKey(Integer e)
                 {

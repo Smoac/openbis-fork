@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AnalysisProcedureResult;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -74,6 +78,22 @@ public class ScreeningUtils
     {
         return filterExternalDataByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
+    }
+
+    /** @return unique set of analysis procedures which produced numerical analysis datasets. */
+    public static AnalysisProcedures filterNumericalDatasetsAnalysisProcedures(
+            List<AnalysisProcedureResult> analysisProcedureResults)
+    {
+        Set<String> uniqueAnalysisProcedures = new HashSet<String>();
+        for (AnalysisProcedureResult analysisProcedureResult : analysisProcedureResults)
+        {
+            if (isMatching(analysisProcedureResult,
+                    ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN))
+            {
+                uniqueAnalysisProcedures.add(analysisProcedureResult.analysisProcedure);
+            }
+        }
+        return new AnalysisProcedures(uniqueAnalysisProcedures);
     }
 
     public static <T extends DataPE> List<T> filterImageOverlayDatasets(Collection<T> datasets)
@@ -143,6 +163,17 @@ public class ScreeningUtils
             }
         }
         return false;
+    }
+
+    private static boolean isMatching(AnalysisProcedureResult analysisProcedureResult,
+            String datasetTypeCodePattern)
+    {
+        String analysisProcedure = analysisProcedureResult.analysisProcedure;
+        if (analysisProcedure == null)
+        {
+            return true;
+        }
+        return analysisProcedureResult.datasetTypeCode.matches(datasetTypeCodePattern);
     }
 
     private static boolean isTypeMatching(DataPE dataset, String datasetTypeCodePattern)

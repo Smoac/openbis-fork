@@ -225,9 +225,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listAnalysisProcedures(ExperimentSearchCriteria)
+     * @see IScreeningClientService#listNumericalDatasetsAnalysisProcedures(ExperimentSearchCriteria)
      */
-    public void listAnalysisProcedures(ExperimentSearchCriteria experimentSearchCriteria,
+    public void listNumericalDatasetsAnalysisProcedures(
+            ExperimentSearchCriteria experimentSearchCriteria,
             AsyncCallback<AnalysisProcedures> callback);
 
 }

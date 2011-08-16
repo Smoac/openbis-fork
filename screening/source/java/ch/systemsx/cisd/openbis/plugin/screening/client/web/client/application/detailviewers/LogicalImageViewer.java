@@ -197,7 +197,7 @@ public class LogicalImageViewer
 
         final ChannelChooser channelChooser =
                 new ChannelChooser(logicalImageReference, viewerFactory, channelState);
-        channelChooser.addViewerTo(container);
+        channelChooser.addViewerTo(container, viewContext);
 
         if (showColorAdjustmentButton)
         {

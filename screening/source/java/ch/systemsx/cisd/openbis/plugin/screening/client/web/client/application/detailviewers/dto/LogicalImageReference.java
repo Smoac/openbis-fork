@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -43,7 +43,7 @@ public class LogicalImageReference
 
     private final WellLocation wellLocationOrNull;
 
-    private final List<DatasetImagesReference> overlayDatasets;
+    private final List<DatasetOverlayImagesReference> overlayDatasets;
 
     public LogicalImageReference(ImageDatasetEnrichedReference imageEnrichedDataset,
             WellLocation wellLocationOrNull)
@@ -53,7 +53,7 @@ public class LogicalImageReference
     }
 
     private LogicalImageReference(DatasetImagesReference imageDataset,
-            List<DatasetImagesReference> overlayDatasets, WellLocation wellLocationOrNull)
+            List<DatasetOverlayImagesReference> overlayDatasets, WellLocation wellLocationOrNull)
     {
         assert imageDataset != null : "image dataset is null";
         this.datasetCode = imageDataset.getDatasetCode();
@@ -72,7 +72,7 @@ public class LogicalImageReference
         this.datastoreHostUrl = datastoreHostUrl;
         this.imageParameters = imageParameters;
         this.wellLocationOrNull = null;
-        this.overlayDatasets = new ArrayList<DatasetImagesReference>();
+        this.overlayDatasets = new ArrayList<DatasetOverlayImagesReference>();
     }
 
     /**
@@ -129,14 +129,8 @@ public class LogicalImageReference
         return imageParameters.getTransformerFactorySignatureOrNull(channelCode);
     }
 
-    public List<DatasetImagesReference> getOverlayDatasets()
+    public List<DatasetOverlayImagesReference> getOverlayDatasets()
     {
         return overlayDatasets;
-    }
-
-    public DatasetReference getDatasetReference()
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

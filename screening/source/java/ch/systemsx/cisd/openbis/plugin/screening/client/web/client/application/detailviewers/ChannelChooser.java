@@ -19,21 +19,30 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
  * Handles displaying images in different channels and allows to choose the overlays.
@@ -103,13 +112,13 @@ class ChannelChooser
         imageContainer.layout();
     }
 
-    public void addViewerTo(LayoutContainer container)
+    public void addViewerTo(LayoutContainer container, IViewContext<?> viewContext)
     {
         // overlays
-        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
+        List<DatasetOverlayImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
         if (overlayDatasets.size() > 0)
         {
-            container.add(createOverlayChannelsChooser(overlayDatasets));
+            container.add(createOverlayChannelsChooser(overlayDatasets, viewContext));
         }
         // basic channels
         List<String> channels = basicImage.getChannelsCodes();
@@ -124,7 +133,86 @@ class ChannelChooser
         refresh();
     }
 
-    private Widget createOverlayChannelsChooser(List<DatasetImagesReference> overlayDatasets)
+    private static Map<String, List<DatasetOverlayImagesReference>> groupByAnalysisProcedure(
+            List<DatasetOverlayImagesReference> overlayDatasets)
+    {
+        return GroupByMap.create(overlayDatasets,
+                new IGroupKeyExtractor<String, DatasetOverlayImagesReference>()
+                    {
+                        public String getKey(DatasetOverlayImagesReference dataset)
+                        {
+                            return dataset.tryGetAnalysisProcedure();
+                        }
+                    }).getMap();
+    }
+
+    private Widget createOverlayChannelsChooser(
+            List<DatasetOverlayImagesReference> overlayDatasets, IViewContext<?> viewContext)
+    {
+        final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap =
+                groupByAnalysisProcedure(overlayDatasets);
+        if (datasetsByAnalysisProcMap.size() > 1)
+        {
+            AnalysisProcedures analysisProcedures =
+                    new AnalysisProcedures(datasetsByAnalysisProcMap.keySet());
+
+            LayoutContainer chooserPanel = new LayoutContainer();
+            chooserPanel.setLayout(new RowLayout());
+
+            final LayoutContainer objectsChooserContainer = new LayoutContainer();
+
+            IAnalysisProcedureSelectionListener selectionListener =
+                    createAnalysisProcedureSelectionListener(datasetsByAnalysisProcMap,
+                            objectsChooserContainer);
+            AnalysisProcedureChooser analysisProcedureChooser =
+                    AnalysisProcedureChooser.create(viewContext, analysisProcedures, null,
+                            selectionListener);
+            chooserPanel.add(analysisProcedureChooser);
+            chooserPanel.add(objectsChooserContainer);
+            return chooserPanel;
+        } else
+        {
+            return createOverlayChannelsChooserForOneAnalysisProcedure(overlayDatasets);
+        }
+    }
+
+    private IAnalysisProcedureSelectionListener createAnalysisProcedureSelectionListener(
+            final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap,
+            final LayoutContainer objectsChooserContainer)
+    {
+        return new IAnalysisProcedureSelectionListener()
+            {
+                public void analysisProcedureSelected(AnalysisProcedureCriteria criteria)
+                {
+                    refreshObjectChooser(criteria, datasetsByAnalysisProcMap,
+                            objectsChooserContainer);
+                }
+            };
+    }
+
+    private void refreshObjectChooser(AnalysisProcedureCriteria criteria,
+            final Map<String, List<DatasetOverlayImagesReference>> datasetsByAnalysisProcMap,
+            final LayoutContainer objectsChooserContainer)
+    {
+        String analysisProcedureCode = criteria.tryGetAnalysisProcedureCode();
+        List<DatasetOverlayImagesReference> overlayDatasetsForOneAnalysisProc =
+                datasetsByAnalysisProcMap.get(analysisProcedureCode);
+
+        objectsChooserContainer.removeAll();
+        if (overlayDatasetsForOneAnalysisProc != null
+                && overlayDatasetsForOneAnalysisProc.size() > 0)
+        {
+            Widget objectsChooser =
+                    createOverlayChannelsChooserForOneAnalysisProcedure(overlayDatasetsForOneAnalysisProc);
+            objectsChooserContainer.add(objectsChooser);
+        }
+        objectsChooserContainer.layout();
+
+        setSelectedOverlayChannels(new HashSet<ImageDatasetChannel>());
+    }
+
+    private Widget createOverlayChannelsChooserForOneAnalysisProcedure(
+            List<DatasetOverlayImagesReference> overlayDatasets)
     {
         List<LabeledItem<ImageDatasetChannel>> overlayChannelItems =
                 createOverlayChannelItems(overlayDatasets);
@@ -134,15 +222,20 @@ class ChannelChooser
             {
                 public void onChange(Set<ImageDatasetChannel> selected)
                 {
-                    selectedOverlayChannels = selected;
-                    refresh();
+                    setSelectedOverlayChannels(selected);
                 }
             });
         return GuiUtils.withLabel(checkBoxGroup, OVERLAYS_MSG);
     }
 
+    private void setSelectedOverlayChannels(Set<ImageDatasetChannel> selected)
+    {
+        selectedOverlayChannels = selected;
+        refresh();
+    }
+
     private static List<LabeledItem<ImageDatasetChannel>> createOverlayChannelItems(
-            List<DatasetImagesReference> overlayDatasets)
+            List<? extends DatasetImagesReference> overlayDatasets)
     {
         List<LabeledItem<ImageDatasetChannel>> items =
                 new ArrayList<LabeledItem<ImageDatasetChannel>>();

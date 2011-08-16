@@ -24,12 +24,12 @@ import java.util.List;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
-import ch.systemsx.cisd.common.collections.GroupByMap;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellDataLoader.MaterialIdSummariesAndFeatures;
@@ -331,7 +331,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
             final ReplicateSequenceProvider replicaSequences)
     {
         return GroupByMap.create(materialWellDataList,
-                new IKeyExtractor<Integer, WellExtendedData>()
+                new IGroupKeyExtractor<Integer, WellExtendedData>()
                     {
                         public Integer getKey(WellExtendedData wellData)
                         {

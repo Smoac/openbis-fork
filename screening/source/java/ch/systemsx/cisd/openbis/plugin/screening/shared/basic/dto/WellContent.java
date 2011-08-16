@@ -140,7 +140,7 @@ public class WellContent extends WellImage implements ISerializable, IEntityProp
         return featureVectorOrNull;
     }
 
-    public WellContent cloneWithDatasets(DatasetImagesReference newImagesDatasetOrNull,
+    public WellContent cloneWithImageDatasets(DatasetImagesReference newImagesDatasetOrNull,
             DatasetReference newFeatureVectorDatasetOrNull)
     {
         return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,

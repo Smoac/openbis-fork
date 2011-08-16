@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.collections.GroupByMap;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
@@ -32,6 +30,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
@@ -144,7 +144,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         List<ImgImageEnrichedDTO> allImages =
                 getQuery().listHCSImages(dataset.getDataSetCode(), channelCode);
         GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot =
-                GroupByMap.create(allImages, new IKeyExtractor<Long, ImgImageEnrichedDTO>()
+                GroupByMap.create(allImages, new IGroupKeyExtractor<Long, ImgImageEnrichedDTO>()
                     {
                         public Long getKey(ImgImageEnrichedDTO image)
                         {

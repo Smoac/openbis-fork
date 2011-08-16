@@ -24,20 +24,22 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
@@ -65,6 +67,17 @@ class AnalysisProcedureChooser extends LayoutContainer
         void analysisProcedureSelected(AnalysisProcedureCriteria criteria);
     }
 
+    private static interface AnalysisProcedureLister
+    {
+        void listNumericalDatasetsAnalysisProcedures(
+                AsyncCallback<AnalysisProcedures> resultsCallback);
+    }
+
+    /**
+     * Creates the combobox with a list of numerical datasets analysis procedures
+     * (HCS_ANALYSIS_WELL*), they are fetched from the server for the specified experiment criteria.<br>
+     * The label will be in the same row before the combobox.
+     */
     public static final AnalysisProcedureChooser createHorizontal(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
@@ -72,11 +85,19 @@ class AnalysisProcedureChooser extends LayoutContainer
             IAnalysisProcedureSelectionListener selectionListener,
             boolean triggerInitialSelectionEvent)
     {
-        return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
+        AnalysisProcedureLister analysisProcedureLister =
+                createNumericalDatasetsAnalysisProcedureLister(viewContext,
+                        experimentCriteriaHolder);
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
                 selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
-                new HorizontalPanel());
+                true);
     }
 
+    /**
+     * Creates the combobox with a list of numerical datasets analysis procedures
+     * (HCS_ANALYSIS_WELL*), they are fetched from the server for the specified experiment criteria.<br>
+     * The label will be in the separate row above the combobox.
+     */
     public static final AnalysisProcedureChooser createVertical(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
@@ -84,20 +105,59 @@ class AnalysisProcedureChooser extends LayoutContainer
             IAnalysisProcedureSelectionListener selectionListener,
             boolean triggerInitialSelectionEvent)
     {
-
-        final VerticalPanel layoutPanel = new VerticalPanel();
-        layoutPanel.setWidth(PANEL_WIDTH_PX);
-        return new AnalysisProcedureChooser(viewContext, experimentCriteriaHolder,
+        AnalysisProcedureLister analysisProcedureLister =
+                createNumericalDatasetsAnalysisProcedureLister(viewContext,
+                        experimentCriteriaHolder);
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
                 selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
-                layoutPanel);
+                false);
     }
 
-    private final IViewContext<IScreeningClientServiceAsync> viewContext;
+    /**
+     * Creates the combobox for a specified list of analysis procedures. The label will be in the
+     * separate row above the combobox.
+     */
+    public static final AnalysisProcedureChooser create(IViewContext<?> viewContext,
+            final AnalysisProcedures analysisProcedures, String selectedAnalysisProcedureOrNull,
+            IAnalysisProcedureSelectionListener selectionListener)
+    {
+        // dummy lister which always returns the same result
+        AnalysisProcedureLister analysisProcedureLister = new AnalysisProcedureLister()
+            {
+                public void listNumericalDatasetsAnalysisProcedures(
+                        AsyncCallback<AnalysisProcedures> resultsCallback)
+                {
+                    resultsCallback.onSuccess(analysisProcedures);
+                }
+            };
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
+                selectedAnalysisProcedureOrNull, selectionListener, true, false);
+    }
+
+    private static AnalysisProcedureLister createNumericalDatasetsAnalysisProcedureLister(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final ExperimentSearchCriteriaHolder experimentCriteriaHolder)
+    {
+        return new AnalysisProcedureLister()
+            {
+                public void listNumericalDatasetsAnalysisProcedures(
+                        AsyncCallback<AnalysisProcedures> resultsCallback)
+                {
+                    viewContext.getService().listNumericalDatasetsAnalysisProcedures(
+                            experimentCriteriaHolder.tryGetCriteria(), resultsCallback);
+                }
+            };
+    }
+
+    private final IMessageProvider messageProvider;
+
+    private final ScreeningDisplaySettingsManager screeningDisplaySettingsManager;
+
     private final IAnalysisProcedureSelectionListener selectionListener;
 
-    private final ExperimentSearchCriteriaHolder experimentCriteriaHolder;
+    private final AnalysisProcedureLister analysisProcedureLister;
 
-    private SimpleComboBox<String> analysisProceduresComboBox;
+    private final SimpleComboBox<String> analysisProceduresComboBox;
 
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
@@ -109,24 +169,48 @@ class AnalysisProcedureChooser extends LayoutContainer
 
         };
 
-    private AnalysisProcedureChooser(IViewContext<IScreeningClientServiceAsync> viewContext,
-            ExperimentSearchCriteriaHolder experimentCriteriaHolder,
+    private AnalysisProcedureChooser(IViewContext<?> viewContext,
+            AnalysisProcedureLister analysisProcedureLister,
             String selectedAnalysisProcedureOrNull,
             IAnalysisProcedureSelectionListener selectionListener,
-            boolean triggerInitialSelectionEvent, LayoutContainer layoutPanel)
+            boolean triggerInitialSelectionEvent, boolean horizontalLayout)
     {
-        this.viewContext = viewContext;
+        this.messageProvider = viewContext;
+        this.screeningDisplaySettingsManager = new ScreeningDisplaySettingsManager(viewContext);
+
         this.selectionListener = selectionListener;
-        this.experimentCriteriaHolder = experimentCriteriaHolder;
-
-        analysisProceduresComboBox = createProceduresComboBox();
-
-        add(layoutPanel);
-        layoutPanel.setAutoHeight(true);
-        layoutPanel.add(createComboLabel());
-        layoutPanel.add(analysisProceduresComboBox);
+        this.analysisProcedureLister = analysisProcedureLister;
+        this.analysisProceduresComboBox = createLayout(horizontalLayout);
 
         initSelection(selectedAnalysisProcedureOrNull, triggerInitialSelectionEvent);
+    }
+
+    private SimpleComboBox<String> createLayout(boolean horizontalLayout)
+    {
+
+        SimpleComboBox<String> comboBox = createProceduresComboBox();
+        Widget layoutPanel;
+        if (horizontalLayout)
+        {
+            layoutPanel = GuiUtils.withLabel(comboBox, getAnalysisProcedureLabel());
+        } else
+        {
+            LayoutContainer panel = createVerticalPanel();
+            panel.setAutoHeight(true);
+            panel.add(createComboLabel());
+            panel.add(comboBox);
+            layoutPanel = panel;
+        }
+        add(layoutPanel);
+
+        return comboBox;
+    }
+
+    private static VerticalPanel createVerticalPanel()
+    {
+        final VerticalPanel layoutPanel = new VerticalPanel();
+        layoutPanel.setWidth(PANEL_WIDTH_PX);
+        return layoutPanel;
     }
 
     private void initSelection(String selectedAnalysisProcedureOrNull, boolean triggerEvents)
@@ -156,26 +240,39 @@ class AnalysisProcedureChooser extends LayoutContainer
 
         analysisProceduresComboBox.removeAll();
 
-        viewContext.getService().listAnalysisProcedures(experimentCriteriaHolder.tryGetCriteria(),
-                new AbstractAsyncCallback<AnalysisProcedures>(viewContext)
+        analysisProcedureLister
+                .listNumericalDatasetsAnalysisProcedures(new AsyncCallback<AnalysisProcedures>()
                     {
-                        @Override
-                        protected void process(AnalysisProcedures analysisProcedures)
+                        public void onSuccess(AnalysisProcedures analysisProcedures)
                         {
-                            addAnalysisProcedures(analysisProcedures.getProcedureCodes());
-                            setInitialSelection(selectedAnalysisProcedureOrNull);
+                            refresh(selectedAnalysisProcedureOrNull, analysisProcedures);
+                        }
+
+                        public void onFailure(Throwable caught)
+                        {
+                            // do nothing
                         }
                     });
+    }
 
+    private void refresh(final String selectedAnalysisProcedureOrNull,
+            AnalysisProcedures analysisProcedures)
+    {
+        addAnalysisProcedures(analysisProcedures.getProcedureCodes());
+        setInitialSelection(selectedAnalysisProcedureOrNull);
     }
 
     private Component createComboLabel()
     {
-        final LabelToolItem label =
-                new LabelToolItem(viewContext.getMessage(Dict.ANALYSIS_PROCEDURE)
-                        + GenericConstants.LABEL_SEPARATOR);
+        final LabelToolItem label = new LabelToolItem(getAnalysisProcedureLabel());
         label.addStyleName("default-text");
         return label;
+    }
+
+    private String getAnalysisProcedureLabel()
+    {
+        return messageProvider.getMessage(Dict.ANALYSIS_PROCEDURE)
+                + GenericConstants.LABEL_SEPARATOR;
     }
 
     private SimpleComboBox<String> createProceduresComboBox()
@@ -186,7 +283,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
-        comboBox.setEmptyText(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        comboBox.setEmptyText(messageProvider.getMessage(Dict.LOAD_IN_PROGRESS));
         comboBox.addListener(Events.SelectionChange, selectionChangeListener);
 
         return comboBox;
@@ -206,13 +303,15 @@ class AnalysisProcedureChooser extends LayoutContainer
         for (String code : codes)
         {
             sortedCodes.add(analysisCodeToComboBoxValue(code));
-        
-        }
-        sortedCodes.remove(UNSPECIFIED_PROCEDURE);
-        Collections.sort(sortedCodes);
-        // unspecified is always an option and is always displayed at the end
-        sortedCodes.add(UNSPECIFIED_PROCEDURE);
 
+        }
+        boolean unspecifiedPresent = sortedCodes.remove(UNSPECIFIED_PROCEDURE);
+        Collections.sort(sortedCodes);
+        if (unspecifiedPresent)
+        {
+            // unspecified is always displayed at the end
+            sortedCodes.add(UNSPECIFIED_PROCEDURE);
+        }
         return sortedCodes;
     }
 
@@ -267,8 +366,6 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private String getDefaultAnalysisProcedure()
     {
-        ScreeningDisplaySettingsManager screeningDisplaySettingsManager =
-                new ScreeningDisplaySettingsManager(viewContext);
         return screeningDisplaySettingsManager.getDefaultAnalysisProcedure();
     }
 
@@ -277,8 +374,6 @@ class AnalysisProcedureChooser extends LayoutContainer
         String analysisProcedureCode = analysisProcedureCriteria.tryGetAnalysisProcedureCode();
         if (StringUtils.isNotBlank(analysisProcedureCode))
         {
-            ScreeningDisplaySettingsManager screeningDisplaySettingsManager =
-                    new ScreeningDisplaySettingsManager(viewContext);
             screeningDisplaySettingsManager.setDefaultAnalysisProcedure(analysisProcedureCode);
         }
     }

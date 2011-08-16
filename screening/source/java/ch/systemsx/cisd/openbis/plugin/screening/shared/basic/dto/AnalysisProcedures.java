@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -41,7 +42,7 @@ public class AnalysisProcedures implements ISerializable
     {
     }
 
-    public AnalysisProcedures(List<String> procedureCodes)
+    public AnalysisProcedures(Set<String> procedureCodes)
     {
         this.procedureCodes = new ArrayList<String>(procedureCodes);
     }

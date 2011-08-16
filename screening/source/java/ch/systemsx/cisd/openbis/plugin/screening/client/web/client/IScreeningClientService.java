@@ -233,7 +233,7 @@ public interface IScreeningClientService extends IClientService
     /**
      * Return all analysis procedures for an experiment criteria.
      */
-    public AnalysisProcedures listAnalysisProcedures(
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
             ExperimentSearchCriteria experimentSearchCriteria);
 
 }

@@ -26,8 +26,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.GroupByMap;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.IWellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
@@ -105,7 +105,7 @@ public class WellReplicaSummaryCalculator
         this.numberOfFeatures = getNumberOfFeatures(wellDataList);
         this.aggregationType = aggregationType;
         this.replicaToWellDataMap =
-                GroupByMap.create(wellDataList, new IKeyExtractor<Long, IWellData>()
+                GroupByMap.create(wellDataList, new IGroupKeyExtractor<Long, IWellData>()
                     {
                         public Long getKey(IWellData wellData)
                         {

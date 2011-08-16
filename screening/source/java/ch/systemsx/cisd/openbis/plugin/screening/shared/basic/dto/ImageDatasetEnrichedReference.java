@@ -34,7 +34,7 @@ public class ImageDatasetEnrichedReference implements ISerializable
 
     private DatasetImagesReference imageDataset;
 
-    private List<DatasetImagesReference> overlayDatasets;
+    private List<DatasetOverlayImagesReference> overlayDatasets;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -45,11 +45,11 @@ public class ImageDatasetEnrichedReference implements ISerializable
     /** Use this constructor if the image dataset has no overlays. */
     public ImageDatasetEnrichedReference(DatasetImagesReference imageDataset)
     {
-        this(imageDataset, new ArrayList<DatasetImagesReference>());
+        this(imageDataset, new ArrayList<DatasetOverlayImagesReference>());
     }
 
     public ImageDatasetEnrichedReference(DatasetImagesReference imageDataset,
-            List<DatasetImagesReference> overlayDatasets)
+            List<DatasetOverlayImagesReference> overlayDatasets)
     {
         this.imageDataset = imageDataset;
         this.overlayDatasets = overlayDatasets;
@@ -65,7 +65,7 @@ public class ImageDatasetEnrichedReference implements ISerializable
         return imageDataset;
     }
 
-    public List<DatasetImagesReference> getOverlayDatasets()
+    public List<DatasetOverlayImagesReference> getOverlayDatasets()
     {
         return overlayDatasets;
     }

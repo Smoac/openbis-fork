@@ -26,13 +26,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
@@ -97,7 +100,7 @@ public class LogicalImageLoader
         DataPE dataset = loadDatasetWithChildren(datasetCode);
         DatasetImagesReference datasetImagesReference =
                 createDatasetImagesReference(translate(dataset), imageParameters);
-        List<DatasetImagesReference> overlayDatasets = extractImageOverlays(dataset);
+        List<DatasetOverlayImagesReference> overlayDatasets = extractImageOverlays(dataset);
         return new ImageDatasetEnrichedReference(datasetImagesReference, overlayDatasets);
     }
 
@@ -108,7 +111,7 @@ public class LogicalImageLoader
         for (ExternalDataPE imageDataset : imageDatasets)
         {
             DatasetImagesReference ref = loadImageDatasetReference(imageDataset);
-            List<DatasetImagesReference> overlays = extractImageOverlays(imageDataset);
+            List<DatasetOverlayImagesReference> overlays = extractImageOverlays(imageDataset);
             ImageDatasetEnrichedReference enrichedRef =
                     new ImageDatasetEnrichedReference(ref, overlays);
             refs.add(enrichedRef);
@@ -116,14 +119,15 @@ public class LogicalImageLoader
         return refs;
     }
 
-    private List<DatasetImagesReference> extractImageOverlays(DataPE imageDataset)
+    private List<DatasetOverlayImagesReference> extractImageOverlays(DataPE imageDataset)
     {
         List<ExternalData> overlayDatasets = fetchOverlayDatasets(imageDataset);
 
-        List<DatasetImagesReference> overlays = new ArrayList<DatasetImagesReference>();
+        List<DatasetOverlayImagesReference> overlays =
+                new ArrayList<DatasetOverlayImagesReference>();
         for (ExternalData overlay : overlayDatasets)
         {
-            overlays.add(loadImageDatasetReference(overlay));
+            overlays.add(loadOverlayDatasetReference(overlay));
         }
         return overlays;
     }
@@ -134,6 +138,19 @@ public class LogicalImageLoader
                 ScreeningUtils.filterImageOverlayDatasets(imageDataset.getChildren());
         Collection<Long> datasetIds = extractIds(overlayPEs);
         return businessObjectFactory.createDatasetLister(session).listByDatasetIds(datasetIds);
+    }
+
+    private DatasetOverlayImagesReference loadOverlayDatasetReference(ExternalData overlay)
+    {
+        DatasetImagesReference imageDatasetReference = loadImageDatasetReference(overlay);
+        String analysisProcedure = tryGetAnalysisProcedure(overlay);
+        return DatasetOverlayImagesReference.create(imageDatasetReference.getDatasetReference(),
+                imageDatasetReference.getImageParameters(), analysisProcedure);
+    }
+
+    private String tryGetAnalysisProcedure(ExternalData dataset)
+    {
+        return EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
     }
 
     private DatasetImagesReference loadImageDatasetReference(ExternalData dataset)

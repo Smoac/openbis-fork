@@ -31,13 +31,14 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -409,7 +410,7 @@ public class FeatureVectorLoader
                     listRequestedFeatureDefinitions(datasetIds, featureCodes, useAllFeatures, dao);
             this.requestedFeatureDefinitionsMap =
                     GroupByMap.create(requestedFeatureDefinitions,
-                            new IKeyExtractor<Long, ImgFeatureDefDTO>()
+                            new IGroupKeyExtractor<Long, ImgFeatureDefDTO>()
                                 {
                                     public Long getKey(ImgFeatureDefDTO featureDef)
                                     {
@@ -421,7 +422,7 @@ public class FeatureVectorLoader
                     dao.listFeatureVocabularyTermsByDataSetId(datasetIds);
             this.featureVocabularyTermsMap =
                     GroupByMap.create(featureVocabularyTerms,
-                            new IKeyExtractor<Long, ImgFeatureVocabularyTermDTO>()
+                            new IGroupKeyExtractor<Long, ImgFeatureVocabularyTermDTO>()
                                 {
                                     public Long getKey(
                                             ImgFeatureVocabularyTermDTO featureVocabularyTerm)
@@ -434,7 +435,7 @@ public class FeatureVectorLoader
                     dao.getFeatureValues(extractIds(requestedFeatureDefinitions));
             this.featureValuesMap =
                     GroupByMap.create(requestedFeatureValues,
-                            new IKeyExtractor<Long, ImgFeatureValuesDTO>()
+                            new IGroupKeyExtractor<Long, ImgFeatureValuesDTO>()
                                 {
                                     public Long getKey(ImgFeatureValuesDTO featureVal)
                                     {

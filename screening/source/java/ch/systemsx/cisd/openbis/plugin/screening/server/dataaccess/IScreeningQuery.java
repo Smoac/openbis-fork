@@ -287,7 +287,7 @@ public interface IScreeningQuery extends BaseQuery
                     + "      join sample_properties well_props on well_props.mate_prop_id = well_material.id "
                     + "      join samples well on well_props.samp_id = well.id"
                     + "      join samples plate on well.samp_id_part_of = plate.id"
-                    + "      join experiments exp on plate.expe_id = exp.id" 
+                    + "      join experiments exp on plate.expe_id = exp.id"
                     + "      join experiment_types exp_type on exp.exty_id = exp_type.id "
                     + "      join projects on exp.proj_id = projects.id     "
                     + "      join spaces on projects.space_id = spaces.id  ";
@@ -305,21 +305,21 @@ public interface IScreeningQuery extends BaseQuery
     public List<ExperimentReferenceQueryResult> getExperimentsWithMaterial(long materialId,
             long projectId);
 
-    
-    final static String ANALYSIS_PROCEDURE_SELECT = "select distinct "
-                    + "       ds_props.value as value"
+    final static String ANALYSIS_PROCEDURE_SELECT =
+            "select distinct "
+                    + "       ds_props.value as analysisProcedure, ds_type.code as datasetTypeCode"
                     + "  from experiments exp "
                     + "       join data ds on ds.expe_id = exp.id "
                     + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
                     + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
-                    + "       join data_set_properties ds_props on ds_props.ds_id = ds.id "
+                    + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id "
                     + "  where "
                     + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
-    
+
     @Select(sql = ANALYSIS_PROCEDURE_SELECT)
-    public List<String> listAllAnalysisProcedures();
+    public List<AnalysisProcedureResult> listAllAnalysisProcedures();
 
     @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} ")
-    public List<String> listAnalysisProceduresForExperiment(long experimentId);
+    public List<AnalysisProcedureResult> listAnalysisProceduresForExperiment(long experimentId);
 
 }

@@ -248,13 +248,19 @@ public interface IScreeningServer extends IServer
             String sessionToken, MaterialFeaturesManyExpCriteria criteria);
 
     /**
-     * Return a list of all different analysis procedures applied to the data sets of an experiment.
+     * Return a list of all different analysis procedures applied to the well analysis data sets of
+     * an experiment.
+     * <p>
+     * Note that analysis procedures of segmentation image datasets are not returned by this method!
+     * </p>
+     * <p>
      * The result contains unique values. It can contain NULL (which can be used for data sets
      * having no ANALYSIS_PROCEDURE value specified).
+     * </p>
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public AnalysisProcedures listAnalysisProcedures(
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class) ExperimentSearchCriteria experimentSearchCriteria);
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collections;
+package ch.systemsx.cisd.openbis.generic.shared.basic.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,10 +32,10 @@ public class GroupByMap<K, E>
 {
     private final Map<K, List<E>> map;
 
-    private final IKeyExtractor<K, E> extractor;
+    private final IGroupKeyExtractor<K, E> extractor;
 
     /** @param extractor computes a key for the row */
-    public GroupByMap(final IKeyExtractor<K, E> extractor)
+    public GroupByMap(final IGroupKeyExtractor<K, E> extractor)
     {
         this.extractor = extractor;
         this.map = new HashMap<K, List<E>>();
@@ -43,7 +43,7 @@ public class GroupByMap<K, E>
 
     /** Creates a map for the specified rows with a given key extractor. */
     public static <K, E> GroupByMap<K, E> create(final Iterable<? extends E> rows,
-            final IKeyExtractor<K, E> extractor)
+            final IGroupKeyExtractor<K, E> extractor)
     {
         GroupByMap<K, E> table = new GroupByMap<K, E>(extractor);
         for (E row : rows)

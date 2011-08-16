@@ -52,6 +52,11 @@ public final class ScreeningViewContext extends
         handlerRegistry.registerHandler(new ExperimentAnalysisSummaryResolver(this));
     }
 
+    public ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager()
+    {
+        return getTechnologySpecificDisplaySettingsManager(this);
+    }
+
     public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(
             IViewContext<?> viewContext)
     {

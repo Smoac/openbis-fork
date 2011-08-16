@@ -31,7 +31,7 @@ public class ScreeningDisplaySettings implements ISerializable
     private static final long serialVersionUID = 1L;
 
     private Map<String/* displayTypeID */, String/* channel name */> defaultChannels =
-            new HashMap<String, String>();
+            new HashMap<String, String>(); 
 
     private String defaultAnalysisProcedure;
 

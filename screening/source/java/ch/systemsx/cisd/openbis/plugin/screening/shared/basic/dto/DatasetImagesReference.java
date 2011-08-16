@@ -39,11 +39,12 @@ public class DatasetImagesReference implements ISerializable
     private ImageDatasetParameters imageParameters;
 
     // GWT only
-    private DatasetImagesReference()
+    protected DatasetImagesReference()
     {
     }
 
-    private DatasetImagesReference(DatasetReference dataset, ImageDatasetParameters imageParameters)
+    protected DatasetImagesReference(DatasetReference dataset,
+            ImageDatasetParameters imageParameters)
     {
         this.dataset = dataset;
         this.imageParameters = imageParameters;

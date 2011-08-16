@@ -32,7 +32,6 @@ import net.lemnik.eodsql.DataIterator;
 import org.apache.commons.lang.ArrayUtils;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.collections.GroupByMap;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
@@ -54,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
+import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -221,7 +222,7 @@ public class WellContentLoader extends AbstractContentLoader
             if (imageDatasetReference != null)
             {
                 WellContent enrichedWellContent =
-                        wellContent.cloneWithDatasets(imageDatasetReference, null);
+                        wellContent.cloneWithImageDatasets(imageDatasetReference, null);
                 wellContentsWithImageDatasets.add(enrichedWellContent);
             }
         }
@@ -458,7 +459,7 @@ public class WellContentLoader extends AbstractContentLoader
     private Map<String/* dss code */, List<WellContent>> createAnalysisDatastoreToWellContentsMap(
             List<WellContent> wellContents)
     {
-        return GroupByMap.create(wellContents, new IKeyExtractor<String, WellContent>()
+        return GroupByMap.create(wellContents, new IGroupKeyExtractor<String, WellContent>()
             {
                 public String getKey(WellContent wellContent)
                 {
@@ -621,7 +622,7 @@ public class WellContentLoader extends AbstractContentLoader
                     imagesDatasetReference = singleImageDatasetOrNull;
                     singleImageAlreadyUsed = true;
                 }
-                clonedWellContents.add(wellContent.cloneWithDatasets(imagesDatasetReference,
+                clonedWellContents.add(wellContent.cloneWithImageDatasets(imagesDatasetReference,
                         featureVectoreDatasetReference));
             }
         }
@@ -634,7 +635,8 @@ public class WellContentLoader extends AbstractContentLoader
             {
                 DatasetImagesReference imagesDatasetReference =
                         createDatasetImagesReference(childlessImageDataset, imageParams);
-                clonedWellContents.add(wellContent.cloneWithDatasets(imagesDatasetReference, null));
+                clonedWellContents.add(wellContent.cloneWithImageDatasets(imagesDatasetReference,
+                        null));
             }
         }
         return clonedWellContents;

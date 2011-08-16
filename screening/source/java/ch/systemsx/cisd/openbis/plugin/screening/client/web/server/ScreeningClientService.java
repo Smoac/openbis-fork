@@ -348,9 +348,9 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
-    public AnalysisProcedures listAnalysisProcedures(
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(
             ExperimentSearchCriteria experimentSearchCriteria)
     {
-        return server.listAnalysisProcedures(getSessionToken(), experimentSearchCriteria);
+        return server.listNumericalDatasetsAnalysisProcedures(getSessionToken(), experimentSearchCriteria);
     }
 }

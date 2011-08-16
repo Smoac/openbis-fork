@@ -380,7 +380,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public AnalysisProcedures listAnalysisProcedures(String sessionToken,
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
         logAccess(sessionToken, "listAnalysisProcedures",

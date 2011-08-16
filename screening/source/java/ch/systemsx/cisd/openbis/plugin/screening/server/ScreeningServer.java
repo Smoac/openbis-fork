@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -69,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AnalysisProcedureResult;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentFeatureVectorSummaryLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.FeatureVectorValuesLoader;
@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeatureVec
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.MaterialFeaturesFromAllExperimentsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -459,7 +460,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
     }
 
-    public AnalysisProcedures listAnalysisProcedures(String sessionToken,
+    public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
             ExperimentSearchCriteria experimentSearchCriteria)
     {
         checkSession(sessionToken);
@@ -468,17 +469,17 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         SingleExperimentSearchCriteria singleExpCriteria =
                 (experimentSearchCriteria != null) ? experimentSearchCriteria.tryGetExperiment()
                         : null;
-        List<String> procedureCodes = Collections.emptyList();
+        List<AnalysisProcedureResult> analysisProcedures;
         if (singleExpCriteria == null)
         {
-            procedureCodes = dao.listAllAnalysisProcedures();
+            analysisProcedures = dao.listAllAnalysisProcedures();
         } else
         {
-            procedureCodes =
+            analysisProcedures =
                     dao.listAnalysisProceduresForExperiment(singleExpCriteria.getExperimentId()
                             .getId());
         }
-        return new AnalysisProcedures(procedureCodes);
+        return ScreeningUtils.filterNumericalDatasetsAnalysisProcedures(analysisProcedures);
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
