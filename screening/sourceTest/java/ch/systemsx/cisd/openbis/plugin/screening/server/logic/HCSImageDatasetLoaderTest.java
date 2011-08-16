@@ -72,7 +72,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
         return new DataSetBuilder(id).store(dataStoreBuilder.getStore()).experiment(experiment);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testGetSegmentationImageDatasetReferences()
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
