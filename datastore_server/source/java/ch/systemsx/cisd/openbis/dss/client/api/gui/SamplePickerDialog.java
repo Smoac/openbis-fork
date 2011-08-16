@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -49,7 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 /**
  * @author Pawel Glyzewski
  */
-public class SamplePickerDialog extends JDialog implements TreeWillExpandListener
+public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConnection implements
+        TreeWillExpandListener
 {
     private static final long serialVersionUID = 1L;
 
@@ -57,13 +58,7 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
 
     private final JTextField filterField;
 
-    private final JFrame mainWindow;
-
     private final JOptionPane optionPane;
-
-    private final IOpenbisServiceFacade openbisService;
-
-    private final Timer scheduler = new Timer();
 
     /**
      * @param mainWindow
@@ -73,10 +68,7 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
     public SamplePickerDialog(JFrame mainWindow, List<Experiment> experiments,
             final IOpenbisServiceFacade openbisService)
     {
-        super(mainWindow, "Pick a sample", true);
-
-        this.mainWindow = mainWindow;
-        this.openbisService = openbisService;
+        super(mainWindow, "Pick a sample", openbisService);
 
         FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
         createNodes(top, experiments);
@@ -86,48 +78,94 @@ public class SamplePickerDialog extends JDialog implements TreeWillExpandListene
 
         filterField = createFilterField(top, tree);
 
-        optionPane = createOptionPane(filterField, tree, this);
+        optionPane = createOptionPane(tree, filterField, this);
+
+        addTreeSelectionListener();
+
         this.setContentPane(optionPane);
     }
 
-    private static JOptionPane createOptionPane(JTextField filterField, final JTree tree,
-            final JDialog parent)
+    /**
+     * Treat double click and return the same as clicking the ok button.
+     */
+    private void addTreeSelectionListener()
+    {
+        tree.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mousePressed(MouseEvent e)
+                {
+                    if (e.getClickCount() > 1)
+                    {
+                        optionPane.setValue(JOptionPane.OK_OPTION);
+                    }
+                }
+            });
+    }
+
+    private static JOptionPane createOptionPane(final JTree tree, final JTextField filterField,
+            final SamplePickerDialog parent)
     {
         final JScrollPane scrollPane = new JScrollPane(tree);
 
         Object[] objects = new Object[]
             { "Filter experiments: ", filterField, "Select Sample:", scrollPane };
-        final JOptionPane optionPane =
+        final JOptionPane theOptionPane =
                 new JOptionPane(objects, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-        optionPane.addPropertyChangeListener(new PropertyChangeListener()
+
+        theOptionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
                 public void propertyChange(PropertyChangeEvent evt)
                 {
-                    if (evt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
-                            && evt.getNewValue() != null)
+                    if (false == evt.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
+                            || evt.getNewValue() == null)
                     {
-                        if (((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION
-                                && tree.getSelectionPath() == null)
-                        {
-                            JOptionPane.showMessageDialog(parent, "Sample needs to be selected!",
-                                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
-                            optionPane.setValue(optionPane.getInitialValue());
-                        } else if (((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION
-                                && tree.getSelectionPath().getPath().length < 3)
-                        {
-                            JOptionPane.showMessageDialog(parent,
-                                    "Sample should be selected, not experiment!",
-                                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
-                            optionPane.setValue(optionPane.getInitialValue());
-                        } else
-                        {
-                            parent.setVisible(false);
-                        }
+                        return;
                     }
+
+                    if (isCancelClicked(evt))
+                    {
+                        parent.setVisible(false);
+                        return;
+                    }
+
+                    if (isOkClicked(evt))
+                    {
+                        parent.acceptCurrentSelectionOrNotify();
+                    }
+
+                }
+
+                private boolean isOkClicked(PropertyChangeEvent evt)
+                {
+                    return ((Integer) evt.getNewValue()).intValue() == JOptionPane.OK_OPTION;
+                }
+
+                private boolean isCancelClicked(PropertyChangeEvent evt)
+                {
+                    return false == isOkClicked(evt);
                 }
             });
 
-        return optionPane;
+        return theOptionPane;
+    }
+
+    private void acceptCurrentSelectionOrNotify()
+    {
+        if (tree.getSelectionPath() == null)
+        {
+            JOptionPane.showMessageDialog(this, "Sample needs to be selected!",
+                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
+            optionPane.setValue(optionPane.getInitialValue());
+        } else if (tree.getSelectionPath().getPath().length < 3)
+        {
+            JOptionPane.showMessageDialog(this, "Sample should be selected, not experiment!",
+                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
+            optionPane.setValue(optionPane.getInitialValue());
+        } else
+        {
+            this.setVisible(false);
+        }
     }
 
     private static void createNodes(FilterableMutableTreeNode top, List<Experiment> experiments)

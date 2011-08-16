@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JDialog;
@@ -50,7 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 /**
  * @author Pawel Glyzewski
  */
-public class DataSetPickerDialog extends JDialog implements TreeWillExpandListener
+public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerConnection implements
+        TreeWillExpandListener
 {
     private static final long serialVersionUID = 1L;
 
@@ -58,13 +60,7 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
 
     private final JTextField filterField;
 
-    private final JFrame mainWindow;
-
     private final JOptionPane optionPane;
-
-    private final IOpenbisServiceFacade openbisService;
-
-    private final Timer scheduler = new Timer();
 
     /**
      * @param mainWindow
@@ -74,10 +70,7 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
     public DataSetPickerDialog(JFrame mainWindow, List<Experiment> experiments,
             final IOpenbisServiceFacade openbisService)
     {
-        super(mainWindow, "Pick a data set", true);
-
-        this.mainWindow = mainWindow;
-        this.openbisService = openbisService;
+        super(mainWindow, "Pick a data set", openbisService);
 
         FilterableMutableTreeNode top = new FilterableMutableTreeNode("Experiments");
         createNodes(top, experiments);
@@ -88,7 +81,28 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
         filterField = createFilterField(top, tree);
 
         optionPane = createOptionPane(filterField, tree, this);
+
+        addTreeSelectionListener();
+
         this.setContentPane(optionPane);
+    }
+
+    /**
+     * Treat double click and return the same as clicking the ok button.
+     */
+    private void addTreeSelectionListener()
+    {
+        tree.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mousePressed(MouseEvent e)
+                {
+                    if (e.getClickCount() > 1)
+                    {
+                        optionPane.setValue(JOptionPane.OK_OPTION);
+                    }
+                }
+            });
     }
 
     private static JOptionPane createOptionPane(JTextField filterField, final JTree tree,
@@ -117,8 +131,8 @@ public class DataSetPickerDialog extends JDialog implements TreeWillExpandListen
                                 && tree.getSelectionPath().getPath().length < 3)
                         {
                             JOptionPane.showMessageDialog(parent,
-                                    "Sample should be selected, not experiment!",
-                                    "No sample selected!", JOptionPane.WARNING_MESSAGE);
+                                    "Data set should be selected, not experiment!",
+                                    "No data set selected!", JOptionPane.WARNING_MESSAGE);
                             optionPane.setValue(optionPane.getInitialValue());
                         } else
                         {

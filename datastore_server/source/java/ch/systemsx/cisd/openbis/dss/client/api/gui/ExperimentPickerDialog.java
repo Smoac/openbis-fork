@@ -44,14 +44,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Pawel Glyzewski
  */
-public class ExperimentPickerDialog extends JDialog
+public class ExperimentPickerDialog extends AbstractEntityPickerDialog
 {
     private static final long serialVersionUID = 6688336042860619854L;
 
     private static String[] HEADERS = new String[]
         { "Space code", "Project code", "Experiment code", "Experiment identifier" };
-
-    private final JFrame mainWindow;
 
     private final JTable table;
 
@@ -61,9 +59,8 @@ public class ExperimentPickerDialog extends JDialog
 
     public ExperimentPickerDialog(JFrame mainWindow, List<Experiment> experiments)
     {
-        super(mainWindow, "Pick an experiment", true);
+        super(mainWindow, "Pick an experiment");
 
-        this.mainWindow = mainWindow;
         table = createTable(prepareData(experiments));
         filterField = createFilterField(table);
         optionPane = createOptionPane(filterField, table, this);
