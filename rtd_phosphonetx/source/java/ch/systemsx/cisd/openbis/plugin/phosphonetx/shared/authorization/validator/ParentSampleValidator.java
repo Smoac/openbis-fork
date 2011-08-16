@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -45,4 +46,8 @@ public class ParentSampleValidator implements IValidator<Sample>
         return false;
     }
 
+    public void init(IAuthorizationDataProvider authorizationDataProvider)
+    {
+        // do nothing
+    }
 }

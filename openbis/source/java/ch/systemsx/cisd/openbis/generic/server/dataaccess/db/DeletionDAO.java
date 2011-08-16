@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -252,6 +253,21 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         scheduleRemoveFromFullTextIndex(ids, entityKind);
 
         return updatedRows;
+    }
+
+    public List<DeletionPE> findAllById(List<Long> ids)
+    {
+        final Criteria criteria = getSession().createCriteria(DeletionPE.class);
+        criteria.add(Restrictions.in("id", ids));
+
+        @SuppressWarnings("unchecked")
+        List<DeletionPE> result = criteria.list();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s deletions has been found", result.size()));
+        }
+
+        return result;
     }
 
     protected IFullTextIndexUpdateScheduler getIndexUpdateScheduler()

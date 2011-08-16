@@ -29,6 +29,8 @@ import ch.systemsx.cisd.common.collections.FilteredList;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -62,14 +64,25 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
     static final String NULL_RETURN_VALUE_MSG_FORMAT =
             "No filter applied on method '%s': return value is null.";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DefaultReturnValueFilter.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DefaultReturnValueFilter.class);
+
+    private IAuthorizationDataProvider authorizationDataProvider;
+
+    /**
+     * @param daoFactory
+     */
+    public DefaultReturnValueFilter(IAuthorizationDAOFactory daoFactory)
+    {
+        authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
+    }
 
     @SuppressWarnings("unchecked")
-    private final static <T> IValidator<T> getValidator(final ReturnValueFilter annotation)
+    private final <T> IValidator<T> getValidator(final ReturnValueFilter annotation)
     {
-        return ValidatorStore.getValidatorForClass((Class<? extends IValidator<T>>) annotation
-                .validatorClass());
+        return ValidatorStore.getValidatorForClass(
+                (Class<? extends IValidator<T>>) annotation.validatorClass(),
+                authorizationDataProvider);
     }
 
     @SuppressWarnings("unchecked")
@@ -106,8 +119,8 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         int diff = oldSize - list.size();
         if (diff > 0)
         {
-            operationLog.info(String.format(FILTER_APPLIED_ON_LIST, MethodUtils
-                    .describeMethod(method), diff));
+            operationLog.info(String.format(FILTER_APPLIED_ON_LIST,
+                    MethodUtils.describeMethod(method), diff));
         }
         return list;
     }
@@ -122,14 +135,14 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         final List<T> list =
                 FilteredList.decorate(returnValue, new ValidatorAdapter<T>(validator, person));
         final T[] array =
-                castToArray(Array.newInstance(returnValue.getClass().getComponentType(), list
-                        .size()));
+                castToArray(Array.newInstance(returnValue.getClass().getComponentType(),
+                        list.size()));
         final T[] newValue = castToArray(list.toArray(array));
         int diff = returnValue.length - newValue.length;
         if (diff > 0)
         {
-            operationLog.info(String.format(FILTER_APPLIED_ON_ARRAY, MethodUtils
-                    .describeMethod(method), diff));
+            operationLog.info(String.format(FILTER_APPLIED_ON_ARRAY,
+                    MethodUtils.describeMethod(method), diff));
         }
         return newValue;
     }
@@ -216,15 +229,17 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         {
             if (returnValueOrNull == null)
             {
-                operationLog.debug(String.format(NULL_RETURN_VALUE_MSG_FORMAT, MethodUtils
-                        .describeMethod(method)));
+                operationLog.debug(String.format(NULL_RETURN_VALUE_MSG_FORMAT,
+                        MethodUtils.describeMethod(method)));
                 return returnValueOrNull;
             }
             final ReturnValueFilter annotation = method.getAnnotation(ReturnValueFilter.class);
             if (annotation == null)
             {
-                operationLog.debug(String.format(NO_ANNOTATION_FOUND_MSG_FORMAT, MethodUtils
-                        .describeMethod(method), ReturnValueFilter.class.getSimpleName()));
+                operationLog
+                        .debug(String.format(NO_ANNOTATION_FOUND_MSG_FORMAT,
+                                MethodUtils.describeMethod(method),
+                                ReturnValueFilter.class.getSimpleName()));
                 return returnValueOrNull;
             }
             final IValidator<?> validator = getValidator(annotation);

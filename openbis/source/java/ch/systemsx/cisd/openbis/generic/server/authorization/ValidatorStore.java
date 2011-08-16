@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 
 /**
@@ -45,7 +46,7 @@ public final class ValidatorStore
      * For given {@link IValidator} class returns an instance of it.
      */
     public final static <V extends IValidator<T>, T> IValidator<T> getValidatorForClass(
-            final Class<V> validatorClass)
+            final Class<V> validatorClass, IAuthorizationDataProvider authorizationDataProvider)
     {
         synchronized (store)
         {
@@ -53,6 +54,7 @@ public final class ValidatorStore
             if (validator == null)
             {
                 validator = ClassUtils.createInstance(validatorClass);
+                validator.init(authorizationDataProvider);
                 store.put(validatorClass, validator);
             }
             return validator;

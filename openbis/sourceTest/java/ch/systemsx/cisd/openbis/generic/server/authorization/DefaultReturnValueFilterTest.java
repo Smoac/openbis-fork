@@ -76,7 +76,7 @@ public final class DefaultReturnValueFilterTest
         LogInitializer.init();
         context = new Mockery();
         validator = context.mock(IValidator.class);
-        defaultReturnValueFilter = new DefaultReturnValueFilter();
+        defaultReturnValueFilter = new DefaultReturnValueFilter(null);
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
         // Because 'log.xml' set the root logger level to INFO, we have to reset it here to DEBUG if
         // we want to catch the messages we are looking for.

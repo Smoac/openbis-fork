@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -17,5 +18,10 @@ public final class RawDataSampleValidator implements IValidator<MsInjectionSampl
     public boolean isValid(PersonPE person, MsInjectionSample sample)
     {
         return validator.isValid(person, sample.getSample());
+    }
+
+    public void init(IAuthorizationDataProvider authorizationDataProvider)
+    {
+        // do nothing
     }
 }

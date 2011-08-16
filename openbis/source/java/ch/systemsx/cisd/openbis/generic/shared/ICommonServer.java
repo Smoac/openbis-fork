@@ -38,9 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DeletionTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
@@ -1447,19 +1449,22 @@ public interface ICommonServer extends IServer
      * Reverts specified deletions (puts back all entities moved to trash in the deletions).
      */
     @Transactional
-    // TODO make it possible for deletion creator
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
     @DatabaseUpdateModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void revertDeletions(final String sessionToken, final List<TechId> deletionIds);
+    public void revertDeletions(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = RevertDeletionPredicate.class) final List<TechId> deletionIds);
 
     /**
      * Permanently deletes entities moved to trash in specified deletions.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
+    public void deletePermanently(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds);
 }

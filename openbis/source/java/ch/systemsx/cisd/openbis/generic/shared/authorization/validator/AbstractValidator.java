@@ -16,16 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <i>abstract</i> <code>IValidator</code> implementation which mainly checks method
- * parameters before doing the real work.
+ * An <i>abstract</i> <code>IValidator</code> implementation which mainly checks method parameters
+ * before doing the real work.
  * 
  * @author Christian Ribeaud
  */
 public abstract class AbstractValidator<T> implements IValidator<T>
 {
+
+    protected IAuthorizationDataProvider authorizationDataProvider;
 
     /**
      * Does the validation after parameters have been checked.
@@ -44,6 +47,12 @@ public abstract class AbstractValidator<T> implements IValidator<T>
         assert person != null : "Unspecified person";
         assert value != null : "Unspecified value";
         return doValidation(person, value);
+    }
+
+    public void init(
+            @SuppressWarnings("hiding") IAuthorizationDataProvider authorizationDataProvider)
+    {
+        this.authorizationDataProvider = authorizationDataProvider;
     }
 
 }

@@ -70,4 +70,6 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     /** Returns list of codes of data sets moved to trash in specified deletions. */
     List<String> findTrashedDataSetCodes(List<TechId> deletionIds);
 
+    /** Returns list of deletions with given ids */
+    List<DeletionPE> findAllById(List<Long> ids);
 }

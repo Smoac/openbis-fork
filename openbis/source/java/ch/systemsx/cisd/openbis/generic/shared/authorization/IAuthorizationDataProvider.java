@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
@@ -86,6 +88,25 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
 
     /**
+     * Returns the information necessary to determine if a user is allowed to delete/revert the data
+     * sets.
+     */
+    public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(List<TechId> deletionIds);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to delete/revert the
+     * samples.
+     */
+    public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds);
+
+    /**
+     * Returns the information necessary to determine if a user is allowed to delete/revert the
+     * experiment.
+     */
+    public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(
+            final List<TechId> deletionIds);
+
+    /**
      * Returns the data space of an entity with given <var>entityKind</var> and <var>techId</var>
      * 
      * @return <code>null</code> if entity has no group set.
@@ -117,4 +138,8 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      */
     public QueryPE getQuery(TechId techId);
 
+    /**
+     * Fetches all deletions with given tech ids.
+     */
+    public List<DeletionPE> getDeletions(List<TechId> deletionIds);
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import javax.persistence.Entity;
 import javax.persistence.EntityResult;
 import javax.persistence.Id;
+import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
 
@@ -32,15 +33,25 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * @author Chandrasekhar Ramakrishnan
  */
 @Entity
-@SqlResultSetMapping(name = "implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
-@NamedNativeQuery(name = "dataset_access", query = "select "
-        + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g, "
-        + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
-        + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
-        + TableNames.EXPERIMENTS_VIEW + " e "
-        + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
-        + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
+@SqlResultSetMapping(name = "dataset_access_implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
+@NamedNativeQueries(
+    {
+            @NamedNativeQuery(name = "dataset_access", query = "select "
+                    + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
+                    + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
+                    + " g, " + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
+                    + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
+                    + TableNames.EXPERIMENTS_VIEW + " e "
+                    + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
+                    + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "dataset_access_implicit"),
+            @NamedNativeQuery(name = "deleted_dataset_access", query = "select "
+                    + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
+                    + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
+                    + " g, " + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
+                    + "(select e.proj_id from " + TableNames.DELETED_DATA_VIEW + " ds, "
+                    + TableNames.EXPERIMENTS_ALL_TABLE + " e "
+                    + "where ds.del_id in (:del_ids) and ds.expe_id = e.id group by e.proj_id) "
+                    + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "dataset_access_implicit") })
 public class DataSetAccessPE
 {
     private String spaceCode;
@@ -51,7 +62,11 @@ public class DataSetAccessPE
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
 
+    public final static String DELETED_DATASET_ACCESS_QUERY_NAME = "deleted_dataset_access";
+
     public final static String DATA_SET_CODES_PARAMETER_NAME = "codes";
+
+    public final static String DELETION_IDS_PARAMETER_NAME = "del_ids";
 
     /**
      * A factory method that should only be used for testing.

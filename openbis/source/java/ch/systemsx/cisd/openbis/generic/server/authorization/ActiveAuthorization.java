@@ -45,6 +45,6 @@ public final class ActiveAuthorization implements IAuthorizationComponentFactory
 
     public final IReturnValueFilter createReturnValueFilter()
     {
-        return new DefaultReturnValueFilter();
+        return new DefaultReturnValueFilter(daoFactory);
     }
 }

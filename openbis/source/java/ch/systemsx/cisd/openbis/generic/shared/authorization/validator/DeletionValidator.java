@@ -16,14 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * A {@link IValidator} implementation for a {@link Deletion}.
@@ -40,7 +49,94 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
     public final boolean doValidation(final PersonPE person, final Deletion value)
     {
         // only creator of deletion and instance admin can see it
-        return isRegistrator(person, value) || isInstanceAdmin(person);
+        return isRegistrator(person, value) || isInstanceAdmin(person)
+                || isSpaceAdmin(person, value);
+    }
+
+    private boolean isSpaceAdmin(PersonPE person, Deletion value)
+    {
+        List<TechId> singletonList = Collections.singletonList(new TechId(value.getId()));
+
+        Set<ExperimentAccessPE> experimentAccessData =
+                authorizationDataProvider.getDeletedExperimentCollectionAccessData(singletonList);
+        for (ExperimentAccessPE experimentAccessDatum : experimentAccessData)
+        {
+            if (verifySpace(person, experimentAccessDatum.getSpaceCode(),
+                    experimentAccessDatum.getDatabaseInstanceCode()))
+            {
+                return true;
+            }
+        }
+
+        Set<SampleAccessPE> sampleAccessData =
+                authorizationDataProvider.getDeletedSampleCollectionAccessData(singletonList);
+        for (SampleAccessPE sampleAccessDatum : sampleAccessData)
+        {
+            String ownerCode = sampleAccessDatum.getOwnerCode();
+            switch (sampleAccessDatum.getOwnerType())
+            {
+                case SPACE:
+                    SpaceIdentifier si =
+                            new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), ownerCode);
+                    if (verifySpace(person, si.getSpaceCode(), si.getDatabaseInstanceCode()))
+                    {
+                        return true;
+                    }
+
+                    break;
+                case DATABASE_INSTANCE:
+                    if (verifyDBInstance(person, ownerCode))
+                    {
+                        return true;
+                    }
+                    break;
+            }
+        }
+
+        Set<DataSetAccessPE> datasets =
+                authorizationDataProvider.getDeletedDatasetCollectionAccessData(singletonList);
+        for (DataSetAccessPE datasetAccessDatum : datasets)
+        {
+            if (verifySpace(person, datasetAccessDatum.getSpaceCode(),
+                    datasetAccessDatum.getDatabaseInstanceCode()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private final boolean verifyDBInstance(PersonPE person, final String databaseInstanceCode)
+    {
+        Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
+        for (final RoleAssignmentPE roleAssignment : roleAssignments)
+        {
+            final SpacePE space = roleAssignment.getSpace();
+            if (space != null && roleAssignment.getRole().equals(RoleCode.ADMIN)
+                    && space.getDatabaseInstance().getCode().equals(databaseInstanceCode))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean verifySpace(PersonPE person, String spaceCode, String dbInstanceCode)
+    {
+        final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
+        for (final RoleAssignmentPE roleAssignment : roleAssignments)
+        {
+            final SpacePE space = roleAssignment.getSpace();
+            if (space != null && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            {
+                if (space.getCode().equals(spaceCode)
+                        && space.getDatabaseInstance().getCode().equals(dbInstanceCode))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isRegistrator(final PersonPE person, final Deletion value)
