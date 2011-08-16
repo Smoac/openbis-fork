@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.image;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 /**
  * A class for calculating a mixed color from a set of pure colors of different relative
@@ -30,7 +31,7 @@ public class MixColors
 {
 
     private static final int MAX_COMPONENT_VALUE = 255;
-    
+
     private static final float MAX_COMPONENT_VALUE_FLOAT = MAX_COMPONENT_VALUE;
 
     private static int getMaxComponent(int r, int g, int b)
@@ -74,7 +75,7 @@ public class MixColors
     private static Color getColor(float red, float green, float blue, int brightness)
     {
         final float max = getMaxComponent(red, green, blue);
-        // Normalize the brightness. 
+        // Normalize the brightness.
         final float normFactor = Math.min(MAX_COMPONENT_VALUE_FLOAT, brightness) / max;
         red *= normFactor;
         green *= normFactor;
@@ -103,7 +104,7 @@ public class MixColors
     private static Color getColor(int red, int green, int blue, int brightness)
     {
         final int max = getMaxComponent(red, green, blue);
-        // Normalize the brightness. 
+        // Normalize the brightness.
         final float normFactor = Math.min(MAX_COMPONENT_VALUE_FLOAT, brightness) / max;
         red = Math.round(red * normFactor);
         green = Math.round(green * normFactor);
@@ -231,6 +232,58 @@ public class MixColors
             blue += b;
         }
         return getColor(red, green, blue);
+    }
+
+    /**
+     * Calculate a new image by mixing the given gray-scale </var>images</var>.
+     * 
+     * @param images The images to merge.
+     * @param quadratic If <code>true</code>, use a quadratic (weighted) additive color mixture,
+     *            otherwise use a linear (unweighted) additive color mixture.
+     * @param saturationEnhancementFactor If > 0, perform a saturation enhancement step with the
+     *            given factor.
+     * @return Returns the mixed image.
+     */
+    public static BufferedImage mixImages(BufferedImage[] images, Color[] colors,
+            boolean quadratic, float saturationEnhancementFactor)
+    {
+        for (int i = 0; i < images.length; ++i)
+        {
+            if (images[i].getColorModel().getNumColorComponents() != 1
+                    || images[i].getColorModel().getComponentSize(0) != 8)
+            {
+                throw new IllegalArgumentException(
+                        "mixImages() only works on 8-bit gray scale images.");
+            }
+        }
+        final BufferedImage mixed =
+                new BufferedImage(images[0].getWidth(), images[0].getHeight(),
+                        BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < images[0].getWidth(); ++x)
+        {
+            for (int y = 0; y < images[0].getHeight(); ++y)
+            {
+                final float[] intensities = new float[images.length];
+                for (int i = 0; i < images.length; ++i)
+                {
+                    intensities[i] = images[i].getRaster().getSampleFloat(x, y, 0) / 255f;
+                }
+                Color mixColor =
+                        quadratic ? calcMixedColorQuadratic(colors, intensities)
+                                : calcMixedColorLinear(colors, intensities);
+                if (saturationEnhancementFactor > 0f)
+                {
+                    final float[] hsb =
+                            Color.RGBtoHSB(mixColor.getRed(), mixColor.getGreen(),
+                                    mixColor.getBlue(), null);
+                    mixColor =
+                            Color.getHSBColor(hsb[0],
+                                    Math.min(1f, saturationEnhancementFactor * hsb[1]), hsb[2]);
+                }
+                mixed.setRGB(x, y, mixColor.getRGB());
+            }
+        }
+        return mixed;
     }
 
 }
