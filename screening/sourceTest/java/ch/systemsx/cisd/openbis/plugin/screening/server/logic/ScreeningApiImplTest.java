@@ -256,6 +256,11 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
                     will(returnValue(Arrays.asList(imageSegmentationDataSet, imageAnalysisDataSet)));
+
+                    one(datasetLister).listParentIds(Arrays.asList(3l));
+                    HashMap<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
+                    result.put(3l, Collections.singleton(2l));
+                    will(returnValue(result));
                 }
             });
 

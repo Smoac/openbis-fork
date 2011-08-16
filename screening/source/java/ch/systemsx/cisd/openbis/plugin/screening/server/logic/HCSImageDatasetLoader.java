@@ -128,7 +128,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
             }
         }
 
-        return listFilteredChildrenDataSets(imageDatasets,
+        return fetchChildrenDataSets(imageDatasets,
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
                 createDatasetLister());
 

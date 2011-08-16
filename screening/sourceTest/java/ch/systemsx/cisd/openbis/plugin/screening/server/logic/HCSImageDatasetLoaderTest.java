@@ -72,7 +72,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
         return new DataSetBuilder(id).store(dataStoreBuilder.getStore()).experiment(experiment);
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testGetSegmentationImageDatasetReferences()
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
@@ -146,15 +146,15 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                     return o1.getDatasetCode().compareTo(o2.getDatasetCode());
                 }
             });
-        assertEquals("sds1 (plate: /S/P1 [s-1])", references.get(0).toString());
-        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(0)
-                .getParentImageDatasetReference().toString());
-        assertEquals("sds2 (plate: /S/P1 [s-1])", references.get(1).toString());
-        assertEquals("ids1 (plate: /S/P1 [s-1])", references.get(1)
-                .getParentImageDatasetReference().toString());
-        assertEquals("sds3 (plate: /S/P1 [s-1])", references.get(2).toString());
-        assertEquals("ids2 (plate: /S/P1 [s-1])", references.get(2)
-                .getParentImageDatasetReference().toString());
+        ImageDatasetReference ref0 = references.get(0);
+        assertEquals("sds1 (plate: /S/P1 [s-1])", ref0.toString());
+        assertEquals("ids1 (plate: /S/P1 [s-1])", ref0.getParentImageDatasetReference().toString());
+        ImageDatasetReference ref1 = references.get(1);
+        assertEquals("sds2 (plate: /S/P1 [s-1])", ref1.toString());
+        assertEquals("ids1 (plate: /S/P1 [s-1])", ref1.getParentImageDatasetReference().toString());
+        ImageDatasetReference ref2 = references.get(2);
+        assertEquals("sds3 (plate: /S/P1 [s-1])", ref2.toString());
+        assertEquals("ids2 (plate: /S/P1 [s-1])", ref2.getParentImageDatasetReference().toString());
         assertEquals(3, references.size());
         context.assertIsSatisfied();
 

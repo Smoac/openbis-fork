@@ -52,7 +52,7 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testGetFeatureVectorDatasets()
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
@@ -90,10 +90,10 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
                     one(datasetLister).listBySampleIds(new HashSet<Long>(Arrays.asList(42l)));
                     will(returnValue(Arrays.asList(ids1, fds1, fds2, ids2, fds3, fds4, ds1)));
 
-                    one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
+                    exactly(2).of(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
                     will(returnValue(Arrays.asList(fds1, fds2, fds3, ds1)));
 
-                    one(datasetLister).listParentIds(Arrays.asList(11l, 12l, 21l));
+                    exactly(2).of(datasetLister).listParentIds(Arrays.asList(11l, 12l, 21l));
                     HashMap<Long, Set<Long>> map = new HashMap<Long, Set<Long>>();
                     map.put(11l, Collections.singleton(1l));
                     map.put(12l, Collections.singleton(1l));
