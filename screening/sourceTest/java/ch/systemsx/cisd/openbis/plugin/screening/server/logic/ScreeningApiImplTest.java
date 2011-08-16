@@ -256,11 +256,6 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     one(datasetLister).listByParentTechIds(Arrays.asList(1l, 2l));
                     will(returnValue(Arrays.asList(imageSegmentationDataSet, imageAnalysisDataSet)));
-
-                    one(datasetLister).listParentIds(Arrays.asList(3l));
-                    HashMap<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
-                    result.put(3l, Collections.singleton(2l));
-                    will(returnValue(result));
                 }
             });
 
@@ -367,12 +362,12 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                             imageDataSet(p1, "" + imageDatasetId, imageDatasetId),
                             imageAnalysisDataSet(p1, "2", 2))));
 
-                    one(datasetLister).listByParentTechIds(Arrays.asList(imageDatasetId));
+                    exactly(2).of(datasetLister).listByParentTechIds(Arrays.asList(imageDatasetId));
                     long analysisDatasetId = 3;
                     will(returnValue(Arrays.asList(imageAnalysisDataSet(null, ""
                             + analysisDatasetId, analysisDatasetId))));
 
-                    one(datasetLister).listParentIds(Arrays.asList(analysisDatasetId));
+                    exactly(2).of(datasetLister).listParentIds(Arrays.asList(analysisDatasetId));
                     Map<Long, Set<Long>> parentToChildrenMap = new HashMap<Long, Set<Long>>();
                     parentToChildrenMap.put(analysisDatasetId,
                             new HashSet<Long>(Arrays.asList(imageDatasetId)));
@@ -385,20 +380,20 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
         assertEquals(2, dataSets.size());
 
-        assertEquals("2", dataSets.get(0).getDatasetCode());
-        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
-                .getPlateGeometry());
-        assertEquals(new Date(200), dataSets.get(0).getRegistrationDate());
-        assertEquals(SERVER_URL, dataSets.get(0).getDatastoreServerUrl());
+        FeatureVectorDatasetReference firstDataset = dataSets.get(0);
+        assertEquals("2", firstDataset.getDatasetCode());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), firstDataset.getPlateGeometry());
+        assertEquals(new Date(200), firstDataset.getRegistrationDate());
+        assertEquals(SERVER_URL, firstDataset.getDatastoreServerUrl());
         // assertEquals(pi1, dataSets.get(0).getPlate());
-        assertEquals(pi1.getPlateCode(), dataSets.get(0).getPlate().getPlateCode());
+        assertEquals(pi1.getPlateCode(), firstDataset.getPlate().getPlateCode());
 
-        assertEquals("3", dataSets.get(1).getDatasetCode());
-        assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(1)
-                .getPlateGeometry());
-        assertEquals(new Date(300), dataSets.get(1).getRegistrationDate());
-        assertEquals(SERVER_URL, dataSets.get(1).getDatastoreServerUrl());
-        assertEquals(pi1.getPlateCode(), dataSets.get(1).getPlate().getPlateCode());
+        FeatureVectorDatasetReference secondDataset = dataSets.get(1);
+        assertEquals("3", secondDataset.getDatasetCode());
+        assertEquals(Geometry.createFromRowColDimensions(16, 24), secondDataset.getPlateGeometry());
+        assertEquals(new Date(300), secondDataset.getRegistrationDate());
+        assertEquals(SERVER_URL, secondDataset.getDatastoreServerUrl());
+        assertEquals(pi1.getPlateCode(), secondDataset.getPlate().getPlateCode());
         // assertEquals(pi1, dataSets.get(1).getPlate());
         context.assertIsSatisfied();
     }

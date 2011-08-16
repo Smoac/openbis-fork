@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -53,7 +54,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
     // Running state
-    private List<ExternalData> featureVectorDatasets;
+    private Collection<ExternalData> featureVectorDatasets;
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
@@ -99,8 +100,11 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         }
     }
 
-    /** enriched with image dataset parents */
-    public List<ExternalData> getFeatureVectorDatasets()
+    /**
+     * Enriched with image dataset parents. Note that all feature vector datasets have to be
+     * connected directly to the plate, otherwise they will be skipped.
+     */
+    public Collection<ExternalData> getFeatureVectorDatasets()
     {
         loadAll();
         return featureVectorDatasets;
@@ -135,8 +139,23 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
             }
         }
 
-        gatherChildrenDataSets(featureVectorDatasetSet, imageDatasets, featureVectorDatasetTypeCode);
-        featureVectorDatasets = new ArrayList<ExternalData>(featureVectorDatasetSet.values());
+        IDatasetLister datasetLister = createDatasetLister();
+        enrichWithParentDatasets(featureVectorDatasetSet.values(), imageDatasets,
+                featureVectorDatasetTypeCode, datasetLister);
+        // Add feature vector datasets which are not connected directly to the plate, but are
+        // connected to the image dataset.
+        // These datasets are already enriched with parent datasets.
+        List<ExternalData> childrenDatasets =
+                fetchChildrenDataSets(imageDatasets, featureVectorDatasetTypeCode, datasetLister);
+        for (ExternalData dataset : childrenDatasets)
+        {
+            if (isMatchingAnalysisDataSet(dataset))
+            {
+                featureVectorDatasetSet.put(dataset.getId(), dataset);
+            }
+        }
+
+        featureVectorDatasets = featureVectorDatasetSet.values();
     }
 
     private boolean isMatchingImageDataset(ExternalData dataset)

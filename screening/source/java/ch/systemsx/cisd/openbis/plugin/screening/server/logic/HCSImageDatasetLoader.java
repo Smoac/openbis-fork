@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -53,11 +54,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return ids;
     }
 
-    private static Map<Long/* child data set id */, List<ExternalData/* parent data sets */>> createChildDataSetToParentDataSetsMap(
+    private static Map<Long/* child data set id */, ExternalData/* parent data sets */> createChildToParentDataSetsMap(
             Map<Long, Set<Long>> childIdToParentIdsMap, List<ExternalData> parentDatasets)
     {
-        Map<Long, List<ExternalData>> childDataSetToParentDataSetsMap =
-                new HashMap<Long, List<ExternalData>>();
+        Map<Long, ExternalData> childDataSetToParentDataSetsMap = new HashMap<Long, ExternalData>();
         for (Entry<Long, Set<Long>> entry : childIdToParentIdsMap.entrySet())
         {
             List<ExternalData> parents = findDatasetsWithIds(entry.getValue(), parentDatasets);
@@ -66,7 +66,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
             if (parents.size() == 1)
             {
                 Long childId = entry.getKey();
-                childDataSetToParentDataSetsMap.put(childId, parents);
+                childDataSetToParentDataSetsMap.put(childId, parents.get(0));
             }
         }
         return childDataSetToParentDataSetsMap;
@@ -127,10 +127,11 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
                 imageDatasets.add(dataset);
             }
         }
-        Map<Long, ExternalData> segmentationImageDataSets = new HashMap<Long, ExternalData>();
-        gatherChildrenDataSets(segmentationImageDataSets, imageDatasets,
-                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
-        return new ArrayList<ExternalData>(segmentationImageDataSets.values());
+
+        return listFilteredChildrenDataSets(imageDatasets,
+                ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
+                createDatasetLister());
+
     }
 
     /**
@@ -198,34 +199,81 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     }
 
     /** Sets parents of all datasets in 'childrenDataSets'. */
-    protected void gatherChildrenDataSets(final Map<Long, ExternalData> childrenDataSets,
-            List<ExternalData> parentDataSets, String childTypePattern)
+    protected void enrichWithParentDatasets(Collection<ExternalData> childrenDataSets,
+            List<ExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
     {
-        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        List<ExternalData> filteredChildrenDataSets =
-                ScreeningUtils.filterExternalDataByTypePattern(
-                        datasetLister.listByParentTechIds(extractIds(parentDataSets)),
-                        childTypePattern);
-        Map<Long, Set<Long>> childIdToParentIdsMap =
-                datasetLister.listParentIds(extractIds(filteredChildrenDataSets));
-        Map<Long, List<ExternalData>> childIdToParentDataSetsMap =
-                createChildDataSetToParentDataSetsMap(childIdToParentIdsMap, parentDataSets);
-        // Implementation note: some data sets in this loop may overwrite data from the first loop.
-        // This is intended as we want to keep the parent relationship of the feature vector data
-        // sets, if they exist.
-        for (ExternalData child : filteredChildrenDataSets)
+        Map<Long/* child id */, ExternalData/* parent */> childIdToParentDataSetMap =
+                createChildToParentDataSetsMap(parentDataSets, childTypePattern, datasetLister);
+        enrichWithParentDatasets(childrenDataSets, childIdToParentDataSetMap);
+    }
+
+    private void enrichWithParentDatasets(Collection<ExternalData> childrenDataSets,
+            Map<Long, ExternalData> childIdToParentDataSetMap)
+    {
+        for (ExternalData child : childrenDataSets)
         {
-            Long childId = child.getId();
-            if (childrenDataSets.containsKey(childId))
+            ExternalData parentImageDataset = childIdToParentDataSetMap.get(child.getId());
+            if (parentImageDataset != null)
             {
-                List<ExternalData> parentImageDatasets = childIdToParentDataSetsMap.get(childId);
-                if (parentImageDatasets != null)
-                {
-                    child.setParents(parentImageDatasets);
-                }
-                childrenDataSets.put(childId, child);
+                child.setParents(Arrays.asList(parentImageDataset));
             }
         }
+    }
+
+    private Map<Long, ExternalData> createChildToParentDataSetsMap(
+            List<ExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
+    {
+        List<ExternalData> filteredChildrenForParents =
+                listFilteredChildrenDataSets(parentDataSets, childTypePattern, datasetLister);
+        return createChildToParentDataSetsMap(filteredChildrenForParents, parentDataSets,
+                datasetLister);
+    }
+
+    /**
+     * Fetched children datasets (with a matching type) for the specified parent datasets, sets
+     * their parents.
+     */
+    protected List<ExternalData> fetchChildrenDataSets(List<ExternalData> parentDataSets,
+            String childTypePattern, IDatasetLister datasetLister)
+    {
+        List<ExternalData> filteredChildrenForParents =
+                listFilteredChildrenDataSets(parentDataSets, childTypePattern, datasetLister);
+        Map<Long, ExternalData> childIdToParentDataSetsMap =
+                createChildToParentDataSetsMap(filteredChildrenForParents, parentDataSets,
+                        datasetLister);
+
+        List<ExternalData> childrenDataSets = new ArrayList<ExternalData>();
+        for (ExternalData child : filteredChildrenForParents)
+        {
+            ExternalData parentImageDataset = childIdToParentDataSetsMap.get(child.getId());
+            if (parentImageDataset != null)
+            {
+                child.setParents(Arrays.asList(parentImageDataset));
+            }
+            childrenDataSets.add(child);
+        }
+        return childrenDataSets;
+    }
+
+    private Map<Long, ExternalData> createChildToParentDataSetsMap(
+            List<ExternalData> childrenDataSets, List<ExternalData> parentDataSets,
+            IDatasetLister datasetLister)
+    {
+        Collection<Long> childrenIds = extractIds(childrenDataSets);
+        Map<Long, Set<Long>> childIdToParentIdsMap = datasetLister.listParentIds(childrenIds);
+        return createChildToParentDataSetsMap(childIdToParentIdsMap, parentDataSets);
+    }
+
+    protected IDatasetLister createDatasetLister()
+    {
+        return businessObjectFactory.createDatasetLister(session);
+    }
+
+    private List<ExternalData> listFilteredChildrenDataSets(List<ExternalData> parentDataSets,
+            String childTypePattern, IDatasetLister datasetLister)
+    {
+        return ScreeningUtils.filterExternalDataByTypePattern(
+                datasetLister.listByParentTechIds(extractIds(parentDataSets)), childTypePattern);
     }
 
     private ExternalData tryGetParent(ExternalData externalData)

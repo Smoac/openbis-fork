@@ -66,12 +66,14 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         watch.start();
         FeatureVectorDatasetLoader datasetsRetriever =
                 createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
-        List<ExternalData> featureVectorDatasets = datasetsRetriever.getFeatureVectorDatasets();
+        Collection<ExternalData> featureVectorDatasets =
+                datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())
         {
             return null;
         }
-        List<DatasetReference> datasetPerPlate = chooseSingleDatasetForPlate(featureVectorDatasets);
+        List<DatasetReference> datasetPerPlate =
+                chooseSingleDatasetForPlate(new ArrayList<ExternalData>(featureVectorDatasets));
         WellFeatureCollection<FeatureVectorValues> features =
                 FeatureVectorRetriever.tryFetch(datasetPerPlate, featureCodes,
                         businessObjectFactory);
