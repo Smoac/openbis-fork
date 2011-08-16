@@ -12,7 +12,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A simple combobox which provides a model class {@link LabeledItem} to store any value and the its
+ * A simple combobox which provides a model class {@link LabeledItem} to store any value and its
  * label.
  * 
  * @author Tomasz Pylak
