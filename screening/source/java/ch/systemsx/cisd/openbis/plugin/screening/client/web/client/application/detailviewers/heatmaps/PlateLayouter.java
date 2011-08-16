@@ -158,6 +158,7 @@ public class PlateLayouter
 
                 public void updateTooltip(int rowIx, int colIx, String tooltipOrNull)
                 {
+                    hideAllToolTipsExcept(rowIx, colIx);
                     Component wellComponent = getWellComponent(rowIx, colIx);
                     if (tooltipOrNull != null)
                     {
@@ -165,7 +166,7 @@ public class PlateLayouter
                         wellComponent.setToolTip(preparedText);
                     } else
                     {
-                        wellComponent.removeToolTip();
+                        wellComponent.hideToolTip();
                     }
                 }
 
@@ -196,6 +197,24 @@ public class PlateLayouter
                 {
                     Component wellComponent = renderedWells[rowIx][colIx];
                     return wellComponent;
+                }
+
+                private void hideAllToolTipsExcept(int rowIx, int colIx)
+                {
+                    for (int row = 0; row < renderedWells.length; ++row)
+                    {
+                        for (int col = 0; col < renderedWells[row].length; ++col)
+                        {
+                            if (row == rowIx && col == colIx)
+                            {
+                                // Do not do anything
+                            } else
+                            {
+                                renderedWells[row][col].hideToolTip();
+                            }
+                        }
+                    }
+
                 }
             };
     }
