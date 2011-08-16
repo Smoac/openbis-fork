@@ -134,6 +134,14 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         {
                             return false;
                         }
+
+                        @Override
+                        protected void showNonEditableTableCellMessage(
+                                BaseEntityModel<TableModelRowWithObject<Sample>> model,
+                                String columnID)
+                        {
+                            // Do not show a message because in a chooser nobody is expecting editable table cells.
+                        }
                     };
         browserGrid.addGridRefreshListener(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);

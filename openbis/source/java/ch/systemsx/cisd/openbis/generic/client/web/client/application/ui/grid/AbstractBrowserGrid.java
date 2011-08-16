@@ -1813,8 +1813,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         boolean editable = isEditable(model, columnID);
                         if (editable == false)
                         {
-                            MessageBox.info("Not Editable",
-                                    "Sorry, this table cell isn't editable", null);
+                            showNonEditableTableCellMessage(model, columnID);
                         }
                         event.setCancelled(editable == false);
                     }
@@ -1850,6 +1849,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected boolean isEditable(M model, String columnID)
     {
         return false;
+    }
+    
+    /**
+     * Shows a message that the table cell of specified column and row (model) isn't editable.
+     */
+    protected void showNonEditableTableCellMessage(M model, String columnID)
+    {
+        MessageBox.info("Not Editable",
+                "Sorry, this table cell isn't editable", null);
     }
 
     /**
