@@ -175,7 +175,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(2, shares.size());
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testMoveDataSetToAnotherShare()
     {
         File share1 = new File(workingDirectory, "store/1");

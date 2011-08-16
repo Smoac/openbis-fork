@@ -140,7 +140,7 @@ public class ShareIdManagerTest extends AssertJUnit
         assertEquals("42", manager.getShareId("new data set"));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testLockingTimeOut()
     {
         final MessageChannel ch = new MessageChannel(2000);
@@ -205,7 +205,7 @@ public class ShareIdManagerTest extends AssertJUnit
                 logRecorder.getLogContent());
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testMultipleLocking()
     {
         final MessageChannel ch1 = new MessageChannel();

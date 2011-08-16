@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups = "slow")
 public class ValidationScriptRunnerTest extends AssertJUnit
 {
 
