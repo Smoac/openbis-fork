@@ -57,7 +57,11 @@ public class ScreeningDisplaySettings implements ISerializable
         this.defaultAnalysisProcedure = defaultAnalysisProcedure;
     }
 
-    /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
+    /**
+     * Default analysis procedure for analysis result datasets.
+     * 
+     * @deprecated Should be used only by ScreeningDisplaySettingsManager.
+     */
     @Deprecated
     public String getDefaultAnalysisProcedure()
     {
