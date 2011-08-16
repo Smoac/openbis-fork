@@ -215,12 +215,16 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         // sets, if they exist.
         for (ExternalData child : filteredChildrenDataSets)
         {
-            List<ExternalData> parentImageDatasets = childIdToParentDataSetsMap.get(child.getId());
-            if (parentImageDatasets != null)
+            Long childId = child.getId();
+            if (childrenDataSets.containsKey(childId))
             {
-                child.setParents(parentImageDatasets);
+                List<ExternalData> parentImageDatasets = childIdToParentDataSetsMap.get(childId);
+                if (parentImageDatasets != null)
+                {
+                    child.setParents(parentImageDatasets);
+                }
+                childrenDataSets.put(childId, child);
             }
-            childrenDataSets.put(child.getId(), child);
         }
     }
 
