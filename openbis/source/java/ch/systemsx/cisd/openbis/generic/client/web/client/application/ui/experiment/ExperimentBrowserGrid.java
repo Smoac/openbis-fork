@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
@@ -105,6 +106,14 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                     // No links in choosers needed
                     return null;
                 }
+
+                @Override
+                protected boolean isEditable(
+                        BaseEntityModel<TableModelRowWithObject<Experiment>> model, String columnID)
+                {
+                    return false;
+                }
+                
             };
         browserGrid.addGridRefreshListener(toolbar);
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);

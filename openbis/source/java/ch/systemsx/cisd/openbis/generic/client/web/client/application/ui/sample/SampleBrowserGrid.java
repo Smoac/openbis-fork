@@ -126,6 +126,14 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                             // No links in choosers needed
                             return null;
                         }
+
+                        @Override
+                        protected boolean isEditable(
+                                BaseEntityModel<TableModelRowWithObject<Sample>> model,
+                                String columnID)
+                        {
+                            return false;
+                        }
                     };
         browserGrid.addGridRefreshListener(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
