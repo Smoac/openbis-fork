@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups = "slow")
 public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
 {
     @Test
@@ -34,8 +35,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Infected Cells", CodeAndLabelUtil.create(
-                        "InfectedCells"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Infected Cells",
+                        CodeAndLabelUtil.create("InfectedCells"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -52,8 +53,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Small Numbers", CodeAndLabelUtil.create(
-                        "SmallNumbers"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Small Numbers",
+                        CodeAndLabelUtil.create("SmallNumbers"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -70,8 +71,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Big Number", CodeAndLabelUtil.create("BigNumber"),
-                        300, 200, 6);
+                new TabularDataHistogramConfiguration("Big Number",
+                        CodeAndLabelUtil.create("BigNumber"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -88,7 +89,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Zero", CodeAndLabelUtil.create("Zero"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Zero", CodeAndLabelUtil.create("Zero"), 300,
+                        200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -105,8 +107,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Just NaN", CodeAndLabelUtil.create("JustNaN"), 300,
-                        200, 6);
+                new TabularDataHistogramConfiguration("Just NaN",
+                        CodeAndLabelUtil.create("JustNaN"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -123,8 +125,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Some NaN", CodeAndLabelUtil.create("SomeNaN"), 300,
-                        200, 6);
+                new TabularDataHistogramConfiguration("Some NaN",
+                        CodeAndLabelUtil.create("SomeNaN"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -141,8 +143,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Just Inf", CodeAndLabelUtil.create("JustInf"), 300,
-                        200, 6);
+                new TabularDataHistogramConfiguration("Just Inf",
+                        CodeAndLabelUtil.create("JustInf"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -159,8 +161,8 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Some Inf", CodeAndLabelUtil.create("SomeInf"), 300,
-                        200, 6);
+                new TabularDataHistogramConfiguration("Some Inf",
+                        CodeAndLabelUtil.create("SomeInf"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -171,14 +173,14 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test(groups = "slow")
+    @Test
     public void testLotsOfBlanksHistogram() throws IOException
     {
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Blanks", CodeAndLabelUtil.create("Blanks"), 300,
-                        200, 6);
+                new TabularDataHistogramConfiguration("Blanks", CodeAndLabelUtil.create("Blanks"),
+                        300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -189,14 +191,14 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test(groups = "slow")
+    @Test
     public void testIncorrectlyConfiguredHistogram() throws IOException
     {
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", CodeAndLabelUtil.create("Non-Existant"),
-                        300, 200, 6);
+                new TabularDataHistogramConfiguration("Test",
+                        CodeAndLabelUtil.create("Non-Existant"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));

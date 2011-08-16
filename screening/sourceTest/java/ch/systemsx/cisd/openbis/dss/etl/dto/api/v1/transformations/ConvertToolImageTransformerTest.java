@@ -35,7 +35,7 @@ public class ConvertToolImageTransformerTest extends AssertJUnit
     private final String CONVERT_PARAMS =
             " -contrast-stretch 0 -edge 1 -threshold 1 -transparent black ";
 
-    @Test
+    @Test(groups = "slow")
     public void testTransformation()
     {
         BufferedImage templateImage = readImage("pond.png");

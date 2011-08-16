@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups = "slow")
 public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
 {
     @Test
@@ -35,7 +36,8 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
 
         TabularDataHeatmapConfiguration config =
                 new TabularDataHeatmapConfiguration("Infection Index",
-                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("InfectionIndex"), 300, 200);
+                        CodeAndLabelUtil.create("WellName"),
+                        CodeAndLabelUtil.create("InfectionIndex"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -52,7 +54,8 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Small Numbers", CodeAndLabelUtil.create("WellName"),
+                new TabularDataHeatmapConfiguration("Small Numbers",
+                        CodeAndLabelUtil.create("WellName"),
                         CodeAndLabelUtil.create("SmallNumbers"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
@@ -64,14 +67,15 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         assertTrue(outputFile.length() > 0);
     }
 
-    @Test(groups = "slow")
+    @Test
     public void testBigNumberHeatmap() throws IOException
     {
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Big Number", CodeAndLabelUtil.create("WellName"),
-                        CodeAndLabelUtil.create("BigNumber"), 300, 200);
+                new TabularDataHeatmapConfiguration("Big Number",
+                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("BigNumber"),
+                        300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -107,8 +111,9 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Just NaN", CodeAndLabelUtil.create("WellName"),
-                        CodeAndLabelUtil.create("JustNaN"), 300, 200);
+                new TabularDataHeatmapConfiguration("Just NaN",
+                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("JustNaN"),
+                        300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -125,8 +130,9 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Some NaN", CodeAndLabelUtil.create("WellName"),
-                        CodeAndLabelUtil.create("SomeNaN"), 300, 200);
+                new TabularDataHeatmapConfiguration("Some NaN",
+                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("SomeNaN"),
+                        300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -143,8 +149,9 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Just Inf", CodeAndLabelUtil.create("WellName"),
-                        CodeAndLabelUtil.create("JustInf"), 300, 200);
+                new TabularDataHeatmapConfiguration("Just Inf",
+                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("JustInf"),
+                        300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -161,8 +168,9 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Some Inf", CodeAndLabelUtil.create("WellName"),
-                        CodeAndLabelUtil.create("SomeInf"), 300, 200);
+                new TabularDataHeatmapConfiguration("Some Inf",
+                        CodeAndLabelUtil.create("WellName"), CodeAndLabelUtil.create("SomeInf"),
+                        300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -180,7 +188,8 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
 
         TabularDataHeatmapConfiguration config =
                 new TabularDataHeatmapConfiguration("Blanks", CodeAndLabelUtil.create("WellRow"),
-                        CodeAndLabelUtil.create("WellCol"), CodeAndLabelUtil.create("Blanks"), 300, 200);
+                        CodeAndLabelUtil.create("WellCol"), CodeAndLabelUtil.create("Blanks"), 300,
+                        200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -198,7 +207,8 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Non-Existant", CodeAndLabelUtil.create("WellName"),
+                new TabularDataHeatmapConfiguration("Non-Existant",
+                        CodeAndLabelUtil.create("WellName"),
                         CodeAndLabelUtil.create("Non-Existant"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
                 new TabularDataHeatmap(config, getTestDatasetFileLines(),

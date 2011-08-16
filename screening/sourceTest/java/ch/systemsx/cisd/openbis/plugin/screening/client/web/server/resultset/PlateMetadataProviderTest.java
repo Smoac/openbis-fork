@@ -64,7 +64,7 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
         provider = new PlateMetadataProvider(service, SESSION_TOKEN, plateId);
     }
 
-    @Test
+    @Test(groups = "slow")
     public void test()
     {
         final WellMetadata wellMetadata = new WellMetadata();

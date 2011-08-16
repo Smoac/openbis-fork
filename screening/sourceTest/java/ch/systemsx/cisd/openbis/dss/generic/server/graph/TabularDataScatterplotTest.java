@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups = "slow")
 public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
 {
     @Test

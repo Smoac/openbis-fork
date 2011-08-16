@@ -122,7 +122,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         assertEquals("{A=hello}", sample.getProperties().toString());
     }
     
-    @Test
+    @Test(groups = "slow")
     public void testGetPlateSampleViaAugmentedCode()
     {
         prepareGetSession();
