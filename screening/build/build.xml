@@ -493,28 +493,6 @@
   <!-- This is a copy of the openBIS version, the only difference is the value of ecp.gwt variable  -->
   
   <!--
-    // // Compile Java to javscript, assuming that prepare-gwt has already been run // // Must pass in module-test.path
-    and module-test.module as arguments // e.g., // <{property,param} name="module-test.path" value="openbis-test" /> //
-    <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" /> //
-  -->
-  <target name="screening-compile-module-test" description="Compile the module test mode">
-    <delete dir="${targets.www}/${module-test.path}" />
-    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:${gwt.debugpanel.lib}:../openbis/${sources}:${sources}:../common/${sources}"
-      classname="com.google.gwt.dev.Compiler" fork="true">
-      <jvmarg value="-Xmx512M" />
-      <arg value="-war" />
-      <arg value="${targets.www}" />
-      <arg value="${module-test.module}Safari" />
-      <arg value="-draftCompile" />
-      <arg value="-style" />
-      <arg value="PRETTY" />
-    </java>
-    <copy todir="${targets.www}/${module-test.path}">
-      <fileset dir="${targets.www}/${module-test.module}" />
-    </copy>
-  </target>
-
-  <!--
     // // Run the production mode, assuming compile-module-test has already been run // // Must pass in
     module-test.path, module-test.module, and module-test.db-kind as arguments // e.g., // <{property,param}
     name="module-test.path" value="openbis-test" /> // <{property,param} name="module-test.module"
@@ -556,16 +534,21 @@
 		Otherwise use screening-test-compile-and-run.
 	-->
 	<target name="screening-test-compile-and-run-with-image-viewer" description="Compile and run the screening openbis from Eclipse with support for image viewer">
-	    <antcall target="screening-compile-module-test">
+	    <antcall target="compile-module-test">
 	      <param name="module-test.path" value="openbis-test-screening" />
 	      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 	    </antcall>
 	  	<antcall target="jar"/>
+		  <copy todir="${targets.www}/openbis-test-screening">
+		  	<fileset dir="${targets.www}/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS">
+		  		<include name="*.jar"/>
+		  	</fileset>
+		  </copy>
 	    <antcall target="screening-test-run" />
   </target>
 	
 	<target name="screening-test-compile-and-run" description="Compile and run the screening openbis from Eclipse (no support for image viewer)">
-	    <antcall target="screening-compile-module-test">
+	    <antcall target="compile-module-test">
 	      <param name="module-test.path" value="openbis-test-screening" />
 	      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 	    </antcall>
@@ -573,7 +556,7 @@
 	  </target>
 
 	<target name="screening-test-compile-no-run" description="Compile the screening openbis from Eclipse (no support for image viewer)">
-	    <antcall target="screening-compile-module-test">
+	    <antcall target="compile-module-test">
 	      <param name="module-test.path" value="openbis-test-screening" />
 	      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 	    </antcall>
