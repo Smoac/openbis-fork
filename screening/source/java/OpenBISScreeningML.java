@@ -1055,12 +1055,12 @@ public class OpenBISScreeningML
      * Matlab example:
      * 
      * <pre>
-     * % Upload data set /path/to/my-data-set with property DESCRIPTION and N 
-     * % to experiment E103 in project PROJECT and space SPACE 
+     * % Upload data set /path/to/my-data-set (with property DESCRIPTION)
+     * % to experiment E103 in project PROJECT and space SPACE,
      * % with data set  201007091122-928 as the parent
      * properties = {'DESCRIPTION' 'hello example' }
      * parents = {'201007091122-928' }
-     * datasetcode = OpenBISScreeningML.uploadDataSetWithParents('/SPACE/PROJECT/E103', parents, '/path/to/my-data-set', 'HCS_IMAGE', properties)
+     * datasetcode = OpenBISScreeningML.uploadDataSetForExperimentAndParents('/SPACE/PROJECT/E103', parents, '/path/to/my-data-set', 'HCS_IMAGE', properties)
      * </pre>
      * 
      * @param augmentedExperimentCode The augmented experiment code.
