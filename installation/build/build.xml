@@ -37,11 +37,12 @@
 		-->
 	</target>
 	
-	<target name="dist" depends="compile">
+	<target name="dist" depends="dist-generic, dist-screening">
+	</target>
+	
+	<target name="dist-generic" depends="compile">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		
-		<!-- Do not build the standard openbis installer, since building both installers doesn't work
-		     on the ci machine (only one or the other can be built). 
     <antcall target="create-installation-tarball">
       <param name="openbis.server.zip.folder" value="../openbis/targets/dist" />
       <param name="datastore.server.zip.folder" value="../datastore_server/targets/dist" />
@@ -49,9 +50,11 @@
       <param name="database.kind" value="productive" />
       <param name="installation.customize.folder" value="../openbis/dist/installer" />
     </antcall>
-    -->
+	</target>
+	
+	<target name="dist-screening" depends="compile">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		
-		<!-- create screening installer -->
     <antcall target="create-installation-tarball">
       <param name="openbis.server.zip.folder" value="../screening/targets/dist" />
       <param name="datastore.server.zip.folder" value="../screening/targets/dist" />
@@ -164,7 +167,7 @@
 	<!--
         // Task for continuous integration server.
   -->
-	<target name="ci" depends="dist" />
+	<target name="ci" depends="dist-screening" />
 
 
 </project>
