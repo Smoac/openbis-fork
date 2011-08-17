@@ -300,14 +300,12 @@ public class H2MassUploader extends SimpleJdbcDaoSupport implements IMassUploade
             final String tableName, final String[] columnNames) throws SQLException
     {
         final ResultSet rs = dbMetaData.getColumns(null, null, tableName.toUpperCase(), "%");
-        int columnNo = 0;
         final Map<String, Integer> typeMap = new HashMap<String, Integer>();
         while (rs.next())
         {
             final String colName = rs.getString(4);
             final int typeCode = rs.getInt(5);
             typeMap.put(colName, typeCode);
-            ++columnNo;
         }
         rs.close();
         final BitSet binary = new BitSet();
