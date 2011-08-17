@@ -206,7 +206,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.SegmentedStoreShufflingTask - "
                 + "Segmented store shuffling finished.\n"
                 + "INFO  NOTIFY.SegmentedStoreShufflingTask - "
-                + "The following shares are just emptied by shuffeling: [1]",
+                + "The following shares were emptied by shuffling: [1]",
                 logRecorder.getLogContent());
         assertEquals("Data set ds1 no longer exists in share 2.", 
                 logMessageRecordingMatcher.recordedObject().toString());
