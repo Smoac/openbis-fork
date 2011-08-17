@@ -3,7 +3,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Feature vectors (details and summaries) for one material.
@@ -12,8 +11,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  */
 public class MaterialAllReplicasFeatureVectors
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
     // NOTE: has the same length as feature vectors in all summaries
     private final List<CodeAndLabel> featureDescriptions;
 

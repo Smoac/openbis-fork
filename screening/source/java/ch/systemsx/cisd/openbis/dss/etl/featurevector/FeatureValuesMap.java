@@ -33,8 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class FeatureValuesMap
 {
-    private static final long serialVersionUID = 1L;
-
     private final Map<WellLocation, String> valuesMap;
 
     private final Double depthOrNull;

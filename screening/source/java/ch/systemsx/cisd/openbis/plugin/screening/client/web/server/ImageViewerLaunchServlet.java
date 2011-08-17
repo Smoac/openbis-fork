@@ -49,8 +49,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterName
     { "/" + IMAGE_VIEWER_LAUNCH_URL, "/openbis/" + IMAGE_VIEWER_LAUNCH_URL })
 public class ImageViewerLaunchServlet extends AbstractServlet
 {
-    private static final long serialVersionUID = 1L;
-
     public static final Template JNLP_TEMPLATE = new Template(
             "<?xml version='1.0' encoding='utf-8'?>\n"
             + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
