@@ -29,6 +29,10 @@ DECLARE
 	owner_code	CODE;
 	owner_del_id	TECH_ID;
 BEGIN
+	IF (NEW.del_id IS NOT NULL) THEN
+		RETURN NEW;
+	END IF;
+
   -- check sample
   IF (NEW.samp_id IS NOT NULL) THEN
   	SELECT del_id, code INTO owner_del_id, owner_code
@@ -54,7 +58,7 @@ $$ LANGUAGE 'plpgsql';
 CREATE CONSTRAINT TRIGGER check_created_or_modified_data_set_owner_is_alive 
 	AFTER INSERT OR UPDATE ON data
 	DEFERRABLE INITIALLY DEFERRED
-	FOR EACH ROW WHEN (NEW.del_id IS NULL)
+	FOR EACH ROW
 	EXECUTE PROCEDURE check_created_or_modified_data_set_owner_is_alive();
 	
 ----------------------------------------------------------------------------------------------------
@@ -69,6 +73,10 @@ DECLARE
 	owner_code	CODE;
 	owner_del_id	TECH_ID;
 BEGIN
+	IF (NEW.del_id IS NOT NULL) THEN
+		RETURN NEW;
+	END IF;
+
   -- check experiment (can't be deleted)
   IF (NEW.expe_id IS NOT NULL) THEN
   	SELECT del_id, code INTO owner_del_id, owner_code
@@ -86,13 +94,17 @@ $$ LANGUAGE 'plpgsql';
 CREATE CONSTRAINT TRIGGER check_created_or_modified_sample_owner_is_alive 
   AFTER INSERT OR UPDATE ON samples
 	DEFERRABLE INITIALLY DEFERRED
-	FOR EACH ROW WHEN (NEW.del_id IS NULL)
+	FOR EACH ROW
 	EXECUTE PROCEDURE check_created_or_modified_sample_owner_is_alive();
 	
 CREATE OR REPLACE FUNCTION check_deletion_consistency_on_sample_deletion() RETURNS trigger AS $$
 DECLARE
   counter  INTEGER;
 BEGIN
+	IF (OLD.del_id IS NOT NULL OR NEW.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
+
   -- all directly connected data sets need to be deleted
   -- check datasets
 	SELECT count(*) INTO counter 
@@ -123,7 +135,6 @@ CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_sample_deletion
   AFTER UPDATE ON samples
 	DEFERRABLE INITIALLY DEFERRED
 	FOR EACH ROW 
-	WHEN (OLD.del_id IS NULL AND NEW.del_id IS NOT NULL)
 	EXECUTE PROCEDURE check_deletion_consistency_on_sample_deletion();	
 	
 ----------------------------------------------------------------------------------------------------
@@ -134,6 +145,10 @@ CREATE OR REPLACE FUNCTION check_deletion_consistency_on_experiment_deletion() R
 DECLARE
   counter  INTEGER;
 BEGIN
+	IF (OLD.del_id IS NOT NULL OR NEW.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
+	
   -- check datasets
 	SELECT count(*) INTO counter 
 	  FROM data
@@ -151,10 +166,9 @@ BEGIN
 	RETURN NEW;
 END;
 $$ LANGUAGE 'plpgsql';
-  
+
 CREATE CONSTRAINT TRIGGER check_deletion_consistency_on_experiment_deletion 
   AFTER UPDATE ON experiments
 	DEFERRABLE INITIALLY DEFERRED
 	FOR EACH ROW 
-	WHEN (OLD.del_id IS NULL AND NEW.del_id IS NOT NULL)
 	EXECUTE PROCEDURE check_deletion_consistency_on_experiment_deletion();

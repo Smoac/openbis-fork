@@ -47,10 +47,13 @@ DECLARE
 	owner_code	CODE;
 	owner_del_id	TECH_ID;
 BEGIN
+	IF (NEW.del_id IS NOT NULL) THEN
+		RETURN NEW;
+	END IF;
   -- check sample
   IF (NEW.samp_id IS NOT NULL) THEN
   	SELECT del_id, code INTO owner_del_id, owner_code
-  	  FROM samples_all 
+  	  FROM samples 
   	  WHERE id = NEW.samp_id;
   	IF (owner_del_id IS NOT NULL) THEN 
 			RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to a Sample (Code: %) %.', 
@@ -59,7 +62,7 @@ BEGIN
 	END IF;
 	-- check experiment
 	SELECT del_id, code INTO owner_del_id, owner_code
-    FROM experiments_all 
+    FROM experiments 
     WHERE id = NEW.expe_id;
   IF (owner_del_id IS NOT NULL) THEN 
 		RAISE EXCEPTION 'Data Set (Code: %) cannot be connected to an Experiment (Code: %) %.', 
@@ -75,10 +78,13 @@ DECLARE
 	owner_code	CODE;
 	owner_del_id	TECH_ID;
 BEGIN
+	IF (NEW.del_id IS NOT NULL) THEN
+		RETURN NEW;
+	END IF;
   -- check experiment (can't be deleted)
   IF (NEW.expe_id IS NOT NULL) THEN
   	SELECT del_id, code INTO owner_del_id, owner_code
-  	  FROM experiments_all 
+  	  FROM experiments 
   	  WHERE id = NEW.expe_id;
   	IF (owner_del_id IS NOT NULL) THEN 
 			RAISE EXCEPTION 'Sample (Code: %) cannot be connected to an Experiment (Code: %) %.', 
@@ -94,17 +100,21 @@ CREATE FUNCTION check_deletion_consistency_on_experiment_deletion() RETURNS trig
 DECLARE
   counter  INTEGER;
 BEGIN
+	IF (OLD.del_id IS NOT NULL OR NEW.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
+	
   -- check datasets
 	SELECT count(*) INTO counter 
-	  FROM data_all
-	  WHERE data_all.expe_id = NEW.id AND data_all.del_id IS NULL;
+	  FROM data
+	  WHERE data.expe_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
 	-- check samples
 	SELECT count(*) INTO counter 
-	  FROM samples_all 
-	  WHERE samples_all.expe_id = NEW.id AND samples_all.del_id IS NULL;
+	  FROM samples 
+	  WHERE samples.expe_id = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Experiment (Code: %) deletion failed because at least one of its samples was not deleted.', NEW.code;
 	END IF;
@@ -117,24 +127,27 @@ CREATE FUNCTION check_deletion_consistency_on_sample_deletion() RETURNS trigger
 DECLARE
   counter  INTEGER;
 BEGIN
+	IF (OLD.del_id IS NOT NULL OR NEW.del_id IS NULL) THEN
+		RETURN NEW;
+	END IF;
   -- all directly connected data sets need to be deleted
   -- check datasets
 	SELECT count(*) INTO counter 
-	  FROM data_all
-	  WHERE data_all.samp_id = NEW.id AND data_all.del_id IS NULL;
+	  FROM data
+	  WHERE data.samp_id = NEW.id AND data.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its data sets was not deleted.', NEW.code;
 	END IF;
   -- all components need to be deleted
 	SELECT count(*) INTO counter 
-	  FROM samples_all 
-	  WHERE samples_all.samp_id_part_of = NEW.id AND samples_all.del_id IS NULL;
+	  FROM samples 
+	  WHERE samples.samp_id_part_of = NEW.id AND samples.del_id IS NULL;
 	IF (counter > 0) THEN
 	  RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its component samples was not deleted.', NEW.code;
 	END IF;
 	-- all children need to be deleted
 	SELECT count(*) INTO counter 
-		FROM sample_relationships sr, samples_all sc
+		FROM sample_relationships sr, samples sc
 		WHERE sample_id_parent = NEW.id AND sc.id = sr.sample_id_child AND sc.del_id IS NULL;
 	IF (counter > 0) THEN
 		RAISE EXCEPTION 'Sample (Code: %) deletion failed because at least one of its child samples was not deleted.', NEW.code;
