@@ -275,6 +275,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             List<Sample> existingSamples = new ArrayList<Sample>();
             List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
+            // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples,
+            // they can be only registered (if they did not exist).
+            // So only containers can be updated.
             List<Sample> list =
                     sampleLister.list(SampleRegisterOrUpdateUtil
                             .createListSamplesByCodeCriteria(codes));
