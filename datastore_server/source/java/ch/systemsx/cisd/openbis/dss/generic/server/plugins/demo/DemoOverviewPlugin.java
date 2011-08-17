@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
  */
 public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
 {
-    private static final long serialVersionUID = 1L;
-
     private static final String LABEL_PROPERTY_KEY = "label";
 
     private static final String SMALL_IMAGE_FILE = "resource/overview-small.png";

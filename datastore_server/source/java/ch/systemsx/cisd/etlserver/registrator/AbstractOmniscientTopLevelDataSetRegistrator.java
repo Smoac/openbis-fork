@@ -477,7 +477,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),

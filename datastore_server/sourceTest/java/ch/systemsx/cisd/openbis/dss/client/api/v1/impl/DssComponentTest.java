@@ -121,6 +121,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 //
                 // AbstractAutoProxyCreator
                 //
+                @SuppressWarnings({"rawtypes"})
                 @Override
                 protected final Object[] getAdvicesAndAdvisorsForBean(final Class beanClass,
                         final String beanName, final TargetSource customTargetSource)

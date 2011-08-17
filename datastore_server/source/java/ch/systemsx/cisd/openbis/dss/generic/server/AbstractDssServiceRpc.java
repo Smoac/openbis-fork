@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger<T>
 {
+    @SuppressWarnings("hiding")
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDssServiceRpc.class);
 

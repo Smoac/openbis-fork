@@ -170,8 +170,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         private final Evaluator evaluator;
 
-        private static final long serialVersionUID = 1L;
-
         ReportingPluginScriptRunner(Evaluator evaluator)
         {
             this.evaluator = evaluator;
