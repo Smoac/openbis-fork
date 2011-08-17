@@ -107,15 +107,17 @@ public class PlateLayouter
 
     private final SimpleModelComboBox<CodeAndLabel> heatmapKindChooser;
 
+    private final Component[][] renderedWells;
+
     public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata)
     {
         this.model = new PlateLayouterModel(plateMetadata);
-        Component[][] renderedWells = renderWells(model, viewContext);
+        this.renderedWells = renderWells(model, viewContext, this);
         LayoutContainer legendContainer = new LayoutContainer();
         IRealNumberRenderer realNumberRenderer = createRealNumberRenderer(viewContext);
         this.presenter =
                 new HeatmapPresenter(viewContext, model, realNumberRenderer, createViewManipulator(
-                        viewContext, renderedWells, legendContainer));
+                        viewContext, legendContainer));
         this.heatmapKindChooser = createHeatmapKindComboBox(presenter, viewContext);
         this.view = renderView(renderedWells, heatmapKindChooser, legendContainer);
     }
@@ -127,8 +129,7 @@ public class PlateLayouter
     }
 
     private HeatmapPresenter.IHeatmapViewManipulator createViewManipulator(
-            final ScreeningViewContext viewContext, final Component[][] renderedWells,
-            final LayoutContainer legendContainer)
+            final ScreeningViewContext viewContext, final LayoutContainer legendContainer)
     {
         return new HeatmapPresenter.IHeatmapViewManipulator()
             {
@@ -214,7 +215,6 @@ public class PlateLayouter
                             }
                         }
                     }
-
                 }
             };
     }
@@ -309,7 +309,7 @@ public class PlateLayouter
     }
 
     private static Component[][] renderWells(PlateLayouterModel model,
-            ScreeningViewContext viewContext)
+            ScreeningViewContext viewContext, PlateLayouter layouter)
     {
         WellData[][] wellMatrix = model.getWellMatrix();
         int rowsNum = wellMatrix.length;
@@ -322,7 +322,7 @@ public class PlateLayouter
             for (int col = 0; col < colsNum; col++)
             {
                 WellData wellData = wellMatrix[row][col];
-                wells[row][col] = createWellWidget(wellData, model, viewContext);
+                wells[row][col] = createWellWidget(wellData, model, viewContext, layouter);
             }
         }
         return wells;
@@ -393,14 +393,17 @@ public class PlateLayouter
     }
 
     private static Component createWellWidget(final WellData wellData,
-            final PlateLayouterModel model, final ScreeningViewContext screeningViewContext)
+            final PlateLayouterModel model, final ScreeningViewContext screeningViewContext,
+            final PlateLayouter layouter)
     {
         Component widget = createWellBox(wellData);
 
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()
             {
+
                 public void handleEvent(BaseEvent ce)
                 {
+                    layouter.hideAllTooltops();
                     IScreeningClientServiceAsync service = screeningViewContext.getService();
                     ImageDatasetEnrichedReference dataset = model.tryGetImageDataset();
                     if (dataset == null)
@@ -432,6 +435,17 @@ public class PlateLayouter
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());
         return widget;
+    }
+
+    private void hideAllTooltops()
+    {
+        for (int row = 0; row < renderedWells.length; ++row)
+        {
+            for (int col = 0; col < renderedWells[row].length; ++col)
+            {
+                renderedWells[row][col].hideToolTip();
+            }
+        }
     }
 
     private static Component createBox()
