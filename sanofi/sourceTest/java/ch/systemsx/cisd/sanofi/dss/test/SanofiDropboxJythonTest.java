@@ -117,7 +117,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String OVERLAYS_DATA_SET_DIR_NAME = "overlays";
 
-    private static final String ANALYSIS_DATA_SET_FILE_NAME = "LC80463-RS101117.xml.csv";
+    private static final String ANALYSIS_DATA_SET_FILE_NAME = "analysis";
 
     private static final String IMAGE_DATA_SET_CODE = "data-set-code";
 
