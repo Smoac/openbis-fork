@@ -42,11 +42,12 @@ public class LifeCycleListener implements LifeCycle.Listener
 
     public void lifeCycleStarted(LifeCycle lifeCycle)
     {
-        System.out.println("Successfully started component " + lifeCycle);
+        System.out.println("SERVER STARTED: " + lifeCycle);
     }
 
     public void lifeCycleStarting(LifeCycle lifeCycle)
     {
+        System.out.println("STARTING SERVER: " + lifeCycle);
     }
 
     public void lifeCycleStopped(LifeCycle lifeCycle)

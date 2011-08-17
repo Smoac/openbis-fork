@@ -3,7 +3,6 @@
 
 STARTING_MESSAGE="STARTING SERVER"
 STARTED_MESSAGE="SERVER STARTED"
-JETTY_STARTED_MESSAGE="Successfully started component "
 ERROR_MESSAGE="ERROR"
 
 BASE=`dirname "$0"`
@@ -26,10 +25,11 @@ for i in {1..120}; do
     
     started=`egrep -R "($STARTING_MESSAGE|$STARTED_MESSAGE)" $OPENBIS_LOG | tail -1 | grep "$STARTED_MESSAGE"`
     if [ -n "$started" ]; then
-        started=`egrep -R "$JETTY_STARTED_MESSAGE" $JETTY_LOG | tail -1 | grep "$JETTY_STARTED_MESSAGE"`
+        started=`egrep -R "($STARTING_MESSAGE|$STARTED_MESSAGE)" $JETTY_LOG | tail -1 | grep "$STARTED_MESSAGE"`
         if [ -n "$started" ]; then
             echo "Done."
             exit 0;
+        fi
     fi
     
     error=`egrep -R "($STARTING_MESSAGE|$ERROR_MESSAGE)" $OPENBIS_LOG | tail -1 | grep "$ERROR_MESSAGE"`
@@ -38,7 +38,7 @@ for i in {1..120}; do
         exit 1;
     fi
     
-    error=`egrep -R "$ERROR_MESSAGE" $JETTY_LOG | tail -1 | grep "$ERROR_MESSAGE"`
+    error=`egrep -R "($STARTING_MESSAGE|$ERROR_MESSAGE)" $JETTY_LOG | tail -1 | grep "$ERROR_MESSAGE"`
     if [ -n "$error" ]; then
         echo "Failed: $error" 
         exit 1;
