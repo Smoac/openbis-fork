@@ -119,7 +119,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             SegmentedStoreShufflingTask.class);
-    
+
     private final Set<String> incomingShares;
 
     private final IEncapsulatedOpenBISService service;
@@ -231,15 +231,14 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
         }
         if (emptyShares.isEmpty() == false)
         {
-            notificationLog.info("The following shares are just emptied by shuffeling: " + emptyShares);
+            notificationLog.info("The following shares were emptied by shuffling: " + emptyShares);
         }
     }
 
     private List<Share> listShares()
     {
         return SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
-                Collections.<String> emptySet(), freeSpaceProvider, service,
-                operationLogger);
+                Collections.<String> emptySet(), freeSpaceProvider, service, operationLogger);
     }
 
     /**
