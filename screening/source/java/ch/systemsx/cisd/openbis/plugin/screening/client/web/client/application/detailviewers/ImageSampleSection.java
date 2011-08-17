@@ -60,8 +60,6 @@ public class ImageSampleSection extends TabContent
 
     // ----
 
-    private final ScreeningViewContext viewContext;
-
     private final TechId sampleId;
 
     private final WellLocation wellLocationOrNull;
@@ -70,18 +68,23 @@ public class ImageSampleSection extends TabContent
             WellLocation wellLocationOrNull)
     {
         super(WELL_IMAGE_SECTION_TITLE, viewContext, sampleId);
-        this.viewContext = viewContext;
         this.sampleId = sampleId;
         this.wellLocationOrNull = wellLocationOrNull;
         setIds(DisplayTypeIDGenerator.LOGICAL_IMAGE_WELL_SECTION);
     }
 
+    private ScreeningViewContext getViewContext()
+    {
+        return (ScreeningViewContext) viewContext;
+    }
+
     @Override
     protected void showContent()
     {
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getImageDatasetInfosForSample(sampleId, wellLocationOrNull,
-                createDisplayImagesCallback(viewContext));
+        final ScreeningViewContext context = getViewContext();
+        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
+        context.getService().getImageDatasetInfosForSample(sampleId, wellLocationOrNull,
+                createDisplayImagesCallback(context));
     }
 
     private AsyncCallback<ImageSampleContent> createDisplayImagesCallback(
@@ -106,7 +109,7 @@ public class ImageSampleSection extends TabContent
 
     private void addUnknownDatasetLinks(List<DatasetReference> unknownDatasets)
     {
-        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(viewContext);
+        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(getViewContext());
         Widget w = guiUtils.tryCreateUnknownDatasetsLinks(unknownDatasets);
         if (w != null)
         {
@@ -123,10 +126,11 @@ public class ImageSampleSection extends TabContent
             add(new Text(NO_IMAGES_DATASET_LABEL), margins);
         } else
         {
-            LogicalImageLayouter logicalImageLayouter =
-                    new LogicalImageLayouter(viewContext, wellLocationOrNull, images);
-            Widget imageDatasetsDetails =
-                    new ImagingDatasetGuiUtils(viewContext)
+            final ScreeningViewContext context = getViewContext();
+            final LogicalImageLayouter logicalImageLayouter =
+                    new LogicalImageLayouter(context, wellLocationOrNull, images);
+            final Widget imageDatasetsDetails =
+                    new ImagingDatasetGuiUtils(context)
                             .createImageDatasetDetailsRow(
                                     logicalImageLayouter.getDatasetImagesReferences(),
                                     logicalImageLayouter);
