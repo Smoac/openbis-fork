@@ -38,9 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public final class ExperimentListDeletionConfirmationDialog extends
         AbstractDataListDeletionConfirmationDialog<Experiment>
 {
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     private final DisplayedAndSelectedExperiments selectedAndDisplayedItemsOrNull;
 
     private final Experiment singleDataOrNull;
@@ -51,7 +48,6 @@ public final class ExperimentListDeletionConfirmationDialog extends
     {
         super(viewContext, selectedAndDisplayedItems.getExperiments(), callback);
         this.withRadio();
-        this.viewContext = viewContext;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -61,9 +57,14 @@ public final class ExperimentListDeletionConfirmationDialog extends
             AsyncCallback<Void> deletionCallback, Experiment experiment)
     {
         super(viewContext, Collections.singletonList(experiment), deletionCallback);
-        this.viewContext = viewContext;
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private IViewContext<ICommonClientServiceAsync> getViewContext()
+    {
+        return (IViewContext<ICommonClientServiceAsync>) viewContext;
     }
 
     @Override
@@ -74,11 +75,11 @@ public final class ExperimentListDeletionConfirmationDialog extends
         {
             final DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
-            viewContext.getCommonService().deleteExperiments(uploadCriteria, reason.getValue(),
-                    deletionType, deletionCallback);
+            getViewContext().getCommonService().deleteExperiments(uploadCriteria,
+                    reason.getValue(), deletionType, deletionCallback);
         } else
         {
-            viewContext.getCommonService().deleteExperiment(TechId.create(singleDataOrNull),
+            getViewContext().getCommonService().deleteExperiment(TechId.create(singleDataOrNull),
                     reason.getValue(), deletionType, deletionCallback);
         }
     }
@@ -92,12 +93,13 @@ public final class ExperimentListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
+        final IViewContext<ICommonClientServiceAsync> context = getViewContext();
         return WidgetUtils.createAllOrSelectedRadioGroup(
                 onlySelectedRadioOrNull =
-                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
-                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        WidgetUtils.createRadio(context.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(context.getMessage(
                         Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
-                viewContext.getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
+                context.getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
     }
 
 }

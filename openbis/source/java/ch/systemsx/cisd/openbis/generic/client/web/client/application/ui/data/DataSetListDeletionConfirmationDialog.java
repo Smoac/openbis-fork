@@ -36,8 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 public final class DataSetListDeletionConfirmationDialog extends
         AbstractDataListDeletionConfirmationDialog<ExternalData>
 {
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
     private final ExternalData singleData;
@@ -48,7 +46,6 @@ public final class DataSetListDeletionConfirmationDialog extends
     {
         super(viewContext, selectedAndDisplayedItems.getSelectedItems(), callback);
         this.withRadio();
-        this.viewContext = viewContext;
         this.singleData = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -58,9 +55,14 @@ public final class DataSetListDeletionConfirmationDialog extends
             AsyncCallback<Void> deletionCallback, ExternalData data)
     {
         super(viewContext, Collections.singletonList(data), deletionCallback);
-        this.viewContext = viewContext;
         this.singleData = data;
         this.selectedAndDisplayedItemsOrNull = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private IViewContext<ICommonClientServiceAsync> getViewContext()
+    {
+        return (IViewContext<ICommonClientServiceAsync>) viewContext;
     }
 
     @Override
@@ -71,12 +73,12 @@ public final class DataSetListDeletionConfirmationDialog extends
         {
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
-            viewContext.getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
+            getViewContext().getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
                     deletionType, deletionCallback);
         } else
         {
-            viewContext.getCommonService().deleteDataSet(singleData.getCode(), reason.getValue(),
-                    deletionType, deletionCallback);
+            getViewContext().getCommonService().deleteDataSet(singleData.getCode(),
+                    reason.getValue(), deletionType, deletionCallback);
         }
     }
 
@@ -89,11 +91,12 @@ public final class DataSetListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
+        final IViewContext<ICommonClientServiceAsync> context = getViewContext();
         return WidgetUtils.createAllOrSelectedRadioGroup(
                 onlySelectedRadioOrNull =
-                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
-                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        WidgetUtils.createRadio(context.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(context.getMessage(
                         Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
-                viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
+                context.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
     }
 }

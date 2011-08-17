@@ -69,8 +69,9 @@ public class EntityHelper
             case SAMPLE:
                 type = new SampleType();
                 break;
+            default:
+                throw new Error("Unknown kind '" + kind + "'");
         }
-        assert type != null;
         type.setCode(code);
         return type;
     }

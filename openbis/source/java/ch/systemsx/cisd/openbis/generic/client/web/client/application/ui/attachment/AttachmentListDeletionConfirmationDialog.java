@@ -35,9 +35,6 @@ public final class AttachmentListDeletionConfirmationDialog
         extends
         AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<AttachmentVersions>>
 {
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     private final IAttachmentHolder attachmentHolder;
 
     public AttachmentListDeletionConfirmationDialog(
@@ -46,14 +43,19 @@ public final class AttachmentListDeletionConfirmationDialog
             AbstractAsyncCallback<Void> callback, IAttachmentHolder attachmentHolder)
     {
         super(viewContext, attachments, callback);
-        this.viewContext = viewContext;
         this.attachmentHolder = attachmentHolder;
+    }
+
+    @SuppressWarnings("unchecked")
+    private IViewContext<ICommonClientServiceAsync> getViewContext()
+    {
+        return (IViewContext<ICommonClientServiceAsync>) viewContext;
     }
 
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
-        viewContext.getCommonService().deleteAttachments(TechId.create(attachmentHolder),
+        getViewContext().getCommonService().deleteAttachments(TechId.create(attachmentHolder),
                 attachmentHolder.getAttachmentHolderKind(), getAttachmentFileNames(data),
                 reason.getValue(), deletionCallback);
     }

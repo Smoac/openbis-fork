@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.demo.server;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -38,8 +37,6 @@ public final class DemoServerTest extends AbstractServerTestCase
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
-
-    private IPropertiesBatchManager propertiesBatchManager;
 
     @SuppressWarnings("unused")
     private final IDemoServer createServer()
@@ -61,7 +58,5 @@ public final class DemoServerTest extends AbstractServerTestCase
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         demoBusinessObjectFactory = context.mock(IDemoBusinessObjectFactory.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
-        propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
-
     }
 }

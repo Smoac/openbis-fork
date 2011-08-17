@@ -273,20 +273,23 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
             AbstractDataListPermanentDeletionConfirmationDialog<AuthorizationGroup>
     {
 
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
         public GroupListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext, List<AuthorizationGroup> data,
                 AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, callback);
-            this.viewContext = viewContext;
+        }
+
+        @SuppressWarnings("unchecked")
+        private IViewContext<ICommonClientServiceAsync> getViewContext()
+        {
+            return (IViewContext<ICommonClientServiceAsync>) viewContext;
         }
 
         @Override
         protected void executeDeletion(AsyncCallback<Void> deletionCallback)
         {
-            viewContext.getCommonService().deleteAuthorizationGroups(TechId.createList(data),
+            getViewContext().getCommonService().deleteAuthorizationGroups(TechId.createList(data),
                     reason.getValue(), deletionCallback);
         }
 

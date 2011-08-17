@@ -293,6 +293,7 @@ final class SampleListingWorker extends AbstractLister
         }
     }
 
+    @SuppressWarnings("null")
     private void loadSampleTypes()
     {
         final SampleType sampleTypeOrNull = tryGetSingleModeSampleType();
@@ -312,7 +313,6 @@ final class SampleListingWorker extends AbstractLister
 
         if (singleSampleTypeMode)
         {
-            assert sampleTypeOrNull != null;
             this.maxSampleParentResolutionDepth = sampleTypeOrNull.getGeneratedFromHierarchyDepth();
         }
 

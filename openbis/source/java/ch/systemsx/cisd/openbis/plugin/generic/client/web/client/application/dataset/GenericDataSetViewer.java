@@ -74,19 +74,17 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     protected final TechId datasetId;
 
-    private final IViewContext<?> viewContext;
-
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final IViewContext<IGenericClientServiceAsync> localViewContext,
             final IIdAndCodeHolder identifiable)
     {
-        GenericDataSetViewer viewer = new GenericDataSetViewer(viewContext, identifiable)
+        GenericDataSetViewer viewer = new GenericDataSetViewer(localViewContext, identifiable)
             {
                 @Override
                 protected void loadDatasetInfo(TechId datasetTechId,
                         AsyncCallback<ExternalData> asyncCallback)
                 {
-                    viewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
+                    localViewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
                 }
             };
         viewer.reloadAllData();
@@ -98,10 +96,14 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     {
         super(viewContext, createId(identifiable));
         setLayout(new BorderLayout());
-        this.viewContext = viewContext;
         this.datasetId = TechId.create(identifiable);
         this.processButtonHolder = new ProcessButtonHolder();
         extendToolBar();
+    }
+
+    private IViewContext<?> getViewContext()
+    {
+        return viewContext;
     }
 
     abstract protected void loadDatasetInfo(TechId datasetTechId,
@@ -138,7 +140,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleOrEmbeddedMode())
+        if (getViewContext().isSimpleOrEmbeddedMode())
         {
             return;
         }
@@ -149,7 +151,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
-                    new DataSetListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                    new DataSetListDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
                             callback, getOriginalData()).show();
                 }
 
@@ -158,7 +160,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             {
                 public void execute()
                 {
-                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                    new RevertDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
                             getOriginalData(), createRevertDeletionCallback()).show();
                 }
             }));
@@ -182,7 +184,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     @Override
     protected void reloadAllData()
     {
-        loadDatasetInfo(datasetId, new DataSetInfoCallback(viewContext, this));
+        loadDatasetInfo(datasetId, new DataSetInfoCallback(getViewContext(), this));
     }
 
     private final Component createLeftPanel(final ExternalData dataset)
@@ -195,13 +197,14 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     private ContentPanel createDataSetPropertiesPanel(final ExternalData dataset)
     {
-        return new DataSetPropertiesPanel(dataset, viewContext);
+        return new DataSetPropertiesPanel(dataset, getViewContext());
     }
 
     private final Component createRightPanel(final ExternalData dataset)
     {
+        final IViewContext<?> context = getViewContext();
         final SectionsPanel container =
-                new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + dataset.getId());
+                new SectionsPanel(context.getCommonViewContext(), ID_PREFIX + dataset.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels(dataset);
@@ -210,21 +213,21 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             container.addSection(panel);
         }
         // data
-        final TabContent dataSection = new DataViewSection(viewContext, dataset);
+        final TabContent dataSection = new DataViewSection(context, dataset);
         container.addSection(dataSection);
 
         if (dataset.isContainer())
         {
-            final TabContent containedSection = new DataSetContainedSection(viewContext, dataset);
+            final TabContent containedSection = new DataSetContainedSection(context, dataset);
             container.addSection(containedSection);
         }
 
         // parents
-        final TabContent parentsSection = new DataSetParentsSection(viewContext, dataset);
+        final TabContent parentsSection = new DataSetParentsSection(context, dataset);
         container.addSection(parentsSection);
 
         // children
-        final TabContent childrenSection = new DataSetChildrenSection(viewContext, dataset);
+        final TabContent childrenSection = new DataSetChildrenSection(context, dataset);
         container.addSection(childrenSection);
 
         // managed properties
@@ -291,7 +294,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         setToolBarButtonsEnabled(false);
         updateTitle(getOriginalDataDescription() + " (not available)");
         String msg =
-                viewContext.getMessage(Dict.DATASET_NOT_AVAILABLE_MSG, result.getCode(), result
+                getViewContext().getMessage(Dict.DATASET_NOT_AVAILABLE_MSG, result.getCode(), result
                         .getStatus().getDescription().toLowerCase());
         MessageBox.info("Data not available", msg, null);
     }
@@ -340,7 +343,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
         private Button createProcessButton()
         {
-            final Button result = new Button(viewContext.getMessage(Dict.BUTTON_PROCESS));
+            final Button result = new Button(getViewContext().getMessage(Dict.BUTTON_PROCESS));
             // need to set menu here, otherwise menu button will not be displayed
             result.setMenu(new Menu());
             result.hide();
@@ -355,8 +358,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         /** @param data external data that will be processed */
         public void setupData(final ExternalData data)
         {
-            viewContext.getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
-                    new ProcessingServicesCallback(viewContext, getOriginalData(), button));
+            getViewContext().getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
+                    new ProcessingServicesCallback(getViewContext(), getOriginalData(), button));
         }
     }
 

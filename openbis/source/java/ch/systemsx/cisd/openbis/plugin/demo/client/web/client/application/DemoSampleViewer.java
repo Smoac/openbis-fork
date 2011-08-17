@@ -39,8 +39,6 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<IDemoClientServiceAsync> viewContext;
-
     private final TechId sampleId;
 
     public DemoSampleViewer(final IViewContext<IDemoClientServiceAsync> viewContext,
@@ -48,8 +46,13 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
     {
         super(viewContext, createId(sampleId));
         this.sampleId = sampleId;
-        this.viewContext = viewContext;
         reloadAllData();
+    }
+
+    @SuppressWarnings("unchecked")
+    private IViewContext<IDemoClientServiceAsync> getViewContext()
+    {
+        return (IViewContext<IDemoClientServiceAsync>) viewContext;
     }
 
     public static final String createId(final TechId sampleId)
@@ -59,7 +62,7 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
 
     private final Widget createUI(final SampleParentWithDerived sampleGeneration)
     {
-        return GenericSampleViewer.createPropertyGrid(sampleId, sampleGeneration, viewContext);
+        return GenericSampleViewer.createPropertyGrid(sampleId, sampleGeneration, getViewContext());
     }
 
     /**
@@ -68,8 +71,8 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
     @Override
     protected void reloadAllData()
     {
-        SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
-        viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
+        SampleInfoCallback callback = new SampleInfoCallback(getViewContext(), this);
+        getViewContext().getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
 
     //

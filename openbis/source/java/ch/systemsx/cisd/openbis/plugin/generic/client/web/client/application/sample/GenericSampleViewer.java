@@ -84,8 +84,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
             + "generic-sample-properties-viewer_";
 
-    private final IViewContext<?> viewContext;
-
     protected final TechId sampleId;
 
     private DisposableTabContent attachmentsSection;
@@ -101,17 +99,17 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     private PropertyGrid propertyGrid;
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final IViewContext<IGenericClientServiceAsync> creationViewContext,
             final IIdAndCodeHolder identifiable)
     {
-        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, identifiable)
+        GenericSampleViewer viewer = new GenericSampleViewer(creationViewContext, identifiable)
             {
                 @Override
                 protected void loadSampleGenerationInfo(TechId sampleTechId,
                         AsyncCallback<SampleParentWithDerived> callback)
                 {
                     TechId techId = TechId.create(identifiable);
-                    viewContext.getService().getSampleGenerationInfo(techId, callback);
+                    creationViewContext.getService().getSampleGenerationInfo(techId, callback);
                 }
 
             };
@@ -128,8 +126,12 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         super(viewContext, createId(identifiable));
         setLayout(new BorderLayout());
         this.sampleId = TechId.create(identifiable);
-        this.viewContext = viewContext;
         extendToolBar();
+    }
+
+    private IViewContext<?> getViewContext()
+    {
+        return viewContext;
     }
 
     @Override
@@ -153,19 +155,19 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleOrEmbeddedMode())
+        if (getViewContext().isSimpleOrEmbeddedMode())
         {
             return;
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
-                @SuppressWarnings("unchecked")
+                @SuppressWarnings({ "unchecked", "rawtypes" })
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
-                    new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                    new SampleListDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
                             getOriginalDataAsSingleton(), callback, getOriginalData()).show();
                 }
             }));
@@ -173,7 +175,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             {
                 public void execute()
                 {
-                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                    new RevertDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
                             getOriginalData(), createRevertDeletionCallback()).show();
                 }
             }));
@@ -182,7 +184,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     @Override
     protected void reloadAllData()
     {
-        reloadSampleGenerationData(new SampleGenerationInfoCallback(viewContext, this));
+        reloadSampleGenerationData(new SampleGenerationInfoCallback(getViewContext(), this));
     }
 
     public static final String createId(final IIdAndCodeHolder identifiable)
@@ -199,8 +201,9 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     {
         final Sample generator = sampleGeneration.getParent();
 
+        final IViewContext<?> context = getViewContext();
         final SectionsPanel container =
-                new SectionsPanel(viewContext.getCommonViewContext(), getId());
+                new SectionsPanel(context.getCommonViewContext(), getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
@@ -208,17 +211,17 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             container.addSection(panel);
         }
         // Contained samples
-        containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
+        containerSamplesSection = new ContainerSamplesSection(context, generator);
         container.addSection(containerSamplesSection);
         // Derived samples
-        derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
+        derivedSamplesSection = new DerivedSamplesSection(context, generator);
         container.addSection(derivedSamplesSection);
         // Parent samples
-        parentSamplesSection = new ParentSamplesSection(viewContext, generator);
+        parentSamplesSection = new ParentSamplesSection(context, generator);
         container.addSection(parentSamplesSection);
         // Data Sets
         dataSetSection =
-                new SampleDataSetsSection(viewContext, sampleId, generator.getSampleType());
+                new SampleDataSetsSection(context, sampleId, generator.getSampleType());
         container.addSection(dataSetSection);
 
         // Attachments
@@ -245,7 +248,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     private AttachmentVersionsSection createAttachmentsSection(final Sample sample)
     {
-        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), sample);
+        return new AttachmentVersionsSection(getViewContext().getCommonViewContext(), sample);
     }
 
     private final static Map<String, Object> createProperties(final IViewContext<?> viewContext,
@@ -308,8 +311,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     {
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
-        panel.setHeading(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
-        propertyGrid = createPropertyGrid(sampleId, sampleGeneration, viewContext);
+        panel.setHeading(getViewContext().getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
+        propertyGrid = createPropertyGrid(sampleId, sampleGeneration, getViewContext());
         panel.add(propertyGrid);
 
         return panel;
@@ -330,7 +333,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     public final void updateProperties(final SampleParentWithDerived sampleGeneration)
     {
-        final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
+        final Map<String, Object> properties = createProperties(getViewContext(), sampleGeneration);
         propertyGrid.resizeRows(properties.size());
         propertyGrid.setProperties(properties);
     }
@@ -484,7 +487,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
         public void update(Set<DatabaseModificationKind> observedModifications)
         {
-            reloadSampleGenerationData(new ReloadPropertyGridCallback(viewContext,
+            reloadSampleGenerationData(new ReloadPropertyGridCallback(getViewContext(),
                     GenericSampleViewer.this));
         }
 

@@ -113,7 +113,7 @@ public final class PropertyGrid extends Grid
      * <li>given <var>clazz</var> is <code>null</code></li>
      * </ul>
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private final <T> IPropertyValueRenderer<? super T> getPropertyValueRenderer(final T value)
     {
         if (value == null)
