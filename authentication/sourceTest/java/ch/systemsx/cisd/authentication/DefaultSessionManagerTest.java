@@ -96,7 +96,7 @@ public class DefaultSessionManagerTest
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
