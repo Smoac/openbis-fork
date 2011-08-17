@@ -235,7 +235,7 @@ public class DeleteFromExternalDBMaintenanceTask extends
         return ids;
     }
 
-    private long tryGetPreviousLastSeenEventId(Connection c) throws SQLException
+    private Long tryGetPreviousLastSeenEventId(Connection c) throws SQLException
     {
         Long maxLastSeenEventId = null;
         ResultSet result =
