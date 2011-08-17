@@ -48,13 +48,13 @@ public class BuildJavaSubprojectsTask extends Task
             {
                 Ant ant = new Ant();
                 String targetForMessage;
-                if (target == null)
+                if (targetName == null)
                 {
                     targetForMessage = "default target";
                 } else
                 {
-                    ant.setTarget(target);
-                    targetForMessage = "target '" + target + "'";
+                    ant.setTarget(targetName);
+                    targetForMessage = "target '" + targetName + "'";
                 }
                 ant.setOwningTarget(getOwningTarget());
                 ant.setDir(baseDir);
@@ -78,7 +78,7 @@ public class BuildJavaSubprojectsTask extends Task
 
     private String antFile = "build" + File.separatorChar + "build.xml";
 
-    private String target;
+    private String targetName;
 
     public void setAntFile(String antFile)
     {
@@ -87,7 +87,7 @@ public class BuildJavaSubprojectsTask extends Task
 
     public void setTarget(String target)
     {
-        this.target = target;
+        this.targetName = target;
     }
 
     public Property createProperty()
