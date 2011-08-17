@@ -1491,7 +1491,6 @@ public class OpenBISScreeningML
         int numberOfTiles = tileNumberIterable.getMaximumNumberOfTiles();
         result[0] = new Object[imageDatasets.size() * imageChannels.size() * numberOfTiles][1];
         result[1] = new Object[imageDatasets.size() * imageChannels.size() * numberOfTiles][15];
-        int dsIdx = 0;
         int resultIdx = 0;
         for (ImageDatasetReference ds : imageDatasets)
         {
@@ -1522,7 +1521,6 @@ public class OpenBISScreeningML
                     resultIdx++;
                 }
             }
-            dsIdx++;
         }
         try
         {
