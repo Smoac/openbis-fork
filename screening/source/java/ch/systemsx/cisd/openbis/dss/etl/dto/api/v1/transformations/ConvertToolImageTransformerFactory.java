@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
-import ch.systemsx.cisd.base.image.IImageTransformer;
-import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.base.image.IStreamingImageTransformerFactory;
 
 /**
- * A {@link IImageTransformerFactory} that constructs {@link ConvertToolImageTransformer} instances.
+ * A {@link IStreamingImageTransformerFactory} that constructs {@link ConvertToolImageTransformer}
+ * instances.
  * 
  * @author Kaloyan Enimanev
  */
-public class ConvertToolImageTransformerFactory implements IImageTransformerFactory
+public class ConvertToolImageTransformerFactory implements IStreamingImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
 
@@ -35,7 +35,7 @@ public class ConvertToolImageTransformerFactory implements IImageTransformerFact
         this.convertCliArguments = convertCliArguments;
     }
 
-    public IImageTransformer createTransformer()
+    public ConvertToolImageTransformer createTransformer()
     {
         return new ConvertToolImageTransformer(convertCliArguments);
     }
