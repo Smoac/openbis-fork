@@ -55,9 +55,7 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
 
     private String getExpectedMetaData()
     {
-        return "<prop id=\"Description\" type=\"string\" value=\"Experiment base name:ME20101116METADATA03&amp;#13;&amp;#10;Experiment set:ME20101116METADATA03&amp;#13;&amp;#10;Plate Screen&amp;#13;&amp;#10;Exposure: 10 ms&amp;#13;&amp;#10;Binning: 1 x 1&amp;#13;&amp;#10;Region: 1392 x 1040, offset at (0, 0)&amp;#13;&amp;#10;Acquired from Photometrics&amp;#13;&amp;#10;Subtract: Off&amp;#13;&amp;#10;Shading: Off&amp;#13;&amp;#10;Digitizer: 20 MHz&amp;#13;&amp;#10;Gain: Gain 1 (1x)&amp;#13;&amp;#10;Camera Shutter: Always Open&amp;#13;&amp;#10;Clear Count: 2&amp;#13;&amp;#10;Clear Mode: CLEAR PRE SEQUENCE&amp;#13;&amp;#10;Frames to Average: 1&amp;#13;&amp;#10;Trigger Mode: Normal (TIMED)&amp;#13;&amp;#10;Temperature: -29.95&amp;#13;&amp;#10;\">\n"
-                + "<prop id=\"stage-label\" type=\"string\" value=\"F09: Site 1\">\n"
-                + "ApplicationName: MetaMorph\n"
+        return "ApplicationName: MetaMorph\n"
                 + "ApplicationVersion: 3.1.0.79\n"
                 + "Binning: 1 x 1\n"
                 + "BitsPerSample: 16\n"
@@ -106,6 +104,8 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "camera-binning-y: 1\n"
                 + "camera-chip-offset-x: 0\n"
                 + "camera-chip-offset-y: 0\n"
+                + "exposure time 0 (ms): 10.0\n"
+                + "exposure time 1 (ms): 10.0\n"
                 + "gamma: 1\n"
                 + "gray-calibration-curve-fit-algorithm: 4\n"
                 + "gray-calibration-max: -1\n"
@@ -135,7 +135,8 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "threshold-high: 65535\n"
                 + "threshold-low: 0\n"
                 + "threshold-state: ThresholdOff\n"
-                + "timestamp 0: 2010-11-21T16:52:52\n"
+                + "timestamp 0: 1290354772986\n"
+                + "timestamp 1: 1290354772986\n"
                 + "wavelength: 624\n" + "z-position: 11145.7\n" + "zoom-percent: 50\n";
     }
 
