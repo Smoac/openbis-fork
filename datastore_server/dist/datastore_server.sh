@@ -42,6 +42,14 @@ isPIDRunning()
   fi
 }
 
+checkNotRoot()
+{
+  if [ $UID -eq 0 ]; then
+    echo "openBIS Data Store Server cannot run as user 'root'." > /dev/stderr
+    exit 1
+  fi
+}
+
 rotateLogFiles()
 {
   logfile=$1
@@ -143,6 +151,7 @@ CMD="${JAVA_BIN} ${JAVA_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generi
 command="${command#--*}"
 case "$command" in
   start)
+    checkNotRoot
     getStatus
     EXIT_STATUS=$?
     if [ $EXIT_STATUS -eq 0 ]; then
