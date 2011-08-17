@@ -300,7 +300,7 @@ class DatasetMappingUtil
             FileNotFoundException
     {
         FileInputStream stream = new FileInputStream(mappingFile);
-        List lines = IOUtils.readLines(stream);
+        List<String> lines = IOUtils.readLines(stream);
         IOUtils.closeQuietly(stream);
         return lines;
     }
