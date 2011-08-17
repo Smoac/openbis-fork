@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import org.eclipse.jetty.util.component.LifeCycle;
 
 /**
- * Stops a component (e.g. Web Server) if it goes into state "Failure".
+ * Stops a component (e.g. Web Server) if it goes into state "Failure". Prints messages
+ * on console in case of success and failure.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,19 +29,20 @@ public class LifeCycleListener implements LifeCycle.Listener
 
     public void lifeCycleFailure(LifeCycle lifeCycle, Throwable throwable)
     {
-        System.err.println("Failed component " + lifeCycle + ": " + throwable);
+        System.err.println("ERROR: Failed component " + lifeCycle + ": " + throwable);
         try
         {
             lifeCycle.stop();
         } catch (Exception ex)
         {
-            System.err.println("Couldn't stop component " + lifeCycle);
+            System.err.println("ERROR: Couldn't stop component " + lifeCycle);
             ex.printStackTrace(System.err);
         }
     }
 
     public void lifeCycleStarted(LifeCycle lifeCycle)
     {
+        System.out.println("Successfully started component " + lifeCycle);
     }
 
     public void lifeCycleStarting(LifeCycle lifeCycle)
