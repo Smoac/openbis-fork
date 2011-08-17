@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,18 @@
 
 package ch.systemsx.cisd.base.image;
 
-import java.awt.image.BufferedImage;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
- * Interface for classes which can transform images. The transformation depends only on some
- * parameters and an image as input.
+ * Factory creating an {@link IStreamingImageTransformer}. The parameters of the transformer should
+ * be stored as serializable attributes of concrete implementations of this interface.
  * 
- * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
-public interface IImageTransformer
+public interface IStreamingImageTransformerFactory extends IImageTransformerFactory
 {
     /**
-     * Transforms the specified image. The transformation must <i>not</i> change the input image.
-     * 
-     * @return The transformed image.
+     * Creates a transformer object based on the attributes of the factory.
      */
-    public BufferedImage transform(BufferedImage image);
+    public IStreamingImageTransformer createTransformer();
 }
