@@ -145,15 +145,6 @@ public class OSUtilities
         final Set<String> pathEntries = getOSPath();
         if (isUnix())
         {
-            pathEntries.add("/usr/local/bin");
-            pathEntries.add("/usr/bin");
-            pathEntries.add("/bin");
-            if (root)
-            {
-                pathEntries.add("/usr/local/sbin");
-                pathEntries.add("/usr/sbin");
-                pathEntries.add("/sbin");
-            }
             if (isMacOS())
             {
                 pathEntries.add("/opt/local/bin"); // MacPorts
@@ -163,6 +154,15 @@ public class OSUtilities
                     pathEntries.add("/opt/local/sbin");
                     pathEntries.add("/sw/sbin");
                 }
+            }
+            pathEntries.add("/usr/local/bin");
+            pathEntries.add("/usr/bin");
+            pathEntries.add("/bin");
+            if (root)
+            {
+                pathEntries.add("/usr/local/sbin");
+                pathEntries.add("/usr/sbin");
+                pathEntries.add("/sbin");
             }
         }
         return pathEntries;
