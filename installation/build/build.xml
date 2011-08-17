@@ -1,4 +1,4 @@
-<project name="installation" default="ci" basedir="..">
+<project name="installation" default="dist" basedir="..">
 	
   <import file="../../server-common/build/build-common.xml" />
 	
