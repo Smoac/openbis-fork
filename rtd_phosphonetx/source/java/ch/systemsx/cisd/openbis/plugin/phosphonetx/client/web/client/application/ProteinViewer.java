@@ -94,8 +94,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                 @Override
                 public ITabItem create()
                 {
-                    ProteinViewer viewer =
-                            new ProteinViewer(viewContext, experiment, proteinInfo);
+                    ProteinViewer viewer = new ProteinViewer(viewContext, experiment, proteinInfo);
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
                     return DefaultTabItem.create(getTabTitle(), c, viewContext, false);
@@ -140,12 +139,10 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         return ID_PREFIX + experimentID + "_" + proteinReferenceID.getId();
     }
 
-    private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-
     private final Experiment experimentOrNull;
 
     private final ProteinInfo proteinInfo;
-    
+
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
@@ -154,11 +151,16 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             Experiment experiment, ProteinInfo proteinInfo)
     {
         super(viewContext, "", createWidgetID(experiment, proteinInfo.getId()), false);
-        this.viewContext = viewContext;
         this.experimentOrNull = experiment;
         this.proteinInfo = proteinInfo;
         this.proteinReferenceID = proteinInfo.getId();
         reloadAllData();
+    }
+
+    @SuppressWarnings("unchecked")
+    private final IViewContext<IPhosphoNetXClientServiceAsync> getViewContext()
+    {
+        return (IViewContext<IPhosphoNetXClientServiceAsync>) viewContext;
     }
 
     @Override
@@ -166,12 +168,12 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     {
         if (experimentOrNull != null)
         {
-            ProteinByExperimentCallback callback =
-                    new ProteinByExperimentCallback(viewContext, this);
+            final IViewContext<IPhosphoNetXClientServiceAsync> context = getViewContext();
+            ProteinByExperimentCallback callback = new ProteinByExperimentCallback(context, this);
             String message =
-                    viewContext.getMessage(Dict.PROTEIN_DETAILS_WAITING_MESSAGE,
+                    context.getMessage(Dict.PROTEIN_DETAILS_WAITING_MESSAGE,
                             proteinInfo.getAccessionNumber());
-            viewContext.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
+            context.getService().getProteinByExperiment(new TechId(experimentOrNull.getId()),
                     proteinReferenceID, AsyncCallbackWithProgressBar.decorate(callback, message));
         }
     }
@@ -203,7 +205,8 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                 rowDataManager.addToContainer(panel, new RowData(1, 0.3f));
             }
             proteinSamplesSection =
-                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentOrNull);
+                    new ProteinSamplesSection(getViewContext(), proteinReferenceID,
+                            experimentOrNull);
             rowDataManager.addToContainer(proteinSamplesSection, new RowData(1, 0.2f));
             layout();
         }
@@ -256,7 +259,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                         @Override
                         protected IDisposableComponent createDisposableContent()
                         {
-                            return ProteinSequenceGrid.create(ProteinViewer.this.viewContext,
+                            return ProteinSequenceGrid.create(ProteinViewer.this.getViewContext(),
                                     proteinReferenceID);
                         }
                     };
@@ -268,7 +271,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                         @Override
                         protected IDisposableComponent createDisposableContent()
                         {
-                            return DataSetProteinGrid.create(ProteinViewer.this.viewContext,
+                            return DataSetProteinGrid.create(ProteinViewer.this.getViewContext(),
                                     experimentOrNull, proteinReferenceID);
                         }
                     };
@@ -349,6 +352,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     public static class DatasetInformationHolder implements IEntityInformationHolderWithIdentifier
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
         private final ProteinDetails proteinDetails;
 
         public DatasetInformationHolder(ProteinDetails proteinDetails)
