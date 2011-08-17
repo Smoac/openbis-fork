@@ -57,6 +57,10 @@
         </New>
       </Arg>
     </Call>
+    
+    <Call name="addLifeCycleListener">
+      <Arg><New class="ch.systemsx.cisd.openbis.generic.server.util.LifeCycleListener"/></Arg>
+    </Call>
 
     <!-- =========================================================== -->
     <!-- extra options                                               -->

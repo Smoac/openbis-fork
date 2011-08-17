@@ -35,6 +35,8 @@
 	<property name="query.api.doc.zip" value="${dist}/doc.zip" />
 	<property name="query.api.src.zip" value="${dist}/src.zip" />
   <property name="query.api.dist.file" value="${dist}/${query.api}.zip" />
+	<property name="jetty.openbis.jar.file.name" value="jetty-openbis.jar"/>
+	<property name="jetty.openbis.jar.file" value="${dist}/${jetty.openbis.jar.file.name}"/>
 
   <property name="webapp.file.name" value="openBIS.war" />
   <property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
@@ -553,6 +555,11 @@
         <include name="*.INFO" />
       </zipfileset>
     </jar>
+  	<jar destfile="${jetty.openbis.jar.file}">
+      <zipfileset src="${jar.file}">
+        <include name="ch/systemsx/cisd/openbis/**/LifeCycleListener*.class" />
+      </zipfileset>
+  	</jar>
   </target>
 
   <!--
@@ -594,6 +601,9 @@
       </classes>
       <lib dir="${dist}">
         <include name="${jar.file.name}" />
+      </lib>
+      <lib dir="${dist}">
+        <include name="${jetty.openbis.jar.file.name}" />
       </lib>
       <lib dir="${lib}/cisd-base">
         <include name="cisd-base.jar" />

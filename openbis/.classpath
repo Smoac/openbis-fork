@@ -56,5 +56,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt-debug-panel/gwt-debug-panel.jar" sourcepath="/gwt-debug-panel-read-only"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
