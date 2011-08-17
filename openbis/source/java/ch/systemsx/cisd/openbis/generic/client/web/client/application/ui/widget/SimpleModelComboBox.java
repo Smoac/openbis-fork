@@ -81,11 +81,9 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
 
     private void setModel(List<LabeledItem<T>> modelItems)
     {
-        int i = 0;
         for (LabeledItem<T> item : modelItems)
         {
             add(item);
-            i++;
         }
     }
 

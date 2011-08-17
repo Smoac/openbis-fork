@@ -90,7 +90,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
         ClassValidator<E> validator = (ClassValidator<E>) validators.get(pe.getClass());
@@ -148,7 +148,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * </p>
      */
     @SuppressWarnings("unchecked")
-    protected static final <T> List<T> cast(final List list)
+    protected static final <T> List<T> cast(@SuppressWarnings("rawtypes") final List list)
     {
         return list;
     }

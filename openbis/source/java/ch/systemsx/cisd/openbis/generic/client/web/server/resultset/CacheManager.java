@@ -32,8 +32,6 @@ import ch.systemsx.cisd.common.utilities.TokenGenerator;
  */
 public class CacheManager<K, T>
 {
-    private static final long serialVersionUID = 1L;
-
     private final IResultSetKeyGenerator<K> keyProvider;
 
     private static final Logger operationLog =

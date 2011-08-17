@@ -52,8 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
  */
 public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
 {
-    private static final long serialVersionUID = 1L;
-
     private final IViewContext<?> viewContext;
 
     private final IColumnDefinitionKind<T>[] staticColumnDefinitions;

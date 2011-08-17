@@ -42,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
  */
 public abstract class AbstractWebStartClientServingServlet extends AbstractServlet
 {
-    private static final long serialVersionUID = 1L;
-
     private static final String SERVER_URL = BasicConstant.SERVER_URL_PARAMETER;
 
     private static final String CODEBASE_URL = BasicConstant.CODEBASE_PARAMETER;

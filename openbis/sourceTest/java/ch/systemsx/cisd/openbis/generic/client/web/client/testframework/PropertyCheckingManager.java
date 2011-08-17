@@ -55,10 +55,10 @@ public class PropertyCheckingManager extends Assert
         assertProperties(((PropertyGrid) widget).getProperties());
     }
 
-    @SuppressWarnings("unchecked")
     /**
      * Checks the assertion for the specified properties.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void assertProperties(final Map<String, ?> actualProperties)
     {
         for (final Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties

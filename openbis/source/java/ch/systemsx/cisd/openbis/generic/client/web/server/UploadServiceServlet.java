@@ -67,8 +67,8 @@ import ch.systemsx.cisd.common.utilities.Message;
     { "/upload", "/openbis/upload" })
 public final class UploadServiceServlet extends AbstractCommandController
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, UploadServiceServlet.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            UploadServiceServlet.class);
 
     ISessionFilesSetter sessionFilesSetter;
 
@@ -86,7 +86,7 @@ public final class UploadServiceServlet extends AbstractCommandController
         this(new SessionFilesSetter());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private final static Iterator<String> cast(final Iterator iterator)
     {
         return iterator;

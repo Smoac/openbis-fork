@@ -48,7 +48,7 @@ public final class AuthenticationServiceHolder implements FactoryBean
         return authenticationService;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public final Class getObjectType()
     {
         return IAuthenticationService.class;

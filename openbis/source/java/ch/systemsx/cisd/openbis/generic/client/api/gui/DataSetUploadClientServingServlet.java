@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
             "/openbis/openbis/" + BasicConstant.DATA_SET_UPLOAD_CLIENT_PATH })
 public class DataSetUploadClientServingServlet extends AbstractWebStartClientServingServlet
 {
-    private static final long serialVersionUID = 1L;
-
     private static final Template JNLP_TEMPLATE = new Template(
             "<?xml version='1.0' encoding='utf-8'?>\n"
                     + "<jnlp spec='1.0+' codebase='${base-URL}'>\n" + "  <information>\n"

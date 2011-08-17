@@ -136,7 +136,7 @@ public final class AuthorizationTestUtil
                 // AbstractAutoProxyCreator
                 //
 
-                @SuppressWarnings("unchecked")
+                @SuppressWarnings("rawtypes")
                 @Override
                 protected final Object[] getAdvicesAndAdvisorsForBean(final Class beanClass,
                         final String beanName, final TargetSource customTargetSource)

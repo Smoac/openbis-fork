@@ -137,7 +137,7 @@ public final class HibernateTransformer implements MethodInterceptor
         // Hibernate3CollectionReplicator
         //          
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public final <V, T> T replicateCollection(final Collection<V> from, final Class<T> toClass)
         {

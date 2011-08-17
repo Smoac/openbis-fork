@@ -60,6 +60,7 @@ class ColumnSortUtils
         return new Comparator<GridRowModel<T>>()
             {
 
+                @SuppressWarnings("rawtypes")
                 public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
                 {
                     Comparable v1 = sortField.tryGetComparableValue(o1);

@@ -65,7 +65,7 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
      * This method does nothing if no cell listener has been registered for column determined by the
      * event.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void handleEvent(GridEvent be)
     {
         ICellListener<T> listener = getCellListener(be);
