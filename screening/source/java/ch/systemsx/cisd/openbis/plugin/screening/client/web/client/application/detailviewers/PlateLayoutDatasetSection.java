@@ -40,30 +40,33 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
  */
 public class PlateLayoutDatasetSection extends TabContent
 {
-    private final ScreeningViewContext viewContext;
-
     private final TechId datasetId;
 
     public PlateLayoutDatasetSection(final ScreeningViewContext viewContext, final TechId datasetId)
     {
         super("Plate Layout", viewContext, datasetId);
-        this.viewContext = viewContext;
         this.datasetId = datasetId;
         setIds(DisplayTypeIDGenerator.PLATE_LAYOUT_DATASET_SECTION);
+    }
+
+    private ScreeningViewContext getViewContext()
+    {
+        return (ScreeningViewContext) viewContext;
     }
 
     @Override
     protected void showContent()
     {
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
+        final ScreeningViewContext context = getViewContext();
+        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
 
-        viewContext.getService().getPlateContentForDataset(datasetId,
-                createDisplayPlateCallback(viewContext));
+        context.getService().getPlateContentForDataset(datasetId,
+                createDisplayPlateCallback());
     }
 
-    private AsyncCallback<PlateImages> createDisplayPlateCallback(final ScreeningViewContext context)
+    private AsyncCallback<PlateImages> createDisplayPlateCallback()
     {
-        return new AbstractAsyncCallback<PlateImages>(context)
+        return new AbstractAsyncCallback<PlateImages>(getViewContext())
             {
                 @Override
                 protected void process(PlateImages plateContent)
@@ -82,7 +85,7 @@ public class PlateLayoutDatasetSection extends TabContent
     private void renderPlate(PlateImages plateImages)
     {
         LayoutContainer container = new LayoutContainer();
-        container.add(PlateLayouter.createVisualization(plateImages, viewContext));
+        container.add(PlateLayouter.createVisualization(plateImages, getViewContext()));
         add(container, LayoutUtils.createRowLayoutSurroundingData());
     }
 }

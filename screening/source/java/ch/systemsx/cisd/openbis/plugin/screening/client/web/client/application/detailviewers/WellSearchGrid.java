@@ -258,7 +258,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             });
     }
 
-    private final IViewContext<IScreeningClientServiceAsync> viewContext;
+    private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
     private final MaterialSearchCriteria materialCriteria;
 
@@ -279,7 +279,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, false,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
-        this.viewContext = viewContext;
+        this.screeningViewContext = viewContext;
 
         this.restrictGlobalScopeLinkToProject = restrictGlobalScopeLinkToProject;
         this.experimentCriteriaHolder =
@@ -295,6 +295,11 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         linkWell();
         linkImageDataSet();
         linkImageAnalysisDataSet();
+    }
+
+    private IViewContext<IScreeningClientServiceAsync> getViewContext()
+    {
+        return screeningViewContext;
     }
 
     private static IDefaultChannelState createDefaultChannelState(
@@ -404,7 +409,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private void openImagingMaterialViewer(WellContent wellContent, Material material)
     {
         ClientPluginFactory.openImagingMaterialViewer(material, getExperimentCriteria(wellContent),
-                analysisProcedureCriteria, viewContext);
+                analysisProcedureCriteria, getViewContext());
     }
 
     private void linkExperiment()
@@ -529,7 +534,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         if (entityOrNull != null)
         {
-            new OpenEntityDetailsTabAction(entityOrNull, viewContext, specialKeyPressed).execute();
+            new OpenEntityDetailsTabAction(entityOrNull, getViewContext(), specialKeyPressed).execute();
         }
     }
 
@@ -548,7 +553,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         IDelegatedAction experimentSelectionChangedAction =
                 createExperimentSelectionChangedAction(analysisProcedureChooser);
-        return new SingleOrAllExperimentsChooser(viewContext, experimentCriteriaHolder,
+        return new SingleOrAllExperimentsChooser(getViewContext(), experimentCriteriaHolder,
                 restrictGlobalScopeLinkToProject, experimentSelectionChangedAction);
     }
 
@@ -568,7 +573,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
         AnalysisProcedureChooser analysisProcedureChooser =
-                AnalysisProcedureChooser.createVertical(viewContext, experimentCriteriaHolder,
+                AnalysisProcedureChooser.createVertical(getViewContext(), experimentCriteriaHolder,
                         null, this, true);
         return analysisProcedureChooser;
     }
@@ -613,7 +618,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                                     public Widget create(List<String> channels)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
-                                                viewContext, entity, IMAGE_SIZE_PX, channels);
+                                                getViewContext(), entity, IMAGE_SIZE_PX, channels);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =
@@ -648,7 +653,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(experimentCriteriaOrNull, materialCriteria,
                         analysisProcedureCriteria);
-        viewContext.getService().listPlateWells(resultSetConfig, searchCriteria, callback);
+        getViewContext().getService().listPlateWells(resultSetConfig, searchCriteria, callback);
     }
 
     @Override
@@ -656,7 +661,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
             TableExportCriteria<TableModelRowWithObject<WellContent>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportPlateWells(exportCriteria, callback);
+        getViewContext().getService().prepareExportPlateWells(exportCriteria, callback);
     }
 
     @Override

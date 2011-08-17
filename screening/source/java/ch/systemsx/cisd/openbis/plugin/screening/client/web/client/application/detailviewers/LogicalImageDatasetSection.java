@@ -41,31 +41,34 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageIn
  */
 public class LogicalImageDatasetSection extends TabContent
 {
-    private final ScreeningViewContext viewContext;
-
     private final ExternalData dataset;
 
     public LogicalImageDatasetSection(final ScreeningViewContext viewContext,
             final ExternalData dataset)
     {
         super("Images", viewContext, dataset);
-        this.viewContext = viewContext;
         this.dataset = dataset;
         setIds(DisplayTypeIDGenerator.LOGICAL_IMAGE_DATASET_SECTION);
+    }
+
+    private ScreeningViewContext getViewContext()
+    {
+        return (ScreeningViewContext) viewContext;
     }
 
     @Override
     protected void showContent()
     {
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
+        final ScreeningViewContext context = getViewContext();
+        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
 
-        viewContext.getService().getImageDatasetInfo(dataset.getCode(),
-                dataset.getDataStore().getCode(), null, createDisplayCallback(viewContext));
+        context.getService().getImageDatasetInfo(dataset.getCode(),
+                dataset.getDataStore().getCode(), null, createDisplayCallback());
     }
 
-    private AsyncCallback<LogicalImageInfo> createDisplayCallback(final ScreeningViewContext context)
+    private AsyncCallback<LogicalImageInfo> createDisplayCallback()
     {
-        return new AbstractAsyncCallback<LogicalImageInfo>(context)
+        return new AbstractAsyncCallback<LogicalImageInfo>(getViewContext())
             {
                 @Override
                 protected void process(LogicalImageInfo imageInfo)
@@ -92,7 +95,7 @@ public class LogicalImageDatasetSection extends TabContent
                         dataset.getDataStore().getHostUrl(), imageInfo.getImageParameters());
         LogicalImageViewer viewer =
                 new LogicalImageViewer(logicalImageReference,
-                        LogicalImageDatasetSection.this.viewContext, identifier, experimentPermId,
+                        LogicalImageDatasetSection.this.getViewContext(), identifier, experimentPermId,
                         true);
         Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
         return viewerWidget;

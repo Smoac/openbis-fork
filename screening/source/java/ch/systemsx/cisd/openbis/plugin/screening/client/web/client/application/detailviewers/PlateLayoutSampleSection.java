@@ -61,29 +61,31 @@ public class PlateLayoutSampleSection extends TabContent
 
     // ----
 
-    private final ScreeningViewContext viewContext;
-
     private final TechId sampleId;
 
     public PlateLayoutSampleSection(final ScreeningViewContext viewContext, final TechId sampleId)
     {
         super("Plate Layout", viewContext, sampleId);
-        this.viewContext = viewContext;
         this.sampleId = sampleId;
         setIds(DisplayTypeIDGenerator.PLATE_LAYOUT_SAMPLE_SECTION);
+    }
+
+    private ScreeningViewContext getViewContext()
+    {
+        return (ScreeningViewContext) viewContext;
     }
 
     @Override
     protected void showContent()
     {
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
+        final ScreeningViewContext context = getViewContext();
+        add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
+        context.getService().getPlateContent(sampleId, createDisplayPlateCallback());
     }
 
-    private AsyncCallback<PlateContent> createDisplayPlateCallback(
-            final ScreeningViewContext context)
+    private AsyncCallback<PlateContent> createDisplayPlateCallback()
     {
-        return new AbstractAsyncCallback<PlateContent>(context)
+        return new AbstractAsyncCallback<PlateContent>(getViewContext())
             {
                 @Override
                 protected void process(PlateContent plateContent)
@@ -103,7 +105,7 @@ public class PlateLayoutSampleSection extends TabContent
 
     private void addUnknownDatasetLinks(PlateContent plateContent)
     {
-        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(viewContext);
+        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(getViewContext());
         Widget w = guiUtils.tryCreateUnknownDatasetsLinks(plateContent.getUnknownDatasets());
         if (w != null)
         {
@@ -114,10 +116,10 @@ public class PlateLayoutSampleSection extends TabContent
     private void addPlateVisualisation(PlateContent plateContent)
     {
         PlateMetadata plateMetadata = plateContent.getPlateMetadata();
-        PlateLayouter plateLayouter = new PlateLayouter(viewContext, plateMetadata);
+        PlateLayouter plateLayouter = new PlateLayouter(getViewContext(), plateMetadata);
 
         List<ImageDatasetEnrichedReference> imageDatasets = plateContent.getImageDatasets();
-        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(viewContext);
+        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(getViewContext());
         Widget imageDatasetDetailsRow =
                 guiUtils.createImageDatasetDetailsRow(imageDatasets,
                         asImageDatasetUpdater(plateLayouter));
@@ -188,7 +190,7 @@ public class PlateLayoutSampleSection extends TabContent
     private void addPlateMetadataReportLink(final PlateContent plateContent)
     {
         Sample plate = plateContent.getPlateMetadata().getPlate();
-        Widget generateLink = createPlateMetadataLink(plate, viewContext);
+        Widget generateLink = createPlateMetadataLink(plate, getViewContext());
         add(ImagingDatasetGuiUtils.withLabel(generateLink, PLATE_METADATA_REPORT_LABEL),
                 LayoutUtils.createRowLayoutSurroundingData());
     }

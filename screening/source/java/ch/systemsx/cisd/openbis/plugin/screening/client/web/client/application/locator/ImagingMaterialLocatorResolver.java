@@ -106,8 +106,6 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
     private static class OpenEntityDetailsTabCallback extends
             AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
-        private final IViewContext<IScreeningClientServiceAsync> viewContext;
-
         private final ExperimentIdentifierSearchCriteria scopeOrNull;
 
         private final AnalysisProcedureCriteria analysisProcedureCriteria;
@@ -118,7 +116,6 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 AnalysisProcedureCriteria analysisProcedureCriteria)
         {
             super(viewContext);
-            this.viewContext = viewContext;
             this.scopeOrNull = scopeOrNull;
             this.analysisProcedureCriteria = analysisProcedureCriteria;
         }
@@ -159,8 +156,9 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
         private void fetchExperimentAndShowLocations(
                 final IEntityInformationHolderWithPermId material, String experimentIdentifier)
         {
-            viewContext.getCommonService().getExperimentInfo(experimentIdentifier,
-                    new AbstractAsyncCallback<Experiment>(viewContext)
+            final IViewContext<IScreeningClientServiceAsync> context = getViewContext();
+            context.getCommonService().getExperimentInfo(experimentIdentifier,
+                    new AbstractAsyncCallback<Experiment>(context)
                         {
                             @Override
                             protected void process(Experiment experiment)
@@ -180,7 +178,13 @@ public class ImagingMaterialLocatorResolver extends MaterialLocatorResolver
                 final ExperimentSearchCriteria experimentSearchCriteriaOrNull)
         {
             ClientPluginFactory.openImagingMaterialViewer(material, experimentSearchCriteriaOrNull,
-                    analysisProcedureCriteria, viewContext);
+                    analysisProcedureCriteria, getViewContext());
+        }
+
+        @SuppressWarnings("unchecked")
+        private IViewContext<IScreeningClientServiceAsync> getViewContext()
+        {
+            return (IViewContext<IScreeningClientServiceAsync>) viewContext;
         }
     }
 
