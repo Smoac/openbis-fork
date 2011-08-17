@@ -503,6 +503,7 @@ public class ProcessExecutionHelperTest
                 result.getStartupFailureMessage().indexOf("some_non_existent_executable") >= 0);
     }
 
+    @SuppressWarnings("null")
     @Test(groups =
         { "requires_unix", "slow" })
     public void testSleepyExecutionWithTermination() throws Exception
@@ -527,7 +528,6 @@ public class ProcessExecutionHelperTest
         // Now resultGetter should be done with obtaining the result.
         ProcessResult processResult = result.get();
         assertTrue(processResult != null);
-        assert processResult != null; // avoid compiler warnings
         assertFalse(processResult.isOK()); // process terminated unsuccessfully
         assertTrue(processResult.isInterruped() || processResult.isTerminated());
     }

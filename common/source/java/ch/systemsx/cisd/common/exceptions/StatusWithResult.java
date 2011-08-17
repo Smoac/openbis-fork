@@ -100,7 +100,7 @@ public class StatusWithResult<T> extends Status
     @SuppressWarnings("unchecked")
     private StatusWithResult<T> toStatusWithResult(Object obj)
     {
-        return (StatusWithResult) obj;
+        return (StatusWithResult<T>) obj;
     }
 
     @Override
