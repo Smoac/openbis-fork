@@ -2,9 +2,9 @@
 This is the segmentation images dropbox which accepts directories containing images.
 Each directory will be registered as one dataset. 
 The naming convention of the directory is the following:
-    <raw-image-dataset-code>_<any-text>
+    <raw-image-dataset-code>_<analysis-procedure>_<any-text>
 e.g.
-    20110809142909177-826_my_overlays
+    20110809142909177-826_AnalysisProcXYZ_myOverlays
 The dataset with the code specified in the directory name will become a parent of the new dataset.
 The new dataset is supposed to contain segmentation results (as images) of the parent dataset. 
 """
@@ -42,8 +42,12 @@ if incoming.isDirectory():
     
     transaction = service.transaction(incoming, factory)
     
-    parentDatasetCode = utils.extractFileBasename(incoming.getName()).split('_')[0]
+    tokens = utils.extractFileBasename(incoming.getName()).split('_')
+    if (len(tokens) < 2):
+        raise ValidationException("Incoming directory name "+incoming.getName()+" does not adhere to the naming convention <raw-image-dataset-code>_<analysis-procedure>_<any-text>")
+    parentDatasetCode = tokens[0]
+    analysisProcedureCode = tokens[1]
     (plate, experiment) = registration.findConnectedPlate(transaction, parentDatasetCode)
     plateCode = plate.getCode()
     
-    registration.registerSegmentationImages(incoming, plate, parentDatasetCode, transaction, factory)
+    registration.registerSegmentationImages(incoming, plate, parentDatasetCode, analysisProcedureCode, transaction, factory)

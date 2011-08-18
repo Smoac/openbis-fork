@@ -103,7 +103,7 @@ def convertToPng(dir, transparentColor):
     if errorMsg:
         raise RuntimeException("Error converting overlays:" + errorMsg)
 
-def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, transaction, factory):
+def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisProcedureCode, transaction, factory):
     convertToPng(overlaysDir.getPath(), config.OVERLAYS_TRANSPARENT_COLOR)
     overlayDatasetConfig = MyImageDataSetConfig(overlaysDir)
     overlayDatasetConfig.setSegmentationImageDatasetType()
@@ -113,6 +113,8 @@ def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, transaction
     #overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
 
     overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
+    if analysisProcedureCode:
+        overlayDatasetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
     overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
     overlayDataset.setSample(plate)
     overlayDataset.setParentDatasets([ imageDataSetCode ])
@@ -139,6 +141,7 @@ def registerAnalysisData(analysisXmlFile, plate, parentDatasetCode, transaction,
     transaction.createNewDirectory(analysisDataSet, parentDirName)
     transaction.moveFile(analysisCSVFile.getPath(), analysisDataSet, parentDirName)
     transaction.moveFile(analysisXmlFile.getPath(), analysisDataSet, parentDirName)
+    return analysisProcedureCode
         
         
 """ 

@@ -103,15 +103,17 @@ if incoming.isDirectory():
     imageDataSet = registration.createRawImagesDataset(incoming, plate, batchName, transaction, factory)
     imageDataSetCode = imageDataSet.getDataSetCode()
 
-    # check for overlays folder
-    overlaysDir = utils.findDir(incoming, config.OVERLAYS_DIR_PATTERN)
-    if overlaysDir is not None:
-        registration.registerSegmentationImages(overlaysDir, plate, imageDataSetCode, transaction, factory)
+    analysisProcedureCode = None
     
     # transform and move analysis file
     analysisFile = utils.findFileByExt(incoming, "xml")
     if analysisFile is not None:
-        registration.registerAnalysisData(analysisFile, plate, imageDataSetCode, transaction, factory)
+        analysisProcedureCode = registration.registerAnalysisData(analysisFile, plate, imageDataSetCode, transaction, factory)
+
+    # check for overlays folder
+    overlaysDir = utils.findDir(incoming, config.OVERLAYS_DIR_PATTERN)
+    if overlaysDir is not None:
+        registration.registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisProcedureCode, transaction, factory)
     
     transaction.moveFile(incoming.getPath(), imageDataSet)
       
