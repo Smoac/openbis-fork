@@ -102,7 +102,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         { "admin@sanofi.com", "admin@openbis.org", "donald@duck.com", "mickey@mouse.org" };
 
     private static final String MATERIAL_TYPE = "COMPOUND";
-    
+
     private static final String POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL";
 
     private static final String NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL";
@@ -136,6 +136,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
             "HCS_ANALYSIS_WELL_FEATURES");
 
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
+
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
 
     private RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails;
@@ -149,7 +150,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     public void setUp() throws IOException
     {
         super.setUp();
-        
+
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
         atomicatOperationDetails =
@@ -344,13 +345,12 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
             {
                 {
                     one(dataSourceQueryService).select(with(any(String.class)),
-                            with(any(String.class)),
-                            with(anything()));
+                            with(any(String.class)), with(anything()));
                     will(returnValue(queryResult));
 
                     one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
                     will(returnValue(Collections.emptyList()));
-                    
+
                     exactly(5).of(openBisService).createPermId();
                     will(returnValue("well-permId"));
 
@@ -398,16 +398,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
         assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
 
-        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
         assertEquals("MatlabGeneral_v1.1_NRF2ProdAnalysis_v1.1",
                 extractAnalysisProcedureCode(analysisDataSet));
 
+        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
 
         AssertionUtil
                 .assertContains(
@@ -461,7 +460,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         assertEquals(0, atomicatOperationDetails.getRecordedObjects().size());
 
-
         assertContains("java.lang.RuntimeException: Connection to ABASE DB Failed", email
                 .getRecordedObjects().get(0));
         assertEquals(
@@ -471,8 +469,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                         + "openBIS has sent a notification to the responsible system administrators and they should be \n"
                         + "fixing the problem as soon as possible. \n" + "      \n"
                         + "We are sorry for any inconveniences this may have caused. \n"
-                        + "      \n" + "openBIS Administrators", email.getRecordedObjects()
-                        .get(1).trim());
+                        + "      \n" + "openBIS Administrators", email.getRecordedObjects().get(1)
+                        .trim());
 
         context.assertIsSatisfied();
     }
@@ -544,13 +542,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
         assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
 
-        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
+
+        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
 
         AssertionUtil
                 .assertContains(
@@ -629,13 +627,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
         assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
 
-        NewExternalData overlayDataSet = dataSetsRegistered.get(1);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(2);
+        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
         assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
         assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
+
+        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
 
         Map<String, List<NewMaterial>> materialsRegistered =
                 atomicatOperationDetails.recordedObject().getMaterialRegistrations();
@@ -649,6 +647,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                         email.recordedObject());
         context.assertIsSatisfied();
     }
+
     private void assertHasProperty(NewExternalData dataSet, String propCode, String propValue)
     {
         for (NewProperty prop : dataSet.getDataSetProperties())
@@ -759,10 +758,10 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(IMAGE_DATA_SET_CODE));
 
                     one(openBisService).createDataSetCode();
-                    will(returnValue(OVERLAY_DATA_SET_CODE));
+                    will(returnValue(ANALYSIS_DATA_SET_CODE));
 
                     one(openBisService).createDataSetCode();
-                    will(returnValue(ANALYSIS_DATA_SET_CODE));
+                    will(returnValue(OVERLAY_DATA_SET_CODE));
 
                     one(dataSetValidator).assertValidDataSet(
                             IMAGE_DATA_SET_TYPE,
@@ -896,8 +895,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
 
-        handler = new TestingPlateDataSetHandler(globalState, registrationShouldFail,
-                shouldReThrowException);
+        handler =
+                new TestingPlateDataSetHandler(globalState, registrationShouldFail,
+                        shouldReThrowException);
 
     }
 
