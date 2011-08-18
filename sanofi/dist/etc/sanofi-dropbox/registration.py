@@ -114,7 +114,7 @@ def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisPro
 
     overlayDatasetDetails = factory.createImageRegistrationDetails(overlayDatasetConfig, overlaysDir)
     if analysisProcedureCode:
-        overlayDatasetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
+        overlayDatasetDetails.setPropertyValue("$ANALYSIS_PROCEDURE", analysisProcedureCode)
     overlayDataset = transaction.createNewDataSet(overlayDatasetDetails)
     overlayDataset.setSample(plate)
     overlayDataset.setParentDatasets([ imageDataSetCode ])
