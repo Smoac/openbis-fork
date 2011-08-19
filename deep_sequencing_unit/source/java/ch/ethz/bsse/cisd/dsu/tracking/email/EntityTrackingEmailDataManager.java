@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,7 +67,8 @@ class EntityTrackingEmailDataManager
     {
         for (Sample sequencingSample : trackedEntities.getSequencingSamplesToBeProcessed())
         {
-            for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
+            for (String recipient : getSequencingSampleTrackingRecipients(Collections
+                    .singleton(sequencingSample)))
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
@@ -81,7 +83,8 @@ class EntityTrackingEmailDataManager
     {
         for (Sample sequencingSample : trackedEntities.getSequencingSamplesProcessed())
         {
-            for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
+            for (String recipient : getSequencingSampleTrackingRecipients(Collections
+                    .singleton(sequencingSample)))
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
@@ -122,9 +125,10 @@ class EntityTrackingEmailDataManager
      * <var>sequencingSample</var>.<br>
      */
     // NOTE: Set is needed because one recipient can occur in many roles for one sample
-    private static Set<String> getSequencingSampleTrackingRecipients(Sample sequencingSample)
+    private static Set<String> getSequencingSampleTrackingRecipients(
+            Collection<Sample> sequencingSamples)
     {
-        assert sequencingSample != null;
+        assert sequencingSamples != null;
 
         final Set<String> recipients = new HashSet<String>();
 
@@ -133,22 +137,26 @@ class EntityTrackingEmailDataManager
         recipientPropertyTypeCodes.add(CONTACT_PERSON_EMAIL);
         recipientPropertyTypeCodes.add(PRINCIPAL_INVESTIGATOR_EMAIL);
 
-        for (IEntityProperty property : sequencingSample.getProperties())
+        for (Sample sequencingSample : sequencingSamples)
         {
-            final String propertyCode = property.getPropertyType().getCode();
-            final String propertyValue = property.tryGetAsString();
-            if (recipientPropertyTypeCodes.contains(propertyCode))
+            for (IEntityProperty property : sequencingSample.getProperties())
             {
-                recipients.add(propertyValue);
-            } else
-            {
-                // add recipient for affiliation if his email was specified in properties
-                if (propertyCode.equals(AFFILIATION))
+                final String propertyCode = property.getPropertyType().getCode();
+                final String propertyValue = property.tryGetAsString();
+                if (recipientPropertyTypeCodes.contains(propertyCode))
                 {
-                    String affiliationRecipientOrNull = recipientsByAffiliation.get(propertyValue);
-                    if (affiliationRecipientOrNull != null)
+                    recipients.add(propertyValue);
+                } else
+                {
+                    // add recipient for affiliation if his email was specified in properties
+                    if (propertyCode.equals(AFFILIATION))
                     {
-                        recipients.add(affiliationRecipientOrNull);
+                        String affiliationRecipientOrNull =
+                                recipientsByAffiliation.get(propertyValue);
+                        if (affiliationRecipientOrNull != null)
+                        {
+                            recipients.add(affiliationRecipientOrNull);
+                        }
                     }
                 }
             }
@@ -166,7 +174,7 @@ class EntityTrackingEmailDataManager
         // Recipients are taken from properties of sequencing sample
         // that is a parent of the flow lane sample.
         assert flowLaneSample != null;
-        return getSequencingSampleTrackingRecipients(flowLaneSample.getGeneratedFrom());
+        return getSequencingSampleTrackingRecipients(flowLaneSample.getParents());
     }
 
     /**
