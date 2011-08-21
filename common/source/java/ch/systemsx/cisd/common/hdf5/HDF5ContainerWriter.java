@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.io.IOUtils;
-
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
@@ -44,6 +42,8 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
 
     final static int BUFFER_SIZE = 10 * MB;
 
+    private final byte[] buffer = new byte[BUFFER_SIZE];
+
     private final IHDF5Writer writer;
 
     private final HDF5GenericStorageFeatures genericStorageFeatures;
@@ -58,6 +58,18 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
         {
             this.genericStorageFeatures = HDF5GenericStorageFeatures.GENERIC_CHUNKED;
         }
+    }
+
+    private long copy(InputStream input, OutputStream output) throws IOException
+    {
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer)))
+        {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
     }
 
     public void writeToHDF5Container(String objectPath, InputStream istream, long size)
@@ -79,7 +91,7 @@ class HDF5ContainerWriter implements IHDF5ContainerWriter
         IOException e = null;
         try
         {
-            IOUtils.copyLarge(istream, ostream);
+            copy(istream, ostream);
         } catch (IOException ex)
         {
             e = ex;
