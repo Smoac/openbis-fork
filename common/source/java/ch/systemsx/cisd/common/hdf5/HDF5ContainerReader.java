@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
@@ -36,6 +34,8 @@ import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
  */
 final class HDF5ContainerReader implements IHDF5ContainerReader
 {
+    private final byte[] buffer = new byte[HDF5ContainerWriter.BUFFER_SIZE];
+
     private final IHDF5Reader innerReader;
 
     HDF5ContainerReader(final File hdf5Container)
@@ -63,13 +63,25 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
         return innerReader.getGroupMembers(groupPath);
     }
 
+    private long copy(InputStream input, OutputStream output) throws IOException
+    {
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer)))
+        {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
+    }
+
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
     {
         final InputStream istream = HDF5IOAdapterFactory.asInputStream(innerReader, objectPath);
         Exception e = null;
         try
         {
-            IOUtils.copyLarge(istream, ostream);
+            copy(istream, ostream);
         } catch (IOException ex)
         {
             e = ex;
