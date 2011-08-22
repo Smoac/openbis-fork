@@ -68,6 +68,14 @@ public class ImageReaderFactory
     }
 
     /**
+     * Returns the list of image reader libraries configured.
+     */
+    public static List<IImageReaderLibrary> getLibraries()
+    {
+        return libraries;
+    }
+
+    /**
      * Returns an {@link IImageReader} for specified library name and reader name. Can return
      * <code>null</code> if no matching reader is found.
      */
@@ -138,11 +146,4 @@ public class ImageReaderFactory
         libraries = newLibraries;
     }
     
-    /**
-     * used only for testing purposes.
-     */
-    static List<IImageReaderLibrary> getLibraries()
-    {
-        return libraries;
-    }
 }
