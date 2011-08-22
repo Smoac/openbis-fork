@@ -233,6 +233,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException
     {
+        return getKnownDataSets(sessionToken, dataSets, false);
+    }
+
+    public List<String> getKnownDataSets(String sessionToken,
+            List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
+            throws InvalidAuthenticationException
+    {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         List<String> knownLocations = new ArrayList<String>();
@@ -245,8 +252,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             try
             {
                 if (manager.isKnown(datasetCode)
-                        && new File(new File(storeRoot, manager.getShareId(datasetCode)), location)
-                                .exists())
+                        && (ignoreNonExistingLocation || new File(new File(storeRoot,
+                                manager.getShareId(datasetCode)), location).exists()))
                 {
                     knownLocations.add(location);
                 }

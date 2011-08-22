@@ -546,15 +546,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /**
      * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String,
-     *      DeletionType)
+     *      DeletionType, boolean)
      */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, AsyncCallback<Void> asyncCallback);
+            DeletionType deletionType, boolean force, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType) */
+    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType, boolean) */
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            AsyncCallback<Void> asyncCallback);
+            boolean force, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(List, String, DeletionType) */
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType,
@@ -995,7 +995,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deletePermanently(List<TechId> deletionIds, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#emptyTrash()
+     * @see ICommonClientService#emptyTrash(boolean)
      */
-    public void emptyTrash(AsyncCallback<Void> callback);
+    public void emptyTrash(boolean force, AsyncCallback<Void> callback);
 }

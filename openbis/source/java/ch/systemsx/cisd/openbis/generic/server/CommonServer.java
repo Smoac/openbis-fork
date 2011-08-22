@@ -1096,7 +1096,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType deletionType, boolean isTrashEnabled)
+            DeletionType deletionType, boolean force, boolean isTrashEnabled)
     {
         // TODO 2011-08-09, Piotr Buczek: simplify it when we remove the switch turning off trash
         // provide data set ids directly (no need to use codes)
@@ -1111,10 +1111,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     IDeletedDataSetTable deletedDataSetTable =
                             businessObjectFactory.createDeletedDataSetTable(session);
                     deletedDataSetTable.loadByDataSetCodes(dataSetCodes);
-                    deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason);
+                    deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason, force);
                 } else
                 {
-                    permanentlyDeleteDataSets(session, dataSetCodes, reason);
+                    permanentlyDeleteDataSets(session, dataSetCodes, reason, force);
                 }
                 break;
             case TRASH:
@@ -1130,7 +1130,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Deprecated
     /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
-    private void permanentlyDeleteDataSets(Session session, List<String> dataSetCodes, String reason)
+    private void permanentlyDeleteDataSets(Session session, List<String> dataSetCodes,
+            String reason, boolean force)
     {
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
@@ -1153,7 +1154,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DataSetTypePE dataSetType = entry.getKey();
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason);
+            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason, force);
         }
     }
 
@@ -2430,7 +2431,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    public final void deletePermanently(final String sessionToken, final List<TechId> deletionIds)
+    public final void deletePermanently(final String sessionToken, final List<TechId> deletionIds,
+            boolean force)
     {
         checkSession(sessionToken);
 
@@ -2444,7 +2446,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             List<TechId> singletonList = Collections.singletonList(deletionId);
             List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
-            deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType, true);
+            deleteDataSets(sessionToken, trashedDataSets, deletionReason, deletionType, force, true);
 
             // we need to first delete components and then containers not to break constraints
             List<TechId> trashedComponentSamples =

@@ -244,7 +244,7 @@ public final class DataSetTableTest extends AbstractBOTest
                         { d1, d2 }, false, false);
 
                     one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
-                            with(createDatasetDescriptionsMatcher(d2)));
+                            with(createDatasetDescriptionsMatcher(d2)), with(false));
                     will(returnValue(Arrays.asList()));
                 }
             });
@@ -253,7 +253,7 @@ public final class DataSetTableTest extends AbstractBOTest
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
         try
         {
-            dataSetTable.deleteLoadedDataSets("");
+            dataSetTable.deleteLoadedDataSets("", false);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -286,14 +286,14 @@ public final class DataSetTableTest extends AbstractBOTest
                 .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            dataSetTable.deleteLoadedDataSets("");
+            dataSetTable.deleteLoadedDataSets("", false);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             Pattern pattern =
                     Pattern.compile("Deletion failed because the following data sets are "
                             + "required by a background process \\(their status is pending\\): "
-                            +"\\[(.*)\\]. ");
+                            + "\\[(.*)\\]. ");
             Matcher matcher = pattern.matcher(e.getMessage());
 
             assertTrue("Invalid error message:" + e.getMessage(), matcher.matches());
@@ -320,7 +320,7 @@ public final class DataSetTableTest extends AbstractBOTest
                     BaseMatcher<List<DatasetDescription>> dataSets =
                             createDatasetDescriptionsMatcher(d2);
                     one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
-                            with(dataSets));
+                            with(dataSets), with(false));
                     will(returnValue(Arrays.asList(d2.getLocation())));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
@@ -336,7 +336,7 @@ public final class DataSetTableTest extends AbstractBOTest
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
-        dataSetTable.deleteLoadedDataSets(reason);
+        dataSetTable.deleteLoadedDataSets(reason, false);
     }
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)
@@ -363,7 +363,7 @@ public final class DataSetTableTest extends AbstractBOTest
                         { d1PE, d2PE }, true, false);
 
                     one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
-                            with(createDatasetDescriptionsMatcher(d2PE)));
+                            with(createDatasetDescriptionsMatcher(d2PE)), with(false));
                     will(returnValue(Arrays.asList(d2PE.getLocation())));
 
                     one(dataStoreService2).uploadDataSetsToCIFEX(

@@ -575,10 +575,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType deletionType, boolean isTrashEnabled)
+            DeletionType deletionType, boolean force, boolean isTrashEnabled)
     {
-        logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s)",
-                deletionType, abbreviate(dataSetCodes), reason);
+        logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s) FORCE(%s)",
+                deletionType, abbreviate(dataSetCodes), reason, force);
     }
 
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
@@ -1114,7 +1114,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             List<PropertyUpdates> modifiedProperties)
 
     {
-        logTracking(sessionToken, "updateMaterialProperty", "ID(%s) MODIFIED_PROPERTIES(%s)",
+        logTracking(sessionToken, "updateMaterialProperty", "ID(%s), MODIFIED_PROPERTIES(%s)",
                 entityId, abbreviate(modifiedProperties));
     }
 
@@ -1137,9 +1137,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "revertDeletions", "ID(%s)", abbreviate(deletionIds));
     }
 
-    public void deletePermanently(String sessionToken, List<TechId> deletionIds)
+    public void deletePermanently(String sessionToken, List<TechId> deletionIds, boolean force)
     {
-        logTracking(sessionToken, "deletePermanently", "ID(%s)", abbreviate(deletionIds));
+        logTracking(sessionToken, "deletePermanently", "ID(%s), FORCE(%s)",
+                abbreviate(deletionIds), force);
     }
 
 }

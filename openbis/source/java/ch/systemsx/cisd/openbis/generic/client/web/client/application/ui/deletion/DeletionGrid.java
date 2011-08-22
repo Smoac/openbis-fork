@@ -102,11 +102,15 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    new EmptyTrashConfirmationDialog(viewContext,
+                                    new EmptyTrashConfirmationDialog(viewContext, false,
                                             createRefreshCallback(asActionInvoker())).show();
                                 }
                             });
         addButton(emptyTrashButton);
+
+        EmptyTrashButtonMenu emptyTrashButtonMenu =
+                new EmptyTrashButtonMenu(viewContext, createRefreshCallback(asActionInvoker()));
+        addButton(emptyTrashButtonMenu);
 
         Button deletePermanentlyButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE_PERMANENTLY),

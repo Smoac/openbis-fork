@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.Collections;
 
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -39,6 +40,8 @@ public final class DataSetListDeletionConfirmationDialog extends
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
     private final ExternalData singleData;
+
+    protected CheckBox force;
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, AsyncCallback<Void> callback,
@@ -74,11 +77,12 @@ public final class DataSetListDeletionConfirmationDialog extends
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             getViewContext().getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
-                    deletionType, deletionCallback);
+                    deletionType, isTrashEnabled() ? false : force.getValue(), deletionCallback);
         } else
         {
             getViewContext().getCommonService().deleteDataSet(singleData.getCode(),
-                    reason.getValue(), deletionType, deletionCallback);
+                    reason.getValue(), deletionType, isTrashEnabled() ? false : force.getValue(),
+                    deletionCallback);
         }
     }
 
@@ -98,5 +102,19 @@ public final class DataSetListDeletionConfirmationDialog extends
                                 data.size())), WidgetUtils.createRadio(context.getMessage(
                         Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
                 context.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
+    }
+
+    @Override
+    protected void extendForm()
+    {
+        super.extendForm();
+
+        if (false == isTrashEnabled())
+        {
+            force = new CheckBox();
+            force.setBoxLabel("");
+            force.setFieldLabel(messageProvider.getMessage(Dict.DELETING_FORCE));
+            formPanel.add(force);
+        }
     }
 }

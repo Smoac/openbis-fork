@@ -94,7 +94,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         deletedDataSets.addAll(dataDAO.tryToFindDeletedDataSetsByCodes(dataSetCodes));
     }
 
-    public void permanentlyDeleteLoadedDataSets(String reason)
+    public void permanentlyDeleteLoadedDataSets(String reason, boolean force)
     {
         assertDatasetsAreDeletable(deletedDataSets);
 
@@ -102,7 +102,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         Map<DataStorePE, List<DeletedExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
-        assertDataSetsAreKnown(availableDatasets);
+        assertDataSetsAreKnown(availableDatasets, force);
         for (Map.Entry<DataStorePE, List<DeletedDataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
@@ -159,7 +159,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return result;
     }
 
-    private void assertDataSetsAreKnown(Map<DataStorePE, List<DeletedExternalDataPE>> map)
+    private void assertDataSetsAreKnown(Map<DataStorePE, List<DeletedExternalDataPE>> map,
+            boolean ignoreNonExistingLocation)
     {
         List<String> unknownDataSets = new ArrayList<String>();
         for (Map.Entry<DataStorePE, List<DeletedExternalDataPE>> entry : map.entrySet())
@@ -167,7 +168,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             DataStorePE dataStore = entry.getKey();
             List<DeletedExternalDataPE> externalDataSets = entry.getValue();
             Set<String> knownLocations =
-                    getKnownDataSets(dataStore, extractDatasetLocations(externalDataSets));
+                    getKnownDataSets(dataStore, extractDatasetLocations(externalDataSets),
+                            ignoreNonExistingLocation);
             for (DeletedExternalDataPE dataSet : externalDataSets)
             {
                 if (knownLocations.contains(dataSet.getLocation()) == false)
@@ -231,7 +233,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         return dssFactory.create(remoteURL);
     }
 
-    private Set<String> getKnownDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets)
+    private Set<String> getKnownDataSets(DataStorePE dataStore, List<IDatasetLocation> dataSets,
+            boolean ignoreNonExistingLocation)
     {
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
@@ -246,7 +249,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         }
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
-        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSets));
+        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSets,
+                ignoreNonExistingLocation));
     }
 
     private List<IDatasetLocation> extractDatasetLocations(List<DeletedExternalDataPE> datasets)

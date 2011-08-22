@@ -50,7 +50,8 @@ public interface IDataStoreService
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
 
     /**
-     * Returns from the specified data sets those known by the Data Store Server.
+     * Returns from the specified data sets those known by the Data Store Server. Data set not
+     * available on the filesystem is classified as not known.
      * 
      * @param sessionToken Valid token to identify authorised access.
      * @return locations (as strings) of known data sets
@@ -58,6 +59,18 @@ public interface IDataStoreService
      */
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException;
+
+    /**
+     * Returns from the specified data sets those known by the Data Store Server.
+     * 
+     * @param sessionToken Valid token to identify authorised access.
+     * @param ignoreNonExistingLocation specifies if non-existing locations should be ignored.
+     * @return locations (as strings) of known data sets
+     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
+     */
+    public List<String> getKnownDataSets(String sessionToken,
+            List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
+            throws InvalidAuthenticationException;
 
     /**
      * Deletes the specified data sets.

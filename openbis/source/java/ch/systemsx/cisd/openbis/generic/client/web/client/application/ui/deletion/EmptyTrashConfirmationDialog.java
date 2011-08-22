@@ -39,12 +39,15 @@ public final class EmptyTrashConfirmationDialog extends
 
     private final AsyncCallback<Void> callback;
 
+    private final boolean force;
+
     public EmptyTrashConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            AsyncCallback<Void> callback)
+            boolean force, AsyncCallback<Void> callback)
     {
         super(viewContext, Collections.<Deletion> emptyList(), viewContext
                 .getMessage(Dict.EMPTY_TRASH_CONFIRMATION_TITLE));
         this.viewContext = viewContext;
+        this.force = force;
         this.callback = callback;
     }
 
@@ -52,6 +55,7 @@ public final class EmptyTrashConfirmationDialog extends
     protected void executeConfirmedAction()
     {
         viewContext.getCommonService().emptyTrash(
+                force,
                 AsyncCallbackWithProgressBar.decorate(callback,
                         viewContext.getMessage(Dict.EMPTY_TRASH_PROGRESS)));
     }

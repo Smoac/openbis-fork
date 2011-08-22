@@ -46,11 +46,12 @@ public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveSer
     {
     }
 
-    public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason)
+    public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason,
+            boolean force)
     {
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         dataSetTable.setDataSets(dataSets);
-        dataSetTable.deleteLoadedDataSets(reason);
+        dataSetTable.deleteLoadedDataSets(reason, force);
     }
 
     public void updateDataSets(Session session, List<NewDataSet> newDataSets)

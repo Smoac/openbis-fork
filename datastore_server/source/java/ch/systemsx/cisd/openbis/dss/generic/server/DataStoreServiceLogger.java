@@ -93,6 +93,15 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         return null;
     }
 
+    public List<String> getKnownDataSets(String sessionToken,
+            List<? extends IDatasetLocation> dataSetLocations, boolean ignoreNonExistingLocation)
+            throws InvalidAuthenticationException
+    {
+        log("getKnownDataSets", "DATA_SETS(%s) IGNORE_NON_EXISTING_LOCATION(%s)", dataSetLocations,
+                ignoreNonExistingLocation);
+        return null;
+    }
+
     public void deleteDataSets(String sessionToken, List<? extends IDatasetLocation> dataSets)
             throws InvalidAuthenticationException
     {

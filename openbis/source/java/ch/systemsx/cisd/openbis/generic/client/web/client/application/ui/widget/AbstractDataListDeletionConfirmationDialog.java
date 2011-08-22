@@ -87,6 +87,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         {
             formPanel.add(createRadio());
         }
+
         formPanel.add(reason);
     }
 
@@ -131,7 +132,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         return viewContext.getMessage(dictKey, getEntityName());
     }
 
-    private final boolean isTrashEnabled()
+    protected final boolean isTrashEnabled()
     {
         return viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
                 .getEnableTrash();

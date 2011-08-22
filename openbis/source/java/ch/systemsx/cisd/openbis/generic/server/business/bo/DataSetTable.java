@@ -234,7 +234,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         dataSets.addAll(getDataDAO().listDataSets(experiment));
     }
 
-    public void deleteLoadedDataSets(String reason)
+    public void deleteLoadedDataSets(String reason, boolean force)
     {
         assertDatasetsAreDeletable(dataSets);
 
@@ -242,7 +242,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
-        assertDataSetsAreKnown(availableDatasets);
+        assertDataSetsAreKnown(availableDatasets, force);
         for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
@@ -327,7 +327,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     {
         assertDatasetsAreAvailable(dataSets);
         Map<DataStorePE, List<DataPE>> map = groupDataByDataStores();
-        assertDataSetsAreKnown(map);
+        assertDataSetsAreKnown(map, false);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
@@ -375,7 +375,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return builder.toString();
     }
 
-    private <D extends DataPE> void assertDataSetsAreKnown(Map<DataStorePE, List<D>> map)
+    private <D extends DataPE> void assertDataSetsAreKnown(Map<DataStorePE, List<D>> map,
+            boolean ignoreNonExistingLocation)
     {
         // Set<String> knownLocations = new LinkedHashSet<String>();
         List<String> unknownDataSets = new ArrayList<String>();
@@ -384,7 +385,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             DataStorePE dataStore = entry.getKey();
             List<ExternalDataPE> externalDatas = filterRealDataSets(entry.getValue());
             Set<String> knownLocations =
-                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas));
+                    getKnownDataSets(dataStore, createDatasetDescriptions(externalDatas),
+                            ignoreNonExistingLocation);
             for (ExternalDataPE dataSet : externalDatas)
             {
                 if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
@@ -510,7 +512,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     private Set<String> getKnownDataSets(DataStorePE dataStore,
-            List<DatasetDescription> dataSetDescriptions)
+            List<DatasetDescription> dataSetDescriptions, boolean ignoreNonExistingLocation)
     {
         String remoteURL = dataStore.getRemoteUrl();
         if (StringUtils.isBlank(remoteURL))
@@ -525,7 +527,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         IDataStoreService service = dssFactory.create(remoteURL);
         String sessionToken = dataStore.getSessionToken();
-        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions));
+        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions,
+                ignoreNonExistingLocation));
     }
 
     public void processDatasets(String datastoreServiceKey, String datastoreCode,

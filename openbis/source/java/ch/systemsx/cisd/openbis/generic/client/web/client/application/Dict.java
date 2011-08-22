@@ -503,6 +503,8 @@ public abstract class Dict
 
     public static final String DELETING_PERMANENTLY = "deleting_permanently";
 
+    public static final String DELETING_FORCE = "deleting_force";
+
     public static final String DELETING = "deleting";
 
     public static final String DELETE_PERMANENTLY_PROGRESS_MESSAGE =
@@ -521,6 +523,12 @@ public abstract class Dict
     public static final String BUTTON_REVERT_DELETION = "button_revert_deletion";
 
     public static final String BUTTON_EMPTY_TRASH = "button_empty_trash";
+
+    public static final String BUTTON_FORCE_EMPTY_TRASH = "button_force_empty_trash";
+
+    public static final String TOOLTIP_EMPTY_TRASH = "tooltip_empty_trash";
+
+    public static final String TOOLTIP_FORCE_EMPTY_TRASH = "tooltip_force_empty_trash";
 
     public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
 

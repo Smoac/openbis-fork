@@ -1300,23 +1300,24 @@ public final class CommonClientService extends AbstractClientService implements
         return commonServer.uploadDataSets(sessionToken, dataSetCodes, uploadContext);
     }
 
-    public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
+            boolean force)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = Collections.singletonList(singleData);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType, force,
                 isTrashEnabled());
     }
 
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType)
+            DeletionType deletionType, boolean force)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         List<String> dataSetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
+        commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType, force,
                 isTrashEnabled());
     }
 
@@ -2233,15 +2234,15 @@ public final class CommonClientService extends AbstractClientService implements
     public void deletePermanently(List<TechId> deletionIds)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        commonServer.deletePermanently(getSessionToken(), deletionIds);
+        commonServer.deletePermanently(getSessionToken(), deletionIds, false);
     }
 
-    public void emptyTrash()
+    public void emptyTrash(boolean force)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         String sessionToken = getSessionToken();
         List<Deletion> deletions = commonServer.listDeletions(sessionToken);
-        commonServer.deletePermanently(sessionToken, TechId.createList(deletions));
+        commonServer.deletePermanently(sessionToken, TechId.createList(deletions), force);
     }
 
 }

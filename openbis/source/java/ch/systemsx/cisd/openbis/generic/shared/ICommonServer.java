@@ -761,7 +761,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
-            String reason, DeletionType type, boolean isTrashEnabled);
+            String reason, DeletionType type, boolean force, boolean isTrashEnabled);
 
     /**
      * Deletes/Trashes specified samples.
@@ -1466,5 +1466,6 @@ public interface ICommonServer extends IServer
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void deletePermanently(
             final String sessionToken,
-            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds);
+            @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class) final List<TechId> deletionIds,
+            boolean force);
 }

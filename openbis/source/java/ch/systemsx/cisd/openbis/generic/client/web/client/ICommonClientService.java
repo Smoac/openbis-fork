@@ -649,11 +649,11 @@ public interface ICommonClientService extends IClientService
     /** Deletes/Trashes the specified data sets. */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType) throws UserFailureException;
+            DeletionType deletionType, boolean force) throws UserFailureException;
 
     /** Deletes/Trashes the specified data set. */
-    public void deleteDataSet(String singleData, String reason, DeletionType deletionType)
-            throws UserFailureException;
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
+            boolean force) throws UserFailureException;
 
     /**
      * Deletes/Trashes the specified samples. NOTE: this is a stale version used only for samples
@@ -1102,6 +1102,6 @@ public interface ICommonClientService extends IClientService
     /**
      * Permanently deletes all entities moved to trash.
      */
-    public void emptyTrash() throws UserFailureException;
+    public void emptyTrash(boolean force) throws UserFailureException;
 
 }
