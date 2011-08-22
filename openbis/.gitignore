@@ -1,0 +1,7 @@
+/tomcat
+/targets
+/test-output
+/temp-testng-customsuite.xml
+/.gwt-tmp*
+/db
+/.dynamic_property_evaluator_queue

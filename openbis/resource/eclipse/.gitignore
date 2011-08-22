@@ -1,0 +1,12 @@
+/openBIS module compile.launch
+/openBIS module compile and run.launch
+/openBIS modules-test-no-run.launch
+/openBIS modules-test-run.launch
+/openBIS run.launch
+/screening check dependencies.launch
+/openBIS clean.launch
+/openBIS compile-GWT.launch
+/openBIS GWT Preparation.launch
+/openBIS prepare-GWT (clean + compile java).launch
+/screening run.launch
+/screening run DSS.launch
