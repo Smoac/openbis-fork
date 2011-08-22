@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 
 /**
  * Class for evaluating scripts that control managed properties.
@@ -64,6 +65,8 @@ public class ManagedPropertyEvaluator
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
 
     private static final String PROPERTY_VARIABLE_NAME = "property";
+
+    private static final String PROPERTY_PE_VARIABLE_NAME = "propertyPE";
 
     /**
      * Asserts that for all specified batch column names bindings are specified. If the list of
@@ -153,7 +156,7 @@ public class ManagedPropertyEvaluator
         columnNames = Collections.unmodifiableList(names);
     }
 
-    public void configureUI(IManagedProperty managedProperty)
+    public void configureUI(IManagedProperty managedProperty, EntityPropertyPE entityPropertyPE)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -162,6 +165,7 @@ public class ManagedPropertyEvaluator
         }
 
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+        evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityPropertyPE);
         evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
     }
 

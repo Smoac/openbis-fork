@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 
 /**
@@ -86,7 +87,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_TEST_PY);
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty);
+        evaluator.configureUI(managedProperty, new SamplePropertyPE());
         assertEquals(true, managedProperty.isOwnTab());
         IManagedOutputWidgetDescription outputWidgetDescripion =
                 managedProperty.getUiDescription().getOutputWidgetDescription();
@@ -143,7 +144,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_INPUT_TEST_PY);
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty);
+        evaluator.configureUI(managedProperty, new SamplePropertyPE());
         assertEquals(false, managedProperty.isOwnTab());
 
         List<IManagedUiAction> actions = managedProperty.getUiDescription().getActions();

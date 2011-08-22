@@ -86,7 +86,7 @@ final class PropertyTranslatorUtils
             ManagedPropertyEvaluator evaluator =
                     ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script
                             .getScript());
-            evaluator.configureUI(result);
+            evaluator.configureUI(result, property);
         } catch (EvaluatorException ex)
         {
             result.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + ex.getMessage());

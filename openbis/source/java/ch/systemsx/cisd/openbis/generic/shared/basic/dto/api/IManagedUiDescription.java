@@ -35,6 +35,11 @@ public interface IManagedUiDescription extends ISerializable
     void useTableOutput(ITableModel tableModel);
 
     /**
+     * Sets the output to be shown as a multi-line text view.
+     */
+    void useMultilineTextOutput(String text);
+
+    /**
      * Adds a table action with given name to actions that can be performed in the user interface
      * for modification of the managed property.
      */

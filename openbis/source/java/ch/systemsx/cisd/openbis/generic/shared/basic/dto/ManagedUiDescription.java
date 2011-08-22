@@ -83,4 +83,12 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         }
         setOutputWidgetDescription(tableWidget);
     }
+
+    public void useMultilineTextOutput(String text)
+    {
+        ManagedMultilineTextWidgetDescription textWidget =
+                new ManagedMultilineTextWidgetDescription();
+        textWidget.setText(text);
+        setOutputWidgetDescription(textWidget);
+    }
 }

@@ -24,5 +24,5 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 // NOTE: This enumeration is part of the Managed Properties API.
 public enum ManagedOutputWidgetType implements ISerializable
 {
-    TABLE, LABEL;
+    TABLE, MULTILINE_TEXT;
 }
