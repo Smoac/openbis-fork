@@ -20,8 +20,12 @@
 	<property name="dist.common.lib" value="${dist.common}/lib" />
 
 
-	<target name="ci" depends="build-common.ci, check-dependencies" />
+	<target name="ci" depends="ant-version, build-common.ci, check-dependencies" />
 
+	<target name="ant-version">
+		<echo message="The Ant version is: ${ant.version}"/> 
+	</target>
+	
 	<target name="jar" depends="compile-tests">
 		<mkdir dir="${dist.common.lib}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
