@@ -4,7 +4,7 @@
 # 
 # usage: create-snapshot.sh <configuration file>
 # 
-# The configuration files knows the following key-value pairs (stored as <key> = <value>):
+# The configuration file has to have the following key-value pairs (stored as <key> = <value>):
 # 
 # repository			Path to the directory which will store the snapshot.
 # servers					Path to to a directory which contains the folders 'datastore_server'
@@ -14,7 +14,6 @@
 # databases				Space separated list of database to be dumped.
 # index						Relative path to the lucene index. 
 # 								It is relative to <servers path>/openBIS-server/jetty/. 
-# 								If this optional attribute is missing no lucene index will added to the snapshot. 
 # 
 # Important Notes: 
 # - This script should be run after all servers have been stopped.
@@ -31,6 +30,10 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
+##################################################
+#
+# Gathering parameters
+#
 CONFIGURATION_FILE="$1"
 
 SERVERS_PATH=`getValue $CONFIGURATION_FILE servers`
@@ -64,30 +67,42 @@ if [ -z "$DATABASES" ]; then
     echo "At least one database has to be specified in $CONFIGURATION_FILE."
     exit 1
 fi
-INDEX=`getValue $CONFIGURATION_FILE index`
-if [ -n "$INDEX" ]; then
-    if [ ! -d "$INDEX" ]; then
-        mkdir -p "$INDEX"
-    fi
+INDEX="$OPENBIS_AS_ROOT"`getValue $CONFIGURATION_FILE index`
+if [ -z "$INDEX" ]; then
+    echo "Index not specified in $CONFIGURATION_FILE."
 fi
+mkdir -p "$INDEX"
 TIMESTAMP=`date +%Y-%m-%d_%H:%M:%S`
-SNAPSHOT_FOLDER="openbis-snapshot-$TIMESTAMP"
-SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER"
+SNAPSHOT_FOLDER_NAME="openbis-snapshot-$TIMESTAMP"
+SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
 
 ##################################################
 #
-# Starting snapshot creation
+# Creating snapshot
 #
-echo "==== creating snapshot $SNAPSHOT.tgz"
+echo "==== Creating snapshot $SNAPSHOT.tgz"
 
 mkdir "$SNAPSHOT"
-cp -p "$CONFIGURATION_FILE" "$SNAPSHOT"
+cp -p "$CONFIGURATION_FILE" "$SNAPSHOT/snapshot.config"
 ############## dump the store ##############
-tar -cf "$SNAPSHOT/store.tar" -C "$STORE" .
-if [ $? -ne 0 ]; then
-    echo "Error creating store dump. Snapshot creation aborted."
-    exit 1
-fi
+for path in "$STORE"/*; do
+    index_of_last_slash=`expr $path : '.*/'`
+    file_name=${path:$index_of_last_slash}
+    if [ `expr $file_name : '[0-9]*'` -ne 0 ]; then 
+        if [ -h "$path" ]; then
+            echo "Share $file_name is not dumped because it is a symbolic link."
+        else
+            echo "Start dumping share $file_name."
+            parent_folder=${path:0:$index_of_last_slash}
+            tar -rf "$SNAPSHOT/store.tar" -C "$parent_folder" $file_name 
+            if [ $? -ne 0 ]; then
+                echo "Error while dumping share $file_name. Snapshot creation aborted."
+                exit 1
+            fi
+            echo "Share $file_name sucessfully dumped."
+        fi
+    fi
+done
 echo "Dump of store $STORE has been successfully created."
 ############## dump databases ##############
 for db in $DATABASES; do
@@ -98,17 +113,15 @@ for db in $DATABASES; do
     fi
     echo "Database '$db' has been successfully dumped."
 done
-############## dump index (if requested) ##############
-if [ -n "$INDEX" ]; then
-    tar -cf "$SNAPSHOT/index.tar" -C "$INDEX" .
-    if [ $? -ne 0 ]; then
-        echo "Error creating index dump. Snapshot creation aborted."
-        exit 1
-    fi
-    echo "Dump of index $INDEX has been successfully created."
+############## dump index ##############
+tar -cf "$SNAPSHOT/index.tar" -C "$INDEX" .
+if [ $? -ne 0 ]; then
+    echo "Error creating index dump. Snapshot creation aborted."
+    exit 1
 fi
+echo "Dump of index $INDEX has been successfully created."
 ############## packaging ##############
-tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER" 
+tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER_NAME" 
 if [ $? -ne 0 ]; then
     echo "Error packaging snapshot $SNAPSHOT."
     exit 1
