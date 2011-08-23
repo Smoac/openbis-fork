@@ -34,7 +34,7 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private IManagedOutputWidgetDescription outputWidget;
+    private IManagedOutputWidgetDescription outputWidget = new ManagedHtmlWidgetDescription();
 
     private List<IManagedUiAction> actions = new ArrayList<IManagedUiAction>();
 
@@ -84,11 +84,8 @@ public class ManagedUiDescription implements IManagedUiDescription, ISerializabl
         setOutputWidgetDescription(tableWidget);
     }
 
-    public void useMultilineTextOutput(String text)
+    public void useHtmlOutput(String htmlText)
     {
-        ManagedMultilineTextWidgetDescription textWidget =
-                new ManagedMultilineTextWidgetDescription();
-        textWidget.setText(text);
-        setOutputWidgetDescription(textWidget);
+        setOutputWidgetDescription(new ManagedHtmlWidgetDescription(htmlText));
     }
 }

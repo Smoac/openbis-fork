@@ -18,15 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback;
@@ -41,12 +32,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IManagedPropertyGridInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedHtmlWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * {@link TabContent} handled by managed property script.
@@ -137,6 +139,67 @@ public class ManagedPropertySection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
+        if (null == managedProperty || null == managedProperty.getUiDescription()
+                || null == managedProperty.getUiDescription().getOutputWidgetDescription())
+        {
+            return null;
+        }
+        ManagedOutputWidgetType type =
+                managedProperty.getUiDescription().getOutputWidgetDescription()
+                        .getManagedOutputWidgetType();
+        if (type == ManagedOutputWidgetType.HTML)
+        {
+            return createDisposableHtmlContent();
+        } else
+        {
+            return createDisposableTableModelContent();
+        }
+    }
+
+    private IDisposableComponent createDisposableHtmlContent()
+    {
+        try
+        {
+            final Html htmlComponent = extractHtmlComponent();
+            return new IDisposableComponent()
+                {
+                    public void update(Set<DatabaseModificationKind> observedModifications)
+                    {
+                    }
+
+                    public DatabaseModificationKind[] getRelevantModifications()
+                    {
+                        return DatabaseModificationKind.EMPTY_ARRAY;
+                    }
+
+                    public Component getComponent()
+                    {
+                        return htmlComponent;
+                    }
+
+                    public void dispose()
+                    {
+
+                    }
+                };
+        } catch (UserFailureException ex)
+        {
+            final String basicMsg = ex.getMessage();
+            final String detailedMsg = ex.getDetails();
+            if (detailedMsg != null)
+            {
+                GWTUtils.createErrorMessageWithDetailsDialog(viewContext, basicMsg, detailedMsg)
+                        .show();
+            } else
+            {
+                MessageBox.alert("Error", basicMsg, null);
+            }
+            return DUMMY_CONTENT;
+        }
+    }
+
+    private IDisposableComponent createDisposableTableModelContent()
+    {
         try
         {
             final TableModel tableModel = extractTableModel();
@@ -223,7 +286,47 @@ public class ManagedPropertySection extends DisposableTabContent
             }
             return result;
         }
+    }
 
+    private Html extractHtmlComponent() throws UserFailureException
+    {
+        final IManagedUiDescription uiDescription = managedProperty.getUiDescription();
+        if (uiDescription == null)
+        {
+            throwFailToCreateContentException("UiDescription was not set in IManagedProperty object");
+            return null; // make eclipse happy
+        } else
+        {
+            final String value = StringEscapeUtils.unescapeHtml(managedProperty.getValue());
+            // if there is a script error than value will contain error message
+            if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
+                    && (value.equals(BasicConstant.MANAGED_PROPERTY_PLACEHOLDER_VALUE) == false))
+            {
+                getHeader().addTool(refreshButton);
+                final String errorMsg =
+                        value.substring(BasicConstant.ERROR_PROPERTY_PREFIX.length());
+                throwFailToCreateContentException(errorMsg);
+            }
+
+            final IManagedOutputWidgetDescription outputWidget =
+                    uiDescription.getOutputWidgetDescription();
+            if (outputWidget == null)
+            {
+                throwFailToCreateContentException("Output widget was not set in IManagedUiDescription object");
+            } else if (outputWidget.getManagedOutputWidgetType() != ManagedOutputWidgetType.HTML)
+            {
+                throwFailToCreateContentException("IManagedOutputWidgetDescription is not of type ManagedOutputWidgetType.MULTILINE_TEXT");
+            } else if ((outputWidget instanceof ManagedHtmlWidgetDescription) == false)
+            {
+                throwFailToCreateContentException("IManagedOutputWidgetDescription should be a subclass of ManagedMultilineTextWidgetDescription");
+            }
+
+            final ManagedHtmlWidgetDescription htmlDescription =
+                    (ManagedHtmlWidgetDescription) uiDescription.getOutputWidgetDescription();
+            final String htmlValue = StringEscapeUtils.unescapeHtml(htmlDescription.getHtml());
+
+            return new Html(htmlValue);
+        }
     }
 
     private void throwFailToCreateContentException(String detailedErrorMsg)

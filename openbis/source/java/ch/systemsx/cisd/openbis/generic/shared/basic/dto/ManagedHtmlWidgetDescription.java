@@ -20,37 +20,44 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidge
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 
 /**
- * {@link IManagedOutputWidgetDescription} implementation for multiline text fields.
+ * {@link IManagedOutputWidgetDescription} implementation for multi-line text fields. This class
+ * functions as a simple marker that the UI should use an HTML widget to display the result, and
+ * offers no configuration options or behavior.
  * 
- * @author Piotr Buczek
+ * @author Chandrasekhar Ramakrishnan
  */
-public class ManagedMultilineTextWidgetDescription implements IManagedOutputWidgetDescription
+public class ManagedHtmlWidgetDescription implements IManagedOutputWidgetDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String text;
+    private String html;
 
-    public ManagedMultilineTextWidgetDescription()
+    public ManagedHtmlWidgetDescription()
     {
+        setHtml("");
+    }
+
+    public ManagedHtmlWidgetDescription(String htmlText)
+    {
+        setHtml(htmlText);
+    }
+
+    public String getHtml()
+    {
+        return html;
+    }
+
+    public void setHtml(String html)
+    {
+        this.html = html;
     }
 
     //
     // IManagedWidgetDescription
     //
-
-    public String getText()
-    {
-        return text;
-    }
-
-    public void setText(String text)
-    {
-        this.text = text;
-    }
-
     public ManagedOutputWidgetType getManagedOutputWidgetType()
     {
-        return ManagedOutputWidgetType.MULTILINE_TEXT;
+        return ManagedOutputWidgetType.HTML;
     }
 
 }
