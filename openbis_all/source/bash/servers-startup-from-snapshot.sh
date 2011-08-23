@@ -1,15 +1,19 @@
 #! /bin/bash
 # 
-# Restores store, databases and lucene index of an openBIS instance from a snapshot 
-# created by create-snapshot.sh.
+# Stop servers, replace store, databases and lucene index of an openBIS instance from a snapshot 
+# created by create-snapshot.sh and startup servers again.
 # 
-# usage: restore-from-snapshot.sh <snapshot file>
+# usage: servers-startup-from-snapshot.sh <snapshot file>
 #
 # Important Notes: 
-# - This script should be run after all servers have been stopped.
 # - The store is completely erased before restoring from snapshot.
 # - Paths to store and lucene index are taken from the snapshot configuration file.
 #   Currently there is no support for overriding them by command line options.
+#
+# Dependencies:
+# - servers-shutdown.sh
+# - servers-startup.sh
+#
 
 function getValue {
     file=$1
@@ -23,7 +27,7 @@ function cleanUpAndExit {
 }
 
 if [ $# -ne 1 ]; then
-    echo "Usage: restore-from-snapshot.sh <snapshot file>"
+    echo "Usage: servers-startup-from-snapshot.sh <snapshot file>"
     exit 1
 fi
 
@@ -55,6 +59,16 @@ fi
 STORE=`getValue $SNAPSHOT_CONFIG_FILE store`
 DATABASES=`getValue $SNAPSHOT_CONFIG_FILE databases`
 INDEX="$OPENBIS_AS_ROOT"`getValue $SNAPSHOT_CONFIG_FILE index`
+
+##################################################
+#
+# Shutting down servers
+#
+`dirname "$0"`/servers-shutdown.sh "$SERVERS_PATH"
+if [ $? -ne 0 ]; then
+    echo "Error: Couldn't shut down servers. Restoring aborted."
+    cleanUpAndExit
+fi
 
 ##################################################
 #
@@ -93,4 +107,11 @@ if [ -n "$INDEX" ]; then
 fi
 rm -rf $TMPDIR
 echo "==== Successfully restored from $SNAPSHOT_FILE"
+
+##################################################
+#
+# Starting up servers
+#
+`dirname "$0"`/servers-startup.sh "$SERVERS_PATH"
+
 
