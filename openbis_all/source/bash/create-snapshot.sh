@@ -18,6 +18,8 @@
 # Important Notes: 
 # - This script should be run after all servers have been stopped.
 # - Can not be used for segmented stores because the script doesn't follow symbolic links. 
+# - The configuration file of the argument is stored in the snapshot. It is used in
+#   restore-from-snapshot.sh.
 # 
 function getValue {
     file=$1

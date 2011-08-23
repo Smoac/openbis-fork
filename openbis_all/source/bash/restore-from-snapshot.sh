@@ -1,10 +1,16 @@
 #! /bin/bash
 # 
-# Restores store, databases and optionally lucene index of an openBIS instance from a snapshot 
+# Restores store, databases and lucene index of an openBIS instance from a snapshot 
 # created by create-snapshot.sh.
 # 
 # usage: restore-from-snapshot.sh <snapshot file>
 #
+# Important Notes: 
+# - This script should be run after all servers have been stopped.
+# - The store is completely erased before restoring from snapshot.
+# - Paths to store and lucene index are taken from the snapshot configuration file.
+#   Currently there is no support for overriding them by command line options.
+
 function getValue {
     file=$1
     key=$2
