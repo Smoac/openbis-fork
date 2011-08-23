@@ -1,0 +1,6 @@
+/etc
+/tomcat
+/targets
+/test-output
+/.updater
+/.dynamic_property_evaluator_queue
