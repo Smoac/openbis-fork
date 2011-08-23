@@ -71,5 +71,6 @@
 	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/pngj/pngj.jar" sourcepath="/libraries/pngj/pngj_src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

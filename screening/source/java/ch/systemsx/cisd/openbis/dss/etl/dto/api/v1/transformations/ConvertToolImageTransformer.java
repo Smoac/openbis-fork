@@ -30,8 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.imageio.ImageIO;
-
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -49,6 +47,7 @@ import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * An {@link IStreamingImageTransformer} using the convert command line tool for transformations.
@@ -95,7 +94,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
     {
         try
         {
-            byte[] input = toByteArray(image);
+            byte[] input = ImageUtil.imageToPngFast(image);
             byte[] output = transform(input);
             return toBufferedImage(output);
         } catch (IOException ioex)
@@ -220,13 +219,6 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
         // use standard output to produce result
         result.add("png:-");
         return result;
-    }
-
-    private byte[] toByteArray(BufferedImage image) throws IOException
-    {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ImageIO.write(image, PNG, bos);
-        return bos.toByteArray();
     }
 
 }

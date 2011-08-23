@@ -21,14 +21,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
@@ -868,20 +864,8 @@ public class ImageChannelsUtils
 
     private static IContent createPngContent(BufferedImage image, String nameOrNull)
     {
-        ByteArrayOutputStream output = writeBufferImageAsPng(image);
-        return new ByteArrayBasedContent(output.toByteArray(), nameOrNull);
+        final byte[] output = ImageUtil.imageToPngFast(image);
+        return new ByteArrayBasedContent(output, nameOrNull);
     }
 
-    private static ByteArrayOutputStream writeBufferImageAsPng(BufferedImage image)
-    {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try
-        {
-            ImageIO.write(image, "png", output);
-        } catch (IOException ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
-        }
-        return output;
-    }
 }

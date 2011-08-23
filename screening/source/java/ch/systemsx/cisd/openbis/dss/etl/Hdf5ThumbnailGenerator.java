@@ -26,8 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
@@ -197,7 +195,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
                         thumbnailsStorageFormat.getMaxHeight(), false,
                         thumbnailsStorageFormat.isHighQuality());
-        ImageIO.write(thumbnail, "png", bufferOutputStream);
+        ImageUtil.writeImageToPng(thumbnail, bufferOutputStream);
         return bufferOutputStream.toByteArray();
     }
 
