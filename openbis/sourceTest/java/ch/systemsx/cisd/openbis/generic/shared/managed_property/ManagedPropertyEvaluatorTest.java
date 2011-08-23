@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedHtmlWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -51,6 +52,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     private static final String UPDATE_FROM_UI_TEST_PY = "updateFromUI-test.py";
 
     private static final String CONFIGURE_UI_OUTPUT_TEST_PY = "configureUIOutput-test.py";
+
+    private static final String CONFIGURE_UI_OUTPUT_HTML_TEST_PY = "configureUIOutputHtml-test.py";
 
     private static final String CONFIGURE_UI_INPUT_TEST_PY = "configureUIInput-test.py";
 
@@ -132,6 +135,37 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             fail("expected instance of " + ManagedTableWidgetDescription.class.getSimpleName()
                     + ", got " + outputWidgetDescripion.getClass().getSimpleName());
         }
+    }
+
+    @Test
+    public void testConfigureUIOutputHtml()
+    {
+        IManagedProperty managedProperty = new ManagedProperty();
+        managedProperty.setOwnTab(false);
+
+        String script =
+                CommonTestUtils
+                        .getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_HTML_TEST_PY);
+        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+
+        evaluator.configureUI(managedProperty, new SamplePropertyPE());
+        assertEquals(true, managedProperty.isOwnTab());
+        IManagedOutputWidgetDescription outputWidgetDescripion =
+                managedProperty.getUiDescription().getOutputWidgetDescription();
+        assertNotNull(outputWidgetDescripion);
+        assertEquals(ManagedOutputWidgetType.HTML,
+                outputWidgetDescripion.getManagedOutputWidgetType());
+        if (false == outputWidgetDescripion instanceof ManagedHtmlWidgetDescription)
+        {
+            fail("expected instance of " + ManagedHtmlWidgetDescription.class.getSimpleName()
+                    + ", got " + outputWidgetDescripion.getClass().getSimpleName());
+        }
+        ManagedHtmlWidgetDescription htmlDescription =
+                (ManagedHtmlWidgetDescription) outputWidgetDescripion;
+        String html = htmlDescription.getHtml();
+        assertNotNull(html);
+
+        assertEquals("<p>Hello</p>", html);
     }
 
     @Test
