@@ -13,8 +13,7 @@
 CI_HOST=cisd-ci.ethz.ch:8090
 
 if [ $# -lt 1 ]; then
-    echo "Usage: fetch-ci-artifacts.sh [-d <output folder>] \
-                 [-p <regular expression for filtering artifact names>] <project>"
+    echo "Usage: fetch-ci-artifacts.sh [-d <output folder>] [-p <regular expression for filtering artifact names>] <project>"
     exit 1
 fi
 
