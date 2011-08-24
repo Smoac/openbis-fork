@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-from Quartz import *
-from Cocoa import *
-from LaunchServices import * # for kUTTypePNG
+import canvas
 import math
 import os
 import shutil
@@ -11,51 +9,22 @@ size = 512
 well = "A1"
 tileNum = 6
 
-def createContext():
-  cs = CGColorSpaceCreateDeviceRGB ()
-  pixelsWide = size
-  pixelsHigh = size
-  bits_per_component = 8
-  number_of_components = 4 # r,g,b,a
-  # Convert bits per component to bytes per pixel, rounding up to the next int if necessary
-  bytes_per_pixel = (bits_per_component * number_of_components + 7)/8
-  bitmapBytesPerRow   = (pixelsWide * bytes_per_pixel);
-  bitmapByteCount     = (bitmapBytesPerRow * pixelsHigh);  
-  # Create an RGB bitmap, let CoreGraphics deal with allocating and managing memory
-  ctx = CGBitmapContextCreate(None, pixelsWide, pixelsHigh, bits_per_component, bitmapBytesPerRow, cs, kCGImageAlphaPremultipliedLast)
-  return ctx
-  
-def write_to_png_file(ctx, filename):
-  image = CGBitmapContextCreateImage(ctx)
-  fileUrl = NSURL.fileURLWithPath_(filename)
-  dest = CGImageDestinationCreateWithURL(fileUrl, kUTTypePNG, 1, None);
-  CGImageDestinationAddImage(dest, image, None);
-  CGImageDestinationFinalize(dest);
+def create_canvas():
+  return canvas.PlateWellCanvas(size, size)
 
-def drawRect(ctx, r, g, b, start, isUnfilled = 0):
-  with CGSavedGState(ctx):
-    CGContextSetRGBStrokeColor(ctx, r, g, b, 1)
-    if isUnfilled:
-      CGContextSetRGBFillColor(ctx, 0, 0, 0, 0) # transparent
-    else:
-      CGContextSetRGBFillColor(ctx, r, g, b, 1)
-    CGContextSetLineWidth(ctx, 40)
-    CGContextAddRect(ctx, CGRectMake(start, start, size - 2 * start, size - 2 * start))
-    CGContextDrawPath(ctx, kCGPathFillStroke)
+def write_to_png_file(canvas, filename):
+  canvas.write_png_file(filename)
+
+def drawRect(canvas, r, g, b, start, isUnfilled = 0):
+  canvas.draw_inset_rect(r, g, b, start, isUnfilled)
   
-def drawText(ctx, x, y, text):
-  with CGSavedGState(ctx):
-    CGContextSetRGBStrokeColor(ctx, 0, 0, 0, 1) # black
-    CGContextSetRGBFillColor(ctx, 1, 1, 1, 1) # white
-    CGContextSetTextMatrix(ctx, CGAffineTransformIdentity)
-    CGContextSelectFont(ctx, "Helvetica Neue", 70, kCGEncodingMacRoman)
-    CGContextSetTextDrawingMode(ctx, kCGTextFillStroke)
-    CGContextShowTextAtPoint(ctx, x, y, text, len(text))
+def drawText(canvas, x, y, text):
+  canvas.draw_text(x, y, text)
 
 def drawMatrix(coordsList, dir, channel, isOverlay):
   nonemptyTiles = set([ calcTile(coords) for coords in coordsList ])
   for tile in range(1, 10):
-    c = createContext()
+    c = create_canvas()
     if tile in nonemptyTiles:
       if not isOverlay:
         drawRect(c, 0, 0, 0, 0)
@@ -96,7 +65,7 @@ def overlayTests(sampleCode):
 
   
 def save(dir, filename, text, r, g, b, merged = 0):
-  c = createContext()
+  c = create_canvas()
   drawRect(c, 0, 0, 0, 0) # fill with black
   
   zero = 0
