@@ -382,15 +382,18 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 
     public void check() throws IllegalStateException
     {
-        try
+        synchronized (queueFile)
         {
-            if (randomAccessFile.getFD().valid() == false)
+            try
             {
-                throw new IllegalStateException("Cannot persist: file is closed.");
+                if (randomAccessFile.getFD().valid() == false)
+                {
+                    throw new IllegalStateException("Cannot persist: file is closed.");
+                }
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -410,12 +413,15 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 
     public void sync()
     {
-        try
+        synchronized (queueFile)
         {
-            randomAccessFile.getFD().sync();
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            try
+            {
+                randomAccessFile.getFD().sync();
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
     }
 
