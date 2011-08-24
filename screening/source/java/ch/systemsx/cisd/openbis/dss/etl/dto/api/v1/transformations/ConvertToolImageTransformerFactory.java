@@ -30,14 +30,35 @@ public class ConvertToolImageTransformerFactory implements IStreamingImageTransf
 
     private final String convertCliArguments;
 
+    private final ToolChoice choice;
+
+    /**
+     * An enum to choose which of the two tools, ImageMagick or GraphicsMagick, to prefer or to
+     * enforce.
+     */
+    public enum ToolChoice
+    {
+        ENFORCE_IMAGEMAGICK, ENFORCE_GRAPHICSMAGICK, PREFER_IMAGEMAGICK, PREFER_GRAPHICSMAGICK
+    }
+
+    /**
+     * Constructs the factory with {@link ToolChoice#PREFER_IMAGEMAGICK}. 
+     */
     public ConvertToolImageTransformerFactory(String convertCliArguments)
     {
+        this(convertCliArguments, ToolChoice.ENFORCE_IMAGEMAGICK);
+    }
+
+    public ConvertToolImageTransformerFactory(String convertCliArguments,
+            ToolChoice choice)
+    {
         this.convertCliArguments = convertCliArguments;
+        this.choice = choice;
     }
 
     public ConvertToolImageTransformer createTransformer()
     {
-        return new ConvertToolImageTransformer(convertCliArguments);
+        return new ConvertToolImageTransformer(convertCliArguments, choice);
     }
 
 }

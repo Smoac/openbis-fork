@@ -47,6 +47,7 @@ import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory.ToolChoice;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
@@ -62,16 +63,19 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
 
     private static final String PNG = "png";
 
-    private static final File convertUtilityOrNull;
+    private static final File imageMagickConvertUtilityOrNull;
+
+    private static final File graphicsMagickUtilityOrNull;
 
     static
     {
-        convertUtilityOrNull = OSUtilities.findExecutable("convert");
-        if (convertUtilityOrNull == null)
+        imageMagickConvertUtilityOrNull = OSUtilities.findExecutable("convert");
+        graphicsMagickUtilityOrNull = OSUtilities.findExecutable("gm");
+        if (imageMagickConvertUtilityOrNull == null && graphicsMagickUtilityOrNull == null)
         {
             throw new ConfigurationFailureException(
-                    "The 'convert' command line tool cannot be found on the system path. "
-                            + "Requested image transformations cannot be completed.");
+                    "Neither ImageMagick 'convert' nor GraphisMagick 'gm' can be found"
+                            + " on the system path. Requested image transformation is not available.");
         }
     }
 
@@ -85,9 +89,40 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
 
     private final List<String> convertCliArguments;
 
-    ConvertToolImageTransformer(String arguments)
+    private final boolean useGraphicsMagic;
+
+    ConvertToolImageTransformer(String arguments, ToolChoice choice)
     {
         this.convertCliArguments = parseCommandArguments(arguments);
+        switch (choice)
+        {
+            case ENFORCE_IMAGEMAGICK:
+                if (imageMagickConvertUtilityOrNull == null)
+                {
+                    throw new ConfigurationFailureException(
+                            "The ImageMagick 'convert' tool cannot be found on the system path."
+                                    + " Requested image transformation is not available.");
+                }
+                useGraphicsMagic = false;
+                break;
+            case ENFORCE_GRAPHICSMAGICK:
+                if (graphicsMagickUtilityOrNull == null)
+                {
+                    throw new ConfigurationFailureException(
+                            "The GraphicsMagic 'gm' tool cannot be found on the system path."
+                                    + " Requested image transformation is not available.");
+                }
+                useGraphicsMagic = true;
+                break;
+            case PREFER_IMAGEMAGICK:
+                useGraphicsMagic = (imageMagickConvertUtilityOrNull == null);
+                break;
+            case PREFER_GRAPHICSMAGICK:
+                useGraphicsMagic = (graphicsMagickUtilityOrNull != null);
+                break;
+            default:
+                throw new Error("Unknown ToolChoice " + choice + ".");
+        }
     }
 
     public BufferedImage transform(BufferedImage image)
@@ -212,7 +247,14 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
     private List<String> getCommandLine()
     {
         ArrayList<String> result = new ArrayList<String>();
-        result.add(convertUtilityOrNull.getPath());
+        if (useGraphicsMagic)
+        {
+            result.add(graphicsMagickUtilityOrNull.getPath());
+            result.add("convert");
+        } else
+        {
+            result.add(imageMagickConvertUtilityOrNull.getPath());
+        }
         result.addAll(convertCliArguments);
         // use standard input to read image
         result.add("-");
