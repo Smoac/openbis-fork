@@ -9,12 +9,6 @@ size = 512
 well = "A1"
 tileNum = 6
 
-def create_canvas():
-  return canvas.PlateWellCanvas(size, size)
-
-def write_to_png_file(canvas, filename):
-  canvas.write_png_file(filename)
-
 def drawRect(canvas, r, g, b, start, isUnfilled = 0):
   canvas.draw_inset_rect(r, g, b, start, isUnfilled)
   
@@ -24,17 +18,17 @@ def drawText(canvas, x, y, text):
 def drawMatrix(coordsList, dir, channel, isOverlay):
   nonemptyTiles = set([ calcTile(coords) for coords in coordsList ])
   for tile in range(1, 10):
-    c = create_canvas()
+    imageCanvas = canvas.PlateWellCanvas(size, size)
     if tile in nonemptyTiles:
       if not isOverlay:
-        drawRect(c, 0, 0, 0, 0)
-        drawRect(c, 0.5, 0.5, 0.5, 70, isUnfilled = 0)
+        drawRect(imageCanvas, 0, 0, 0, 0)
+        drawRect(imageCanvas, 0.5, 0.5, 0.5, 70, isUnfilled = 0)
       elif isOverlay == 1:
-        drawRect(c, 1, 1, 1, 30, isUnfilled = 1)
+        drawRect(imageCanvas, 1, 1, 1, 30, isUnfilled = 1)
       else:
-        drawText(c, size/2, size/2, "X")
+        drawText(imageCanvas, size/2, size/2, "X")
     destFile = dir + "/c"+channel + "_s" + str(tile) +".png"
-    write_to_png_file(c, destFile)
+    imageCanvas.write_png_file(destFile)
 
 def calcTile(coords):
   x,y = coords
@@ -65,24 +59,24 @@ def overlayTests(sampleCode):
 
   
 def save(dir, filename, text, r, g, b, merged = 0):
-  c = create_canvas()
-  drawRect(c, 0, 0, 0, 0) # fill with black
+  imageCanvas = canvas.PlateWellCanvas(size, size)
+  drawRect(imageCanvas, 0, 0, 0, 0) # fill with black
   
   zero = 0
   if merged:
     zero = 1
   if r:
-    drawRect(c, 1, zero, zero, 20) # red
+    drawRect(imageCanvas, 1, zero, zero, 20) # red
   if g:
-    drawRect(c, zero, 1, zero, 70) # green
+    drawRect(imageCanvas, zero, 1, zero, 70) # green
   if b:
-    drawRect(c, zero, zero, 1, 120) # blue
+    drawRect(imageCanvas, zero, zero, 1, 120) # blue
 
   # text annotation
-  drawText(c, 5, size / 2, text)
+  drawText(imageCanvas, 5, size / 2, text)
     
   # Write the bitmap to disk in PNG format
-  write_to_png_file(c, dir + "/" + filename)
+  imageCanvas.write_png_file(dir + "/" + filename)
 
 def recreateDir(dir):
   if os.path.exists(dir):
