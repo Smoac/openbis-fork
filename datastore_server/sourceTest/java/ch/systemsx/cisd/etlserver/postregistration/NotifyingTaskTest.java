@@ -34,25 +34,27 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class NotifyingTaskTest extends AbstractFileSystemTestCase
 {
-    private static final String DATA_SET_CODE = "ds-1";
+    private static final String DATA_SET_CODE_1 = "ds-1";
+
+    private static final String DATA_SET_CODE_2 = "ds-2";
+
+    private static final String DATA_SET_CODE_3 = "ds-3";
 
     private Mockery context;
 
     private IEncapsulatedOpenBISService service;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
     }
-    
+
     @AfterMethod(alwaysRun = true)
     public void afterMethod()
     {
@@ -66,8 +68,8 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         FileInputStream inStream =
-                new FileInputStream(new File("sourceTest/java/" + getClass().getName().replace('.', '/')
-                        + "-Example.properties"));
+                new FileInputStream(new File("sourceTest/java/"
+                        + getClass().getName().replace('.', '/') + "-Example.properties"));
         try
         {
             properties.load(inStream);
@@ -75,24 +77,58 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
         {
             IOUtils.closeQuietly(inStream);
         }
-        final DataSetBuilder dataSet = new DataSetBuilder().code(DATA_SET_CODE);
-        dataSet.property("IBRAIN-DATA-SET-ID", "ibrain-2");
+        final DataSetBuilder dataSet1 = createDataset(DATA_SET_CODE_1, "ooo_XYZ_ooo", "ibrain-2");
+        final DataSetBuilder dataSet2 = createDataset(DATA_SET_CODE_2, "ABC", "ibrain-3");
+        final DataSetBuilder filteredDataSet = createDataset(DATA_SET_CODE_3, "ibrain-4", null);
+
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetDataSet(DATA_SET_CODE);
-                    will(returnValue(dataSet.getDataSet()));
+                    one(service).tryGetDataSet(DATA_SET_CODE_1);
+                    will(returnValue(dataSet1.getDataSet()));
+
+                    one(service).tryGetDataSet(DATA_SET_CODE_2);
+                    will(returnValue(dataSet2.getDataSet()));
+
+                    one(service).tryGetDataSet(DATA_SET_CODE_3);
+                    will(returnValue(filteredDataSet.getDataSet()));
                 }
             });
         NotifyingTask notifyingTask = new NotifyingTask(properties, service);
-        IPostRegistrationTaskExecutor executor = notifyingTask.createExecutor(DATA_SET_CODE, false);
+
+        IPostRegistrationTaskExecutor executor = execute(notifyingTask, DATA_SET_CODE_1);
         ICleanupTask cleanupTask = executor.createCleanupTask();
-        executor.execute();
-        
+
         assertEquals(NoCleanupTask.class, cleanupTask.getClass());
         assertEquals("storage_provider.storage.status = STORAGE_SUCCESSFUL\n"
                 + "storage_provider.dataset.id = ds-1\n" + "ibrain2.dataset.id = ibrain-2",
                 FileUtilities.loadExactToString(new File("targets/ibrain-ibrain-2.txt")));
+
+        execute(notifyingTask, DATA_SET_CODE_2);
+        assertTrue("no confirnation file for " + DATA_SET_CODE_2, new File(
+                "targets/ibrain-ibrain-3.txt").isFile());
+
+        execute(notifyingTask, DATA_SET_CODE_3);
+        assertFalse("confirnation file for " + DATA_SET_CODE_3 + " should not be created!",
+                new File("targets/ibrain-ibrain-4.txt").exists());
+
         context.assertIsSatisfied();
+    }
+
+    private IPostRegistrationTaskExecutor execute(NotifyingTask notifyingTask, String datasetCode)
+    {
+        IPostRegistrationTaskExecutor executor = notifyingTask.createExecutor(datasetCode, false);
+        executor.execute();
+        return executor;
+    }
+
+    private DataSetBuilder createDataset(String code, String type, String propertyOrNull)
+    {
+        final DataSetBuilder dataSet = new DataSetBuilder().code(code).type(type);
+        if (propertyOrNull != null)
+        {
+            dataSet.property("IBRAIN-DATA-SET-ID", propertyOrNull);
+        }
+        return dataSet;
     }
 }

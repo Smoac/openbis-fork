@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
  */
 public class NotifyingTask extends AbstractPostRegistrationTask
 {
+    private static final String INCLUDE_DATASET_TYPES_PATTERN = "include-dataset-type-patterns";
+
     private static final String MESSAGE_TEMPLATE_KEY = "message-template";
 
     private static final String DESTINATION_PATH_TEMPLATE_KEY = "destination-path-template";
@@ -50,6 +53,8 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
     private final Template destinationPathTemplate;
 
+    private final String[] includeDatasetTypePatternsOrNull;
+
     public NotifyingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(properties, service);
@@ -58,6 +63,26 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         destinationPathTemplate =
                 new Template(PropertyUtils.getMandatoryProperty(properties,
                         DESTINATION_PATH_TEMPLATE_KEY));
+        String includePattern =
+                PropertyUtils.getProperty(properties, INCLUDE_DATASET_TYPES_PATTERN);
+        includeDatasetTypePatternsOrNull = parseTokens(includePattern);
+    }
+
+    private static String[] parseTokens(String tokensString)
+    {
+        if (StringUtils.isBlank(tokensString))
+        {
+            return null;
+        } else
+        {
+            String[] tokens;
+            tokens = tokensString.split(",");
+            for (int i = 0; i < tokens.length; i++)
+            {
+                tokens[i] = tokens[i].trim();
+            }
+            return tokens;
+        }
     }
 
     public boolean requiresDataStoreLock()
@@ -73,7 +98,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return new Executor(dataSet, messageTemplate.createFreshCopy(),
-                destinationPathTemplate.createFreshCopy());
+                destinationPathTemplate.createFreshCopy(), includeDatasetTypePatternsOrNull);
     }
 
     private static final class Executor implements IPostRegistrationTaskExecutor
@@ -84,12 +109,15 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
         private final Template destinationPathTemplate;
 
+        private final String[] includeDatasetTypePatternsOrNull;
+
         public Executor(ExternalData dataSet, Template messageTemplate,
-                Template destinationPathTemplate)
+                Template destinationPathTemplate, String[] includeDatasetTypePatternsOrNull)
         {
             this.dataSet = dataSet;
             this.messageTemplate = messageTemplate;
             this.destinationPathTemplate = destinationPathTemplate;
+            this.includeDatasetTypePatternsOrNull = includeDatasetTypePatternsOrNull;
         }
 
         public ICleanupTask createCleanupTask()
@@ -99,8 +127,29 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
         public void execute()
         {
-            String messageText = fillTemplate(messageTemplate);
-            FileUtilities.writeToFile(new File(fillTemplate(destinationPathTemplate)), messageText);
+            if (typeMatches())
+            {
+                String messageText = fillTemplate(messageTemplate);
+                FileUtilities.writeToFile(new File(fillTemplate(destinationPathTemplate)),
+                        messageText);
+            }
+        }
+
+        private boolean typeMatches()
+        {
+            if (includeDatasetTypePatternsOrNull == null)
+            {
+                return true;
+            }
+            String datasetTypeCode = dataSet.getEntityType().getCode();
+            for (String datasetTypePattern : includeDatasetTypePatternsOrNull)
+            {
+                if (datasetTypeCode.matches(datasetTypePattern))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private String fillTemplate(Template template)
