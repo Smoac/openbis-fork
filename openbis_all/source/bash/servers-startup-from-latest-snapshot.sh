@@ -3,7 +3,7 @@
 # Stop servers, replace store, databases and lucene index of an openBIS instance from latest snapshot 
 # created by create-snapshot.sh and startup servers again.
 # 
-# usage: servers-startup-from-latest-snapshot.sh <snapshot repository>
+# usage: servers-startup-from-latest-snapshot.sh <servers> <snapshot repository>
 #
 # Important Notes: 
 # - This script should be run after all servers have been stopped.
@@ -12,15 +12,20 @@
 #   Currently there is no support for overriding them by command line options.
 #
 # Dependencies:
-# - restore-from-snapshot.sh
+# - servers-startup-from-snapshot.sh
 #
-if [ $# -ne 1 ]; then
-    echo "Usage: servers-startup-from-latest-snapshot.sh <snapshot repository>"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: servers-startup-from-latest-snapshot.sh <servers> <snapshot repository>"
     exit 1
 fi
-SNAPSHOT_REPOSITORY=$1
+
+BIN_DIR=`dirname "$0"`
+SERVERS="$1"
+SNAPSHOT_REPOSITORY="$2"
+
 if [ ! -d "$SNAPSHOT_REPOSITORY" ]; then
     echo "$SNAPSHOT_REPOSITORY doesn't exist or isn't a directory."
     exit 1
 fi
-`dirname "$0"`/servers-startup-from-snapshot.sh "$SNAPSHOT_REPOSITORY"/`ls "$SNAPSHOT_REPOSITORY"|sort -r|sed q`
+"$BIN_DIR/servers-startup-from-snapshot.sh" "$SERVERS" "$SNAPSHOT_REPOSITORY"/`ls "$SNAPSHOT_REPOSITORY"|sort -r|sed q`

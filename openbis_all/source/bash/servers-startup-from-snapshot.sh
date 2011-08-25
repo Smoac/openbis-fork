@@ -3,7 +3,10 @@
 # Stop servers, replace store, databases and lucene index of an openBIS instance from a snapshot 
 # created by create-snapshot.sh and startup servers again.
 # 
-# usage: servers-startup-from-snapshot.sh <snapshot file>
+# usage: servers-startup-from-snapshot.sh <servers> <snapshot file>
+#
+# where <servers> is the path to the directory containing the server folders 'openBIS-server' 
+# and 'datastore_server'.
 #
 # Important Notes: 
 # - The store is completely erased before restoring from snapshot.
@@ -26,8 +29,8 @@ function cleanUpAndExit {
     exit 1
 }
 
-if [ $# -ne 1 ]; then
-    echo "Usage: servers-startup-from-snapshot.sh <snapshot file>"
+if [ $# -ne 2 ]; then
+    echo "Usage: servers-startup-from-snapshot.sh <servers> <snapshot file>"
     exit 1
 fi
 
@@ -35,7 +38,8 @@ fi
 #
 # Gathering parameters
 #
-SNAPSHOT_FILE=$1
+SERVERS_PATH=$1
+SNAPSHOT_FILE=$2
 
 USER=$(whoami)
 TMPDIR=`mktemp -d /tmp/snapshot-XXXXX`
@@ -49,7 +53,6 @@ fi
 for f in $TMPDIR/*; do SNAPSHOT_FILES="$f"; done
 SNAPSHOT_CONFIG_FILE=$SNAPSHOT_FILES/snapshot.config
 
-SERVERS_PATH=`getValue $SNAPSHOT_CONFIG_FILE servers`
 OPENBIS_AS_ROOT="$SERVERS_PATH/openBIS-server/jetty/"
 if [ ! -d "$OPENBIS_AS_ROOT" ]; then
     echo "Error: $OPENBIS_AS_ROOT isn't a directory."
@@ -97,14 +100,13 @@ for db in $DATABASES; do
     echo "Database '$db' has been successfully restored."
 done
 ############## restore store ##############
-if [ -n "$INDEX" ]; then
-    tar -xf $SNAPSHOT_FILES/index.tar -C "$INDEX"
-    if [ $? -ne 0 ]; then
-        echo "Error: Couldn't restore index."
-        cleanUpAndExit
-    fi
-    echo "Index has been successfully restored."
+mkdir -p "$INDEX"
+tar -xf $SNAPSHOT_FILES/index.tar -C "$INDEX"
+if [ $? -ne 0 ]; then
+    echo "Error: Couldn't restore index."
+    cleanUpAndExit
 fi
+echo "Index has been successfully restored."
 rm -rf $TMPDIR
 echo "==== Successfully restored from $SNAPSHOT_FILE"
 

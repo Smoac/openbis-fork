@@ -23,6 +23,7 @@ if [ ! -d "$AS" ]; then
     echo "$AS doesn't exist or isn't a directory."
     exit 1
 fi
+LOG_FILE="$AS/logs/openbis_log.txt"
 DSS="$SERVERS_FOLDER/datastore_server"
 if [ ! -d "$DSS" ]; then
     echo "$DSS doesn't exist or isn't a directory."
@@ -31,13 +32,16 @@ fi
 
 "$DSS/datastore_server.sh" stop
 "$AS/bin/shutdown.sh"
+if [ ! -f "$LOG_FILE" ]; then
+    exit
+fi
 STARTING_MESSAGE="STARTING SERVER"
 STOPPED_MESSAGE="SERVER STOPPED"
 for i in {1..120}; do 
     echo -n "."
     sleep 2
     
-    started=`egrep -R "($STARTING_MESSAGE|$STOPPED_MESSAGE)" "$AS/logs/openbis_log.txt" | tail -1 | grep "$STOPPED_MESSAGE"`
+    started=`egrep -R "($STARTING_MESSAGE|$STOPPED_MESSAGE)" "$LOG_FILE" | tail -1 | grep "$STOPPED_MESSAGE"`
     if [ -n "$started" ]; then
         echo "Done."
         exit 0;
