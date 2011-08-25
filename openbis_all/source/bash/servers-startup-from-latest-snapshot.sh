@@ -29,4 +29,4 @@ if [ ! -d "$SNAPSHOT_REPOSITORY" ]; then
     exit 1
 fi
 LATEST_SNAPSHOT=`ls "$SNAPSHOT_REPOSITORY/openbis-snapshot"*|sort -r|sed q`
-"$BIN_DIR/servers-startup-from-snapshot.sh" "$SERVERS" "$SNAPSHOT_REPOSITORY/$LATEST_SNAPSHOT"
+"$BIN_DIR/servers-startup-from-snapshot.sh" "$SERVERS" "$LATEST_SNAPSHOT"
