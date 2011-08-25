@@ -7,7 +7,7 @@
 # 
 # 
 if [ $# -ne 4 ]; then
-    echo "Usage: install-servers.sh <servers>"
+    echo "Usage: install-servers.sh <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>"
     exit 1
 fi
 
@@ -43,5 +43,5 @@ rm -f datastore_server*.zip
 "$OPENBIS_AS/install.sh" "$OPENBIS_AS"
 
 YOUNGEST_REPOSITORY=`ls "$REPOSITORY"|sort -r|sed q`
-cp -pfr "$REPOSITORY/$YOUNGEST_REPOSITORY/"* "$SERVERS"
+"$BIN_DIR/restore-config-snapshot.sh" "$SERVERS" "$REPOSITORY/$YOUNGEST_REPOSITORY/"
 
