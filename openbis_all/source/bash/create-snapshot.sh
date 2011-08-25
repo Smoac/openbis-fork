@@ -2,24 +2,23 @@
 # 
 # Creates a snapshot of an openBIS instance based on a configuration file.
 # 
-# usage: create-snapshot.sh <configuration file>
+# usage: create-snapshot.sh <servers> <snapshot repository> <configuration file>
 # 
-# The configuration file has to have the following key-value pairs (stored as <key> = <value>):
-# 
-# repository			Path to the directory which will store the snapshot.
-# servers					Path to to a directory which contains the folders 'datastore_server'
-# 								and 'openBIS-server'. 
-# store						Path to the directory which contains the data set store. Everything there
-# 								will be added to the snapshot.
-# databases				Space separated list of database to be dumped.
-# index						Relative path to the lucene index. 
-# 								It is relative to <servers path>/openBIS-server/jetty/. 
+# where 
+# <servers> is the path to the directory containing the server folders 'openBIS-server' 
+#    and 'datastore_server',
+# <snapshot repository> is the path to the directory which will store the snapshot,
+# <configuration file> is a file with the following key-value pairs (stored as <key> = <value>):
+#    store        Absolute path to the directory which contains the data set store. Everything there
+#                 will be added to the snapshot.
+#    databases    Space separated list of databases to be dumped.
+#    index        Relative path to the lucene index. 
+#                 It is relative to <servers>/openBIS-server/jetty/. 
 # 
 # Important Notes: 
-# - This script should be run after all servers have been stopped.
-# - Can not be used for segmented stores because the script doesn't follow symbolic links. 
-# - The configuration file of the argument is stored in the snapshot. It is used in
-#   restore-from-snapshot.sh.
+# - In order to get a consistent snapshot this script should be run after all servers have been stopped.
+# - Store dump doesn't contain archived data sets and data sets in a share which is a symbolic link. 
+# - The configuration file of the argument is stored in the snapshot. It is used for restoring.
 # 
 function getValue {
     file=$1
@@ -27,8 +26,8 @@ function getValue {
     awk -F ' *= *' -v key=$2 '{map[$1] = $2} END {print map[key]}' $file
 }
 
-if [ $# -ne 1 ]; then
-    echo "Usage: create-snapshot.sh <configuration file>"
+if [ $# -ne 3 ]; then
+    echo "Usage: create-snapshot.sh <servers> <snapshot repository> <configuration file>"
     exit 1
 fi
 
@@ -36,25 +35,16 @@ fi
 #
 # Gathering parameters
 #
-CONFIGURATION_FILE="$1"
+SERVERS_PATH="$1"
+REPOSITORY="$2"
+CONFIGURATION_FILE="$3"
 
-SERVERS_PATH=`getValue $CONFIGURATION_FILE servers`
-if [ -z "$SERVERS_PATH" ]; then
-    echo "Path to servers not specified in $CONFIGURATION_FILE."
-    exit 1
-fi
 OPENBIS_AS_ROOT="$SERVERS_PATH/openBIS-server/jetty/"
 if [ ! -d "$OPENBIS_AS_ROOT" ]; then
     echo "Error: $OPENBIS_AS_ROOT isn't a directory."
     echo "Most probable reason: $SERVERS_PATH doesn't point to a valid openBIS instance."
     exit 1
 fi
-REPOSITORY=`getValue $CONFIGURATION_FILE repository`
-if [ -z "$REPOSITORY" ]; then
-    echo "Repository not specified in $CONFIGURATION_FILE."
-    exit 1
-fi
-mkdir -p "$REPOSITORY"
 STORE=`getValue $CONFIGURATION_FILE store`
 if [ -z "$STORE" ]; then
     echo "Store not specified in $CONFIGURATION_FILE."
@@ -69,11 +59,15 @@ if [ -z "$DATABASES" ]; then
     echo "At least one database has to be specified in $CONFIGURATION_FILE."
     exit 1
 fi
-INDEX="$OPENBIS_AS_ROOT"`getValue $CONFIGURATION_FILE index`
+INDEX=`getValue $CONFIGURATION_FILE index`
 if [ -z "$INDEX" ]; then
     echo "Index not specified in $CONFIGURATION_FILE."
 fi
-mkdir -p "$INDEX"
+INDEX="$OPENBIS_AS_ROOT"$INDEX
+if [ ! -d "$INDEX" ]; then
+    echo "Index folder $INDEX doesn't exist."
+    exit 1
+fi
 TIMESTAMP=`date +%Y-%m-%d_%H:%M:%S`
 SNAPSHOT_FOLDER_NAME="openbis-snapshot-$TIMESTAMP"
 SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
@@ -84,7 +78,8 @@ SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
 #
 echo "==== Creating snapshot $SNAPSHOT.tgz"
 
-mkdir "$SNAPSHOT"
+mkdir -p "$INDEX"
+mkdir -p "$SNAPSHOT"
 cp -p "$CONFIGURATION_FILE" "$SNAPSHOT/snapshot.config"
 ############## dump the store ##############
 for path in "$STORE"/*; do
