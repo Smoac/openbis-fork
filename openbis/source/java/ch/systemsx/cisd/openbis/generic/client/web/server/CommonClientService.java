@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpSession;
@@ -1091,9 +1092,11 @@ public final class CommonClientService extends AbstractClientService implements
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
                 Reader reader = UnicodeUtils.createReader(multipartFile.getInputStream());
+                Map<String, String> defaults = Collections.emptyMap();
                 final List<VocabularyTerm> loadedTerms =
-                        tabFileLoader.load(new DelegatedReader(reader, multipartFile
-                                .getOriginalFilename()));
+                        tabFileLoader.load(
+                                new DelegatedReader(reader, multipartFile.getOriginalFilename()),
+                                defaults);
                 results.addAll(loadedTerms);
             }
             // set initial order equivalent with order from the file

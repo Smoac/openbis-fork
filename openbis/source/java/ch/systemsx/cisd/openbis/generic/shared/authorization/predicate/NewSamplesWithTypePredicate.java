@@ -47,7 +47,7 @@ public final class NewSamplesWithTypePredicate extends AbstractPredicate<NewSamp
             final List<RoleWithIdentifier> allowedRoles, final NewSamplesWithTypes value)
     {
         Status s = Status.OK;
-        for (NewSample sample : value.getNewSamples())
+        for (NewSample sample : value.getNewEntities())
         {
             SampleOwnerIdentifier identifier =
                     SampleIdentifierFactory.parse(sample.getIdentifier());

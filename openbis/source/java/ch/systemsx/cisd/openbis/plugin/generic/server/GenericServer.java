@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -245,8 +246,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             } else
             {
                 BatchOperationExecutor.executeInBatches(new SampleBatchRegisterOrUpdate(
-                        businessObjectFactory.createSampleLister(session), samples.getNewSamples(),
-                        samples.getSampleType(), session));
+                        businessObjectFactory.createSampleLister(session),
+                        samples.getNewEntities(), samples.getEntityType(), session));
             }
         }
     }
@@ -367,8 +368,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     private void updateSamples(final Session session,
             final NewSamplesWithTypes updatedSamplesWithType)
     {
-        final SampleType sampleType = updatedSamplesWithType.getSampleType();
-        final List<NewSample> updatedSamples = updatedSamplesWithType.getNewSamples();
+        final SampleType sampleType = updatedSamplesWithType.getEntityType();
+        final List<NewSample> updatedSamples = updatedSamplesWithType.getNewEntities();
         assert sampleType != null : "Unspecified sample type.";
         assert updatedSamples != null : "Unspecified new samples.";
 
@@ -499,23 +500,32 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
-    public void registerMaterials(String sessionToken, String materialTypeCode,
-            final List<NewMaterial> newMaterials)
+    public void registerMaterials(String sessionToken,
+            final List<NewMaterialsWithTypes> newMaterials)
     {
         assert sessionToken != null : "Unspecified session token.";
         Session session = getSession(sessionToken);
-        getMaterialHelper(session).registerMaterials(materialTypeCode, newMaterials);
-
+        for (NewMaterialsWithTypes m : newMaterials)
+        {
+            getMaterialHelper(session).registerMaterials(m.getEntityType().getCode(),
+                    m.getNewEntities());
+        }
     }
 
-    public int updateMaterials(String sessionToken, String materialTypeCode,
-            final List<NewMaterial> newMaterials, final boolean ignoreUnregisteredMaterials)
-            throws UserFailureException
+    public int updateMaterials(String sessionToken, final List<NewMaterialsWithTypes> newMaterials,
+            final boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         Session session = getSession(sessionToken);
-        return getMaterialHelper(session).updateMaterials(materialTypeCode, newMaterials,
-                ignoreUnregisteredMaterials);
+
+        int count = 0;
+        for (NewMaterialsWithTypes m : newMaterials)
+        {
+            count +=
+                    getMaterialHelper(session).updateMaterials(m.getEntityType().getCode(),
+                            m.getNewEntities(), ignoreUnregisteredMaterials);
+        }
+        return count;
     }
 
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,

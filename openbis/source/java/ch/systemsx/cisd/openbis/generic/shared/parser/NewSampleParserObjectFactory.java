@@ -71,7 +71,9 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
-            final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+            final String propertyDefault = tryGetPropertyDefault(unmatchedProperty);
+            final String propertyValue =
+                    getPropertyValue(lineTokens, propertyModel, propertyDefault);
             if (StringUtils.isEmpty(propertyValue) == false)
             {
                 final IEntityProperty property = new EntityProperty();

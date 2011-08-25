@@ -18,7 +18,9 @@ package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -51,7 +53,8 @@ class DataSetMappingInformationParser
                             });
         try
         {
-            return tabFileLoader.load(mappingFile);
+            Map<String, String> defauts = Collections.emptyMap();
+            return tabFileLoader.load(mappingFile, defauts);
         } catch (final IllegalArgumentException e)
         {
             logParsingError(log, e, mappingFile);
@@ -91,7 +94,8 @@ class DataSetMappingInformationParser
             for (final String unmatchedProperty : getUnmatchedProperties())
             {
                 final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
-                final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+                final String propertyDefault = tryGetPropertyDefault(unmatchedProperty);
+                final String propertyValue = getPropertyValue(lineTokens, propertyModel, propertyDefault);
                 if (StringUtils.isEmpty(propertyValue) == false)
                 {
                     final NewProperty property = new NewProperty();

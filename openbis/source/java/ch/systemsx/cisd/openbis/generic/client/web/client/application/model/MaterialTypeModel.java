@@ -37,8 +37,8 @@ public class MaterialTypeModel extends SimplifiedBaseModelData
     public MaterialTypeModel(final MaterialType type)
     {
         this(type.getCode(), type);
-        set(ModelDataPropertyNames.TOOLTIP, TooltipRenderer.renderAsTooltip(type.getCode(), type
-                .getDescription()));
+        set(ModelDataPropertyNames.TOOLTIP,
+                TooltipRenderer.renderAsTooltip(type.getCode(), type.getDescription()));
     }
 
     private static MaterialTypeModel createNone(String label)
@@ -54,21 +54,34 @@ public class MaterialTypeModel extends SimplifiedBaseModelData
 
     /** adds an additional option to the list with the specified label and null value */
     public final static List<MaterialTypeModel> convertWithAdditionalOption(
-            final List<MaterialType> types, String additionalOptionLabel)
+            final List<MaterialType> types, String additionalOptionLabel, boolean withTypeInFile)
     {
-        final List<MaterialTypeModel> result = convert(types);
+        final List<MaterialTypeModel> result = convert(types, withTypeInFile);
         result.add(0, createNone(additionalOptionLabel));
         return result;
     }
 
-    public final static List<MaterialTypeModel> convert(final List<MaterialType> types)
+    public final static List<MaterialTypeModel> convert(final List<MaterialType> types,
+            boolean withTypeInFile)
     {
         final List<MaterialTypeModel> result = new ArrayList<MaterialTypeModel>();
         for (final MaterialType st : types)
         {
             result.add(new MaterialTypeModel(st));
         }
+
+        if (withTypeInFile && result.size() > 0)
+        {
+            result.add(0, createTypeInFileModel());
+        }
+
         return result;
     }
 
+    private static MaterialTypeModel createTypeInFileModel()
+    {
+        final MaterialType typeInFile = new MaterialType();
+        typeInFile.setCode(MaterialType.DEFINED_IN_FILE);
+        return new MaterialTypeModel(typeInFile);
+    }
 }

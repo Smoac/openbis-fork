@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -106,21 +106,33 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 experiment.getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
     }
 
-    public void registerMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials)
+    public void registerMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials)
     {
-        logTracking(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
-                materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
+        StringBuilder sb = new StringBuilder();
+        for (NewMaterialsWithTypes s : newMaterials)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(",");
+            }
+            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
+        }
+        logTracking(sessionToken, "register_materials", sb.toString());
     }
 
-    public int updateMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials, boolean ignoreUnregisteredMaterials)
-            throws UserFailureException
+    public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
+            boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
-        logTracking(sessionToken, "update_materials",
-                "MATERIAL_TYPE(%s) IGNORE_UNREGISTERED_MATERIALS(%s) MATERIALS(%s)",
-                materialTypeCode, ignoreUnregisteredMaterials,
-                CollectionUtils.abbreviate(newMaterials, 20));
+        StringBuilder sb = new StringBuilder();
+        for (NewMaterialsWithTypes s : newMaterials)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(",");
+            }
+            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
+        }
+        logTracking(sessionToken, "update_materials", sb.toString());
         return 0;
     }
 
@@ -198,10 +210,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             {
                 sb.append(",");
             }
-            sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
+            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
         }
         logTracking(sessionToken, "register_samples", sb.toString());
-
     }
 
     public void updateSamples(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType)
@@ -214,7 +225,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             {
                 sb.append(",");
             }
-            sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
+            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
         }
         logTracking(sessionToken, "update_samples", sb.toString());
     }
@@ -236,7 +247,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             {
                 sb.append(",");
             }
-            sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
+            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
         }
         logTracking(sessionToken, "register_or_update_samples", sb.toString());
     }

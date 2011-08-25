@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -441,9 +442,11 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
         final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
         newMaterials.add(createNewMaterial("one"));
         newMaterials.add(createNewMaterial("two"));
+        NewMaterialsWithTypes nmwt = new NewMaterialsWithTypes(materialType, newMaterials);
         final String typeCode = materialTypePE.getCode();
         context.checking(new Expectations()
             {
@@ -465,7 +468,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(materialTable).getMaterials();
                 }
             });
-        createServer().registerMaterials(SESSION_TOKEN, typeCode, newMaterials);
+        createServer().registerMaterials(SESSION_TOKEN, Collections.singletonList(nmwt));
         context.assertIsSatisfied();
     }
 
@@ -474,14 +477,15 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
         final NewMaterial m1 = createNewMaterial("M1");
         final NewMaterial m2 = createNewMaterial("M2");
-        final String typeCode = materialTypePE.getCode();
-        prepareMaterialUpdate(materialTypePE, false, Arrays.asList(m1, m2), m1, m2);
+        final List<NewMaterialsWithTypes> newMaterials =
+                Collections.singletonList(new NewMaterialsWithTypes(materialType, Arrays.asList(m1,
+                        m2)));
+        prepareMaterialUpdate(materialTypePE, false, newMaterials, m1, m2);
 
-        int updateCount =
-                createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2),
-                        false);
+        int updateCount = createServer().updateMaterials(SESSION_TOKEN, newMaterials, false);
 
         assertEquals(2, updateCount);
         context.assertIsSatisfied();
@@ -492,13 +496,16 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
         final NewMaterial m1 = createNewMaterial("M1");
         final NewMaterial m2 = createNewMaterial("M1");
-        final String typeCode = materialTypePE.getCode();
 
         try
         {
-            createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2), false);
+            createServer().updateMaterials(
+                    SESSION_TOKEN,
+                    Collections.singletonList(new NewMaterialsWithTypes(materialType, Arrays
+                            .asList(m1, m2))), false);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -513,14 +520,15 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
         final NewMaterial m1 = createNewMaterial("M1");
         final NewMaterial m2 = createNewMaterial("M2");
-        final String typeCode = materialTypePE.getCode();
-        prepareMaterialUpdate(materialTypePE, false, Arrays.asList(m1, m2), m1);
+        List<NewMaterialsWithTypes> newMaterials =
+                Collections.singletonList(new NewMaterialsWithTypes(materialType, Arrays.asList(m1,
+                        m2)));
+        prepareMaterialUpdate(materialTypePE, false, newMaterials, m1);
 
-        int updateCount =
-                createServer()
-                        .updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2), true);
+        int updateCount = createServer().updateMaterials(SESSION_TOKEN, newMaterials, true);
 
         assertEquals(1, updateCount);
         context.assertIsSatisfied();
@@ -531,14 +539,17 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
         final NewMaterial m1 = createNewMaterial("M1");
         final NewMaterial m2 = createNewMaterial("M2");
-        final String typeCode = materialTypePE.getCode();
-        prepareMaterialUpdate(materialTypePE, true, Arrays.asList(m1, m2), m1);
+        List<NewMaterialsWithTypes> newMaterials =
+                Collections.singletonList(new NewMaterialsWithTypes(materialType, Arrays.asList(m1,
+                        m2)));
+        prepareMaterialUpdate(materialTypePE, true, newMaterials, m1);
 
         try
         {
-            createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2), false);
+            createServer().updateMaterials(SESSION_TOKEN, newMaterials, false);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -550,7 +561,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     }
 
     protected void prepareMaterialUpdate(final MaterialTypePE materialTypePE,
-            final boolean doNotUpdate, final List<NewMaterial> updatedMaterials,
+            final boolean doNotUpdate, final List<NewMaterialsWithTypes> updatedMaterials,
             final NewMaterial... materialsToBeRegistered)
     {
         context.checking(new Expectations()
@@ -570,22 +581,21 @@ public final class GenericServerTest extends AbstractServerTestCase
                             .createMaterialLister(with(any(Session.class)));
                     will(returnValue(materialLister));
                     one(materialLister).list(with(new BaseMatcher<ListMaterialCriteria>()
-                                {
-                                    public boolean matches(Object item)
-                                    {
-                                        assertTrue(item instanceof ListMaterialCriteria);
-                                        MaterialType materialType =
-                                                ((ListMaterialCriteria) item).tryGetMaterialType();
-                                        assertEquals(materialTypePE.getCode(),
-                                                materialType.getCode());
-                                        return true;
-                                    }
+                        {
+                            public boolean matches(Object item)
+                            {
+                                assertTrue(item instanceof ListMaterialCriteria);
+                                MaterialType materialType =
+                                        ((ListMaterialCriteria) item).tryGetMaterialType();
+                                assertEquals(materialTypePE.getCode(), materialType.getCode());
+                                return true;
+                            }
 
-                                    public void describeTo(Description description)
-                                    {
-                                        description.appendText(materialTypePE.getCode());
-                                    }
-                                }), with(false));
+                            public void describeTo(Description description)
+                            {
+                                description.appendText(materialTypePE.getCode());
+                            }
+                        }), with(false));
                     will(returnValue(existingMaterials));
 
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
@@ -603,8 +613,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                         one(materialTable).save();
                     }
 
-                    one(propertiesBatchManager).manageProperties(materialTypePE, updatedMaterials,
-                            null);
+                    one(propertiesBatchManager).manageProperties(materialTypePE,
+                            updatedMaterials.get(0).getNewEntities(), null);
 
                 }
 
@@ -641,7 +651,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonServer).updateMaterial(SESSION_TOKEN, materialId, properties, version);
+                    one(commonServer)
+                            .updateMaterial(SESSION_TOKEN, materialId, properties, version);
                     will(returnValue(newModificationDate));
                 }
             });

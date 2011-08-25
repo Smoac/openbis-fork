@@ -51,7 +51,7 @@ public final class MaterialBatchRegistrationUpdatePanel extends LayoutContainer
     private final MaterialTypeSelectionWidget materialTypeSelection;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
-    
+
     public static String getId(final boolean update)
     {
         return ID + "_" + (update == true ? "update" : "registration");
@@ -71,7 +71,7 @@ public final class MaterialBatchRegistrationUpdatePanel extends LayoutContainer
         this.viewContext = viewContext;
         setId(getId(update));
         setScrollMode(Scroll.AUTO);
-        materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, null, ID_SUFFIX);
+        materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, null, ID_SUFFIX, true);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         materialTypeSelection

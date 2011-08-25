@@ -20,7 +20,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -110,11 +112,14 @@ public final class TabFileLoaderTest
         }
     }
 
+    private static final Map<String, String> emptyDefauts = Collections.emptyMap();
+
     @Test
     public void testEmptyInput()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
-        List<ABC> list = loader.load(new StringReader(""));
+        Map<String, String> defauts = Collections.emptyMap();
+        List<ABC> list = loader.load(new StringReader(""), defauts);
 
         assertEmptyResult(list);
     }
@@ -123,14 +128,16 @@ public final class TabFileLoaderTest
     public void testEmptyInputIteratively()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
-        assertFalse(loader.iterate(new StringReader("")).hasNext());
+        Map<String, String> defauts = Collections.emptyMap();
+        assertFalse(loader.iterate(new StringReader(""), defauts).hasNext());
     }
 
     @Test
     public void testFirstLineHasHeadersWithoutHashSymbolButNoRows()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
-        List<ABC> list = loader.load(new StringReader("A\tB\tC\n"));
+        Map<String, String> defauts = Collections.emptyMap();
+        List<ABC> list = loader.load(new StringReader("A\tB\tC\n"), defauts);
 
         assertEmptyResult(list);
     }
@@ -149,7 +156,7 @@ public final class TabFileLoaderTest
         String additionalSeparators = "\t\t\t";
         String header = "A\tB\tC" + additionalSeparators;
         String values = header;
-        List<ABC> list = loader.load(new StringReader(header + "\n" + values));
+        List<ABC> list = loader.load(new StringReader(header + "\n" + values), emptyDefauts);
 
         assertEquals(list.toString(), 1, list.size());
         ABC row = list.get(0);
@@ -165,7 +172,7 @@ public final class TabFileLoaderTest
         String additionalSeparators = "\t\t\t";
         String header = "A\tB\tC" + additionalSeparators;
         String values = header + "\t";
-        loader.load(new StringReader(header + "\n" + values));
+        loader.load(new StringReader(header + "\n" + values), emptyDefauts);
     }
 
     @Test
@@ -216,7 +223,8 @@ public final class TabFileLoaderTest
         String values2 = "a2\t\"b\"\"2\"\"\"\tc2\n";
         String values3 = "a3\t'b''3'''\tc3\n";
         List<ABC> list =
-                loader.load(new StringReader(preamble + "A\tB\tC\n" + values1 + values2 + values3));
+                loader.load(new StringReader(preamble + "A\tB\tC\n" + values1 + values2 + values3),
+                        emptyDefauts);
 
         assertEquals(list.toString(), 3, list.size());
         assertEquals("a1b1c1", list.get(0).toString());

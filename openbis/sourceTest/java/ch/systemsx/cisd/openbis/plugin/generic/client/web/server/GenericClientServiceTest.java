@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -298,7 +300,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final File target = (File) invocation.getParameter(0);
                                 FileUtilities
                                         .writeToFile(target,
-                                                "identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1");
+                                                "[DEFAULT]\nprop1\tRED\n[DEFAULT]\nidentifier\tcontainer\tparent\tprop2\nMP1\tMP2\tMP3\t1");
                                 return null;
                             }
                         });
@@ -318,10 +320,10 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final NewSamplesWithTypes samples = samplesSecions.get(0);
                                 // Do not compare sampleType, as the registration code doesn't set
                                 // the database instance.
-                                assertEquals(sampleType.getCode(), samples.getSampleType()
+                                assertEquals(sampleType.getCode(), samples.getEntityType()
                                         .getCode());
-                                assertEquals(1, samples.getNewSamples().size());
-                                final NewSample sample = samples.getNewSamples().get(0);
+                                assertEquals(1, samples.getNewEntities().size());
+                                final NewSample sample = samples.getNewEntities().get(0);
                                 assertEquals("MP1", sample.getIdentifier());
                                 assertEquals("MP2", sample.getContainerIdentifier());
                                 assertEquals("MP3", sample.getParentIdentifier());
@@ -404,10 +406,10 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final NewSamplesWithTypes samples = samplesSecions.get(0);
                                 // Do not compare sampleType, as the registration code doesn't set
                                 // the database instance.
-                                assertEquals(sampleType.getCode(), samples.getSampleType()
+                                assertEquals(sampleType.getCode(), samples.getEntityType()
                                         .getCode());
-                                assertEquals(1, samples.getNewSamples().size());
-                                final NewSample sample = samples.getNewSamples().get(0);
+                                assertEquals(1, samples.getNewEntities().size());
+                                final NewSample sample = samples.getNewEntities().get(0);
                                 assertEquals("MP", sample.getIdentifier());
                                 assertEquals(2, sample.getParentsOrNull().length);
                                 assertEquals("MP_1", sample.getParentsOrNull()[0]);
@@ -481,9 +483,9 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 assertEquals(1, samplesSecions.size());
                                 final NewSamplesWithTypes samples = samplesSecions.get(0);
                                 // Do not compare sampleType, as the update code doesn't check it
-                                assertEquals(2, samples.getNewSamples().size());
+                                assertEquals(2, samples.getNewEntities().size());
 
-                                final NewSample sample1 = samples.getNewSamples().get(0);
+                                final NewSample sample1 = samples.getNewEntities().get(0);
                                 assertEquals("/G1/MP1", sample1.getIdentifier());
                                 assertEquals("/G1/MP2", sample1.getContainerIdentifier());
                                 assertEquals(null, sample1.getParentIdentifier());
@@ -492,7 +494,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final IEntityProperty prop1 = sample1.getProperties()[0];
                                 assertEquals("RED", prop1.getValue());
 
-                                final NewSample sample2 = samples.getNewSamples().get(1);
+                                final NewSample sample2 = samples.getNewEntities().get(1);
                                 assertEquals("/G2/MP1", sample2.getIdentifier());
                                 assertEquals(null, sample2.getContainerIdentifier());
                                 assertEquals("/G2/MP2", sample2.getParentIdentifier());
@@ -565,15 +567,15 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 assertEquals(1, samplesSecions.size());
                                 final NewSamplesWithTypes samples = samplesSecions.get(0);
                                 // Do not compare sampleType, as the update code doesn't check it
-                                assertEquals(2, samples.getNewSamples().size());
+                                assertEquals(2, samples.getNewEntities().size());
 
-                                final NewSample sample1 = samples.getNewSamples().get(0);
+                                final NewSample sample1 = samples.getNewEntities().get(0);
                                 assertEquals("/G1/MP_1", sample1.getIdentifier());
                                 assertEquals(2, sample1.getParentsOrNull().length);
                                 assertEquals("/G1/MP_11", sample1.getParentsOrNull()[0]);
                                 assertEquals("/G1/MP_12", sample1.getParentsOrNull()[1]);
 
-                                final NewSample sample2 = samples.getNewSamples().get(1);
+                                final NewSample sample2 = samples.getNewEntities().get(1);
                                 assertEquals("/G2/MP_2", sample2.getIdentifier());
                                 assertEquals(1, sample2.getParentsOrNull().length);
                                 assertEquals("/G2/MP_21", sample2.getParentsOrNull()[0]);
@@ -645,11 +647,16 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     protected void prepareMaterialsUpdate(final String sessionKey,
             final boolean ignoreUnregisteredMaterials, final int updateCount) throws IOException
     {
         final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
         final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final MaterialType materialType = MaterialTypeTranslator.translateSimple(materialTypePE);
+        final List<NewMaterialsWithTypes> newMaterials =
+                Collections.singletonList(new NewMaterialsWithTypes(materialType, Arrays
+                        .asList(new NewMaterial("M1"))));
         context.checking(new Expectations()
             {
                 {
@@ -674,8 +681,9 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                     one(httpSession).removeAttribute(sessionKey);
 
-                    one(genericServer).updateMaterials(SESSION_TOKEN, materialTypePE.getCode(),
-                            Arrays.asList(new NewMaterial("M1")), ignoreUnregisteredMaterials);
+                    one(genericServer).updateMaterials(with(equal(SESSION_TOKEN)),
+                            with(any(newMaterials.getClass())),
+                            with(equal(ignoreUnregisteredMaterials)));
                     will(returnValue(updateCount));
                 }
             });

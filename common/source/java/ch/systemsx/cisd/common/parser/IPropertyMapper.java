@@ -47,4 +47,6 @@ public interface IPropertyMapper
     /** Whether there is a property with given <var>propertyCode</var>. */
     public boolean containsPropertyCode(final String propertyCode);
 
+    /** Returns default value for property with given <var>propertyCode</var> */
+    public String tryGetPropertyDefault(final String propertyCode);
 }

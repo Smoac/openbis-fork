@@ -18,7 +18,9 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -93,7 +95,8 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
             {
                 TabFileLoader<NewProperty> tabFileLoader =
                         new TabFileLoader<NewProperty>(NewProperty.class);
-                result.addAll(tabFileLoader.load(propertiesFile));
+                Map<String, String> defauts = Collections.emptyMap();
+                result.addAll(tabFileLoader.load(propertiesFile, defauts));
 
             } else
             {

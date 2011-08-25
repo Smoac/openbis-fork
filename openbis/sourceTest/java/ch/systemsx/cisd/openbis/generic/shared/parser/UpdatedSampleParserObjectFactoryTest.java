@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
-import ch.systemsx.cisd.openbis.generic.shared.parser.UpdatedSampleParserObjectFactory;
 
 /**
  * Test cases for corresponding {@link UpdatedSampleParserObjectFactory} class.
@@ -60,7 +59,7 @@ public final class UpdatedSampleParserObjectFactoryTest
     {
         final String[] properties = new String[]
             { UpdatedSample.IDENTIFIER_COLUMN, UpdatedSample.CONTAINER, PROPERTY_1, PROPERTY_2 };
-        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties);
+        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties, null);
         return propertyMapper;
     }
 

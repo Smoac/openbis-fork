@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -51,8 +53,10 @@ public class SampleDataSetPairParserObjectFactoryTest extends AssertJUnit
                                 properties.trySampleType(), properties.tryDataSetType()), false);
 
         Reader reader = UnicodeUtils.createReader(new FileInputStream(controlFile));
+        Map<String, String> defaults = Collections.emptyMap();
         List<SampleDataSetPair> loadedSampleDataSetPairs =
-                controlFileLoader.load(new DelegatedReader(reader, controlFile.getName()));
+                controlFileLoader
+                        .load(new DelegatedReader(reader, controlFile.getName()), defaults);
 
         int i = 0;
         for (SampleDataSetPair sampleDataSetPair : loadedSampleDataSetPairs)

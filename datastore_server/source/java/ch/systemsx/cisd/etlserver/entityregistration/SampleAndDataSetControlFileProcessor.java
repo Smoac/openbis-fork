@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -267,7 +269,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         try
         {
             properties.checkValidity();
-            loadedSampleDataSetPairs = controlFileLoader.load(delegatedReader);
+            Map<String, String> defaults = Collections.emptyMap();
+            loadedSampleDataSetPairs = controlFileLoader.load(delegatedReader, defaults);
         } catch (UserFailureException e)
         {
             // If we don't know which user to send the email to, don't handle this error -- leave it

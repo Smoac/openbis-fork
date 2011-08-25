@@ -56,7 +56,9 @@ public final class NewDataSetParserObjectFactory extends AbstractParserObjectFac
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
-            final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+            final String propertyDefault = tryGetPropertyDefault(unmatchedProperty);
+            final String propertyValue =
+                    getPropertyValue(lineTokens, propertyModel, propertyDefault);
             if (isNotEmpty(propertyValue))
             {
                 propertiesToUpdate.add(unmatchedProperty);

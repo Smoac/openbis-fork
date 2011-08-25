@@ -20,9 +20,11 @@ import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.ID;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -193,8 +195,10 @@ public final class UniprotQuery
                             hasIterated = true;
                             return new Iterator<UniprotEntry>()
                                 {
-                                    final Iterator<UniprotEntry> delegate =
-                                            parser.iterate(method.getResponseBodyAsStream());
+                                    Map<String, String> defauts = Collections.emptyMap();
+
+                                    final Iterator<UniprotEntry> delegate = parser.iterate(
+                                            method.getResponseBodyAsStream(), defauts);
 
                                     public boolean hasNext()
                                     {

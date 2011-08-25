@@ -87,10 +87,13 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         Status status =
-                predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
-                                null, null), NewSample.createWithParent(sampleIdentifier2
-                                .toString(), null, null, null))));
+                predicate.evaluate(
+                        person,
+                        roles,
+                        new NewSamplesWithTypes(new SampleType(), Arrays.asList(NewSample
+                                .createWithParent(sampleIdentifier1.toString(), null, null, null),
+                                NewSample.createWithParent(sampleIdentifier2.toString(), null,
+                                        null, null))));
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
@@ -116,10 +119,13 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         Status status =
-                predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
-                                null, null), NewSample.createWithParent(sampleIdentifier2
-                                .toString(), null, null, null))));
+                predicate.evaluate(
+                        person,
+                        roles,
+                        new NewSamplesWithTypes(new SampleType(), Arrays.asList(NewSample
+                                .createWithParent(sampleIdentifier1.toString(), null, null, null),
+                                NewSample.createWithParent(sampleIdentifier2.toString(), null,
+                                        null, null))));
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }
@@ -147,10 +153,13 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         Status status =
-                predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
-                                null, null), NewSample.createWithParent(sampleIdentifier2
-                                .toString(), null, null, null))));
+                predicate.evaluate(
+                        person,
+                        roles,
+                        new NewSamplesWithTypes(new SampleType(), Arrays.asList(NewSample
+                                .createWithParent(sampleIdentifier1.toString(), null, null, null),
+                                NewSample.createWithParent(sampleIdentifier2.toString(), null,
+                                        null, null))));
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }

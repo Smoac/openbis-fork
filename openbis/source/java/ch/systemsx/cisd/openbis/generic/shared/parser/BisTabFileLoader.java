@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.parser;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.NamedReader;
@@ -76,14 +77,14 @@ public final class BisTabFileLoader<T> extends TabFileLoader<T>
     //
 
     @Override
-    public List<T> load(final Reader reader) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public List<T> load(final Reader reader, final Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException
     {
         assert reader instanceof NamedReader : "Must be a NamedReader.";
         final NamedReader namedReader = (NamedReader) reader;
         try
         {
-            final List<T> list = super.load(namedReader);
+            final List<T> list = super.load(namedReader, defaults);
             if (acceptEmptyFiles == false && list.size() == 0)
             {
                 throw new UserFailureException("Given file '" + namedReader.getReaderName()

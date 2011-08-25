@@ -78,7 +78,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 {
     private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
 
-    protected static final class AuthenticatedPersonBasedPrincipalProvider implements IPrincipalProvider
+    protected static final class AuthenticatedPersonBasedPrincipalProvider implements
+            IPrincipalProvider
     {
         private final PersonPE person;
 
@@ -300,7 +301,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             return null;
         }
-        final PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userForAnonymousLogin);
+        final PersonPE person =
+                daoFactory.getPersonDAO().tryFindPersonByUserId(userForAnonymousLogin);
         if (person == null)
         {
             return null;
@@ -362,8 +364,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return asDTO(session);
     }
 
-    private void grantRoleAtFirstLogin(List<PersonPE> persons, PersonPE person,
-            RoleCode roleCode)
+    private void grantRoleAtFirstLogin(List<PersonPE> persons, PersonPE person, RoleCode roleCode)
     {
         final PersonPE systemUser = getSystemUser(persons);
         if (systemUser.getRoleAssignments().isEmpty())
@@ -433,7 +434,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return result;
     }
 
-
     public SessionContextDTO tryGetSession(String sessionToken)
     {
         try
@@ -459,7 +459,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return false;
     }
 
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits)
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
+            int maxEntityVisits)
     {
         try
         {
@@ -586,8 +587,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected void registerSamples(final Session session,
             final NewSamplesWithTypes newSamplesWithType, PersonPE registratorOrNull)
     {
-        final SampleType sampleType = newSamplesWithType.getSampleType();
-        final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
+        final SampleType sampleType = newSamplesWithType.getEntityType();
+        final List<NewSample> newSamples = newSamplesWithType.getNewEntities();
         assert sampleType != null : "Unspecified sample type.";
         assert newSamples != null : "Unspecified new samples.";
 

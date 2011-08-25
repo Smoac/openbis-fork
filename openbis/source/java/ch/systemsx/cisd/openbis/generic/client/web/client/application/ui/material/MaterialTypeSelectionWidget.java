@@ -54,6 +54,8 @@ public final class MaterialTypeSelectionWidget extends
 
     private final String initialCodeOrNull;
 
+    private final boolean withTypeInFile;
+
     /**
      * Creates a material type chooser with one additional option. It's useful when you want to have
      * one special value on the list.
@@ -64,7 +66,7 @@ public final class MaterialTypeSelectionWidget extends
             final String idSuffix)
     {
         return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix,
-                initialCodeOrNullParameter, null);
+                initialCodeOrNullParameter, null, false);
     }
 
     public static MaterialTypeSelectionWidget create(
@@ -73,18 +75,19 @@ public final class MaterialTypeSelectionWidget extends
             final String idSuffix)
     {
         return new MaterialTypeSelectionWidget(viewContext, null, idSuffix,
-                initialCodeOrNullParameter, displayTypeIdOrNull);
+                initialCodeOrNullParameter, displayTypeIdOrNull, false);
     }
 
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String initialCodeOrNullParameter, final String idSuffix)
+            final String initialCodeOrNullParameter, final String idSuffix, boolean withTypeInFile)
     {
-        this(viewContext, null, idSuffix, initialCodeOrNullParameter, null);
+        this(viewContext, null, idSuffix, initialCodeOrNullParameter, null, withTypeInFile);
     }
 
     private MaterialTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             String additionalOptionLabelOrNull, String idSuffix,
-            final String initialCodeOrNullParameter, final String displayTypeIdOrNull)
+            final String initialCodeOrNullParameter, final String displayTypeIdOrNull,
+            final boolean withTypeInFile)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
@@ -93,6 +96,7 @@ public final class MaterialTypeSelectionWidget extends
         this.initialCodeOrNull =
                 tryGetInitialValue(displayTypeIdOrNull, initialCodeOrNullParameter,
                         viewContext.getDisplaySettingsManager());
+        this.withTypeInFile = withTypeInFile;
         setAutoSelectFirst(additionalOptionLabelOrNull != null && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
@@ -145,10 +149,10 @@ public final class MaterialTypeSelectionWidget extends
         if (includeAdditionalOption())
         {
             return MaterialTypeModel.convertWithAdditionalOption(result,
-                    additionalOptionLabelOrNull);
+                    additionalOptionLabelOrNull, withTypeInFile);
         } else
         {
-            return MaterialTypeModel.convert(result);
+            return MaterialTypeModel.convert(result, withTypeInFile);
         }
     }
 

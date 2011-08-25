@@ -100,6 +100,12 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         return null;
     }
 
+    /** For given property code returns its default value. */
+    protected final String tryGetPropertyDefault(final String code)
+    {
+        return propertyMapper.tryGetPropertyDefault(code);
+    }
+
     /**
      * Checks given <code>IPropertyMapper</code>.
      * <p>
@@ -141,17 +147,30 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     protected final String getPropertyValue(final String[] lineTokens,
-            final IPropertyModel propertyModel)
+            final IPropertyModel propertyModel, String propertyDefault)
     {
         final int column = propertyModel.getColumn();
-        if (column >= lineTokens.length)
+        if (StringUtils.isBlank(propertyDefault) && (column >= lineTokens.length || column < 0))
         {
             throw new IndexOutOfBoundsException(column, lineTokens);
+        } else
+        {
+            String value = null;
+            if (column < 0)
+            {
+                value = propertyDefault;
+            } else
+            {
+                value = lineTokens[column];
+                if (StringUtils.isBlank(value) && isNotEmpty(propertyDefault))
+                {
+                    value = propertyDefault;
+                }
+            }
+            // TODO 2010-09-17, Piotr Buczek: this check doesn't work for <DELETE>
+            checkMandatory(value, propertyModel.getCode());
+            return value;
         }
-        String value = lineTokens[column];
-        // TODO 2010-09-17, Piotr Buczek: this check doesn't work for <DELETE>
-        checkMandatory(value, propertyModel.getCode());
-        return value;
     }
 
     protected static boolean isNotEmpty(String value)
@@ -213,11 +232,13 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         {
             final Method writeMethod = entry.getValue();
             final IPropertyModel propertyModel = tryGetPropertyModel(entry.getKey());
+            final String propertyDefault = tryGetPropertyDefault(entry.getKey());
             // They could have some optional descriptors that are not found in the file header.
             // Just ignore them.
             if (propertyModel != null)
             {
-                final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+                final String propertyValue =
+                        getPropertyValue(lineTokens, propertyModel, propertyDefault);
                 ClassUtils.invokeMethod(writeMethod, object,
                         convert(propertyValue, writeMethod.getParameterTypes()[0]));
             }

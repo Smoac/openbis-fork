@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,8 @@ class WellLocationMappingUtils
     {
         final TabFileLoader<MappingEntry> parser =
                 new TabFileLoader<MappingEntry>(MappingEntry.class);
-        List<MappingEntry> mappingEntries = parser.load(mappingFile);
+        Map<String, String> defaults = Collections.emptyMap();
+        List<MappingEntry> mappingEntries = parser.load(mappingFile, defaults);
         return createMapping(mappingEntries);
     }
 

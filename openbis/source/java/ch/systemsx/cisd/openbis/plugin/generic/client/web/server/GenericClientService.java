@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -75,6 +75,8 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser
 import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.BatchSamplesOperation;
 import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.SampleCodeGenerator;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser.BatchMaterialsOperation;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -274,10 +276,9 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionKey)
     {
         String sessionToken = getSessionToken();
-        MaterialLoader loader = parseMaterials(sessionKey);
-        genericServer.registerMaterials(sessionToken, materialType.getCode(),
-                loader.getNewMaterials());
-        return loader.getResults();
+        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType);
+        genericServer.registerMaterials(sessionToken, results.getMaterials());
+        return results.getResultList();
     }
 
     public final List<BatchRegistrationResult> registerExperiments(
@@ -296,16 +297,19 @@ public class GenericClientService extends AbstractClientService implements IGene
             String sessionKey, boolean ignoreUnregisteredMaterials)
     {
         String sessionToken = getSessionToken();
-        MaterialLoader loader = parseMaterials(sessionKey);
-        List<NewMaterial> newMaterials = loader.getNewMaterials();
+
+        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType);
         int updateCount =
-                genericServer.updateMaterials(sessionToken, materialType.getCode(), newMaterials,
+                genericServer.updateMaterials(sessionToken, results.getMaterials(),
                         ignoreUnregisteredMaterials);
-        List<BatchRegistrationResult> results = loader.getResults();
         String message = updateCount + " material(s) updated";
         if (ignoreUnregisteredMaterials)
         {
-            int ignoredCount = newMaterials.size() - updateCount;
+            int ignoredCount = -updateCount;
+            for (NewMaterialsWithTypes m : results.getMaterials())
+            {
+                ignoredCount += m.getNewEntities().size();
+            }
             if (ignoredCount > 0)
             {
                 message += ", " + ignoredCount + " ignored.";
@@ -317,7 +321,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             message += ".";
         }
-        return Arrays.asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
+        return Arrays.asList(new BatchRegistrationResult(results.getResultList().get(0)
+                .getFileName(), message));
     }
 
     private ExperimentLoader parseExperiments(String sessionKey)
@@ -342,7 +347,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    private MaterialLoader parseMaterials(String sessionKey)
+    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType)
     {
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -355,9 +360,8 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
-            MaterialLoader loader = new MaterialLoader();
-            loader.load(files);
-            return loader;
+
+            return MaterialUploadSectionsParser.prepareMaterials(materialType, files);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);

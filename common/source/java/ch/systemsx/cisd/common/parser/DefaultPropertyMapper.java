@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -38,9 +40,19 @@ public class DefaultPropertyMapper implements IPropertyMapper
 
     private final TableMap<String, IPropertyModel> propertyModels;
 
-    public DefaultPropertyMapper(final String[] properties) throws IllegalArgumentException
+    private final Map<String, String> defaults;
+
+    public DefaultPropertyMapper(final String[] properties, final Map<String, String> defaults)
+            throws IllegalArgumentException
     {
         assert properties != null : "Unspecified properties";
+        if (defaults == null)
+        {
+            this.defaults = Collections.emptyMap();
+        } else
+        {
+            this.defaults = defaults;
+        }
         propertyModels =
                 new TableMap<String, IPropertyModel>(new IKeyExtractor<String, IPropertyModel>()
                     {
@@ -74,6 +86,15 @@ public class DefaultPropertyMapper implements IPropertyMapper
                 propertyModels.add(new MappedProperty(i, token));
             }
         }
+
+        int i = -1;
+        for (String defaultKey : defaults.keySet())
+        {
+            if (propertyModels.tryGet(defaultKey) == null)
+            {
+                propertyModels.add(new MappedProperty(i--, defaultKey));
+            }
+        }
     }
 
     //
@@ -99,5 +120,10 @@ public class DefaultPropertyMapper implements IPropertyMapper
                     propertyCode));
         }
         return propertyModels.tryGet(propertyCode.toLowerCase());
+    }
+
+    public String tryGetPropertyDefault(final String propertyCode)
+    {
+        return defaults.get(propertyCode);
     }
 }

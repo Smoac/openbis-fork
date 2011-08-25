@@ -69,9 +69,8 @@ public class MaterialHelper
 
     private final IPropertiesBatchManager propertiesBatchManager;
 
-    public MaterialHelper(Session session,
-            IAbstractBussinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager)
+    public MaterialHelper(Session session, IAbstractBussinessObjectFactory businessObjectFactory,
+            IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
@@ -127,9 +126,8 @@ public class MaterialHelper
         return MaterialTranslator.translate(registeredMaterials);
     }
 
-    public int updateMaterials(String materialTypeCode,
-            final List<NewMaterial> newMaterials, final boolean ignoreUnregisteredMaterials)
-            throws UserFailureException
+    public int updateMaterials(String materialTypeCode, final List<NewMaterial> newMaterials,
+            final boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
         assert materialTypeCode != null : "Unspecified material type.";
         assert newMaterials != null : "Unspecified new materials.";

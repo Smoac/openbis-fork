@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * @author gpawel
+ * @author Pawel Glyzewski
  */
 @ShouldFlattenCollections(value = false)
 public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<List<TechId>>

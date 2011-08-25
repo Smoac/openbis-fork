@@ -16,23 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.parser;
 
-import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -48,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class SampleUploadSectionsParser
 {
-
     public static class BatchSamplesOperation
     {
         private final List<NewSamplesWithTypes> samples;
@@ -122,7 +117,7 @@ public class SampleUploadSectionsParser
         List<String> codes = new ArrayList<String>();
         for (NewSamplesWithTypes st : newSamples)
         {
-            for (NewSample s : st.getNewSamples())
+            for (NewSample s : st.getNewEntities())
             {
                 codes.add(SampleIdentifierFactory.parse(s.getIdentifier()).getSampleCode());
             }
@@ -158,114 +153,6 @@ public class SampleUploadSectionsParser
         return tabFileLoader;
     }
 
-    static class FileSection
-    {
-        private final String contentOrNull;
-
-        private final InputStream contentStreamOrNull;
-
-        private final String sectionName;
-
-        // assumption that the given string is encoded using Unicode
-        public static FileSection createFromString(String content, String sectionName)
-        {
-            return new FileSection(content, sectionName, null);
-        }
-
-        public static FileSection createFromInputStream(InputStream contentStream,
-                String sectionName)
-        {
-            return new FileSection(null, sectionName, contentStream);
-        }
-
-        private FileSection(String contentOrNull, String sectionName,
-                InputStream contentStreamOrNull)
-        {
-            assert (contentOrNull != null && contentStreamOrNull == null)
-                    || (contentOrNull == null && contentStreamOrNull != null);
-            this.sectionName = sectionName;
-            this.contentOrNull = contentOrNull;
-            this.contentStreamOrNull = contentStreamOrNull;
-        }
-
-        public Reader getContentReader()
-        {
-            if (contentOrNull != null)
-            {
-                return new StringReader(contentOrNull);
-            } else
-            {
-                return UnicodeUtils.createReader(contentStreamOrNull);
-            }
-        }
-
-        public String getSectionName()
-        {
-            return sectionName;
-        }
-    }
-
-    private static List<FileSection> extractSections(Reader reader)
-    {
-        List<FileSection> sections = new ArrayList<FileSection>();
-        try
-        {
-            LineIterator it = IOUtils.lineIterator(reader);
-            StringBuilder sb = null;
-            String sectionName = null;
-            while (it.hasNext())
-            {
-                String line = it.nextLine();
-                String newSectionName = tryGetSectionName(line);
-                if (newSectionName != null)
-                {
-                    if (sectionName != null && sb != null)
-                    {
-                        sections.add(FileSection.createFromString(sb.toString(), sectionName));
-                    }
-                    sectionName = newSectionName;
-                    sb = new StringBuilder();
-                } else if (sectionName == null || sb == null)
-                {
-                    throw new UserFailureException("Discovered the unnamed section in the file");
-                } else
-                {
-                    if (sb.length() != 0)
-                    {
-                        sb.append("\n");
-                    }
-                    sb.append(line);
-                }
-                if (it.hasNext() == false)
-                {
-                    sections.add(FileSection.createFromString(sb.toString(), sectionName));
-                }
-            }
-        } finally
-        {
-            IOUtils.closeQuietly(reader);
-        }
-        return sections;
-    }
-
-    private static String tryGetSectionName(String line)
-    {
-        final String beginSection = "[";
-        final String endSection = "]";
-        if (line == null)
-        {
-            return null;
-        }
-        String trimmedLine = line.trim();
-        if (trimmedLine.startsWith(beginSection) && trimmedLine.endsWith(endSection))
-        {
-            return trimmedLine.substring(1, trimmedLine.length() - 1);
-        } else
-        {
-            return null;
-        }
-    }
-
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
@@ -278,30 +165,42 @@ public class SampleUploadSectionsParser
             List<FileSection> sampleSections = new ArrayList<FileSection>();
             if (sampleType.isDefinedInFileEntityTypeCode())
             {
-                sampleSections.addAll(extractSections(multipartFile.getUnicodeReader()));
+                sampleSections
+                        .addAll(FileSection.extractSections(multipartFile.getUnicodeReader()));
             } else
             {
                 sampleSections.add(FileSection.createFromInputStream(
                         multipartFile.getInputStream(), sampleType.getCode()));
             }
             int sampleCounter = 0;
+            Map<String, String> defaults = Collections.emptyMap();
             for (FileSection fs : sampleSections)
             {
-                Reader reader = fs.getContentReader();
-                SampleType typeFromSection = new SampleType();
-                typeFromSection.setCode(fs.getSectionName());
-                final BisTabFileLoader<NewSample> tabFileLoader =
-                        createSampleLoader(typeFromSection, isAutoGenerateCodes, allowExperiments,
-                                operationKind);
-                String sectionInFile =
-                        sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName() + ")";
-                final List<NewSample> loadedSamples =
-                        tabFileLoader.load(new DelegatedReader(reader, multipartFile
-                                .getOriginalFilename() + sectionInFile));
-                if (loadedSamples.size() > 0)
+                if (fs.getSectionName().equals("DEFAULT"))
                 {
-                    newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
-                    sampleCounter += loadedSamples.size();
+                    defaults =
+                            Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
+                                    .getContentReader()));
+                } else
+                {
+                    Reader reader = fs.getContentReader();
+                    SampleType typeFromSection = new SampleType();
+                    typeFromSection.setCode(fs.getSectionName());
+                    final BisTabFileLoader<NewSample> tabFileLoader =
+                            createSampleLoader(typeFromSection, isAutoGenerateCodes,
+                                    allowExperiments, operationKind);
+                    String sectionInFile =
+                            sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
+                                    + ")";
+                    final List<NewSample> loadedSamples =
+                            tabFileLoader.load(
+                                    new DelegatedReader(reader, multipartFile.getOriginalFilename()
+                                            + sectionInFile), defaults);
+                    if (loadedSamples.size() > 0)
+                    {
+                        newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
+                        sampleCounter += loadedSamples.size();
+                    }
                 }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
@@ -319,7 +218,7 @@ public class SampleUploadSectionsParser
         assert isAutoGenerateCodes == true;
         for (NewSamplesWithTypes st : newSamplesWithTypes)
         {
-            final List<NewSample> newSamples = st.getNewSamples();
+            final List<NewSample> newSamples = st.getNewEntities();
             List<String> codes = sampleCodeGenerator.generateCodes(newSamples.size());
             for (int i = 0; i < newSamples.size(); i++)
             {
@@ -333,7 +232,7 @@ public class SampleUploadSectionsParser
     {
         for (NewSamplesWithTypes st : newSamplesWithTypes)
         {
-            final List<NewSample> newSamples = st.getNewSamples();
+            final List<NewSample> newSamples = st.getNewEntities();
             for (int i = 0; i < newSamples.size(); i++)
             {
                 final String identifierFromFile = newSamples.get(i).getIdentifier();

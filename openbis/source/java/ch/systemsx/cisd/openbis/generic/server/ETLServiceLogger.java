@@ -408,8 +408,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
             {
                 sb.append(", ");
             }
-            sb.append(samples.getSampleType().getCode());
-            sb.append(":").append(samples.getNewSamples().size());
+            sb.append(samples.getEntityType().getCode());
+            sb.append(":").append(samples.getNewEntities().size());
         }
         return sb.toString();
     }

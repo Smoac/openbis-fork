@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -85,6 +87,8 @@ public class TabFileLoader<T>
     // of the can cause multiple '"' to occure before the '#' character.
     public static final Pattern COMMENT_REGEXP_PATTERN = Pattern.compile("\"*#.*");
 
+    public static final String DEFAULT_SECTION = "[DEFAULT]";
+
     private final IParserObjectFactoryFactory<T> factory;
 
     /**
@@ -121,8 +125,8 @@ public class TabFileLoader<T>
      * the one before the last line is a single hash.
      * </p>
      */
-    public Iterator<T> iterate(final File file) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public Iterator<T> iterate(final File file, final Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException
     {
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
@@ -131,7 +135,7 @@ public class TabFileLoader<T>
         try
         {
             reader = new FileReader(file);
-            return iterate(reader);
+            return iterate(reader, defaults);
         } catch (final IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
@@ -146,8 +150,9 @@ public class TabFileLoader<T>
      * 
      * @throws IOExceptionUnchecked if a {@link IOException} has occurred.
      */
-    public List<T> load(final File file) throws ParserException, ParsingException,
-            IllegalArgumentException, IOExceptionUnchecked
+    public List<T> load(final File file, final Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException,
+            IOExceptionUnchecked
     {
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
@@ -156,7 +161,7 @@ public class TabFileLoader<T>
         try
         {
             inputStream = FileUtils.openInputStream(file);
-            return load(inputStream);
+            return load(inputStream, defaults);
         } catch (final IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
@@ -174,13 +179,13 @@ public class TabFileLoader<T>
      * the one before the last line is a single hash.
      * </p>
      */
-    public Iterator<T> iterate(final Reader reader) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public Iterator<T> iterate(final Reader reader, final Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException
     {
         assert reader != null : "Unspecified reader";
 
         final Iterator<Line> lineIterator = createLineIterator(reader);
-        return iterate(lineIterator);
+        return iterate(lineIterator, defaults);
     }
 
     /**
@@ -191,13 +196,13 @@ public class TabFileLoader<T>
      * the one before the last line is a single hash.
      * </p>
      */
-    public List<T> load(final Reader reader) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public List<T> load(final Reader reader, Map<String, String> defaults) throws ParserException,
+            ParsingException, IllegalArgumentException
     {
         assert reader != null : "Unspecified reader";
 
         final Iterator<Line> lineIterator = createLineIterator(reader);
-        return load(lineIterator);
+        return load(lineIterator, defaults);
     }
 
     /**
@@ -208,15 +213,15 @@ public class TabFileLoader<T>
      * the one before the last line is a single hash.
      * </p>
      */
-    public Iterator<T> iterate(final InputStream stream) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public Iterator<T> iterate(final InputStream stream, final Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException
     {
         assert stream != null : "Unspecified stream";
 
         try
         {
             final Iterator<Line> lineIterator = createLineIterator(stream);
-            return iterate(lineIterator);
+            return iterate(lineIterator, defaults);
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
@@ -231,36 +236,77 @@ public class TabFileLoader<T>
      * the one before the last line is a single hash.
      * </p>
      */
-    public List<T> load(final InputStream stream) throws ParserException, ParsingException,
-            IllegalArgumentException
+    public List<T> load(final InputStream stream, Map<String, String> defaults)
+            throws ParserException, ParsingException, IllegalArgumentException
     {
         assert stream != null : "Unspecified stream";
 
         try
         {
             final Iterator<Line> lineIterator = createLineIterator(stream);
-            return load(lineIterator);
+            return load(lineIterator, defaults);
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
         }
     }
 
-    private List<T> load(final Iterator<Line> lineIterator)
+    public static final Map<String, String> parseDefaults(Reader reader)
+    {
+        final Iterator<Line> lineIterator = createLineIterator(reader);
+        final Map<String, String> defaults = new HashMap<String, String>();
+        return parseDefaults(lineIterator, defaults);
+    }
+
+    private static final Map<String, String> parseDefaults(final Iterator<Line> lineIterator,
+            final Map<String, String> defaults)
+    {
+        while (lineIterator.hasNext())
+        {
+            Line line = lineIterator.next();
+            String text = line.getText();
+            if (DEFAULT_SECTION.equals(text))
+            {
+                break;
+            }
+            int separatorIdx = text.indexOf(TOKENS_SEPARATOR);
+            if (separatorIdx > -1)
+            {
+                String name = text.substring(0, separatorIdx);
+                String value = text.substring(separatorIdx + 1);
+                defaults.put(name.toLowerCase(), value);
+            }
+        }
+
+        return defaults;
+    }
+
+    private List<T> load(final Iterator<Line> lineIterator, Map<String, String> fileDefaults)
     {
         Line previousLine = null;
         Line line = null;
         boolean previousLineHasColumnHeaders = false;
+
+        Map<String, String> defaults = new HashMap<String, String>(fileDefaults);
         while (lineIterator.hasNext())
         {
             previousLineHasColumnHeaders = (previousLine != null) && isComment(previousLine);
             previousLine = line;
             line = lineIterator.next();
-            if (startsWithComment(line) == false)
+            if (startsWithComment(line))
+            {
+                continue;
+            } else if (startsDefaultSection(line))
+            {
+                parseDefaults(lineIterator, defaults);
+                line = previousLine = null;
+                previousLineHasColumnHeaders = false;
+            } else if (startsWithComment(line) == false)
             {
                 break;
             }
         }
+
         if (line == null) // no lines present
         {
             return new ArrayList<T>();
@@ -281,7 +327,7 @@ public class TabFileLoader<T>
         final int headerLength = tokens.length;
         notUnique(tokens);
 
-        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens);
+        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens, defaults);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
 
         Line firstContentLine = previousLineHasColumnHeaders ? line : null;
@@ -291,21 +337,32 @@ public class TabFileLoader<T>
         return parser.parse(contentLineIterator, filter, headerLength);
     }
 
-    private Iterator<T> iterate(final Iterator<Line> lineIterator)
+    private Iterator<T> iterate(final Iterator<Line> lineIterator, Map<String, String> fileDefaults)
     {
         Line previousLine = null;
         Line line = null;
         boolean previousLineHasColumnHeaders = false;
+
+        Map<String, String> defaults = new HashMap<String, String>(fileDefaults);
         while (lineIterator.hasNext())
         {
             previousLineHasColumnHeaders = (previousLine != null) && isComment(previousLine);
             previousLine = line;
             line = lineIterator.next();
-            if (startsWithComment(line) == false)
+            if (startsWithComment(line))
+            {
+                continue;
+            } else if (startsDefaultSection(line))
+            {
+                parseDefaults(lineIterator, defaults);
+                line = previousLine = null;
+                previousLineHasColumnHeaders = false;
+            } else if (startsWithComment(line) == false)
             {
                 break;
             }
         }
+
         if (line == null) // no lines present
         {
             return new Iterator<T>()
@@ -342,7 +399,7 @@ public class TabFileLoader<T>
         final int headerLength = tokens.length;
         notUnique(tokens);
 
-        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens);
+        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens, defaults);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
 
         Line firstContentLine = previousLineHasColumnHeaders ? line : null;
@@ -350,6 +407,12 @@ public class TabFileLoader<T>
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         return parser.parseIteratively(contentLineIterator, filter, headerLength);
+    }
+
+    private static boolean startsDefaultSection(Line line)
+    {
+        String text = line.getText();
+        return DEFAULT_SECTION.equals(text);
     }
 
     private static boolean startsWithComment(Line line)
@@ -476,14 +539,14 @@ public class TabFileLoader<T>
         return counter;
     }
 
-    private Iterator<Line> createLineIterator(final Reader reader)
+    private static Iterator<Line> createLineIterator(final Reader reader)
     {
         final LineIterator lineIterator = IOUtils.lineIterator(reader);
         final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
     }
 
-    private Iterator<Line> createLineIterator(final InputStream stream) throws IOException
+    private static Iterator<Line> createLineIterator(final InputStream stream) throws IOException
     {
         final LineIterator lineIterator =
                 IOUtils.lineIterator(stream, UnicodeUtils.DEFAULT_UNICODE_CHARSET);

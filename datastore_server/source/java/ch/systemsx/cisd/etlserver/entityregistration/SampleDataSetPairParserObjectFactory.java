@@ -105,7 +105,8 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
-            String propertyValue = getPropertyValue(lineTokens, propertyModel);
+            String propertyDefault = tryGetPropertyDefault(unmatchedProperty);
+            String propertyValue = getPropertyValue(lineTokens, propertyModel, propertyDefault);
             if (StringUtils.isEmpty(propertyValue))
             {
                 continue;

@@ -48,5 +48,4 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
                         null, null);
         return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30", null, true);
     }
-
 }

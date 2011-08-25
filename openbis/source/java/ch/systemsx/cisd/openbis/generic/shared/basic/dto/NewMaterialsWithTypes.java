@@ -19,22 +19,22 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.List;
 
 /**
- * Contains a list of new samples and their type.
+ * Contains a list of new materials and their type.
  * 
  * @author Pawel Glyzewski
  */
 
-public class NewSamplesWithTypes extends NewEntitiesWithTypes<SampleType, NewSample>
+public class NewMaterialsWithTypes extends NewEntitiesWithTypes<MaterialType, NewMaterial>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public NewSamplesWithTypes()
+    public NewMaterialsWithTypes()
     {
         super();
     }
 
-    public NewSamplesWithTypes(SampleType type, List<NewSample> newSamples)
+    public NewMaterialsWithTypes(MaterialType type, List<NewMaterial> newMaterials)
     {
-        super(type, newSamples);
+        super(type, newMaterials);
     }
 }

@@ -219,7 +219,7 @@ public final class IdentifierHelper
         final List<SampleIdentifier> result = new ArrayList<SampleIdentifier>();
         for (NewSamplesWithTypes samplesWithTypes : newExperiment.getNewSamples())
         {
-            for (NewSample sample : samplesWithTypes.getNewSamples())
+            for (NewSample sample : samplesWithTypes.getNewEntities())
             {
                 final SampleIdentifier identifier =
                         SampleIdentifierFactory.parse(sample.getIdentifier());

@@ -56,7 +56,7 @@ public final class NewSampleParserObjectFactoryTest
     {
         final String[] properties = new String[]
             { "!toBeIgnored", "identifier", "container", "parent", "prop1", "prop2" };
-        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties);
+        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties, null);
         return propertyMapper;
     }
 
@@ -64,7 +64,7 @@ public final class NewSampleParserObjectFactoryTest
     {
         final String[] properties = new String[]
             { "prop1", "prop2" };
-        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties);
+        final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(properties, null);
         return propertyMapper;
     }
 

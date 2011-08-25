@@ -18,7 +18,9 @@ package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
@@ -50,7 +52,8 @@ public class FeatureVectorConverter
             };
         BisTabFileLoader<InputRow> loader = new BisTabFileLoader<InputRow>(parser, false);
         File inFile = new File(in);
-        List<InputRow> list = loader.load(FileUtils.openInputStream(inFile));
+        Map<String, String> defaults = Collections.emptyMap();
+        List<InputRow> list = loader.load(FileUtils.openInputStream(inFile), defaults);
         List<InputRowsNamedCollection> experiments = InputRowsHelper.extract(list);
         for (InputRowsNamedCollection e : experiments)
         {

@@ -38,7 +38,6 @@ class LibraryRegistrationTask implements Runnable
 
     private static final String DELIM = " ";
 
-
     private final String sessionToken;
 
     private final String email;
@@ -56,7 +55,6 @@ class LibraryRegistrationTask implements Runnable
     private final IDAOFactory daoFactory;
 
     private final IMailClient mailClient;
-
 
     public LibraryRegistrationTask(String sessionToken, String email,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
@@ -103,8 +101,8 @@ class LibraryRegistrationTask implements Runnable
                 genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
                 for (NewSamplesWithTypes s : newSamplesWithType)
                 {
-                    message.append("Successfuly saved " + s.getNewSamples().size()
-                            + " samples of type " + s.getSampleType() + ".\n");
+                    message.append("Successfuly saved " + s.getNewEntities().size()
+                            + " samples of type " + s.getEntityType() + ".\n");
                 }
             }
         } catch (RuntimeException ex)
@@ -148,7 +146,7 @@ class LibraryRegistrationTask implements Runnable
                         mergeGeneTypeCode(existingGene, newGene);
                     }
                 }
-                
+
                 genericServer.registerOrUpdateMaterials(sessionToken,
                         ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
                 message.append("Successfuly saved properties of " + newGenesOrNull.size()
@@ -199,7 +197,7 @@ class LibraryRegistrationTask implements Runnable
                 EntityHelper.tryFindProperty(newMaterial.getProperties(),
                         ScreeningConstants.GENE_SYMBOLS);
 
-        if (newGeneProp == null) 
+        if (newGeneProp == null)
         {
             return;
         }
@@ -227,9 +225,7 @@ class LibraryRegistrationTask implements Runnable
         }
     }
 
-
-    private void sendEmail(String content, Date startDate, String recipient,
-            boolean successful)
+    private void sendEmail(String content, Date startDate, String recipient, boolean successful)
     {
         String status =
                 successful ? SUCCESSFUL_LIBRARY_REGISTARION_STATUS

@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -191,8 +192,8 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void registerMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials) throws UserFailureException;
+    public void registerMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials)
+            throws UserFailureException;
 
     /**
      * Updates materials in batch.
@@ -202,9 +203,8 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public int updateMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials, boolean ignoreUnregisteredMaterials)
-            throws UserFailureException;
+    public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
+            boolean ignoreUnregisteredMaterials) throws UserFailureException;
 
     /**
      * Registers new materials or if they exist updates in batch their properties (properties which

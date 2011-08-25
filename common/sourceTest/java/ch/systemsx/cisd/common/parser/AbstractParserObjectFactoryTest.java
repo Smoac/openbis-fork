@@ -51,7 +51,7 @@ public final class AbstractParserObjectFactoryTest
             strings = new String[]
                 { "name", "description", "number" };
         }
-        return new DefaultPropertyMapper(strings);
+        return new DefaultPropertyMapper(strings, null);
     }
 
     private final static String[] createDefaultLineTokens()
@@ -77,7 +77,7 @@ public final class AbstractParserObjectFactoryTest
     public final void testPropertyMapperWithUnmatchedProperties()
     {
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
-            { "name", "description", "IsNotIn" });
+            { "name", "description", "IsNotIn" }, null);
         try
         {
             new BeanFactory(Bean.class, propertyMapper);
@@ -94,7 +94,7 @@ public final class AbstractParserObjectFactoryTest
     public final void testMandatoryFields()
     {
         final DefaultPropertyMapper propertyMapper = new DefaultPropertyMapper(new String[]
-            { "description" });
+            { "description" }, null);
         try
         {
             final BeanFactory beanFactory = new BeanFactory(Bean.class, propertyMapper);
