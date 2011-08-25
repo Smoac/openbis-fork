@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import canvas
 import math
@@ -176,6 +176,10 @@ def generatePlateSplitChannels(dir):
 def generatePlateMergedChannels(dir):
   recreateDir(dir)
   generatePlateChannel(dir, "RGB", 1, 1, 1)
+  
+def generatePlateMergedChannelsNoTimeNoDepth(dir):
+  recreateDir(dir)
+  generatePlateChannelNoTimeNoDepth(dir, "RGB", 1, 1, 1)
 
 # -------------------------------
 
@@ -231,7 +235,7 @@ def generateMicroscopySplitChannelsSeries():
   generateMicroscopySeries(dir, "FFF", 1, 0, 1,   1)
 
 #generatePlateSplitChannels("PLATE.splitChannels_tile_time_depth") 
-#generatePlateMergedChannels("PLATE.mergedChannels_tile_time_depth") 
+generatePlateMergedChannelsNoTimeNoDepth("PLATE.mergedChannels_tile_time_depth")  
 #generateMicroscopySplitChannels("TEST.microscopy.splitChannels_tile_time_depth")
 #generateMicroscopyMergedChannels("TEST.microscopy.mergedChannels_tile_time_depth")
 #generateMicroscopyMergedChannels3D("TEST.microscopy.mergedChannels_tile_time_depth_series")
@@ -240,4 +244,4 @@ def generateMicroscopySplitChannelsSeries():
 #generateMicroscopySplitChannelsSeriesBrokenTiles()
 #generateMicroscopySplitChannelsSeries()
 #generateMicroscopySplitChannels3D()
-overlayTests("OVERLAY-TEST")
+#overlayTests("OVERLAY-TEST")
