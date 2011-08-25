@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# Creates a snapshot of the sprint server assuming standard paths to servers, snapshot repository
+# Creates a snapshot of the sprint servers assuming standard paths to servers, snapshot repository
 # and configuration file.
 #
 # Usage: create-generic-snapshot.sh
