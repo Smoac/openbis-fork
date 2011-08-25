@@ -1,7 +1,7 @@
 -- 
 -- Creating Platonic metadata for Screening
 --
--- Before running, the script bash/screening/create-empty-screening-db.sh
+-- Before running, the script ../bash/create-empty-screening-db.sh
 --
 
 -- Experiment 
