@@ -1,9 +1,9 @@
-openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
-openBIS-server/jetty/etc/log.xml
-openBIS-server/jetty/bin/openbis.conf
-openBIS-server/jetty/etc/jetty.xml
-openBIS-server/jetty/bin/jetty.properties
 openBIS-server/jetty/webapps/openbis/welcomePageSimple.html
+openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
+openBIS-server/jetty/webapps/openbis/WEB-INF/classes/etc/log.xml
+openBIS-server/jetty/bin/openbis.conf
+openBIS-server/jetty/bin/jetty.properties
+openBIS-server/jetty/etc/jetty.xml
 openBIS-server/jetty/etc/openBIS.keystore 
 openBIS-server/jetty/etc/passwd
 openBIS-server/jetty/etc/web-client.properties
