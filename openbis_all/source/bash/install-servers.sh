@@ -24,7 +24,7 @@ shift 3
 OPENBIS_AS="$SERVERS/openBIS-server"
 OPENBIS_DSS="$SERVERS/datastore_server"
 
-#"$BIN_DIR/servers-shutdown.sh" "$SERVERS"
+"$BIN_DIR/servers-shutdown.sh" "$SERVERS"
 "$BIN_DIR/create-config-snapshot.sh" "$SERVERS" "$REPOSITORY" "$@"
 rm -rf "$OPENBIS_AS"
 rm -rf "$OPENBIS_DSS"
