@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+#
+# OBSELETE
+#
+# The code here is being replaced by generate-test-plate.py, but this file should be kept around
+# until all the features have been moved to the new file.
+
 import canvas
 import math
 import os
@@ -18,7 +24,7 @@ def drawText(canvas, x, y, text):
 def drawMatrix(coordsList, dir, channel, isOverlay):
   nonemptyTiles = set([ calcTile(coords) for coords in coordsList ])
   for tile in range(1, 10):
-    imageCanvas = canvas.PlateWellCanvas(size, size)
+    imageCanvas = canvas.TileCanvas(size, size)
     if tile in nonemptyTiles:
       if not isOverlay:
         drawRect(imageCanvas, 0, 0, 0, 0)
@@ -59,7 +65,7 @@ def overlayTests(sampleCode):
 
   
 def save(dir, filename, text, r, g, b, merged = 0):
-  imageCanvas = canvas.PlateWellCanvas(size, size)
+  imageCanvas = canvas.TileCanvas(size, size)
   drawRect(imageCanvas, 0, 0, 0, 0) # fill with black
   
   zero = 0

@@ -2,9 +2,9 @@ from Quartz import *
 from Cocoa import *
 from LaunchServices import * # for kUTTypePNG
 
-class PlateWellCanvas:
+class TileCanvas:
     """
-    A canvas with utility methods for drawing images for plate wells.
+    A canvas with utility methods for drawing images for tiles of plate wells.
     
     The utility methods support drawing source images and overlays and
     allow the resulting images to be written to files.
