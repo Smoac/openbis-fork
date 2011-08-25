@@ -33,6 +33,6 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.openbis.generic.client.console.AdminConsole"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888/openbis source/admin-console/screening/setup-platonic-metadata.txt test a;dlkf"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888/openbis source/admin-console/screening/setup-platonic-metadata.txt admin admin"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="test-data"/>
 </launchConfiguration>
