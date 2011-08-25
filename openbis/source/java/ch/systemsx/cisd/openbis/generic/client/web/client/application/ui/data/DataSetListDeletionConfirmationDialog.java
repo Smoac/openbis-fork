@@ -114,6 +114,7 @@ public final class DataSetListDeletionConfirmationDialog extends
             force = new CheckBox();
             force.setBoxLabel("");
             force.setFieldLabel(messageProvider.getMessage(Dict.DELETING_FORCE));
+            force.setToolTip(messageProvider.getMessage(Dict.DELETING_FORCE_TOOLTIP));
             formPanel.add(force);
         }
     }

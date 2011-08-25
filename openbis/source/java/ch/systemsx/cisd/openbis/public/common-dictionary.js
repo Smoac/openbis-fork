@@ -1,4 +1,3 @@
-
 // Common dictionary
 var common = {
 
@@ -72,6 +71,7 @@ var common = {
   delete_confirmation_message_with_reason_template: "You are {0} {1}(s).<br><br>Please enter a reason or cancel the operation.",
   deleting_permanently: "<b>permanently</b> deleting",
   deleting_force: "Force?",
+  deleting_force_tooltip: "Deletes datasets even if they cannot be found on the filesystem.",
   deleting: "Deleting",
   delete_permanently_progress_message: "Deleting {0}(s)...",
   delete_progress_message: "Moving {0}(s) to trash ...",

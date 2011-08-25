@@ -505,6 +505,8 @@ public abstract class Dict
 
     public static final String DELETING_FORCE = "deleting_force";
 
+    public static final String DELETING_FORCE_TOOLTIP = "deleting_force_tooltip";
+
     public static final String DELETING = "deleting";
 
     public static final String DELETE_PERMANENTLY_PROGRESS_MESSAGE =
