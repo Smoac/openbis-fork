@@ -77,8 +77,6 @@ cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
-  mv -f xxx datastore_server.sh
 fi
 chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
