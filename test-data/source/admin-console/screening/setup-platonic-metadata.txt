@@ -7,15 +7,3 @@
 -- Experiment 
 register-type EXPERIMENT HCS_PLATONIC "description=Experiment containing idealized data for testing"
 
--- Sample
-
-register-type SAMPLE PLATE_PLATONIC "description=Plate containing idealized data for testing"
-register-type SAMPLE WELL_PLATONIC "description=Well containing idealized data for testing"
-
--- Data Set
-
-register-type DATA_SET HCS_IMAGE_RAW_PLATONIC "description=Idealized raw images"
-register-type DATA_SET HCS_IMAGE_SEGMENTATION_PLATONIC "description=Idealized segmentation images"
-register-type DATA_SET HCS_ANALYSIS_WELL_PLATONIC "description=Idealized analysis data"
-
-
