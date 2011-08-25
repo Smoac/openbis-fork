@@ -34,7 +34,7 @@ unzip -qu openBIS-server*.zip -d "$SERVERS"
 unzip -qu datastore_server-*.zip -d "$SERVERS" 
 for file in datastore_server_plugin-*.zip; do 
 	if [ -f $file ]; then 
-		unzip -qu -d datastore_server $file;
+		unzip -qu -d "$SERVERS/datastore_server" $file;
 	fi
 done
 rm -f openBIS-server*.zip
