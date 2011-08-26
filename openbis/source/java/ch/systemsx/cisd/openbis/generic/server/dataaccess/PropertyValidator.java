@@ -204,9 +204,17 @@ public final class PropertyValidator implements IPropertyValueValidator
                     MaterialIdentifier.tryParseIdentifier(value);
             if (identifierOrNull == null)
             {
-                throw UserFailureException.fromTemplate(
-                        "Material specification '%s' has improper format. "
-                                + "Expected '<CODE> (<TYPE>)'.", value);
+                if (materialTypeOrNull == null)
+                {
+                    throw UserFailureException
+                            .fromTemplate(
+                                    "Material specification '%s' has improper format. "
+                                            + "Expected format is '<CODE> (<TYPE>)'. Type has to be specified because any type of material can be assigned.",
+                                    value);
+                } else
+                {
+                    return value;
+                }
             }
             if (materialTypeOrNull != null
                     && identifierOrNull.getTypeCode()

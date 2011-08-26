@@ -32,6 +32,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -479,12 +481,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
-    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, PropertyTypePE propertyType)
+    private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties,
+            PropertyTypePE propertyType)
     {
         for (T oldProperty : oldProperties)
         {
-            if (oldProperty.getEntityTypePropertyType().getPropertyType()
-                    .equals(propertyType))
+            if (oldProperty.getEntityTypePropertyType().getPropertyType().equals(propertyType))
             {
                 return oldProperty;
             }
@@ -568,8 +570,17 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
             if (materialIdentifier == null)
             {
-                // identifier is valid but null
-                return null;
+                MaterialTypePE fixedMaterialType = propertyType.getMaterialType();
+                // if the material type of the property is fixed, then we accept when only material
+                // code is specified and its type is skipped (we know what the type should be)
+                if (fixedMaterialType != null && StringUtils.isBlank(value) == false)
+                {
+                    materialIdentifier = new MaterialIdentifier(value, fixedMaterialType.getCode());
+                } else
+                {
+                    // identifier is invalid or null
+                    return null;
+                }
             }
 
             final MaterialPE material;
