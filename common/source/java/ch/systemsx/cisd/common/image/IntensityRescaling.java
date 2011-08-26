@@ -27,6 +27,74 @@ import java.awt.image.BufferedImage;
 public class IntensityRescaling
 {
 
+    /** The largest number a unsigned short can store. */
+    private final static int MAX_USHORT = (1 << 16) - 1;
+
+    /**
+     * The levels in a distribution of pixel values for a given symmetric quantile value.
+     */
+    public static class Levels
+    {
+        final int minLevel;
+
+        final int maxLevel;
+
+        Levels(int minLevel, int maxLevel)
+        {
+            this.minLevel = minLevel;
+            this.maxLevel = maxLevel;
+        }
+
+        /**
+         * The minimal level (black point).
+         */
+        public int getMinLevel()
+        {
+            return minLevel;
+        }
+
+        /**
+         * The maximal level (white point).
+         */
+        public int getMaxLevel()
+        {
+            return maxLevel;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "MinMax [minLevel=" + minLevel + ", maxLevel=" + maxLevel + "]";
+        }
+
+    }
+
+    /**
+     * A class to store the histogram of pixel values.
+     */
+    public static class PixelHistogram
+    {
+        final int[] histogram = new int[MAX_USHORT + 1];
+
+        int pixelCount = 0;
+
+        /**
+         * Returns the total number of pixels in the histogram.
+         */
+        public int getPixelCount()
+        {
+            return pixelCount;
+        }
+
+        /**
+         * Returns the histogram. Changing the returned object changes the pixel histogram.
+         */
+        public int[] getHistogram()
+        {
+            return histogram;
+        }
+    }
+
     private static int getGrayIntensity(BufferedImage image, int x, int y)
     {
         return image.getRaster().getSample(x, y, 0);
@@ -44,8 +112,8 @@ public class IntensityRescaling
 
     /**
      * Computes the number of significant bits in an image, minus 8. A bit position is considered
-     * significant if only a small fraction (given by <var>threshold</var> of all pixels has a
-     * value of 1 in this bit position.
+     * significant if only a small fraction (given by <var>threshold</var> of all pixels has a value
+     * of 1 in this bit position.
      * <p>
      * For example, if the image is 16-bit and only uses 10-bits, this method will return 2.
      * 
@@ -124,4 +192,109 @@ public class IntensityRescaling
         }
         return rescaledImage;
     }
+
+    /**
+     * Process <var>image</var> and add its pixesl to the <var>histogram</var>. Calling this method
+     * multiple times with the same <var>histogram</var> accumulates the histogram for all images.
+     */
+    public static void addToLevelStats(PixelHistogram histogram, BufferedImage image)
+    {
+        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        {
+            throw new IllegalArgumentException(
+                    "addToLevelStats() is only applicable to gray scale images.");
+        }
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+        for (int x = 0; x < width; ++x)
+        {
+            for (int y = 0; y < height; ++y)
+            {
+                histogram.histogram[getGrayIntensity(image, x, y)]++;
+            }
+        }
+        histogram.pixelCount += width * height;
+    }
+
+    /**
+     * Computes the levels (black point and white point) of the given <var>histogram</var> for the
+     * given symmetric <var>threshold</var>. The tail of the histogram below the black point will
+     * contain the fraction of <var>treshold</var> of all pixels of the histogram. The same is true
+     * for the tail of the <var>histogram</var> above the white point.
+     * 
+     * @return The levels of the <var>histogram</var> for the <var>treshold</var>.
+     */
+    public static Levels computeLevels(PixelHistogram histogram, float threshold)
+    {
+        final int intThreshold = Math.round(threshold * histogram.pixelCount);
+        int min = -1;
+        int sum = 0;
+        while (sum <= intThreshold)
+        {
+            sum += histogram.histogram[++min];
+        }
+        if (min < 0)
+        {
+            min = 0;
+        }
+        int max = MAX_USHORT + 1;
+        sum = 0;
+        while (sum <= intThreshold)
+        {
+            sum += histogram.histogram[--max];
+        }
+        if (max > MAX_USHORT)
+        {
+            max = MAX_USHORT;
+        }
+        return new Levels(min, max);
+    }
+
+    /**
+     * Computes the levels (black point and white point) of the given <var>image</var> for the given
+     * symmetric <var>threshold</var>. The tail of the histogram below the black point will contain
+     * the fraction of <var>treshold</var> of all pixels of the <var>image</var>. The same is true
+     * for the tail of the histogram above the white point.
+     * 
+     * @return The levels of the <var>histogram</var> for the <var>treshold</var>.
+     */
+    public static Levels computeLevels(BufferedImage image, float threshold)
+    {
+        final PixelHistogram stats = new PixelHistogram();
+        addToLevelStats(stats, image);
+        return computeLevels(stats, threshold);
+    }
+
+    /**
+     * Computes an intensity rescaled image from the given <var>image</var>, using the black point
+     * and white point as defined by <var>levels</var>. <var>image</var> needs to be a grayscale
+     * image with more than 8bit color depth.
+     * 
+     * @return The rescaled image, a 8 bit grayscale image.
+     */
+    public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
+    {
+        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        {
+            throw new IllegalArgumentException(
+                    "rescaleIntensityLevelTo8Bits() is only applicable to gray scale images.");
+        }
+        final float dynamicRange = levels.maxLevel - levels.minLevel;
+        final BufferedImage rescaledImage =
+                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        for (int x = 0; x < image.getWidth(); ++x)
+        {
+            for (int y = 0; y < image.getHeight(); ++y)
+            {
+                final int intensity =
+                        Math.round(Math.max(0,
+                                Math.min(levels.maxLevel, getGrayIntensity(image, x, y))
+                                        - levels.minLevel)
+                                / dynamicRange * 255);
+                rescaledImage.getRaster().setSample(x, y, 0, intensity);
+            }
+        }
+        return rescaledImage;
+    }
+
 }
