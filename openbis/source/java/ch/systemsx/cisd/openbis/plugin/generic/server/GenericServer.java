@@ -481,7 +481,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             if (newExperiment.getNewSamples() == null)
             {
                 sampleIdentifiers =
-                        IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());
+                        IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples(), null);
             } else
             {
                 sampleIdentifiers = IdentifierHelper.extractSampleIdentifiers(newExperiment);

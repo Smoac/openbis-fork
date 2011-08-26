@@ -110,7 +110,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             throws UserFailureException
     {
         final SampleIdentifier sampleIdentifier =
-                SampleIdentifierFactory.parse(newSample.getIdentifier());
+                SampleIdentifierFactory.parse(newSample.getIdentifier(),
+                        newSample.getSpaceIdentifier());
         SampleOwner sampleOwner = getSampleOwner(sampleOwnerCacheOrNull, sampleIdentifier);
         SampleTypePE sampleTypePE =
                 (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
@@ -124,7 +125,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             }
         }
         String experimentIdentifier = newSample.getExperimentIdentifier();
-        ExperimentPE experimentPE = tryFindExperiment(experimentCacheOrNull, experimentIdentifier);
+        ExperimentPE experimentPE =
+                tryFindExperiment(experimentCacheOrNull, experimentIdentifier,
+                        newSample.getSpaceIdentifier());
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
@@ -135,11 +138,12 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifier();
-        setContainer(sampleIdentifier, samplePE, containerIdentifier);
+        setContainer(sampleIdentifier, samplePE, containerIdentifier,
+                newSample.getSpaceIdentifier());
         if (newSample.getParentsOrNull() != null)
         {
             final String[] parents = newSample.getParentsOrNull();
-            setParents(samplePE, parents);
+            setParents(samplePE, parents, newSample.getSpaceIdentifier());
         }
         samplePE.setPermId(getOrCreatePermID(newSample));
         return samplePE;
@@ -166,23 +170,25 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     private ExperimentPE tryFindExperiment(Map<String, ExperimentPE> experimentCacheOrNull,
-            String experimentIdentifier)
+            String experimentIdentifier, String defaultSpace)
     {
         ExperimentPE experimentPE = null;
         if (experimentIdentifier != null)
         {
+            ExperimentIdentifier expIdent =
+                    new ExperimentIdentifierFactory(experimentIdentifier)
+                            .createIdentifier(defaultSpace);
+            fillSpaceIdentifier(expIdent);
+
             experimentPE =
                     (experimentCacheOrNull != null) ? experimentCacheOrNull
-                            .get(experimentIdentifier) : null;
+                            .get(expIdent.toString()) : null;
             if (experimentPE == null)
             {
-                ExperimentIdentifier expIdent =
-                        new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-                fillSpaceIdentifier(expIdent);
                 experimentPE = findExperiment(expIdent);
                 if (experimentCacheOrNull != null)
                 {
-                    experimentCacheOrNull.put(experimentIdentifier, experimentPE);
+                    experimentCacheOrNull.put(expIdent.toString(), experimentPE);
                 }
             }
         }
@@ -190,17 +196,18 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     protected void setContainer(final SampleIdentifier sampleIdentifier, final SamplePE samplePE,
-            String containerIdentifier)
+            String containerIdentifier, final String defaultSpace)
     {
         final SamplePE containerPE =
-                tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier);
+                tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier, defaultSpace);
         samplePE.setContainer(containerPE);
     }
 
-    protected void setParents(final SamplePE childPE, final String[] parents)
+    protected void setParents(final SamplePE childPE, final String[] parents,
+            final String defaultSpace)
     {
         final List<SampleIdentifier> parentIdentifiers =
-                IdentifierHelper.extractSampleIdentifiers(parents);
+                IdentifierHelper.extractSampleIdentifiers(parents, defaultSpace);
         final SampleIdentifier childIdentifier = childPE.getSampleIdentifier();
         if (childIdentifier.isSpaceLevel())
         {
@@ -268,14 +275,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     private SamplePE tryGetValidParentSample(final String parentIdentifierOrNull,
-            final SampleIdentifier childIdentifier)
+            final SampleIdentifier childIdentifier, final String defaultSpace)
     {
         if (parentIdentifierOrNull == null)
         {
             return null;
         }
         final SamplePE parentPE =
-                getSampleByIdentifier(SampleIdentifierFactory.parse(parentIdentifierOrNull));
+                getSampleByIdentifier(SampleIdentifierFactory.parse(parentIdentifierOrNull,
+                        defaultSpace));
         checkParentDeletion(parentPE, childIdentifier);
         return parentPE;
     }
@@ -291,9 +299,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     private SamplePE tryGetValidNotContainedSample(final String parentIdentifierOrNull,
-            final SampleIdentifier sampleIdentifier)
+            final SampleIdentifier sampleIdentifier, final String defaultSpace)
     {
-        SamplePE sample = tryGetValidParentSample(parentIdentifierOrNull, sampleIdentifier);
+        SamplePE sample =
+                tryGetValidParentSample(parentIdentifierOrNull, sampleIdentifier, defaultSpace);
         if (sample != null && sample.getContainer() != null)
         {
             throw UserFailureException.fromTemplate(
@@ -452,7 +461,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<String, ExperimentPE> experimentCacheOrNull)
     {
         ExperimentPE newExperiment =
-                tryFindExperiment(experimentCacheOrNull, identifier.toString());
+                tryFindExperiment(experimentCacheOrNull, identifier.toString(), null);
         if (isExperimentUnchanged(newExperiment, sample.getExperiment()))
         {
             return;
@@ -546,7 +555,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                         sample.getIdentifier(), parentToAdd.getIdentifier());
             } else
             {
-                final Set<TechId> nextToVisit = getSampleDAO().listSampleIdsByChildrenIds(toVisit, relationship);
+                final Set<TechId> nextToVisit =
+                        getSampleDAO().listSampleIdsByChildrenIds(toVisit, relationship);
                 visited.addAll(toVisit);
                 nextToVisit.removeAll(visited);
                 toVisit = nextToVisit;

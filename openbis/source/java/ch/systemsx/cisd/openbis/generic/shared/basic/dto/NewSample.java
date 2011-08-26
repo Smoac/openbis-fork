@@ -19,13 +19,15 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A sample to register.
  * 
  * @author Christian Ribeaud
  */
-public class NewSample extends Identifier<NewSample> implements Comparable<NewSample>, IPropertiesBean
+public class NewSample extends Identifier<NewSample> implements Comparable<NewSample>,
+        IPropertiesBean
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -34,7 +36,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
                     + "# \"container\" should contain a sample identifier, e.g. /SPACE/SAMPLE_1, while \"parents\" should contain comma separated list of sample identifiers. \n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
                     + "# If \"parents\" are provided, the registered sample will become a \"child\" of all specified samples.\n"
-                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n";
+                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n"
+                    + "# The \"space\" column is optional, will override space home value for the row\n";
 
     public static final String CONTAINER = "container";
 
@@ -43,6 +46,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     public static final String PARENTS = "parents";
 
     public static final String EXPERIMENT = "experiment";
+
+    public static final String SPACE = "space";
 
     private SampleType sampleType;
 
@@ -61,6 +66,11 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
      * The experiment identifier.
      */
     private String experimentIdentifier;
+
+    /***
+     * The space code for this row home space
+     */
+    private String spaceIdentifier;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
@@ -95,12 +105,13 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     }
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
-            String[] parentsOrNull, String experimentIdentifier, IEntityProperty[] properties,
-            List<NewAttachment> attachments)
+            String[] parentsOrNull, String experimentIdentifier, String spaceCode,
+            IEntityProperty[] properties, List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
+        this.spaceIdentifier = spaceCode;
         this.properties = properties;
         this.attachments = attachments;
     }
@@ -198,6 +209,17 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.experimentIdentifier = experimentIdentifier;
     }
 
+    public String getSpaceIdentifier()
+    {
+        return spaceIdentifier;
+    }
+
+    @BeanProperty(label = SPACE, optional = true)
+    public void setSpaceIdentifier(String spaceIdentifier)
+    {
+        this.spaceIdentifier = spaceIdentifier;
+    }
+
     public final IEntityProperty[] getProperties()
     {
         return properties;
@@ -242,8 +264,12 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
             return false;
         }
         final NewSample that = (NewSample) obj;
-        final String thisCombinedIdentifier = this.getIdentifier() + this.getContainerIdentifier();
-        final String thatCombinedIdentifier = that.getIdentifier() + that.getContainerIdentifier();
+        final String thisCombinedIdentifier =
+                StringUtils.emptyIfNull(this.getSpaceIdentifier()) + this.getIdentifier()
+                        + this.getContainerIdentifier();
+        final String thatCombinedIdentifier =
+                StringUtils.emptyIfNull(this.getSpaceIdentifier()) + that.getIdentifier()
+                        + that.getContainerIdentifier();
         return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }
 }

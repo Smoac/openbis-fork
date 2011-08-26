@@ -39,30 +39,44 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
 
     public final ProjectIdentifier createIdentifier() throws UserFailureException
     {
-        return parseProjectIdentifier(getTextToParse());
+        return parseProjectIdentifier(getTextToParse(), null);
     }
 
-    private static ProjectIdentifier parseProjectIdentifier(final String text)
+    public final ProjectIdentifier createIdentifier(final String defaultSpace)
+            throws UserFailureException
+    {
+        return parseProjectIdentifier(getTextToParse(), defaultSpace);
+    }
+
+    private static ProjectIdentifier parseProjectIdentifier(final String text,
+            final String defaultSpace)
     {
         final TokenLexer lexer = new TokenLexer(text);
-        final ProjectIdentifier projectIdentifier = parseIdentifier(lexer);
+        final ProjectIdentifier projectIdentifier = parseIdentifier(lexer, defaultSpace);
         lexer.ensureNoTokensLeft();
         return projectIdentifier;
     }
 
-    public static ProjectIdentifier parseIdentifier(final TokenLexer lexer)
+    public static ProjectIdentifier parseIdentifier(final TokenLexer lexer,
+            final String defaultSpace)
     {
-        final GroupIdentifier groupIdentifier = parseGroup(lexer);
+        final GroupIdentifier groupIdentifier = parseGroup(lexer, defaultSpace);
         final String projectCode = assertValidCode(lexer.next());
         return create(groupIdentifier, projectCode);
     }
 
-    private static GroupIdentifier parseGroup(final TokenLexer lexer)
+    private static GroupIdentifier parseGroup(final TokenLexer lexer, final String defaultSpace)
     {
         final String firstToken = lexer.peek();
         if (tryAsDatabaseIdentifier(firstToken) == null && firstToken.length() > 0)
         {
-            return GroupIdentifier.createHome();
+            if (defaultSpace == null)
+            {
+                return GroupIdentifier.createHome();
+            } else
+            {
+                return new GroupIdentifierFactory(defaultSpace).createIdentifier();
+            }
         } else
         {
             return GroupIdentifierFactory.parseIdentifier(lexer);
@@ -72,8 +86,8 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
     private static ProjectIdentifier create(final GroupIdentifier groupIdentifier,
             final String projectCode)
     {
-        return new ProjectIdentifier(groupIdentifier.getDatabaseInstanceCode(), groupIdentifier
-                .getSpaceCode(), projectCode);
+        return new ProjectIdentifier(groupIdentifier.getDatabaseInstanceCode(),
+                groupIdentifier.getSpaceCode(), projectCode);
     }
 
     public static String getSchema()

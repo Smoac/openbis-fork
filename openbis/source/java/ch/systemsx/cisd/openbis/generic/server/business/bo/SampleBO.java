@@ -261,7 +261,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
         }
-        setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
+        setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull(),
+                null);
         for (NewAttachment attachment : updates.getAttachments())
         {
             addAttachment(AttachmentTranslator.translate(attachment));
@@ -289,7 +290,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     // attaches specified existing samples to the sample as parents
     private void attachParents(String[] parentCodes)
     {
-        setParents(sample, parentCodes);
+        setParents(sample, parentCodes, null);
     }
 
     public void setGeneratedCode()

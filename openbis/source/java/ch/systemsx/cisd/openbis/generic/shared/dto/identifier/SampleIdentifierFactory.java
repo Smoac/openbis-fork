@@ -38,7 +38,13 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
     public static final SampleIdentifier parse(final String textToParse)
             throws UserFailureException
     {
-        return new SampleIdentifierFactory(textToParse).createIdentifier();
+        return new SampleIdentifierFactory(textToParse).createIdentifier(null);
+    }
+
+    public static final SampleIdentifier parse(final String textToParse, final String defaultSpace)
+            throws UserFailureException
+    {
+        return new SampleIdentifierFactory(textToParse).createIdentifier(defaultSpace);
     }
 
     public static final SampleIdentifierPattern parsePattern(final String textToParse)
@@ -54,13 +60,18 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
 
     public final SampleIdentifier createIdentifier() throws UserFailureException
     {
-        SampleIdentifierOrPattern ident = parse(getTextToParse(), false);
+        return createIdentifier(null);
+    }
+
+    public final SampleIdentifier createIdentifier(String defaultSpace) throws UserFailureException
+    {
+        SampleIdentifierOrPattern ident = parse(getTextToParse(), defaultSpace, false);
         return SampleIdentifier.createOwnedBy(ident.getOwner(), ident.getCode());
     }
 
     private SampleIdentifierPattern createPattern()
     {
-        SampleIdentifierOrPattern ident = parse(getTextToParse(), true);
+        SampleIdentifierOrPattern ident = parse(getTextToParse(), null, true);
         return SampleIdentifierPattern.createOwnedBy(ident.getOwner(), ident.getCode());
     }
 
@@ -87,7 +98,8 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         }
     }
 
-    private static SampleIdentifierOrPattern parse(String text, boolean isPattern)
+    private static SampleIdentifierOrPattern parse(String text, String defaultSpace,
+            boolean isPattern)
     {
         String tokens[] = text.split(IDENTIFIER_SEPARARTOR_STRING);
         if (tokens.length == 0)
@@ -96,7 +108,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         }
         String sampleCode = tokens[tokens.length - 1];
         String[] ownerTokens = (String[]) ArrayUtils.subarray(tokens, 0, tokens.length - 1);
-        SampleOwnerIdentifier owner = parseSampleOwner(ownerTokens, text);
+        SampleOwnerIdentifier owner = parseSampleOwner(ownerTokens, text, defaultSpace);
         validateSampleCode(sampleCode, isPattern);
         return new SampleIdentifierOrPattern(sampleCode, owner);
     }
@@ -126,12 +138,13 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         }
     }
 
-    private static SampleOwnerIdentifier parseSampleOwner(String[] tokens, String originalText)
+    private static SampleOwnerIdentifier parseSampleOwner(String[] tokens, String originalText,
+            String defaultSpace)
     {
         if (tokens.length == 0)
         {
             // case: originalText is e.g. "CP1"
-            return new SampleOwnerIdentifier(GroupIdentifier.createHome());
+            return getDefaultSpaceIdentifier(defaultSpace);
         }
         String firstToken = tokens[0];
         if (firstToken.length() == 0)
@@ -140,7 +153,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             if (tokens.length == 2 && tokens[1].length() == 0)
             {
                 // case: shortcut to home group, originalText is e.g. "//CP1"
-                return new SampleOwnerIdentifier(GroupIdentifier.createHome());
+                return getDefaultSpaceIdentifier(defaultSpace);
             }
             DatabaseInstanceIdentifier homeDb = DatabaseInstanceIdentifier.createHome();
             return continueParsingSampleOwner(tokens, originalText, homeDb);
@@ -156,6 +169,18 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             {
                 throw createSlashMissingExcp(originalText);
             }
+        }
+    }
+
+    private static SampleOwnerIdentifier getDefaultSpaceIdentifier(String defaultSpace)
+    {
+        if (defaultSpace == null)
+        {
+            return new SampleOwnerIdentifier(GroupIdentifier.createHome());
+        } else
+        {
+            return new SampleOwnerIdentifier(
+                    new GroupIdentifierFactory(defaultSpace).createIdentifier());
         }
     }
 

@@ -41,23 +41,36 @@ public final class ExperimentIdentifierFactory extends AbstractIdentifierFactory
 
     public final ExperimentIdentifier createIdentifier() throws UserFailureException
     {
-        return parse(getTextToParse());
+        return parse(getTextToParse(), null);
+    }
+
+    public final ExperimentIdentifier createIdentifier(final String defaultSpace)
+            throws UserFailureException
+    {
+        return parse(getTextToParse(), defaultSpace);
     }
 
     public static ExperimentIdentifier parse(final String text)
     {
+        return parse(text, null);
+    }
+
+    public static ExperimentIdentifier parse(final String text, final String defaultSpace)
+    {
         final TokenLexer lexer = new TokenLexer(text);
-        final ProjectIdentifier parentIdentifier = ProjectIdentifierFactory.parseIdentifier(lexer);
+        final ProjectIdentifier parentIdentifier =
+                ProjectIdentifierFactory.parseIdentifier(lexer, defaultSpace);
         final String code = assertValidCode(lexer.next());
         lexer.ensureNoTokensLeft();
         return create(parentIdentifier, code);
     }
 
-    public static List<ExperimentIdentifier> parse(final List<String> texts) {
+    public static List<ExperimentIdentifier> parse(final List<String> texts)
+    {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
         for (String identifierString : texts)
         {
-            identifiers.add(ExperimentIdentifierFactory.parse(identifierString));
+            identifiers.add(ExperimentIdentifierFactory.parse(identifierString, null));
         }
         return identifiers;
     }

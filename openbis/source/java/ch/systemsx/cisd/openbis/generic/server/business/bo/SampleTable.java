@@ -252,13 +252,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             final String[] parents = updates.getModifiedParentCodesOrNull();
             if (parents != null)
             {
-                setParents(sample, parents);
+                setParents(sample, parents, null);
             }
         }
         if (details.isContainerUpdateRequested())
         {
             setContainer(updates.getSampleIdentifier(), sample,
-                    updates.getContainerIdentifierOrNull());
+                    updates.getContainerIdentifierOrNull(), null);
         }
         // NOTE: Checking business rules with relationships is expensive.
         // Don't perform them unless relevant data were changed.

@@ -66,9 +66,11 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         ArrayList<NewSample> sampleRegistrations = new ArrayList<NewSample>();
         sampleRegistrations.add(new NewSample("/SPACE/SAMPLE-ID1", new SampleType(), null, null,
-                "/SPACE/PROJECT/EXP-ID1", new IEntityProperty[0], new ArrayList<NewAttachment>()));
+                "/SPACE/PROJECT/EXP-ID1", null, new IEntityProperty[0],
+                new ArrayList<NewAttachment>()));
         sampleRegistrations.add(new NewSample("/SPACE/SAMPLE-ID2", new SampleType(), null, null,
-                "/SPACE/PROJECT/EXP-ID1", new IEntityProperty[0], new ArrayList<NewAttachment>()));
+                "/SPACE/PROJECT/EXP-ID1", null, new IEntityProperty[0],
+                new ArrayList<NewAttachment>()));
 
         ArrayList<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
         NewExternalData newExternalData = new NewExternalData();
@@ -97,8 +99,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"
                         + ",materialRegistrations={material-type-1=[material-one, material-two], material-type-2=[material-three]}"
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
-                        + ",dataSetUpdates=[1]]",
-                details.toString());
+                        + ",dataSetUpdates=[1]]", details.toString());
 
     }
 }

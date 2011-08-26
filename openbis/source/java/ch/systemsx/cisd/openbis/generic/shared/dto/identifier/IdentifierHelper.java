@@ -236,12 +236,13 @@ public final class IdentifierHelper
         return result;
     }
 
-    public static final List<SampleIdentifier> extractSampleIdentifiers(String[] samples)
+    public static final List<SampleIdentifier> extractSampleIdentifiers(String[] samples,
+            String defaultSpace)
     {
         List<SampleIdentifier> sampleIdentifiers = new ArrayList<SampleIdentifier>();
         for (String s : samples)
         {
-            sampleIdentifiers.add(SampleIdentifierFactory.parse(s));
+            sampleIdentifiers.add(SampleIdentifierFactory.parse(s, defaultSpace));
         }
         return sampleIdentifiers;
     }
