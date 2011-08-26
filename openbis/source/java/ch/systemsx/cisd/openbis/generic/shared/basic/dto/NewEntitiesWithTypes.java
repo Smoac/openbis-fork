@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Pawel Glyzewski
  */
-public class NewEntitiesWithTypes<T extends EntityType, E extends Serializable> implements
+public abstract class NewEntitiesWithTypes<T extends EntityType, E extends Serializable> implements
         ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
