@@ -39,11 +39,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
  */
 public class NotifyingTask extends AbstractPostRegistrationTask
 {
-    private static final String INCLUDE_DATASET_TYPES_PATTERN = "include-dataset-type-patterns";
-
     private static final String MESSAGE_TEMPLATE_KEY = "message-template";
 
     private static final String DESTINATION_PATH_TEMPLATE_KEY = "destination-path-template";
+
+    /**
+     * Optional. Contains comma separated patterns (java regexp). If specified then only datasets
+     * which have type matching to any of the patterns will be processed.
+     */
+    private static final String INCLUDE_DATASET_TYPES_PATTERN = "include-dataset-type-patterns";
 
     private static final String PROPERTY_PREFIX = "property:";
 
