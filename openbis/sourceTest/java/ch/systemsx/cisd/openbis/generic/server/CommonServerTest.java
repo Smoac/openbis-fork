@@ -177,7 +177,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         String template =
                 createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
-                        false, false, BatchOperationKind.REGISTRATION);
+                        false, false, false, BatchOperationKind.REGISTRATION);
 
         assertEquals("identifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
                 + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);

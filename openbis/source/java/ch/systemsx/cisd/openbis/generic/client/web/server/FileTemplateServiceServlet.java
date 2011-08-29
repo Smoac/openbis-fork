@@ -53,6 +53,9 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         final boolean withExperiments =
                 withExperimentsParameter != null && Boolean.parseBoolean(withExperimentsParameter) ? true
                         : false;
+        String withSapceParameter = request.getParameter(GenericConstants.WITH_SPACE);
+        boolean withSpace = withSapceParameter == null || Boolean.parseBoolean(withSapceParameter);
+        
         final String operationKindParameter =
                 request.getParameter(GenericConstants.BATCH_OPERATION_KIND);
         final BatchOperationKind operationKind = BatchOperationKind.valueOf(operationKindParameter);
@@ -60,7 +63,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         {
             String fileContent =
                     service.getTemplate(EntityKind.valueOf(kind), type, Boolean
-                            .parseBoolean(autoGenerate), withExperiments, operationKind);
+                            .parseBoolean(autoGenerate), withExperiments, withSpace, operationKind);
             byte[] value = fileContent.getBytes();
             String fileName = kind + "-" + type + "-template.tsv";
             return new FileContent(value, fileName);

@@ -1631,7 +1631,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind)
+            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            BatchOperationKind operationKind)
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
@@ -1649,7 +1650,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             String section =
                     createTemplateForType(entityKind, autoGenerate, entityType, firstSection,
-                            withExperiments, operationKind);
+                            withExperiments, withSpace, operationKind);
             if (types.size() != 1)
             {
                 section =
@@ -1671,7 +1672,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" into the corresponding cell.\n";
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
-            EntityTypePE entityType, boolean addComments, boolean withExperiments,
+            EntityTypePE entityType, boolean addComments, boolean withExperiments, boolean withSpace, 
             BatchOperationKind operationKind)
     {
         List<String> columns = new ArrayList<String>();
@@ -1685,8 +1686,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 columns.add(NewSample.CONTAINER);
                 columns.add(NewSample.PARENTS);
                 if (withExperiments)
+                {
                     columns.add(NewSample.EXPERIMENT);
-                columns.add(NewSample.SPACE);
+                }
+                if (withSpace)
+                {
+                    columns.add(NewSample.SPACE);
+                }
                 addPropertiesToTemplateColumns(columns,
                         ((SampleTypePE) entityType).getSampleTypePropertyTypes());
                 break;
@@ -1726,6 +1732,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 case REGISTRATION:
                     if (entityKind.equals(EntityKind.SAMPLE))
                     {
+                        if (withSpace)
+                        {
+                            sb.insert(0, NewSample.WITH_SPACE_COMMENT);
+                        }
+                        if (withExperiments)
+                        {
+                            sb.insert(0, NewSample.WITH_EXPERIMENTS_COMMENT);
+                        }
                         sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
                     }
                     break;

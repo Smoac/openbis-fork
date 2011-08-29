@@ -810,7 +810,8 @@ public interface ICommonClientService extends IClientService
      * Returns example file format for batch operation on entities.
      */
     public String getTemplate(EntityKind kind, String type, boolean autoGenerate,
-            boolean withExperiments, BatchOperationKind operationKind) throws UserFailureException;
+            boolean withExperiments, boolean withSpace, BatchOperationKind operationKind)
+            throws UserFailureException;
 
     /**
      * Updates the file format.

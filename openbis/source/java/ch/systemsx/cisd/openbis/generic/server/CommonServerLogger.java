@@ -815,11 +815,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind)
+            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            BatchOperationKind operationKind)
     {
         logAccess(sessionToken, "get_template_columns",
-                "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s) OPERATION(%s)",
-                entityKind, type, autoGenerate, withExperiments, operationKind.getDescription());
+                "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s) "
+                        + "WITH_SPACE(%s) OPERATION(%s)", entityKind, type, autoGenerate,
+                withExperiments, withSpace, operationKind.getDescription());
         return null;
     }
 

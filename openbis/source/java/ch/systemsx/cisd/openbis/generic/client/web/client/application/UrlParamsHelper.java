@@ -36,6 +36,13 @@ public final class UrlParamsHelper
     public static final String createTemplateURL(EntityKind kind, EntityType type,
             boolean withCodes, boolean withExperiments, BatchOperationKind operationKind)
     {
+        return createTemplateURL(kind, type, withCodes, withExperiments, true, operationKind);
+    }
+    
+    public static final String createTemplateURL(EntityKind kind, EntityType type,
+            boolean withCodes, boolean withExperiments, boolean withSapce,
+            BatchOperationKind operationKind)
+    {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.TEMPLATE_SERVLET_NAME);
         methodWithParameters.addParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER, kind.name());
@@ -43,6 +50,7 @@ public final class UrlParamsHelper
                 type.getCode());
         methodWithParameters.addParameter(GenericConstants.AUTO_GENERATE, withCodes);
         methodWithParameters.addParameter(GenericConstants.WITH_EXPERIMENTS, withExperiments);
+        methodWithParameters.addParameter(GenericConstants.WITH_SPACE, withSapce);
         methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND,
                 operationKind.name());
         methodWithParameters.addParameter("timestamp", Long.toString(System.currentTimeMillis()));

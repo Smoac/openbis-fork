@@ -1572,11 +1572,11 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
-            boolean withExperiments, BatchOperationKind operationKind)
+            boolean withExperiments, boolean withSpace, BatchOperationKind operationKind)
     {
         String sessionToken = getSessionToken();
         return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
-                withExperiments, operationKind);
+                withExperiments, withSpace, operationKind);
     }
 
     public List<FileFormatType> listFileTypes()

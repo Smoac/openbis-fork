@@ -707,10 +707,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolderWithPermId> openEntityDetailsTabCallback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean,BatchOperationKind)
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean, BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
-            boolean withExperiments, BatchOperationKind operationKind,
+            boolean withExperiments, boolean withSpace, BatchOperationKind operationKind,
             AsyncCallback<String> callback);
 
     /**

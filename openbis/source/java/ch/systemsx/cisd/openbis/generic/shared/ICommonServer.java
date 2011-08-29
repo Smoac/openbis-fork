@@ -1067,7 +1067,8 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind kind, String type,
-            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind);
+            boolean autoGenerate, boolean withExperiments, boolean withSpace,
+            BatchOperationKind operationKind);
 
     /**
      * Updates file format type.
