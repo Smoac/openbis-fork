@@ -7,6 +7,10 @@
 # - Restore store and databases from latest snapshot.
 # - Restart AS and DSS.
 # 
+# Crontab entry:
+# 30 3  *  *  *  [ -f $HOME/.profile ] && . $HOME/.profile && [ -f $HOME/.bash_profile ] && . $HOME/.bash_profile && nightly-upgrade-generic-openbis.sh &>> openbis-cronjob.txt
+# 
+
 BIN_DIR=`dirname "$0"`
 SERVERS=sprint
 
