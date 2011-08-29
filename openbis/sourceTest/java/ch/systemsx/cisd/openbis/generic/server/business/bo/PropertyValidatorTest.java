@@ -299,8 +299,11 @@ public final class PropertyValidatorTest extends AbstractBOTest
             fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
         } catch (final UserFailureException ex)
         {
-            assertEquals("Material specification '" + value
-                    + "' has improper format. Expected '<CODE> (<TYPE>)'.", ex.getMessage());
+            assertEquals(
+                    "Material specification '"
+                            + value
+                            + "' has improper format. Expected format is '<CODE> (<TYPE>)'. Type has to be specified because any type of material can be assigned.",
+                    ex.getMessage());
         }
     }
 
