@@ -126,9 +126,11 @@ public class LoadEmptyImagesTest
             case 1:
                 config.setDesiredImageSize(null);
                 loadImageWellCaching(imageReferences, config);
+                //$FALL-THROUGH$
             case 2:
                 config.setDesiredImageSize(null);
                 loadImages(imageReferences, config);
+                break;
             default:
                 break;
         }
