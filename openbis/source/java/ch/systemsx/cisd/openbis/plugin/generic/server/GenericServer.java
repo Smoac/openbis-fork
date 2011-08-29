@@ -91,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -461,10 +462,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         final Session session = getSession(sessionToken);
 
-        if (newExperiment.isRegisterSamples())
-        {
-            registerSamples(sessionToken, newExperiment.getNewSamples());
-        }
+        List<NewSamplesWithTypes> newSamples = newExperiment.getNewSamples();
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(newExperiment);
         experimentBO.save();
@@ -473,12 +471,25 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             experimentBO.addAttachment(AttachmentTranslator.translate(attachment));
         }
         experimentBO.save();
+        ExperimentPE experiment = experimentBO.getExperiment();
+        String experimentSpace = experiment.getProject().getSpace().getCode();
+        if (newExperiment.isRegisterSamples())
+        {
+            for (NewSamplesWithTypes newSamplesWithType : newSamples)
+            {
+                List<NewSample> newEntities = newSamplesWithType.getNewEntities();
+                for (NewSample newSample : newEntities)
+                {
+                    newSample.setSpaceIdentifier(new SpaceIdentifier(experimentSpace).toString());
+                }
+            }
+            registerSamples(sessionToken, newSamples);
+        }
 
         if (newExperiment.getSamples() != null && newExperiment.getSamples().length > 0)
         {
-            ExperimentPE experiment = experimentBO.getExperiment();
             List<SampleIdentifier> sampleIdentifiers = null;
-            if (newExperiment.getNewSamples() == null)
+            if (newSamples == null)
             {
                 sampleIdentifiers =
                         IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples(), null);
@@ -489,7 +500,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             for (SampleIdentifier si : sampleIdentifiers)
             {
                 IdentifierHelper
-                        .fillAndCheckGroup(si, experiment.getProject().getSpace().getCode());
+                        .fillAndCheckGroup(si, experimentSpace);
             }
             for (SampleIdentifier si : sampleIdentifiers)
             {

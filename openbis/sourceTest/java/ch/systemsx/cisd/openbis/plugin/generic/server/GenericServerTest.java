@@ -332,7 +332,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
 
-                    final ExperimentPE experiment = new ExperimentPE();
+                    final ExperimentPE experiment = createExperiment(EXPERIMENT_TYPE, "E1", "S1");
                     final Long id = 1L;
                     experiment.setId(id);
                     allowing(experimentBO).getExperiment();
@@ -350,22 +350,22 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
-        final String groupCode = "CISD";
+        final String spaceCode = "CISD";
         String sample1Code = "SAMPLE1";
-        final String sample1 = createSampleIdentifier(groupCode, sample1Code);
+        final String sample1 = createSampleIdentifier(spaceCode, sample1Code);
         final String sampleIdentifier2 = "SAMPLE2";
         final SampleIdentifier sampleIdentifier2WithGroup =
                 SampleIdentifierFactory.parse(sampleIdentifier2);
-        sampleIdentifier2WithGroup.getSpaceLevel().setSpaceCode(groupCode);
+        sampleIdentifier2WithGroup.getSpaceLevel().setSpaceCode(spaceCode);
         final SampleIdentifier sampleIdentifier1 = SampleIdentifierFactory.parse(sample1);
         final String[] samples =
             { sample1, sampleIdentifier2 };
         final ExperimentPE experimentPE =
-                createExperiment(experimentTypeCode, experimentCode, groupCode);
+                createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final Long id = 1L;
         experimentPE.setId(id);
         final NewExperiment newExperiment =
-                createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
+                createNewExperiment(experimentTypeCode, experimentCode, spaceCode, samples);
         context.checking(new Expectations()
             {
                 {
@@ -395,20 +395,20 @@ public final class GenericServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public final void testRegisterExperimentWithSampleFromWronGroup()
+    public final void testRegisterExperimentWithSampleFromWrongSpace()
     {
         prepareGetSession();
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
-        final String groupCode = "CISD";
+        final String spaceCode = "CISD";
         String sample1Code = "SAMPLE1";
-        final String sample1 = createSampleIdentifier("NOT_" + groupCode, sample1Code);
+        final String sample1 = createSampleIdentifier("NOT_" + spaceCode, sample1Code);
         final String[] samples =
             { sample1 };
         final ExperimentPE experimentPE =
-                createExperiment(experimentTypeCode, experimentCode, groupCode);
+                createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final NewExperiment newExperiment =
-                createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
+                createNewExperiment(experimentTypeCode, experimentCode, spaceCode, samples);
         context.checking(new Expectations()
             {
                 {
@@ -422,21 +422,81 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                 }
             });
-        boolean exceptionThrown = false;
         try
         {
             createServer().registerExperiment(SESSION_TOKEN, newExperiment,
                     Collections.<NewAttachment> emptyList());
+            fail("UserFailureException expected.");
         } catch (UserFailureException e)
         {
-            exceptionThrown = true;
             assertTrue(e.getMessage().contains(
                     "Sample '/NOT_CISD/SAMPLE1' does not belong to the space 'CISD'"));
         }
-        assertTrue(exceptionThrown);
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testRegisterExperimentTogetherWithSampleWithUndefinedSpace()
+    {
+        prepareGetSession();
+        final String experimentTypeCode = "EXP-TYPE1";
+        final String experimentCode = "EXP1";
+        final String spaceCode = "CISD";
+        final String sample1Code = "SAMPLE1";
+        final String[] samples =
+                { sample1Code };
+        final ExperimentPE experimentPE =
+                createExperiment(experimentTypeCode, experimentCode, spaceCode);
+        final NewExperiment newExperiment =
+                createNewExperiment(experimentTypeCode, experimentCode, null, samples);
+        newExperiment.setRegisterSamples(true);
+        final List<NewSample> newSamples = new ArrayList<NewSample>();
+        NewSample newSample1 = createNewSample(sample1Code);
+        newSamples.add(newSample1);
+        List<NewSamplesWithTypes> samplesWithTypes = new ArrayList<NewSamplesWithTypes>();
+        final SampleTypePE sampleTypePE = CommonTestUtils.createSampleType();
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(sampleTypePE.getCode());
+        final NewSamplesWithTypes newSamplesWithType =
+                new NewSamplesWithTypes(sampleType, newSamples);
+        samplesWithTypes.add(newSamplesWithType);
+        newExperiment.setNewSamples(samplesWithTypes);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).define(newExperiment);
+                    exactly(2).of(experimentBO).save();
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
+
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
+                    will(returnValue(sampleTypePE));
+
+                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+
+                    one(propertiesBatchManager).manageProperties(sampleTypePE, newSamples, null);
+                    
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+                    one(sampleBO).loadBySampleIdentifier(
+                            SampleIdentifierFactory.parse(createSampleIdentifier(spaceCode,
+                                    sample1Code)));
+                    one(sampleBO).setExperiment(experimentPE);
+
+                }
+            });
+        
+        createServer().registerExperiment(SESSION_TOKEN, newExperiment,
+                Collections.<NewAttachment> emptyList());
+        
+        assertEquals("/" + spaceCode, newSample1.getSpaceIdentifier());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testRegisterMaterials()
     {

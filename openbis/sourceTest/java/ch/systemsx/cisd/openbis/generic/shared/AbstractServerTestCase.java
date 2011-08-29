@@ -375,17 +375,17 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         return groupPE;
     }
 
-    static protected String createSampleIdentifier(final String groupCode, String sample1Code)
+    static protected String createSampleIdentifier(final String spaceCode, String sampleCode)
     {
-        return "/" + groupCode + "/" + sample1Code;
+        return "/" + spaceCode + "/" + sampleCode;
     }
 
     static protected NewExperiment createNewExperiment(final String experimentTypeCode,
-            final String experimentCode, final String groupCode, final String[] samples)
+            final String experimentCode, final String spaceCode, final String[] samples)
     {
         final NewExperiment newExperiment = new NewExperiment();
         newExperiment.setExperimentTypeCode(experimentTypeCode);
-        newExperiment.setIdentifier("/" + groupCode + "/PROJ/" + experimentCode);
+        newExperiment.setIdentifier("/" + spaceCode + "/PROJ/" + experimentCode);
         newExperiment.setSamples(samples);
         return newExperiment;
     }
