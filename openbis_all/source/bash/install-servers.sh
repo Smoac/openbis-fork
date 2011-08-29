@@ -1,11 +1,18 @@
 #! /bin/bash
 # 
+# Installs openBIS AS and DSS.
+# 
 # Usage: install-servers.sh <servers> <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>
 # 
 # 
 # 
+# Dependencies: 
+# - servers-shutdown.sh
+# - create-config-snapshot.sh
+# - restore-config-snapshot.sh
+# - install.sh of the openBIS AS distribution
 # 
-# 
+
 if [ $# -ne 4 ]; then
     echo "Usage: install-servers.sh <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>"
     exit 1
@@ -30,18 +37,24 @@ rm -rf "$OPENBIS_AS"
 rm -rf "$OPENBIS_DSS"
 
 "$FETCHING_SCRIPT"
+echo "unzip openBIS-server*.zip"
 unzip -qu openBIS-server*.zip -d "$SERVERS"
+echo "unzip datastore_server-*.zip"
 unzip -qu datastore_server-*.zip -d "$SERVERS" 
 for file in datastore_server_plugin-*.zip; do 
 	if [ -f $file ]; then 
+    echo "unzip $file"
 		unzip -qu -d "$SERVERS/datastore_server" $file;
 	fi
 done
 rm -f openBIS-server*.zip
 rm -f datastore_server*.zip
 
+echo "==== Starting install script of the openBIS AS distribution"
 "$OPENBIS_AS/install.sh" "$OPENBIS_AS"
+echo "==== Finished install script of the openBIS AS distribution"
 
 YOUNGEST_REPOSITORY=`ls "$REPOSITORY"|sort -r|sed q`
+echo "==== Restore config snapshot $YOUNGEST_REPOSITORY"
 "$BIN_DIR/restore-config-snapshot.sh" "$SERVERS" "$REPOSITORY/$YOUNGEST_REPOSITORY/"
 
