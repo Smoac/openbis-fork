@@ -3,9 +3,9 @@ This is the analysis result dropbox which accepts single files with xml extensio
 Each file should contain image analysis results on the well level.
 It will be registered as one dataset. 
 The naming convention of the xml file is the following:
-    <raw-image-dataset-code>_<any-text>.xml
+    <any-text>_<raw-image-dataset-code>.xml
 e.g.
-    20110809142909177-826_LC80463-RS101202.xml
+    LC80463-RS101202_20110809142909177-826.xml
 The dataset with the code specified in the file name will become a parent of the new dataset.     
 """
 import utils
@@ -43,7 +43,10 @@ if fileExt == "xml":
     
     transaction = service.transaction(incoming, factory)
     
-    parentDatasetCode = utils.extractFileBasename(incoming.getName()).split('_')[0]
+    tokens = utils.extractFileBasename(incoming.getName()).split('_')
+    if (len(tokens) < 2):
+        raise ValidationException("Incoming directory name "+incoming.getName()+" does not adhere to the naming convention <any-text>_<raw-image-dataset-code>.xml")
+    parentDatasetCode = tokens[-1]
     (plate, experiment) = registration.findConnectedPlate(transaction, parentDatasetCode)
     plateCode = plate.getCode()
     
