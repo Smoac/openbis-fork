@@ -243,7 +243,9 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         final SamplePropertyPE dpMaterial =
                 createDynamicSampleProperty(dynamicPropertyType, script1);
 
-        final ScriptPE scriptError1 = createScript("se1", "'fake_material'");
+        final MaterialIdentifier fakeCodeIdentifier =
+                new MaterialIdentifier("fake_material", materialTypeCode);
+        final ScriptPE scriptError1 = createScript("se1", "'" + fakeCodeIdentifier.getCode() + "'");
         final PropertyTypePE dynamicPropertyTypeError1 =
                 createPropertyType("dpMaterialError1", DataTypeCode.MATERIAL);
         dynamicPropertyTypeError1.setMaterialType(materialType);
@@ -279,6 +281,10 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
             {
                 {
                     one(materialDAO).tryFindMaterial(sessionProvider.getSession(),
+                            fakeCodeIdentifier);
+                    will(returnValue(null));
+
+                    one(materialDAO).tryFindMaterial(sessionProvider.getSession(),
                             new MaterialIdentifier(material.getCode(), materialTypeCode));
                     will(returnValue(material));
 
@@ -302,8 +308,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         assertEquals(material, dpMaterial.getMaterialValue());
 
         final String expectedDpMaterialError1Value =
-                expectedErrorMessage("Material specification 'fake_material' has improper format. "
-                        + "Expected '<CODE> (<TYPE>)'.");
+                expectedErrorMessage("No material could be found for identifier 'fake_material (M_TYPE)'.");
         assertEquals(expectedDpMaterialError1Value, dpMaterialError1.getValue());
         assertEquals(null, dpMaterialError1.getVocabularyTerm());
 
