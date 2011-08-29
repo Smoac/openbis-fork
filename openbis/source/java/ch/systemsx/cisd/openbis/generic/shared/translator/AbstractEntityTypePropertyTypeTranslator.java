@@ -93,17 +93,7 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         result.setSection(etptPE.getSection());
         result.setDynamic(etptPE.isDynamic());
         result.setManaged(etptPE.isManaged());
-        if (etptPE.isManaged())
-        {
-            // WORKAROUND: Make all managed properties visible in edit/update views
-            result.setShownInEditView(true);
-        } else if (etptPE.isDynamic())
-        {
-            result.setShownInEditView(false);
-        } else
-        {
-            result.setShownInEditView(true);
-        }
+        result.setShownInEditView(etptPE.isShownInEditView());
         result.setScript(ScriptTranslator.translate(etptPE.getScript()));
         return result;
     }

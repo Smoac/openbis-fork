@@ -71,6 +71,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     private ScriptPE script;
 
+    private boolean shownInEditView;
+
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
     {
@@ -121,6 +123,18 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public boolean isManaged()
     {
         return isScriptable() && getScript().isManaged();
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.IS_SHOWN_EDIT, updatable = true)
+    public boolean isShownInEditView()
+    {
+        return shownInEditView;
+    }
+
+    public void setShownInEditView(final boolean shownInEditView)
+    {
+        this.shownInEditView = shownInEditView;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

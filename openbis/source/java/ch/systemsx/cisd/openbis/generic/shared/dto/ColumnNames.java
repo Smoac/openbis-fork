@@ -282,6 +282,8 @@ public final class ColumnNames
 
     public static final String SPEED_HINT = "speed_hint";
 
+    public static final String IS_SHOWN_EDIT = "is_shown_edit";
+
     private ColumnNames()
     {
         // Can not be instantiated.
