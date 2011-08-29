@@ -46,6 +46,8 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements IS
 
     private boolean managed;
 
+    private boolean showInEditView;
+
     private Script script;
 
     public Script getScript()
@@ -86,6 +88,47 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements IS
     public final void setManaged(final boolean managed)
     {
         this.managed = managed;
+    }
+
+    /**
+     * Some properties, managed properties in particular, may or may not need to be available in
+     * edit and update views.
+     * <p>
+     * The current behavior is to always return true for non-script-based properties and always
+     * return false for dynamically computed properties. Only dynamically managed properties take
+     * this value into account.
+     * 
+     * @return True if the property should be shown in edit and update views.
+     */
+    public final boolean isShownInEditView()
+    {
+        if (isDynamic())
+        {
+            return false;
+        }
+        if (false == isManaged())
+        {
+            return true;
+        }
+        return showInEditView;
+    }
+
+    /**
+     * Some properties, managed properties in particular, may or may not need to be available in
+     * edit and update views.
+     * <p>
+     * The current behavior is to always use the value true for non-script-based properties and
+     * always use false for dynamically computed properties. Only dynamically managed properties
+     * take this value into account.
+     * 
+     * @param showInEditView Pass in true if this property should be shown in edit and
+     *            update views.
+     */
+    public final void setShownInEditView(final boolean showInEditView)
+    {
+        // Just set the value, the semantics of how this is applicable to dynamic / simple properties
+        // is implemented in the getter.
+        this.showInEditView = showInEditView;
     }
 
     public final boolean isMandatory()

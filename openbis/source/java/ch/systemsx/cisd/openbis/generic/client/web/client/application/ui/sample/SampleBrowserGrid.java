@@ -140,7 +140,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                 BaseEntityModel<TableModelRowWithObject<Sample>> model,
                                 String columnID)
                         {
-                            // Do not show a message because in a chooser nobody is expecting editable table cells.
+                            // Do not show a message because in a chooser nobody is expecting
+                            // editable table cells.
                         }
                     };
         browserGrid.addGridRefreshListener(toolbar);
@@ -427,8 +428,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         {
             if (entityTypePropertyType.getPropertyType().getCode().equals(propertyTypeCode))
             {
-                return entityTypePropertyType.isDynamic() == false
-                        && entityTypePropertyType.isManaged() == false;
+                return entityTypePropertyType.isShownInEditView();
             }
         }
         return false;

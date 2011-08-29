@@ -21,10 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
@@ -39,6 +35,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 /**
  * @author Izabela Adamczyk
@@ -73,18 +73,17 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         assert properties != null : "Undefined properties.";
         assert propertyFields == null : "Already initialized.";
-        List<S> etptWithoutDynamic = filterOutDynamicETPT(entityTypesPropertyTypes);
-        this.propertyFields =
-                createPropertyFields(etptWithoutDynamic, createInitialProperties(properties));
+        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes);
+        this.propertyFields = createPropertyFields(shownEtpts, createInitialProperties(properties));
 
     }
 
     public void initWithoutProperties(final List<S> entityTypesPropertyTypes)
     {
         assert propertyFields == null : "Already initialized.";
-        List<S> etptWithoutDynamic = filterOutDynamicETPT(entityTypesPropertyTypes);
+        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes);
         this.propertyFields =
-                createPropertyFields(etptWithoutDynamic,
+                createPropertyFields(shownEtpts,
                         createInitialProperties(new ArrayList<IEntityProperty>()));
 
     }
@@ -138,7 +137,9 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);
         field.get().setData(ETPT, etpt);
         GWTUtils.setToolTip(field.get(), propertyTypeCode);
-        if (etpt.isManaged() && isDebuggingModeEnabled() == false)
+        // Hide any properties that are not to be shown in edit/update views (unless in debugging
+        // mode)
+        if (etpt.isShownInEditView() == false && isDebuggingModeEnabled() == false)
         {
             FieldUtil.setVisibility(false, field.get());
         }
@@ -266,12 +267,12 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         }
     }
 
-    private List<S> filterOutDynamicETPT(List<S> entityTypesPropertyTypes)
+    private List<S> getEtptsShownInEditView(List<S> allEntityTypesPropertyTypes)
     {
         ArrayList<S> result = new ArrayList<S>();
-        for (S etpt : entityTypesPropertyTypes)
+        for (S etpt : allEntityTypesPropertyTypes)
         {
-            if (etpt.isDynamic() == false)
+            if (etpt.isShownInEditView())
             {
                 result.add(etpt);
             }
