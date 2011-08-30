@@ -235,6 +235,7 @@ var common = {
   sample_identifier: "Identifier",
   is_instance_sample: "Shared?",
   is_invalid: "Invalid?",
+  is_deleted: "Deleted?",
   group: "Space",
   space: "Space",
   groups: "Spaces",
