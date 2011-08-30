@@ -265,7 +265,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     private static void setUpdatePossibility(
             List<? extends NewEntitiesWithTypes<?, ?>> batchOperation, boolean updateExisting)
     {
-        for (NewEntitiesWithTypes entitiesWithTypes : batchOperation)
+        for (NewEntitiesWithTypes<?, ?> entitiesWithTypes : batchOperation)
         {
             entitiesWithTypes.setAllowUpdateIfExist(updateExisting);
         }
