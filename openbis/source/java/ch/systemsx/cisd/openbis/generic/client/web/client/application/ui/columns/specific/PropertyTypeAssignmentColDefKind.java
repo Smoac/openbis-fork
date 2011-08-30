@@ -144,6 +144,16 @@ public enum PropertyTypeAssignmentColDefKind implements
             }
         }),
 
+    IS_SHOWN_IN_EDIT_VIEW(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(
+            Dict.IS_SHOWN_IN_EDIT_VIEW)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isShownInEditView());
+            }
+        }),
+
     ;
 
     private final AbstractColumnDefinitionKind<EntityTypePropertyType<?>> columnDefinitionKind;

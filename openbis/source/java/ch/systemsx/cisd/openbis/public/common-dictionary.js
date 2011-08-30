@@ -335,6 +335,7 @@ var common = {
   xml_schema_info: "XML Schema that will be used for validation of user provided XML documents.<br><br>If no schema is specified only well-formedness of the documents will be checked.",
   xslt: "XSLT Script",
   xslt_info: "XSLT Script that will be used for rendering of user provided XML documents e.g. in tables.<br><br>If no script is specified the original XML document will be displayed.",
+  shown_in_edit_view: "Shown in Edit Views",
   
   
   //
@@ -353,6 +354,7 @@ var common = {
   edit_property_type_assignment_title : "Edit assignment between {0} type {1} and property type {2}",
   default_update_value: "Update Value",
   default_update_value_tooltip: "The value of the assigned property for all currently existing entities that didn't have any value for this property.",
+  is_shown_in_edit_view: "Shown in Edit Views?",
   
   //
   // Wizard

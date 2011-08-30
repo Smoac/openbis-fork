@@ -384,6 +384,10 @@ public abstract class Dict
 
     public static final String SCRIPT = "script";
 
+    public static final String IS_SHOWN_IN_EDIT_VIEW = "is_shown_in_edit_view";
+
+    public static final String SHOWN_IN_EDIT_VIEW = "shown_in_edit_view";
+
     public static final String SCRIPT_REGISTRATION = "script_registration";
 
     public static final String PROPERTY_TYPE = "property_type";

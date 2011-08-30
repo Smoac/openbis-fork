@@ -20,24 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.google.gwt.user.client.Element;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -69,6 +51,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.user.client.Element;
 
 /**
  * The property type assignment panel.
@@ -124,6 +124,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox scriptableCheckbox;
 
+    private CheckBox shownInEditViewCheckBox;
+
     private SectionSelectionWidget sectionSelectionWidget;
 
     private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
@@ -145,6 +147,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     private Radio scriptTypeDynamic;
 
     private final RadioGroup scriptTypeRadioGroup;
+
+    // Track if the user has set a value
+    private boolean userDidChangeShownInEditViewCheckBox = false;
+
+    // Track the state of the code
+    private boolean synchronizingGuiFields = false;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKind)
@@ -224,6 +232,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 public void handleEvent(BaseEvent be)
                 {
                     scriptChooser.setRawValue("");
+                    updateVisibilityOfShownInEditViewField();
                 }
             });
         return result;
@@ -334,6 +343,15 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         {
             FieldUtil.setVisibility(scriptable == false, mandatoryCheckbox);
         }
+        updateVisibilityOfShownInEditViewField();
+    }
+
+    private void updateVisibilityOfShownInEditViewField()
+    {
+        if (shownInEditViewCheckBox != null)
+        {
+            FieldUtil.setVisibility(isManaged(), shownInEditViewCheckBox);
+        }
     }
 
     private CheckBox getMandatoryCheckbox()
@@ -360,11 +378,66 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     public void handleEvent(BaseEvent be)
                     {
+                        updateShownInEditView();
                         updateVisibilityOfScriptRelatedFields();
                     }
                 });
         }
         return scriptableCheckbox;
+    }
+
+    private void updateShownInEditView()
+    {
+        if (userDidChangeShownInEditViewCheckBox)
+        {
+            // If the user has made a change, don't overwrite her changes.
+            return;
+        }
+
+        synchronizingGuiFields = true;
+        if (false == isScriptable())
+        {
+            shownInEditViewCheckBox.setValue(true);
+            return;
+        }
+
+        if (isDynamic())
+        {
+            shownInEditViewCheckBox.setValue(false);
+            return;
+        }
+
+        if (isManaged())
+        {
+            shownInEditViewCheckBox.setValue(false);
+            return;
+        }
+        synchronizingGuiFields = false;
+
+    }
+
+    private CheckBox getShownInEditViewCheckbox()
+    {
+        if (null == shownInEditViewCheckBox)
+        {
+            shownInEditViewCheckBox =
+                    new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
+            shownInEditViewCheckBox.setValue(true);
+            shownInEditViewCheckBox.setVisible(false);
+            shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        // Make sure the User triggered the change
+                        if (false == synchronizingGuiFields)
+                        {
+                            userDidChangeShownInEditViewCheckBox = true;
+                        }
+                    }
+                });
+        }
+
+        return shownInEditViewCheckBox;
     }
 
     private boolean isScriptable()
@@ -463,6 +536,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         formPanel.add(scriptTypeRadioGroup);
         formPanel.add(scriptChooser);
         formPanel.add(getMandatoryCheckbox());
+        formPanel.add(getShownInEditViewCheckbox());
         updatePropertyTypeRelatedFields();
 
         modificationManager.addObserver(propertyTypeWidget);
@@ -600,17 +674,31 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
     }
 
-    boolean isDynamic()
+    private boolean isDynamic()
     {
         return isScriptable() && scriptTypeDynamic.getValue();
     }
 
-    boolean isManaged()
+    private boolean isManaged()
     {
         return isScriptable() && scriptTypeManaged.getValue();
     }
 
-    //
+    private boolean isShownInEditView()
+    {
+        // The logic for defaulting the value of the shownInEditView check box is duplicated here to
+        // enforce the current semantics that this value is only considered by managed properties
+        if (false == isScriptable())
+        {
+            return true;
+        }
+        if (isDynamic())
+        {
+            return false;
+        }
+
+        return shownInEditViewCheckBox.getValue();
+    }
 
     private final void submitForm()
     {
@@ -621,7 +709,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                             propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
                             getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
                             getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
-                            isDynamic(), isManaged(), tryGetScriptNameValue());
+                            isDynamic(), isManaged(), tryGetScriptNameValue(), isShownInEditView());
             viewContext.getService().assignPropertyType(newAssignment,
                     new AssignPropertyTypeCallback(viewContext));
         }

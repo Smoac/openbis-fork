@@ -32,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
@@ -42,13 +40,13 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     @SuppressWarnings("hiding")
     @Autowired
     private ICommonServer commonServer;
-    
+
     @Autowired
     private IGeneralInformationService generalInformationService;
 
     @Autowired
     private IGeneralInformationChangingService generalInformationChangingService;
-    
+
     private String sessionToken;
 
     @BeforeMethod
@@ -68,9 +66,9 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     {
         TechId id = new TechId(1043L);
         commonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
-                "DESCRIPTION", "CELL_PLATE", false, null, null, 1L, false, false, null));
+                "DESCRIPTION", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
         commonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
-                "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null));
+                "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]", commonServer
                 .getSampleInfo(sessionToken, id).getParent());
@@ -80,9 +78,10 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         properties.put("Organism", "DOG");
         properties.put("DESCRIPTION", "hello example");
         properties.put("gender", "FEMALE");
-        
-        generalInformationChangingService.updateSampleProperties(sessionToken, id.getId(), properties);
-        
+
+        generalInformationChangingService.updateSampleProperties(sessionToken, id.getId(),
+                properties);
+
         assertProperties("[ANY_MATERIAL: 1 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, DESCRIPTION: hello example, GENDER: FEMALE, "
                 + "ORGANISM: DOG, SIZE: 42]", commonServer.getSampleInfo(sessionToken, id)

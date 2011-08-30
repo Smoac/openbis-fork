@@ -48,13 +48,15 @@ public class NewETPTAssignment implements ISerializable
 
     private boolean managed;
 
+    private boolean shownInEditView;
+
     public NewETPTAssignment()
     {
     }
 
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
             boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
-            boolean managed, String scriptOrNull)
+            boolean managed, String scriptOrNull, boolean shownInEditView)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
@@ -66,6 +68,7 @@ public class NewETPTAssignment implements ISerializable
         this.dynamic = dynamic;
         this.managed = managed;
         this.scriptName = scriptOrNull;
+        this.shownInEditView = shownInEditView;
     }
 
     public EntityKind getEntityKind()
@@ -166,6 +169,16 @@ public class NewETPTAssignment implements ISerializable
     public void setManaged(boolean managed)
     {
         this.managed = managed;
+    }
+
+    public boolean isShownInEditView()
+    {
+        return shownInEditView;
+    }
+
+    public void setShownInEditView(boolean shownInEditView)
+    {
+        this.shownInEditView = shownInEditView;
     }
 
 }

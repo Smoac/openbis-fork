@@ -80,7 +80,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final Long ordinal = 0L;
         final boolean dynamic = true;
         return new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, mandatory,
-                defaultValue, section, ordinal, dynamic, false, script);
+                defaultValue, section, ordinal, dynamic, false, script, false);
     }
 
     @Test

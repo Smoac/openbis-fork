@@ -113,7 +113,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         ScriptPE scriptOrNull = tryFindScript(newAssignment);
         assignment =
                 createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
-                        newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull);
+                        newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull,
+                        newAssignment.isShownInEditView());
         String defaultValue = newAssignment.getDefaultValue();
         if (newAssignment.isDynamic())
         {
@@ -244,6 +245,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             ScriptPE script = getScriptDAO().tryFindByName(assignmentUpdates.getScriptName());
             assignment.setScript(script);
         }
+        assignment.setShownInEditView(assignmentUpdates.isShownInEditView());
         validateAndSave();
         if (scriptChanged)
         {
@@ -268,7 +270,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
             final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
-            final PropertyTypePE propertyType, ScriptPE scriptOrNull)
+            final PropertyTypePE propertyType, ScriptPE scriptOrNull, boolean shownInEditView)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         // need to shift existing etpts to create space for new one
@@ -284,6 +286,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setSection(section);
         etpt.setOrdinal(currentOrdinal);
         etpt.setScript(scriptOrNull);
+        etpt.setShownInEditView(shownInEditView);
 
         try
         {
