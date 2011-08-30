@@ -41,7 +41,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
             "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n";
 
     public static String WITH_SPACE_COMMENT =
-            "# The \"space\" column is optional, will override space home value for the row\n";
+            "# The \"space\" column is optional, it can be used to override home space for the row\n";
 
     public static final String CONTAINER = "container";
 
