@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
@@ -59,12 +58,6 @@ public interface IEntityPropertyTypeDAO
      */
     public void createEntityPropertyTypeAssignment(
             final EntityTypePropertyTypePE entityPropertyTypeAssignement)
-            throws DataAccessException;
-
-    /**
-     * Returns a list of all entities of given <var>entityType</var>.
-     */
-    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType)
             throws DataAccessException;
 
     /**

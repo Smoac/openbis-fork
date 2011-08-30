@@ -18,9 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -91,33 +87,6 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         Assert.assertNotNull(daoFactory.getEntityPropertyTypeDAO(entityKind).tryFindAssignment(
                 entityType, propertyType));
 
-    }
-
-    @Test
-    public void testListEntities() throws Exception
-    {
-        EntityKind entityKind = EntityKind.EXPERIMENT;
-        String typeCode = "SIRNA_HCS";
-        EntityTypePE entityType =
-                daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
-        List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listExperiments();
-        Assert.assertEquals(new HashSet<ExperimentPE>(filter(allExperiments, entityType)),
-                new HashSet<IEntityPropertiesHolder>(daoFactory
-                        .getEntityPropertyTypeDAO(entityKind).listEntities(entityType)));
-    }
-
-    private static List<ExperimentPE> filter(List<ExperimentPE> allExperiments,
-            EntityTypePE entityType)
-    {
-        List<ExperimentPE> result = new ArrayList<ExperimentPE>();
-        for (ExperimentPE experimentPE : allExperiments)
-        {
-            if (experimentPE.getExperimentType().getCode().equals(entityType.getCode()))
-            {
-                result.add(experimentPE);
-            }
-        }
-        return result;
     }
 
     public final void testCountTermUsageStatistics()

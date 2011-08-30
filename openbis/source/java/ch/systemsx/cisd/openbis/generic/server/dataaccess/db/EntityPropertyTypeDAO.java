@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
@@ -138,18 +137,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     + "' with entity type '"
                     + entityPropertyTypeAssignement.getEntityType().getCode() + "'.");
         }
-    }
-
-    public List<IEntityPropertiesHolder> listEntities(final EntityTypePE entityType)
-            throws DataAccessException
-    {
-        assert entityType != null : "Unspecified entity type.";
-
-        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
-        criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
-        final List<IEntityPropertiesHolder> list =
-                cast(getHibernateTemplate().findByCriteria(criteria));
-        return list;
     }
 
     public List<Long> listEntityIds(final EntityTypePE entityType) throws DataAccessException
