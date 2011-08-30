@@ -156,7 +156,7 @@ final class RootEntitiesFinder
     {
         for (SamplePE sample : parents)
         {
-            if (sampleIDs.contains(sample))
+            if (sampleIDs.contains(sample.getId()))
             {
                 return true;
             }
