@@ -199,6 +199,10 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     private List<TechId> findTrashedEntityIds(final List<TechId> deletionIds,
             final EntityKind entityKind, Criterion... additionalCriteria)
     {
+        if (deletionIds.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         final DetachedCriteria criteria =
                 DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
         final List<Long> longIds = TechId.asLongs(deletionIds);
