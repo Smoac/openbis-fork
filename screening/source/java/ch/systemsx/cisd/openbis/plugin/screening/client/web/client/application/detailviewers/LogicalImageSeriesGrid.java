@@ -32,12 +32,12 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LazyImageSeriesFrame.ImagesDownloadListener;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.ImageUrlUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
@@ -53,20 +53,26 @@ class LogicalImageSeriesGrid
     {
         LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
         List<List<ImageChannelStack>> sortedChannelStackSeriesPoints = model.getSortedChannelStackSeriesPoints();
-        List<LayoutContainer> frames =
+        List<LazyImageSeriesFrame> frames =
                 createSeriesFrames(sortedChannelStackSeriesPoints, channelReferences,
                         sessionId, imageWidth, imageHeight);
-        if (model.isMatrixViewPossible())
+        final LazyImageDownloader imagesDownloader = new LazyImageDownloader(frames);
+        final LayoutContainer imageSeriesGrid =
+                (model.isMatrixViewPossible()) ? createTimeAndDepthViewer(imagesDownloader, model)
+                        : createMoviePlayer(imagesDownloader, model);
+        for (LazyImageSeriesFrame frame : frames)
         {
-            return createTimeAndDepthViewer(frames, model);
+            imageSeriesGrid.add(frame);
         }
-        return createMoviePlayer(frames, model);
+
+        return imageSeriesGrid;
     }
     
-    private static LayoutContainer createTimeAndDepthViewer(final List<LayoutContainer> frames,
+    private static LayoutContainer createTimeAndDepthViewer(
+            final LazyImageDownloader imageDownloader,
             final LogicalImageSeriesViewerModel model)
     {
-        final LayoutContainer mainContainer = new LayoutContainer();
+        final LayoutContainer mainContainer = createMainContainer(imageDownloader);
         LayoutContainer sliderContainer = new LayoutContainer(new HBoxLayout());
         mainContainer.add(sliderContainer);
         LayoutContainer timeSliderContainer = new LayoutContainer();
@@ -86,19 +92,17 @@ class LogicalImageSeriesGrid
         depthSliderContainer.add(depthSliderLabel);
         final Slider depthSlider = createSlider(numberOfDepthLevels);
         depthSliderContainer.add(depthSlider);
-        Listener<SliderEvent> listener = new AbstractSliderListener(mainContainer, frames)
+        Listener<SliderEvent> listener = new Listener<SliderEvent>()
             {
                 private int currentFrameIndex;
                 
-                @Override
                 public void handleEvent(SliderEvent be)
                 {
-                    super.handleEvent(be);
-                    frames.get(currentFrameIndex).hide();
+                    int oldIndex = currentFrameIndex;
                     currentFrameIndex =
                             (timeSlider.getValue() - 1) * numberOfDepthLevels
                                     + (depthSlider.getValue() - 1);
-                    frames.get(currentFrameIndex).show();
+                    imageDownloader.frameSelectionChanged(oldIndex, currentFrameIndex);
                     int timeSliderValue = timeSlider.getValue();
                     int depthSliderValue = depthSlider.getValue();
                     setSliderLabels(model, timeSliderLabel, timeSliderValue, depthSliderLabel, depthSliderValue);
@@ -109,8 +113,6 @@ class LogicalImageSeriesGrid
         depthSlider.addListener(Events.Change, listener);
         setSliderLabels(model, timeSliderLabel, 1, depthSliderLabel, 1);
         
-        // add only first frame to avoid loading images before the slider is touched
-        mainContainer.add(frames.get(0));
         return mainContainer;
     }
     
@@ -127,39 +129,47 @@ class LogicalImageSeriesGrid
                 + numberOfDepthLevels + ")");
     }
 
-    private static LayoutContainer createMoviePlayer(final List<LayoutContainer> frames,
+    private static LayoutContainer createMoviePlayer(final LazyImageDownloader imageDownloader,
             LogicalImageSeriesViewerModel model)
     {
         final List<ImageSeriesPoint> sortedPoints = model.getSortedPoints();
-        final LayoutContainer mainContainer = new LayoutContainer();
-        Listener<SliderEvent> listener =  new AbstractSliderListener(mainContainer, frames)
+        final LayoutContainer mainContainer = createMainContainer(imageDownloader);
+
+        Listener<SliderEvent> listener = new Listener<SliderEvent>()
             {
-                @Override
                 public void handleEvent(SliderEvent e)
                 {
-                    super.handleEvent(e);
                     int oldValue = e.getOldValue();
                     int newValue = e.getNewValue();
-                    if (oldValue > 0)
-                    {
-                        frames.get(oldValue - 1).hide();
-                    }
-                    frames.get(newValue - 1).show();
+                    imageDownloader.frameSelectionChanged(oldValue - 1, newValue - 1);
                     removeFirstItem(mainContainer);
                     mainContainer.insert(createSeriesPointLabel(sortedPoints, newValue), 0);
                     mainContainer.layout();
                 }
 
             };
-        final Slider slider = createSlider(frames.size());
+        final Slider slider = createSlider(model.getSortedPoints().size());
         slider.addListener(Events.Change, listener);
         // slider.setValue(1);
 
         mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
         mainContainer.add(slider);
-        // add only first frame to avoid loading images before the slider is touched
-        mainContainer.add(frames.get(0));
 
+        return mainContainer;
+    }
+
+    private static LayoutContainer createMainContainer(final LazyImageDownloader imageDownloader)
+    {
+        final LayoutContainer mainContainer = new LayoutContainer()
+            {
+
+                @Override
+                protected void onUnload()
+                {
+                    super.onUnload();
+                    imageDownloader.stop();
+                }
+            };
         return mainContainer;
     }
 
@@ -172,72 +182,26 @@ class LogicalImageSeriesGrid
      * @param sortedChannelStackSeriesPoints - one element on the list are all tiles for a fixed
      *            series point
      */
-    private static List<LayoutContainer> createSeriesFrames(
+    private static List<LazyImageSeriesFrame> createSeriesFrames(
             List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
     {
-        final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
+        final List<LazyImageSeriesFrame> frames = new ArrayList<LazyImageSeriesFrame>();
         for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
         {
-            final LayoutContainer container =
-                    createFrameForSeriesPoint(seriesPointStacks, channelReferences, sessionId,
+            final LazyImageSeriesFrame frame =
+                    new LazyImageSeriesFrame(seriesPointStacks, channelReferences, sessionId,
                             imageWidth, imageHeight);
-            boolean isFirstFrame = (frames.size() == 0);
-            container.setVisible(isFirstFrame);
-            frames.add(container);
+            boolean isFirstFrame = frames.isEmpty();
+            if (isFirstFrame)
+            {
+                frame.downloadImagesFromServer();
+            }
+            frame.setVisible(isFirstFrame);
+            frames.add(frame);
         }
         return frames;
-    }
-
-    private static LayoutContainer createFrameForSeriesPoint(
-            List<ImageChannelStack> seriesPointStacks,
-            LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
-            int imageHeight)
-    {
-        LogicalImageReference images = channelReferences.getBasicImage();
-        final LayoutContainer container =
-                new LayoutContainer(new TableLayout(images.getTileColsNum()));
-
-        ImageChannelStack[/* tileRow */][/* tileCol */] tilesMap =
-                createTilesMap(seriesPointStacks, images);
-        for (int row = 1; row <= images.getTileRowsNum(); row++)
-        {
-            for (int col = 1; col <= images.getTileColsNum(); col++)
-            {
-                ImageChannelStack stackRef = tilesMap[row - 1][col - 1];
-                if (stackRef != null)
-                {
-                    ImageUrlUtils.addImageUrlWidget(container, sessionId, channelReferences,
-                            stackRef, imageWidth, imageHeight);
-                } else
-                {
-                    addDummyImage(container, imageWidth, imageHeight);
-                }
-            }
-        }
-        return container;
-    }
-
-    private static ImageChannelStack[][] createTilesMap(List<ImageChannelStack> stackReferences,
-            LogicalImageReference images)
-    {
-        int rows = images.getTileRowsNum();
-        int cols = images.getTileColsNum();
-        ImageChannelStack[][] map = new ImageChannelStack[rows][cols];
-        for (ImageChannelStack stackRef : stackReferences)
-        {
-            map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
-        }
-        return map;
-    }
-
-    private static void addDummyImage(LayoutContainer container, int imageWidth, int imageHeight)
-    {
-        Label dummy = new Label();
-        dummy.setWidth(imageWidth);
-        dummy.setHeight(imageHeight);
-        container.add(dummy);
     }
 
     private static Widget createSeriesPointLabel(List<ImageSeriesPoint> sortedPoints,
@@ -538,35 +502,133 @@ class LogicalImageSeriesGrid
             return sortedSeries;
         }
     }
+    
+    /**
+     * 
+     * Takes into account the current position of the sliders to optimize the download of images. 
+     * Images downloads are grouped together in smaller chunks, which allows us to steer the download 
+     * process by following the slider movement.
+     * <p>
+     * In the beginning a small group of images is prefetched to allow smooth slider movement across the first few frames.
 
-    private abstract static class AbstractSliderListener implements Listener<SliderEvent>
-    {
-        private boolean isFirstMove = true;
+     */
+    static class LazyImageDownloader {
 
-        private final LayoutContainer mainContainer;
+        public static int NUM_FRAMES_TO_PREFETCH = 15;
 
-        private final List<LayoutContainer> frames;
+        public static int NUM_FRAMES_IN_DOWLOAD_CHUNK = 5;
 
-        AbstractSliderListener(LayoutContainer mainContainer, List<LayoutContainer> frames)
+        private List<LazyImageSeriesFrame> frames;
+        
+        private boolean fullDownloadStarted = false;
+
+        private boolean keepDownloading = true;
+
+        private int selectedFrameIndex = -1;
+
+        LazyImageDownloader(List<LazyImageSeriesFrame> frames)
         {
-            this.mainContainer = mainContainer;
             this.frames = frames;
+            prefetchFirstFrames(NUM_FRAMES_TO_PREFETCH);
         }
-
-        public void handleEvent(SliderEvent be)
+        
+        /**
+         * downloads the contents of the first <code>prefetchSize</code> frames.
+         */
+        private void prefetchFirstFrames(int prefetchSize)
         {
-            if (isFirstMove)
+            int numFrames = Math.min(prefetchSize, frames.size());
+            for (int i = 0; i < numFrames; i++)
             {
-                // The first slider move has been made, so we add all hidden frames to the
-                // DOM. The browser will start fetching images referenced in URLs in the
-                // background.
-                for (int i = 1; i < frames.size(); i++)
-                {
-                    mainContainer.add(frames.get(i));
-                }
-                isFirstMove = false;
+                frames.get(i).downloadImagesFromServer();
             }
         }
+
+        public void stop()
+        {
+            keepDownloading = false;
+        }
+
+        public void frameSelectionChanged(int oldSelectionIndex, int newSelectionIndex)
+        {
+            if (oldSelectionIndex >= 0)
+            {
+                frames.get(oldSelectionIndex).hide();
+            }
+
+            selectedFrameIndex = newSelectionIndex;
+            LazyImageSeriesFrame selectedFrame = frames.get(selectedFrameIndex);
+            selectedFrame.show();
+
+            if (false == fullDownloadStarted)
+            {
+                fullDownloadStarted = true;
+                scheduleDownloadNextChunkOfImages();
+            }
+        }
+
+        private void scheduleDownloadNextChunkOfImages()
+        {
+            GWTUtils.executeDelayed(new IDelegatedAction()
+                {
+                    public void execute()
+                    {
+                        downloadNextChunkOfImages();
+                    }
+                });
+        }
+
+        private void downloadNextChunkOfImages()
+        {
+            // prevent race condition by copying the state here
+            int pivot = selectedFrameIndex;
+            final List<LazyImageSeriesFrame> framesToDownload = new ArrayList<LazyImageSeriesFrame>();
+
+            for (int i = 0; i < frames.size(); i++)
+            {
+                int pos = (pivot + i) % frames.size();
+                final LazyImageSeriesFrame frame = frames.get(pos);
+                if (frame.needsImageDownload())
+                {
+                    framesToDownload.add(frame);
+                }
+                if (framesToDownload.size() == NUM_FRAMES_IN_DOWLOAD_CHUNK)
+                {
+                    break;
+                }
+            }
+            
+            ImagesDownloadListener downloadListener = new ImagesDownloadListener()
+                {
+                    private final List<LazyImageSeriesFrame> localFramesToDownload =
+                            new ArrayList<LazyImageSeriesFrame>(framesToDownload);
+
+                    public void imagesDownloaded(LazyImageSeriesFrame frame)
+                    {
+                        if (frame.isVisible())
+                        {
+                            frame.layout(true);
+                        }
+                        localFramesToDownload.remove(frame);
+                        if (localFramesToDownload.isEmpty() && shouldContinueDownloading())
+                        {
+                            scheduleDownloadNextChunkOfImages();
+                        }
+                    }
+                };
+            
+            
+            for (LazyImageSeriesFrame frame : framesToDownload) {
+                frame.setImagesDownloadListener(downloadListener);
+                frame.downloadImagesFromServer();
+            }
+        }
+
+        private boolean shouldContinueDownloading()
+        {
+            return keepDownloading && fullDownloadStarted;
+        }
     }
+
 
 }

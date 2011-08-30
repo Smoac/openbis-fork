@@ -52,5 +52,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar" sourcepath="/libraries/junit/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt-image-loader/gwt-image-loader.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

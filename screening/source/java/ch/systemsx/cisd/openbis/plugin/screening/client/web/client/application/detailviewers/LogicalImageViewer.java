@@ -170,7 +170,7 @@ public class LogicalImageViewer
         final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public LayoutContainer create(LogicalImageChannelsReference channelReferences)
+                public Widget create(LogicalImageChannelsReference channelReferences)
                 {
                     currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
                     String sessionId = getSessionId(viewContext);
@@ -282,7 +282,7 @@ public class LogicalImageViewer
         final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public LayoutContainer create(LogicalImageChannelsReference channelReferences)
+                public Widget create(LogicalImageChannelsReference channelReferences)
                 {
                     currentlySelectedChannelCode = getSelectedChannelCode(channelReferences);
                     setAdjustColorsButtonState(adjustColorsButton,

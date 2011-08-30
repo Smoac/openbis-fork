@@ -22,6 +22,11 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
+import com.reveregroup.gwt.imagepreloader.FitImage;
+import com.reveregroup.gwt.imagepreloader.FitImageLoadHandler;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
@@ -62,18 +67,20 @@ public class ImageUrlUtils
      */
     public static void addImageUrlWidget(LayoutContainer container, String sessionId,
             LogicalImageChannelsReference channelReferences, ImageChannelStack channelStackRef,
-            int imageWidth, int imageHeight)
+            int imageWidth, int imageHeight, FitImageLoadHandler imageLoadHandler)
     {
-        String imageURL =
-                createDatastoreImageUrl(sessionId, channelReferences, channelStackRef, imageWidth,
-                        imageHeight);
-        addUrlWidget(container, imageURL, imageWidth, imageHeight);
+        Component tilePanel =
+                createTilePanel(sessionId, channelReferences, channelStackRef, imageWidth,
+                        imageHeight, imageLoadHandler);
+        container.add(tilePanel);
     }
 
-    /** generates URL of an image on Data Store server */
-    private static String createDatastoreImageUrl(String sessionID,
+    /**
+     * generates URL of an image on Data Store server
+     */
+    private static Component createTilePanel(String sessionID,
             LogicalImageChannelsReference channelReferences, ImageChannelStack channelStackRef,
-            int width, int height)
+            int width, int height, final FitImageLoadHandler imageLoadHandler)
     {
         URLMethodWithParameters methodWithParameters =
                 createBasicImageURL(sessionID, channelReferences);
@@ -81,12 +88,28 @@ public class ImageUrlUtils
         methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_STACK_ID_PARAM,
                 channelStackRef.getChannelStackTechId());
         addImageTransformerSignature(methodWithParameters, channelReferences);
-        String linkURL = methodWithParameters.toString();
+        final String linkURL = methodWithParameters.toString();
         addThumbnailSize(methodWithParameters, width, height);
 
         String imageURL = methodWithParameters.toString();
+
+        FitImage image = new FitImage();
+        image.setFixedHeight(height);
+        image.setUrl(imageURL);
+        image.addFitImageLoadHandler(imageLoadHandler);
+        image.addClickHandler(new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    Window.open(linkURL, "_blank", "");
+                }
+            });
+        LayoutContainer tileContent = new LayoutContainer();
         // do not specify width to get correct aspect ratio of the original image
-        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, -1, height);
+        tileContent.setHeight("" + height);
+        tileContent.add(image);
+        PlateStyleSetter.setPointerCursor(tileContent);
+        return tileContent;
     }
 
     /** creates a widget which displays the specified URL and adds it to the container */
