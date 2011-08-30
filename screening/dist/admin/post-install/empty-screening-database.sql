@@ -2088,7 +2088,7 @@ COPY data_types (id, code, description) FROM stdin;
 --
 
 COPY database_instances (id, code, uuid, is_original_source, registration_timestamp) FROM stdin;
-1	DEMO	678243C3-BD97-42E4-B04B-34DA0C43564D	t	2010-05-10 17:57:14.310868+02
+1	SYSTEM_DEFAULT	678243C3-BD97-42E4-B04B-34DA0C43564D	t	2010-05-10 17:57:14.310868+02
 \.
 
 --
