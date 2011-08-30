@@ -41,7 +41,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
 
     private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
-    private boolean changeByteOrder = ByteOrder.nativeOrder().equals(byteOrder);
+    private boolean changeByteOrder = ByteOrder.LITTLE_ENDIAN.equals(byteOrder);
 
     private long markedPosition = -1;
 
@@ -90,7 +90,7 @@ public class RandomAccessFileImpl implements IRandomAccessFile
     public void setByteOrder(ByteOrder byteOrder)
     {
         this.byteOrder = byteOrder;
-        this.changeByteOrder = ByteOrder.nativeOrder().equals(byteOrder);
+        this.changeByteOrder = ByteOrder.LITTLE_ENDIAN.equals(byteOrder);
     }
 
     public int read() throws IOExceptionUnchecked
