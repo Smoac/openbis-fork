@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DeletedDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -224,6 +226,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public ITrashBO createTrashBO(Session session)
     {
         return new TrashBO(getDaoFactory(), session);
+    }
+
+    public IDeletionTable createDeletionTable(Session session)
+    {
+        return new DeletionTable(getDaoFactory(), session);
     }
 
 }

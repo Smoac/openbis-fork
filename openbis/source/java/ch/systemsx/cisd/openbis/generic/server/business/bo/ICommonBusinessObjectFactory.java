@@ -73,6 +73,8 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
     public IGridCustomFilterOrColumnBO createGridCustomColumnBO(final Session session);
 
     public ITrashBO createTrashBO(final Session session);
+    
+    public IDeletionTable createDeletionTable(Session session);
 
     // Fast listing operations
     public ISampleLister createSampleLister(Session session);

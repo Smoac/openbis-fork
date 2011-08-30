@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.ENTITIES;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.REASON;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
@@ -42,10 +45,11 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
     @Override
     protected TypedTableModel<Deletion> createTableModel()
     {
-        List<Deletion> deletions = commonServer.listDeletions(sessionToken);
+        List<Deletion> deletions = commonServer.listDeletions(sessionToken, true);
         TypedTableModelBuilder<Deletion> builder = new TypedTableModelBuilder<Deletion>();
         builder.addColumn(DELETION_DATE).withDefaultWidth(300);
         builder.addColumn(DELETER).withDefaultWidth(200);
+        builder.addColumn(ENTITIES).withDefaultWidth(300);
         builder.addColumn(REASON).withDefaultWidth(500);
         for (Deletion deletion : deletions)
         {
@@ -53,8 +57,59 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
             builder.column(DELETION_DATE).addDate(deletion.getRegistrationDate());
             builder.column(DELETER).addPerson(deletion.getRegistrator());
             builder.column(REASON).addString(deletion.getReason());
+            List<IEntityInformationHolderWithProperties> deletedEntities =
+                    deletion.getDeletedEntities();
+            if (deletedEntities.isEmpty() == false)
+            {
+                builder.column(ENTITIES).addString(
+                        createDescriptionOfDeletedEntities(deletedEntities));
+            }
         }
         return builder.getModel();
     }
 
+    private String createDescriptionOfDeletedEntities(
+            List<IEntityInformationHolderWithProperties> deletedEntities)
+    {
+        StringBuilder builder = new StringBuilder();
+        String experiments = createList(deletedEntities, EntityKind.EXPERIMENT);
+        if (experiments.length() > 0)
+        {
+            builder.append(moreThenOneLine(experiments) ? "Experiments:\n" : "Experiment ");
+            builder.append(experiments);
+        }
+        String samples = createList(deletedEntities, EntityKind.SAMPLE);
+        if (samples.length() > 0)
+        {
+            builder.append(moreThenOneLine(samples) ? "Samples:\n" : "Sample ");
+            builder.append(samples);
+        }
+        String dataSets = createList(deletedEntities, EntityKind.DATA_SET);
+        if (dataSets.length() > 0)
+        {
+            builder.append(moreThenOneLine(dataSets) ? "Data Sets:\n" : "Data Set ");
+            builder.append(dataSets);
+        }
+        return builder.toString();
+    }
+    
+    private String createList(List<IEntityInformationHolderWithProperties> deletedEntities,
+            EntityKind entityKind)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (IEntityInformationHolderWithProperties entity : deletedEntities)
+        {
+            if (entity.getEntityKind() == entityKind)
+            {
+                builder.append("  ").append(entity.getIdentifier()).append(" (");
+                builder.append(entity.getEntityType().getCode()).append(")\n");
+            }
+        }
+        return builder.toString();
+    }
+
+    private boolean moreThenOneLine(String text)
+    {
+        return text.split("\n").length > 1;
+    }
 }

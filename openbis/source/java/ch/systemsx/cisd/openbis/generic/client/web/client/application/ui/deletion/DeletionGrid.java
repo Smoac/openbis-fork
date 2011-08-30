@@ -148,6 +148,8 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<Deletion>> schema =
                 super.createColumnsDefinition();
+        schema.setGridCellRendererFor(DeletionGridColumnIDs.ENTITIES,
+                createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(DeletionGridColumnIDs.REASON,
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(DeletionGridColumnIDs.DELETER,

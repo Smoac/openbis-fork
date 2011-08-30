@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -219,7 +220,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DeletionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
@@ -2427,12 +2427,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return properties;
     }
 
-    public final List<Deletion> listDeletions(final String sessionToken)
+    public final List<Deletion> listDeletions(final String sessionToken, boolean withDeletedEntities)
     {
-        checkSession(sessionToken);
-        final List<DeletionPE> deletions = getDAOFactory().getDeletionDAO().listAllEntities();
-        Collections.sort(deletions);
-        return DeletionTranslator.translate(deletions);
+        Session session = getSession(sessionToken);
+        IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(session);
+        deletionTable.load(withDeletedEntities);
+        return deletionTable.getDeletions();
     }
 
     public final void revertDeletions(final String sessionToken, final List<TechId> deletionIds)

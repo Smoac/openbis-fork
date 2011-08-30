@@ -91,6 +91,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public ExperimentPE tryGetByPermID(String permId);
 
     public List<ExperimentPE> listByPermID(Set<String> permId);
+    
+    public List<ExperimentPE> listByIDs(Collection<Long> ids);
 
     /**
      * Saves or updates given given experiments in the database.

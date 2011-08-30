@@ -65,6 +65,7 @@ var common = {
   deletion: "Deletion",
   deletion_template: "{0}; {1}<br><i>reason:</i>&nbsp;{2}",
   permanent: "Permanent",
+  entities: "Entities",
   reason: "Reason",
   delete_confirmation_title: "Confirm Deletion",
   delete_confirmation_message: "Are you sure you want to delete [{0}]?",

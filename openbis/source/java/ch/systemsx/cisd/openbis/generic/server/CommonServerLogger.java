@@ -1128,9 +1128,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<Deletion> listDeletions(String sessionToken)
+    public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities)
     {
-        logAccess(sessionToken, "listDeletions");
+        logAccess(sessionToken, "listDeletions", "WITH_ENTITIES(%s)", withDeletedEntities);
         return null;
     }
 

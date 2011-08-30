@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
- * IDs of column of {@link DeletionGrid}.
- * 
- * @author Piotr Buczek
+ * Business object handling table of {@link Deletion} objects.
+ *
+ * @author Franz-Josef Elmer
  */
-public class DeletionGridColumnIDs
+public interface IDeletionTable
 {
-    public static final String REASON = "REASON";
-
-    public static final String DELETER = "DELETER";
-
-    public static final String DELETION_DATE = "DELETION_DATE";
+    /**
+     * Load all {@link Deletion} objects.
+     * 
+     * @param withEntities If <code>true</code> deletion objects will be enriched with those deleted
+     *            entities which are the root of the deletion tree.
+     */
+    public void load(boolean withEntities);
     
-    public static final String ENTITIES = "ENTITIES";
-
+    public List<Deletion> getDeletions();
 }

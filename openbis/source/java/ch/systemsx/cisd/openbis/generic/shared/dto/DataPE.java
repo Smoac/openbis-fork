@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
+@Table(name = TableNames.DATA_ALL_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements

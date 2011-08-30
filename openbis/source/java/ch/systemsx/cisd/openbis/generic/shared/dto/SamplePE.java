@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.SAMPLES_VIEW)
+@Table(name = TableNames.SAMPLES_ALL_TABLE)
 @Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
         + ColumnNames.SPACE_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")

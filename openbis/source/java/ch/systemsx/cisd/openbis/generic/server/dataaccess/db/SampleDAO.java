@@ -363,12 +363,22 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     public List<SamplePE> listByPermID(Set<String> values)
     {
+        return listByIDsOfName("permId", values);
+    }
+
+    public List<SamplePE> listByIDs(Collection<Long> ids)
+    {
+        return listByIDsOfName("id", ids);
+    }
+
+    private List<SamplePE> listByIDsOfName(String idName, Collection<?> values)
+    {
         if (values == null || values.isEmpty())
         {
             return new ArrayList<SamplePE>();
         }
         final DetachedCriteria criteria = DetachedCriteria.forClass(SamplePE.class);
-        criteria.add(Restrictions.in("permId", values));
+        criteria.add(Restrictions.in(idName, values));
         final List<SamplePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {

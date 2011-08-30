@@ -90,7 +90,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        final DetachedCriteria criteria = createCriteriaForUndeleted();
         if (experimentTypeOrNull != null)
         {
             criteria.add(Restrictions.eq("experimentType", experimentTypeOrNull));
@@ -138,13 +138,21 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
     public List<ExperimentPE> listExperiments() throws DataAccessException
     {
-        final List<ExperimentPE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
+        final DetachedCriteria criteria = createCriteriaForUndeleted();
+        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d experiment(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    private DetachedCriteria createCriteriaForUndeleted()
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.isNull("deletion"));
+        return criteria;
     }
 
     public ExperimentPE tryFindByCodeAndProject(final ProjectPE project, final String experimentCode)
@@ -238,12 +246,22 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
     public List<ExperimentPE> listByPermID(Set<String> permIds)
     {
-        if (permIds == null || permIds.isEmpty())
+        return listByIDsOfName("permId", permIds);
+    }
+
+    public List<ExperimentPE> listByIDs(Collection<Long> ids)
+    {
+        return listByIDsOfName("id", ids);
+    }
+
+    private List<ExperimentPE> listByIDsOfName(String idName, Collection<?> ids)
+    {
+        if (ids == null || ids.isEmpty())
         {
             return new ArrayList<ExperimentPE>();
         }
         final DetachedCriteria criteria = DetachedCriteria.forClass(ExperimentPE.class);
-        criteria.add(Restrictions.in("permId", permIds));
+        criteria.add(Restrictions.in(idName, ids));
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {

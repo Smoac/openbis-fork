@@ -124,6 +124,8 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      * values.
      */
     List<SamplePE> listByPermID(Set<String> values);
+    
+    List<SamplePE> listByIDs(Collection<Long> ids);
 
     /**
      * Delete samples with given ids by specified registrator with specified reason.

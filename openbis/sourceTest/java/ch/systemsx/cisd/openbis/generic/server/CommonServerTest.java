@@ -1690,7 +1690,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(del2, del1, del3)));
                 }
             });
-        List<Deletion> result = createServer().listDeletions(SESSION_TOKEN);
+        List<Deletion> result = createServer().listDeletions(SESSION_TOKEN, false);
 
         assertEquals(3, result.size());
         assertEqualContent(del1, result.get(0));

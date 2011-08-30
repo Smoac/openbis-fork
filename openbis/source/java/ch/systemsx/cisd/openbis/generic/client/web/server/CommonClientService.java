@@ -2244,7 +2244,7 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         String sessionToken = getSessionToken();
-        List<Deletion> deletions = commonServer.listDeletions(sessionToken);
+        List<Deletion> deletions = commonServer.listDeletions(sessionToken, false);
         commonServer.deletePermanently(sessionToken, TechId.createList(deletions), force);
     }
 
