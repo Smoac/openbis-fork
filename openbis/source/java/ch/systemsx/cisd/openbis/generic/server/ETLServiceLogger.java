@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Level;
+
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -298,7 +300,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStore)
             throws UserFailureException
     {
-        logAccess(sessionToken, "listDataSets", "DATA_STORE(%s)", dataStore);
+        logAccess(Level.DEBUG, sessionToken, "listDataSets", "DATA_STORE(%s)", dataStore);
         return null;
     }
 
@@ -313,8 +315,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
             TrackingDataSetCriteria criteria)
     {
-        logAccess(sessionToken, "listDataSets", "DATA_STORE(%s) CRITERIA(%s)", dataStoreCode,
-                criteria);
+        logAccess(Level.DEBUG, sessionToken, "listDataSets", "DATA_STORE(%s) CRITERIA(%s)",
+                dataStoreCode, criteria);
         return null;
     }
 
@@ -330,7 +332,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
             Long lastSeenDeletionEventIdOrNull, Date maxDeletionDateOrNull)
     {
-        logAccess(sessionToken, "listDeletedDataSets", "LAST_SEEN_EVENT(%s)",
+        logAccess(Level.DEBUG, sessionToken, "listDeletedDataSets", "LAST_SEEN_EVENT(%s)",
                 (lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
                         + lastSeenDeletionEventIdOrNull), (maxDeletionDateOrNull == null ? "all"
                         : "maxDeletionDate > " + maxDeletionDateOrNull));
