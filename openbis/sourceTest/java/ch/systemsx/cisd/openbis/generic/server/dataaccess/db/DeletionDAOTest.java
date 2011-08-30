@@ -170,7 +170,8 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("sample with id %s is expected %s be deleted;", id,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted, sampleDAO.tryGetByTechId(id) == null);
+            assertEquals(errorMsg, expectedDeleted,
+                    sampleDAO.tryGetByTechId(id).getDeletion() != null);
         }
     }
 
@@ -182,7 +183,8 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("experiment with id %s is expected %s be deleted;", id,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted, experimentDAO.tryGetByTechId(id) == null);
+            assertEquals(errorMsg, expectedDeleted,
+                    experimentDAO.tryGetByTechId(id).getDeletion() != null);
         }
     }
 
@@ -194,7 +196,8 @@ public class DeletionDAOTest extends AbstractDAOTest
             String errorMsg =
                     String.format("data set '%s' is expected %s be deleted;", code,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted, dataDAO.tryToFindDataSetByCode(code) == null);
+            assertEquals(errorMsg, expectedDeleted, dataDAO.tryToFindDataSetByCode(code)
+                    .getDeletion() != null);
         }
     }
 

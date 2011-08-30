@@ -1444,7 +1444,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = DeletionValidator.class)
-    public List<Deletion> listDeletions(String sessionToken);
+    public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities);
 
     /**
      * Reverts specified deletions (puts back all entities moved to trash in the deletions).

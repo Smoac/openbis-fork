@@ -19,14 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -77,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -704,25 +701,6 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         createServer().listProjects(SESSION_TOKEN);
         context.assertIsSatisfied();
-    }
-
-    private static DeletionPE createDeletion(String registrator, Date registrationDate,
-            String reason)
-    {
-        final DeletionPE result = new DeletionPE();
-        final PersonPE person = new PersonPE();
-        person.setUserId(registrator);
-        result.setRegistrator(person);
-        result.setRegistrationDate(registrationDate);
-        result.setReason(reason);
-        return result;
-    }
-
-    private static void assertEqualContent(DeletionPE deletionPE, Deletion deletion)
-    {
-        assertEquals(deletionPE.getReason(), deletion.getReason());
-        assertEquals(deletionPE.getRegistrationDate(), deletion.getRegistrationDate());
-        assertEquals(deletionPE.getRegistrator().getUserId(), deletion.getRegistrator().getUserId());
     }
 
     @Test
@@ -1678,24 +1656,22 @@ public final class CommonServerTest extends AbstractServerTestCase
         // tests listing, sorting by date and translation
         prepareGetSession();
 
-        Date currentDate = new Date();
-        final DeletionPE del1 = createDeletion("p1", DateUtils.addHours(currentDate, -1), "r1");
-        final DeletionPE del2 = createDeletion("p2", currentDate, "r2");
-        final DeletionPE del3 = createDeletion("p3", DateUtils.addDays(currentDate, 1), "r3");
-
+        final List<Deletion> deletions = new ArrayList<Deletion>();
         context.checking(new Expectations()
             {
                 {
-                    one(deletionDAO).listAllEntities();
-                    will(returnValue(Arrays.asList(del2, del1, del3)));
+                    one(commonBusinessObjectFactory).createDeletionTable(SESSION);
+                    will(returnValue(deletionTable));
+                    
+                    one(deletionTable).load(true);
+                    one(deletionTable).getDeletions();
+                    will(returnValue(deletions));
                 }
             });
-        List<Deletion> result = createServer().listDeletions(SESSION_TOKEN, false);
+        
+        List<Deletion> result = createServer().listDeletions(SESSION_TOKEN, true);
 
-        assertEquals(3, result.size());
-        assertEqualContent(del1, result.get(0));
-        assertEqualContent(del2, result.get(1));
-        assertEqualContent(del3, result.get(2));
+        assertSame(deletions, result);
         context.assertIsSatisfied();
     }
 

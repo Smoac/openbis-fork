@@ -127,7 +127,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(4, experiments.size());
         ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
         List<DataPE> dataSets = exp1.getDataSets();
-        assertEquals(1, dataSets.size());
+        assertEquals(2, dataSets.size());
         assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP10, experiments);
         assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
     }
@@ -230,7 +230,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                         templateExp.getCode());
 
         assertEquals(CISD_CISD_NEMO_EXP1, experiment.getIdentifier());
-        assertEquals(1, experiment.getDataSets().size()); // without deleted
+        assertEquals(2, experiment.getDataSets().size());
     }
 
     private final ExperimentPE findExperiment(String identifier)

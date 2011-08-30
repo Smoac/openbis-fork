@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletionTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -190,6 +191,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IPropertiesBatchManager propertiesBatchManager;
 
+    protected IDeletionTable deletionTable;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -232,6 +235,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
         dataBO = context.mock(IDataBO.class);
         trashBO = context.mock(ITrashBO.class);
+        deletionTable = context.mock(IDeletionTable.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);
         deletedDataSetTable = context.mock(IDeletedDataSetTable.class);
