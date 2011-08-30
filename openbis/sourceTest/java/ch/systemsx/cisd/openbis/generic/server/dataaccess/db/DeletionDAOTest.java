@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
@@ -157,9 +159,9 @@ public class DeletionDAOTest extends AbstractDAOTest
         assertEquals(rowsInDeletions - 1, countRowsInTable(TableNames.DELETIONS_TABLE));
         assertEquals(allDeletions.size() - 1, deletionDAO.listAllEntities().size());
 
-        assertExperimentsDeleted(false, experimentIds);
-        assertSamplesDeleted(false, sampleIds);
-        assertDataSetsDeleted(false, dataSetCodes);
+        assertEquals(0, deletionDAO.findTrashedExperimentIds(deletionId).size());
+        assertEquals(0, deletionDAO.findTrashedSampleIds(deletionId).size());
+        assertEquals(0, deletionDAO.findTrashedDataSetCodes(deletionId).size());
     }
 
     private void assertSamplesDeleted(boolean expectedDeleted, List<TechId> sampleIds)
@@ -167,11 +169,11 @@ public class DeletionDAOTest extends AbstractDAOTest
         ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         for (TechId id : sampleIds)
         {
+            SamplePE sample = sampleDAO.tryGetByTechId(id);
             String errorMsg =
-                    String.format("sample with id %s is expected %s be deleted;", id,
+                    String.format("sample %s is expected %s be deleted;", sample, 
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted,
-                    sampleDAO.tryGetByTechId(id).getDeletion() != null);
+            assertEquals(errorMsg, expectedDeleted, sample.getDeletion() != null);
         }
     }
 
@@ -180,11 +182,11 @@ public class DeletionDAOTest extends AbstractDAOTest
         IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
         for (TechId id : experimentIds)
         {
+            ExperimentPE experiment = experimentDAO.tryGetByTechId(id);
             String errorMsg =
-                    String.format("experiment with id %s is expected %s be deleted;", id,
+                    String.format("experiment %s is expected %s be deleted;", experiment,
                             expectedDeleted ? "to" : "not to");
-            assertEquals(errorMsg, expectedDeleted,
-                    experimentDAO.tryGetByTechId(id).getDeletion() != null);
+            assertEquals(errorMsg, expectedDeleted, experiment.getDeletion() != null);
         }
     }
 
