@@ -31,7 +31,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
     {
     }
 
-    public String[] tokenize(Row row) throws ParsingException
+    public String[] tokenize(Row row) throws ParserException
     {
         return tokenizeRow(row);
     }
@@ -48,7 +48,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
         return line;
     }
 
-    private static String extractCellValue(Cell cell) throws ParsingException
+    private static String extractCellValue(Cell cell) throws ParserException
     {
         switch (cell.getCellType())
         {
@@ -65,13 +65,9 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
                         "Excel formulas are not supported but one was found in cell "
                                 + extractCellPosition(cell));
             case Cell.CELL_TYPE_ERROR:
-                throw new ParsingException(new String[]
-                    { "There is an error in cell " + extractCellPosition(cell) },
-                        cell.getRowIndex());
+                throw new ParserException("There is an error in cell " + extractCellPosition(cell));
             default:
-                throw new ParsingException(new String[]
-                    { "Unknown data type of cell " + extractCellPosition(cell) },
-                        cell.getRowIndex());
+                throw new ParserException("Unknown data type of cell " + extractCellPosition(cell));
         }
     }
 

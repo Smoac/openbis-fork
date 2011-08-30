@@ -34,7 +34,7 @@ public interface ILineTokenizer<T>
     public void init();
 
     /** Splits given <code>line</code> into an array of tokens. */
-    public String[] tokenize(T line) throws ParsingException;
+    public String[] tokenize(T line) throws ParserException;
 
     /**
      * Cleans up resources used by this <code>ILineTokenizer</code>.
