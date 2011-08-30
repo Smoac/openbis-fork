@@ -32,24 +32,24 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  * 
  * @author Christian Ribeaud
  */
-public class DefaultParser<E> implements IParser<E>
+public class DefaultParser<E, T> implements IParser<E, T>
 {
-    private final ILineTokenizer lineTokenizer;
+    private final ILineTokenizer<T> lineTokenizer;
 
     private IParserObjectFactory<E> factory;
 
     /**
      * Creates an instance based on the {@link DefaultLineTokenizer}.
      */
-    public DefaultParser()
+    public static <E> DefaultParser<E, String> createDefaultParser()
     {
-        this(new DefaultLineTokenizer());
+        return new DefaultParser<E, String>(new DefaultLineTokenizer());
     }
 
     /**
      * Creates an instance for the specified line tokenizer.
      */
-    public DefaultParser(final ILineTokenizer lineTokenizer)
+    public DefaultParser(final ILineTokenizer<T> lineTokenizer)
     {
         this.lineTokenizer = lineTokenizer;
     }
@@ -59,17 +59,17 @@ public class DefaultParser<E> implements IParser<E>
         return factory.createObject(tokens);
     }
 
-    public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter,
+    public final List<E> parse(final Iterator<ILine<T>> lineIterator, final ILineFilter lineFilter,
             final int headerLength) throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
         lineTokenizer.init();
         while (lineIterator.hasNext())
         {
-            final Line line = lineIterator.next();
-            final String nextLine = line.getText();
+            final ILine<T> line = lineIterator.next();
+            final T nextLine = line.getObject();
             final int number = line.getNumber();
-            if (lineFilter.acceptLine(nextLine, number))
+            if (lineFilter.acceptLine(line))
             {
                 E object = null;
                 String[] tokens = parseLine(number, nextLine, headerLength);
@@ -91,13 +91,13 @@ public class DefaultParser<E> implements IParser<E>
         return elements;
     }
 
-    public final Iterator<E> parseIteratively(final Iterator<Line> lineIterator,
+    public final Iterator<E> parseIteratively(final Iterator<ILine<T>> lineIterator,
             final ILineFilter lineFilter, final int headerLength) throws ParsingException
     {
         lineTokenizer.init();
         return new Iterator<E>()
             {
-                Line currentLine = null;
+                ILine<T> currentLine = null;
 
                 public boolean hasNext()
                 {
@@ -105,7 +105,7 @@ public class DefaultParser<E> implements IParser<E>
                     while (hasNext)
                     {
                         currentLine = lineIterator.next();
-                        if (lineFilter.acceptLine(currentLine.getText(), currentLine.getNumber()))
+                        if (lineFilter.acceptLine(currentLine))
                         {
                             break;
                         }
@@ -125,7 +125,7 @@ public class DefaultParser<E> implements IParser<E>
                     {
                         throw new NoSuchElementException();
                     }
-                    final String nextLine = currentLine.getText();
+                    final T nextLine = currentLine.getObject();
                     final int number = currentLine.getNumber();
                     currentLine = null;
                     String[] tokens = parseLine(number, nextLine, headerLength);
@@ -151,7 +151,7 @@ public class DefaultParser<E> implements IParser<E>
         this.factory = factory;
     }
 
-    private String[] parseLine(final int lineNumber, final String nextLine, final int headerLength)
+    private String[] parseLine(final int lineNumber, final T nextLine, final int headerLength)
     {
         String[] tokens = lineTokenizer.tokenize(nextLine);
         if (tokens.length > headerLength)

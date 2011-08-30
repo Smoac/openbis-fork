@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.common.parser;
 
 /**
- * A <code>ILineTokenizer</code> implementation is able to split a given <code>String</code>
- * line in an array of tokens.
+ * A <code>ILineTokenizer</code> implementation is able to split a given <code>T</code> line in an
+ * array of tokens.
  * 
  * @author Christian Ribeaud
  */
-public interface ILineTokenizer
+public interface ILineTokenizer<T>
 {
 
     /**
@@ -34,7 +34,7 @@ public interface ILineTokenizer
     public void init();
 
     /** Splits given <code>line</code> into an array of tokens. */
-    public String[] tokenize(String line);
+    public String[] tokenize(T line);
 
     /**
      * Cleans up resources used by this <code>ILineTokenizer</code>.

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser.filter;
 
+import ch.systemsx.cisd.common.parser.ILine;
+
 /**
  * A default line filter that accepts any line.
  * 
@@ -33,7 +35,7 @@ public final class AlwaysAcceptLineFilter implements ILineFilter
     // ILineFilter
     //
 
-    public final boolean acceptLine(final String line, final int lineNumber)
+    public final <T> boolean acceptLine(ILine<T> line)
     {
         return true;
     }

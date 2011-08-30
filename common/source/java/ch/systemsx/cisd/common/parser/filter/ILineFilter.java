@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser.filter;
 
+import ch.systemsx.cisd.common.parser.ILine;
+
 /**
  * A line filter for <code>ReaderParser</code>.
  * 
@@ -29,5 +31,5 @@ public interface ILineFilter
      * 
      * @param line the line read from the <code>Reader</code>. Can not be <code>null</code>.
      */
-    public boolean acceptLine(final String line, final int lineNumber);
+    public <T> boolean acceptLine(final ILine<T> line);
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.io.DelegatedReader;
+import ch.systemsx.cisd.common.parser.ExcelFileLoader;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
@@ -33,7 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.parser.BisExcelFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.generic.shared.parser.ExcelFileSection;
 import ch.systemsx.cisd.openbis.generic.shared.parser.FileSection;
 import ch.systemsx.cisd.openbis.generic.shared.parser.NamedInputStream;
 
@@ -105,59 +108,117 @@ public class MaterialUploadSectionsParser
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            List<FileSection> materialSections = new ArrayList<FileSection>();
-            if (materialType.isDefinedInFileEntityTypeCode())
+            if (multipartFile.getOriginalFilename().toLowerCase().endsWith("xls"))
             {
-                materialSections.addAll(FileSection.extractSections(multipartFile
-                        .getUnicodeReader()));
-            } else
-            {
-                materialSections.add(FileSection.createFromInputStream(
-                        multipartFile.getInputStream(), materialType.getCode()));
-            }
-            int materialCounter = 0;
-            Map<String, String> defaults = Collections.emptyMap();
-            for (FileSection fs : materialSections)
-            {
-                if (fs.getSectionName().equals("DEFAULT"))
+                List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
+                if (materialType.isDefinedInFileEntityTypeCode())
                 {
-                    defaults =
-                            Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
-                                    .getContentReader()));
+                    materialSections.addAll(ExcelFileSection.extractSections(multipartFile
+                            .getInputStream()));
                 } else
                 {
-                    Reader reader = fs.getContentReader();
-                    MaterialType typeFromSection = new MaterialType();
-                    typeFromSection.setCode(fs.getSectionName());
-                    BisTabFileLoader<NewMaterial> tabFileLoader =
-                            new BisTabFileLoader<NewMaterial>(
-                                    new IParserObjectFactoryFactory<NewMaterial>()
-                                        {
-                                            public final IParserObjectFactory<NewMaterial> createFactory(
-                                                    final IPropertyMapper propertyMapper)
-                                                    throws ParserException
-                                            {
-                                                return new NewMaterialParserObjectFactory(
-                                                        propertyMapper);
-                                            }
-                                        }, false);
-                    String sectionInFile =
-                            materialSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
-                                    + ")";
-                    final List<NewMaterial> loadedMaterials =
-                            tabFileLoader.load(
-                                    new DelegatedReader(reader, multipartFile.getOriginalFilename()
-                                            + sectionInFile), defaults);
-                    if (loadedMaterials.size() > 0)
+                    materialSections.add(ExcelFileSection.createFromInputStream(
+                            multipartFile.getInputStream(), materialType.getCode()));
+                }
+                int materialCounter = 0;
+                Map<String, String> defaults = Collections.emptyMap();
+                for (ExcelFileSection fs : materialSections)
+                {
+                    if (fs.getSectionName().equals("DEFAULT"))
                     {
-                        newMaterials
-                                .add(new NewMaterialsWithTypes(typeFromSection, loadedMaterials));
-                        materialCounter += loadedMaterials.size();
+                        defaults =
+                                Collections.unmodifiableMap(ExcelFileLoader.parseDefaults(
+                                        fs.getSheet(), fs.getBegin(), fs.getEnd()));
+                    } else
+                    {
+                        MaterialType typeFromSection = new MaterialType();
+                        typeFromSection.setCode(fs.getSectionName());
+                        final BisExcelFileLoader<NewMaterial> excelFileLoader =
+                                new BisExcelFileLoader<NewMaterial>(
+                                        new IParserObjectFactoryFactory<NewMaterial>()
+                                            {
+                                                public final IParserObjectFactory<NewMaterial> createFactory(
+                                                        final IPropertyMapper propertyMapper)
+                                                        throws ParserException
+                                                {
+                                                    return new NewMaterialParserObjectFactory(
+                                                            propertyMapper);
+                                                }
+                                            }, false);
+                        String sectionInFile =
+                                materialSections.size() == 1 ? "" : " (section:"
+                                        + fs.getSectionName() + ")";
+                        final List<NewMaterial> loadedMaterials =
+                                excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
+                                        multipartFile.getOriginalFilename() + sectionInFile,
+                                        defaults);
+                        if (loadedMaterials.size() > 0)
+                        {
+                            newMaterials.add(new NewMaterialsWithTypes(typeFromSection,
+                                    loadedMaterials));
+                            materialCounter += loadedMaterials.size();
+                        }
                     }
                 }
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("Registration of %d material(s) is complete.", materialCounter)));
+            } else
+            {
+
+                List<FileSection> materialSections = new ArrayList<FileSection>();
+                if (materialType.isDefinedInFileEntityTypeCode())
+                {
+                    materialSections.addAll(FileSection.extractSections(multipartFile
+                            .getUnicodeReader()));
+                } else
+                {
+                    materialSections.add(FileSection.createFromInputStream(
+                            multipartFile.getInputStream(), materialType.getCode()));
+                }
+                int materialCounter = 0;
+                Map<String, String> defaults = Collections.emptyMap();
+                for (FileSection fs : materialSections)
+                {
+                    if (fs.getSectionName().equals("DEFAULT"))
+                    {
+                        defaults =
+                                Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
+                                        .getContentReader()));
+                    } else
+                    {
+                        Reader reader = fs.getContentReader();
+                        MaterialType typeFromSection = new MaterialType();
+                        typeFromSection.setCode(fs.getSectionName());
+                        BisTabFileLoader<NewMaterial> tabFileLoader =
+                                new BisTabFileLoader<NewMaterial>(
+                                        new IParserObjectFactoryFactory<NewMaterial>()
+                                            {
+                                                public final IParserObjectFactory<NewMaterial> createFactory(
+                                                        final IPropertyMapper propertyMapper)
+                                                        throws ParserException
+                                                {
+                                                    return new NewMaterialParserObjectFactory(
+                                                            propertyMapper);
+                                                }
+                                            }, false);
+                        String sectionInFile =
+                                materialSections.size() == 1 ? "" : " (section:"
+                                        + fs.getSectionName() + ")";
+                        final List<NewMaterial> loadedMaterials =
+                                tabFileLoader.load(
+                                        new DelegatedReader(reader, multipartFile
+                                                .getOriginalFilename() + sectionInFile), defaults);
+                        if (loadedMaterials.size() > 0)
+                        {
+                            newMaterials.add(new NewMaterialsWithTypes(typeFromSection,
+                                    loadedMaterials));
+                            materialCounter += loadedMaterials.size();
+                        }
+                    }
+                }
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("Registration of %d material(s) is complete.", materialCounter)));
             }
-            results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format("Registration of %d material(s) is complete.", materialCounter)));
         }
         return results;
     }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.parser.filter;
 
+import ch.systemsx.cisd.common.parser.ILine;
+
 /**
  * A default <code>LineFilter</code> implementation that excludes empty and comment lines.
  * <p>
@@ -36,10 +38,10 @@ public final class ExcludeEmptyAndCommentLineFilter implements ILineFilter
     // ILineFilter
     //
 
-    public final boolean acceptLine(final String line, final int lineNumber)
+    public final <T> boolean acceptLine(ILine<T> line)
     {
         assert line != null : "Unspecified line";
-        final String trimmed = line.trim();
+        final String trimmed = line.getText().trim();
         return trimmed.length() > 0 && trimmed.startsWith("#") == false;
     }
 }

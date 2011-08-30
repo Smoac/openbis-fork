@@ -59,6 +59,7 @@ import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.parser.Line;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
@@ -410,7 +411,7 @@ public final class FileUtilities
             String line = reader.readLine();
             for (int lineNumber = 0; line != null; ++lineNumber, line = reader.readLine())
             {
-                if (lineFilter.acceptLine(line, lineNumber))
+                if (lineFilter.acceptLine(new Line(lineNumber, line)))
                 {
                     list.add(line);
                 }

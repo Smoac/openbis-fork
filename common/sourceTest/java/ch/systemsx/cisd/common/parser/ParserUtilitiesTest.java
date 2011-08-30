@@ -43,11 +43,11 @@ import ch.systemsx.cisd.common.parser.filter.NonEmptyLineFilter;
 public final class ParserUtilitiesTest
 {
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
-    private static final File workingDirectory =
-            new File(unitTestRootDirectory, "ParserUtilitiesTest");
+    private static final File workingDirectory = new File(unitTestRootDirectory,
+            "ParserUtilitiesTest");
 
     @BeforeClass
     public final void setUp()
@@ -97,7 +97,7 @@ public final class ParserUtilitiesTest
             { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
-        Line line = ParserUtilities.tryGetFirstAcceptedLine(file, null);
+        ILine<String> line = ParserUtilities.tryGetFirstAcceptedLine(file, null);
         assertEquals(StringUtils.EMPTY, line.getText());
         assertEquals(0, line.getNumber());
         assert file.delete();
@@ -112,7 +112,7 @@ public final class ParserUtilitiesTest
         FileUtils.writeLines(file, Arrays.asList(lines));
         ParserUtilities.LineSplitter splitter =
                 new ParserUtilities.LineSplitter(file, NonEmptyLineFilter.INSTANCE);
-        Line line = splitter.tryNextLine();
+        ILine<String> line = splitter.tryNextLine();
         assertEquals("non-empty line", line.getText());
         assertEquals(1, line.getNumber());
         line = splitter.tryNextLine();
@@ -129,7 +129,7 @@ public final class ParserUtilitiesTest
             { StringUtils.EMPTY, "# comment line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
-        Line line =
+        ILine<String> line =
                 ParserUtilities.tryGetFirstAcceptedLine(file,
                         ExcludeEmptyAndCommentLineFilter.INSTANCE);
         assertEquals("hello", line.getText());

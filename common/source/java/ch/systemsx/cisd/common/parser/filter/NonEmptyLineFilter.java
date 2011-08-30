@@ -17,6 +17,8 @@ package ch.systemsx.cisd.common.parser.filter;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.parser.ILine;
+
 /**
  * A default <code>LineFilter</code> implementation that excludes empty lines.
  * 
@@ -34,8 +36,8 @@ public final class NonEmptyLineFilter implements ILineFilter
     // ILineFilter
     //
 
-    public final boolean acceptLine(final String line, final int lineNumber)
+    public final <T> boolean acceptLine(ILine<T> line)
     {
-        return StringUtils.isNotBlank(line);
+        return StringUtils.isNotBlank(line.getText());
     }
 }

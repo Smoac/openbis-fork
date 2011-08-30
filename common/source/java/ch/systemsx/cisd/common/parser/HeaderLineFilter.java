@@ -54,10 +54,10 @@ public final class HeaderLineFilter implements ILineFilter
     // LineFilter
     //
 
-    public final boolean acceptLine(String line, int lineNumber)
+    public final <T> boolean acceptLine(ILine<T> line)
     {
-        if (ExcludeEmptyAndCommentLineFilter.INSTANCE.acceptLine(line, lineNumber) == false
-                || lineNumber == headerLineNumber)
+        if (ExcludeEmptyAndCommentLineFilter.INSTANCE.acceptLine(line) == false
+                || line.getNumber() == headerLineNumber)
         {
             return false;
         }

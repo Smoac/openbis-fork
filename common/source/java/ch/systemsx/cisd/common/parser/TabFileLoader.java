@@ -184,7 +184,7 @@ public class TabFileLoader<T>
     {
         assert reader != null : "Unspecified reader";
 
-        final Iterator<Line> lineIterator = createLineIterator(reader);
+        final Iterator<ILine<String>> lineIterator = createLineIterator(reader);
         return iterate(lineIterator, defaults);
     }
 
@@ -201,7 +201,7 @@ public class TabFileLoader<T>
     {
         assert reader != null : "Unspecified reader";
 
-        final Iterator<Line> lineIterator = createLineIterator(reader);
+        final Iterator<ILine<String>> lineIterator = createLineIterator(reader);
         return load(lineIterator, defaults);
     }
 
@@ -220,7 +220,7 @@ public class TabFileLoader<T>
 
         try
         {
-            final Iterator<Line> lineIterator = createLineIterator(stream);
+            final Iterator<ILine<String>> lineIterator = createLineIterator(stream);
             return iterate(lineIterator, defaults);
         } catch (IOException ex)
         {
@@ -243,7 +243,7 @@ public class TabFileLoader<T>
 
         try
         {
-            final Iterator<Line> lineIterator = createLineIterator(stream);
+            final Iterator<ILine<String>> lineIterator = createLineIterator(stream);
             return load(lineIterator, defaults);
         } catch (IOException ex)
         {
@@ -253,17 +253,17 @@ public class TabFileLoader<T>
 
     public static final Map<String, String> parseDefaults(Reader reader)
     {
-        final Iterator<Line> lineIterator = createLineIterator(reader);
+        final Iterator<ILine<String>> lineIterator = createLineIterator(reader);
         final Map<String, String> defaults = new HashMap<String, String>();
         return parseDefaults(lineIterator, defaults);
     }
 
-    private static final Map<String, String> parseDefaults(final Iterator<Line> lineIterator,
-            final Map<String, String> defaults)
+    private static final Map<String, String> parseDefaults(
+            final Iterator<ILine<String>> lineIterator, final Map<String, String> defaults)
     {
         while (lineIterator.hasNext())
         {
-            Line line = lineIterator.next();
+            ILine<String> line = lineIterator.next();
             String text = line.getText();
             if (DEFAULT_SECTION.equals(text))
             {
@@ -281,10 +281,11 @@ public class TabFileLoader<T>
         return defaults;
     }
 
-    private List<T> load(final Iterator<Line> lineIterator, Map<String, String> fileDefaults)
+    private List<T> load(final Iterator<ILine<String>> lineIterator,
+            Map<String, String> fileDefaults)
     {
-        Line previousLine = null;
-        Line line = null;
+        ILine<String> previousLine = null;
+        ILine<String> line = null;
         boolean previousLineHasColumnHeaders = false;
 
         Map<String, String> defaults = new HashMap<String, String>(fileDefaults);
@@ -321,7 +322,7 @@ public class TabFileLoader<T>
             headerLine = line.getText();
         }
 
-        final IParser<T> parser = createParser();
+        final IParser<T, String> parser = createParser();
         final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
         int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
         final int headerLength = tokens.length;
@@ -330,17 +331,18 @@ public class TabFileLoader<T>
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens, defaults);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
 
-        Line firstContentLine = previousLineHasColumnHeaders ? line : null;
-        Iterator<Line> contentLineIterator =
+        ILine<String> firstContentLine = previousLineHasColumnHeaders ? line : null;
+        Iterator<ILine<String>> contentLineIterator =
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         return parser.parse(contentLineIterator, filter, headerLength);
     }
 
-    private Iterator<T> iterate(final Iterator<Line> lineIterator, Map<String, String> fileDefaults)
+    private Iterator<T> iterate(final Iterator<ILine<String>> lineIterator,
+            Map<String, String> fileDefaults)
     {
-        Line previousLine = null;
-        Line line = null;
+        ILine<String> previousLine = null;
+        ILine<String> line = null;
         boolean previousLineHasColumnHeaders = false;
 
         Map<String, String> defaults = new HashMap<String, String>(fileDefaults);
@@ -393,7 +395,7 @@ public class TabFileLoader<T>
             headerLine = line.getText();
         }
 
-        final IParser<T> parser = createParser();
+        final IParser<T, String> parser = createParser();
         final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
         int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
         final int headerLength = tokens.length;
@@ -402,26 +404,26 @@ public class TabFileLoader<T>
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens, defaults);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
 
-        Line firstContentLine = previousLineHasColumnHeaders ? line : null;
-        Iterator<Line> contentLineIterator =
+        ILine<String> firstContentLine = previousLineHasColumnHeaders ? line : null;
+        Iterator<ILine<String>> contentLineIterator =
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         return parser.parseIteratively(contentLineIterator, filter, headerLength);
     }
 
-    private static boolean startsDefaultSection(Line line)
+    private static boolean startsDefaultSection(ILine<String> line)
     {
         String text = line.getText();
         return DEFAULT_SECTION.equals(text);
     }
 
-    private static boolean startsWithComment(Line line)
+    private static boolean startsWithComment(ILine<String> line)
     {
         String text = line.getText();
         return COMMENT_REGEXP_PATTERN.matcher(text).matches();
     }
 
-    private static String trimComment(Line previousLine)
+    private static String trimComment(ILine<String> previousLine)
     {
         String text = previousLine.getText().trim();
         if (text.startsWith(COMMENT_PREFIX))
@@ -433,7 +435,7 @@ public class TabFileLoader<T>
         }
     }
 
-    private static boolean isComment(Line line)
+    private static boolean isComment(ILine<String> line)
     {
         String text = line.getText();
         return COMMENT_PREFIX.equals(text);
@@ -445,26 +447,27 @@ public class TabFileLoader<T>
      * @param lastEmptyTokensToSkip the number of token separators which will be removed form the
      *            end of each iterated line
      */
-    private static Iterator<Line> createContentIterator(final Line firstContentLineOrNull,
-            final Iterator<Line> lineIterator, final int lastEmptyTokensToSkip)
+    private static Iterator<ILine<String>> createContentIterator(
+            final ILine<String> firstContentLineOrNull, final Iterator<ILine<String>> lineIterator,
+            final int lastEmptyTokensToSkip)
     {
 
         final String suffixToDelete = multiply(lastEmptyTokensToSkip, TOKENS_SEPARATOR);
-        return new Iterator<Line>()
+        return new Iterator<ILine<String>>()
             {
-                private Line firstLineOrNull = firstContentLineOrNull;
+                private ILine<String> firstLineOrNull = firstContentLineOrNull;
 
                 public boolean hasNext()
                 {
                     return firstLineOrNull != null || lineIterator.hasNext();
                 }
 
-                public Line next()
+                public ILine<String> next()
                 {
                     return trim(nextUntrimmed());
                 }
 
-                private Line trim(Line line)
+                private ILine<String> trim(ILine<String> line)
                 {
                     if (lastEmptyTokensToSkip == 0)
                     {
@@ -496,11 +499,11 @@ public class TabFileLoader<T>
                     }
                 }
 
-                private Line nextUntrimmed()
+                private ILine<String> nextUntrimmed()
                 {
                     if (firstLineOrNull != null)
                     {
-                        Line line = firstLineOrNull;
+                        ILine<String> line = firstLineOrNull;
                         firstLineOrNull = null;
                         return line;
                     } else
@@ -539,18 +542,19 @@ public class TabFileLoader<T>
         return counter;
     }
 
-    private static Iterator<Line> createLineIterator(final Reader reader)
+    private static Iterator<ILine<String>> createLineIterator(final Reader reader)
     {
         final LineIterator lineIterator = IOUtils.lineIterator(reader);
-        final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
+        final Iterator<ILine<String>> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
     }
 
-    private static Iterator<Line> createLineIterator(final InputStream stream) throws IOException
+    private static Iterator<ILine<String>> createLineIterator(final InputStream stream)
+            throws IOException
     {
         final LineIterator lineIterator =
                 IOUtils.lineIterator(stream, UnicodeUtils.DEFAULT_UNICODE_CHARSET);
-        final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
+        final Iterator<ILine<String>> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
     }
 
@@ -577,19 +581,19 @@ public class TabFileLoader<T>
         }
     }
 
-    private final <E> IParser<E> createParser()
+    private final <E> IParser<E, String> createParser()
     {
         DefaultLineTokenizer tokenizer = new DefaultLineTokenizer();
         // recognize default Excel text qualifiers
         tokenizer.setProperty(PropertyKey.QUOTE_CHARS, "'\"");
-        return new DefaultParser<E>(tokenizer);
+        return new DefaultParser<E, String>(tokenizer);
     }
 
     //
     // Helper classes
     //
 
-    private final static class TabFileLineIterator implements Iterator<Line>
+    private final static class TabFileLineIterator implements Iterator<ILine<String>>
     {
 
         private final LineIterator lineIterator;
@@ -610,7 +614,7 @@ public class TabFileLoader<T>
             lineIterator.remove();
         }
 
-        public final Line next()
+        public final ILine<String> next()
         {
             return new Line(++lineNumber, lineIterator.nextLine());
         }

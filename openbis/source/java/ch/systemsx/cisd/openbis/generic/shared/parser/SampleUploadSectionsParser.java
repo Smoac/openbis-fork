@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.io.DelegatedReader;
+import ch.systemsx.cisd.common.parser.ExcelFileLoader;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
@@ -153,6 +154,34 @@ public class SampleUploadSectionsParser
         return tabFileLoader;
     }
 
+    private static BisExcelFileLoader<NewSample> createSampleLoaderFromExcel(
+            final SampleType sampleType, final boolean isAutoGenerateCodes,
+            final boolean allowExperiments, final BatchOperationKind operationKind)
+    {
+        final BisExcelFileLoader<NewSample> tabFileLoader =
+                new BisExcelFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
+                    {
+                        public final IParserObjectFactory<NewSample> createFactory(
+                                final IPropertyMapper propertyMapper) throws ParserException
+                        {
+                            switch (operationKind)
+                            {
+                                case REGISTRATION:
+                                    return new NewSampleParserObjectFactory(sampleType,
+                                            propertyMapper, isAutoGenerateCodes == false,
+                                            allowExperiments);
+                                case UPDATE:
+                                    return new UpdatedSampleParserObjectFactory(sampleType,
+                                            propertyMapper, isAutoGenerateCodes == false,
+                                            allowExperiments);
+                            }
+                            throw new UnsupportedOperationException(operationKind
+                                    + " is not supported");
+                        }
+                    }, true);
+        return tabFileLoader;
+    }
+
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
@@ -162,50 +191,98 @@ public class SampleUploadSectionsParser
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            List<FileSection> sampleSections = new ArrayList<FileSection>();
-            if (sampleType.isDefinedInFileEntityTypeCode())
+            if (multipartFile.getOriginalFilename().toLowerCase().endsWith("xls"))
             {
-                sampleSections
-                        .addAll(FileSection.extractSections(multipartFile.getUnicodeReader()));
-            } else
-            {
-                sampleSections.add(FileSection.createFromInputStream(
-                        multipartFile.getInputStream(), sampleType.getCode()));
-            }
-            int sampleCounter = 0;
-            Map<String, String> defaults = Collections.emptyMap();
-            for (FileSection fs : sampleSections)
-            {
-                if (fs.getSectionName().equals("DEFAULT"))
+                List<ExcelFileSection> sampleSections = new ArrayList<ExcelFileSection>();
+                if (sampleType.isDefinedInFileEntityTypeCode())
                 {
-                    defaults =
-                            Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
-                                    .getContentReader()));
+                    sampleSections.addAll(ExcelFileSection.extractSections(multipartFile
+                            .getInputStream()));
                 } else
                 {
-                    Reader reader = fs.getContentReader();
-                    SampleType typeFromSection = new SampleType();
-                    typeFromSection.setCode(fs.getSectionName());
-                    final BisTabFileLoader<NewSample> tabFileLoader =
-                            createSampleLoader(typeFromSection, isAutoGenerateCodes,
-                                    allowExperiments, operationKind);
-                    String sectionInFile =
-                            sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName()
-                                    + ")";
-                    final List<NewSample> loadedSamples =
-                            tabFileLoader.load(
-                                    new DelegatedReader(reader, multipartFile.getOriginalFilename()
-                                            + sectionInFile), defaults);
-                    if (loadedSamples.size() > 0)
+                    sampleSections.add(ExcelFileSection.createFromInputStream(
+                            multipartFile.getInputStream(), sampleType.getCode()));
+                }
+                int sampleCounter = 0;
+                Map<String, String> defaults = Collections.emptyMap();
+                for (ExcelFileSection fs : sampleSections)
+                {
+                    if (fs.getSectionName().equals("DEFAULT"))
                     {
-                        newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
-                        sampleCounter += loadedSamples.size();
+                        defaults =
+                                Collections.unmodifiableMap(ExcelFileLoader.parseDefaults(
+                                        fs.getSheet(), fs.getBegin(), fs.getEnd()));
+                    } else
+                    {
+                        SampleType typeFromSection = new SampleType();
+                        typeFromSection.setCode(fs.getSectionName());
+                        final BisExcelFileLoader<NewSample> excelFileLoader =
+                                createSampleLoaderFromExcel(typeFromSection, isAutoGenerateCodes,
+                                        allowExperiments, operationKind);
+                        String sectionInFile =
+                                sampleSections.size() == 1 ? "" : " (section:"
+                                        + fs.getSectionName() + ")";
+                        final List<NewSample> loadedSamples =
+                                excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
+                                        multipartFile.getOriginalFilename() + sectionInFile,
+                                        defaults);
+                        if (loadedSamples.size() > 0)
+                        {
+                            newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
+                            sampleCounter += loadedSamples.size();
+                        }
                     }
                 }
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
+                                sampleCounter)));
+            } else
+            {
+                List<FileSection> sampleSections = new ArrayList<FileSection>();
+                if (sampleType.isDefinedInFileEntityTypeCode())
+                {
+                    sampleSections.addAll(FileSection.extractSections(multipartFile
+                            .getUnicodeReader()));
+                } else
+                {
+                    sampleSections.add(FileSection.createFromInputStream(
+                            multipartFile.getInputStream(), sampleType.getCode()));
+                }
+                int sampleCounter = 0;
+                Map<String, String> defaults = Collections.emptyMap();
+                for (FileSection fs : sampleSections)
+                {
+                    if (fs.getSectionName().equals("DEFAULT"))
+                    {
+                        defaults =
+                                Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
+                                        .getContentReader()));
+                    } else
+                    {
+                        Reader reader = fs.getContentReader();
+                        SampleType typeFromSection = new SampleType();
+                        typeFromSection.setCode(fs.getSectionName());
+                        final BisTabFileLoader<NewSample> tabFileLoader =
+                                createSampleLoader(typeFromSection, isAutoGenerateCodes,
+                                        allowExperiments, operationKind);
+                        String sectionInFile =
+                                sampleSections.size() == 1 ? "" : " (section:"
+                                        + fs.getSectionName() + ")";
+                        final List<NewSample> loadedSamples =
+                                tabFileLoader.load(
+                                        new DelegatedReader(reader, multipartFile
+                                                .getOriginalFilename() + sectionInFile), defaults);
+                        if (loadedSamples.size() > 0)
+                        {
+                            newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
+                            sampleCounter += loadedSamples.size();
+                        }
+                    }
+                }
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
+                                sampleCounter)));
             }
-            results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
-                            sampleCounter)));
         }
         return results;
     }
@@ -249,5 +326,4 @@ public class SampleUploadSectionsParser
             }
         }
     }
-
 }

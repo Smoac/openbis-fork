@@ -24,7 +24,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.parser.Line;
+import ch.systemsx.cisd.common.parser.ILine;
 import ch.systemsx.cisd.common.parser.ParserUtilities;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -79,13 +79,15 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         final ParserUtilities.LineSplitter splitter =
                 new ParserUtilities.LineSplitter(content, new ILineFilter()
                     {
-                        public boolean acceptLine(String line, int lineNumber)
+                        public <T> boolean acceptLine(ILine<T> line)
                         {
-                            return StringUtils.isNotBlank(line) && line.startsWith("--");
+                            String text = line.getText();
+                            return StringUtils.isNotBlank(text) && text.startsWith("--");
                         }
+
                     });
         IMigrationStep stepOrNull = null;
-        Line lineOrNull;
+        ILine<?> lineOrNull;
         while (stepOrNull == null && (lineOrNull = splitter.tryNextLine()) != null)
         {
             stepOrNull = tryExtractMigrationStepFromLine(lineOrNull.getText());

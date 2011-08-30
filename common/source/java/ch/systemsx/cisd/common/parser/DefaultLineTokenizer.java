@@ -32,7 +32,7 @@ import org.apache.commons.lang.text.StrTokenizer;
  * 
  * @author Christian Ribeaud
  */
-public class DefaultLineTokenizer implements ILineTokenizer
+public class DefaultLineTokenizer implements ILineTokenizer<String>
 {
 
     /** Allowed <code>Properties</code> keys. */
@@ -82,8 +82,8 @@ public class DefaultLineTokenizer implements ILineTokenizer
     /**
      * Sets a property for this <code>TabReaderParser</code>.
      * <p>
-     * Does nothing if given <code>key</code> is <code>null</code> and resets <code>key</code>
-     * to default value if given <code>value</code> is <code>null</code>.
+     * Does nothing if given <code>key</code> is <code>null</code> and resets <code>key</code> to
+     * default value if given <code>value</code> is <code>null</code>.
      * </p>
      */
     public final void setProperty(PropertyKey key, String value)

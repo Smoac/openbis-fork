@@ -19,34 +19,13 @@ package ch.systemsx.cisd.common.parser;
 /**
  * A small object that represents a line in a <code>File</code> context.
  * 
- * @author Christian Ribeaud
+ * @author Pawel Glyzewski
  */
-public final class Line implements ILine<String>
+public interface ILine<T>
 {
-    private final String text;
+    public String getText();
 
-    private final int number;
+    public int getNumber();
 
-    public Line(final int number, final String text)
-    {
-        assert text != null : "Unspecified text.";
-        this.number = number;
-        this.text = text;
-    }
-
-    public final String getText()
-    {
-        return text;
-    }
-
-    public final int getNumber()
-    {
-        return number;
-    }
-
-    public String getObject()
-    {
-        return text;
-    }
-
+    public T getObject();
 }

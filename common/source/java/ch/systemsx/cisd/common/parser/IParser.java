@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  * 
  * @author Christian Ribeaud
  */
-public interface IParser<E>
+public interface IParser<E, T>
 {
 
     /**
@@ -38,7 +38,7 @@ public interface IParser<E>
      * @param headerLength number of columns in the header
      * @return a <code>List</code> of elements.
      */
-    public List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter,
+    public List<E> parse(final Iterator<ILine<T>> lineIterator, final ILineFilter lineFilter,
             final int headerLength) throws ParsingException;
 
     /**
@@ -51,7 +51,7 @@ public interface IParser<E>
      * @param headerLength number of columns in the header
      * @return an <code>List</code> of elements.
      */
-    public Iterator<E> parseIteratively(final Iterator<Line> lineIterator,
+    public Iterator<E> parseIteratively(final Iterator<ILine<T>> lineIterator,
             final ILineFilter lineFilter, final int headerLength) throws ParsingException;
 
     /**

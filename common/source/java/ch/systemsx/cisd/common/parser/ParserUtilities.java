@@ -59,6 +59,7 @@ public final class ParserUtilities
         {
             this(content, null);
         }
+
         public LineSplitter(final String content, final ILineFilter lineFilterOrNull)
         {
             assert content != null : "Unspecified context.";
@@ -72,7 +73,7 @@ public final class ParserUtilities
         {
             this(file, null);
         }
-        
+
         public LineSplitter(final File file, final ILineFilter lineFilterOrNull)
                 throws IOExceptionUnchecked
         {
@@ -93,7 +94,7 @@ public final class ParserUtilities
             return (lineFilterOrNull == null) ? AlwaysAcceptLineFilter.INSTANCE : lineFilterOrNull;
         }
 
-       public void close()
+        public void close()
         {
             lineIterator.close();
         }
@@ -101,15 +102,16 @@ public final class ParserUtilities
         /**
          * Returns the next line that is accepted by the <var>lineFilter</var>.
          */
-        public Line tryNextLine()
+        public ILine<String> tryNextLine()
         {
             for (int line = lineNumber; lineIterator.hasNext(); line++)
             {
                 final String nextLine = lineIterator.nextLine();
-                if (lineFilter.acceptLine(nextLine, line))
+                final Line ret = new Line(line, nextLine);
+                if (lineFilter.acceptLine(ret))
                 {
                     lineNumber = line + 1;
-                    return new Line(line, nextLine);
+                    return ret;
                 }
             }
             return null;
@@ -128,7 +130,7 @@ public final class ParserUtilities
      * @param content the content that is going to be analyzed. Can not be <code>null</code>.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    public final static Line tryGetFirstAcceptedLine(final String content,
+    public final static ILine<String> tryGetFirstAcceptedLine(final String content,
             final ILineFilter lineFilterOrNull)
     {
         final LineSplitter splitter = new LineSplitter(content, lineFilterOrNull);
@@ -154,7 +156,7 @@ public final class ParserUtilities
      *            exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    public final static Line tryGetFirstAcceptedLine(final File file,
+    public final static ILine<String> tryGetFirstAcceptedLine(final File file,
             final ILineFilter lineFilterOrNull)
     {
         final LineSplitter splitter = new LineSplitter(file, lineFilterOrNull);

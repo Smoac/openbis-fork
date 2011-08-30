@@ -33,7 +33,7 @@ public class HeaderLineFilterTest
         final HeaderLineFilter filter = new HeaderLineFilter();
         for (int i = 0; i < 4; ++i)
         {
-            assert filter.acceptLine("text", i) : "Line " + i;
+            assert filter.acceptLine(new Line(i, "text")) : "Line " + i;
         }
     }
 
@@ -56,12 +56,12 @@ public class HeaderLineFilterTest
         {
             if (headerLine == i)
             {
-                assert filter.acceptLine("text", i) == false : "Line " + i + " (header line: "
-                        + headerLine + ")";
+                assert filter.acceptLine(new Line(i, "text")) == false : "Line " + i
+                        + " (header line: " + headerLine + ")";
             } else
             {
-                assert filter.acceptLine("text", i) : "Line " + i + " (header line: " + headerLine
-                        + ")";
+                assert filter.acceptLine(new Line(i, "text")) : "Line " + i + " (header line: "
+                        + headerLine + ")";
             }
         }
     }
@@ -70,36 +70,36 @@ public class HeaderLineFilterTest
     public void testEmptyHeaderLine()
     {
         final HeaderLineFilter filter = new HeaderLineFilter(0);
-        assert filter.acceptLine("", 0) == false;
-        assert filter.acceptLine("something", 1);
+        assert filter.acceptLine(new Line(0, "")) == false;
+        assert filter.acceptLine(new Line(1, "something"));
     }
 
     @Test
     public void testSkipEmptyLine()
     {
         final HeaderLineFilter filter = new HeaderLineFilter();
-        assert filter.acceptLine("", 0) == false;
+        assert filter.acceptLine(new Line(0, "")) == false;
     }
 
     @Test
     public void testSkipBlankLine()
     {
         final HeaderLineFilter filter = new HeaderLineFilter();
-        assert filter.acceptLine("  ", 0) == false;
+        assert filter.acceptLine(new Line(0, "  ")) == false;
     }
 
     @Test
     public void testSkipCommentLine()
     {
         final HeaderLineFilter filter = new HeaderLineFilter();
-        assert filter.acceptLine("# Some comment", 0) == false;
+        assert filter.acceptLine(new Line(0, "# Some comment")) == false;
     }
 
     @Test
     public void testSkipCommentLineWithLeadingWhiteSpace()
     {
         final HeaderLineFilter filter = new HeaderLineFilter();
-        assert filter.acceptLine("\t# Some comment", 0) == false;
+        assert filter.acceptLine(new Line(0, "\t# Some comment")) == false;
     }
 
 }

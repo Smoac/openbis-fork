@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -31,25 +34,24 @@ import org.testng.annotations.Test;
  */
 public final class DefaultParserTest
 {
-    private final static List<String> text =
-            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                    "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
-                    "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
+    private final static List<String> text = Arrays.asList("", "# This is a comment",
+            "firstName\tlastName\taddress\tcity",
+            "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
+            "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
 
-    private final static List<String> textWithTab =
-            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                    "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
-                    "Albert\t\tNewton Road 1905\t");
+    private final static List<String> textWithTab = Arrays.asList("", "# This is a comment",
+            "firstName\tlastName\taddress\tcity",
+            "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere", "Albert\t\tNewton Road 1905\t");
 
-    private final static List<String> textWithMissingLastCells =
-            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                    "\tDarwin\tHumboldt Ave. 1865", "Albert\tEinstein");
+    private final static List<String> textWithMissingLastCells = Arrays.asList("",
+            "# This is a comment", "firstName\tlastName\taddress\tcity",
+            "\tDarwin\tHumboldt Ave. 1865", "Albert\tEinstein");
 
     private final static int HEADER_LENGTH = 4;
 
-    private final static IParser<String[]> createParser()
+    private final static IParser<String[], String> createParser()
     {
-        final IParser<String[]> parser = new DefaultParser<String[]>();
+        final IParser<String[], String> parser = DefaultParser.createDefaultParser();
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         return parser;
     }
@@ -57,7 +59,7 @@ public final class DefaultParserTest
     @Test
     public final void testParseWithoutFactoryAndHeader()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         final List<String[]> result =
                 parser.parse(createLineIterator(text), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
@@ -70,7 +72,7 @@ public final class DefaultParserTest
     @Test
     public final void testParseIterativelyWithoutFactoryAndHeader()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         final Iterator<String[]> result =
                 parser.parseIteratively(createLineIterator(text), new HeaderLineFilter(),
                         HEADER_LENGTH);
@@ -89,7 +91,7 @@ public final class DefaultParserTest
     @Test
     public final void testParseWithoutFactoryWithLineFilter()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         final List<String[]> result =
                 parser.parse(createLineIterator(text), new HeaderLineFilter(3), HEADER_LENGTH);
         assertEquals(2, result.size());
@@ -100,11 +102,9 @@ public final class DefaultParserTest
     @Test
     public final void testParseFileWithTabs()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         final List<String[]> result =
-                parser
-                        .parse(createLineIterator(textWithTab), new HeaderLineFilter(),
-                                HEADER_LENGTH);
+                parser.parse(createLineIterator(textWithTab), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals("Albert", result.get(2)[0]);
         assertEquals("", result.get(2)[1]);
@@ -115,7 +115,7 @@ public final class DefaultParserTest
     @Test
     public final void testParseFileWithMissingLastCells()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         final List<String[]> result =
                 parser.parse(createLineIterator(textWithMissingLastCells), new HeaderLineFilter(),
                         HEADER_LENGTH);
@@ -133,7 +133,7 @@ public final class DefaultParserTest
     @Test
     public final void testParseWithColumnSizeMismatching()
     {
-        final IParser<String[]> parser = createParser();
+        final IParser<String[], String> parser = createParser();
         try
         {
             parser.parse(createLineIterator(text), new HeaderLineFilter(3), HEADER_LENGTH + 1);
@@ -149,18 +149,20 @@ public final class DefaultParserTest
     @Test
     public final void testCreateObjectWithParserException()
     {
-        final IParser<String[]> parser = new DefaultParser<String[]>()
-            {
-                //
-                // DefaultReaderParser
-                //
+        final IParser<String[], String> parser =
+                new DefaultParser<String[], String>(new DefaultLineTokenizer())
+                    {
+                        //
+                        // DefaultReaderParser
+                        //
 
-                @Override
-                protected final String[] createObject(final String[] tokens) throws ParserException
-                {
-                    throw new ParserException("");
-                }
-            };
+                        @Override
+                        protected final String[] createObject(final String[] tokens)
+                                throws ParserException
+                        {
+                            throw new ParserException("");
+                        }
+                    };
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         try
         {
@@ -175,9 +177,9 @@ public final class DefaultParserTest
         }
     }
 
-    private Iterator<Line> createLineIterator(final List<String> lines)
+    private Iterator<ILine<String>> createLineIterator(final List<String> lines)
     {
-        return new Iterator<Line>()
+        return new Iterator<ILine<String>>()
             {
                 private final Iterator<String> iterator = lines.iterator();
 
@@ -188,7 +190,7 @@ public final class DefaultParserTest
                     throw new UnsupportedOperationException();
                 }
 
-                public Line next()
+                public ILine<String> next()
                 {
                     return new Line(++lineNumber, iterator.next());
                 }
