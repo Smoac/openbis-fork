@@ -84,10 +84,10 @@ public class MaterialUploadSectionsParser
         return new BatchMaterialsOperation(newSamples, results, parseCodes(newSamples));
     }
 
-    private static String[] parseCodes(final List<NewMaterialsWithTypes> newSamples)
+    private static String[] parseCodes(final List<NewMaterialsWithTypes> newMaterials)
     {
         List<String> codes = new ArrayList<String>();
-        for (NewMaterialsWithTypes st : newSamples)
+        for (NewMaterialsWithTypes st : newMaterials)
         {
             for (NewMaterial s : st.getNewEntities())
             {
@@ -108,8 +108,8 @@ public class MaterialUploadSectionsParser
             List<FileSection> materialSections = new ArrayList<FileSection>();
             if (materialType.isDefinedInFileEntityTypeCode())
             {
-                materialSections
-                        .addAll(FileSection.extractSections(multipartFile.getUnicodeReader()));
+                materialSections.addAll(FileSection.extractSections(multipartFile
+                        .getUnicodeReader()));
             } else
             {
                 materialSections.add(FileSection.createFromInputStream(
