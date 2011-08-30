@@ -34,7 +34,8 @@ public final class UpdatedSample extends NewSample
                     + "# but for samples from default space (if it was provided in the form) it is enough to put sample codes (e.g. SAMPLE_1) into the column.\n"
                     + "# The \"container\" column (if not removed) should contain sample identifiers, e.g. /SPACE/SAMPLE_1\n"
                     + "# The \"parent\" column (if not removed) should contain comma separated list of sample identifiers, e.g. /SPACE/SAMPLE_1,/SPACE/SAMPLE_2\n"
-                    + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n";
+                    + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n"
+                    + "# The \"space\" column is optional, it can be used to override home space for the row\n";
 
     private SampleBatchUpdateDetails batchUpdateDetails;
 

@@ -283,7 +283,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         public void execute(List<NewSample> newSamples)
         {
             List<Sample> existingSamples = fetchExistingSamples(newSamples);
-            
+
             List<NewSample> samplesToUpdate =
                     SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
             List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
@@ -306,8 +306,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     sampleLister.list(SampleRegisterOrUpdateUtil
                             .createListSamplesByCodeCriteria(codes));
             existingSamples.addAll(list);
-            
-            // for contained samples add container samples codes 
+
+            // for contained samples add container samples codes
             codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
             ListOrSearchSampleCriteria criteria =
                     SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
@@ -420,7 +420,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         for (NewSample updatedSample : updatedSamples)
         {
             final SampleIdentifier oldSampleIdentifier =
-                    SampleIdentifierFactory.parse(updatedSample.getIdentifier());
+                    SampleIdentifierFactory.parse(updatedSample.getIdentifier(),
+                            updatedSample.getSpaceIdentifier());
             final List<IEntityProperty> properties = Arrays.asList(updatedSample.getProperties());
             final ExperimentIdentifier experimentIdentifierOrNull;
             final SampleIdentifier newSampleIdentifier;
@@ -429,7 +430,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 // experiment is provided - new sample identifier takes experiment space
                 experimentIdentifierOrNull =
                         new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
-                                .createIdentifier();
+                                .createIdentifier(updatedSample.getSpaceIdentifier());
                 newSampleIdentifier =
                         new SampleIdentifier(new GroupIdentifier(
                                 experimentIdentifierOrNull.getDatabaseInstanceCode(),
@@ -446,9 +447,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
 
-            samples.add(new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
-                    experimentIdentifierOrNull, newSampleIdentifier, containerIdentifierOrNull,
-                    parentsOrNull, batchUpdateDetails));
+            samples.add(new SampleBatchUpdatesDTO(updatedSample.getSpaceIdentifier(),
+                    oldSampleIdentifier, properties, experimentIdentifierOrNull,
+                    newSampleIdentifier, containerIdentifierOrNull, parentsOrNull,
+                    batchUpdateDetails));
         }
         return samples;
     }

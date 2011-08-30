@@ -31,17 +31,21 @@ public class SampleBatchUpdatesDTO extends SampleUpdatesDTO
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private final String defaultSpaceIdentifierOrNull;
+
     private SampleIdentifier oldSampleIdentifierOrNull;
 
     private SampleBatchUpdateDetails details;
 
-    public SampleBatchUpdatesDTO(SampleIdentifier oldSampleIdentifier,
-            List<IEntityProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
-            String[] modifiedParentCodesOrNull, SampleBatchUpdateDetails details)
+    public SampleBatchUpdatesDTO(String defaultSpaceIdentifierOrNull,
+            SampleIdentifier oldSampleIdentifier, List<IEntityProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull, SampleIdentifier sampleIdentifier,
+            String containerIdentifierOrNull, String[] modifiedParentCodesOrNull,
+            SampleBatchUpdateDetails details)
     {
         super(null, properties, experimentIdentifierOrNull, null, null, sampleIdentifier,
                 containerIdentifierOrNull, modifiedParentCodesOrNull);
+        this.defaultSpaceIdentifierOrNull = defaultSpaceIdentifierOrNull;
         this.oldSampleIdentifierOrNull = oldSampleIdentifier;
         this.details = details;
     }
@@ -54,6 +58,11 @@ public class SampleBatchUpdatesDTO extends SampleUpdatesDTO
     public SampleBatchUpdateDetails getDetails()
     {
         return details;
+    }
+
+    public String tryGetDefaultSpaceIdentifier()
+    {
+        return defaultSpaceIdentifierOrNull;
     }
 
 }
