@@ -68,9 +68,12 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
             findersMap.put(deletionPE.getId(), new RootEntitiesFinder());
         }
         List<TechId> deletionIDs = TechId.createList(deletionPEs);
-        findExperiments(findersMap, deletionIDs);
-        findSamples(findersMap, deletionIDs);
-        findDataSets(findersMap, deletionIDs);
+        if (false == deletionIDs.isEmpty())
+        {
+            findExperiments(findersMap, deletionIDs);
+            findSamples(findersMap, deletionIDs);
+            findDataSets(findersMap, deletionIDs);
+        }
         deletions = DeletionTranslator.translate(deletionPEs);
         for (Deletion deletion : deletions)
         {
