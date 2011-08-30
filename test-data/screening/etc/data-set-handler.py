@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-# This is an Jython dropbox for importing HCS image datasets produced by the scripts that generate platonic screening data
+"""
+An Jython dropbox for importing HCS image datasets produced by the scripts that generate platonic screening data.
+
+The folder loaded to the dropbox folder should have the same name as the plate that the data will be attached to.
+"""
 
 import os
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location
