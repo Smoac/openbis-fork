@@ -339,7 +339,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.registerSamples(sampleType, sessionKey, null);
+                genericClientService.registerSamples(sampleType, sessionKey, null, false);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -422,7 +422,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.registerSamples(sampleType, sessionKey, null);
+                genericClientService.registerSamples(sampleType, sessionKey, null, false);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());

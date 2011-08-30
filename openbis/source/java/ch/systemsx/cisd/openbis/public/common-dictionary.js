@@ -118,6 +118,7 @@ var common = {
   invalid_code_message: "Code contains invalid characters. Allowed characters are: {0}.",
   invalid_term_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\"), underscore (\"_\"), colon (\":\") and dot (\".\").",
   file_template_label: "Download file template",
+  update_existing_entities_label: "Update existing",
  
   //
   // MessageBox

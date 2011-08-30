@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -28,25 +32,38 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * @author Christian Ribeaud
  * @author Izabela Adamczyk
  */
-public final class GenericMaterialBatchRegistrationForm extends AbstractMaterialBatchRegistrationForm
+public final class GenericMaterialBatchRegistrationForm extends
+        AbstractMaterialBatchRegistrationForm
 {
     private static final String PREFIX = "material-batch-registration";
-    
+
     private static final String SESSION_KEY = PREFIX;
 
     public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    private final CheckBoxField updateExistingCheckbox;
 
     public GenericMaterialBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final MaterialType materialType)
     {
         super(viewContext, PREFIX, BatchOperationKind.REGISTRATION, materialType);
+        updateExistingCheckbox =
+                new CheckBoxField(viewContext.getMessage(Dict.UPDATE_EXISTING_ENTITIES_LABEL),
+                        false);
+    }
+
+    @Override
+    protected void addSpecificFormFields(FormPanel form)
+    {
+        form.add(updateExistingCheckbox);
     }
 
     @Override
     protected void save()
     {
-        viewContext.getService().registerMaterials(materialType, SESSION_KEY,
+        boolean updateExisting = updateExistingCheckbox.getValue();
+        viewContext.getService().registerMaterials(materialType, updateExisting, SESSION_KEY,
                 new RegisterMaterialsCallback(viewContext));
     }
 }

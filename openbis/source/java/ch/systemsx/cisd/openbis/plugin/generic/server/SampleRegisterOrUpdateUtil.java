@@ -88,8 +88,7 @@ public class SampleRegisterOrUpdateUtil
     private static String dropDatabaseInstance(String id)
     {
         assert id != null;
-        assert id.contains(INSTANCE_SEPARATOR);
-        if (id.startsWith(INSTANCE_SEPARATOR))
+        if (id.contains(INSTANCE_SEPARATOR) == false || id.startsWith(INSTANCE_SEPARATOR))
         {
             return id;
         } else

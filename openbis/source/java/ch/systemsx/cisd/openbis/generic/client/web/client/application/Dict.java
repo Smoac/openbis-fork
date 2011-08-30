@@ -1055,6 +1055,8 @@ public abstract class Dict
 
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
+    public static final String UPDATE_EXISTING_ENTITIES_LABEL = "update_existing_entities_label";
+    
     public static final String URL = "url";
 
     public static final String REASON = "reason";

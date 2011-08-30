@@ -67,10 +67,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerSamples(SampleType, String, String)
+     * @see IGenericClientService#registerSamples(SampleType, String, String, boolean)
      */
     public void registerSamples(final SampleType sampleType, final String sessionKey,
-            String defaultGroupIdentifier,
+            String defaultGroupIdentifier, boolean updateExisting,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 
@@ -102,10 +102,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             NewExperiment newExp, AsyncCallback<Void> assyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerMaterials(MaterialType, String)
+     * @see IGenericClientService#registerMaterials(MaterialType, boolean, String)
      */
-    public void registerMaterials(MaterialType materialType, String sessionKey,
-            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
+    public void registerMaterials(MaterialType materialType, boolean updateExisting,
+            String sessionKey, final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
     /**
      * @see IGenericClientService#updateMaterials(MaterialType, String, boolean)

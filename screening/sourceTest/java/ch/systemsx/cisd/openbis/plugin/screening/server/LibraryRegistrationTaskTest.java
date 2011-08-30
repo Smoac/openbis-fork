@@ -28,6 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 /**
  * @author Kaloyan Enimanev
  */
+@Friend(toClasses = LibraryRegistrationTask.class)
 public class LibraryRegistrationTaskTest extends AssertJUnit
 {
     private static final String SESSION_TOKEN = "session";
@@ -70,7 +73,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
     private IMailClient mailClient;
 
     private LibraryRegistrationTask task;
-
 
     @BeforeMethod
     public void setUp()
@@ -121,15 +123,17 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
                     one(commonServer).listMaterials(with(SESSION_TOKEN),
                             with(any(ListMaterialCriteria.class)), with(true));
                     will(returnValue(existingGenes));
-                    
-                    one(genericServer).registerOrUpdateMaterials(SESSION_TOKEN,
-                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenes);
+
+                    List<NewMaterialsWithTypes> materialsWithTypes =
+                            LibraryRegistrationTask.createMaterialsWithTypes(
+                                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenes);
+                    one(genericServer).registerOrUpdateMaterials(SESSION_TOKEN, materialsWithTypes);
 
                     String[] emailTo = new String[]
                         { USER_EMAIL };
                     one(mailClient).sendMessage(with(containsString("success")),
-                            with(any(String.class)),
-                            with(aNull(String.class)), with(aNull(From.class)), with(emailTo));
+                            with(any(String.class)), with(aNull(String.class)),
+                            with(aNull(From.class)), with(emailTo));
                 }
             });
 

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -230,11 +229,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "update_samples", sb.toString());
     }
 
-    public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> materials)
+    public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
     {
-        logTracking(sessionToken, "registerOrUpdateMaterials", "type(%s) numberOfMaterials(%s)",
-                materialTypeCode, materials.size());
+        for (NewMaterialsWithTypes materialsWithType : materials)
+        {
+            logTracking(sessionToken, "registerOrUpdateMaterials",
+                    "type(%s) numberOfMaterials(%s)", materialsWithType.getEntityType().getCode(),
+                    materialsWithType.getNewEntities().size());
+        }
     }
 
     public void registerOrUpdateSamples(String sessionToken,

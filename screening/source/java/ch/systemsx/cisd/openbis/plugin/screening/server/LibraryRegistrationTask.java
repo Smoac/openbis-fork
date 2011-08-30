@@ -1,8 +1,10 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -14,6 +16,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -113,14 +116,34 @@ class LibraryRegistrationTask implements Runnable
         }
     }
 
+    private void registerOrUpdateMaterials(String materialTypeCode, List<NewMaterial> newMaterials)
+    {
+        List<NewMaterialsWithTypes> materialsWithTypes =
+                createMaterialsWithTypes(materialTypeCode, newMaterials);
+        genericServer.registerOrUpdateMaterials(sessionToken, materialsWithTypes);
+    }
+
+    @Private
+    static List<NewMaterialsWithTypes> createMaterialsWithTypes(String materialTypeCode,
+            List<NewMaterial> newMaterials)
+    {
+        MaterialType materialType = new MaterialType();
+        materialType.setCode(materialTypeCode);
+        NewMaterialsWithTypes materialsWithType =
+                new NewMaterialsWithTypes(materialType, newMaterials);
+        materialsWithType.setAllowUpdateIfExist(true);
+        List<NewMaterialsWithTypes> materialsWithTypes = Arrays.asList(materialsWithType);
+        return materialsWithTypes;
+    }
+
     private void registerOrUpdateOligos(StringBuilder message)
     {
         try
         {
             if (newOligosOrNull != null)
             {
-                genericServer.registerOrUpdateMaterials(sessionToken,
-                        ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME, newOligosOrNull);
+                registerOrUpdateMaterials(ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME,
+                        newOligosOrNull);
                 message.append("Successfuly saved " + newOligosOrNull.size() + " siRNAs.\n");
             }
         } catch (RuntimeException ex)
@@ -147,8 +170,7 @@ class LibraryRegistrationTask implements Runnable
                     }
                 }
 
-                genericServer.registerOrUpdateMaterials(sessionToken,
-                        ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
+                registerOrUpdateMaterials(ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
                 message.append("Successfuly saved properties of " + newGenesOrNull.size()
                         + " genes.\n");
             }

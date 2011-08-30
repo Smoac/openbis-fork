@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -246,11 +245,19 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 registerSamples(session, samples, session.tryGetPerson());
             } else
             {
-                BatchOperationExecutor.executeInBatches(new SampleBatchRegisterOrUpdate(
-                        businessObjectFactory.createSampleLister(session),
-                        samples.getNewEntities(), samples.getEntityType(), session));
+                SampleBatchRegisterOrUpdate sampleBatchOperation =
+                        createSampleBatchOperation(session, samples);
+                BatchOperationExecutor.executeInBatches(sampleBatchOperation);
             }
         }
+    }
+
+    private SampleBatchRegisterOrUpdate createSampleBatchOperation(final Session session,
+            NewSamplesWithTypes samples)
+    {
+        ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        return new SampleBatchRegisterOrUpdate(sampleLister, samples.getNewEntities(),
+                samples.getEntityType(), session);
     }
 
     private class SampleBatchRegisterOrUpdate implements IBatchOperation<NewSample>
@@ -275,7 +282,22 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         public void execute(List<NewSample> newSamples)
         {
+            List<Sample> existingSamples = fetchExistingSamples(newSamples);
+            
+            List<NewSample> samplesToUpdate =
+                    SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
+            List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
+            samplesToRegister.removeAll(samplesToUpdate);
+            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister),
+                    session.tryGetPerson());
+            updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
+        }
+
+        private List<Sample> fetchExistingSamples(List<NewSample> newSamples)
+        {
             List<Sample> existingSamples = new ArrayList<Sample>();
+
+            // add non-contained samples codes
             List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
             // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples,
             // they can be only registered (if they did not exist).
@@ -284,6 +306,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     sampleLister.list(SampleRegisterOrUpdateUtil
                             .createListSamplesByCodeCriteria(codes));
             existingSamples.addAll(list);
+            
+            // for contained samples add container samples codes 
             codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
             ListOrSearchSampleCriteria criteria =
                     SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
@@ -293,13 +317,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 existingSamples.addAll(sampleLister.list(new ListOrSearchSampleCriteria(
                         ListOrSearchSampleCriteria.createForContainer(new TechId(s.getId())))));
             }
-            List<NewSample> samplesToUpdate =
-                    SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
-            List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
-            samplesToRegister.removeAll(samplesToUpdate);
-            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister),
-                    session.tryGetPerson());
-            updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
+            return existingSamples;
         }
 
         public List<NewSample> getAllEntities()
@@ -499,8 +517,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             }
             for (SampleIdentifier si : sampleIdentifiers)
             {
-                IdentifierHelper
-                        .fillAndCheckGroup(si, experimentSpace);
+                IdentifierHelper.fillAndCheckGroup(si, experimentSpace);
             }
             for (SampleIdentifier si : sampleIdentifiers)
             {
@@ -516,11 +533,18 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         assert sessionToken != null : "Unspecified session token.";
         Session session = getSession(sessionToken);
+        MaterialHelper materialHelper = getMaterialHelper(session);
+
         for (NewMaterialsWithTypes m : newMaterials)
         {
-            getMaterialHelper(session).registerMaterials(m.getEntityType().getCode(),
-                    m.getNewEntities());
+            registerMaterials(materialHelper, m);
         }
+    }
+
+    private void registerMaterials(MaterialHelper materialHelper, NewMaterialsWithTypes materials)
+    {
+        materialHelper.registerMaterials(materials.getEntityType().getCode(),
+                materials.getNewEntities());
     }
 
     public int updateMaterials(String sessionToken, final List<NewMaterialsWithTypes> newMaterials,
@@ -603,12 +627,23 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return commonServer.updateDataSet(sessionToken, updates);
     }
 
-    public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> materials)
+    public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
-        getMaterialHelper(session).registerOrUpdateMaterials(materialTypeCode, materials);
+        MaterialHelper materialHelper = getMaterialHelper(session);
+        for (NewMaterialsWithTypes materialsWithTypes : materials)
+        {
+            String materialTypeCode = materialsWithTypes.getEntityType().getCode();
+            if (materialsWithTypes.isAllowUpdateIfExist())
+            {
+                materialHelper.registerOrUpdateMaterials(materialTypeCode,
+                        materialsWithTypes.getNewEntities());
+            } else
+            {
+                registerMaterials(materialHelper, materialsWithTypes);
+            }
+        }
     }
 
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)

@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewEntitiesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
@@ -152,15 +153,17 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey, final String defaultGroupIdentifier)
+            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
     {
+        BatchOperationKind operationKind =
+                updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
-                        defaultGroupIdentifier != null, true, BatchOperationKind.REGISTRATION);
+                        defaultGroupIdentifier != null, true, operationKind);
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerSamples(sessionToken, info.getSamples());
+            genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
             return info.getResultList();
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -235,6 +238,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
+        boolean updateExisting = (operationKind == BatchOperationKind.UPDATE);
         try
         {
             SampleCodeGenerator sampleCodeGeneratorOrNull =
@@ -246,12 +250,24 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
-            return SampleUploadSectionsParser.prepareSamples(sampleType, files,
-                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
-                    operationKind);
+            BatchSamplesOperation batchSamplesOperation =
+                    SampleUploadSectionsParser.prepareSamples(sampleType, files,
+                            defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
+                            operationKind);
+            setUpdatePossibility(batchSamplesOperation.getSamples(), updateExisting);
+            return batchSamplesOperation;
         } finally
         {
             cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
+        }
+    }
+
+    private static void setUpdatePossibility(
+            List<? extends NewEntitiesWithTypes<?, ?>> batchOperation, boolean updateExisting)
+    {
+        for (NewEntitiesWithTypes entitiesWithTypes : batchOperation)
+        {
+            entitiesWithTypes.setAllowUpdateIfExist(updateExisting);
         }
     }
 
@@ -273,11 +289,12 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
-            final String sessionKey)
+            boolean updateExisting, final String sessionKey)
     {
         String sessionToken = getSessionToken();
-        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType);
-        genericServer.registerMaterials(sessionToken, results.getMaterials());
+        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, updateExisting);
+        List<NewMaterialsWithTypes> materials = results.getMaterials();
+        genericServer.registerOrUpdateMaterials(sessionToken, materials);
         return results.getResultList();
     }
 
@@ -298,7 +315,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         String sessionToken = getSessionToken();
 
-        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType);
+        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, true);
         int updateCount =
                 genericServer.updateMaterials(sessionToken, results.getMaterials(),
                         ignoreUnregisteredMaterials);
@@ -347,7 +364,8 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType)
+    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType,
+            boolean updateExisting)
     {
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -361,7 +379,10 @@ public class GenericClientService extends AbstractClientService implements IGene
                 files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
 
-            return MaterialUploadSectionsParser.prepareMaterials(materialType, files);
+            BatchMaterialsOperation batchMaterialsOperation =
+                    MaterialUploadSectionsParser.prepareMaterials(materialType, files);
+            setUpdatePossibility(batchMaterialsOperation.getMaterials(), updateExisting);
+            return batchMaterialsOperation;
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);

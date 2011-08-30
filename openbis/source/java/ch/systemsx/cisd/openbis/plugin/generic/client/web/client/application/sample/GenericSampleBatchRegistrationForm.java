@@ -58,6 +58,8 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final CheckBoxField generateCodesCheckbox;
 
+    private final CheckBoxField updateExistingCheckbox;
+
     private final SpaceSelectionWidget groupSelector;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -68,7 +70,11 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         super(viewContext.getCommonViewContext(), SESSION_KEY);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        generateCodesCheckbox = new CheckBoxField("Generate codes automatically", false);
+        generateCodesCheckbox =
+                new CheckBoxField(viewContext.getMessage(Dict.AUTO_GENERATE_CODES_LABEL), false);
+        updateExistingCheckbox =
+                new CheckBoxField(viewContext.getMessage(Dict.UPDATE_EXISTING_ENTITIES_LABEL),
+                        false);
         groupSelector =
                 createGroupField(viewContext.getCommonViewContext(), "" + getId(), true,
                         generateCodesCheckbox);
@@ -91,8 +97,9 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         {
             defaultGroupIdentifier = selectedGroup.getIdentifier();
         }
+        boolean updateExisting = updateExistingCheckbox.getValue();
         viewContext.getService().registerSamples(sampleType, getSessionKey(),
-                defaultGroupIdentifier, new RegisterSamplesCallback(viewContext));
+                defaultGroupIdentifier, updateExisting, new RegisterSamplesCallback(viewContext));
     }
 
     @Override
@@ -100,6 +107,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
     {
         form.add(generateCodesCheckbox);
         form.add(groupSelector);
+        form.add(updateExistingCheckbox);
         form.add(createTemplateField());
     }
 

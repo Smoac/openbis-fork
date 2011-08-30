@@ -75,9 +75,13 @@ public interface IGenericClientService extends IClientService
      * <p>
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
      * </p>
+     * 
+     * @param updateExisting if true and some entities already exist, they will be updated (instead
+     *            of throwing the exception and breaking the whole operation).
      */
     public List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
+            final String sessionKey, String defaultGroupIdentifier, boolean updateExisting)
+            throws UserFailureException;
 
     /**
      * Registers new experiments from files which have been previously uploaded.
@@ -123,9 +127,12 @@ public interface IGenericClientService extends IClientService
      * <p>
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
      * </p>
+     * 
+     * @param updateExisting if true and some entities already exist, they will be updated (instead
+     *            of throwing the exception and breaking the whole operation).
      */
     public List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
-            final String sessionKey) throws UserFailureException;
+            boolean updateExisting, final String sessionKey) throws UserFailureException;
 
     /**
      * Updates materials from a file which has been previously uploaded.
