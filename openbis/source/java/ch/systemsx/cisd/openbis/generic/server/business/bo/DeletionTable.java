@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DeletionTranslator;
  */
 public class DeletionTable extends AbstractBusinessObject implements IDeletionTable
 {
-    
     private List<Deletion> deletions;
 
     public DeletionTable(IDAOFactory daoFactory, Session session)
@@ -58,7 +57,8 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     {
         final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
         Collections.sort(deletionPEs);
-        if (withEntities == false)
+        deletions = DeletionTranslator.translate(deletionPEs);
+        if (false == withEntities)
         {
             return;
         }
@@ -74,7 +74,6 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
             findSamples(findersMap, deletionIDs);
             findDataSets(findersMap, deletionIDs);
         }
-        deletions = DeletionTranslator.translate(deletionPEs);
         for (Deletion deletion : deletions)
         {
             findersMap.get(deletion.getId()).addRootEntitiesTo(deletion);
