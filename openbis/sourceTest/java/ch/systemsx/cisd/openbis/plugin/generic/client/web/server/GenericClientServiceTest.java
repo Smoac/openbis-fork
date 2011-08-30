@@ -305,7 +305,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             }
                         });
 
-                    one(genericServer).registerSamples(with(equal(SESSION_TOKEN)),
+                    one(genericServer).registerOrUpdateSamples(with(equal(SESSION_TOKEN)),
                             with(newSampleWithTypesList()));
                     will(new CustomAction("check sample")
                         {
@@ -391,7 +391,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             }
                         });
 
-                    one(genericServer).registerSamples(with(equal(SESSION_TOKEN)),
+                    one(genericServer).registerOrUpdateSamples(with(equal(SESSION_TOKEN)),
                             with(newSampleWithTypesList()));
                     will(new CustomAction("check sample")
                         {
