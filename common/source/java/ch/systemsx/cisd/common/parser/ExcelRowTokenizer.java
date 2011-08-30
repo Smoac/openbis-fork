@@ -20,8 +20,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
  * @author Pawel Glyzewski
  */
@@ -61,7 +59,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
             case Cell.CELL_TYPE_STRING:
                 return cell.getStringCellValue();
             case Cell.CELL_TYPE_FORMULA:
-                throw new UserFailureException(
+                throw new ParserException(
                         "Excel formulas are not supported but one was found in cell "
                                 + extractCellPosition(cell));
             case Cell.CELL_TYPE_ERROR:
