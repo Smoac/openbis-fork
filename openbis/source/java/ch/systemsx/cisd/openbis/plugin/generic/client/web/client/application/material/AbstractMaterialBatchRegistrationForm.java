@@ -115,11 +115,11 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
     private final void addFormFields()
     {
         addSpecificFormFields(formPanel);
+        formPanel.add(createTemplateField());
         for (FileUploadField attachmentField : fileFieldsManager.getFields())
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
         }
-        formPanel.add(createTemplateField());
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
