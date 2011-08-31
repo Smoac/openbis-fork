@@ -51,7 +51,7 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
         switch (cell.getCellType())
         {
             case Cell.CELL_TYPE_BLANK:
-                return "BLANK";
+                return "";
             case Cell.CELL_TYPE_BOOLEAN:
                 return Boolean.toString(cell.getBooleanCellValue());
             case Cell.CELL_TYPE_NUMERIC:
