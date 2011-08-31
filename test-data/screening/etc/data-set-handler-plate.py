@@ -7,7 +7,7 @@ The folder loaded to the dropbox folder should have the same name as the plate t
 """
 
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location, Channel, ChannelColorComponent
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
     
@@ -73,5 +73,10 @@ if incoming.isDirectory():
     imageDataset = ImageDataSetFlexible()
     imageDataset.setRawImageDatasetType()
     imageDataset.setPlate("PLATONIC", incoming.getName())
-    factory.registerImageDataset(imageDataset, incoming, service)
-
+    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+    datasetInfo = imageRegistrationDetails.getDataSetInformation()
+    channels = [ Channel("DAPI", "DAPI"), Channel("GFP", "GFP")]
+    colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN]
+    datasetInfo.setChannels(channels, colorComponents)
+     
+    factory.registerImageDataset(imageRegistrationDetails, incoming, service)
