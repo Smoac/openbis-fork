@@ -45,6 +45,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public static final String CONTAINER = "container";
 
+    public static final String DEFAULT_CONTAINER = "default_container";
+
     public static final String PARENT = "parent";
 
     public static final String PARENTS = "parents";
@@ -74,7 +76,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     /***
      * The space code for this row home space
      */
-    private String spaceIdentifier;
+    private String defaultSpaceIdentifier;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
@@ -115,7 +117,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
-        this.spaceIdentifier = spaceCode;
+        this.defaultSpaceIdentifier = spaceCode;
         this.properties = properties;
         this.attachments = attachments;
     }
@@ -202,6 +204,17 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.containerIdentifier = container;
     }
 
+    public final String getDefaultContainerIdentifier()
+    {
+        return containerIdentifier;
+    }
+
+    @BeanProperty(label = DEFAULT_CONTAINER, optional = true)
+    public final void setDefaultContainerIdentifier(final String defaultContainer)
+    {
+        this.containerIdentifier = defaultContainer;
+    }
+
     public String getExperimentIdentifier()
     {
         return experimentIdentifier;
@@ -213,15 +226,15 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.experimentIdentifier = experimentIdentifier;
     }
 
-    public String getSpaceIdentifier()
+    public String getDefaultSpaceIdentifier()
     {
-        return spaceIdentifier;
+        return defaultSpaceIdentifier;
     }
 
     @BeanProperty(label = SPACE, optional = true)
-    public void setSpaceIdentifier(String spaceIdentifier)
+    public void setDefaultSpaceIdentifier(String spaceIdentifier)
     {
-        this.spaceIdentifier = spaceIdentifier;
+        this.defaultSpaceIdentifier = spaceIdentifier;
     }
 
     public final IEntityProperty[] getProperties()
@@ -269,10 +282,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         }
         final NewSample that = (NewSample) obj;
         final String thisCombinedIdentifier =
-                StringUtils.emptyIfNull(this.getSpaceIdentifier()) + this.getIdentifier()
+                StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + this.getIdentifier()
                         + this.getContainerIdentifier();
         final String thatCombinedIdentifier =
-                StringUtils.emptyIfNull(this.getSpaceIdentifier()) + that.getIdentifier()
+                StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + that.getIdentifier()
                         + that.getContainerIdentifier();
         return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }

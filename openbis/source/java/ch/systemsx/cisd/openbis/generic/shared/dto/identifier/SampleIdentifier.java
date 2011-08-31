@@ -96,7 +96,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         return sampleSubCode;
     }
 
-    public String getContainerCodeOrNull()
+    public String tryGetContainerCode()
     {
         return containerCodeOrNull;
     }

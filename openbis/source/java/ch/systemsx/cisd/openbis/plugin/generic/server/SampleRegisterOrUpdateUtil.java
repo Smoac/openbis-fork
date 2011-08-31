@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Utility class for sample update or registration.
@@ -47,13 +48,99 @@ public class SampleRegisterOrUpdateUtil
         {
             for (Sample es : existingSamples)
             {
-                if (isMatching(ns.getIdentifier(), es.getIdentifier()))
+                if (isMatching(ns, es))
                 {
                     samplesToUpdate.add(ns);
                 }
             }
         }
         return samplesToUpdate;
+    }
+
+    private static boolean isMatching(NewSample newSample, Sample existingSample)
+    {
+        SampleIdentifier newSampleIdentifier = SampleIdentifierFactory.parse(newSample);
+        if (isMatchingIgnoringContainer(existingSample, newSampleIdentifier) == false)
+        {
+            return false;
+        }
+
+        // is container matching?
+        SampleIdentifier containerIdentifier =
+                tryCreateContainerIdentifier(newSample, newSampleIdentifier);
+        Sample containerSample = existingSample.getContainer();
+        return isMatchingIgnoringContainer(containerSample, containerIdentifier);
+    }
+
+    private static SampleIdentifier tryCreateContainerIdentifier(NewSample newSample,
+            SampleIdentifier newSampleIdentifier)
+    {
+        String newSampleContainerCode = newSampleIdentifier.tryGetContainerCode();
+        String newSampleContainerSpace = newSample.getDefaultSpaceIdentifier();
+        if (newSampleContainerCode == null && newSample.getContainerIdentifier() != null)
+        {
+            SampleIdentifier newSampleContainerIdentifier =
+                    SampleIdentifierFactory.parse(newSample.getContainerIdentifier(),
+                            newSample.getDefaultSpaceIdentifier());
+            newSampleContainerCode = newSampleContainerIdentifier.getSampleSubCode();
+            newSampleContainerSpace = tryGetSpaceCode(newSampleContainerIdentifier);
+        }
+        if (newSampleContainerCode == null)
+        {
+            return null;
+        } else
+        {
+            return new SampleIdentifier(new SpaceIdentifier(newSampleContainerSpace),
+                    newSampleContainerCode);
+        }
+    }
+
+    private static boolean isMatchingIgnoringContainer(Sample existingSample,
+            SampleIdentifier newSampleIdentifier)
+    {
+        if (newSampleIdentifier == null || existingSample == null)
+        {
+            if (newSampleIdentifier != null || existingSample != null)
+            {
+                return false; // only one is null
+            }
+        }
+        if (existingSample == null)
+        {
+            assert newSampleIdentifier == null : "newSampleIdentifier is not null";
+            return true;
+        }
+        assert newSampleIdentifier != null : "newSampleIdentifier is null";
+
+        String newSampleSpace = tryGetSpaceCode(newSampleIdentifier);
+        String existingSampleSpace = existingSample.getSpace().getCode();
+        if (existingSampleSpace.equalsIgnoreCase(newSampleSpace) == false)
+        {
+            return false;
+        }
+
+        String newSampleSubCode = newSampleIdentifier.getSampleSubCode();
+        if (existingSample.getSubCode().equalsIgnoreCase(newSampleSubCode) == false)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private static String tryGetSpaceCode(SampleIdentifier sampleIdentifier)
+    {
+        if (sampleIdentifier.isSpaceLevel())
+        {
+            String space = sampleIdentifier.getSpaceLevel().getSpaceCode();
+            if (space.startsWith(INSTANCE_SEPARATOR))
+            {
+                space = space.substring(1);
+            }
+            return space;
+        } else
+        {
+            return null;
+        }
     }
 
     /**
@@ -64,25 +151,6 @@ public class SampleRegisterOrUpdateUtil
         String[] codesAsArray = codes.toArray(new String[0]);
         ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(codesAsArray, false);
         return criteria;
-    }
-
-    /**
-     * Checks if given identifiers are matching (db instance is not considered).
-     */
-    private static boolean isMatching(String i1, String i2)
-    {
-        if (i1 != null && i2 != null)
-        {
-            return normalize(i1).equals(normalize(i2));
-        } else
-        {
-            return i1 == i2;
-        }
-    }
-
-    private static String normalize(String id)
-    {
-        return dropDatabaseInstance(id).toUpperCase();
     }
 
     private static String dropDatabaseInstance(String id)

@@ -43,7 +43,7 @@ public final class UpdatedSample extends NewSample
     {
         super(newSample.getIdentifier(), newSample.getSampleType(), newSample
                 .getContainerIdentifier(), newSample.getParentsOrNull(), newSample
-                .getExperimentIdentifier(), newSample.getSpaceIdentifier(), newSample
+                .getExperimentIdentifier(), newSample.getDefaultSpaceIdentifier(), newSample
                 .getProperties(), newSample.getAttachments());
         this.batchUpdateDetails = batchUpdateDetails;
     }

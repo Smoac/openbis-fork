@@ -493,7 +493,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
                 Collections.<NewAttachment> emptyList());
         
-        assertEquals("/" + spaceCode, newSample1.getSpaceIdentifier());
+        assertEquals("/" + spaceCode, newSample1.getDefaultSpaceIdentifier());
         context.assertIsSatisfied();
     }
     

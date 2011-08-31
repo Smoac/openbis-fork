@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdent
 import org.apache.commons.lang.ArrayUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
@@ -39,6 +40,21 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             throws UserFailureException
     {
         return new SampleIdentifierFactory(textToParse).createIdentifier(null);
+    }
+
+    public static final SampleIdentifier parse(final NewSample sample) throws UserFailureException
+    {
+        SampleIdentifierFactory factory = new SampleIdentifierFactory(sample.getIdentifier());
+        String defaultSpace = sample.getDefaultSpaceIdentifier();
+        SampleIdentifier identifier = factory.createIdentifier(defaultSpace);
+        // if the container for the new sample is not specified then use the default (if provided)
+        String defaultContainer = sample.getDefaultContainerIdentifier();
+        if (identifier.tryGetContainerCode() == null && defaultContainer != null)
+        {
+            SampleIdentifier defaultContainerIdentifier = parse(defaultContainer, defaultSpace);
+            identifier.addContainerCode(defaultContainerIdentifier.getSampleSubCode());
+        }
+        return identifier;
     }
 
     public static final SampleIdentifier parse(final String textToParse, final String defaultSpace)

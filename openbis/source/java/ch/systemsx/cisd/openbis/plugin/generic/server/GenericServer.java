@@ -293,15 +293,20 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
         }
 
+        // TODO 2011-08-31, Tomasz Pylak: remove existing hacks
+        // 1. replaces contained samples with their containers if the container is
+        // specified in the contained sample identifier. This should be replaced by a flag not to
+        // update contained samples when the siRNA library is uploaded.
+        // 2. matches samples only by the code, so it can return match more samples if the sample
+        // with the same code exists in a different space. It does not hurt later on (matching is
+        // done by the identifier and additional samples are ignored), but is inefficient.
         private List<Sample> fetchExistingSamples(List<NewSample> newSamples)
         {
             List<Sample> existingSamples = new ArrayList<Sample>();
 
             // add non-contained samples codes
             List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
-            // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples,
-            // they can be only registered (if they did not exist).
-            // So only containers can be updated.
+            // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples!
             List<Sample> list =
                     sampleLister.list(SampleRegisterOrUpdateUtil
                             .createListSamplesByCodeCriteria(codes));
@@ -420,8 +425,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         for (NewSample updatedSample : updatedSamples)
         {
             final SampleIdentifier oldSampleIdentifier =
-                    SampleIdentifierFactory.parse(updatedSample.getIdentifier(),
-                            updatedSample.getSpaceIdentifier());
+                    SampleIdentifierFactory.parse(updatedSample);
             final List<IEntityProperty> properties = Arrays.asList(updatedSample.getProperties());
             final ExperimentIdentifier experimentIdentifierOrNull;
             final SampleIdentifier newSampleIdentifier;
@@ -430,7 +434,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 // experiment is provided - new sample identifier takes experiment space
                 experimentIdentifierOrNull =
                         new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
-                                .createIdentifier(updatedSample.getSpaceIdentifier());
+                                .createIdentifier(updatedSample.getDefaultSpaceIdentifier());
+                // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break? 
                 newSampleIdentifier =
                         new SampleIdentifier(new GroupIdentifier(
                                 experimentIdentifierOrNull.getDatabaseInstanceCode(),
@@ -447,7 +452,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
 
-            samples.add(new SampleBatchUpdatesDTO(updatedSample.getSpaceIdentifier(),
+            samples.add(new SampleBatchUpdatesDTO(updatedSample.getDefaultSpaceIdentifier(),
                     oldSampleIdentifier, properties, experimentIdentifierOrNull,
                     newSampleIdentifier, containerIdentifierOrNull, parentsOrNull,
                     batchUpdateDetails));
@@ -500,7 +505,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 List<NewSample> newEntities = newSamplesWithType.getNewEntities();
                 for (NewSample newSample : newEntities)
                 {
-                    newSample.setSpaceIdentifier(new SpaceIdentifier(experimentSpace).toString());
+                    newSample.setDefaultSpaceIdentifier(new SpaceIdentifier(experimentSpace)
+                            .toString());
                 }
             }
             registerSamples(sessionToken, newSamples);

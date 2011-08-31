@@ -109,9 +109,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<String, ExperimentPE> experimentCacheOrNull, PersonPE registratorOrNull)
             throws UserFailureException
     {
-        final SampleIdentifier sampleIdentifier =
-                SampleIdentifierFactory.parse(newSample.getIdentifier(),
-                        newSample.getSpaceIdentifier());
+        final SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
         SampleOwner sampleOwner = getSampleOwner(sampleOwnerCacheOrNull, sampleIdentifier);
         SampleTypePE sampleTypePE =
                 (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
@@ -127,7 +125,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         String experimentIdentifier = newSample.getExperimentIdentifier();
         ExperimentPE experimentPE =
                 tryFindExperiment(experimentCacheOrNull, experimentIdentifier,
-                        newSample.getSpaceIdentifier());
+                        newSample.getDefaultSpaceIdentifier());
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
@@ -139,11 +137,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifier();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
-                newSample.getSpaceIdentifier());
+                newSample.getDefaultSpaceIdentifier());
         if (newSample.getParentsOrNull() != null)
         {
             final String[] parents = newSample.getParentsOrNull();
-            setParents(samplePE, parents, newSample.getSpaceIdentifier());
+            setParents(samplePE, parents, newSample.getDefaultSpaceIdentifier());
         }
         samplePE.setPermId(getOrCreatePermID(newSample));
         return samplePE;
@@ -575,7 +573,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers)
         {
             final SampleOwner sampleOwner = getSampleOwner(sampleOwnerCache, sampleIdentifier);
-            final String containerCodeOrNull = sampleIdentifier.getContainerCodeOrNull();
+            final String containerCodeOrNull = sampleIdentifier.tryGetContainerCode();
             final SampleOwnerWithContainer owner =
                     new SampleOwnerWithContainer(sampleOwner, containerCodeOrNull);
 
