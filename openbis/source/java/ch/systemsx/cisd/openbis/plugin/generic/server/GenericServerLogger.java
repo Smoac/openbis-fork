@@ -275,4 +275,30 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
     }
 
+    public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+    {
+        StringBuilder samples = new StringBuilder();
+        for (NewSamplesWithTypes s : newSamplesWithType)
+        {
+            if (samples.length() > 0)
+            {
+                samples.append(",");
+            }
+            samples.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
+        }
+
+        StringBuilder materials = new StringBuilder();
+        for (NewMaterialsWithTypes s : newMaterialsWithType)
+        {
+            if (materials.length() > 0)
+            {
+                materials.append(",");
+            }
+            materials.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
+        }
+        logTracking(sessionToken, "register_or_update_samples_and_materials",
+                "SAMPLES(%s) MATERIALS(%s)", samples.toString(), materials.toString());
+    }
 }

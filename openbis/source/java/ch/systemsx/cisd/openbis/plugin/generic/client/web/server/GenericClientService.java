@@ -159,7 +159,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                 updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
-                        defaultGroupIdentifier != null, true, operationKind);
+                        defaultGroupIdentifier != null, true, null, operationKind);
         try
         {
             final String sessionToken = getSessionToken();
@@ -171,11 +171,51 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
+    public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
+            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
+    {
+        BatchOperationKind operationKind =
+                updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
+
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(SampleType.DEFINED_IN_FILE);
+
+        HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            BatchSamplesOperation samplesInfo =
+                    parseSamples(sampleType, session, uploadedFiles, defaultGroupIdentifier,
+                            defaultGroupIdentifier != null, true, "SAMPLES", operationKind);
+
+            final MaterialType materialType = new MaterialType();
+            materialType.setCode(SampleType.DEFINED_IN_FILE);
+            BatchMaterialsOperation materialsInfo =
+                    parseMaterials(session, uploadedFiles, materialType, "MATERIALS",
+                            updateExisting);
+            final String sessionToken = getSessionToken();
+            genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                    samplesInfo.getSamples(), materialsInfo.getMaterials());
+
+            List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
+            results.addAll(materialsInfo.getResultList());
+            results.addAll(samplesInfo.getResultList());
+            return results;
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
+        }
+    }
+
     public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
             final String sessionKey, final String defaultGroupIdentifier)
     {
         BatchSamplesOperation info =
-                parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true,
+                parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true, null,
                         BatchOperationKind.UPDATE);
         try
         {
@@ -217,7 +257,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                             samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getSpaceCode()).toString(), experiment.isGenerateCodes(),
-                            false, BatchOperationKind.REGISTRATION);
+                            false, null, BatchOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
         }
@@ -232,30 +272,39 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     private BatchSamplesOperation parseSamples(final SampleType sampleType,
+            HttpSession httpSession, UploadedFilesBean uploadedFiles,
+            String defaultGroupIdentifier, final boolean isAutoGenerateCodes,
+            final boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind)
+    {
+        boolean updateExisting = (operationKind == BatchOperationKind.UPDATE);
+        SampleCodeGenerator sampleCodeGeneratorOrNull =
+                tryGetSampleCodeGenerator(isAutoGenerateCodes);
+        Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+        for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+        {
+            files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+        }
+        BatchSamplesOperation batchSamplesOperation =
+                SampleUploadSectionsParser.prepareSamples(sampleType, files,
+                        defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
+                        excelSheetName, operationKind);
+        setUpdatePossibility(batchSamplesOperation.getSamples(), updateExisting);
+        return batchSamplesOperation;
+
+    }
+
+    private BatchSamplesOperation parseSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier,
             final boolean isAutoGenerateCodes, final boolean allowExperiments,
-            BatchOperationKind operationKind)
+            String excelSheetName, BatchOperationKind operationKind)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
-        boolean updateExisting = (operationKind == BatchOperationKind.UPDATE);
         try
         {
-            SampleCodeGenerator sampleCodeGeneratorOrNull =
-                    tryGetSampleCodeGenerator(isAutoGenerateCodes);
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            Collection<NamedInputStream> files =
-                    new ArrayList<NamedInputStream>(uploadedFiles.size());
-            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
-            {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
-            }
-            BatchSamplesOperation batchSamplesOperation =
-                    SampleUploadSectionsParser.prepareSamples(sampleType, files,
-                            defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
-                            operationKind);
-            setUpdatePossibility(batchSamplesOperation.getSamples(), updateExisting);
-            return batchSamplesOperation;
+            return parseSamples(sampleType, httpSession, uploadedFiles, defaultGroupIdentifier,
+                    isAutoGenerateCodes, allowExperiments, excelSheetName, operationKind);
         } finally
         {
             cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
@@ -292,7 +341,8 @@ public class GenericClientService extends AbstractClientService implements IGene
             boolean updateExisting, final String sessionKey)
     {
         String sessionToken = getSessionToken();
-        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, updateExisting);
+        BatchMaterialsOperation results =
+                parseMaterials(sessionKey, materialType, null, updateExisting);
         List<NewMaterialsWithTypes> materials = results.getMaterials();
         genericServer.registerOrUpdateMaterials(sessionToken, materials);
         return results.getResultList();
@@ -315,7 +365,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         String sessionToken = getSessionToken();
 
-        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, true);
+        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, null, true);
         int updateCount =
                 genericServer.updateMaterials(sessionToken, results.getMaterials(),
                         ignoreUnregisteredMaterials);
@@ -364,25 +414,33 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType,
+    private BatchMaterialsOperation parseMaterials(HttpSession session,
+            UploadedFilesBean uploadedFiles, MaterialType materialType, String excelSheetName,
             boolean updateExisting)
+    {
+        Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+        for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+        {
+            files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+        }
+
+        BatchMaterialsOperation batchMaterialsOperation =
+                MaterialUploadSectionsParser.prepareMaterials(materialType, files, excelSheetName);
+        setUpdatePossibility(batchMaterialsOperation.getMaterials(), updateExisting);
+        return batchMaterialsOperation;
+    }
+
+    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType,
+            String excelSheetName, boolean updateExisting)
     {
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
-            Collection<NamedInputStream> files =
-                    new ArrayList<NamedInputStream>(uploadedFiles.size());
-            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
-            {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
-            }
 
-            BatchMaterialsOperation batchMaterialsOperation =
-                    MaterialUploadSectionsParser.prepareMaterials(materialType, files);
-            setUpdatePossibility(batchMaterialsOperation.getMaterials(), updateExisting);
-            return batchMaterialsOperation;
+            return parseMaterials(session, uploadedFiles, materialType, excelSheetName,
+                    updateExisting);
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
@@ -453,7 +511,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                             updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
                                     .getSpaceCode()).toString(), updates.isGenerateCodes(), false,
-                            BatchOperationKind.REGISTRATION);
+                            null, BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());
         }

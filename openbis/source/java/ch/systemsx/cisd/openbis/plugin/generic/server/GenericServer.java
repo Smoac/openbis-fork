@@ -776,4 +776,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return materialHelper;
     }
 
+    public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+    {
+        registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
+        registerOrUpdateSamples(sessionToken, newSamplesWithType);
+    }
 }

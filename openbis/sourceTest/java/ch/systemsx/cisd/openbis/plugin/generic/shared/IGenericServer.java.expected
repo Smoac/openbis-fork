@@ -140,6 +140,17 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
+     * Registers or updates samples and materials of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
+    public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException;
+
+    /**
      * Updates samples of different types in batches.
      */
     @Transactional
@@ -212,7 +223,8 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials) throws UserFailureException;
+    public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
+            throws UserFailureException;
 
     /**
      * Returns attachment described by given sample identifier, filename and version.

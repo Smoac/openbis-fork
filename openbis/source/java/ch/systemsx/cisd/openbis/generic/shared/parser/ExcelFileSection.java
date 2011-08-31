@@ -90,14 +90,33 @@ public class ExcelFileSection
         }
     }
 
-    public static List<ExcelFileSection> extractSections(InputStream stream)
+    public static List<ExcelFileSection> extractSections(InputStream stream, String excelSheetName)
     {
         List<ExcelFileSection> sections = new ArrayList<ExcelFileSection>();
         try
         {
             POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
             Workbook wb = new HSSFWorkbook(poifsFileSystem);
-            Sheet sheet = wb.getSheetAt(0);
+
+            Sheet sheet = null;
+            if (excelSheetName == null)
+            {
+                sheet = wb.getSheetAt(0);
+            } else
+            {
+                for (int i = 0; i < wb.getNumberOfSheets(); i++)
+                {
+                    if (excelSheetName.equalsIgnoreCase(wb.getSheetName(i)))
+                    {
+                        sheet = wb.getSheetAt(i);
+                        break;
+                    }
+                }
+                if (sheet == null)
+                {
+                    return sections;
+                }
+            }
             String sectionName = null;
             Integer begin = null;
             for (Row row : sheet)

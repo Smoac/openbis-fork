@@ -108,7 +108,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
                     new NamedInputStream(new FileInputStream(file), file.getName());
             BatchSamplesOperation info =
                     SampleUploadSectionsParser.prepareSamples(sampleType, Arrays.asList(stream),
-                            defaultSpaceIdentifierOrNull, sampleCodeGeneratorOrNull, true,
+                            defaultSpaceIdentifierOrNull, sampleCodeGeneratorOrNull, true, null,
                             BatchOperationKind.REGISTRATION);
             logSamplesExtracted(file, info);
             service.registerSamples(info.getSamples(), userOrNull);

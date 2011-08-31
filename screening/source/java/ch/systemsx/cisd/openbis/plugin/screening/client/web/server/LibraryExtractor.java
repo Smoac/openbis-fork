@@ -109,7 +109,8 @@ class LibraryExtractor
         BatchSamplesOperation prepared =
                 SampleUploadSectionsParser.prepareSamples(typeInFile, Arrays
                         .asList(new NamedInputStream(new FileInputStream(platesFile), platesFile
-                                .getName())), null, null, true, BatchOperationKind.REGISTRATION);
+                                .getName())), null, null, true, null,
+                        BatchOperationKind.REGISTRATION);
         List<NewSamplesWithTypes> samples = prepared.getSamples();
         setUpdatableTypes(samples);
         return samples;

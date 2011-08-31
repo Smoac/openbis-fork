@@ -173,4 +173,11 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> updateDataSets(final DataSetType dataSetType,
             final String sessionKey) throws UserFailureException;
+
+    /**
+     * Updates samples and materials from excel files which have been previously uploaded.
+     */
+    public List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
+            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting);
+
 }

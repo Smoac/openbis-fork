@@ -78,11 +78,11 @@ public class MaterialUploadSectionsParser
     }
 
     public static BatchMaterialsOperation prepareMaterials(final MaterialType materialType,
-            final Collection<NamedInputStream> files)
+            final Collection<NamedInputStream> files, String excelSheetName)
     {
         final List<NewMaterialsWithTypes> newSamples = new ArrayList<NewMaterialsWithTypes>();
         final List<BatchRegistrationResult> results =
-                loadMaterialsFromFiles(files, materialType, newSamples);
+                loadMaterialsFromFiles(files, materialType, newSamples, excelSheetName);
 
         return new BatchMaterialsOperation(newSamples, results, parseCodes(newSamples));
     }
@@ -102,7 +102,7 @@ public class MaterialUploadSectionsParser
 
     private static List<BatchRegistrationResult> loadMaterialsFromFiles(
             Collection<NamedInputStream> uploadedFiles, MaterialType materialType,
-            final List<NewMaterialsWithTypes> newMaterials)
+            final List<NewMaterialsWithTypes> newMaterials, String excelSheetName)
     {
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
@@ -113,8 +113,8 @@ public class MaterialUploadSectionsParser
                 List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
                 if (materialType.isDefinedInFileEntityTypeCode())
                 {
-                    materialSections.addAll(ExcelFileSection.extractSections(multipartFile
-                            .getInputStream()));
+                    materialSections.addAll(ExcelFileSection.extractSections(
+                            multipartFile.getInputStream(), excelSheetName));
                 } else
                 {
                     materialSections.add(ExcelFileSection.createFromInputStream(

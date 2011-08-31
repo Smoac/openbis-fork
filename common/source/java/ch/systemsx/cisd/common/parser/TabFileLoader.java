@@ -265,7 +265,7 @@ public class TabFileLoader<T>
         {
             ILine<String> line = lineIterator.next();
             String text = line.getText();
-            if (DEFAULT_SECTION.equals(text))
+            if (DEFAULT_SECTION.equals(text.trim()))
             {
                 break;
             }
@@ -414,7 +414,7 @@ public class TabFileLoader<T>
     private static boolean startsDefaultSection(ILine<String> line)
     {
         String text = line.getText();
-        return DEFAULT_SECTION.equals(text);
+        return DEFAULT_SECTION.equals(text.trim());
     }
 
     private static boolean startsWithComment(ILine<String> line)

@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummarySection;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LibraryImportComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
 
@@ -62,7 +63,9 @@ public class ScreeningModule implements IModule
         ActionMenu globalWellSearch =
                 TabActionMenuItemFactory
                         .createActionMenu(viewContext, ID, createGlobalWellSearch());
-        return Collections.singletonList(globalWellSearch);
+        ActionMenu globalLibraryImport =
+                TabActionMenuItemFactory.createActionMenu(viewContext, ID, createLibraryImport());
+        return Arrays.asList(globalWellSearch, globalLibraryImport);
     }
 
     private ITabActionMenuItemDefinition<IScreeningClientServiceAsync> createGlobalWellSearch()
@@ -92,6 +95,35 @@ public class ScreeningModule implements IModule
                     return GlobalWellSearchLocatorResolver.createQueryBrowserLink();
                 }
 
+            };
+    }
+
+    private ITabActionMenuItemDefinition<IScreeningClientServiceAsync> createLibraryImport()
+    {
+        return new ITabActionMenuItemDefinition<IScreeningClientServiceAsync>()
+            {
+
+                public String getName()
+                {
+                    return Dict.LIBRARY_IMPORT_MENU_ITEM;
+                }
+
+                public String getHelpPageTitle()
+                {
+                    return "Global Library Import";
+                }
+
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+                public DatabaseModificationAwareComponent createComponent(
+                        @SuppressWarnings("hiding") IViewContext<IScreeningClientServiceAsync> viewContext)
+                {
+                    TabContent libraryImportTab = new LibraryImportComponent(viewContext);
+                    return DatabaseModificationAwareComponent.wrapUnaware(libraryImportTab);
+                }
             };
     }
 

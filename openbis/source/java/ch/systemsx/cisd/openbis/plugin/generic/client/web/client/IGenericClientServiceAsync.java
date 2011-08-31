@@ -150,4 +150,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void registerExperiments(ExperimentType experimentType, String sessionKey,
             AsyncCallback<List<BatchRegistrationResult>> registerExperimentsCallback);
 
+    /**
+     * @see IGenericClientService#registerOrUpdateSamplesAndMaterials(String, String, boolean)
+     */
+    public void registerOrUpdateSamplesAndMaterials(final String sessionKey,
+            final String defaultGroupIdentifier, boolean updateExisting,
+            AsyncCallback<List<BatchRegistrationResult>> registerSamplesAndMaterialsCallback);
+
 }

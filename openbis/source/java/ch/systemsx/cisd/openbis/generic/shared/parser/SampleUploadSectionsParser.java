@@ -86,13 +86,13 @@ public class SampleUploadSectionsParser
     public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
             final Collection<NamedInputStream> files, String defaultGroupIdentifier,
             final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
-            BatchOperationKind operationKind)
+            String excelSheetName, BatchOperationKind operationKind)
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
         final List<BatchRegistrationResult> results =
                 loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
-                        allowExperiments, operationKind);
+                        allowExperiments, excelSheetName, operationKind);
 
         if (defaultGroupIdentifier != null)
         {
@@ -185,7 +185,7 @@ public class SampleUploadSectionsParser
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
-            boolean allowExperiments, BatchOperationKind operationKind)
+            boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind)
     {
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
@@ -196,8 +196,8 @@ public class SampleUploadSectionsParser
                 List<ExcelFileSection> sampleSections = new ArrayList<ExcelFileSection>();
                 if (sampleType.isDefinedInFileEntityTypeCode())
                 {
-                    sampleSections.addAll(ExcelFileSection.extractSections(multipartFile
-                            .getInputStream()));
+                    sampleSections.addAll(ExcelFileSection.extractSections(
+                            multipartFile.getInputStream(), excelSheetName));
                 } else
                 {
                     sampleSections.add(ExcelFileSection.createFromInputStream(
