@@ -329,6 +329,13 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         prepareGetExperimentAndGetSampleType(false, pt1, pt2);
         prepareRegisterSample("bio-sample");
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse("bio-sample"));
+                    will(returnValue(new Sample()));
+                }
+            });
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
@@ -394,6 +401,14 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         prepareGetExperimentAndGetSampleType(false, createPropertyType(SAMPLE_PROPERTY, true));
         prepareUpdateSample("Isaac", new String[] {"bio-sample"});
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse("bio-sample"));
+                    will(returnValue(new Sample()));
+                }
+            });
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         

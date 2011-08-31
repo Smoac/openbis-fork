@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
 
 /**
@@ -141,7 +142,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
     {
         SampleType sampleType = service.getSampleType(CommonConstants.MS_INJECTION_SAMPLE_TYPE_CODE);
         Sample sample = service.tryGetSampleWithExperiment(sampleIdentifier);
-        String biologicalSampleIdentifier = properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
+        String biologicalSampleIdentifier = tryToGetBiologicalSampleIdentifier(properties);
         if (sample == null)
         {
             NewSample newSample = new NewSample();
@@ -168,6 +169,24 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
                         { biologicalSampleIdentifier }));
             return sample.getId();
         }
+    }
+
+    private String tryToGetBiologicalSampleIdentifier(Properties properties)
+    {
+        String biologicalSampleIdentifier =
+                properties.getProperty(BIOLOGICAL_SAMPLE_IDENTIFIER_KEY);
+        if (biologicalSampleIdentifier != null)
+        {
+            Sample bioSample =
+                    service.tryGetSampleWithExperiment(SampleIdentifierFactory
+                            .parse(biologicalSampleIdentifier));
+            if (bioSample == null)
+            {
+                // ignore biological sample if it does not exist.
+                biologicalSampleIdentifier = null;
+            }
+        }
+        return biologicalSampleIdentifier;
     }
 
     private long timeStamp(ExternalData dataSet)
