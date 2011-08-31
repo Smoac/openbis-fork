@@ -105,7 +105,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             registrationDetails.setDataSetInformation(dataSetInfo);
             return registrationDetails;
         }
-        
+
         public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
                 SimpleImageDataConfig imageDataSet, File incomingDatasetFolder)
         {
@@ -120,6 +120,14 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         {
             DataSetRegistrationDetails<ImageDataSetInformation> imageDatasetDetails =
                     createImageRegistrationDetails(imageDataSet, incomingDatasetFolder);
+            return registerImageDataset(imageDatasetDetails, incomingDatasetFolder, service);
+        }
+
+        public boolean registerImageDataset(
+                DataSetRegistrationDetails<ImageDataSetInformation> imageDatasetDetails,
+                File incomingDatasetFolder,
+                DataSetRegistrationService<ImageDataSetInformation> service)
+        {
             DataSetRegistrationTransaction<ImageDataSetInformation> transaction =
                     service.transaction(incomingDatasetFolder, imageDatasetFactory);
             IDataSet newDataset = transaction.createNewDataSet(imageDatasetDetails);
