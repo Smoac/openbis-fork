@@ -32,6 +32,7 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         image_tokens.well = None
         image_tokens.tileNumber = 1    
         image_tokens.channelCode = token_dict["c"]
+        image_tokens.timepoint = float(token_dict["t"])
         return image_tokens
 
     """
@@ -60,9 +61,6 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
     """
     def getTileCoordinates(self, tileNumber, tileGeometry):
         return Location(1, 1)
-        
-#    def isMicroscopyData(self):
-#        return True
 
 if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
