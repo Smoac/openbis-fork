@@ -46,20 +46,21 @@ public class EmptyTrashButtonMenu extends SplitButton
         super(viewContext.getMessage(Dict.BUTTON_EMPTY_TRASH));
         this.viewContext = viewContext;
 
-        final Menu exportMenu = new Menu();
+        final Menu trashMenu = new Menu();
         emptyTrash = new CheckMenuItem(viewContext.getMessage(Dict.BUTTON_EMPTY_TRASH));
         forceEmptyTrash = new CheckMenuItem(viewContext.getMessage(Dict.BUTTON_FORCE_EMPTY_TRASH));
 
         emptyTrash.setToolTip(viewContext.getMessage(Dict.TOOLTIP_EMPTY_TRASH));
+        GWTUtils.setToolTip(this, viewContext.getMessage(Dict.TOOLTIP_EMPTY_TRASH));
         forceEmptyTrash.setToolTip(viewContext.getMessage(Dict.TOOLTIP_FORCE_EMPTY_TRASH));
 
         emptyTrash.setGroup("deletionType");
         forceEmptyTrash.setGroup("deletionType");
 
-        exportMenu.add(emptyTrash);
-        exportMenu.add(forceEmptyTrash);
+        trashMenu.add(emptyTrash);
+        trashMenu.add(forceEmptyTrash);
 
-        setMenu(exportMenu);
+        setMenu(trashMenu);
 
         addSelectionListener(new SelectionListener<ButtonEvent>()
             {
@@ -74,16 +75,11 @@ public class EmptyTrashButtonMenu extends SplitButton
             {
                 @Override
                 public void componentSelected(MenuEvent ce)
-                {
-                    boolean isExportAllColumns = isForceEmptyTrash();
+            {
                     invokeAction(callback);
-                    setText(isExportAllColumns ? viewContext
-                            .getMessage(Dict.BUTTON_FORCE_EMPTY_TRASH) : viewContext
-                            .getMessage(Dict.BUTTON_EMPTY_TRASH));
-                    updateTooltip();
                 }
 
-            };
+        };
         emptyTrash.addSelectionListener(menuEventListener);
         forceEmptyTrash.addSelectionListener(menuEventListener);
 
@@ -101,18 +97,5 @@ public class EmptyTrashButtonMenu extends SplitButton
         return forceEmptyTrash.isChecked();
     }
 
-    private void updateTooltip()
-    {
-        String enabledButtonMessageKey =
-                isForceEmptyTrash() ? Dict.TOOLTIP_FORCE_EMPTY_TRASH : Dict.TOOLTIP_EMPTY_TRASH;
-        String title = viewContext.getMessage(enabledButtonMessageKey);
-        GWTUtils.setToolTip(this, title);
-    }
 
-    @Override
-    public void enable()
-    {
-        super.enable();
-        updateTooltip();
-    }
 }
