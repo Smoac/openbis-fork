@@ -109,7 +109,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<String, ExperimentPE> experimentCacheOrNull, PersonPE registratorOrNull)
             throws UserFailureException
     {
-        final SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
+        final SampleIdentifier sampleIdentifier =
+                SampleIdentifierFactory.parse(newSample);
         SampleOwner sampleOwner = getSampleOwner(sampleOwnerCacheOrNull, sampleIdentifier);
         SampleTypePE sampleTypePE =
                 (sampleTypeCacheOrNull != null) ? sampleTypeCacheOrNull.get(newSample
@@ -135,7 +136,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setSpace(sampleOwner.tryGetSpace());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
-        String containerIdentifier = newSample.getContainerIdentifier();
+        String containerIdentifier = newSample.getContainerIdentifierForNewSample();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
                 newSample.getDefaultSpaceIdentifier());
         if (newSample.getParentsOrNull() != null)

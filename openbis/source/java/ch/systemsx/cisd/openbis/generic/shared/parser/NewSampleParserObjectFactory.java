@@ -116,8 +116,6 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
         }
         newSample.setSampleType(sampleType);
         setProperties(newSample, lineTokens);
-        newSample
-                .setContainerIdentifier(StringUtils.trimToNull(newSample.getContainerIdentifier()));
         if (newSample.getParentsOrNull() != null)
         {
             List<String> parents = new ArrayList<String>();

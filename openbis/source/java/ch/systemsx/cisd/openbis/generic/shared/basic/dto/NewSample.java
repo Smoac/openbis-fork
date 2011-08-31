@@ -35,6 +35,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
             "# The \"container\" and \"parents\" columns are optional, only one should be specified.\n"
                     + "# \"container\" should contain a sample identifier, e.g. /SPACE/SAMPLE_1, while \"parents\" should contain comma separated list of sample identifiers. \n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
+                    + "# The column \"container\" has an alias \"default_container\", which has a different meaning when samples are updated.\n"
                     + "# If \"parents\" are provided, the registered sample will become a \"child\" of all specified samples.\n";
 
     public static String WITH_EXPERIMENTS_COMMENT =
@@ -67,6 +68,12 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
      * The container identifier.
      */
     private String containerIdentifier;
+
+    /**
+     * The default container identifier. Used only if the sample identifier does not have the
+     * container specified. In such a case it will be assumed that the sample is in that container.
+     */
+    private String defaultContainerIdentifier;
 
     /**
      * The experiment identifier.
@@ -112,12 +119,14 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
             String[] parentsOrNull, String experimentIdentifier, String spaceCode,
-            IEntityProperty[] properties, List<NewAttachment> attachments)
+            String defaultContainerIdentifier, IEntityProperty[] properties,
+            List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
         this.defaultSpaceIdentifier = spaceCode;
+        this.defaultContainerIdentifier = defaultContainerIdentifier;
         this.properties = properties;
         this.attachments = attachments;
     }
@@ -201,18 +210,18 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     @BeanProperty(label = CONTAINER, optional = true)
     public final void setContainerIdentifier(final String container)
     {
-        this.containerIdentifier = container;
+        this.containerIdentifier = StringUtils.trimToNull(container);
     }
 
     public final String getDefaultContainerIdentifier()
     {
-        return containerIdentifier;
+        return defaultContainerIdentifier;
     }
 
     @BeanProperty(label = DEFAULT_CONTAINER, optional = true)
     public final void setDefaultContainerIdentifier(final String defaultContainer)
     {
-        this.containerIdentifier = defaultContainer;
+        this.defaultContainerIdentifier = StringUtils.trimToNull(defaultContainer);
     }
 
     public String getExperimentIdentifier()
@@ -257,6 +266,12 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         return getIdentifier();
     }
 
+    public String getContainerIdentifierForNewSample()
+    {
+        return defaultContainerIdentifier != null ? defaultContainerIdentifier
+                : containerIdentifier;
+    }
+
     // NOTE:
     // Special equality check for NewSamples that is not complete but speeds up uniqueness check
     // of new sample codes during import. The check on the DB level is complete.
@@ -283,10 +298,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         final NewSample that = (NewSample) obj;
         final String thisCombinedIdentifier =
                 StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + this.getIdentifier()
-                        + this.getContainerIdentifier();
+                        + getContainerIdentifier() + getDefaultContainerIdentifier();
         final String thatCombinedIdentifier =
                 StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + that.getIdentifier()
-                        + that.getContainerIdentifier();
+                        + that.getContainerIdentifier() + that.getDefaultContainerIdentifier();
         return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }
 }

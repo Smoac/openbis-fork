@@ -972,6 +972,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
         private final boolean equals(final NewSample newSample, final NewSample thatNewSample)
         {
+            // NOTE: this should take default container and default space into account to be complete
             return ObjectUtils.equals(newSample, thatNewSample)
                     && StringUtils.equals(newSample.getContainerIdentifier(),
                             thatNewSample.getContainerIdentifier())

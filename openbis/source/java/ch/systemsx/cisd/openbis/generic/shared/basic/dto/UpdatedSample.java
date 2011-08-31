@@ -32,10 +32,11 @@ public final class UpdatedSample extends NewSample
                     + "# (in particular, a sample can become detached from an experiment, container or all parents this way).\n"
                     + "# Basically the \"identifier\" column should contain sample identifiers, e.g. /SPACE/SAMPLE_1,\n"
                     + "# but for samples from default space (if it was provided in the form) it is enough to put sample codes (e.g. SAMPLE_1) into the column.\n"
-                    + "# The \"container\" column (if not removed) should contain sample identifiers, e.g. /SPACE/SAMPLE_1\n"
+                    + "# The \"container\" column (if not removed) should contain sample identifier for the new container of the updated sample, e.g. /SPACE/SAMPLE_1\n"
                     + "# The \"parent\" column (if not removed) should contain comma separated list of sample identifiers, e.g. /SPACE/SAMPLE_1,/SPACE/SAMPLE_2\n"
                     + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n"
-                    + "# The \"default_space\" column is optional, it can be used to override home space for the row\n";
+                    + "# The \"default_space\" column is optional, it can be used to override home space for the row\n"
+                    + "# The \"default_container\" column is optional, it can be used to specify container where the updated sample belongs before the update\n";
 
     private SampleBatchUpdateDetails batchUpdateDetails;
 
@@ -44,7 +45,8 @@ public final class UpdatedSample extends NewSample
         super(newSample.getIdentifier(), newSample.getSampleType(), newSample
                 .getContainerIdentifier(), newSample.getParentsOrNull(), newSample
                 .getExperimentIdentifier(), newSample.getDefaultSpaceIdentifier(), newSample
-                .getProperties(), newSample.getAttachments());
+                .getDefaultContainerIdentifier(), newSample.getProperties(), newSample
+                .getAttachments());
         this.batchUpdateDetails = batchUpdateDetails;
     }
 

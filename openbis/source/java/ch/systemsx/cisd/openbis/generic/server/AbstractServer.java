@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
@@ -597,6 +598,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             return;
         }
+        fillHomeSpace(newSamples, session.tryGetHomeGroupCode());
         ServerUtils.prevalidate(newSamples, "sample");
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
@@ -609,6 +611,22 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         getPropertiesBatchManager().manageProperties(sampleTypePE, newSamples, registratorOrNull);
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples,
                 registratorOrNull);
+    }
+
+    protected static void fillHomeSpace(List<NewSample> samples, String homeSpaceOrNull)
+    {
+        if (homeSpaceOrNull == null)
+        {
+            return;
+        }
+        String spaceIdentifier = new SpaceIdentifier(homeSpaceOrNull).toString();
+        for (NewSample sample : samples)
+        {
+            if (sample.getDefaultSpaceIdentifier() == null)
+            {
+                sample.setDefaultSpaceIdentifier(spaceIdentifier);
+            }
+        }
     }
 
 }

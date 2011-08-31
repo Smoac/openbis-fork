@@ -282,6 +282,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         public void execute(List<NewSample> newSamples)
         {
+            fillHomeSpace(newSamples, session.tryGetHomeGroupCode());
             List<Sample> existingSamples = fetchExistingSamples(newSamples);
 
             List<NewSample> samplesToUpdate =
@@ -402,7 +403,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-
+        fillHomeSpace(updatedSamples, session.tryGetHomeGroupCode());
         ServerUtils.prevalidate(updatedSamples, "sample");
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
@@ -435,7 +436,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 experimentIdentifierOrNull =
                         new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
                                 .createIdentifier(updatedSample.getDefaultSpaceIdentifier());
-                // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break? 
+                // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break?
                 newSampleIdentifier =
                         new SampleIdentifier(new GroupIdentifier(
                                 experimentIdentifierOrNull.getDatabaseInstanceCode(),

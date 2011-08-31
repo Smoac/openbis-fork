@@ -66,10 +66,10 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         ArrayList<NewSample> sampleRegistrations = new ArrayList<NewSample>();
         sampleRegistrations.add(new NewSample("/SPACE/SAMPLE-ID1", new SampleType(), null, null,
-                "/SPACE/PROJECT/EXP-ID1", null, new IEntityProperty[0],
+                "/SPACE/PROJECT/EXP-ID1", null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>()));
         sampleRegistrations.add(new NewSample("/SPACE/SAMPLE-ID2", new SampleType(), null, null,
-                "/SPACE/PROJECT/EXP-ID1", null, new IEntityProperty[0],
+                "/SPACE/PROJECT/EXP-ID1", null, null, new IEntityProperty[0],
                 new ArrayList<NewAttachment>()));
 
         ArrayList<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();

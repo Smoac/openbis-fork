@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -49,7 +50,8 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         SampleIdentifier identifier = factory.createIdentifier(defaultSpace);
         // if the container for the new sample is not specified then use the default (if provided)
         String defaultContainer = sample.getDefaultContainerIdentifier();
-        if (identifier.tryGetContainerCode() == null && defaultContainer != null)
+        if (identifier.tryGetContainerCode() == null
+                && StringUtils.isEmpty(defaultContainer) == false)
         {
             SampleIdentifier defaultContainerIdentifier = parse(defaultContainer, defaultSpace);
             identifier.addContainerCode(defaultContainerIdentifier.getSampleSubCode());

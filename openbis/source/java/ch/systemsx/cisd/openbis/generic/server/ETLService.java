@@ -1243,7 +1243,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<NewSample> containedSamples = new ArrayList<NewSample>();
         for (NewSample newSample : newSamples)
         {
-            if (StringUtils.isEmpty(newSample.getContainerIdentifier()))
+            if (StringUtils.isEmpty(newSample.getContainerIdentifierForNewSample()))
             {
                 containerSamples.add(newSample);
             } else

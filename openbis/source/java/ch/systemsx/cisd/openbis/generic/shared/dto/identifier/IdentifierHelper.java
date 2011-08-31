@@ -221,14 +221,14 @@ public final class IdentifierHelper
         {
             for (NewSample sample : samplesWithTypes.getNewEntities())
             {
-                final SampleIdentifier identifier =
-                        SampleIdentifierFactory.parse(sample.getIdentifier());
-                if (StringUtils.isEmpty(sample.getContainerIdentifier()) == false)
+                SampleIdentifier identifier = SampleIdentifierFactory.parse(sample);
+                // if default container is not specified, use the "new container" if it's specified
+                if (identifier.tryGetContainerCode() == null
+                        && StringUtils.isEmpty(sample.getContainerIdentifier()) == false)
                 {
-                    // need to add missing container code part
                     final SampleIdentifier containerIdentifier =
-                            SampleIdentifierFactory.parse(sample.getContainerIdentifier());
-                    identifier.addContainerCode(containerIdentifier.getSampleCode());
+                        SampleIdentifierFactory.parse(sample.getContainerIdentifier());
+                identifier.addContainerCode(containerIdentifier.getSampleCode());
                 }
                 result.add(identifier);
             }

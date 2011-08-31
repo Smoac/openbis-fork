@@ -51,6 +51,7 @@ public class SampleRegisterOrUpdateUtil
                 if (isMatching(ns, es))
                 {
                     samplesToUpdate.add(ns);
+                    break;
                 }
             }
         }
@@ -77,10 +78,10 @@ public class SampleRegisterOrUpdateUtil
     {
         String newSampleContainerCode = newSampleIdentifier.tryGetContainerCode();
         String newSampleContainerSpace = newSample.getDefaultSpaceIdentifier();
-        if (newSampleContainerCode == null && newSample.getContainerIdentifier() != null)
+        if (newSampleContainerCode == null && newSample.getDefaultContainerIdentifier() != null)
         {
             SampleIdentifier newSampleContainerIdentifier =
-                    SampleIdentifierFactory.parse(newSample.getContainerIdentifier(),
+                    SampleIdentifierFactory.parse(newSample.getDefaultContainerIdentifier(),
                             newSample.getDefaultSpaceIdentifier());
             newSampleContainerCode = newSampleContainerIdentifier.getSampleSubCode();
             newSampleContainerSpace = tryGetSpaceCode(newSampleContainerIdentifier);
@@ -132,7 +133,7 @@ public class SampleRegisterOrUpdateUtil
         if (sampleIdentifier.isSpaceLevel())
         {
             String space = sampleIdentifier.getSpaceLevel().getSpaceCode();
-            if (space.startsWith(INSTANCE_SEPARATOR))
+            if (space != null && space.startsWith(INSTANCE_SEPARATOR))
             {
                 space = space.substring(1);
             }
