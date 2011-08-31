@@ -28,8 +28,8 @@ ANALYSIS_PROCEDURE: "Analysis Procedure",
 //
 WELLS_SEARCH_menu_item: "Wells Search",  
 WELLS_SEARCH_tab_label: "Wells Search",  
-LIBRARY_IMPORT_MENU_ITEM_menu_item: "Library Import",
-LIBRARY_IMPORT_MENU_ITEM_tab_label: "Library Import",
+LIBRARY_IMPORT_MENU_ITEM_menu_item: "Flexible Library Import",
+LIBRARY_IMPORT_MENU_ITEM_tab_label: "Flexible Library Import",
 //
 // Experiment Viewer
 //
