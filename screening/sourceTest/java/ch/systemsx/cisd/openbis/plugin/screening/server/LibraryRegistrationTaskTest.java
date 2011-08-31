@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -105,6 +106,8 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
                 Arrays.asList(createExistingGene("G1", "ABC A"), createExistingGene("G2", "AB"),
                         createExistingGene("G3", "AB BC"), createExistingGene("G4", "XY AB"),
                         createExistingGene("G5", "XY AB YZ"));
+        final RecordingMatcher<List<NewMaterialsWithTypes>> materialsWithTypesMatcher =
+                new RecordingMatcher<List<NewMaterialsWithTypes>>();
 
         task =
                 new LibraryRegistrationTask(SESSION_TOKEN, USER_EMAIL, newGenes, null, null,
@@ -124,10 +127,8 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
                             with(any(ListMaterialCriteria.class)), with(true));
                     will(returnValue(existingGenes));
 
-                    List<NewMaterialsWithTypes> materialsWithTypes =
-                            LibraryRegistrationTask.createMaterialsWithTypes(
-                                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenes);
-                    one(genericServer).registerOrUpdateMaterials(SESSION_TOKEN, materialsWithTypes);
+                    one(genericServer).registerOrUpdateMaterials(with(SESSION_TOKEN),
+                            with(materialsWithTypesMatcher));
 
                     String[] emailTo = new String[]
                         { USER_EMAIL };
@@ -144,6 +145,20 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         assertEquals("AB BC", extractGeneSymbol(g3));
         assertEquals("XY AB", extractGeneSymbol(g4));
         assertEquals("XY AB YZ", extractGeneSymbol(g5));
+
+        List<NewMaterialsWithTypes> materialsWithTypes =
+                LibraryRegistrationTask.createMaterialsWithTypes(
+                        ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenes);
+        List<NewMaterialsWithTypes> registeredMaterialsWithTypes =
+                materialsWithTypesMatcher.getRecordedObjects().get(0);
+        assertEquals(materialsWithTypes.size(), registeredMaterialsWithTypes.size());
+        for (int i = 0; i < materialsWithTypes.size(); ++i)
+        {
+            assertEquals(materialsWithTypes.get(i).getEntityType(), registeredMaterialsWithTypes
+                    .get(i).getEntityType());
+            assertEquals(materialsWithTypes.get(i).getNewEntities(), registeredMaterialsWithTypes
+                    .get(i).getNewEntities());
+        }
     }
 
     private NewMaterial createNewGene(String code, String geneSymbol)
