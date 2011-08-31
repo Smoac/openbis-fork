@@ -25,8 +25,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -57,6 +61,9 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.CommonConstants;
  */
 public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtractorWithService
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetInfoExtractorForMSInjection.class);
+    
     static final String MS_INJECTION_PROPERTIES_FILE = "ms-injection.properties";
 
     static final String DATA_SET_PROPERTIES_FILE = "data-set.properties";
@@ -184,6 +191,9 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             {
                 // ignore biological sample if it does not exist.
                 biologicalSampleIdentifier = null;
+                operationLog.warn("Property " + BIOLOGICAL_SAMPLE_IDENTIFIER_KEY
+                        + " will be ignored because the specified biological sample "
+                        + biologicalSampleIdentifier + " does not exist.");
             }
         }
         return biologicalSampleIdentifier;
