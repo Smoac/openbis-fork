@@ -117,7 +117,7 @@ public class ExcelFileSection
                         } else
                         {
                             sections.add(new ExcelFileSection(sheet, sectionName, begin, row
-                                    .getRowNum()));
+                                    .getRowNum() - 1));
                             sectionName = newSectionName;
                             begin = row.getRowNum() + 1;
                         }
