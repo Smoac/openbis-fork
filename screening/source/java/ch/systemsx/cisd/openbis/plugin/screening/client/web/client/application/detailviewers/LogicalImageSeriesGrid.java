@@ -150,7 +150,6 @@ class LogicalImageSeriesGrid
             };
         final Slider slider = createSlider(model.getSortedPoints().size());
         slider.addListener(Events.Change, listener);
-        // slider.setValue(1);
 
         mainContainer.add(createSeriesPointLabel(sortedPoints, 1));
         mainContainer.add(slider);
@@ -164,9 +163,16 @@ class LogicalImageSeriesGrid
             {
 
                 @Override
-                protected void onUnload()
+                protected void onAttach()
                 {
-                    super.onUnload();
+                    super.onAttach();
+                    imageDownloader.setInitialState();
+                }
+
+                @Override
+                protected void onDetach()
+                {
+                    super.onDetach();
                     imageDownloader.stop();
                 }
             };
@@ -520,9 +526,9 @@ class LogicalImageSeriesGrid
 
         private List<LazyImageSeriesFrame> frames;
         
-        private boolean fullDownloadStarted = false;
+        private boolean fullDownloadStarted;
 
-        private boolean keepDownloading = true;
+        private boolean keepDownloading;
 
         private int selectedFrameIndex = -1;
 
@@ -530,6 +536,7 @@ class LogicalImageSeriesGrid
         {
             this.frames = frames;
             prefetchFirstFrames(NUM_FRAMES_TO_PREFETCH);
+            setInitialState();
         }
         
         /**
@@ -542,6 +549,12 @@ class LogicalImageSeriesGrid
             {
                 frames.get(i).downloadImagesFromServer();
             }
+        }
+
+        public void setInitialState()
+        {
+            fullDownloadStarted = false;
+            keepDownloading = true;
         }
 
         public void stop()
