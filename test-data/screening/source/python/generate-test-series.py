@@ -15,7 +15,7 @@ def recreateDir(dir):
   os.mkdir(dir)
 
 recreateDir("SERIES")
-config = imagegen.ImageGeneratorConfig()
+config = imagegen.GenericImageGeneratorConfig()
 config.time_points = range(1, 101)
 
 # Alternative Configurations

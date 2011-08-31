@@ -6,4 +6,10 @@
 
 -- Experiment 
 register-type EXPERIMENT HCS_PLATONIC "description=Experiment containing idealized data for testing"
+register-type EXPERIMENT MICROSCOPY_PLATONIC "description=Experiment containing idealized data for testing"
 
+-- Sample
+register-type SAMPLE MICROSCOPY_IMG "description=A sample that shows microscopy images"
+
+-- Data Set
+register-type DATA_SET MICROSCOPY_IMG "description=A data set containing microscopy images"

@@ -149,7 +149,15 @@ class PlateGenerator:
                 well = string.letters[26 + row] + str(col)
                 well_generator = WellGenerator(self.config, well, directory)
                 well_generator.generate_raw_images()
-                
+
+class GenericImageGeneratorConfig(ImageGeneratorConfig):
+    """
+    Represents the configuration options for generating plates
+    """
+    def __init__(self):
+        ImageGeneratorConfig.__init__(self)
+        self.number_of_tiles = 1
+        
 class GenericImageGenerator:
     """
     A class that generates raw images or overlays simulating images from a microscope. Similar to PlateGenerator, except without the plates.

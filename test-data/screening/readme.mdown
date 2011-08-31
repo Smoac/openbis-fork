@@ -55,7 +55,8 @@ Configure openBIS
 3. In the screening folder create the following sub-folders 
 * targets/platonic
 * targets/platonic/store
-* targets/platonic/incoming-platonic
+* targets/platonic/incoming-platonic-plate
+* targets/platonic/incoming-platonic-microscope
 
 Start openBIS
 -------------
@@ -70,6 +71,6 @@ Generate and Register Plate
 --------------
 
 Run the generate-test-plate.py script. If your plate is not called PLATONIC, you will need 
-to rename the folder to the name of your plate. Put the folder with the images into the incoming-platonic dropbox.
+to rename the folder to the name of your plate. Put the folder with the images into the incoming-platonic-plate dropbox.
 
 View the plate in openBIS; you should see the images you registered.
