@@ -30,7 +30,7 @@ Manifest
 Use
 ===
 
-Follow these instructions to use this infrastructure. It instructions assume that the screening version of openBIS has been installed, but, not necessarily started.
+Follow these instructions to use this infrastructure. It instructions assume that the screening version of openBIS is running inside Eclipse.
 
 Initialize DB
 -------------
@@ -55,7 +55,10 @@ Start openBIS
 -------------
 
 1. Start openBIS and DSS and log in as admin/admin.
-2. Create a plate sample called (you can call it PLATONIC if you want) with an 8x12 geometry.
+2. Create space PLATONIC with a project in it.
+3. Create an experiment in this project.
+4. Create a plate sample called (you can call it PLATONIC if you want) with an 8x12 geometry. 
+   It should be in space PLATONIC and assigned to the experiment just created.
 
 Generate and Register Plate
 --------------
