@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.Arrays;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
+
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * @author Pawel Glyzewski
@@ -39,11 +43,38 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
         String[] line = new String[row.getLastCellNum()];
         for (Cell cell : row)
         {
-            String value = extractCellValue(cell);
+            String value = extractCellValue(cell).trim();
             line[cell.getColumnIndex()] = value;
         }
 
-        return line;
+        return trimEmptyCells(line);
+    }
+
+    private static String[] trimEmptyCells(String[] line)
+    {
+        int last = -1;
+
+        for (int i = line.length - 1; i >= 0; i--)
+        {
+            if (false == StringUtils.isBlank(line[i]))
+            {
+                if (line.length - 1 == i)
+                {
+                    return line;
+                } else
+                {
+                    last = i;
+                    break;
+                }
+            }
+        }
+
+        if (last < 0)
+        {
+            return new String[0];
+        }
+
+        return Arrays.copyOfRange(line, 0, last + 1);
     }
 
     private static String extractCellValue(Cell cell) throws ParserException

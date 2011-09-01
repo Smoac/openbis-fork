@@ -213,7 +213,7 @@ public class ExcelFileLoader<T>
             return false;
         } else
         {
-            return DEFAULT_SECTION.equals(cell.getStringCellValue());
+            return DEFAULT_SECTION.equals(cell.getStringCellValue().trim());
         }
     }
 

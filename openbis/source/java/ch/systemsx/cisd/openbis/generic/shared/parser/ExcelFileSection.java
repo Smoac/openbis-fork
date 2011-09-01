@@ -173,7 +173,7 @@ public class ExcelFileSection
         {
             return null;
         }
-        String trimmedCell = row.getCell(0).getStringCellValue();
+        String trimmedCell = row.getCell(0).getStringCellValue().trim();
 
         if (trimmedCell.startsWith(beginSection) && trimmedCell.endsWith(endSection))
         {
