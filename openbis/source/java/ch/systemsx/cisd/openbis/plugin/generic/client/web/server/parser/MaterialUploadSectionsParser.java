@@ -109,7 +109,7 @@ public class MaterialUploadSectionsParser
 
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            final String fileName = multipartFile.getOriginalFilename().toLowerCase();
+            final String fileName = multipartFile.getOriginalFilename();
             final String loweredFileName = fileName.toLowerCase();
             if (loweredFileName.endsWith("xls") || loweredFileName.endsWith("xlsx"))
             {
