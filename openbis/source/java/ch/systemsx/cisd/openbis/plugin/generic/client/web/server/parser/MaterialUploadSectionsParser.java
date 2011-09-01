@@ -110,17 +110,20 @@ public class MaterialUploadSectionsParser
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
             final String fileName = multipartFile.getOriginalFilename().toLowerCase();
-            if (fileName.endsWith("xls") || fileName.endsWith("xlsx"))
+            final String loweredFileName = fileName.toLowerCase();
+            if (loweredFileName.endsWith("xls") || loweredFileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
                 if (materialType.isDefinedInFileEntityTypeCode())
                 {
                     materialSections.addAll(ExcelFileSection.extractSections(
-                            multipartFile.getInputStream(), excelSheetName, fileName));
+                            multipartFile.getInputStream(), excelSheetName, loweredFileName));
                 } else
                 {
-                    materialSections.add(ExcelFileSection.createFromInputStream(
-                            multipartFile.getInputStream(), materialType.getCode(), fileName));
+                    materialSections
+                            .add(ExcelFileSection.createFromInputStream(
+                                    multipartFile.getInputStream(), materialType.getCode(),
+                                    loweredFileName));
                 }
                 int materialCounter = 0;
                 Map<String, String> defaults = Collections.emptyMap();

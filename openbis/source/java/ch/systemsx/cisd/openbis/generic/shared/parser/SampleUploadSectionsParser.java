@@ -191,18 +191,19 @@ public class SampleUploadSectionsParser
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            final String fileName = multipartFile.getOriginalFilename().toLowerCase();
-            if (fileName.endsWith("xls") || fileName.endsWith("xlsx"))
+            final String fileName = multipartFile.getOriginalFilename();
+            final String loweredFileName = fileName.toLowerCase();
+            if (loweredFileName.endsWith("xls") || loweredFileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> sampleSections = new ArrayList<ExcelFileSection>();
                 if (sampleType.isDefinedInFileEntityTypeCode())
                 {
                     sampleSections.addAll(ExcelFileSection.extractSections(
-                            multipartFile.getInputStream(), excelSheetName, fileName));
+                            multipartFile.getInputStream(), excelSheetName, loweredFileName));
                 } else
                 {
                     sampleSections.add(ExcelFileSection.createFromInputStream(
-                            multipartFile.getInputStream(), sampleType.getCode(), fileName));
+                            multipartFile.getInputStream(), sampleType.getCode(), loweredFileName));
                 }
                 int sampleCounter = 0;
                 Map<String, String> defaults = Collections.emptyMap();
