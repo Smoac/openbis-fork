@@ -217,14 +217,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listPropertyTypeAssignments(DefaultResultSetConfig) */
     public void listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria,
-            final AsyncCallback<ResultSet<EntityTypePropertyType<?>>> asyncCallback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportPropertyTypeAssignments(TableExportCriteria)
      */
     public void prepareExportPropertyTypeAssignments(
-            final TableExportCriteria<EntityTypePropertyType<?>> criteria,
+            final TableExportCriteria<TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
             AsyncCallback<String> asyncCallback);
 
     /**

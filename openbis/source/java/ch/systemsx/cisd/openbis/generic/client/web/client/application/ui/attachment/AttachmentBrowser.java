@@ -215,7 +215,8 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                             Attachment current = entity.getCurrent();
                             final String fileName = current.getFileName();
                             final int version = current.getVersion();
-                            return AttachmentDownloadHelper.createURL(fileName, version, attachmentHolder);
+                            return AttachmentDownloadHelper.createURL(fileName, version,
+                                    attachmentHolder);
                         }
                     });
     }
@@ -246,7 +247,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
                         }
                     });
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<AttachmentVersions>> createColumnsDefinition()
     {
@@ -313,14 +314,17 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
 
         if (viewContext.isSimpleOrEmbeddedMode() == false)
         {
-            addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+            addButton(createSelectedItemButton(
+                    viewContext.getMessage(Dict.BUTTON_EDIT),
                     new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<AttachmentVersions>>>()
                         {
 
-                            public void invoke(BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> selectedItem,
+                            public void invoke(
+                                    BaseEntityModel<TableModelRowWithObject<AttachmentVersions>> selectedItem,
                                     boolean keyPressed)
                             {
-                                AttachmentVersions versions = selectedItem.getBaseObject().getObjectOrNull();
+                                AttachmentVersions versions =
+                                        selectedItem.getBaseObject().getObjectOrNull();
                                 createEditAttachmentDialog(versions).show();
 
                             }
@@ -395,8 +399,8 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<AttachmentVersions> entity, boolean editMode,
-            boolean inBackground)
+    protected void showEntityViewer(TableModelRowWithObject<AttachmentVersions> entity,
+            boolean editMode, boolean inBackground)
     {
         assert editMode == false : "edit mode is not implemented";
 
@@ -480,7 +484,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<AttachmentVersions>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<AttachmentVersions>> callback)
     {
         viewContext.getService().listAttachmentVersions(TechId.create(attachmentHolder),
                 attachmentHolder.getAttachmentHolderKind(), resultSetConfig, callback);

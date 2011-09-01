@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -145,7 +144,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Deletion>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Deletion>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Deletion>> callback)
     {
         viewContext.getService().listDeletions(resultSetConfig, callback);
     }

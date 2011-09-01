@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -172,7 +171,7 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<RoleAssignment>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<RoleAssignment>> callback)
     {
         viewContext.getService().listRoleAssignments(resultSetConfig, callback);
     }

@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -175,17 +174,17 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<QueryExpression>> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<QueryExpression>> definitions =
-                    super.createColumnsDefinition();
+                super.createColumnsDefinition();
         definitions.setGridCellRendererFor(QueryBrowserGridColumnIDs.REGISTRATOR,
-                    PersonRenderer.REGISTRATOR_RENDERER);
+                PersonRenderer.REGISTRATOR_RENDERER);
         return definitions;
     }
-    
+
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
@@ -195,7 +194,7 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<QueryExpression>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<QueryExpression>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<QueryExpression>> callback)
     {
         viewContext.getService().listQueries(resultSetConfig, callback);
     }

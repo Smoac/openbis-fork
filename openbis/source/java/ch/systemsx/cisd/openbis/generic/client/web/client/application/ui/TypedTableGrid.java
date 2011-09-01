@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -213,7 +212,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
      */
     protected abstract void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<T>> callback);
+            AbstractAsyncCallback<TypedTableResultSet<T>> callback);
 
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<T>> createColumnsDefinition()

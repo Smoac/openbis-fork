@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
@@ -321,6 +323,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                                 .withSuffix(getSampleTypeCode()));
         experimentField = createExperimentField();
         experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
+        experimentField.getChooserField().addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
+            {
+                public void entityChosen(TableModelRowWithObject<Experiment> entity)
+                {
+                    groupSelectionWidget.setValue(new SpaceModel(entity.getObjectOrNull().getProject().getSpace()));
+                }
+            });
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {

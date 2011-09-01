@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -195,7 +193,7 @@ public class MaterialFeaturesFromAllExperimentsGrid extends
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<MaterialSimpleFeatureVectorSummary>> callback)
     {
         MaterialFeaturesManyExpCriteria criteria =
                 new MaterialFeaturesManyExpCriteria(new TechId(material),

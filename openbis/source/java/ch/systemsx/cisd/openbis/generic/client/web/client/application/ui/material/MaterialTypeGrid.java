@@ -58,7 +58,7 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<MaterialType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<MaterialType>> callback)
     {
         viewContext.getService().listMaterialTypes(resultSetConfig, callback);
     }

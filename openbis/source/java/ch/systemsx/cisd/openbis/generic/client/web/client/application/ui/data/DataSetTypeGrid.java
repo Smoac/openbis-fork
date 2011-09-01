@@ -70,7 +70,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<DataSetType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<DataSetType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<DataSetType>> callback)
     {
         viewContext.getService().listDataSetTypes(resultSetConfig, callback);
     }
@@ -172,7 +172,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 {
                     containerTypeField = createContainerField();
                     addField(containerTypeField);
-                    
+
                     mainDataSetPatternField = createMainDataSetPatternField();
                     addField(mainDataSetPatternField);
 

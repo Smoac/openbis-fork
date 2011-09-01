@@ -191,7 +191,7 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<AuthorizationGroup>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<AuthorizationGroup>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<AuthorizationGroup>> callback)
     {
         viewContext.getService().listAuthorizationGroups(resultSetConfig, callback);
     }

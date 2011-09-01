@@ -58,7 +58,7 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ExperimentType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<ExperimentType>> callback)
     {
         viewContext.getService().listExperimentTypes(resultSetConfig, callback);
     }

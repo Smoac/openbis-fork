@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report
 
 import java.util.Set;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -84,7 +82,7 @@ public class ReportGrid extends TypedTableGrid<ReportRowModel>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
         // The custom columns should be recomputed.

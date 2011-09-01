@@ -225,7 +225,7 @@ public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<FileFormatType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<FileFormatType>> callback)
     {
         viewContext.getService().listFileTypes(resultSetConfig, callback);
     }

@@ -249,11 +249,11 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<PropertyType>> schema =
+                super.createColumnsDefinition();
         GridCellRenderer<BaseEntityModel<?>> multilineCellRenderer =
                 createMultilineStringCellRenderer();
-        schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.DESCRIPTION,
-                multilineCellRenderer);
+        schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.DESCRIPTION, multilineCellRenderer);
         schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XML_SCHEMA, multilineCellRenderer);
         schema.setGridCellRendererFor(PropertyTypeGridColumnIDs.XSLT, multilineCellRenderer);
         return schema;
@@ -262,7 +262,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<PropertyType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<PropertyType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<PropertyType>> callback)
     {
         viewContext.getService().listPropertyTypes(resultSetConfig, callback);
     }

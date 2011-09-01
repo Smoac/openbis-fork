@@ -103,7 +103,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Vocabulary>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Vocabulary>> callback)
     {
         viewContext.getService().listVocabularies(false, false, resultSetConfig, callback);
     }

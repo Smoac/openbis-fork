@@ -21,8 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -128,7 +126,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Sample>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> callback)
     {
         specificViewContext.getService().listRawDataSamples(resultSetConfig, callback);
     }

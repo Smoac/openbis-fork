@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -91,7 +89,7 @@ class ProteinSummaryGrid extends TypedTableGrid<ProteinSummary>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ProteinSummary>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ProteinSummary>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<ProteinSummary>> callback)
     {
         if (criteria != null)
         {

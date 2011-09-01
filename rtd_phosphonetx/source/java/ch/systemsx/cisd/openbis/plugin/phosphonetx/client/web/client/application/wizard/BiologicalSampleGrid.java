@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -62,7 +60,7 @@ public class BiologicalSampleGrid extends TypedTableGrid<Sample>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Sample>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> callback)
     {
         specificViewContext.getService().listBiologicalSamples(resultSetConfig, callback);
     }

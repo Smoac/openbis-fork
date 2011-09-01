@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -118,7 +117,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 protected void showNonEditableTableCellMessage(
                         BaseEntityModel<TableModelRowWithObject<Experiment>> model, String columnID)
                 {
-                    // Do not show a message because in a chooser nobody is expecting editable table cells.
+                    // Do not show a message because in a chooser nobody is expecting editable table
+                    // cells.
                 }
             };
         browserGrid.addGridRefreshListener(toolbar);
@@ -319,7 +319,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Experiment>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Experiment>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Experiment>> callback)
     {
         ListExperimentsCriteria criteria = criteriaProvider.tryGetCriteria();
         criteria.copyPagingConfig(resultSetConfig);

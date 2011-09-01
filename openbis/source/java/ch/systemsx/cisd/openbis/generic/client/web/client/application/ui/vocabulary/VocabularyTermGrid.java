@@ -343,7 +343,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback)
     {
         viewContext.getService().listVocabularyTerms(vocabulary, resultSetConfig, callback);
     }

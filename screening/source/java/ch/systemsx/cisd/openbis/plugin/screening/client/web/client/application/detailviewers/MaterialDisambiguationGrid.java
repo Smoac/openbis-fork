@@ -23,7 +23,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -258,7 +257,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Material>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Material>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Material>> callback)
     {
         screeningViewContext.getService().listMaterials(resultSetConfig, searchCriteria, callback);
 

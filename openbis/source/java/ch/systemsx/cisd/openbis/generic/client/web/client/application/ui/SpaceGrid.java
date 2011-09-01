@@ -189,7 +189,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Space>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Space>> callback)
     {
         viewContext.getService().listGroups(resultSetConfig, callback);
     }

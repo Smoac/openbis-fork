@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -109,7 +108,7 @@ public class ProteinRelatedSampleGrid extends TypedTableGrid<ProteinRelatedSampl
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ProteinRelatedSample>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ProteinRelatedSample>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<ProteinRelatedSample>> callback)
     {
         criteria.copyPagingConfig(resultSetConfig);
         phosphoViewContext.getService().listProteinRelatedSamplesByProtein(criteria, callback);

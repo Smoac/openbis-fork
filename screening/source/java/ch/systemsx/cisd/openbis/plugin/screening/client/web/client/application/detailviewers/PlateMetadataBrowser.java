@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -166,7 +164,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<WellMetadata>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<WellMetadata>> callback)
     {
         screeningViewContext.getService().listPlateMetadata(resultSetConfig, sampleId, callback);
     }

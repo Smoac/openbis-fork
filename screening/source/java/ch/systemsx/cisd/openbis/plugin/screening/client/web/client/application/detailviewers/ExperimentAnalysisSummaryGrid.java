@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.RANK_PREFIX;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -152,7 +150,7 @@ public class ExperimentAnalysisSummaryGrid extends TypedTableGrid<MaterialFeatur
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<MaterialFeatureVectorSummary>> callback)
     {
         screeningViewContext.getService().listExperimentFeatureVectorSummary(resultSetConfig,
                 new TechId(experiment), analysisProcedureCriteria, callback);

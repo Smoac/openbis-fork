@@ -323,15 +323,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a chunk of the property types assignment list.
      */
-    public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria)
+    public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types assignments.
      */
     public String prepareExportPropertyTypeAssignments(
-            final TableExportCriteria<EntityTypePropertyType<?>> criteria)
+            final TableExportCriteria<TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
             throws UserFailureException;
 
     /**

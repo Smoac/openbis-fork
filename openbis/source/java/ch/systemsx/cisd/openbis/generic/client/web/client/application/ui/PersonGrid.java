@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -189,7 +188,7 @@ public class PersonGrid extends TypedTableGrid<Person>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Person>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Person>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Person>> callback)
     {
         ListPersonsCriteria criteria = new ListPersonsCriteria(authorizationGroupOrNull);
         criteria.copyPagingConfig(resultSetConfig);
@@ -197,7 +196,8 @@ public class PersonGrid extends TypedTableGrid<Person>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Person>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Person>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportPersons(exportCriteria, callback);
@@ -208,7 +208,7 @@ public class PersonGrid extends TypedTableGrid<Person>
     {
         return Arrays.asList(PersonGridColumnIDs.USER_ID);
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Person>> createColumnsDefinition()
     {
@@ -226,7 +226,8 @@ public class PersonGrid extends TypedTableGrid<Person>
     }
 
     @Override
-    protected void showEntityViewer(final TableModelRowWithObject<Person> person, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(final TableModelRowWithObject<Person> person, boolean editMode,
+            boolean inBackground)
     {
         assert false : "not implemented";
     }

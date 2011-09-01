@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -143,7 +142,8 @@ public class ProjectGrid extends TypedTableGrid<Project>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<TableModelRowWithObject<Project>> rows,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<Project>> rows,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     List<Project> projects = new ArrayList<Project>();
@@ -152,7 +152,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                                         projects.add(row.getObjectOrNull());
                                     }
                                     return new ProjectListDeletionConfirmationDialog(viewContext,
-                                            projects , createRefreshCallback(invoker));
+                                            projects, createRefreshCallback(invoker));
                                 }
                             });
         addButton(deleteButton);
@@ -166,7 +166,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Project>> createColumnsDefinition()
     {
@@ -183,13 +183,14 @@ public class ProjectGrid extends TypedTableGrid<Project>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Project>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Project>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Project>> callback)
     {
         viewContext.getService().listProjects(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportProjects(exportCriteria, callback);
@@ -202,7 +203,8 @@ public class ProjectGrid extends TypedTableGrid<Project>
     }
 
     @Override
-    protected void showEntityViewer(final TableModelRowWithObject<Project> row, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(final TableModelRowWithObject<Project> row, boolean editMode,
+            boolean inBackground)
     {
         showEntityViewer(row.getObjectOrNull(), editMode, viewContext, inBackground);
     }

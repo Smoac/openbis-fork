@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +43,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -56,9 +56,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -67,20 +67,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid with 'entity type' - 'property type' assignments.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyTypeAssignmentGrid extends
-        AbstractSimpleBrowserGrid<EntityTypePropertyType<?>>
+public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropertyType<?>>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX
             + "property-type-assignment-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     private static final class UnassignmentPreparationCallback extends
             AbstractAsyncCallback<Integer>
@@ -196,7 +196,7 @@ public class PropertyTypeAssignmentGrid extends
 
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID,
+        super(viewContext, BROWSER_ID, true,
                 DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
@@ -206,14 +206,17 @@ public class PropertyTypeAssignmentGrid extends
     {
         addEntityOperationsLabel();
 
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
+        addButton(createSelectedItemButton(
+                viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
                     {
 
-                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem,
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
                                 boolean keyPressed)
                         {
-                            final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
+                            final EntityTypePropertyType<?> etpt =
+                                    selectedItem.getBaseObject().getObjectOrNull();
                             if (etpt.isManagedInternally())
                             {
                                 final String errorMsg =
@@ -225,13 +228,16 @@ public class PropertyTypeAssignmentGrid extends
                             }
                         }
                     }));
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
-                new ISelectedEntityInvoker<BaseEntityModel<EntityTypePropertyType<?>>>()
+        addButton(createSelectedItemButton(
+                viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
                     {
-                        public void invoke(BaseEntityModel<EntityTypePropertyType<?>> selectedItem,
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
                                 boolean keyPressed)
                         {
-                            final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject();
+                            final EntityTypePropertyType<?> etpt =
+                                    selectedItem.getBaseObject().getObjectOrNull();
                             unassignPropertyType(etpt);
                         }
 
@@ -477,27 +483,27 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     @Override
-    protected IColumnDefinitionKind<EntityTypePropertyType<?>>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return PropertyTypeAssignmentColDefKind.values();
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<EntityTypePropertyType<?>> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<EntityTypePropertyType<?>>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<EntityTypePropertyType<?>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<EntityTypePropertyType<?>>> schema =
+                super.createColumnsDefinition();
         schema.setGridCellRendererFor(PropertyTypeAssignmentColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;
     }
 
     @Override
-    protected List<IColumnDefinition<EntityTypePropertyType<?>>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new PropertyTypeAssignmentColDefKind[]
-            { PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE,
-                    PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE,
-                    PropertyTypeAssignmentColDefKind.ENTITY_KIND });
+        return Arrays.asList(PropertyTypeAssignmentGridColumnIDs.PROPERTY_TYPE_CODE,
+                PropertyTypeAssignmentGridColumnIDs.ASSIGNED_TO,
+                PropertyTypeAssignmentGridColumnIDs.TYPE_OF);
     }
 
     private List<EntityTypePropertyType<?>> getEntityTypePropertyTypes(EntityType entityType)
@@ -505,11 +511,12 @@ public class PropertyTypeAssignmentGrid extends
         return entityTypePropertyTypes.get(entityType);
     }
 
-    private void extractETPTs(List<EntityTypePropertyType<?>> etpts)
+    private void extractETPTs(List<TableModelRowWithObject<EntityTypePropertyType<?>>> etpts)
     {
         entityTypePropertyTypes = new HashMap<EntityType, List<EntityTypePropertyType<?>>>();
-        for (EntityTypePropertyType<?> etpt : etpts)
+        for (TableModelRowWithObject<EntityTypePropertyType<?>> row : etpts)
         {
+            EntityTypePropertyType<?> etpt = row.getObjectOrNull();
             List<EntityTypePropertyType<?>> list =
                     entityTypePropertyTypes.get(etpt.getEntityType());
             if (list == null)
@@ -522,17 +529,18 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     @Override
-    protected void listEntities(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> resultSetConfig,
-            final AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> resultSetConfig,
+            final AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> callback)
     {
-        AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> extendedCallback =
-                new AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>>(viewContext)
+        AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> extendedCallback =
+                new AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>>(
+                        viewContext)
                     {
                         @Override
-                        protected void process(ResultSet<EntityTypePropertyType<?>> result)
+                        protected void process(TypedTableResultSet<EntityTypePropertyType<?>> result)
                         {
-                            extractETPTs(result.getList().extractOriginalObjects());
+                            extractETPTs(result.getResultSet().getList().extractOriginalObjects());
                             callback.onSuccess(result);
                         }
 
@@ -548,12 +556,13 @@ public class PropertyTypeAssignmentGrid extends
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<EntityTypePropertyType<?>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<EntityTypePropertyType<?>>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportPropertyTypeAssignments(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);

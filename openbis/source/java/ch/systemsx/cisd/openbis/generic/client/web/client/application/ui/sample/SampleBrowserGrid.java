@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -450,7 +449,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Sample>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> callback)
     {
         ListSampleDisplayCriteria c1 = getCriteriaProvider().tryGetCriteria();
         ListSampleDisplayCriteria2 criteria;

@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -161,15 +160,10 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Sample>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> callback)
     {
-        if (callback instanceof AbstractAsyncCallback)
-        {
-            AbstractAsyncCallback<TypedTableResultSet<Sample>> asc =
-                    (AbstractAsyncCallback<TypedTableResultSet<Sample>>) callback;
-            asc.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<Sample>>(
-                    viewContext));
-        }
+        callback.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<Sample>>(
+                viewContext));
         super.listTableRows(resultSetConfig, callback);
     }
 

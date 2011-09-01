@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -644,7 +643,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<WellContent>> resultSetConfig,
-            final AsyncCallback<TypedTableResultSet<WellContent>> callback)
+            final AbstractAsyncCallback<TypedTableResultSet<WellContent>> callback)
     {
         ExperimentSearchCriteria experimentCriteriaOrNull =
                 experimentCriteriaHolder.tryGetCriteria();

@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -200,15 +199,11 @@ public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<MatchingEntity>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<MatchingEntity>> callback)
     {
         ShowResultSetCutInfo<TypedTableResultSet<MatchingEntity>> info =
                 new ShowResultSetCutInfo<TypedTableResultSet<MatchingEntity>>(viewContext);
-        if (callback instanceof AbstractAsyncCallback)
-        {
-            ((AbstractAsyncCallback<TypedTableResultSet<MatchingEntity>>) callback)
-                    .addOnSuccessAction(info);
-        }
+        callback.addOnSuccessAction(info);
         viewContext.getService().listMatchingEntities(searchableEntity, queryText,
                 useWildcardSearchMode, resultSetConfig, callback);
     }

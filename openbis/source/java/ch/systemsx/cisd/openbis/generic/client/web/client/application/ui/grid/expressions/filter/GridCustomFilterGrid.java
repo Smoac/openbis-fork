@@ -93,8 +93,8 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
     {
         addEntityOperationsLabel();
         final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext
-                        .getMessage(Dict.FILTER)), new SelectionListener<ButtonEvent>()
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD,
+                        viewContext.getMessage(Dict.FILTER)), new SelectionListener<ButtonEvent>()
                     {
                         @Override
                         public void componentSelected(ButtonEvent ce)
@@ -106,13 +106,16 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
         addButton.setId(createAddButtonId(gridDisplayId));
         addButton(addButton);
         final Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
                         new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<GridCustomFilter>>>()
                             {
-                                public void invoke(BaseEntityModel<TableModelRowWithObject<GridCustomFilter>> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<GridCustomFilter>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    final GridCustomFilter selected = selectedItem.getBaseObject().getObjectOrNull();
+                                    final GridCustomFilter selected =
+                                            selectedItem.getBaseObject().getObjectOrNull();
                                     createEditDialog(selected).show();
                                 }
 
@@ -123,7 +126,8 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<TableModelRowWithObject<GridCustomFilter>> selected,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<GridCustomFilter>> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
@@ -186,9 +190,9 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
                 AbstractColumnSettingsDataModelProvider columnDataModelProvider,
                 AbstractExpression itemToUpdate)
         {
-            super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
-                    .getMessage(Dict.FILTER), itemToUpdate.getName()), postRegistrationCallback,
-                    gridId, columnDataModelProvider);
+            super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE,
+                    viewContext.getMessage(Dict.FILTER), itemToUpdate.getName()),
+                    postRegistrationCallback, gridId, columnDataModelProvider);
             this.viewContext = viewContext;
             this.itemToUpdate = itemToUpdate;
             initializeValues(itemToUpdate);
@@ -221,7 +225,8 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
         private final AbstractAsyncCallback<Void> callback;
 
         public DeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-                List<TableModelRowWithObject<GridCustomFilter>> data, AbstractAsyncCallback<Void> callback)
+                List<TableModelRowWithObject<GridCustomFilter>> data,
+                AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;
@@ -264,11 +269,11 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
     {
         return columnID.toLowerCase();
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<GridCustomFilter>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<GridCustomFilter>> callback)
     {
         viewContext.getService().listFilters(gridDisplayId, resultSetConfig, callback);
     }
@@ -284,13 +289,15 @@ public class GridCustomFilterGrid extends TypedTableGrid<GridCustomFilter>
     @Override
     protected List<String> getColumnIdsOfFilters()
     {
-        return Arrays.asList(CustomGridColumnGridColumnIDs.NAME, CustomGridColumnGridColumnIDs.IS_PUBLIC);
+        return Arrays.asList(CustomGridColumnGridColumnIDs.NAME,
+                CustomGridColumnGridColumnIDs.IS_PUBLIC);
     }
 
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<GridCustomFilter>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<GridCustomFilter>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<GridCustomFilter>> schema =
+                super.createColumnsDefinition();
         schema.setGridCellRendererFor(CustomGridColumnGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(CustomGridColumnGridColumnIDs.EXPRESSION,

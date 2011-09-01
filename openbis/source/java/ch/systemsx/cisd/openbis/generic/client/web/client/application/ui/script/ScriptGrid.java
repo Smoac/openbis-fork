@@ -171,7 +171,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Script>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<Script>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<Script>> callback)
     {
         ListScriptsCriteria criteria = new ListScriptsCriteria();
         criteria.copyPagingConfig(resultSetConfig);

@@ -82,7 +82,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<SampleType>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<SampleType>> callback)
     {
         viewContext.getService().listSampleTypes(resultSetConfig, callback);
     }

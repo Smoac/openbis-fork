@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CustomGridColumnProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DeletionsProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypePropertyTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
@@ -116,7 +117,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -129,7 +129,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -147,7 +146,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -163,7 +161,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -392,7 +389,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String prepareExportPropertyTypeAssignments(
-            TableExportCriteria<EntityTypePropertyType<?>> criteria)
+            TableExportCriteria<TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -558,52 +555,10 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, resultSetConfig);
     }
 
-    public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria)
+    public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<EntityTypePropertyType<?>>()
-                    {
-                        @Override
-                        public List<EntityTypePropertyType<?>> getFullOriginalData()
-                                throws UserFailureException
-                        {
-                            return extractAssignments(listPropertyTypes(true));
-                        }
-                    });
-    }
-
-    private static List<EntityTypePropertyType<?>> extractAssignments(
-            List<PropertyType> listPropertyTypes)
-    {
-        List<EntityTypePropertyType<?>> result = new ArrayList<EntityTypePropertyType<?>>();
-        for (PropertyType propertyType : listPropertyTypes)
-        {
-            extractAssignments(result, propertyType);
-        }
-        Collections.sort(result);
-        return result;
-    }
-
-    private static void extractAssignments(List<EntityTypePropertyType<?>> result,
-            final PropertyType propertyType)
-    {
-        for (ExperimentTypePropertyType etpt : propertyType.getExperimentTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (SampleTypePropertyType etpt : propertyType.getSampleTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
+        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken()), criteria);
     }
 
     public TypedTableResultSet<Space> listGroups(

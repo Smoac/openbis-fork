@@ -165,7 +165,7 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ReportRowModel>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
+            AbstractAsyncCallback<TypedTableResultSet<ReportRowModel>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
         // The custom columns should be recomputed.
