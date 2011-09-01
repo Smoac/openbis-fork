@@ -49,7 +49,6 @@ class ImageGeneratorConfig:
         self.time_points = [ None ]
         self.depth_points = [ None ]
         self.tile_description_generator = generate_tile_description
-        self.file_name_generator = generate_file_name
 
 class PlateGeneratorConfig(ImageGeneratorConfig):
     """
@@ -77,17 +76,30 @@ class WellGenerator:
                 for depth in self.config.depth_points:
                     desc = self.config.tile_description_generator(tile, time, depth)
                     if self.config.is_split:
-                        file_name = self.config.file_name_generator(self.well, "RED", desc)
+                        file_name = self._generate_raw_file_name(self.well, "RED", desc)
                         self._generate_tile(file_name, desc, 1, 0, 0)
                         
-                        file_name = self.config.file_name_generator(self.well, "GREEN", desc)
+                        file_name = self._generate_raw_file_name(self.well, "GREEN", desc)
                         self._generate_tile(file_name, desc, 0, 1, 0)
                         
-                        file_name = self.config.file_name_generator(self.well, "BLUE", desc)
+                        file_name = self._generate_raw_file_name(self.well, "BLUE", desc)
                         self._generate_tile(file_name, desc, 0, 0, 1)                        
                     else:
-                        file_name = self.config.file_name_generator(self.well, "RGB", desc)
-                        self._generate_tile(file_name, desc, 1, 1, 1) 
+                        file_name = self._generate_raw_file_name(self.well, "RGB", desc)
+                        self._generate_tile(file_name, desc, 1, 1, 1)
+                        
+    def generate_overlay_images(self, overlay_name, x, y):
+        """
+        Generate overlay images containing text x, y
+        
+        The arguments x and y may be negative, in which case the position will be offset from the right/top edge of the image.
+        """
+        for tile in range(1, self.config.number_of_tiles + 1):
+            for time in self.config.time_points:
+                for depth in self.config.depth_points:
+                    desc = self.config.tile_description_generator(tile, time, depth)
+                    file_name = self._generate_overlay_file_name(self.well, overlay_name, desc)
+                    self._generate_overlay(file_name, overlay_name, x, y)        
         
     def _generate_tile(self, filename, tile_desc, r, g, b):
         tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
@@ -113,6 +125,35 @@ class WellGenerator:
 
         # Write the bitmap to disk in PNG format
         tile_canvas.write_png_file(self.directory + "/" + filename)
+        
+    def _generate_overlay(self, filename, overlay_desc, x, y):
+        tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
+        
+        textx = x
+        if textx < 0:
+            textx = self.config.image_size - x
+        texty = y
+        if texty < 0:
+            texty = self.config.image_size - y
+        # text annotation
+        drawText(tile_canvas, textx, texty, overlay_desc)
+
+        # Write the bitmap to disk in PNG format
+        tile_canvas.write_png_file(self.directory + "/" + filename)
+        
+    def _generate_raw_file_name(self, well, channel, desc):
+        """
+        Generate a name for a file using the description and channel
+        """
+            
+        return "bPLATE_w" + well + "_" + desc + "_c" + channel + ".png"
+        
+    def _generate_overlay_file_name(self, well, channel, desc):
+        """
+        Generate a name for a file using the description and channel
+        """
+            
+        return "c" + channel + "_w" + well + "_" + desc + ".png"
 
     def drawMatrix(self, coordsList, dir, channel, isOverlay):
         nonemptyTiles = set([ calcTile(coords) for coords in coordsList ])
@@ -149,6 +190,13 @@ class PlateGenerator:
                 well = string.letters[26 + row] + str(col)
                 well_generator = WellGenerator(self.config, well, directory)
                 well_generator.generate_raw_images()
+                
+    def generate_overlay_images(self, directory, overlay_name, x, y):
+        for row in range(0, self.config.rows):
+            for col in range(1, self.config.cols + 1):
+                well = string.letters[26 + row] + str(col)
+                well_generator = WellGenerator(self.config, well, directory)
+                well_generator.generate_overlay_images(overlay_name, x, y)
 
 class GenericImageGeneratorConfig(ImageGeneratorConfig):
     """
