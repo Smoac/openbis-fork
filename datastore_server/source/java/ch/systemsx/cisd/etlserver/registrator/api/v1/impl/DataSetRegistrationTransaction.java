@@ -237,6 +237,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().getSampleForUpdate(sampleIdentifierString);
     }
 
+    public IExperiment getExperimentForUpdate(String experimentIdentifierString)
+    {
+        return getStateAsLiveState().getExperimentForUpdate(experimentIdentifierString);
+    }
+
     public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
     {
         return getStateAsLiveState().createNewSample(sampleIdentifierString, sampleTypeCode);

@@ -102,6 +102,11 @@ public interface IDataSetRegistrationTransaction
     IExperimentImmutable getExperiment(String experimentIdentifierString);
 
     /**
+     * Get an experiment from the openBIS AS for the purpose of modifying it.
+     */
+    IExperiment getExperimentForUpdate(String experimentIdentifierString);
+
+    /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.
      * 
      * @param experimentIdentifierString The identifier for the new experiment
@@ -211,7 +216,7 @@ public interface IDataSetRegistrationTransaction
      * @return The search service for this transaction.
      */
     ISearchService getSearchService();
-    
+
     /**
      * Gets a database query object for the data source with the specified name.
      * 
