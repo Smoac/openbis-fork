@@ -106,19 +106,21 @@ public class MaterialUploadSectionsParser
     {
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
+
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            if (multipartFile.getOriginalFilename().toLowerCase().endsWith("xls"))
+            final String fileName = multipartFile.getOriginalFilename().toLowerCase();
+            if (fileName.endsWith("xls") || fileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
                 if (materialType.isDefinedInFileEntityTypeCode())
                 {
                     materialSections.addAll(ExcelFileSection.extractSections(
-                            multipartFile.getInputStream(), excelSheetName));
+                            multipartFile.getInputStream(), excelSheetName, fileName));
                 } else
                 {
                     materialSections.add(ExcelFileSection.createFromInputStream(
-                            multipartFile.getInputStream(), materialType.getCode()));
+                            multipartFile.getInputStream(), materialType.getCode(), fileName));
                 }
                 int materialCounter = 0;
                 Map<String, String> defaults = Collections.emptyMap();
@@ -150,8 +152,7 @@ public class MaterialUploadSectionsParser
                                         + fs.getSectionName() + ")";
                         final List<NewMaterial> loadedMaterials =
                                 excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
-                                        multipartFile.getOriginalFilename() + sectionInFile,
-                                        defaults);
+                                        fileName + sectionInFile, defaults);
                         if (loadedMaterials.size() > 0)
                         {
                             newMaterials.add(new NewMaterialsWithTypes(typeFromSection,
@@ -160,8 +161,8 @@ public class MaterialUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("Registration of %d material(s) is complete.", materialCounter)));
+                results.add(new BatchRegistrationResult(fileName, String.format(
+                        "Registration of %d material(s) is complete.", materialCounter)));
             } else
             {
 
@@ -205,9 +206,8 @@ public class MaterialUploadSectionsParser
                                 materialSections.size() == 1 ? "" : " (section:"
                                         + fs.getSectionName() + ")";
                         final List<NewMaterial> loadedMaterials =
-                                tabFileLoader.load(
-                                        new DelegatedReader(reader, multipartFile
-                                                .getOriginalFilename() + sectionInFile), defaults);
+                                tabFileLoader.load(new DelegatedReader(reader, fileName
+                                        + sectionInFile), defaults);
                         if (loadedMaterials.size() > 0)
                         {
                             newMaterials.add(new NewMaterialsWithTypes(typeFromSection,
@@ -216,8 +216,8 @@ public class MaterialUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("Registration of %d material(s) is complete.", materialCounter)));
+                results.add(new BatchRegistrationResult(fileName, String.format(
+                        "Registration of %d material(s) is complete.", materialCounter)));
             }
         }
         return results;

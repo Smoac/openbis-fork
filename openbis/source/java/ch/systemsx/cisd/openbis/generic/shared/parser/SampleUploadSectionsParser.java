@@ -191,17 +191,18 @@ public class SampleUploadSectionsParser
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
         for (final NamedInputStream multipartFile : uploadedFiles)
         {
-            if (multipartFile.getOriginalFilename().toLowerCase().endsWith("xls"))
+            final String fileName = multipartFile.getOriginalFilename().toLowerCase();
+            if (fileName.endsWith("xls") || fileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> sampleSections = new ArrayList<ExcelFileSection>();
                 if (sampleType.isDefinedInFileEntityTypeCode())
                 {
                     sampleSections.addAll(ExcelFileSection.extractSections(
-                            multipartFile.getInputStream(), excelSheetName));
+                            multipartFile.getInputStream(), excelSheetName, fileName));
                 } else
                 {
                     sampleSections.add(ExcelFileSection.createFromInputStream(
-                            multipartFile.getInputStream(), sampleType.getCode()));
+                            multipartFile.getInputStream(), sampleType.getCode(), fileName));
                 }
                 int sampleCounter = 0;
                 Map<String, String> defaults = Collections.emptyMap();
@@ -224,8 +225,7 @@ public class SampleUploadSectionsParser
                                         + fs.getSectionName() + ")";
                         final List<NewSample> loadedSamples =
                                 excelFileLoader.load(fs.getSheet(), fs.getBegin(), fs.getEnd(),
-                                        multipartFile.getOriginalFilename() + sectionInFile,
-                                        defaults);
+                                        fileName + sectionInFile, defaults);
                         if (loadedSamples.size() > 0)
                         {
                             newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
@@ -233,9 +233,9 @@ public class SampleUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
-                                sampleCounter)));
+                results.add(new BatchRegistrationResult(fileName, String.format(
+                        "%s of %d sample(s) is complete.", operationKind.getDescription(),
+                        sampleCounter)));
             } else
             {
                 List<FileSection> sampleSections = new ArrayList<FileSection>();
@@ -269,9 +269,8 @@ public class SampleUploadSectionsParser
                                 sampleSections.size() == 1 ? "" : " (section:"
                                         + fs.getSectionName() + ")";
                         final List<NewSample> loadedSamples =
-                                tabFileLoader.load(
-                                        new DelegatedReader(reader, multipartFile
-                                                .getOriginalFilename() + sectionInFile), defaults);
+                                tabFileLoader.load(new DelegatedReader(reader, fileName
+                                        + sectionInFile), defaults);
                         if (loadedSamples.size() > 0)
                         {
                             newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
@@ -279,9 +278,9 @@ public class SampleUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                        .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
-                                sampleCounter)));
+                results.add(new BatchRegistrationResult(fileName, String.format(
+                        "%s of %d sample(s) is complete.", operationKind.getDescription(),
+                        sampleCounter)));
             }
         }
         return results;

@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -76,12 +77,12 @@ public class ExcelFileSection
         return end;
     }
 
-    public static ExcelFileSection createFromInputStream(InputStream stream, String sectionName)
+    public static ExcelFileSection createFromInputStream(InputStream stream, String sectionName,
+            String fileName)
     {
         try
         {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            Workbook wb = new HSSFWorkbook(poifsFileSystem);
+            Workbook wb = getWorkBook(stream, fileName);
             Sheet sheet = wb.getSheetAt(0);
             return new ExcelFileSection(sheet, sectionName, 0, sheet.getLastRowNum());
         } catch (IOException e)
@@ -90,13 +91,26 @@ public class ExcelFileSection
         }
     }
 
-    public static List<ExcelFileSection> extractSections(InputStream stream, String excelSheetName)
+    private static final Workbook getWorkBook(InputStream stream, String fileName)
+            throws IOException
+    {
+        if (fileName.endsWith("xlsx"))
+        {
+            return new XSSFWorkbook(stream);
+        } else
+        {
+            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
+            return new HSSFWorkbook(poifsFileSystem);
+        }
+    }
+
+    public static List<ExcelFileSection> extractSections(InputStream stream, String excelSheetName,
+            String fileName)
     {
         List<ExcelFileSection> sections = new ArrayList<ExcelFileSection>();
         try
         {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            Workbook wb = new HSSFWorkbook(poifsFileSystem);
+            Workbook wb = getWorkBook(stream, fileName);
 
             Sheet sheet = null;
             if (excelSheetName == null)
