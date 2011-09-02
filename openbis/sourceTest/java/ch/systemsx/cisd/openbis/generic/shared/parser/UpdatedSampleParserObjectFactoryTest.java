@@ -78,9 +78,9 @@ public final class UpdatedSampleParserObjectFactoryTest
                 { new String[]
                     { "", "cont1", "", "hello" }, 1, 1 },
                 { new String[]
-                    { "id1", "cont1", "--DELETE--", "--DELETE--" }, 0, 2 },
+                    { "id1", "cont1", "--DELETE--", "__DELETE__" }, 0, 2 },
                 { new String[]
-                    { "--DELETE--", "--DELETE--", "--DELETE--", "hello" }, 1, 2 } };
+                    { "__DELETE__", "--DELETE--", "--DELETE--", "hello" }, 1, 2 } };
     }
 
     @Test(dataProvider = "getLineTokens")
@@ -97,9 +97,9 @@ public final class UpdatedSampleParserObjectFactoryTest
                 (UpdatedSample) parserObjectFactory.createObject(lineTokens);
         // assert that all NewSample properties are set properly
         assertEquals(identifierToken, objectCreated.getIdentifier());
-        assertEquals(
-                StringUtils.isEmpty(containerToken) || "--DELETE--".equals(containerToken) ? null
-                        : containerToken, objectCreated.getContainerIdentifier());
+        assertEquals(StringUtils.isEmpty(containerToken) || "--DELETE--".equals(containerToken)
+                || "__DELETE__".equals(containerToken) ? null : containerToken,
+                objectCreated.getContainerIdentifier());
         final IEntityProperty[] properties = objectCreated.getProperties();
         assertEquals(numberOfProperties, properties.length);
         int index = 2;

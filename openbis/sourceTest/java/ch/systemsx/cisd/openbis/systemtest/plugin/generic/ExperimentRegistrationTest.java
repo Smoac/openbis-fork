@@ -403,7 +403,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         codes = new String[]
             { "GENDER" };
         values = new String[]
-            { "--DELETE--" };
+            { "__DELETE__" };
         bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",

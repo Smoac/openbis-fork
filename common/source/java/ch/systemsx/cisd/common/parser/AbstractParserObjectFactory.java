@@ -35,7 +35,8 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
  */
 public abstract class AbstractParserObjectFactory<E> implements IParserObjectFactory<E>
 {
-    protected static final String DELETE = "--DELETE--";
+    protected static final String[] DELETE = new String[]
+        { "--DELETE--", "__DELETE__" };
 
     /** The <code>IPropertyMapper</code> implementation. */
     private final IPropertyMapper propertyMapper;
@@ -180,7 +181,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
 
     protected static boolean isDeletionMark(String value)
     {
-        return DELETE.equals(value);
+        return DELETE[0].equals(value) || DELETE[1].equals(value);
     }
 
     private void checkMandatory(String value, String code)

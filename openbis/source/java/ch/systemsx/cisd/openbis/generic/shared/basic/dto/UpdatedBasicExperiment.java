@@ -26,7 +26,7 @@ public class UpdatedBasicExperiment extends NewBasicExperiment
     public static final String EXPERIMENT_UPDATE_TEMPLATE_COMMENT =
             "# All columns except \"identifier\" can be removed from the file.\n"
                     + "# If a column is removed from the file or a cell in a column is left empty the corresponding values of updated expriments will be preserved.\n"
-                    + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" into the corresponding cell\n"
+                    + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" or \"__DELETE__\" into the corresponding cell\n"
                     + "# The \"identifier\" column should contain experiment identifiers, e.g. /SPACE/PROJECT/EXPERIMENT_1,\n"
                     + "# The \"project\" column (if not removed) should contain project identifiers, e.g. /SPACE/PROJECT\n";
 
