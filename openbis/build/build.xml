@@ -646,6 +646,16 @@
       <lib dir="${lib}/fastutil">
         <include name="fastutil.jar" />
       </lib>
+    	<!-- Excel -->
+    	<lib dir="${lib}/poi">
+        <include name="poi-3.7-20101029.jar" />
+        <include name="poi-ooxml-3.7-20101029.jar" />
+      	<include name="poi-ooxml-schemas-3.7-20101029.jar" />
+    	</lib>
+    	<lib dir="${lib}/poi/ooxml-lib">
+        <include name="xmlbeans-2.3.0.jar" />
+        <include name="geronimo-stax-api_1.0_spec-1.0.jar" />
+    	</lib>
       <!-- Database -->
       <lib dir="${lib}/postgresql">
         <include name="postgresql.jar" />
