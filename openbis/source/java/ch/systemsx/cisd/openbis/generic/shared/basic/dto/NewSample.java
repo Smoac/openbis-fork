@@ -118,14 +118,14 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     }
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
-            String[] parentsOrNull, String experimentIdentifier, String spaceCode,
+            String[] parentsOrNull, String experimentIdentifier, String defaultSpaceIdentifier,
             String defaultContainerIdentifier, IEntityProperty[] properties,
             List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
-        this.defaultSpaceIdentifier = spaceCode;
+        this.setDefaultSpaceIdentifier(defaultSpaceIdentifier);
         this.defaultContainerIdentifier = defaultContainerIdentifier;
         this.properties = properties;
         this.attachments = attachments;
@@ -241,9 +241,15 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     }
 
     @BeanProperty(label = SPACE, optional = true)
-    public void setDefaultSpaceIdentifier(String spaceIdentifier)
+    public void setDefaultSpaceIdentifier(String defaultSpaceIdentifier)
     {
-        this.defaultSpaceIdentifier = spaceIdentifier;
+        if (StringUtils.isBlank(defaultSpaceIdentifier) || defaultSpaceIdentifier.contains("/"))
+        {
+            this.defaultSpaceIdentifier = defaultSpaceIdentifier;
+        } else
+        {
+            this.defaultSpaceIdentifier = "/" + defaultSpaceIdentifier;
+        }
     }
 
     public final IEntityProperty[] getProperties()
