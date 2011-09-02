@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.util.Arrays;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
@@ -74,7 +72,9 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
             return new String[0];
         }
 
-        return Arrays.copyOfRange(line, 0, last + 1);
+        String[] result = new String[last + 1];
+        System.arraycopy(line, 0, result, 0, last + 1);
+        return result;
     }
 
     private static String extractCellValue(Cell cell) throws ParserException
