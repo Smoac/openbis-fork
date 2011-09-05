@@ -41,6 +41,8 @@ public enum LogCategory
     NOTIFY,
     /** Log category for (normal) operational events. */
     OPERATION,
+    /** Log category for status events like server state or build and environment informations. */
+    STATUS(true),
     /** Log category for data manipulation events (write access). */
     TRACKING(true);
 
