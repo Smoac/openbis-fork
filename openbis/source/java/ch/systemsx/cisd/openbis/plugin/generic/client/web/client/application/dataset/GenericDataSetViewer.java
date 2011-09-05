@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -42,10 +45,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -140,6 +146,24 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     private void extendToolBar()
     {
+        Button exportButton = new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS));
+        exportButton.addListener(Events.Select, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    final List<ExternalData> dataSets = Arrays.asList(originalData);
+                    IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
+                            new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
+                                {
+                                    public SelectedAndDisplayedItems execute()
+                                    {
+                                        return new SelectedAndDisplayedItems(dataSets, null, 1);
+                                    }
+                                };
+                    new DataSetUploadConfirmationDialog(dataSets, action, 1, viewContext).show();
+                }
+            });
+        addToolBarButton(exportButton);
         if (getViewContext().isSimpleOrEmbeddedMode())
         {
             return;
@@ -151,8 +175,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
-                    new DataSetListDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
-                            callback, getOriginalData()).show();
+                    new DataSetListDeletionConfirmationDialog(getViewContext()
+                            .getCommonViewContext(), callback, getOriginalData()).show();
                 }
 
             }));
@@ -294,8 +318,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         setToolBarButtonsEnabled(false);
         updateTitle(getOriginalDataDescription() + " (not available)");
         String msg =
-                getViewContext().getMessage(Dict.DATASET_NOT_AVAILABLE_MSG, result.getCode(), result
-                        .getStatus().getDescription().toLowerCase());
+                getViewContext().getMessage(Dict.DATASET_NOT_AVAILABLE_MSG, result.getCode(),
+                        result.getStatus().getDescription().toLowerCase());
         MessageBox.info("Data not available", msg, null);
     }
 
@@ -358,7 +382,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         /** @param data external data that will be processed */
         public void setupData(final ExternalData data)
         {
-            getViewContext().getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
+            getViewContext().getCommonService().listDataStoreServices(
+                    DataStoreServiceKind.PROCESSING,
                     new ProcessingServicesCallback(getViewContext(), getOriginalData(), button));
         }
     }

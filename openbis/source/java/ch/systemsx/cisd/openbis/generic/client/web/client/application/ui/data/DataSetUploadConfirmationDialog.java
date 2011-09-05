@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 /**
  * @author Franz-Josef Elmer
  */
-final class DataSetUploadConfirmationDialog extends
+public final class DataSetUploadConfirmationDialog extends
         AbstractDataConfirmationDialog<List<ExternalData>>
 {
     private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
@@ -93,7 +93,10 @@ final class DataSetUploadConfirmationDialog extends
         formPanel.setBodyBorder(false);
         formPanel.setHeaderVisible(false);
 
-        formPanel.add(createDataSetsRadio());
+        if (displayedItemsCount > 1)
+        {
+            formPanel.add(createDataSetsRadio());
+        }
 
         fileNameField = new TextField<String>();
         fileNameField.setFieldLabel(viewContext
@@ -135,16 +138,17 @@ final class DataSetUploadConfirmationDialog extends
 
     private final RadioGroup createDataSetsRadio()
     {
-        return WidgetUtils.createAllOrSelectedRadioGroup(uploadSelectedRadio =
-                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                displayedItemsCount)), viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL),
-                data.size());
+        return WidgetUtils.createAllOrSelectedRadioGroup(
+                uploadSelectedRadio =
+                        WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO,
+                                data.size())), WidgetUtils.createRadio(viewContext.getMessage(
+                        Dict.ALL_RADIO, displayedItemsCount)), viewContext
+                        .getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
     }
 
     private boolean getUploadSelected()
     {
-        return WidgetUtils.isSelected(uploadSelectedRadio);
+        return uploadSelectedRadio == null ? true : WidgetUtils.isSelected(uploadSelectedRadio);
     }
 
     @Override
