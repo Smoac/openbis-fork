@@ -22,8 +22,6 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -39,7 +37,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.AssertingLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.Retry10;
@@ -53,41 +51,6 @@ public class ConcurrencyUtilitiesTest
 {
 
     private final static String name = "This is the pool name";
-
-    private static class LogRecord
-    {
-        final LogLevel level;
-
-        final String message;
-
-        LogRecord(final LogLevel level, final String message)
-        {
-            this.level = level;
-            this.message = message;
-        }
-    }
-
-    private class AssertingLogger implements ISimpleLogger
-    {
-        private final List<LogRecord> records = new ArrayList<LogRecord>();
-
-        public void log(final LogLevel level, final String message)
-        {
-            records.add(new LogRecord(level, message));
-        }
-
-        public void assertNumberOfMessage(final int expectedNumberOfMessages)
-        {
-            assertEquals(expectedNumberOfMessages, records.size());
-        }
-
-        public void assertEq(final int i, final LogLevel expectedLevel, final String expectedMessage)
-        {
-            assertEquals(expectedLevel, records.get(i).level);
-            assertEquals(expectedMessage, records.get(i).message);
-        }
-
-    }
 
     private ILogSettings logSettings;
 
