@@ -12,6 +12,11 @@
 # 
 # Dependencies:
 # - check-and-exit-if-new-sprint-server.sh
+# - install-servers.sh
+# - fetch-generic-sprint-server-artifacts.sh
+# - servers-startup-from-latest-snapshot.sh
+# - config-files.txt
+#
 
 BIN_DIR=`dirname "$0"`
 SERVERS=sprint
