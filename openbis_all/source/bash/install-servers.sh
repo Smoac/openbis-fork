@@ -13,8 +13,8 @@
 # - install.sh of the openBIS AS distribution
 # 
 
-if [ $# -ne 4 ]; then
-    echo "Usage: install-servers.sh <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>"
+if [ $# -le 4 ]; then
+    echo "Usage: install-servers.sh <servers> <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>"
     exit 1
 fi
 
