@@ -541,12 +541,3 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships FROM PUBLIC;
-REVOKE ALL ON TABLE data_set_relationships FROM kaloyane;
-GRANT ALL ON TABLE data_set_relationships TO kaloyane;
-GRANT SELECT ON TABLE data_set_relationships TO openbis_readonly;
-REVOKE ALL ON TABLE sample_relationships FROM PUBLIC;
-REVOKE ALL ON TABLE sample_relationships FROM kaloyane;
-GRANT ALL ON TABLE sample_relationships TO kaloyane;
-GRANT SELECT ON TABLE sample_relationships TO openbis_readonly;
-
