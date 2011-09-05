@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.AssertingLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 
@@ -43,6 +45,8 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
     private static final String DATA_SET_CODE_2 = "ds-2";
 
     private static final String DATA_SET_CODE_3 = "ds-3";
+
+    private static final String DATA_SET_CODE_4 = "ds-4";
 
     private Mockery context;
 
@@ -78,8 +82,11 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
             IOUtils.closeQuietly(inStream);
         }
         final DataSetBuilder dataSet1 = createDataset(DATA_SET_CODE_1, "ooo_XYZ_ooo", "ibrain-2");
-        final DataSetBuilder dataSet2 = createDataset(DATA_SET_CODE_2, "ABC", "ibrain-3");
-        final DataSetBuilder filteredDataSet = createDataset(DATA_SET_CODE_3, "ibrain-4", null);
+        final DataSetBuilder dataSet2 = createDataset(DATA_SET_CODE_2, "accepted-type", "ibrain-3");
+        final DataSetBuilder filteredDataSet =
+                createDataset(DATA_SET_CODE_3, "filtered-type", null);
+        final DataSetBuilder noPropertiesDataSet =
+                createDataset(DATA_SET_CODE_4, "accepted-type", null);
 
         context.checking(new Expectations()
             {
@@ -92,9 +99,13 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
 
                     one(service).tryGetDataSet(DATA_SET_CODE_3);
                     will(returnValue(filteredDataSet.getDataSet()));
+
+                    one(service).tryGetDataSet(DATA_SET_CODE_4);
+                    will(returnValue(noPropertiesDataSet.getDataSet()));
                 }
             });
-        NotifyingTask notifyingTask = new NotifyingTask(properties, service);
+        AssertingLogger logger = new AssertingLogger();
+        NotifyingTask notifyingTask = new NotifyingTask(properties, service, logger);
 
         IPostRegistrationTaskExecutor executor = execute(notifyingTask, DATA_SET_CODE_1);
         ICleanupTask cleanupTask = executor.createCleanupTask();
@@ -109,8 +120,15 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
                 "targets/ibrain-ibrain-3.txt").isFile());
 
         execute(notifyingTask, DATA_SET_CODE_3);
-        assertFalse("confirnation file for " + DATA_SET_CODE_3 + " should not be created!",
+        assertFalse("confirmation file for " + DATA_SET_CODE_3 + " should not be created!",
                 new File("targets/ibrain-ibrain-4.txt").exists());
+
+        execute(notifyingTask, DATA_SET_CODE_4);
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(
+                0,
+                LogLevel.WARN,
+                "Could not produce post registration confirmation file for dataset 'ds-4': Property 'ibrain-data-set-id' is not set.");
 
         context.assertIsSatisfied();
     }

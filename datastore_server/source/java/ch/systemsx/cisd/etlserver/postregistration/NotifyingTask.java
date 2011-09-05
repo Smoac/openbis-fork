@@ -22,6 +22,11 @@ import java.util.Set;
 
 import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -53,6 +58,8 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
     private static final String DATA_SET_CODE_PLACE_HOLDER = "data-set-code";
 
+    private final ISimpleLogger logger;
+
     private final Template messageTemplate;
 
     private final Template destinationPathTemplate;
@@ -61,7 +68,14 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
     public NotifyingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
+        this(properties, service, new Log4jSimpleLogger(LogFactory.getLogger(LogCategory.OPERATION,
+                NotifyingTask.class)));
+    }
+
+    NotifyingTask(Properties properties, IEncapsulatedOpenBISService service, ISimpleLogger logger)
+    {
         super(properties, service);
+        this.logger = logger;
         messageTemplate =
                 new Template(PropertyUtils.getMandatoryProperty(properties, MESSAGE_TEMPLATE_KEY));
         destinationPathTemplate =
@@ -102,11 +116,13 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return new Executor(dataSet, messageTemplate.createFreshCopy(),
-                destinationPathTemplate.createFreshCopy(), includeDatasetTypePatternsOrNull);
+                destinationPathTemplate.createFreshCopy(), includeDatasetTypePatternsOrNull, logger);
     }
 
     private static final class Executor implements IPostRegistrationTaskExecutor
     {
+        private final ISimpleLogger logger;
+
         private final ExternalData dataSet;
 
         private final Template messageTemplate;
@@ -116,12 +132,14 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         private final String[] includeDatasetTypePatternsOrNull;
 
         public Executor(ExternalData dataSet, Template messageTemplate,
-                Template destinationPathTemplate, String[] includeDatasetTypePatternsOrNull)
+                Template destinationPathTemplate, String[] includeDatasetTypePatternsOrNull,
+                ISimpleLogger logger)
         {
             this.dataSet = dataSet;
             this.messageTemplate = messageTemplate;
             this.destinationPathTemplate = destinationPathTemplate;
             this.includeDatasetTypePatternsOrNull = includeDatasetTypePatternsOrNull;
+            this.logger = logger;
         }
 
         public ICleanupTask createCleanupTask()
@@ -133,9 +151,22 @@ public class NotifyingTask extends AbstractPostRegistrationTask
         {
             if (typeMatches())
             {
-                String messageText = fillTemplate(messageTemplate);
-                FileUtilities.writeToFile(new File(fillTemplate(destinationPathTemplate)),
-                        messageText);
+                String messageText;
+                String fileName;
+                try
+                {
+                    messageText = fillTemplate(messageTemplate);
+                    fileName = fillTemplate(destinationPathTemplate);
+                } catch (UnknownPropertyRequested ex)
+                {
+                    logger.log(
+                            LogLevel.WARN,
+                            String.format(
+                                    "Could not produce post registration confirmation file for dataset '%s': %s",
+                                    dataSet.getCode(), ex.getMessage()));
+                    return;
+                }
+                FileUtilities.writeToFile(new File(fileName), messageText);
             }
         }
 
@@ -156,7 +187,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             return false;
         }
 
-        private String fillTemplate(Template template)
+        private String fillTemplate(Template template) throws UnknownPropertyRequested
         {
             Set<String> placeholderNames = template.getPlaceholderNames();
             for (String placeholderName : placeholderNames)
@@ -178,7 +209,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
             return messageText;
         }
 
-        private String getProperty(String propertyName)
+        private String getProperty(String propertyName) throws UnknownPropertyRequested
         {
             for (IEntityProperty property : dataSet.getProperties())
             {
@@ -187,9 +218,20 @@ public class NotifyingTask extends AbstractPostRegistrationTask
                     return property.tryGetAsString();
                 }
             }
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
+            throw new UnknownPropertyRequested(String.format("Property '%s' is not set.",
+                    propertyName));
         }
 
+    }
+
+    private final static class UnknownPropertyRequested extends Exception
+    {
+        private static final long serialVersionUID = 1L;
+
+        public UnknownPropertyRequested(String message)
+        {
+            super(message);
+        }
     }
 
 }
