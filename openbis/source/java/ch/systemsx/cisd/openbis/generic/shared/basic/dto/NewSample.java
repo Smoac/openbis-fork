@@ -35,7 +35,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
             "# The \"container\" and \"parents\" columns are optional, only one should be specified.\n"
                     + "# \"container\" should contain a sample identifier, e.g. /SPACE/SAMPLE_1, while \"parents\" should contain comma separated list of sample identifiers. \n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
-                    + "# The column \"container\" has an alias \"default_container\", which has a different meaning when samples are updated.\n"
+                    + "# The column \"container\" has an alias \"current_container\", which has a different meaning when samples are updated.\n"
                     + "# If \"parents\" are provided, the registered sample will become a \"child\" of all specified samples.\n";
 
     public static String WITH_EXPERIMENTS_COMMENT =
@@ -46,7 +46,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public static final String CONTAINER = "container";
 
-    public static final String DEFAULT_CONTAINER = "default_container";
+    public static final String CURRENT_CONTAINER = "current_container";
 
     public static final String PARENT = "parent";
 
@@ -70,10 +70,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private String containerIdentifier;
 
     /**
-     * The default container identifier. Used only if the sample identifier does not have the
+     * The current container identifier. Used only if the sample identifier does not have the
      * container specified. In such a case it will be assumed that the sample is in that container.
      */
-    private String defaultContainerIdentifier;
+    private String currentContainerIdentifier;
 
     /**
      * The experiment identifier.
@@ -119,14 +119,14 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
             String[] parentsOrNull, String experimentIdentifier, String defaultSpaceIdentifier,
-            String defaultContainerIdentifier, IEntityProperty[] properties,
+            String currentContainerIdentifier, IEntityProperty[] properties,
             List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
         this.setDefaultSpaceIdentifier(defaultSpaceIdentifier);
-        this.defaultContainerIdentifier = defaultContainerIdentifier;
+        this.currentContainerIdentifier = currentContainerIdentifier;
         this.properties = properties;
         this.attachments = attachments;
     }
@@ -213,15 +213,15 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.containerIdentifier = StringUtils.trimToNull(container);
     }
 
-    public final String getDefaultContainerIdentifier()
+    public final String getCurrentContainerIdentifier()
     {
-        return defaultContainerIdentifier;
+        return currentContainerIdentifier;
     }
 
-    @BeanProperty(label = DEFAULT_CONTAINER, optional = true)
-    public final void setDefaultContainerIdentifier(final String defaultContainer)
+    @BeanProperty(label = CURRENT_CONTAINER, optional = true)
+    public final void setCurrentContainerIdentifier(final String currentContainerIdentifier)
     {
-        this.defaultContainerIdentifier = StringUtils.trimToNull(defaultContainer);
+        this.currentContainerIdentifier = StringUtils.trimToNull(currentContainerIdentifier);
     }
 
     public String getExperimentIdentifier()
@@ -274,7 +274,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public String getContainerIdentifierForNewSample()
     {
-        return defaultContainerIdentifier != null ? defaultContainerIdentifier
+        return currentContainerIdentifier != null ? currentContainerIdentifier
                 : containerIdentifier;
     }
 
@@ -304,10 +304,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         final NewSample that = (NewSample) obj;
         final String thisCombinedIdentifier =
                 StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + this.getIdentifier()
-                        + getContainerIdentifier() + getDefaultContainerIdentifier();
+                        + getContainerIdentifier() + getCurrentContainerIdentifier();
         final String thatCombinedIdentifier =
                 StringUtils.emptyIfNull(this.getDefaultSpaceIdentifier()) + that.getIdentifier()
-                        + that.getContainerIdentifier() + that.getDefaultContainerIdentifier();
+                        + that.getContainerIdentifier() + that.getCurrentContainerIdentifier();
         return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }
 }

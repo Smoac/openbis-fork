@@ -49,7 +49,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         String defaultSpace = sample.getDefaultSpaceIdentifier();
         SampleIdentifier identifier = factory.createIdentifier(defaultSpace);
         // if the container for the new sample is not specified then use the default (if provided)
-        String defaultContainer = sample.getDefaultContainerIdentifier();
+        String defaultContainer = sample.getCurrentContainerIdentifier();
         if (identifier.tryGetContainerCode() == null
                 && StringUtils.isEmpty(defaultContainer) == false)
         {

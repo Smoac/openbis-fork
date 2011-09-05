@@ -36,7 +36,7 @@ public final class UpdatedSample extends NewSample
                     + "# The \"parent\" column (if not removed) should contain comma separated list of sample identifiers, e.g. /SPACE/SAMPLE_1,/SPACE/SAMPLE_2\n"
                     + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n"
                     + "# The \"default_space\" column is optional, it can be used to override home space for the row\n"
-                    + "# The \"default_container\" column is optional, it can be used to specify container where the updated sample belongs before the update\n";
+                    + "# The \"current_container\" column is optional, it can be used to specify container where the updated sample belongs before the update\n";
 
     private SampleBatchUpdateDetails batchUpdateDetails;
 
@@ -45,7 +45,7 @@ public final class UpdatedSample extends NewSample
         super(newSample.getIdentifier(), newSample.getSampleType(), newSample
                 .getContainerIdentifier(), newSample.getParentsOrNull(), newSample
                 .getExperimentIdentifier(), newSample.getDefaultSpaceIdentifier(), newSample
-                .getDefaultContainerIdentifier(), newSample.getProperties(), newSample
+                .getCurrentContainerIdentifier(), newSample.getProperties(), newSample
                 .getAttachments());
         this.batchUpdateDetails = batchUpdateDetails;
     }

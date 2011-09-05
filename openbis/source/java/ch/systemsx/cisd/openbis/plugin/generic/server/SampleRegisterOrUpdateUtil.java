@@ -78,10 +78,10 @@ public class SampleRegisterOrUpdateUtil
     {
         String newSampleContainerCode = newSampleIdentifier.tryGetContainerCode();
         String newSampleContainerSpace = newSample.getDefaultSpaceIdentifier();
-        if (newSampleContainerCode == null && newSample.getDefaultContainerIdentifier() != null)
+        if (newSampleContainerCode == null && newSample.getCurrentContainerIdentifier() != null)
         {
             SampleIdentifier newSampleContainerIdentifier =
-                    SampleIdentifierFactory.parse(newSample.getDefaultContainerIdentifier(),
+                    SampleIdentifierFactory.parse(newSample.getCurrentContainerIdentifier(),
                             newSample.getDefaultSpaceIdentifier());
             newSampleContainerCode = newSampleContainerIdentifier.getSampleSubCode();
             newSampleContainerSpace = tryGetSpaceCode(newSampleContainerIdentifier);
