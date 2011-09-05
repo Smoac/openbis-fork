@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -26,17 +25,18 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DeletionTranslator;
 
 /**
  * Business object implementing {@link IDeletionTable}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DeletionTable extends AbstractBusinessObject implements IDeletionTable
@@ -52,7 +52,7 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     {
         return deletions;
     }
-    
+
     public void load(boolean withEntities)
     {
         final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
@@ -83,26 +83,35 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     private void findDataSets(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
     {
         IDeletionDAO deletionDAO = getDeletionDAO();
-        List<String> deletedDataSetCodes = deletionDAO.findTrashedDataSetCodes(deletionIDs);
-        List<DataPE> dataSets = getDataDAO().listByCode(new HashSet<String>(deletedDataSetCodes));
+        List<TechId> deletedDataSetIds = deletionDAO.findTrashedDataSetIds(deletionIDs);
+        List<DeletedDataPE> dataSets =
+                cast(getDeletionDAO().listDeletedEntities(EntityKind.DATA_SET, deletedDataSetIds));
         addEntities(dataSets, findersMap);
     }
-    
+
     private void findSamples(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
     {
         IDeletionDAO deletionDAO = getDeletionDAO();
-        List<Long> deletedSampleIds = TechId.asLongs(deletionDAO.findTrashedSampleIds(deletionIDs));
-        List<SamplePE> samples = getSampleDAO().listByIDs(deletedSampleIds);
+        List<TechId> deletedSampleIds = deletionDAO.findTrashedSampleIds(deletionIDs);
+        List<DeletedSamplePE> samples =
+                cast(getDeletionDAO().listDeletedEntities(EntityKind.SAMPLE, deletedSampleIds));
         addEntities(samples, findersMap);
     }
-    
+
     private void findExperiments(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
     {
         IDeletionDAO deletionDAO = getDeletionDAO();
-        List<Long> deletedExperimentIds =
-                TechId.asLongs(deletionDAO.findTrashedExperimentIds(deletionIDs));
-        List<ExperimentPE> experiments = getExperimentDAO().listByIDs(deletedExperimentIds);
+        List<TechId> deletedExperimentIds = deletionDAO.findTrashedExperimentIds(deletionIDs);
+        List<DeletedExperimentPE> experiments =
+                cast(getDeletionDAO().listDeletedEntities(EntityKind.EXPERIMENT,
+                        deletedExperimentIds));
         addEntities(experiments, findersMap);
+    }
+
+    @SuppressWarnings("unchecked")
+    private final static <T> T cast(final Object object)
+    {
+        return (T) object;
     }
 
     private void addEntities(List<? extends IDeletablePE> entities,
@@ -121,6 +130,5 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
             }
         }
     }
-
 
 }

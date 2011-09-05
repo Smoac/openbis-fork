@@ -16,11 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -28,6 +37,8 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -36,6 +47,9 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -53,7 +67,19 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
 
     private Long containerId;
 
+    private Long experimentId;
+
     private String permIdInternal;
+
+    private SampleIdentifier sampleIdentifier;
+
+    private SampleTypePE sampleType;
+
+    private DatabaseInstancePE databaseInstance;
+
+    private SpacePE space;
+
+    private Set<DeletedSampleRelationshipPE> parentRelationships;
 
     @Id
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
@@ -69,6 +95,17 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
         this.id = id;
     }
 
+    @Column(name = ColumnNames.EXPERIMENT_COLUMN, nullable = false, insertable = false, updatable = false)
+    public Long getExperimentId()
+    {
+        return experimentId;
+    }
+
+    public void setExperimentId(final Long experimentId)
+    {
+        this.experimentId = experimentId;
+    }
+
     @Column(name = ColumnNames.PART_OF_SAMPLE_COLUMN, nullable = false, insertable = false, updatable = false)
     public Long getContainerId()
     {
@@ -81,8 +118,7 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     }
 
     @Transient
-    @Override
-    String getPermId()
+    public String getPermId()
     {
         return getPermIdInternal();
     }
@@ -99,6 +135,93 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     void setPermIdInternal(String permIdInternal)
     {
         this.permIdInternal = permIdInternal;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
+    public SampleTypePE getSampleType()
+    {
+        return sampleType;
+    }
+
+    public void setSampleType(final SampleTypePE sampleType)
+    {
+        this.sampleType = sampleType;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = true)
+    public DatabaseInstancePE getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = false)
+    public SpacePE getSpace()
+    {
+        return space;
+    }
+
+    public void setSpace(final SpacePE space)
+    {
+        this.space = space;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getSampleType();
+    }
+
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
+    }
+
+    @Transient
+    public String getIdentifier()
+    {
+        if (sampleIdentifier == null)
+        {
+            sampleIdentifier = IdentifierHelper.createSampleIdentifier(this);
+        }
+        return sampleIdentifier.toString();
+    }
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.CHILD_SAMPLE_COLUMN)
+    @Fetch(FetchMode.SUBSELECT)
+    Set<DeletedSampleRelationshipPE> getParentRelationships()
+    {
+        return parentRelationships;
+    }
+
+    void setParentRelationships(Set<DeletedSampleRelationshipPE> parentRelationships)
+    {
+        this.parentRelationships = parentRelationships;
+    }
+
+    @Transient
+    public List<Long> getParents()
+    {
+        if (parentRelationships == null || parentRelationships.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        List<Long> parentIds = new ArrayList<Long>();
+        for (DeletedSampleRelationshipPE relationship : parentRelationships)
+        {
+            parentIds.add(relationship.getParentId());
+        }
+        return parentIds;
     }
 
     //

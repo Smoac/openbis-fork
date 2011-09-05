@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -84,6 +85,25 @@ public final class IdentifierHelper
         final DatabaseInstancePE databaseInstance = samplePE.getDatabaseInstance();
         final SpacePE group = samplePE.getSpace();
         final String sampleCode = extractCode(samplePE);
+        return createSampleIdentifier(databaseInstance, group, sampleCode);
+    }
+
+    /**
+     * Creates a {@link SampleIdentifier} from given <var>samplePE</var>.
+     */
+    public final static SampleIdentifier createSampleIdentifier(
+            final DeletedSamplePE deletedSamplePE)
+    {
+        assert deletedSamplePE != null : "Unspecified sample";
+        final DatabaseInstancePE databaseInstance = deletedSamplePE.getDatabaseInstance();
+        final SpacePE group = deletedSamplePE.getSpace();
+        final String sampleCode = deletedSamplePE.getCode();
+        return createSampleIdentifier(databaseInstance, group, sampleCode);
+    }
+
+    private static SampleIdentifier createSampleIdentifier(
+            final DatabaseInstancePE databaseInstance, final SpacePE group, final String sampleCode)
+    {
         if (databaseInstance != null)
         {
             return new SampleIdentifier(createDatabaseInstanceIdentifier(databaseInstance),
@@ -227,8 +247,8 @@ public final class IdentifierHelper
                         && StringUtils.isEmpty(sample.getContainerIdentifier()) == false)
                 {
                     final SampleIdentifier containerIdentifier =
-                        SampleIdentifierFactory.parse(sample.getContainerIdentifier());
-                identifier.addContainerCode(containerIdentifier.getSampleCode());
+                            SampleIdentifierFactory.parse(sample.getContainerIdentifier());
+                    identifier.addContainerCode(containerIdentifier.getSampleCode());
                 }
                 result.add(identifier);
             }

@@ -41,6 +41,9 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.DATA_VIEW, SequenceNames.DATA_SEQUENCE); // needed for old migrations
         map.put(TableNames.DATA_ALL_TABLE, SequenceNames.DATA_SEQUENCE);
         map.put(TableNames.SAMPLES_ALL_TABLE, SequenceNames.SAMPLE_SEQUENCE);
+        map.put(TableNames.SAMPLE_RELATIONSHIPS_VIEW, SequenceNames.SAMPLE_RELATIONSHIPS_SEQUENCE);
+        map.put(TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE,
+                SequenceNames.SAMPLE_RELATIONSHIPS_SEQUENCE);
         map.put(TableNames.EXPERIMENTS_ALL_TABLE, SequenceNames.EXPERIMENT_SEQUENCE);
         map.put(TableNames.MATERIAL_BATCHES_TABLE, SequenceNames.MATERIAL_BATCH_SEQUENCE);
         map.put(TableNames.DATA_STORES_TABLE, SequenceNames.DATA_STORE_SEQUENCE);
@@ -75,7 +78,8 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         add(set, TableNames.EXTERNAL_DATA_TABLE);
         add(set, TableNames.SAMPLE_INPUTS_TABLE);
         add(set, TableNames.SAMPLE_MATERIAL_BATCHES_TABLE);
-        add(set, TableNames.DATA_SET_RELATIONSHIPS_TABLE);
+        add(set, TableNames.DATA_SET_RELATIONSHIPS_VIEW);
+        add(set, TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE);
         add(set, TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE);
         return Collections.unmodifiableSet(set);
     }

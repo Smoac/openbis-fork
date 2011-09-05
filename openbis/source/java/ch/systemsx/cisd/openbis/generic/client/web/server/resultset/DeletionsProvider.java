@@ -24,7 +24,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGri
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -59,7 +59,7 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
             builder.column(DELETION_DATE).addDate(deletion.getRegistrationDate());
             builder.column(DELETER).addPerson(deletion.getRegistrator());
             builder.column(REASON).addString(deletion.getReason());
-            List<IEntityInformationHolderWithProperties> deletedEntities =
+            List<IEntityInformationHolderWithIdentifier> deletedEntities =
                     deletion.getDeletedEntities();
             if (deletedEntities.isEmpty() == false)
             {
@@ -71,7 +71,7 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
     }
 
     private String createDescriptionOfDeletedEntities(
-            List<IEntityInformationHolderWithProperties> deletedEntities)
+            List<IEntityInformationHolderWithIdentifier> deletedEntities)
     {
         StringBuilder builder = new StringBuilder();
         String experiments = createList(deletedEntities, EntityKind.EXPERIMENT);
@@ -95,12 +95,12 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
         return builder.toString();
     }
 
-    private String createList(List<IEntityInformationHolderWithProperties> deletedEntities,
+    private String createList(List<IEntityInformationHolderWithIdentifier> deletedEntities,
             EntityKind entityKind)
     {
         StringBuilder builder = new StringBuilder();
         int count = 0;
-        for (IEntityInformationHolderWithProperties entity : deletedEntities)
+        for (IEntityInformationHolderWithIdentifier entity : deletedEntities)
         {
             if (entity.getEntityKind() == entityKind)
             {

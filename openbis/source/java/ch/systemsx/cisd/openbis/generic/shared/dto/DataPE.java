@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Entity
-@Table(name = TableNames.DATA_ALL_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
+@Table(name = TableNames.DATA_VIEW, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
@@ -376,7 +376,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
+    @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
     public Set<DataPE> getParents()
     {
         return parents;

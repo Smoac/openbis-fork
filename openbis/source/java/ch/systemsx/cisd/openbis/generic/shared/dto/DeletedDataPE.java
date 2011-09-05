@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -38,6 +39,7 @@ import org.hibernate.validator.NotNull;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -54,7 +56,13 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
 
     private transient Long id;
 
+    private Long experimentId;
+
+    private Long sampleId;
+
     private DataStorePE dataStore;
+
+    private DataSetTypePE dataSetType;
 
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
@@ -70,11 +78,32 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
         this.id = id;
     }
 
-    @Override
     @Transient
     public String getPermId()
     {
         return getCode();
+    }
+
+    @Column(name = ColumnNames.EXPERIMENT_COLUMN, nullable = false, insertable = false, updatable = false)
+    public Long getExperimentId()
+    {
+        return experimentId;
+    }
+
+    public void setExperimentId(final Long experimentId)
+    {
+        this.experimentId = experimentId;
+    }
+
+    @Column(name = ColumnNames.SAMPLE_COLUMN, nullable = false, insertable = false, updatable = false)
+    public Long getSampleId()
+    {
+        return sampleId;
+    }
+
+    public void setSampleId(final Long experimentId)
+    {
+        this.sampleId = experimentId;
     }
 
     //
@@ -153,6 +182,38 @@ public class DeletedDataPE extends AbstractDeletedEntityPE
     public void setDataStore(final DataStorePE dataStorePE)
     {
         this.dataStore = dataStorePE;
+    }
+
+    @Transient
+    public String getIdentifier()
+    {
+        return getCode();
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
+    public DataSetTypePE getDataSetType()
+    {
+        return dataSetType;
+    }
+
+    /** Sets <code>dataSetType</code>. */
+    public void setDataSetType(final DataSetTypePE dataSetType)
+    {
+        this.dataSetType = dataSetType;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getDataSetType();
+    }
+
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
     }
 
 }

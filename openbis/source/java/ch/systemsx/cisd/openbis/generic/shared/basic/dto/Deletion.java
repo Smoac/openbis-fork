@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -35,8 +35,9 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
 
     /** Reason of deletion. */
     private String reasonOrNull;
-    
-    private List<IEntityInformationHolderWithProperties> deletedEntities = new ArrayList<IEntityInformationHolderWithProperties>();
+
+    private List<IEntityInformationHolderWithIdentifier> deletedEntities =
+            new ArrayList<IEntityInformationHolderWithIdentifier>();
 
     public final String getReason()
     {
@@ -57,13 +58,13 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
     {
         this.id = id;
     }
-    
-    public void addDeletedEntity(IEntityInformationHolderWithProperties entity)
+
+    public void addDeletedEntity(IEntityInformationHolderWithIdentifier entity)
     {
         deletedEntities.add(entity);
     }
 
-    public List<IEntityInformationHolderWithProperties> getDeletedEntities()
+    public List<IEntityInformationHolderWithIdentifier> getDeletedEntities()
     {
         return deletedEntities;
     }

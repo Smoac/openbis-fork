@@ -124,7 +124,7 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      * values.
      */
     List<SamplePE> listByPermID(Set<String> values);
-    
+
     List<SamplePE> listByIDs(Collection<Long> ids);
 
     /**
@@ -132,4 +132,10 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      */
     void delete(List<TechId> sampleIds, PersonPE registrator, String reason)
             throws DataAccessException;
+
+    /**
+     * lists all children ids for a set of trashed samples.
+     */
+    public Set<TechId> listChildrenForTrashedSamples(Collection<TechId> parentIds);
+
 }

@@ -128,13 +128,13 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         @Override
                         public Collection<TechId> listAction(List<TechId> entities)
                         {
-                            return sampleDAO.listSampleIdsByParentIds(entities);
+                            return sampleDAO.listChildrenForTrashedSamples(entities);
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
         trashSamples(batchOperation.getResults());
     }
-    
+
     private void trashSampleDependentComponents(List<TechId> sampleIds)
     {
         final ISampleDAO sampleDAO = getSampleDAO();

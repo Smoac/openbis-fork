@@ -567,14 +567,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     private static String createDeleteChildrenConnectionsSQL()
     {
-        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE + " WHERE data_id_parent "
-                + SQLBuilder.inEntityIds();
+        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE
+                + " WHERE data_id_parent " + SQLBuilder.inEntityIds();
     }
 
     private static String createDeleteParentConnectionsSQL()
     {
-        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_TABLE + " WHERE data_id_child "
-                + SQLBuilder.inEntityIds();
+        return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE
+                + " WHERE data_id_child " + SQLBuilder.inEntityIds();
     }
 
     private static String createDeleteComponentConnectionsSQL()

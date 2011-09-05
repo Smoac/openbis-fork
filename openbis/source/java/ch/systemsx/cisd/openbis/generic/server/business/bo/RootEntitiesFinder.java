@@ -23,126 +23,119 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DeletedEntityTranslator;
 
 /**
- * Helper class for finding the root entities of entities belonging to the same deletion event.
- * It is assumed that experiments are added before samples which are added before data sets.
- *
+ * Helper class for finding the root entities of entities belonging to the same deletion event. It
+ * is assumed that experiments are added before samples which are added before data sets.
+ * 
  * @author Franz-Josef Elmer
+ * @author Kaloyan Enimanev
  */
 final class RootEntitiesFinder
 {
-    private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+    private List<DeletedExperimentPE> experiments = new ArrayList<DeletedExperimentPE>();
+
     private Set<Long> experimentIDs = new HashSet<Long>();
-    private List<SamplePE> samples = new ArrayList<SamplePE>();
+
+    private List<DeletedSamplePE> samples = new ArrayList<DeletedSamplePE>();
+
     private Set<Long> sampleIDs = new HashSet<Long>();
-    private List<DataPE> dataSets = new ArrayList<DataPE>();
-    
+
+    private List<DeletedDataPE> dataSets = new ArrayList<DeletedDataPE>();
+
     void addEntity(IDeletablePE entity)
     {
-        if (entity instanceof ExperimentPE)
+        if (entity instanceof DeletedExperimentPE)
         {
-            addExperiment((ExperimentPE) entity);
+            addExperiment((DeletedExperimentPE) entity);
         }
-        if (entity instanceof SamplePE)
+        if (entity instanceof DeletedSamplePE)
         {
-            addSample((SamplePE) entity);
+            addSample((DeletedSamplePE) entity);
         }
-        if (entity instanceof DataPE)
+        if (entity instanceof DeletedDataPE)
         {
-            addDataSet((DataPE) entity);
+            addDataSet((DeletedDataPE) entity);
         }
     }
-    
-    private void addExperiment(ExperimentPE experiment)
+
+    private void addExperiment(DeletedExperimentPE experiment)
     {
         experiments.add(experiment);
         experimentIDs.add(experiment.getId());
     }
-    
-    private void addSample(SamplePE sample)
+
+    private void addSample(DeletedSamplePE sample)
     {
         samples.add(sample);
         sampleIDs.add(sample.getId());
     }
-    
-    private void addDataSet(DataPE dataSet)
+
+    private void addDataSet(DeletedDataPE dataSet)
     {
-        ExperimentPE experiment = dataSet.getExperiment();
-        if (experiment != null && experimentIDs.contains(experiment.getId()))
+        if (experimentIDs.contains(dataSet.getExperimentId()))
         {
             return;
         }
-        SamplePE sample = dataSet.tryGetSample();
-        if (sample != null && sampleIDs.contains(sample.getId()))
+        if (sampleIDs.contains(dataSet.getSampleId()))
         {
             return;
         }
         dataSets.add(dataSet);
     }
-    
+
     void addRootEntitiesTo(Deletion deletion)
     {
-        Collections.sort(experiments, new Comparator<ExperimentPE>()
-            {
-                public int compare(ExperimentPE e1, ExperimentPE e2)
-                {
-                    return e1.getIdentifier().compareTo(e2.getIdentifier());
-                }
-            });
-        for (ExperimentPE experiment : experiments)
+        Collections.sort(experiments, createIdentifierComparator());
+        for (DeletedExperimentPE experiment : experiments)
         {
-            deletion.addDeletedEntity(ExperimentTranslator.translate(experiment, ""));
+            deletion.addDeletedEntity(DeletedEntityTranslator.translate(experiment));
         }
-        List<SamplePE> rootSamples = findRootSamples();
-        Collections.sort(rootSamples, new Comparator<SamplePE>()
-                {
-                    public int compare(SamplePE s1, SamplePE s2)
-                    {
-                        return s1.getIdentifier().compareTo(s2.getIdentifier());
-                    }
-                });
-        for (SamplePE sample : rootSamples)
+        List<DeletedSamplePE> rootSamples = findRootSamples();
+        Collections.sort(rootSamples, createIdentifierComparator());
+        for (DeletedSamplePE sample : rootSamples)
         {
-            deletion.addDeletedEntity(SampleTranslator.translate(sample, ""));
+            deletion.addDeletedEntity(DeletedEntityTranslator.translate(sample));
         }
-        Collections.sort(dataSets, new Comparator<DataPE>()
-                {
-                    public int compare(DataPE d1, DataPE d2)
-                    {
-                        return d1.getIdentifier().compareTo(d2.getIdentifier());
-                    }
-                });
-        for (DataPE dataSet : dataSets)
+        Collections.sort(dataSets, createIdentifierComparator());
+        for (DeletedDataPE dataSet : dataSets)
         {
-            deletion.addDeletedEntity(DataSetTranslator.translate(dataSet, ""));
+            deletion.addDeletedEntity(DeletedEntityTranslator.translate(dataSet));
         }
     }
-    
-    private List<SamplePE> findRootSamples()
+
+    Comparator<IIdentifierHolder> createIdentifierComparator()
     {
-        List<SamplePE> rootSamples = new ArrayList<SamplePE>();
-        for (SamplePE sample : samples)
+        return new Comparator<IIdentifierHolder>()
+            {
+                public int compare(IIdentifierHolder d1, IIdentifierHolder d2)
+                {
+                    return d1.getIdentifier().compareTo(d2.getIdentifier());
+                }
+            };
+    }
+
+    private List<DeletedSamplePE> findRootSamples()
+    {
+        List<DeletedSamplePE> rootSamples = new ArrayList<DeletedSamplePE>();
+        for (DeletedSamplePE sample : samples)
         {
-            ExperimentPE experiment = sample.getExperiment();
-            if (experiment != null && experimentIDs.contains(experiment.getId()))
+            if (experimentIDs.contains(sample.getExperimentId()))
             {
                 continue;
             }
-            SamplePE container = sample.getContainer();
-            if (container != null && sampleIDs.contains(container.getId()))
+            if (sampleIDs.contains(sample.getContainerId()))
             {
                 continue;
             }
-            List<SamplePE> parents = sample.getParents();
+            List<Long> parents = sample.getParents();
             if (parents != null && atLeastOneDeleted(parents))
             {
                 continue;
@@ -151,17 +144,10 @@ final class RootEntitiesFinder
         }
         return rootSamples;
     }
-    
-    private boolean atLeastOneDeleted(List<SamplePE> parents)
+
+    private boolean atLeastOneDeleted(List<Long> parents)
     {
-        for (SamplePE sample : parents)
-        {
-            if (sampleIDs.contains(sample.getId()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return false == Collections.disjoint(sampleIDs, parents);
     }
-    
+
 }

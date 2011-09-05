@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.SAMPLE_RELATIONSHIPS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
+@Table(name = TableNames.SAMPLE_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.PARENT_SAMPLE_COLUMN, ColumnNames.CHILD_SAMPLE_COLUMN,
             ColumnNames.RELATIONSHIP_COLUMN }))
 public class SampleRelationshipPE implements Serializable

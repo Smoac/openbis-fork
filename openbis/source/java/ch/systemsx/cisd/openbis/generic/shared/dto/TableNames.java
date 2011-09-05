@@ -28,7 +28,9 @@ public final class TableNames
 
     public static final String CONTROLLED_VOCABULARY_TERM_TABLE = "controlled_vocabulary_terms";
 
-    public static final String DATA_SET_RELATIONSHIPS_TABLE = "data_set_relationships";
+    public static final String DATA_SET_RELATIONSHIPS_ALL_TABLE = "data_set_relationships_all";
+
+    public static final String DATA_SET_RELATIONSHIPS_VIEW = "data_set_relationships";
 
     public static final String DATA_SET_TYPES_TABLE = "data_set_types";
 
@@ -118,7 +120,9 @@ public final class TableNames
 
     public static final String SAMPLES_ALL_TABLE = "samples_all";
 
-    public static final String SAMPLE_RELATIONSHIPS_TABLE = "sample_relationships";
+    public static final String SAMPLE_RELATIONSHIPS_VIEW = "sample_relationships";
+
+    public static final String SAMPLE_RELATIONSHIPS_ALL_TABLE = "sample_relationships_all";
 
     public static final String RELATIONSHIP_TYPES_TABLE = "relationship_types";
 

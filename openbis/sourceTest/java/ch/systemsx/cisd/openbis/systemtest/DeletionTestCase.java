@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * @author Kaloyan Enimanev
@@ -83,7 +82,7 @@ public class DeletionTestCase extends SystemTestCase
     private List<Sample> registeredSamples;
 
     private List<DeletionPE> preExistingDeletions;
-    
+
     private Set<Long> preExistingDeletionIDs;
 
     @Autowired
@@ -125,7 +124,7 @@ public class DeletionTestCase extends SystemTestCase
         createComponentSample("E1", "S1", "S1.2");
         createComponentSample("E2", "S1", "S1.3");
         createChildSample("E1", "S1.2", "S1.2.1");
-        createChildSample("E2", "S1.2", "S1.2.2");
+        createChildSample("E1", "S1.2", "S1.2.2");
         createChildSample("E1", "S1.2.1", "S1.2.1.1");
         createChildSample("E2", "S1.2.1", "S1.2.1.2");
 
@@ -187,15 +186,12 @@ public class DeletionTestCase extends SystemTestCase
         commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
                 REASON, DeletionType.TRASH);
 
-        Experiment e1Deleted =
-                commonServer.getExperimentInfo(sessionToken,
-                        ExperimentIdentifierFactory.parse(e1.getIdentifier()));
-        assertNotNull("Experiment expected to be deleted: " + e1Deleted, e1Deleted.getDeletion());
-        assertSamplesDeleted(registeredSamples);
+        assertExperimentDoesNotExist(e1.getCode());
+        assertSamplesDoNotExist(registeredSamples);
 
         List<DeletionPE> deletions = listDeletions();
         assertEquals(1, deletions.size());
-        
+
         List<TableModelRowWithObject<Deletion>> deletionTable = getDeletionTable();
         List<ISerializableComparable> row = deletionTable.get(0).getValues();
         assertEquals("Experiment   /CISD/DEFAULT/E1 (COMPOUND_HCS)\n", row.get(2).toString());
@@ -217,7 +213,23 @@ public class DeletionTestCase extends SystemTestCase
         assertExperimentDoesNotExist(e1.getCode());
         assertSamplesDoNotExist(registeredSamples);
     }
-    
+
+    @Test
+    @NotTransactional
+    public void testDeletingChildMustNotBreakParent()
+    {
+        Sample s14 = findSampleByCode("S1.4");
+        final TechId sampleId = new TechId(s14);
+        // delete
+        commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
+                DeletionType.TRASH);
+
+        Sample s1 = findSampleByCode("S1");
+        SampleParentWithDerived retrievedFromDb =
+                commonServer.getSampleInfo(sessionToken, new TechId(s1));
+        assertNotNull(retrievedFromDb);
+    }
+
     @Test
     @NotTransactional
     public void testDeleteSampleS14()
@@ -230,7 +242,7 @@ public class DeletionTestCase extends SystemTestCase
 
         assertExperimentExists("E1");
         List<Sample> deletedSamples = getSamplesWithPrefix(s14.getCode());
-        assertSamplesDeleted(deletedSamples);
+        assertSamplesDoNotExist(deletedSamples);
 
         List<DeletionPE> deletions = listDeletions();
         assertEquals(1, deletions.size());
@@ -240,7 +252,7 @@ public class DeletionTestCase extends SystemTestCase
         assertEquals("Sample   /CISD/S1.4 (CELL_PLATE)\n", row.get(2).toString());
         assertEquals(REASON, row.get(3).toString());
         assertEquals(1, deletionTable.size());
-        
+
         // revert
         final TechId deletionId1 = TechId.create(deletions.get(0));
         commonServer.revertDeletions(sessionToken, Collections.singletonList(deletionId1));
@@ -271,17 +283,6 @@ public class DeletionTestCase extends SystemTestCase
             }
         }
         return rows;
-    }
-
-    private void assertSamplesDeleted(List<Sample> deletedSamples)
-    {
-        for (Sample sample : deletedSamples)
-        {
-            Sample s =
-                    commonServer.getSampleInfo(sessionToken, new TechId(sample.getId()))
-                            .getParent();
-            assertNotNull("Sample expected to be deleted: " + s, s.getDeletion());
-        }
     }
 
     private void assertExperimentExists(String expCode)

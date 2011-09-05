@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateO
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements IDeletionDAO
 {
+
+    private static final String ID = "id";
 
     private static final String DELETION_ID = "deletion.id";
 
@@ -294,5 +297,19 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     {
         scheduleDynamicPropertiesEvaluationForIds(getDynamicPropertyEvaluatorScheduler(),
                 entityKind.getEntityClass(), ids);
+    }
+
+    public List<TechId> findTrashedDataSetIds(List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.DATA_SET);
+    }
+
+    public List<? extends IDeletablePE> listDeletedEntities(EntityKind entityKind,
+            List<TechId> entityIds)
+    {
+        DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
+        List<Long> ids = TechId.asLongs(entityIds);
+        criteria.add(Restrictions.in(ID, ids));
+        return cast(getHibernateTemplate().findByCriteria(criteria));
     }
 }

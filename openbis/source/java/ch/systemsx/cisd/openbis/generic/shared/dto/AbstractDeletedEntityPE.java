@@ -24,7 +24,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -42,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * @author Piotr Buczek
  */
 @MappedSuperclass
-abstract class AbstractDeletedEntityPE implements IIdAndCodeHolder, IDeletablePE, Serializable
+abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -69,9 +68,6 @@ abstract class AbstractDeletedEntityPE implements IIdAndCodeHolder, IDeletablePE
     {
         this.code = code;
     }
-
-    @Transient
-    abstract String getPermId();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)

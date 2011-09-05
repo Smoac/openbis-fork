@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
  * @author Piotr Buczek
  */
-public interface IDeletablePE
+public interface IDeletablePE extends IEntityInformationHolderDTO, IIdentifierHolder
 {
     public DeletionPE getDeletion();
 }

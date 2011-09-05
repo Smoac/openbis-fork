@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -33,9 +36,12 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -53,6 +59,12 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
 
     private String permIdInternal;
 
+    private ExperimentIdentifier experimentIdentifier;
+
+    private ProjectPE project;
+
+    private ExperimentTypePE experimentType;
+
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_SEQUENCE)
@@ -68,8 +80,7 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
     }
 
     @Transient
-    @Override
-    String getPermId()
+    public String getPermId()
     {
         return getPermIdInternal();
     }
@@ -86,6 +97,63 @@ public class DeletedExperimentPE extends AbstractDeletedEntityPE
     void setPermIdInternal(String permIdInternal)
     {
         this.permIdInternal = permIdInternal;
+    }
+
+    @Transient
+    public final EntityTypePE getEntityType()
+    {
+        return getExperimentType();
+    }
+
+    @Transient
+    public final EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN, updatable = false)
+    public ExperimentTypePE getExperimentType()
+    {
+        return experimentType;
+    }
+
+    public void setExperimentType(final ExperimentTypePE experimentType)
+    {
+
+        this.experimentType = experimentType;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = ValidationMessages.PROJECT_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = false)
+    private ProjectPE getProjectInternal()
+    {
+        return project;
+    }
+
+    @Private
+    void setProjectInternal(final ProjectPE project)
+    {
+        this.project = project;
+    }
+
+    @Transient
+    public ProjectPE getProject()
+    {
+        return getProjectInternal();
+    }
+
+    @Transient
+    public String getIdentifier()
+    {
+        if (experimentIdentifier == null)
+        {
+            experimentIdentifier =
+                    new ExperimentIdentifier(getProject().getIdentifier(), getCode());
+        }
+        return experimentIdentifier.toString();
     }
 
     //

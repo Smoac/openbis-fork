@@ -263,7 +263,7 @@ public final class TrashBOTest extends AbstractBOTest
                     // trash dependent children
                     List<TechId> childrenIds = TechId.createList(50, 51);
                     Set<TechId> childrenIdSet = new HashSet<TechId>(childrenIds);
-                    one(sampleDAO).listSampleIdsByParentIds(with(sampleIdsMatcher));
+                    one(sampleDAO).listChildrenForTrashedSamples(with(sampleIdsMatcher));
                     will(returnValue(childrenIdSet));
                     one(deletionDAO).trash(EntityKind.SAMPLE, new ArrayList<TechId>(childrenIdSet),
                             deletion);

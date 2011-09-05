@@ -79,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.EXPERIMENTS_ALL_TABLE, uniqueConstraints =
+@Table(name = TableNames.EXPERIMENTS_VIEW, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed(index = "ExperimentPE")

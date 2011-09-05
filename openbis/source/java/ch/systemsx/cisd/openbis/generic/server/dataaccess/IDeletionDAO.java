@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -70,6 +71,11 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     /** Returns list of codes of data sets moved to trash in specified deletions. */
     List<String> findTrashedDataSetCodes(List<TechId> deletionIds);
 
+    /** Returns list of codes of data sets moved to trash in specified deletions. */
+    List<TechId> findTrashedDataSetIds(List<TechId> deletionIds);
+
     /** Returns list of deletions with given ids */
     List<DeletionPE> findAllById(List<Long> ids);
+
+    List<? extends IDeletablePE> listDeletedEntities(EntityKind entityKind, List<TechId> entityIds);
 }

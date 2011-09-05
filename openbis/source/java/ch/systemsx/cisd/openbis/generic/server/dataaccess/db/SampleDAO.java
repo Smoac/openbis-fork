@@ -415,7 +415,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             final TechId relationship)
     {
         final String query =
-                "select sample_id_parent from sample_relationships where sample_id_child in (:ids) and relationship_id = :r ";
+                "select sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
+                        + " where sample_id_child in (:ids) and relationship_id = :r ";
         @SuppressWarnings("unchecked")
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
@@ -437,11 +438,20 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return result;
     }
 
-    public Set<TechId> listSampleIdsByParentIds(final Collection<TechId> parents)
+    public Set<TechId> listSampleIdsByParentIds(Collection<TechId> parentIds)
+    {
+        return listChildrenIds(parentIds, TableNames.SAMPLE_RELATIONSHIPS_VIEW);
+    }
+
+    public Set<TechId> listChildrenForTrashedSamples(Collection<TechId> parentIds)
+    {
+        return listChildrenIds(parentIds, TableNames.SAMPLE_RELATIONSHIPS_ALL_TABLE);
+    }
+
+    private Set<TechId> listChildrenIds(final Collection<TechId> parents, String tableName)
     {
         final String query =
-                "SELECT sample_id_child FROM " + TableNames.SAMPLE_RELATIONSHIPS_TABLE
-                        + " WHERE sample_id_parent IN (:ids)";
+                "SELECT sample_id_child FROM " + tableName + " WHERE sample_id_parent IN (:ids)";
 
         @SuppressWarnings("unchecked")
         final List<? extends Number> results =
@@ -499,4 +509,5 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         return operationLog;
     }
+
 }
