@@ -134,6 +134,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
@@ -1834,6 +1835,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     } else
                     {
                         showModificationsBar();
+                        if (value instanceof VocabularyTerm)
+                        {
+                            VocabularyTerm term = (VocabularyTerm) value;
+                            value = term.getCode();
+                        }
                         tableModificationsManager.handleEditingEvent(model, columnID,
                                 StringUtils.toStringOrNull(value));
                     }
@@ -1850,14 +1856,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         return false;
     }
-    
+
     /**
      * Shows a message that the table cell of specified column and row (model) isn't editable.
      */
     protected void showNonEditableTableCellMessage(M model, String columnID)
     {
-        MessageBox.info("Not Editable",
-                "Sorry, this table cell isn't editable", null);
+        MessageBox.info("Not Editable", "Sorry, this table cell isn't editable", null);
     }
 
     /**
