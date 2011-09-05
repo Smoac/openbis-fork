@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -126,14 +126,13 @@ public class MaterialUploadSectionsParser
                                     loweredFileName));
                 }
                 int materialCounter = 0;
-                Map<String, String> defaults = Collections.emptyMap();
+                Map<String, String> defaults = new HashMap<String, String>();
                 for (ExcelFileSection fs : materialSections)
                 {
                     if (fs.getSectionName().equals("DEFAULT"))
                     {
-                        defaults =
-                                Collections.unmodifiableMap(ExcelFileLoader.parseDefaults(
-                                        fs.getSheet(), fs.getBegin(), fs.getEnd()));
+                        defaults.putAll(ExcelFileLoader.parseDefaults(fs.getSheet(), fs.getBegin(),
+                                fs.getEnd()));
                     } else
                     {
                         MaterialType typeFromSection = new MaterialType();
@@ -180,14 +179,12 @@ public class MaterialUploadSectionsParser
                             multipartFile.getInputStream(), materialType.getCode()));
                 }
                 int materialCounter = 0;
-                Map<String, String> defaults = Collections.emptyMap();
+                Map<String, String> defaults = new HashMap<String, String>();
                 for (FileSection fs : materialSections)
                 {
                     if (fs.getSectionName().equals("DEFAULT"))
                     {
-                        defaults =
-                                Collections.unmodifiableMap(TabFileLoader.parseDefaults(fs
-                                        .getContentReader()));
+                        defaults.putAll(TabFileLoader.parseDefaults(fs.getContentReader()));
                     } else
                     {
                         Reader reader = fs.getContentReader();

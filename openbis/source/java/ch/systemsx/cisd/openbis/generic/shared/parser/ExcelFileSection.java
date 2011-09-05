@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -104,69 +105,58 @@ public class ExcelFileSection
         }
     }
 
+    public static List<ExcelFileSection> extractSectionsFromWorkBook(Workbook wb,
+            String excelSheetName)
+    {
+        LinkedList<ExcelFileSection> sections = new LinkedList<ExcelFileSection>();
+        List<ExcelFileSection> defaultSheetSections = null;
+
+        Sheet sheet = null;
+        String prefix = excelSheetName + "-";
+        for (int i = 0; i < wb.getNumberOfSheets(); i++)
+        {
+            String sheetName = wb.getSheetName(i);
+            if (excelSheetName.equalsIgnoreCase(sheetName))
+            {
+                sheet = wb.getSheetAt(i);
+                defaultSheetSections = extractSectionsFromDefaultSheet(sheet);
+            } else if (sheetName.startsWith(prefix))
+            {
+                String sectionName = sheetName.substring(prefix.length());
+                sheet = wb.getSheetAt(i);
+                if (SECTION_FILE_DEFAULT.equalsIgnoreCase(sectionName))
+                {
+                    sections.addFirst(new ExcelFileSection(sheet, sectionName, 0, sheet
+                            .getLastRowNum()));
+                } else
+                {
+                    sections.add(new ExcelFileSection(sheet, sectionName, 0, sheet.getLastRowNum()));
+                }
+            }
+        }
+
+        // default sheet sections must be at the end of the file
+        if (defaultSheetSections != null)
+        {
+            sections.addAll(defaultSheetSections);
+        }
+
+        return sections;
+    }
+
     public static List<ExcelFileSection> extractSections(InputStream stream, String excelSheetName,
             String fileName)
     {
-        List<ExcelFileSection> sections = new ArrayList<ExcelFileSection>();
         try
         {
             Workbook wb = getWorkBook(stream, fileName);
 
-            Sheet sheet = null;
             if (excelSheetName == null)
             {
-                sheet = wb.getSheetAt(0);
+                return extractSectionsFromDefaultSheet(wb.getSheetAt(0));
             } else
             {
-                for (int i = 0; i < wb.getNumberOfSheets(); i++)
-                {
-                    if (excelSheetName.equalsIgnoreCase(wb.getSheetName(i)))
-                    {
-                        sheet = wb.getSheetAt(i);
-                        break;
-                    }
-                }
-                if (sheet == null)
-                {
-                    return sections;
-                }
-            }
-            String sectionName = null;
-            Integer begin = null;
-            for (Row row : sheet)
-            {
-                String newSectionName = tryGetSectionName(row);
-                if (newSectionName != null)
-                {
-                    if (sectionName != null && begin != null)
-                    {
-                        if (sectionName.equals(newSectionName))
-                        {
-                            continue;
-                        }
-                        if (newSectionName.equals(SECTION_FILE_DEFAULT))
-                        {
-                            continue;
-                        } else
-                        {
-                            sections.add(new ExcelFileSection(sheet, sectionName, begin, row
-                                    .getRowNum() - 1));
-                            sectionName = newSectionName;
-                            begin = row.getRowNum() + 1;
-                        }
-                    } else
-                    {
-                        sectionName = newSectionName;
-                        begin = row.getRowNum() + 1;
-                    }
-                } else if (sectionName == null || begin == null)
-                {
-                    throw new UserFailureException("Discovered the unnamed section in the file");
-                }
-                if (row.getRowNum() == sheet.getLastRowNum())
-                {
-                    sections.add(new ExcelFileSection(sheet, sectionName, begin, row.getRowNum()));
-                }
+                return extractSectionsFromWorkBook(wb, excelSheetName);
             }
         } catch (IOException e)
         {
@@ -175,6 +165,55 @@ public class ExcelFileSection
         {
             IOUtils.closeQuietly(stream);
         }
+    }
+
+    private static final List<ExcelFileSection> extractSectionsFromDefaultSheet(Sheet sheet)
+    {
+        List<ExcelFileSection> sections = new ArrayList<ExcelFileSection>();
+
+        if (sheet == null)
+        {
+            return sections;
+        }
+
+        String sectionName = null;
+        Integer begin = null;
+        for (Row row : sheet)
+        {
+            String newSectionName = tryGetSectionName(row);
+            if (newSectionName != null)
+            {
+                if (sectionName != null && begin != null)
+                {
+                    if (sectionName.equals(newSectionName))
+                    {
+                        continue;
+                    }
+                    if (newSectionName.equals(SECTION_FILE_DEFAULT))
+                    {
+                        continue;
+                    } else
+                    {
+                        sections.add(new ExcelFileSection(sheet, sectionName, begin, row
+                                .getRowNum() - 1));
+                        sectionName = newSectionName;
+                        begin = row.getRowNum() + 1;
+                    }
+                } else
+                {
+                    sectionName = newSectionName;
+                    begin = row.getRowNum() + 1;
+                }
+            } else if (sectionName == null || begin == null)
+            {
+                throw new UserFailureException("Discovered the unnamed section in the file");
+            }
+            if (row.getRowNum() == sheet.getLastRowNum())
+            {
+                sections.add(new ExcelFileSection(sheet, sectionName, begin, row.getRowNum()));
+            }
+        }
+
         return sections;
     }
 
