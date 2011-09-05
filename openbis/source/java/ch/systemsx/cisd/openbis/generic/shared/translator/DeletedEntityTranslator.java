@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -68,66 +69,6 @@ public class DeletedEntityTranslator
 
             default:
                 throw new IllegalArgumentException("Invalid deleted entity" + entityKind);
-        }
-    }
-
-    private static final class DeletedEntity implements IEntityInformationHolderWithIdentifier
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private final Long id;
-
-        private final String code;
-
-        private final String permId;
-
-        private final String identifier;
-
-        private final BasicEntityType entityType;
-
-        private final EntityKind entityKind;
-
-        DeletedEntity(Long id, String code, String permId, String identifier,
-                BasicEntityType entityType, EntityKind entityKind)
-        {
-            super();
-            this.id = id;
-            this.code = code;
-            this.permId = permId;
-            this.identifier = identifier;
-            this.entityType = entityType;
-            this.entityKind = entityKind;
-        }
-
-        public String getIdentifier()
-        {
-            return identifier;
-        }
-
-        public BasicEntityType getEntityType()
-        {
-            return entityType;
-        }
-
-        public EntityKind getEntityKind()
-        {
-            return entityKind;
-        }
-
-        public Long getId()
-        {
-            return id;
-        }
-
-        public String getCode()
-        {
-            return code;
-        }
-
-        public String getPermId()
-        {
-            return permId;
         }
     }
 
