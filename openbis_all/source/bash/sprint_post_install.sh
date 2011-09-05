@@ -62,6 +62,9 @@ function restore_config_files {
   if  [ -f ~openbis/config/datastore_server.conf ]; then
   	cp ~openbis/config/datastore_server.conf ~openbis/sprint/datastore_server/etc/
   fi  
+  if  [ -f ~openbis/config/genericCommonContext.xml ]; then
+    cp ~openbis/config/genericCommonContext.xml ~openbis/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes
+  fi
 }
 
 function add_yeastx_plugin {
