@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETER;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.ENTITIES;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.DELETION_DATE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.ENTITIES;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DeletionGridColumnIDs.REASON;
 
 import java.util.List;
@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion>
 {
+    private static final int MAX_NUMBER = 5;
+
     public DeletionsProvider(ICommonServer commonServer, String sessionToken)
     {
         super(commonServer, sessionToken);
@@ -92,18 +94,28 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
         }
         return builder.toString();
     }
-    
+
     private String createList(List<IEntityInformationHolderWithProperties> deletedEntities,
             EntityKind entityKind)
     {
         StringBuilder builder = new StringBuilder();
+        int count = 0;
         for (IEntityInformationHolderWithProperties entity : deletedEntities)
         {
             if (entity.getEntityKind() == entityKind)
             {
-                builder.append("  ").append(entity.getIdentifier()).append(" (");
-                builder.append(entity.getEntityType().getCode()).append(")\n");
+                if (count < MAX_NUMBER)
+                {
+                    builder.append("  ").append(entity.getIdentifier()).append(" (");
+                    builder.append(entity.getEntityType().getCode()).append(")\n");
+                }
+                count++;
             }
+        }
+        int numberOfAdditionalEntities = count - MAX_NUMBER;
+        if (numberOfAdditionalEntities > 0)
+        {
+            builder.append("  and ").append(numberOfAdditionalEntities).append(" more");
         }
         return builder.toString();
     }
