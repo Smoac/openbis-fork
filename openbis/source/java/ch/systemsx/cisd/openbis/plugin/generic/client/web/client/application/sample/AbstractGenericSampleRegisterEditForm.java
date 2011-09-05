@@ -323,13 +323,15 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                                 .withSuffix(getSampleTypeCode()));
         experimentField = createExperimentField();
         experimentField.getChooserField().setId(getId() + ID_SUFFIX_EXPERIMENT);
-        experimentField.getChooserField().addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
-            {
-                public void entityChosen(TableModelRowWithObject<Experiment> entity)
-                {
-                    groupSelectionWidget.setValue(new SpaceModel(entity.getObjectOrNull().getProject().getSpace()));
-                }
-            });
+        experimentField.getChooserField().addChosenEntityListener(
+                new IChosenEntityListener<TableModelRowWithObject<Experiment>>()
+                    {
+                        public void entityChosen(TableModelRowWithObject<Experiment> entity)
+                        {
+                            groupSelectionWidget.setValue(new SpaceModel(entity.getObjectOrNull()
+                                    .getProject().getSpace()));
+                        }
+                    });
         attachmentsManager = new AttachmentsFileFieldManager(attachmentsSessionKey, viewContext);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
