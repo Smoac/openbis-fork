@@ -11,7 +11,6 @@
 #   If one of these folders do not exists there will be no start up.
 #
 set -o nounset
-set -o errexit
 
 if [ $# -ne 1 ]; then
     echo "Usage: servers-startup.sh <servers folder>"
