@@ -2,11 +2,18 @@
 
 """
 Generate a plate.
+
+Usage: generate-test-plate.py [<plate code>]
+
+It creates a folder named <plate code> (default PLATONIC) with colorful images. It can be dropped
+into a dropbox with Python script data-set-handler-plate.py.
+
 """
 
 import imagegen
 import os
 import shutil
+import sys
 
 def overlayTests(sampleCode):
   rootDir = "targets/generated-images"
@@ -36,7 +43,10 @@ def recreateDir(dir):
     shutil.rmtree(dir)
   os.mkdir(dir)
 
-recreateDir("PLATONIC")
+plateName = "PLATONIC"
+if len(sys.argv) > 1:
+  plateName = sys.argv[1]
+recreateDir(plateName)
 config = imagegen.PlateGeneratorConfig()
 
 # Alternative Configurations
@@ -45,4 +55,4 @@ config = imagegen.PlateGeneratorConfig()
 #config.is_split = True
 
 generator = imagegen.PlateGenerator(config)
-generator.generate_raw_images("PLATONIC")
+generator.generate_raw_images(plateName	)

@@ -6,6 +6,7 @@ A module with classes and functions for generating test images, plates, and over
 
 import canvas
 import string
+import random
 
 def generate_tile_description(tile, time = None, depth = None):
     """
@@ -99,7 +100,7 @@ class WellGenerator:
                 for depth in self.config.depth_points:
                     desc = self.config.tile_description_generator(tile, time, depth)
                     file_name = self._generate_overlay_file_name(self.well, overlay_name, desc)
-                    self._generate_overlay(file_name, overlay_name, x, y)        
+                    self._generate_overlay(file_name, overlay_name + '-' + self.well + '-' + desc, x, y)        
         
     def _generate_tile(self, filename, tile_desc, r, g, b):
         tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
@@ -117,9 +118,10 @@ class WellGenerator:
         else:
             drawRect(tile_canvas, 1, 0, 0, 20) # red
             drawRect(tile_canvas, 0, 1, 0, 70) # green
-            drawRect(tile_canvas, 0, 0, 1, 120) # blue
+            drawRect(tile_canvas, 0, 0, 1, random.randint(120, 200)) # blue
     
         # text annotation
+        drawText(tile_canvas, 5, self.config.image_size - 70, self.directory)
         drawText(tile_canvas, 5, self.config.image_size / 2, tile_desc)
         drawText(tile_canvas, 5, 5, self.well)
 
