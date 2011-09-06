@@ -3,8 +3,8 @@
 import commonDropbox
 #reload(commonDropbox)
 
-datasetType = 'HCS_ANALYSIS_IMAGE_ACQUISITION_METADATA'
-fileType = 'CSV'
+datasetType = 'HCS_CHANNEL_QUALITY_CHECK_IMAGES'
+fileType = 'TIFF'
 
 # Global variable storing AbstractPropertiesParser
 datasetMetadataParser = None

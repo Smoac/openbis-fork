@@ -33,7 +33,13 @@ def register(incomingPath):
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
     imageDataset.setConvertTransformationCliArguments("-contrast-stretch 0 -edge 1 -threshold 1 -transparent black")
-    imageDataset.setUseImageMagicToGenerateThumbnails(True)
+    # Delete 2 lines below after upgrade to S111
+    imageDataset.setUseImageMagicToGenerateThumbnails(False)
+    imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/24.0)
+    # Uncomment 2 lines below after upgrade to S111
+    #imageDataset.setUseImageMagicToGenerateThumbnails(True)
+    #imageDataset.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+    
 
     commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
           

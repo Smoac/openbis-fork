@@ -88,7 +88,7 @@ class AbstractMetadataParser(AbstractPropertiesParser):
 # --- concrete parser classes ----------------------
 
 class AcquiredDatasetMetadataParser(AbstractMetadataParser):
-	PLATE_CODE_PRPOPERTY = "barcode"
+	PLATE_CODE_PROPERTY = "barcode"
 	INSTRUMENT_PROPERTY = "instrument.id"
 	TIMESTAMP_PROPERTY = "acquisition.timestamp"
 	
@@ -103,11 +103,11 @@ class AcquiredDatasetMetadataParser(AbstractMetadataParser):
 		return properties
 	
 	def getPlateCode(self):
-		return self.get(self.PLATE_CODE_PRPOPERTY)
+		return self.get(self.PLATE_CODE_PROPERTY)
 
 class DerivedDatasetMetadataParser(AbstractMetadataParser):
 	WORKFLOW_FILE_PREFIX = "workflow_"
-	PARENT_DATSASET_PERMID_PRPOPERTY = "storage_provider.parent.dataset.id"
+	PARENT_DATASET_PERMID_PRPOPERTY = "storage_provider.parent.dataset.id"
 	DATASET_TYPE_PROPERTY = "dataset.type"
 	WORKFLOW_NAME_PROPERTY = "ibrain2.workflow.name"
 	WORKFLOW_AUTHOR_PROPERTY = "ibrain2.workflow.author"
@@ -122,9 +122,12 @@ class DerivedDatasetMetadataParser(AbstractMetadataParser):
 		tokens = basename.split("_")
 		if len(tokens) < 3:
 			raise Exception("Cannot parse workflow name and author from: " + workflowFile)
-		self._workflowName = tokens[1]
-		self._workflowAuthor = tokens[2]
+		self._workflowAuthor = tokens[1]
+		self._workflowName = tokens[2]
 
+	def getAnalysisProcedure(self):
+		return self._workflowName + " (" + self._workflowAuthor + ")"
+	
 	def getDatasetPropertiesIter(self):
 		properties = super(DerivedDatasetMetadataParser,self).getDatasetPropertiesIter()
 		properties.append((self.WORKFLOW_NAME_PROPERTY, self._workflowName))
@@ -132,7 +135,7 @@ class DerivedDatasetMetadataParser(AbstractMetadataParser):
 		return properties
 		
 	def getParentDatasetPermId(self):
-		return self.get(self.PARENT_DATSASET_PERMID_PRPOPERTY)
+		return self.get(self.PARENT_DATASET_PERMID_PRPOPERTY)
 	
 	def getDatasetType(self):
 		return self.get(self.DATASET_TYPE_PROPERTY)
@@ -152,8 +155,10 @@ class AssayParser(AbstractPropertiesParser):
 		AbstractPropertiesParser.__init__(self, incoming, self._findFile(incoming, self.ASSAY_FILE_PREFIX))
 
 class RegistrationConfirmationUtils(object):
-	""" name of the registration confirmation directory """
+	""" name of the registration confirmation directory for datasets registered by iBrain2 """
 	CONFIRMATION_DIRECTORY = "registration-status"
+	""" name of the registration confirmation directory for datasets registered not by iBrain2 """
+	IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY = "ibrain-agnostic-registration-confirmation"
 	""" name of the directory where duplicated dataset are moved """
 	DUPLICATED_DATASETS_DIRECTORY = "duplicated-datasets"
 	
@@ -163,7 +168,8 @@ class RegistrationConfirmationUtils(object):
 	ERROR_MSG_PROPERTY = "storage_provider.message"
 
 	OPENBIS_DATASET_ID_PROPERTY = "storage_provider.dataset.id"
-	IBRAIN2_STATUS_FILE_PREFIX = "ibrain2_dataset_id_"
+	IBRAIN2_INTERNAL_STATUS_FILE_PREFIX = "ibrain2_dataset_id_"
+	IBRAIN2_EXTERNAL_STATUS_FILE_PREFIX = "ibrain2_external_dataset_id_"
 	IBRAIN2_STATUS_FILE_SUFFIX = ".properties"
 
 	""" Returns a directory 3 levels above the incoming directory """
@@ -173,9 +179,24 @@ class RegistrationConfirmationUtils(object):
 	def _getDuplicatedDatasetsDir(self, incoming):
 		return self._getTopLevelDir(incoming) + "/" + self.DUPLICATED_DATASETS_DIRECTORY
 
+	def _getExternalDatasetsConfirmationDir(self, incoming):
+		return self._getTopLevelDir(incoming) + "/" + self.IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY
+
 	def _ensureDirExists(self, dir):
 		if not os.path.exists(dir):
 			os.mkdir(dir)
+	
+	"""
+	Create a confirmation file for datasets which are registered not by iBrain2
+	"""
+	def createExternalDatasetConfirmation(self, openbisDatasetId, incoming):
+		fileContent = self._prop(self.STATUS_PROPERTY, self.STATUS_OK)
+		fileContent += self._prop(self.OPENBIS_DATASET_ID_PROPERTY, openbisDatasetId)
+		fileContent += self._prop("dataset_type", "x")
+		fileContent += self._prop("assay", "x")
+						
+		confirmationFile = self._getExternalDatasetStatusFilePath(openbisDatasetId, incoming)
+		self._writeFile(confirmationFile, fileContent)
 	
 	""" 
 	Moves the incoming directory to the folder with duplicated datasets. 
@@ -191,21 +212,20 @@ class RegistrationConfirmationUtils(object):
 		destDir = duplicatedTypedDir + "/" + File(incomingPath).getName()
 		os.rename(incomingPath, destDir)
 		return destDir
-		
-	def _getDestinationDir(self, incoming):
-		return self._getTopLevelDir(incoming) + "/" + self.CONFIRMATION_DIRECTORY
-	
-	def _getConfirmationFileName(self, ibrain2DatasetId):
-		return self.IBRAIN2_STATUS_FILE_PREFIX + ibrain2DatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
 
-	def _getStatusFilePath(self, ibrain2DatasetId, incoming):
-		return self._getDestinationDir(incoming) + "/" + self._getConfirmationFileName(ibrain2DatasetId)
+	def _getInternalDatasetStatusFilePath(self, ibrain2DatasetId, incoming):
+		fileName = self.IBRAIN2_INTERNAL_STATUS_FILE_PREFIX + ibrain2DatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
+		return self._getTopLevelDir(incoming) + "/" + self.CONFIRMATION_DIRECTORY + "/" + fileName
+		
+	def _getExternalDatasetStatusFilePath(self, openbisDatasetId, incoming):
+		fileName = self.IBRAIN2_EXTERNAL_STATUS_FILE_PREFIX + openbisDatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
+		return self._getTopLevelDir(incoming) + "/" + self.IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY + "/" + fileName
 
 	def _prop(self, name, value):
 		return "" + name + " = " + str(value) + "\n"
 	
 	def _writeConfirmationFile(self, ibrain2DatasetId, fileContent, incoming):
-		confirmationFile = self._getStatusFilePath(ibrain2DatasetId, incoming)
+		confirmationFile = self._getInternalDatasetStatusFilePath(ibrain2DatasetId, incoming)
 		self._writeFile(confirmationFile, fileContent)
 		
 	def _writeFile(self, file, fileContent):
@@ -317,10 +337,18 @@ class DuplicatedChildrenDatasetException(Exception):
 		return "Dataset "+ self.parentDataSetCode +" has already children of type "+self.datasetTypeCode+" registered."
 
 def createSuccessStatus(iBrain2DatasetId, dataset, incomingPath):
-	datasetCode = dataset.getDataSetCode()
-	RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
+	#commented by vincent 09-08-2011
+	#datasetCode = dataset.getDataSetCode()
+	#RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
+	pass
 
 def createFailureStatus(datasetMetadataParser, throwable, incoming):
+	incomingPath = incoming.getPath()
+	if None == datasetMetadataParser:
+		errorMsg = "Cannot find '%s' file in the incoming folder '%s'" % (AbstractMetadataParser.METADATA_FILE, incomingPath)
+		RegistrationConfirmationUtils().createFailureStatus("unknown", errorMsg, incomingPath)
+		return
+	
 	datasetMetadataParser.recreateMetadataFile(incoming)
 	
 	iBrain2DatasetId = datasetMetadataParser.getIBrain2DatasetId()
@@ -337,7 +365,7 @@ def createFailureStatus(datasetMetadataParser, throwable, incoming):
 	except AttributeError:
 	    pass
 	
-	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, msg, incoming.getPath())
+	RegistrationConfirmationUtils().createFailureStatus(iBrain2DatasetId, msg, incomingPath)
 	
 """
 Returns: all children of 'typeCode' type having dataset with code 'parentDataSetCode' as a parent
@@ -358,7 +386,45 @@ def ensureOrDieNoChildrenOfType(dataSetCode, typeCode, incomingPath, transaction
 	if len(children) > 0:
 		raise DuplicatedChildrenDatasetException(dataSetCode, typeCode, incomingPath)
 
-   
+# Specific code which defines the feature vector values for the dataset.
+# It assumes that values are in the matrix, where first row and column contain well labels.
+# Parameters
+#    incomingCsvPath: path which points to the incoming CSV file
+# Returns
+#    featuresBuilder with defined features
+def defineFeaturesFromCsvMatrix(incomingCsvFile, factory):
+    SEPARATOR = ","
+    
+    featuresBuilder = factory.createFeaturesBuilder()
+    file = open(incomingCsvFile)
+    for header in file:
+        headerTokens = header.split(SEPARATOR)
+        featureCode = headerTokens[0]
+        featureValues = featuresBuilder.defineFeature(featureCode)
+        for rowValues in file:
+            rowTokens = rowValues.split(SEPARATOR)
+            rowLabel = rowTokens[0].strip()
+            if len(rowLabel) == 0:
+                break
+            for column in range(1,len(headerTokens)):
+                value = rowTokens[column].strip()
+                well = rowLabel + str(column)
+                featureValues.addValue(well, value)
+    return featuresBuilder
+
+def registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMetadataParser, datasetTypeCode):
+    incomingCsvFile = findCSVFile(incoming.getPath())
+
+    transaction = service.transaction()
+    featuresBuilder = defineFeaturesFromCsvMatrix(incomingCsvFile, factory)
+    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(featuresBuilder, incoming)
+    analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
+    analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
+    dataset = transaction.createNewDataSet(analysisRegistrationDetails)
+    dataset.setDataSetType(datasetTypeCode)
+    dataset.setFileFormatType('CSV')
+    registerDerivedDataset(state, transaction, dataset, incoming, datasetMetadataParser)
+    
 # -------------- TODO: remove tests
 
 TEST_DIR = "/Users/tpylak/main/src/screening-demo/biozentrum/dropboxes/ibrain2-dropboxes-test"

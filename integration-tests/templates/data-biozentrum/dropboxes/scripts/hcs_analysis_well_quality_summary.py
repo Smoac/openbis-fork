@@ -13,7 +13,7 @@ def rollback_service(service, throwable):
     commonDropbox.createFailureStatus(datasetMetadataParser, throwable, incoming)
     
 def findPerWellCSVFile(dir):
-    suffix = ".per-well.csv"
+    suffix = ".per-well-classified.csv"
     for file in os.listdir(dir):
             if file.endswith(suffix):
                     return dir + "/" + file
@@ -34,12 +34,15 @@ def register(incomingPath):
     datasetTypeCode = 'HCS_ANALYSIS_WELL_QUALITY_SUMMARY'
 
     transaction = service.transaction(incoming, factory)
-    commonDropbox.ensureOrDieNoChildrenOfType(openbisDatasetParent, datasetTypeCode, incomingPath, transaction)
+    #vincent 09-08-2011 added comment
+    #commonDropbox.ensureOrDieNoChildrenOfType(openbisDatasetParent, datasetTypeCode, incomingPath, transaction)
 
     configProps = getConfigurationProperties()
     incomingCsvFile = findPerWellCSVFile(incomingPath)
     analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(incomingCsvFile, configProps)
-
+    analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
+    analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
+    
     dataset = transaction.createNewDataSet(analysisRegistrationDetails)
     dataset.setDataSetType(datasetTypeCode)
     dataset.setFileFormatType('CSV')

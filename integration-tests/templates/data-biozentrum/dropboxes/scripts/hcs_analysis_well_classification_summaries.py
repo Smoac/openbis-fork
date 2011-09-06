@@ -12,7 +12,7 @@ def rollback_service(service, throwable):
     commonDropbox.createFailureStatus(datasetMetadataParser, throwable, incoming)
     
 if incoming.isDirectory():
-    datasetTypeCode = 'HCS_ANALYSIS_WELL_RESULTS_SUMMARIES'
+    datasetTypeCode = 'HCS_ANALYSIS_WELL_CLASSIFICATION_SUMMARIES'
     incomingPath = incoming.getPath()
     datasetMetadataParser = commonDropbox.DerivedDatasetMetadataParser(incomingPath)
     commonDropbox.registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMetadataParser, datasetTypeCode)
