@@ -158,7 +158,7 @@ class RegistrationConfirmationUtils(object):
 	""" name of the registration confirmation directory for datasets registered by iBrain2 """
 	CONFIRMATION_DIRECTORY = "registration-status"
 	""" name of the registration confirmation directory for datasets registered not by iBrain2 """
-	IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY = "ibrain-agnostic-registration-confirmation"
+	IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY = "ibrain-agnostic-registration-reports"
 	""" name of the directory where duplicated dataset are moved """
 	DUPLICATED_DATASETS_DIRECTORY = "duplicated-datasets"
 	
@@ -169,7 +169,7 @@ class RegistrationConfirmationUtils(object):
 
 	OPENBIS_DATASET_ID_PROPERTY = "storage_provider.dataset.id"
 	IBRAIN2_INTERNAL_STATUS_FILE_PREFIX = "ibrain2_dataset_id_"
-	IBRAIN2_EXTERNAL_STATUS_FILE_PREFIX = "ibrain2_external_dataset_id_"
+	IBRAIN2_EXTERNAL_STATUS_FILE_PREFIX = "ext_storage_dataset_id_"
 	IBRAIN2_STATUS_FILE_SUFFIX = ".properties"
 
 	""" Returns a directory 3 levels above the incoming directory """
@@ -189,11 +189,16 @@ class RegistrationConfirmationUtils(object):
 	"""
 	Create a confirmation file for datasets which are registered not by iBrain2
 	"""
-	def createExternalDatasetConfirmation(self, openbisDatasetId, incoming):
-		fileContent = self._prop(self.STATUS_PROPERTY, self.STATUS_OK)
-		fileContent += self._prop(self.OPENBIS_DATASET_ID_PROPERTY, openbisDatasetId)
-		fileContent += self._prop("dataset_type", "x")
-		fileContent += self._prop("assay", "x")
+	def createExternalDatasetConfirmation(self, openbisDatasetId, experimentCode, datasetType, incoming):
+		fileContent = self._prop("external-dataset.external-id", openbisDatasetId)
+		fileContent += self._prop("external-dataset.assay-id", experimentCode)
+		fileContent += self._prop("external-dataset.dataset-type", datasetType)
+		timestamp = openbisDatasetId.split("-")[0]
+		fileContent += self._prop("external-dataset.acquisition-timestamp", timestamp)
+		fileContent += self._prop("external-dataset.directory", datasetType)
+		fileContent += self._prop("external-dataset.identifier", openbisDatasetId)
+		#fileContent += self._prop("external-dataset.external-parent-id", "35234524234-2345")
+		#fileContent += self._prop("external-dataset.ib2-parent-id", "42")
 						
 		confirmationFile = self._getExternalDatasetStatusFilePath(openbisDatasetId, incoming)
 		self._writeFile(confirmationFile, fileContent)
@@ -219,7 +224,7 @@ class RegistrationConfirmationUtils(object):
 		
 	def _getExternalDatasetStatusFilePath(self, openbisDatasetId, incoming):
 		fileName = self.IBRAIN2_EXTERNAL_STATUS_FILE_PREFIX + openbisDatasetId + self.IBRAIN2_STATUS_FILE_SUFFIX
-		return self._getTopLevelDir(incoming) + "/" + self.IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY + "/" + fileName
+		return self._getTopLevelDir(incoming.getPath()) + "/" + self.IBRAIN_EXTERNAL_DATSET_CONFIRMATION_DIRECTORY + "/" + fileName
 
 	def _prop(self, name, value):
 		return "" + name + " = " + str(value) + "\n"
