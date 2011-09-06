@@ -16,7 +16,9 @@ function install_and_run_openbis_server_screening {
         mv $openbis_server_dir/openBIS-server/* $openbis_server_dir
 				rmdir $openbis_server_dir/openBIS-server
 
-				cp -v $local_template_dir/$openbis_server_name/service.properties $openbis_server_dir/service.properties
+				cp -v $local_template_dir/$openbis_server_name/service.properties $openbis_server_dir/
+				cp -v $local_template_dir/$openbis_server_name/openbis.conf $openbis_server_dir/
+
 				$openbis_server_dir/install.sh $PWD/$openbis_server_dir
 				startup_openbis_server $openbis_server_dir
     else
