@@ -14,9 +14,3 @@ dataset = transaction.createNewDataSet(analysisRegistrationDetails)
 dataset.setFileFormatType('CSV')
 dataset.setDataSetType(datasetTypeCode)
 transaction.moveFile(incoming.getPath(), dataset)
-
-exp = dataset.getExperiment()
-if exp is not None:
-    print "exp = ", exp.getExperimentIdentifier().split("/")[-1]
-print "dataset type", dataset.getDataSetType()
-commonDropbox.RegistrationConfirmationUtils().createExternalDatasetConfirmation(dataset.getCode(), incoming)
