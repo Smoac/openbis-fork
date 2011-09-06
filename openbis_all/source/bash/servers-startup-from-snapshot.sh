@@ -17,6 +17,8 @@
 # - servers-shutdown.sh
 # - servers-startup.sh
 #
+set -o nounset
+set -o errexit
 
 function getValue {
     file=$1

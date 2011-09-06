@@ -12,8 +12,10 @@
 # - restore-config-snapshot.sh
 # - install.sh of the openBIS AS distribution
 # 
+set -o nounset
+set -o errexit
 
-if [ $# -le 4 ]; then
+if [ $# -lt 4 ]; then
     echo "Usage: install-servers.sh <servers> <config snapshot repository> <builds fetching script> <config file list 1> ... <config file list n>"
     exit 1
 fi

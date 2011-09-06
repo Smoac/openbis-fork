@@ -17,13 +17,16 @@
 # - servers-startup-from-latest-snapshot.sh
 # - config-files.txt
 #
+set -o nounset
+set -o errexit
 
 BIN_DIR=`dirname "$0"`
 SERVERS=sprint
+VERSION_FILE=sprint-versions.txt
 
 echo ":::::::::::::::::::: Nightly Upgrade Generic openBIS Servers [`date`] :::::::::::::::::::::"
 
-"$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS"
+if ! "$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS" "$VERSION_FILE"; then exit; fi
 
 ##################################################
 #

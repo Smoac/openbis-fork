@@ -20,6 +20,9 @@
 # - Store dump doesn't contain archived data sets and data sets in a share which is a symbolic link. 
 # - The configuration file of the argument is stored in the snapshot. It is used for restoring.
 # 
+set -o nounset
+set -o errexit
+
 function getValue {
     file=$1
     key=$2
@@ -91,8 +94,7 @@ for path in "$STORE"/*; do
         else
             echo "Start dumping share $file_name."
             parent_folder=${path:0:$index_of_last_slash}
-            tar -rf "$SNAPSHOT/store.tar" -C "$parent_folder" $file_name 
-            if [ $? -ne 0 ]; then
+            if ! tar -rf "$SNAPSHOT/store.tar" -C "$parent_folder" $file_name; then
                 echo "Error while dumping share $file_name. Snapshot creation aborted."
                 exit 1
             fi
@@ -103,23 +105,20 @@ done
 echo "Dump of store $STORE has been successfully created."
 ############## dump databases ##############
 for db in $DATABASES; do
-    pg_dump -U postgres -O $db > "$SNAPSHOT/$db.sql"
-    if [ $? -ne 0 ]; then
+    if ! pg_dump -U postgres -O $db > "$SNAPSHOT/$db.sql"; then
         echo "Error dumping database '$db'. Snapshot creation aborted."
         exit 1
     fi
     echo "Database '$db' has been successfully dumped."
 done
 ############## dump index ##############
-tar -cf "$SNAPSHOT/index.tar" -C "$INDEX" .
-if [ $? -ne 0 ]; then
+if ! tar -cf "$SNAPSHOT/index.tar" -C "$INDEX" .; then
     echo "Error creating index dump. Snapshot creation aborted."
     exit 1
 fi
 echo "Dump of index $INDEX has been successfully created."
 ############## packaging ##############
-tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER_NAME" 
-if [ $? -ne 0 ]; then
+if ! tar -zcf "$SNAPSHOT.tgz" -C "$REPOSITORY" "$SNAPSHOT_FOLDER_NAME"; then
     echo "Error packaging snapshot $SNAPSHOT."
     exit 1
 fi

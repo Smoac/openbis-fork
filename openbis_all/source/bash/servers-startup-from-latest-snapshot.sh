@@ -14,6 +14,8 @@
 # Dependencies:
 # - servers-startup-from-snapshot.sh
 #
+set -o nounset
+set -o errexit
 
 if [ $# -ne 2 ]; then
     echo "Usage: servers-startup-from-latest-snapshot.sh <servers> <snapshot repository>"

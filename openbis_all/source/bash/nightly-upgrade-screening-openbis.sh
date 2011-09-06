@@ -18,14 +18,18 @@
 # - config-files.txt
 # - config-files-screening.txt
 #
+set -o nounset
+set -o errexit
 
 BIN_DIR=`dirname "$0"`
 SERVERS=screening/servers
+VERSION_FILE=screening/sprint-versions.txt
 
 echo ":::::::::::::::::::: Nightly Upgrade Screening openBIS Servers [`date`] :::::::::::::::::::::"
 
-"$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS"
-
+if ! "$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS" "$VERSION_FILE"; then exit; fi
+echo we exit
+exit
 ##################################################
 #
 # Upgrade servers and restart them

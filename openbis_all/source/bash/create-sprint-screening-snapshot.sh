@@ -10,6 +10,8 @@
 # Dependencies:
 # - create-snapshot.sh
 #
+set -o nounset
+set -o errexit
 
 BIN_DIR=`dirname "$0"`
 REPOSITORY=~/screening/snapshots

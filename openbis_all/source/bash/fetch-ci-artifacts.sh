@@ -10,6 +10,9 @@
 # If the p option is specified only artifact file names matching the regular expression will 
 # be loaded from Hudson. 
 #
+set -o nounset
+set -o errexit
+
 CI_HOST=cisd-ci.ethz.ch:8090
 
 if [ $# -lt 1 ]; then

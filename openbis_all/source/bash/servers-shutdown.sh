@@ -10,6 +10,8 @@
 #   <servers folder>/datastore_server
 #   If one of these folders do not exists shutdown is aborted.
 #
+set -o nounset
+set -o errexit
 
 if [ $# -ne 1 ]; then
     echo "Usage: servers-shutdown.sh <servers folder>"

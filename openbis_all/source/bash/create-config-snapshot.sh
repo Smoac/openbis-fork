@@ -11,6 +11,9 @@
 #    Empty lines and lines starting with '#' are ignored
 # 
 # 
+set -o nounset
+set -o errexit
+
 if [ $# -lt 3 ]; then
     echo "Usage: create-config-snapshot.sh <servers> <snapshot repository> <config file list 1> ... <config file list n>"
     exit 1
