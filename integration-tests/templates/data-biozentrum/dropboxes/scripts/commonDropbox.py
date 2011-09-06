@@ -3,7 +3,7 @@
 import os
 from java.io import File
 
-class AbstractPropertiesParser:
+class AbstractPropertiesParser(object):
 	_propertiesDict = None
 	_propertiesFilePath = None
 	
@@ -126,7 +126,7 @@ class DerivedDatasetMetadataParser(AbstractMetadataParser):
 		self._workflowAuthor = tokens[2]
 
 	def getDatasetPropertiesIter(self):
-		properties = AbstractMetadataParser.getDatasetPropertiesIter(self)
+		properties = super(DerivedDatasetMetadataParser,self).getDatasetPropertiesIter()
 		properties.append((self.WORKFLOW_NAME_PROPERTY, self._workflowName))
 		properties.append((self.WORKFLOW_AUTHOR_PROPERTY, self._workflowAuthor))
 		return properties
@@ -151,7 +151,7 @@ class AssayParser(AbstractPropertiesParser):
 	def __init__(self, incoming):
 		AbstractPropertiesParser.__init__(self, incoming, self._findFile(incoming, self.ASSAY_FILE_PREFIX))
 
-class RegistrationConfirmationUtils:
+class RegistrationConfirmationUtils(object):
 	""" name of the registration confirmation directory """
 	CONFIRMATION_DIRECTORY = "registration-status"
 	""" name of the directory where duplicated dataset are moved """
