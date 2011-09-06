@@ -28,8 +28,7 @@ VERSION_FILE=screening/sprint-versions.txt
 echo ":::::::::::::::::::: Nightly Upgrade Screening openBIS Servers [`date`] :::::::::::::::::::::"
 
 if ! "$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS" "$VERSION_FILE"; then exit; fi
-echo we exit
-exit
+
 ##################################################
 #
 # Upgrade servers and restart them
