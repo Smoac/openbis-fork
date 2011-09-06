@@ -32,8 +32,12 @@ if [ ! -d "$DSS" ]; then
     exit 1
 fi
 
+# Shutdown DSS and AS, ignoring exit codes != 0
+set +o errexit
 "$DSS/datastore_server.sh" stop
 "$AS/bin/shutdown.sh"
+set -o errexit
+
 if [ ! -f "$LOG_FILE" ]; then
     exit
 fi
