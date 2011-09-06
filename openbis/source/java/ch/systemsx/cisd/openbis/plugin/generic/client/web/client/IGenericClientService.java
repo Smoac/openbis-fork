@@ -178,6 +178,7 @@ public interface IGenericClientService extends IClientService
      * Updates samples and materials from excel files which have been previously uploaded.
      */
     public List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
-            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting);
+            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
+            throws UserFailureException;
 
 }

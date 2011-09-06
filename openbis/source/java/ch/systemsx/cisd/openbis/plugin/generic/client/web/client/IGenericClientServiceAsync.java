@@ -155,6 +155,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void registerOrUpdateSamplesAndMaterials(final String sessionKey,
             final String defaultGroupIdentifier, boolean updateExisting,
-            AsyncCallback<List<BatchRegistrationResult>> registerSamplesAndMaterialsCallback);
+            AsyncCallback<List<BatchRegistrationResult>> registerSamplesAndMaterialsCallback)
+            throws UserFailureException;
 
 }

@@ -48,12 +48,20 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         SampleIdentifierFactory factory = new SampleIdentifierFactory(sample.getIdentifier());
         String defaultSpace = sample.getDefaultSpaceIdentifier();
         SampleIdentifier identifier = factory.createIdentifier(defaultSpace);
-        // if the container for the new sample is not specified then use the default (if provided)
-        String defaultContainer = sample.getCurrentContainerIdentifier();
-        if (identifier.tryGetContainerCode() == null
-                && StringUtils.isEmpty(defaultContainer) == false)
+        String currentContainer = sample.getCurrentContainerIdentifier();
+
+        // if current container is defined and identifier includes container code, throw an
+        // exception
+        if (false == StringUtils.isEmpty(currentContainer)
+                && false == StringUtils.isBlank(identifier.tryGetContainerCode()))
         {
-            SampleIdentifier defaultContainerIdentifier = parse(defaultContainer, defaultSpace);
+            throw new UserFailureException("Current container is specified, but the identifier '"
+                    + sample.getIdentifier() + "' includes the container code.");
+        }
+        if (identifier.tryGetContainerCode() == null
+                && StringUtils.isEmpty(currentContainer) == false)
+        {
+            SampleIdentifier defaultContainerIdentifier = parse(currentContainer, defaultSpace);
             identifier.addContainerCode(defaultContainerIdentifier.getSampleSubCode());
         }
         return identifier;

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
@@ -173,6 +174,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
             final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
+            throws UserFailureException
     {
         BatchOperationKind operationKind =
                 updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
