@@ -46,8 +46,7 @@ SNAPSHOT_FILE=$2
 USER=$(whoami)
 TMPDIR=`mktemp -d /tmp/snapshot-XXXXX`
 echo "temp folder:$TMPDIR"
-tar -zxf  $SNAPSHOT_FILE -C $TMPDIR
-if [ $? -ne 0 ]; then
+if ! tar -zxf  $SNAPSHOT_FILE -C $TMPDIR; then
     echo "Error: Couldn't unzip and untar $SNAPSHOT_FILE."
     cleanUpAndExit
 fi
@@ -69,8 +68,7 @@ INDEX="$OPENBIS_AS_ROOT"`getValue $SNAPSHOT_CONFIG_FILE index`
 #
 # Shutting down servers
 #
-`dirname "$0"`/servers-shutdown.sh "$SERVERS_PATH"
-if [ $? -ne 0 ]; then
+if ! `dirname "$0"`/servers-shutdown.sh "$SERVERS_PATH"; then
     echo "Error: Couldn't shut down servers. Restoring aborted."
     cleanUpAndExit
 fi
@@ -84,8 +82,7 @@ echo "==== Restore from $SNAPSHOT_FILE"
 echo "Starting to restore the store $STORE."
 rm -rf "$STORE"
 mkdir -p "$STORE"
-tar -xf $SNAPSHOT_FILES/store.tar -C "$STORE"
-if [ $? -ne 0 ]; then
+if ! tar -xf $SNAPSHOT_FILES/store.tar -C "$STORE"; then
     echo "Error: Couldn't restore store. Restoring aborted."
     cleanUpAndExit
 fi
@@ -94,8 +91,7 @@ echo "Store successfully restored."
 for db in $DATABASES; do
     psql -U postgres -q -c "drop database $db"
     psql -U postgres -q -c "create database $db with owner $USER"
-    psql -U $USER -q -d $db -f $SNAPSHOT_FILES/$db.sql > /dev/null
-    if [ $? -ne 0 ]; then
+    if ! psql -U $USER -q -d $db -f $SNAPSHOT_FILES/$db.sql > /dev/null; then
         echo "Error: Couldn't restore database '$db'."
         cleanUpAndExit
     fi
@@ -103,8 +99,7 @@ for db in $DATABASES; do
 done
 ############## restore store ##############
 mkdir -p "$INDEX"
-tar -xf $SNAPSHOT_FILES/index.tar -C "$INDEX"
-if [ $? -ne 0 ]; then
+if ! tar -xf $SNAPSHOT_FILES/index.tar -C "$INDEX"; then
     echo "Error: Couldn't restore index."
     cleanUpAndExit
 fi
