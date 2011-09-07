@@ -24,7 +24,7 @@ $BASE/backup-config.sh $CONFIG
 
 OLD_BIS=$BACKUP_DIR/openBIS-server
 
-echo "Copying old installation to backup dir"
+echo "Moving old installation to backup dir"
 
 echo "mv $ROOT_DIR/openBIS-server $OLD_BIS"
 mv $ROOT_DIR/openBIS-server $OLD_BIS
