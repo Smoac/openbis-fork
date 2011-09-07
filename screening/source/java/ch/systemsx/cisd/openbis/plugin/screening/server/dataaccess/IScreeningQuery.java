@@ -312,7 +312,7 @@ public interface IScreeningQuery extends BaseQuery
                     + "       join data ds on ds.expe_id = exp.id "
                     + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
                     + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
-                    + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id "
+                    + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id and ds_props.dstpt_id = dst_pt.id"
                     + "  where "
                     + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
 
