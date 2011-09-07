@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 
 /**
  * A (mutable) object representing the specification of a search. A search is specified by
@@ -61,6 +63,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @see SearchSubCriteria
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class SearchCriteria implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -97,15 +100,16 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
     public static class MatchClause implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private final MatchClauseFieldType fieldType;
+        private MatchClauseFieldType fieldType;
 
-        private final String fieldCode;
+        private String fieldCode;
 
-        private final String desiredValue;
+        private String desiredValue;
 
         /**
          * Protected constructor. Use one of the factory methods to instantiate a MatchClause.
@@ -204,6 +208,26 @@ public class SearchCriteria implements Serializable
             builder.append(getDesiredValue());
             return builder.toString();
         }
+
+        // JSON-RPC
+        private MatchClause()
+        {
+        }
+
+        private void setFieldType(MatchClauseFieldType fieldType)
+        {
+            this.fieldType = fieldType;
+        }
+
+        private void setFieldCode(String fieldCode)
+        {
+            this.fieldCode = fieldCode;
+        }
+
+        private void setDesiredValue(String desiredValue)
+        {
+            this.desiredValue = desiredValue;
+        }
     }
 
     /**
@@ -215,7 +239,7 @@ public class SearchCriteria implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private final String propertyCode;
+        private String propertyCode;
 
         /**
          * Factory method to create a MatchClause matching against a specific property.
@@ -238,6 +262,19 @@ public class SearchCriteria implements Serializable
         {
             return propertyCode;
         }
+
+        //
+        // JSON-RPC
+        //
+
+        private PropertyMatchClause()
+        {
+        }
+
+        private void setPropertyCode(String propertyCode)
+        {
+            this.propertyCode = propertyCode;
+        }
     }
 
     /**
@@ -249,7 +286,7 @@ public class SearchCriteria implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private final MatchClauseAttribute attribute;
+        private MatchClauseAttribute attribute;
 
         /**
          * Factory method to create a MatchClause matching on a specific attribute.
@@ -270,6 +307,19 @@ public class SearchCriteria implements Serializable
         public MatchClauseAttribute getAttribute()
         {
             return attribute;
+        }
+
+        //
+        // JSON-RPC
+        //
+        private AttributeMatchClause()
+        {
+
+        }
+
+        private void setAttribute(MatchClauseAttribute attribute)
+        {
+            this.attribute = attribute;
         }
     }
 
@@ -376,5 +426,18 @@ public class SearchCriteria implements Serializable
         builder.append(getMatchClauses());
         builder.append(getSubCriterias());
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+    private void setMatchClauses(ArrayList<MatchClause> matchClauses)
+    {
+        this.matchClauses = matchClauses;
+    }
+
+    private void setSubCriterias(ArrayList<SearchSubCriteria> subCriterias)
+    {
+        this.subCriterias = subCriterias;
     }
 }

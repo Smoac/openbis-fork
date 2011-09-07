@@ -19,18 +19,20 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 /**
- * Immutable value object representing an authorization role. A role has a code and a flag
- * which tells whether this role is for a certain space or for all spaces.
- *
+ * Immutable value object representing an authorization role. A role has a code and a flag which
+ * tells whether this role is for a certain space or for all spaces.
+ * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public final class Role implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
-    private final String code;
-    private final boolean spaceLevel;
-    
+
+    private String code;
+
+    private boolean spaceLevel;
+
     /**
      * Creates a new instance from specified code and space level flag.
      * 
@@ -87,5 +89,22 @@ public final class Role implements Serializable
     public String toString()
     {
         return code + "(" + (spaceLevel ? "space" : "instance") + ")";
+    }
+
+    //
+    // JSON-RPC
+    //
+    private Role()
+    {
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setSpaceLevel(boolean spaceLevel)
+    {
+        this.spaceLevel = spaceLevel;
     }
 }

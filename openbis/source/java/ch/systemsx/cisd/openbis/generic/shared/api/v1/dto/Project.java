@@ -24,15 +24,16 @@ import java.io.Serializable;
  * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public final class Project implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String spaceCode;
+    private String spaceCode;
 
-    private final String code;
+    private String code;
 
-    private final EntityRegistrationDetails registrationDetails;
+    private EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance for the specified space code and project code.
@@ -117,6 +118,28 @@ public final class Project implements Serializable
     public String toString()
     {
         return "/" + spaceCode + "/" + code;
+    }
+
+    //
+    // JSON-RPC
+    //
+    private Project()
+    {
+    }
+
+    private void setSpaceCode(String spaceCode)
+    {
+        this.spaceCode = spaceCode;
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        this.registrationDetails = registrationDetails;
     }
 
 }

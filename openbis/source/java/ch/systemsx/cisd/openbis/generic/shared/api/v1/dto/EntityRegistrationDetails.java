@@ -102,15 +102,20 @@ public class EntityRegistrationDetails implements Serializable
 
     }
 
-    private final String userFirstName;
+    private String userFirstName;
 
-    private final String userLastName;
+    private String userLastName;
 
-    private final String userEmail;
+    private String userEmail;
 
-    private final String userId;
+    private String userId;
 
-    private final Date registrationDate;
+    private Date registrationDate;
+
+    EntityRegistrationDetails()
+    {
+
+    }
 
     public EntityRegistrationDetails(EntityRegistrationDetailsInitializer initializer)
     {
@@ -181,6 +186,31 @@ public class EntityRegistrationDetails implements Serializable
         builder.append(getUserId());
         builder.append(getRegistrationDate());
         return builder.toString();
+    }
+
+    void setUserFirstName(String userFirstName)
+    {
+        this.userFirstName = userFirstName;
+    }
+
+    void setUserLastName(String userLastName)
+    {
+        this.userLastName = userLastName;
+    }
+
+    void setUserEmail(String userEmail)
+    {
+        this.userEmail = userEmail;
+    }
+
+    void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    void setRegistrationDate(Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
     }
 
 }

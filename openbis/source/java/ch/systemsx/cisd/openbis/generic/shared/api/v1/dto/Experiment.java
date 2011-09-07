@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public final class Experiment implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -131,19 +132,19 @@ public final class Experiment implements Serializable
         }
     }
 
-    private final Long id;
+    private Long id;
 
-    private final String permId;
+    private String permId;
 
-    private final String code;
+    private String code;
 
-    private final String identifier;
+    private String identifier;
 
-    private final String experimentTypeCode;
+    private String experimentTypeCode;
 
-    private final EntityRegistrationDetails registrationDetails;
+    private EntityRegistrationDetails registrationDetails;
 
-    private final HashMap<String, String> properties;
+    private HashMap<String, String> properties;
 
     /**
      * Creates a new instance with the provided initializer
@@ -283,5 +284,47 @@ public final class Experiment implements Serializable
         builder.append(getExperimentTypeCode());
         builder.append(getProperties());
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+    private Experiment()
+    {
+    }
+
+    private void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    private void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
+
+    private void setExperimentTypeCode(String experimentTypeCode)
+    {
+        this.experimentTypeCode = experimentTypeCode;
+    }
+
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        this.registrationDetails = registrationDetails;
+    }
+
+    private void setProperties(HashMap<String, String> properties)
+    {
+        this.properties = properties;
     }
 }

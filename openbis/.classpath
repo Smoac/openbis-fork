@@ -61,5 +61,15 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt-image-loader/gwt-image-loader.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
+	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty-all-server-7.1.4.v20100610-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty-all-server-7.1.4.v20100610-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

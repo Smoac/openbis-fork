@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.api.v1;
+package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,18 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
@@ -52,28 +46,50 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
+ * This class contains a set of generic tests cases for {@link IGeneralInformationService}. The test
+ * cases require an instance of {@link IGeneralInformationService} to be injected from an external
+ * source and thus cannot run on their own.
+ * 
  * @author Franz-Josef Elmer
+ * @author Kaloyan Enimanev
  */
-@Test(groups = "system test")
-public class GeneralInformationServiceTest extends SystemTestCase
+// exclude from running directly as TestNG test.
+@Test(groups =
+    { "abstract", "broken" })
+public class GeneralInformationServiceAbstractTestCases extends AssertJUnit
 {
-    @Autowired
+    /**
+     * Helps delaying the initialization of the {@link IGeneralInformationService} field until the
+     * necessary infrastructure has been bootstrapped.
+     */
+    public static interface IGeneralInformationServiceFactory
+    {
+        IGeneralInformationService createService();
+    }
+
+    private final IGeneralInformationServiceFactory serviceHolder;
+
     private IGeneralInformationService generalInformationService;
 
     private String sessionToken;
 
-    @BeforeMethod
-    public void beforeMethod()
+    public GeneralInformationServiceAbstractTestCases(
+            IGeneralInformationServiceFactory serviceHolder)
     {
+        this.serviceHolder = serviceHolder;
+    }
+
+    @BeforeMethod
+    public void beforeMethod() throws MalformedURLException
+    {
+        generalInformationService = serviceHolder.createService();
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
     }
 
     @AfterMethod
-    public void afterMethod()
+    public void afterMethod() throws MalformedURLException
     {
         generalInformationService.logout(sessionToken);
     }
@@ -108,6 +124,22 @@ public class GeneralInformationServiceTest extends SystemTestCase
         checkSpace("TESTGROUP", "[/TESTGROUP/TESTPROJ]",
                 "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance)]", spaces.get(1));
         assertEquals(2, spaces.size());
+    }
+
+    @Test
+    public void testListProjects()
+    {
+        List<Project> result = generalInformationService.listProjects(sessionToken);
+        assertEquals(true, result.size() > 0);
+        String expectedSampleIdentifier = "/TESTGROUP/TESTPROJ";
+        for (Project project : result)
+        {
+            if (expectedSampleIdentifier.equals(project.toString()))
+            {
+                return;
+            }
+        }
+        fail("result didn't contain project " + expectedSampleIdentifier);
     }
 
     @Test
@@ -557,56 +589,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], "
                         + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
                 result.toString());
-    }
-
-    @Test
-    public void testRegistrationDetailsAvailable()
-    {
-        // project
-        List<Project> projects = generalInformationService.listProjects(sessionToken);
-        assertTrue(projects.size() > 0);
-        checkRegistrationDetails(projects.get(0).getRegistrationDetails());
-
-        // experiment
-        List<Experiment> experiments =
-                generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
-        assertTrue(experiments.size() > 0);
-        checkRegistrationDetails(experiments.get(0).getRegistrationDetails());
-
-        // sample
-        SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CP-TEST-1"));
-        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
-        assertTrue(samples.size() > 0);
-        Sample sample = samples.get(0);
-        checkRegistrationDetails(sample.getRegistrationDetails());
-
-        // data set
-        List<DataSet> dataSets =
-                generalInformationService.listDataSetsForSample(sessionToken, sample, false);
-        assertTrue(dataSets.size() > 0);
-        assertNotNull(dataSets.get(0).getRegistrationDetails().getRegistrationDate());
-
-        // vocabularies
-        Map<Vocabulary, List<VocabularyTerm>> termMap =
-                generalInformationService.getVocabularyTermsMap(sessionToken);
-        ArrayList<Vocabulary> vocabs = new ArrayList<Vocabulary>(termMap.keySet().size());
-        vocabs.addAll(termMap.keySet());
-        List<VocabularyTerm> terms = termMap.get(vocabs.get(0));
-        assertTrue(terms.size() > 0);
-        assertNotNull(terms.get(0).getRegistrationDetails().getUserId());
-        assertNotNull(terms.get(0).getRegistrationDetails().getRegistrationDate());
-    }
-
-    private void checkRegistrationDetails(EntityRegistrationDetails registrationDetails)
-    {
-        assertNotNull(registrationDetails);
-        assertEquals("test", registrationDetails.getUserId());
-        assertEquals("franz-josef.elmer@systemsx.ch", registrationDetails.getUserEmail());
-        assertEquals("John", registrationDetails.getUserFirstName());
-        assertEquals("Doe", registrationDetails.getUserLastName());
-        assertNotNull(registrationDetails.getRegistrationDate());
-
     }
 
 }

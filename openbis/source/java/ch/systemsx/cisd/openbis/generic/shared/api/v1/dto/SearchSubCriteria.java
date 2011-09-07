@@ -14,13 +14,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
  * 
  * @author Piotr Buczek
  */
+@SuppressWarnings("unused")
 public class SearchSubCriteria implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final SearchCriteria criteria;
+    private SearchCriteria criteria;
 
-    private final SearchableEntityKind targetEntityKind;
+    private SearchableEntityKind targetEntityKind;
 
     public static SearchSubCriteria createSampleParentCriteria(SearchCriteria criteria)
     {
@@ -121,4 +122,23 @@ public class SearchSubCriteria implements Serializable
         builder.append(getCriteria());
         return builder.toString();
     }
+
+    //
+    // JSON-RPC
+    //
+    private SearchSubCriteria()
+    {
+
+    }
+
+    private void setCriteria(SearchCriteria criteria)
+    {
+        this.criteria = criteria;
+    }
+
+    private void setTargetEntityKind(SearchableEntityKind targetEntityKind)
+    {
+        this.targetEntityKind = targetEntityKind;
+    }
+
 }

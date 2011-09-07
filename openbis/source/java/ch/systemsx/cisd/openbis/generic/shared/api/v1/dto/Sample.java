@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public final class Sample implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -155,23 +156,23 @@ public final class Sample implements Serializable
         }
     }
 
-    private final Long id;
+    private Long id;
 
-    private final String permId;
+    private String permId;
 
-    private final String code;
+    private String code;
 
-    private final String identifier;
+    private String identifier;
 
-    private final String experimentIdentifierOrNull;
+    private String experimentIdentifierOrNull;
 
-    private final Long sampleTypeId;
+    private Long sampleTypeId;
 
-    private final String sampleTypeCode;
+    private String sampleTypeCode;
 
-    private final HashMap<String, String> properties;
+    private HashMap<String, String> properties;
 
-    private final EntityRegistrationDetails registrationDetails;
+    private EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance with the provided initializer
@@ -335,5 +336,58 @@ public final class Sample implements Serializable
         builder.append(getSampleTypeCode());
         builder.append(getProperties());
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private Sample()
+    {
+    }
+
+    private void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    private void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
+
+    private void setExperimentIdentifierOrNull(String experimentIdentifierOrNull)
+    {
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+    }
+
+    private void setSampleTypeId(Long sampleTypeId)
+    {
+        this.sampleTypeId = sampleTypeId;
+    }
+
+    private void setSampleTypeCode(String sampleTypeCode)
+    {
+        this.sampleTypeCode = sampleTypeCode;
+    }
+
+    private void setProperties(HashMap<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        this.registrationDetails = registrationDetails;
     }
 }

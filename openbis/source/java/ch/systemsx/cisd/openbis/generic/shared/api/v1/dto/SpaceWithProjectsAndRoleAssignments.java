@@ -25,20 +25,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Bean which represents a space, all its projects, and all its relevant role assignments
- *
+ * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public class SpaceWithProjectsAndRoleAssignments implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String code;
-    
-    private final List<Project> projects = new ArrayList<Project>();
-    
-    private final Map<String, Set<Role>> rolesPerUser = new HashMap<String, Set<Role>>();
+    private String code;
+
+    private List<Project> projects = new ArrayList<Project>();
+
+    @JsonProperty
+    private Map<String, Set<Role>> rolesPerUser = new HashMap<String, Set<Role>>();
 
     /**
      * Creates a new instance for the specified code.
@@ -53,7 +57,7 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
         }
         this.code = code;
     }
-    
+
     /**
      * Returns the space code.
      */
@@ -61,12 +65,12 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
     {
         return code;
     }
-    
+
     public void add(Project project)
     {
         projects.add(project);
     }
-    
+
     /**
      * Returns all projects of this space.
      */
@@ -74,7 +78,7 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
     {
         return projects;
     }
-    
+
     public void add(String user, Role role)
     {
         Set<Role> roles = rolesPerUser.get(user);
@@ -87,11 +91,39 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
     }
 
     /**
-     * Returns all access roles the specified user has on this space. 
+     * Returns all access roles the specified user has on this space.
      */
     public Set<Role> getRoles(String userID)
     {
         Set<Role> set = rolesPerUser.get(userID);
-        return set == null ? Collections.<Role>emptySet() : set;
+        return set == null ? Collections.<Role> emptySet() : set;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private SpaceWithProjectsAndRoleAssignments()
+    {
+    }
+
+    private Map<String, Set<Role>> getRolesPerUser()
+    {
+        return rolesPerUser;
+    }
+
+    private void setRolesPerUser(Map<String, Set<Role>> rolesPerUser)
+    {
+        this.rolesPerUser = rolesPerUser;
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setProjects(List<Project> projects)
+    {
+        this.projects = projects;
     }
 }

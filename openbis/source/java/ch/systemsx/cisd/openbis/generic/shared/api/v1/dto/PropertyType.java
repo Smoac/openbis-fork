@@ -22,6 +22,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
@@ -30,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
+@JsonTypeInfo(use = Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
 public class PropertyType implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -103,15 +108,15 @@ public class PropertyType implements Serializable
         }
     }
 
-    private final DataTypeCode dataType;
+    private DataTypeCode dataType;
 
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
 
-    private final String description;
+    private String description;
 
-    private final boolean mandatory;
+    private boolean mandatory;
 
     /**
      * Creates a new instance with the provided initializer
@@ -223,5 +228,38 @@ public class PropertyType implements Serializable
     protected void appendFieldsToStringBuilder(ToStringBuilder builder)
     {
 
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    PropertyType()
+    {
+    }
+
+    private void setDataType(DataTypeCode dataType)
+    {
+        this.dataType = dataType;
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    private void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    private void setMandatory(boolean mandatory)
+    {
+        this.mandatory = mandatory;
     }
 }

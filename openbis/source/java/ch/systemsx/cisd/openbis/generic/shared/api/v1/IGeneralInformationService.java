@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Service for retrieving general informations.
@@ -54,6 +55,8 @@ public interface IGeneralInformationService extends IRpcService
      * Application part of the URL to access this service remotely.
      */
     public static final String SERVICE_URL = "/rmi-" + SERVICE_NAME + "-v1";
+
+    public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
     /**
      * Tries to authenticate specified user with specified password. Returns session token if
@@ -180,6 +183,10 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     * <p>
+     * The method cannot be fully utilized over JSON-RPC, because there is no sensible way to
+     * (de)serialize a {@link Vocabulary} object to/from String. Any working implementation will
+     * make the life of non-java clients (e.g. Javascript) unnecessarily complicated.
      * 
      * @since 1.6
      */

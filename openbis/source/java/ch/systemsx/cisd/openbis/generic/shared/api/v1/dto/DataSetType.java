@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public final class DataSetType implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -68,9 +69,9 @@ public final class DataSetType implements Serializable
         }
     }
 
-    private final String code;
+    private String code;
 
-    private final ArrayList<PropertyTypeGroup> propertyTypeGroups;
+    private ArrayList<PropertyTypeGroup> propertyTypeGroups;
 
     /**
      * Creates a new instance with the provided initializer
@@ -143,5 +144,23 @@ public final class DataSetType implements Serializable
         builder.append(getCode());
         builder.append(getPropertyTypeGroups());
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private DataSetType()
+    {
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setPropertyTypeGroups(ArrayList<PropertyTypeGroup> propertyTypeGroups)
+    {
+        this.propertyTypeGroups = propertyTypeGroups;
     }
 }

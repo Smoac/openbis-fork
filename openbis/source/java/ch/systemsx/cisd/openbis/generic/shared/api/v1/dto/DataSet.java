@@ -29,12 +29,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Immutable value object representing a data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public final class DataSet implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -152,22 +154,22 @@ public final class DataSet implements Serializable
 
     }
 
-    private final String code;
+    private String code;
 
-    private final String experimentIdentifier;
+    private String experimentIdentifier;
 
-    private final String sampleIdentifierOrNull;
+    private String sampleIdentifierOrNull;
 
-    private final String dataSetTypeCode;
+    private String dataSetTypeCode;
 
-    private final HashMap<String, String> properties;
+    private HashMap<String, String> properties;
 
     // For handling connections to entities
-    private final EnumSet<Connections> retrievedConnections;
+    private EnumSet<Connections> retrievedConnections;
 
-    private final List<String> parentCodes;
+    private List<String> parentCodes = Collections.emptyList();
 
-    private final EntityRegistrationDetails registrationDetails;
+    private EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance with the provided initializer
@@ -241,6 +243,7 @@ public final class DataSet implements Serializable
         return dataSetTypeCode;
     }
 
+    @JsonIgnore
     public Date getRegistrationDate()
     {
         return getRegistrationDetails().getRegistrationDate();
@@ -264,6 +267,7 @@ public final class DataSet implements Serializable
      * @throws IllegalArgumentException Thrown if the parent codes were not retireved from the
      *             server.
      */
+    @JsonIgnore
     public List<String> getParentCodes() throws IllegalArgumentException
     {
         if (getRetrievedConnections().contains(Connections.PARENTS))
@@ -329,5 +333,53 @@ public final class DataSet implements Serializable
             builder.append(getParentCodes());
         }
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private DataSet()
+    {
+    }
+
+    private void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    private void setExperimentIdentifier(String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
+    private void setSampleIdentifierOrNull(String sampleIdentifierOrNull)
+    {
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
+
+    private void setDataSetTypeCode(String dataSetTypeCode)
+    {
+        this.dataSetTypeCode = dataSetTypeCode;
+    }
+
+    private void setProperties(HashMap<String, String> properties)
+    {
+        this.properties = properties;
+    }
+
+    private void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
+    {
+        this.retrievedConnections = retrievedConnections;
+    }
+
+    private void setParentCodes(List<String> parentCodes)
+    {
+        this.parentCodes = parentCodes;
+    }
+
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+    {
+        this.registrationDetails = registrationDetails;
     }
 }

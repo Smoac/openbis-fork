@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class ControlledVocabularyPropertyType extends PropertyType
 {
     private static final long serialVersionUID = 1L;
@@ -38,15 +39,15 @@ public class ControlledVocabularyPropertyType extends PropertyType
     {
         private static final long serialVersionUID = 1L;
 
-        private final String code;
+        private String code;
 
-        private final String label;
+        private String label;
 
-        private final Long ordinal;
+        private Long ordinal;
 
-        private final Boolean isOfficial;
+        private Boolean isOfficial;
 
-        private final EntityRegistrationDetails registrationDetails;
+        private EntityRegistrationDetails registrationDetails;
 
         public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial,
                 EntityRegistrationDetails registrationDetails)
@@ -122,6 +123,38 @@ public class ControlledVocabularyPropertyType extends PropertyType
             builder.append(getLabel());
             return builder.toString();
         }
+
+        //
+        // JSON-RPC
+        //
+        private VocabularyTerm()
+        {
+        }
+
+        private void setOfficial(Boolean isOfficial)
+        {
+            this.isOfficial = isOfficial;
+        }
+
+        private void setCode(String code)
+        {
+            this.code = code;
+        }
+
+        private void setLabel(String label)
+        {
+            this.label = label;
+        }
+
+        private void setOrdinal(Long ordinal)
+        {
+            this.ordinal = ordinal;
+        }
+
+        private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
+        {
+            this.registrationDetails = registrationDetails;
+        }
     }
 
     public static class ControlledVocabularyPropertyTypeInitializer extends PropertyTypeInitializer
@@ -142,9 +175,9 @@ public class ControlledVocabularyPropertyType extends PropertyType
         }
     }
 
-    private final ArrayList<VocabularyTerm> terms;
+    private ArrayList<VocabularyTerm> terms;
 
-    private final Vocabulary vocabulary;
+    private Vocabulary vocabulary;
 
     /**
      * @param initializer
@@ -175,5 +208,23 @@ public class ControlledVocabularyPropertyType extends PropertyType
     protected void appendFieldsToStringBuilder(ToStringBuilder builder)
     {
         builder.append(terms);
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private ControlledVocabularyPropertyType()
+    {
+    }
+
+    private void setTerms(ArrayList<VocabularyTerm> terms)
+    {
+        this.terms = terms;
+    }
+
+    private void setVocabulary(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
     }
 }

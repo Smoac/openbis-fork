@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public final class PropertyTypeGroup implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -67,9 +68,9 @@ public final class PropertyTypeGroup implements Serializable
         }
     }
 
-    private final String name;
+    private String name;
 
-    private final ArrayList<PropertyType> propertyTypes;
+    private ArrayList<PropertyType> propertyTypes;
 
     /**
      * Creates a new instance with the provided initializer
@@ -129,5 +130,23 @@ public final class PropertyTypeGroup implements Serializable
         builder.append(getName());
         builder.append(getPropertyTypes());
         return builder.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private PropertyTypeGroup()
+    {
+    }
+
+    private void setName(String name)
+    {
+        this.name = name;
+    }
+
+    private void setPropertyTypes(ArrayList<PropertyType> propertyTypes)
+    {
+        this.propertyTypes = propertyTypes;
     }
 }
