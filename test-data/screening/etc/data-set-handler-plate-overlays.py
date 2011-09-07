@@ -92,4 +92,4 @@ if incoming.isDirectory():
     dataSets = searchService.searchForDataSets(searchCriteria)
     if dataSets.size() > 0:
         newDataset.setParentDatasets([dataSets[0].getDataSetCode()])
-    transaction.moveFile(incoming.getPath(), newDataset);
+    transaction.moveFile(incoming.getPath(), newDataset)
