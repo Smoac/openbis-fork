@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 """
-An Jython dropbox for importing a CSV file with feature vectors. File name is of the form
-
-<plate code>[.<analysis procedure].csv
+An Jython dropbox for importing a CSV file with feature vectors.
 """
 
 import os
