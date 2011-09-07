@@ -92,9 +92,10 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
 
     private final boolean useGraphicsMagic;
 
-    ConvertToolImageTransformer(String arguments, ToolChoice choice)
+    ConvertToolImageTransformer(String arguments, ToolChoice choiceOrNull)
     {
         this.convertCliArguments = parseCommandArguments(arguments);
+        ToolChoice choice = (choiceOrNull == null ? ToolChoice.ENFORCE_IMAGEMAGICK : choiceOrNull);
         switch (choice)
         {
             case ENFORCE_IMAGEMAGICK:
@@ -130,8 +131,9 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
     {
         try
         {
-            // TODO 2011-08-31, Franz-Josef Elmer: Uncomment when new fast method is working correctly for colored images
-//            byte[] input = ImageUtil.imageToPngFast(image);
+            // TODO 2011-08-31, Franz-Josef Elmer: Uncomment when new fast method is working
+            // correctly for colored images
+            // byte[] input = ImageUtil.imageToPngFast(image);
             byte[] input = toByteArray(image);
             byte[] output = transform(input);
             return toBufferedImage(output);
