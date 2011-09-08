@@ -22,6 +22,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -97,8 +99,8 @@ public class LogInitializer
         // For non-XML files, you will use
         // <code>PropertyConfigurator.configureAndWatch(String)</code>
         DOMConfigurator.configureAndWatch(logFile.getPath());
-        LogLog.debug(String.format("Log configured from file '%s' (watching).", logFile
-                .getAbsolutePath()));
+        LogLog.debug(String.format("Log configured from file '%s' (watching).",
+                logFile.getAbsolutePath()));
     }
 
     private final static void configureFromURL(final URL url)
@@ -141,6 +143,36 @@ public class LogInitializer
      */
     public final static synchronized void init()
     {
+        init(false);
+    }
+
+    /**
+     * Initializes logging system for log level DEBUG. Does nothing if already initialized.
+     * <p>
+     * Logging configuration file is assumed to be in
+     * <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
+     * resource named <code>/etc/log.xml</code>.<br>
+     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
+     * is used.
+     * </p>
+     */
+    public final static synchronized void initDebug()
+    {
+        init(true);
+    }
+
+    /**
+     * Initializes logging system. Does nothing if already initialized.
+     * <p>
+     * Logging configuration file is assumed to be in
+     * <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
+     * resource named <code>/etc/log.xml</code>.<br>
+     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
+     * is used.
+     * </p>
+     */
+    private final static synchronized void init(boolean debug)
+    {
         if (initialized)
         {
             return;
@@ -152,6 +184,7 @@ public class LogInitializer
             if (logFile.exists())
             {
                 configureFromFile(logFile);
+                Logger.getRootLogger().setLevel(Level.DEBUG);
                 finishInit();
                 return;
             }
@@ -162,11 +195,13 @@ public class LogInitializer
             if (url != null)
             {
                 configureFromURL(url);
+                Logger.getRootLogger().setLevel(Level.DEBUG);
                 finishInit();
                 return;
             }
         }
         BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
         finishInit();
     }
 }
