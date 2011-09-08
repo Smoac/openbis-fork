@@ -38,6 +38,14 @@ def calcTile(coords):
     x,y = coords
     return (y-1)*3+x
     
+class ColorConfig:
+    """
+    Color name and color channels for an image to be created
+    """
+    def __init__(self, color_name, inset):
+        self.color_name = color_name
+        self.inset = inset
+    
 class ImageGeneratorConfig:
     """
     Represents the configuration options for generating images
@@ -46,6 +54,7 @@ class ImageGeneratorConfig:
         self.number_of_tiles = 9
         self.image_size = 512
         self.is_split = False
+        self.color_configs = [ None ]
         # Use an array with None for not time points / depth points
         self.time_points = [ None ]
         self.depth_points = [ None ]
@@ -77,17 +86,12 @@ class WellGenerator:
                 for depth in self.config.depth_points:
                     desc = self.config.tile_description_generator(tile, time, depth)
                     if self.config.is_split:
-                        file_name = self._generate_raw_file_name(self.well, "RED", desc)
-                        self._generate_tile(file_name, desc, 1, 0, 0)
-                        
-                        file_name = self._generate_raw_file_name(self.well, "GREEN", desc)
-                        self._generate_tile(file_name, desc, 0, 1, 0)
-                        
-                        file_name = self._generate_raw_file_name(self.well, "BLUE", desc)
-                        self._generate_tile(file_name, desc, 0, 0, 1)                        
+                        for color_config in self.config.color_configs:
+                             file_name = self._generate_raw_file_name(self.well, color_config.color_name, desc)
+                             self._generate_tile(file_name, desc, color_config.inset)
                     else:
                         file_name = self._generate_raw_file_name(self.well, "RGB", desc)
-                        self._generate_tile(file_name, desc, 1, 1, 1)
+                        self._generate_tile(file_name, desc, 1)
                         
     def generate_overlay_images(self, overlay_name, x, y):
         """
@@ -102,19 +106,14 @@ class WellGenerator:
                     file_name = self._generate_overlay_file_name(self.well, overlay_name, desc)
                     self._generate_overlay(file_name, overlay_name + '-' + self.well + '-' + desc, x, y)        
         
-    def _generate_tile(self, filename, tile_desc, r, g, b):
+    def _generate_tile(self, filename, tile_desc, inset):
         tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
         drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
         
         if self.config.is_split:
             # if split, we want to draw white instead of the specified color, since
             # the channel assignment will happen in openBIS, not here
-            if r:
-                drawRect(tile_canvas, 1, 1, 1, 20) # red
-            if g:
-                drawRect(tile_canvas, 1, 1, 1, 70) # green
-            if b:
-                drawRect(tile_canvas, 1, 1, 1, 120) # blue
+            drawRect(tile_canvas, 1, 1, 1, inset * random.gauss(1.0, 0.2))
         else:
             drawRect(tile_canvas, 1, 0, 0, 20) # red
             drawRect(tile_canvas, 0, 1, 0, 70) # green

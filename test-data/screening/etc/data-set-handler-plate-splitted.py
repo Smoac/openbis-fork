@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 """
-An Jython dropbox for importing microscopy image datasets produced by the scripts that generate platonic microscopy data.
+An Jython dropbox for importing HCS image datasets produced by the scripts that generate platonic screening data.
 
-The folder loaded to the dropbox folder should have the same name as the sample that the data will be attached to.
+The folder loaded to the dropbox folder should have the same name as the plate that the data will be attached to.
 """
 
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location, Channel, ChannelColor, ChannelColorComponent
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
     
@@ -16,7 +16,7 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
     Extracts tile number, channel code and well code for a given relative path to an image.
     Will be called for each file found in the incoming directory which has the allowed image extension.
       
-    Example file name: bDZ01-1A_w_s3_z123_t321_cGFP
+    Example file name: bDZ01-1A_wD17_s3_z123_t321_cGFP
     Returns:
         ImageMetadata
     """
@@ -29,11 +29,14 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         for token in basename.split("_"):
             token_dict[token[:1]] = token[1:]
         
-        image_tokens.well = None
-        image_tokens.tileNumber = 1    
+        image_tokens.well = token_dict["w"]
+        fieldText = token_dict["s"]
+        try:
+            image_tokens.tileNumber = int(fieldText)
+        except ValueError:
+            raise Exception("Cannot parse field number from '" + fieldText + "' in '" + basename + "' file name.")
+    
         image_tokens.channelCode = token_dict["c"]
-        image_tokens.timepoint = float(token_dict["t"])
-        image_tokens.depth = float(token_dict["z"])
         return image_tokens
 
     """
@@ -47,7 +50,7 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         Geometry
     """
     def getTileGeometry(self, imageTokens, maxTileNumber):
-        return Geometry.createFromRowColDimensions(1, 1);
+        return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3);
     
     """
     Overrides the default implementation which does the same thing (to demonstrate how this can be done). 
@@ -61,13 +64,22 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
          Location
     """
     def getTileCoordinates(self, tileNumber, tileGeometry):
-        return Location(1, 1)
+        columns = tileGeometry.getWidth()
+        row = ((tileNumber - 1) / columns) + 1
+        col = ((tileNumber - 1) % columns) + 1
+        return Location(row, col)
 
+    def getChannelColor(self, channelCode):
+        # codes should be in upper case
+        dict = { "GFP" : ChannelColor.GREEN, "DAPI" : ChannelColor.RED_BLUE, "CY3" : ChannelColor.BLUE, "CY5" : ChannelColor.RED }
+        if channelCode in dict:
+            return dict[channelCode]
+        else:
+            return None
+            
 if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
-    imageDataset.setMicroscopyData(True)
-    imageDataset.setDataSetType("MICROSCOPY_IMG")
-    imageDataset.setMeasuredData(True)
+    imageDataset.setRawImageDatasetType()
     imageDataset.setPlate("PLATONIC", incoming.getName())
     factory.registerImageDataset(imageDataset, incoming, service)
-
+    

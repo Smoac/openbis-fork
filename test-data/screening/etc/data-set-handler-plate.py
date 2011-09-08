@@ -7,7 +7,7 @@ The folder loaded to the dropbox folder should have the same name as the plate t
 """
 
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location, Channel, ChannelColorComponent
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location, Channel, ChannelColor, ChannelColorComponent
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
     
@@ -68,7 +68,7 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         row = ((tileNumber - 1) / columns) + 1
         col = ((tileNumber - 1) % columns) + 1
         return Location(row, col)
-
+            
 if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
     imageDataset.setRawImageDatasetType()

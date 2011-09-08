@@ -2,25 +2,28 @@
 
 """
 Generate an image series.
+
+Usage: generate-test-series.py <sample code> <time points> <depth points>
+
 """
 
 import imagegen
 import os
 import shutil
-
+import sys
 
 def recreateDir(dir):
   if os.path.exists(dir):
     shutil.rmtree(dir)
   os.mkdir(dir)
 
-recreateDir("SERIES")
+sampleCode = sys.argv[1]
+timePoints = int(sys.argv[2])
+depthPoints = int(sys.argv[3])
+recreateDir(sampleCode)
 config = imagegen.GenericImageGeneratorConfig()
-config.time_points = range(1, 101)
-
-# Alternative Configurations
-#config.depth_points = [ 3, 6, 9 ]
-#config.is_split = True
+config.time_points = range(0, timePoints)
+config.depth_points = range(0, depthPoints * 3, 3)
 
 generator = imagegen.GenericImageGenerator(config)
-generator.generate_raw_images("SERIES")
+generator.generate_raw_images(sampleCode)
