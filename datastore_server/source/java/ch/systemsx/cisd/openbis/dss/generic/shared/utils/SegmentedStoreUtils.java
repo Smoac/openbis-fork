@@ -94,6 +94,11 @@ public class SegmentedStoreUtils
     public static File[] getShares(File storeRootDir)
     {
         File[] files = storeRootDir.listFiles(FILTER_ON_SHARES);
+        if (files == null)
+        {
+            throw new ConfigurationFailureException(
+                    "Store folder does not exist or cannot be accessed: " + storeRootDir);
+        }
         Arrays.sort(files);
         return files;
     }
