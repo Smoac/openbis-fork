@@ -87,8 +87,8 @@
 		<javac srcdir="${src}"
 		       destdir="${classes}"
 		       classpath="${ecp}"
-		       source="1.5"
-		       target="1.5"
+		       source="1.6"
+		       target="1.6"
 		       debug="true">
 			<compilerarg line="-warn:none" />
 		</javac>
@@ -115,6 +115,8 @@
 		        outputdir="${output.test}"
 		        failureproperty="tests.failed">
 			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
+			<jvmarg value="-Xmx1024M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
 		</testng>
 		<junitreport todir="${output.test}">
 			<fileset dir="${output.test}">
