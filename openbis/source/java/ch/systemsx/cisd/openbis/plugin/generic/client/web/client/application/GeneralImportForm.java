@@ -91,7 +91,6 @@ public class GeneralImportForm extends AbstractRegistrationForm
     @Override
     protected final void onRender(final Element target, final int index)
     {
-        System.out.println("onRender!");
         super.onRender(target, index);
         addFormFields(false);
     }
@@ -106,7 +105,6 @@ public class GeneralImportForm extends AbstractRegistrationForm
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    System.out.println("Event!");
                     if (checkBox.getValue())
                     {
                         formPanel.removeAll();
