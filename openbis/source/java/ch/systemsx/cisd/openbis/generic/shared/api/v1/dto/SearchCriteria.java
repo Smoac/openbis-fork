@@ -25,8 +25,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 /**
  * A (mutable) object representing the specification of a search. A search is specified by
@@ -100,7 +101,11 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = As.PROPERTY, property = "@class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonTypeName("MatchClause")
+    @JsonSubTypes(value =
+        { @JsonSubTypes.Type(AttributeMatchClause.class),
+                @JsonSubTypes.Type(PropertyMatchClause.class) })
     public static class MatchClause implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -235,6 +240,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("PropertyMatchClause")
     public static class PropertyMatchClause extends MatchClause
     {
         private static final long serialVersionUID = 1L;
@@ -282,6 +288,7 @@ public class SearchCriteria implements Serializable
      * 
      * @author Chandrasekhar Ramakrishnan
      */
+    @JsonTypeName("AttributeMatchClause")
     public static class AttributeMatchClause extends MatchClause
     {
         private static final long serialVersionUID = 1L;
