@@ -1,0 +1,233 @@
+<!-- 
+
+  This file demonstrates how one can access openBIS via simple JSON requests.
+  
+  In order to deploy the demo on the openBIS as you have to copy the enclosing directory (jsontestapp) 
+  to a location where it will be served over HTTP 
+  e.g. openbis/targets/www/openbis-test/resources/ 
+ -->
+
+<html>
+<head>
+ <script src="./jquery.js"></script>
+ <script>
+ 
+ var jsonRequestData = function(params) {
+   // KE: generate unique ids ? Hardcoded "id" seems to work too for now
+   params["id"] = "1"
+   params["jsonrpc"] = "2.0"
+   return JSON.stringify(params)
+ }
+ 
+ var ajaxRequest = function(settings) {
+     settings.type = "POST"
+     settings.processData = false
+     settings.dataType = "json"
+     settings.data = jsonRequestData(settings.data)
+     $.ajax(settings)
+ }
+ 
+ var openbis = {}
+ openbis.url = 'http://localhost:8888/openbis/rmi-general-information-v1.json'
+ openbis.dssUrl = 'http://localhost:8889/datastore_server/rmi-dss-api-v1.json'
+ 
+ openbis.login = function(username, password) {
+     ajaxRequest({
+        url: openbis.url,
+        data: { "method" : "tryToAuthenticateForAllServices",
+                "params" : [ username, password ] 
+              },
+        success: 
+            function(data) {
+               openbis.sessionToken = data.result
+               $("#loginDialog").hide()
+               $("#mainContent").show()
+            },
+        error: function() {
+          alert("Login failed")
+        }
+     });
+ }
+
+ openbis.listProjects = function() {
+     ajaxRequest({
+        url: openbis.url,
+        data: { "method" : "listProjects",
+                "params" : [ openbis.sessionToken ] 
+              },
+        success: 
+            function(data) {
+                renderEntities("projects", data.result, 
+                                function(entity) { 
+                                    identifier = "/" + entity.spaceCode + "/" + entity.code 
+                                    return '<tr><td>' + identifier + '</td></tr>'
+                                })
+            },
+     });
+ }
+ 
+ openbis.searchForSamples = function(query) {
+     ajaxRequest({
+        url: openbis.url,
+        data: { "method" : "searchForSamples",
+                "params" : [ openbis.sessionToken,
+                             { "matchClauses" : 
+                                  [ {"@type":"AttributeMatchClause",
+                                     "attribute":"CODE",
+                                     "fieldType":"ATTRIBUTE",
+                                     "desiredValue": query + '*' }
+                                  ] 
+                              }
+                 ] 
+              },
+        success: 
+            function(data) {
+                renderEntities("samples", data.result, function(entity) {
+                     identifier = entity.identifier
+                     props = JSON.stringify(entity.properties)
+                     return '<tr><td>' + identifier + '</td><td>' + props + '</td></tr>'
+                })
+            },
+     });
+ }
+ 
+ openbis.searchForDataSets = function(query) {
+     ajaxRequest({
+        url: openbis.url,
+        data: { "method" : "searchForDataSets",
+                "params" : [ openbis.sessionToken,
+                             {"subCriterias":
+                                  [{"criteria":{
+                                    "operator":"MATCH_ALL_CLAUSES",
+                                    "matchClauses":[{"@type":"AttributeMatchClause",
+                                        "attribute":"CODE",
+                                        "fieldType":"ATTRIBUTE",
+                                        "desiredValue": query + "*" }]},
+                                    "targetEntityKind":"SAMPLE"}],       
+                              "operator":"MATCH_ALL_CLAUSES" }
+                 ] 
+              },
+        success: 
+            function(data) {
+                renderEntities("datasets", data.result, 
+                function(entity) {
+                     identifier = entity.code + '(' + entity.dataSetTypeCode + ')'
+                     props = JSON.stringify(entity.properties)
+                     return '<tr><td>' + identifier + '</td><td>' + props + '</td><td id='+ entity.code +'></td></tr>'
+                })
+                                
+                // asynchronously list the data set files                 
+                $(data.result).each(function() { 
+                    openbis.listDataSetContents(this.code)
+                })
+            },
+     });
+ }
+
+ openbis.listDataSetContents = function(dataSetCode) {
+     ajaxRequest({
+        url: openbis.dssUrl,
+        data: { "method" : "listFilesForDataSet",
+                "params" : [ openbis.sessionToken, dataSetCode, "", true ]
+               },
+        success: 
+            function(data) {
+                $(data.result).each(function() { 
+                    description = this.isDirectory ? '(directory)' : '(size=' + this.fileSize + ')';
+                    divId = '#' + dataSetCode 
+                    $(divId).append(this.pathInDataSet)
+                            .append(description)
+                            .append('<br>')
+                })
+            },
+     });
+ }
+ 
+function renderEntities(type, entities, rowRenderer) {
+  if (!entities)
+    return
+  
+  divId = '#'+ type;
+  $(divId).show()
+  
+  $(entities).each(function() {
+    $(divId + ' table tr:last').after(rowRenderer(this))
+  });
+  
+}
+
+ 
+ $(document).ready(function() {
+ 
+   $('#mainContent').hide()
+   $('#loginButton').click(function() {
+         openbis.login( $('#username').val(), $('#password').val() )
+    });
+    
+    $('#searchButton').click(function() {
+       $('.queryResults').hide()
+       $('.queryResults tr:has(td)').remove()
+       
+       query = $('#query').val()
+       openbis.listProjects()
+       openbis.searchForSamples(query)
+       openbis.searchForDataSets(query)
+      
+    });
+
+ });
+ 
+ </script>
+</head>
+
+<body>
+
+<div id="loginDialog">
+  Username <input id="username" type="text"></input><br></br>
+  Password <input id="password" type="password"></input><br></br>
+  <input id="loginButton" type="button" value="Login">
+</div>
+
+<div id="mainContent">
+
+<div id="search-query">
+  Search in openBIS <input id="query" type="text"></input> &nbsp; <input id="searchButton" type="button" value="Go!"></input>
+<div>
+
+<br></br>
+<br></br>
+
+<div id="search-results">
+  <div id="projects" class="queryResults"> 
+     <h2>Projects</h2>
+     <table>
+       <tr>
+         <th>Identifier</th>
+       </tr>
+     </table>
+  </div>
+  <div id="samples" class="queryResults"> 
+     <h2>Samples</h2>
+     <table>
+       <tr>
+         <th>Identifier</th>
+         <th>Properties</th>
+       </tr>
+     </table>
+  </div>
+  <div id="datasets" class="queryResults"> 
+     <h2>Data Sets</h2>
+     <table>
+       <tr>
+         <th>Identifier</th>
+         <th>Properties</th>
+         <th>Files</th>
+       </tr>
+     </table>
+  </div>
+</div>
+
+<!-- end #mainContent -->
+</div>
+</body>
+</html>
