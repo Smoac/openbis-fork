@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
@@ -109,11 +110,16 @@ class CapabilityMap
 
     RoleWithHierarchy tryGetRole(Method m)
     {
-        final String methodName = m.getDeclaringClass().getSimpleName() + "." + m.getName();
-        final RoleWithHierarchy roleOrNull = capMap.get(methodName);
+        final Capability cap = m.getAnnotation(Capability.class);
+        if (cap == null)
+        {
+            return null;
+        }
+        final String capabilityName = cap.value().toUpperCase();
+        final RoleWithHierarchy roleOrNull = capMap.get(capabilityName);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("Request: '%s' -> %s", methodName, roleOrNull));
+            operationLog.debug(String.format("Request: '%s' -> %s", capabilityName, roleOrNull));
         }
         return roleOrNull;
     }

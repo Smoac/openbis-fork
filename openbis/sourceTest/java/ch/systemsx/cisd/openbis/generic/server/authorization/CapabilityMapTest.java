@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
@@ -40,10 +41,17 @@ public class CapabilityMapTest
         LogInitializer.initDebug();
     }
 
-    void dummyA()
+    @Capability("A")
+    void dummyA1()
     {
     }
 
+    @Capability("A")
+    void dummyA2()
+    {
+    }
+
+    @Capability("B")
     void dummyB(String dummy)
     {
     }
@@ -56,11 +64,12 @@ public class CapabilityMapTest
     public void testHappyCase() throws SecurityException, NoSuchMethodException
     {
         CapabilityMap capMap =
-                new CapabilityMap(Arrays.asList("CapabilityMapTest.dummyA: SPACE_POWER_USER\t",
-                        "# Some comment", "", " CapabilityMapTest.dummyB  INSTANCE_ETL_SERVER"),
-                        "<memory>");
+                new CapabilityMap(Arrays.asList("A: SPACE_POWER_USER\t", "# Some comment", "",
+                        " B  INSTANCE_ETL_SERVER"), "<memory>");
         assertEquals(RoleWithHierarchy.SPACE_POWER_USER,
-                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA")));
+                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
+        assertEquals(RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA2")));
         assertEquals(
                 RoleWithHierarchy.INSTANCE_ETL_SERVER,
                 capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyB", String.class)));
@@ -74,7 +83,7 @@ public class CapabilityMapTest
                 new CapabilityMap(Arrays.asList(
                         "CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong",
                         "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>");
-        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA")));
+        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
         assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyB",
                 String.class)));
         assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyC")));

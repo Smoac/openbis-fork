@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
@@ -210,10 +211,11 @@ public interface IScreeningServer extends IServer
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException;
 
     /**
-     * registers the contents of an uploaded library.
+     * Registers the contents of an uploaded library.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerLibrary(String sessionToken, String userEmail,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType);

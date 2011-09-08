@@ -36,6 +36,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -63,8 +64,8 @@ public final class DefaultAccessControllerTest
         capFile.deleteOnExit();
         try
         {
-            FileUtils.writeLines(capFile, Arrays.asList("# Test overriding annotation",
-                    "MyInterface.myMethodWithOtherRolesOverridden: SPACE_OBSERVER"));
+            FileUtils.writeLines(capFile,
+                    Arrays.asList("# Test overriding annotation", "MY_CAP: SPACE_OBSERVER"));
         } catch (IOException ex)
         {
             ex.printStackTrace();
@@ -220,6 +221,7 @@ public final class DefaultAccessControllerTest
         public void myMethodWithOtherRoles();
 
         @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+        @Capability("MY_CAP")
         public void myMethodWithOtherRolesOverridden();
 
         @RolesAllowed(
