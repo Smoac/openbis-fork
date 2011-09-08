@@ -20,23 +20,25 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Represents information about a file stored in DSS.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class FileInfoDssDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String pathInDataSet;
+    private String pathInDataSet;
 
-    private final String pathInListing;
+    private String pathInListing;
 
-    private final boolean isDirectory;
+    private boolean isDirectory;
 
-    private final long fileSize;
+    private long fileSize;
 
     public FileInfoDssDTO(String pathInDataSet, String pathInListing, boolean isDirectory,
             long fileSize)
@@ -66,6 +68,7 @@ public class FileInfoDssDTO implements Serializable
     /**
      * Return true if this FileInfo represents a folder.
      */
+    @JsonProperty(value = "isDirectory")
     public boolean isDirectory()
     {
         return isDirectory;
@@ -88,5 +91,33 @@ public class FileInfoDssDTO implements Serializable
         sb.append(getPathInListing());
         sb.append(getFileSize());
         return sb.toString();
+    }
+
+    //
+    // JSON-RPC
+    //
+    private FileInfoDssDTO()
+    {
+
+    }
+
+    private void setPathInDataSet(String pathInDataSet)
+    {
+        this.pathInDataSet = pathInDataSet;
+    }
+
+    private void setPathInListing(String pathInListing)
+    {
+        this.pathInListing = pathInListing;
+    }
+
+    private void setIsDirectory(boolean isDirectory)
+    {
+        this.isDirectory = isDirectory;
+    }
+
+    private void setFileSize(long fileSize)
+    {
+        this.fileSize = fileSize;
     }
 }

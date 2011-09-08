@@ -41,6 +41,7 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -50,6 +51,7 @@ import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.googlecode.jsonrpc4j.spring.JsonServiceExporter;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
@@ -68,6 +70,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -226,7 +229,7 @@ public class DataStoreServer
         DatasetDownloadServlet.setDownloadUrl(configParams.getDownloadURL());
         servletContextHandler.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
-        initializeRpcServices(servletContextHandler, applicationContext);
+        initializeRpcServices(servletContextHandler, applicationContext, configParams);
         registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
         registerImageOverviewServlet(servletContextHandler, configParams);
     }
@@ -238,7 +241,7 @@ public class DataStoreServer
     // Perhaps by using Spring and the dssApplicationContext.xml more effectively, or perhaps by
     // using annotations and reflection.
     private static void initializeRpcServices(final ServletContextHandler context,
-            final ApplicationContext applicationContext)
+            final ApplicationContext applicationContext, ConfigParameters configParams)
     {
         // Get the spring bean and do some additional configuration
         StreamSupportingHttpInvokerServiceExporter v1ServiceExporter =
@@ -255,6 +258,30 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
+        //
+        // export the API via JSON
+        //
+        String jsonRpcV1Suffix = rpcV1Suffix + ".json";
+        String jsonRpcV1Path = DataStoreApiUrlUtilities.getUrlForRpcService(jsonRpcV1Suffix);
+        JsonServiceExporter jsonV1ServiceExporter = new JsonServiceExporter();
+        jsonV1ServiceExporter.setService(service);
+        jsonV1ServiceExporter.setServiceInterface(IDssServiceRpcGeneric.class);
+        jsonV1ServiceExporter
+                .setApplicationContext((org.springframework.context.ApplicationContext) ServiceProvider
+                        .getApplicationContext());
+        try
+        {
+            jsonV1ServiceExporter.afterPropertiesSet();
+        } catch (Exception ex)
+        {
+            throw new RuntimeException("Cannot initialize json-rpc service exporter:"
+                    + ex.getMessage(), ex);
+        }
+
+        context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
+                jsonRpcV1Path)), jsonRpcV1Path);
+        context.addFilter(CrossOriginFilter.class, "/*", FilterMapping.ALL);
+
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
         String nameServerPath =
@@ -263,20 +290,26 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
                 nameServerPath)), nameServerPath);
 
-        RpcServiceInterfaceVersionDTO nameServerVersion =
-                new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
-                        IRpcServiceNameServer.PREFFERED_URL_SUFFIX, 1, 0);
 
         // Inform the name server about the services I export
         // N.b. In the future, this could be done using spring instead of programmatically
         RpcServiceNameServer rpcNameServer =
                 (RpcServiceNameServer) nameServiceExporter.getService();
 
+        RpcServiceInterfaceVersionDTO nameServerVersion =
+                new RpcServiceInterfaceVersionDTO(IRpcServiceNameServer.PREFFERED_SERVICE_NAME,
+                        IRpcServiceNameServer.PREFFERED_URL_SUFFIX,
+                        rpcNameServer.getMajorVersion(), rpcNameServer.getMinorVersion());
         RpcServiceInterfaceVersionDTO v1Interface =
                 new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
-                        rpcV1Suffix, 1, 0);
-        rpcNameServer.addSupportedInterfaceVersion(v1Interface);
+                        rpcV1Suffix, service.getMajorVersion(), service.getMinorVersion());
+        RpcServiceInterfaceVersionDTO jsonV1Interface =
+                new RpcServiceInterfaceVersionDTO(DssServiceRpcGeneric.DSS_SERVICE_NAME,
+                        jsonRpcV1Suffix, service.getMajorVersion(), service.getMinorVersion());
+
         rpcNameServer.addSupportedInterfaceVersion(nameServerVersion);
+        rpcNameServer.addSupportedInterfaceVersion(v1Interface);
+        rpcNameServer.addSupportedInterfaceVersion(jsonV1Interface);
     }
 
     @SuppressWarnings("unchecked")
