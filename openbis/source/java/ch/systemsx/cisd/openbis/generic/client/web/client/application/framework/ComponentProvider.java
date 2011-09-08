@@ -22,10 +22,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GeneralImportComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
@@ -1507,6 +1509,45 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.FILE_FORMAT_TYPES);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+    }
+
+    public AbstractTabItemFactory createGeneralImport()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    TabContent libraryImportTab = new GeneralImportComponent(viewContext);
+                    return createRegistrationTab(getTabTitle(),
+                            DatabaseModificationAwareComponent.wrapUnaware(libraryImportTab));
+                }
+
+                @Override
+                public String getId()
+                {
+                    return GeneralImportComponent.createId();
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.GENERAL_IMPORT,
+                            HelpPageAction.IMPORT);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return GeneralImportComponent.getTabTitle(viewContext);
                 }
 
                 @Override

@@ -47,6 +47,8 @@ public final class ResourceNames
 
     public final static String ENTITY_INFORMATION_PROVIDER = "entity-information-provider";
 
+    public static final String MAIL_CLIENT_PARAMETERS = "mail-client-parameters";
+
     private ResourceNames()
     {
         // Can not be instantiated.

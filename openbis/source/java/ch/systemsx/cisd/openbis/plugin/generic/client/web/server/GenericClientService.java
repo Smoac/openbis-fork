@@ -173,8 +173,8 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
-            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
-            throws UserFailureException
+            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting,
+            boolean async, String userEmail) throws UserFailureException
     {
         BatchOperationKind operationKind =
                 updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
@@ -197,13 +197,27 @@ public class GenericClientService extends AbstractClientService implements IGene
                     parseMaterials(session, uploadedFiles, materialType, "MATERIALS",
                             updateExisting);
             final String sessionToken = getSessionToken();
-            genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
-                    samplesInfo.getSamples(), materialsInfo.getMaterials());
 
-            List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
-            results.addAll(materialsInfo.getResultList());
-            results.addAll(samplesInfo.getResultList());
-            return results;
+            if (async)
+            {
+                genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
+                        samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
+
+                List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
+                results.add(new BatchRegistrationResult(uploadedFiles.iterable().iterator().next()
+                        .getOriginalFilename(), "File will be processed asynchronously."));
+
+                return results;
+            } else
+            {
+                genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                        samplesInfo.getSamples(), materialsInfo.getMaterials());
+
+                List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
+                results.addAll(materialsInfo.getResultList());
+                results.addAll(samplesInfo.getResultList());
+                return results;
+            }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

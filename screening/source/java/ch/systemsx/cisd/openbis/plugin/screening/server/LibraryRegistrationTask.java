@@ -1,13 +1,15 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.server.IASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -30,20 +32,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * 
  * @author Izabela Adamczyk
  */
-class LibraryRegistrationTask implements Runnable
+class LibraryRegistrationTask implements IASyncAction
 {
-
-    private static final String SUCCESSFUL_LIBRARY_REGISTARION_STATUS =
-            "Library successfully registered";
-
-    private static final String UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS =
-            "Library registration failed";
 
     private static final String DELIM = " ";
 
     private final String sessionToken;
-
-    private final String email;
 
     private final List<NewMaterial> newGenesOrNull;
 
@@ -57,45 +51,20 @@ class LibraryRegistrationTask implements Runnable
 
     private final IDAOFactory daoFactory;
 
-    private final IMailClient mailClient;
-
-    public LibraryRegistrationTask(String sessionToken, String email,
-            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
-            List<NewSamplesWithTypes> newSamplesWithType, ICommonServer commonServer,
-            IGenericServer server, IDAOFactory daoFactory, IMailClient mailClient)
+    public LibraryRegistrationTask(String sessionToken, List<NewMaterial> newGenesOrNull,
+            List<NewMaterial> newOligosOrNull, List<NewSamplesWithTypes> newSamplesWithType,
+            ICommonServer commonServer, IGenericServer server, IDAOFactory daoFactory)
     {
         this.sessionToken = sessionToken;
-        this.email = email;
         this.newGenesOrNull = newGenesOrNull;
         this.newOligosOrNull = newOligosOrNull;
         this.newSamplesWithType = newSamplesWithType;
         this.commonServer = commonServer;
         this.genericServer = server;
         this.daoFactory = daoFactory;
-        this.mailClient = mailClient;
     }
 
-    public void run()
-    {
-        boolean success = true;
-        Date startDate = new Date();
-        StringBuilder message = new StringBuilder();
-
-        try
-        {
-            // when one of these methods fails it will throw an unchecked exception
-            registerOrUpdateGenes(message);
-            registerOrUpdateOligos(message);
-            registerOrUpdateSamples(message);
-        } catch (RuntimeException rex)
-        {
-            success = false;
-        }
-
-        sendEmail(message.toString(), startDate, email, success);
-    }
-
-    private void registerOrUpdateSamples(StringBuilder message)
+    private void registerOrUpdateSamples(Writer message) throws IOException
     {
         try
         {
@@ -104,14 +73,14 @@ class LibraryRegistrationTask implements Runnable
                 genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
                 for (NewSamplesWithTypes s : newSamplesWithType)
                 {
-                    message.append("Successfuly saved " + s.getNewEntities().size()
+                    message.write("Successfuly saved " + s.getNewEntities().size()
                             + " samples of type " + s.getEntityType() + ".\n");
                 }
             }
         } catch (RuntimeException ex)
         {
-            message.append("ERROR: Plates and wells could not be saved!\n");
-            message.append(ex.getMessage());
+            message.write("ERROR: Plates and wells could not be saved!\n");
+            message.write(ex.getMessage());
             throw ex;
         }
     }
@@ -136,7 +105,7 @@ class LibraryRegistrationTask implements Runnable
         return materialsWithTypes;
     }
 
-    private void registerOrUpdateOligos(StringBuilder message)
+    private void registerOrUpdateOligos(Writer message) throws IOException
     {
         try
         {
@@ -144,17 +113,17 @@ class LibraryRegistrationTask implements Runnable
             {
                 registerOrUpdateMaterials(ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME,
                         newOligosOrNull);
-                message.append("Successfuly saved " + newOligosOrNull.size() + " siRNAs.\n");
+                message.write("Successfuly saved " + newOligosOrNull.size() + " siRNAs.\n");
             }
         } catch (RuntimeException ex)
         {
-            message.append("ERROR: siRNAs could not be saved!\n");
-            message.append(ex.getMessage());
+            message.write("ERROR: siRNAs could not be saved!\n");
+            message.write(ex.getMessage());
             throw ex;
         }
     }
 
-    private void registerOrUpdateGenes(StringBuilder message)
+    private void registerOrUpdateGenes(Writer message) throws IOException
     {
         try
         {
@@ -171,13 +140,13 @@ class LibraryRegistrationTask implements Runnable
                 }
 
                 registerOrUpdateMaterials(ScreeningConstants.GENE_PLUGIN_TYPE_CODE, newGenesOrNull);
-                message.append("Successfuly saved properties of " + newGenesOrNull.size()
+                message.write("Successfuly saved properties of " + newGenesOrNull.size()
                         + " genes.\n");
             }
         } catch (RuntimeException ex)
         {
-            message.append("ERROR: Genes could not be saved!\n");
-            message.append(ex.getMessage());
+            message.write("ERROR: Genes could not be saved!\n");
+            message.write(ex.getMessage());
             throw ex;
         }
     }
@@ -247,19 +216,24 @@ class LibraryRegistrationTask implements Runnable
         }
     }
 
-    private void sendEmail(String content, Date startDate, String recipient, boolean successful)
+    public boolean doAction(Writer messageWriter)
     {
-        String status =
-                successful ? SUCCESSFUL_LIBRARY_REGISTARION_STATUS
-                        : UNSUCCESSFUL_LIBRARY_REGISTARION_STATUS;
+        try
+        {
+            registerOrUpdateGenes(messageWriter);
+            registerOrUpdateOligos(messageWriter);
+            registerOrUpdateSamples(messageWriter);
 
-        String subject = addDate(status, startDate);
-        mailClient.sendMessage(subject, content, null, null, recipient);
+            return true;
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
     }
 
-    private static String addDate(String subject, Date startDate)
+    public String getName()
     {
-        return subject + " (initiated at " + startDate + ")";
+        return "Library registration";
     }
 
 }

@@ -79,7 +79,7 @@ public class TopMenu extends LayoutContainer
 
         USER_MENU_CHANGE_SETTINGS, USER_MENU_LOGOUT, USER_MENU_LOGIN,
 
-        VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW;
+        VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW, GENERAL_IMPORT_MENU;
 
         public String getMenuId()
         {

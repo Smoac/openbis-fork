@@ -20,9 +20,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -34,9 +31,6 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -132,20 +126,15 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
      */
     public static final int MINOR_VERSION = 7;
 
-    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
-            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
 
+    // necessary to make it possible to run asynchronous actions
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
-
-    @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
-    private MailClientParameters mailClientParameters;
 
     public ScreeningServer()
     {
@@ -287,10 +276,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType)
     {
-        IMailClient mailClient = new MailClient(mailClientParameters);
-        executor.submit(new LibraryRegistrationTask(sessionToken, userEmail, newGenesOrNull,
-                newOligosOrNull, newSamplesWithType, commonServer, genericServer, getDAOFactory(),
-                mailClient));
+        executeASync(userEmail, new LibraryRegistrationTask(sessionToken, newGenesOrNull,
+                newOligosOrNull, newSamplesWithType, commonServer, genericServer, getDAOFactory()));
     }
 
     public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,

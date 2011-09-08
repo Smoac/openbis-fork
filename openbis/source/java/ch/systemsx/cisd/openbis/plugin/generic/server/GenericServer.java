@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.IASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
@@ -113,6 +115,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     protected ICommonServer commonServer;
+
+    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
+    private IGenericServer genericServer;
 
     public GenericServer()
     {
@@ -779,9 +784,31 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
-            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+            final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
     {
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
         registerOrUpdateSamples(sessionToken, newSamplesWithType);
     }
+
+    public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
+            throws UserFailureException
+    {
+        executeASync(userEmail, new IASyncAction()
+            {
+                public String getName()
+                {
+                    return "General Import";
+                }
+
+                public boolean doAction(Writer messageWriter)
+                {
+                    genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                            newSamplesWithType, newMaterialsWithType);
+                    return true;
+                }
+            });
+    }
+
 }

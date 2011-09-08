@@ -151,10 +151,12 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<BatchRegistrationResult>> registerExperimentsCallback);
 
     /**
-     * @see IGenericClientService#registerOrUpdateSamplesAndMaterials(String, String, boolean)
+     * @see IGenericClientService#registerOrUpdateSamplesAndMaterials(String, String, boolean,
+     *      boolean, String)
      */
     public void registerOrUpdateSamplesAndMaterials(final String sessionKey,
-            final String defaultGroupIdentifier, boolean updateExisting,
+            final String defaultGroupIdentifier, boolean updateExisting, boolean async,
+            String userEmail,
             AsyncCallback<List<BatchRegistrationResult>> registerSamplesAndMaterialsCallback)
             throws UserFailureException;
 

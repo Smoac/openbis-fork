@@ -448,7 +448,9 @@ var common = {
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",
   ARCHIVING_MENU_LOCK: "Disable",
   ARCHIVING_MENU_UNLOCK: "Enable",
-    
+  
+  GENERAL_IMPORT_MENU: "General Import",
+  
   menu_modules: "Utilities",
     
   //
@@ -475,7 +477,7 @@ var common = {
   list_groups: "Spaces Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
-
+  general_import: "General Import",
   
   //
   // Help Page Titles

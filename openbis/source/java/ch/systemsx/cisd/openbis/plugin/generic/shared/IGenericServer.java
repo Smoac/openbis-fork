@@ -151,6 +151,18 @@ public interface IGenericServer extends IServer
             List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException;
 
     /**
+     * Asynchronously registers or updates samples and materials of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
+    public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
+            throws UserFailureException;
+
+    /**
      * Updates samples of different types in batches.
      */
     @Transactional

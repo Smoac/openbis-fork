@@ -107,31 +107,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
 
     public void registerMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials)
     {
-        StringBuilder sb = new StringBuilder();
-        for (NewMaterialsWithTypes s : newMaterials)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(",");
-            }
-            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
-        }
-        logTracking(sessionToken, "register_materials", sb.toString());
+        logTracking(sessionToken, "register_materials", getMaterials(newMaterials));
     }
 
     public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
             boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
-        StringBuilder sb = new StringBuilder();
-        for (NewMaterialsWithTypes s : newMaterials)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(",");
-            }
-            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
-        }
-        logTracking(sessionToken, "update_materials", sb.toString());
+        logTracking(sessionToken, "update_materials", getMaterials(newMaterials));
         return 0;
     }
 
@@ -202,31 +184,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
             throws UserFailureException
     {
-        StringBuilder sb = new StringBuilder();
-        for (NewSamplesWithTypes s : newSamplesWithType)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(",");
-            }
-            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
-        }
-        logTracking(sessionToken, "register_samples", sb.toString());
+        logTracking(sessionToken, "register_samples", getSamples(newSamplesWithType));
     }
 
     public void updateSamples(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType)
             throws UserFailureException
     {
-        StringBuilder sb = new StringBuilder();
-        for (NewSamplesWithTypes s : updatedSamplesWithType)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(",");
-            }
-            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
-        }
-        logTracking(sessionToken, "update_samples", sb.toString());
+        logTracking(sessionToken, "update_samples", getSamples(updatedSamplesWithType));
     }
 
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
@@ -242,16 +206,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerOrUpdateSamples(String sessionToken,
             List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
-        StringBuilder sb = new StringBuilder();
-        for (NewSamplesWithTypes s : newSamplesWithType)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(",");
-            }
-            sb.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
-        }
-        logTracking(sessionToken, "register_or_update_samples", sb.toString());
+        logTracking(sessionToken, "register_or_update_samples", getSamples(newSamplesWithType));
     }
 
     public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
@@ -277,7 +232,25 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
 
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
-            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+            final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+    {
+
+        logTracking(sessionToken, "register_or_update_samples_and_materials",
+                "SAMPLES(%s) MATERIALS(%s)", getSamples(newSamplesWithType),
+                getMaterials(newMaterialsWithType));
+    }
+
+    public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType,
+            final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "register_or_update_samples_and_materials_async",
+                "SAMPLES(%s) MATERIALS(%s) EMAIL(%s)", getSamples(newSamplesWithType),
+                getMaterials(newMaterialsWithType), userEmail);
+    }
+
+    private static String getSamples(final List<NewSamplesWithTypes> newSamplesWithType)
     {
         StringBuilder samples = new StringBuilder();
         for (NewSamplesWithTypes s : newSamplesWithType)
@@ -289,6 +262,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             samples.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
         }
 
+        return samples.toString();
+    }
+
+    private static String getMaterials(final List<NewMaterialsWithTypes> newMaterialsWithType)
+    {
         StringBuilder materials = new StringBuilder();
         for (NewMaterialsWithTypes s : newMaterialsWithType)
         {
@@ -298,7 +276,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             }
             materials.append(s.getEntityType().getCode() + ":" + s.getNewEntities().size());
         }
-        logTracking(sessionToken, "register_or_update_samples_and_materials",
-                "SAMPLES(%s) MATERIALS(%s)", samples.toString(), materials.toString());
+
+        return materials.toString();
     }
 }

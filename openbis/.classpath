@@ -61,6 +61,7 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas-3.7-20101029.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt-image-loader/gwt-image-loader.jar"/>
+	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar"/>

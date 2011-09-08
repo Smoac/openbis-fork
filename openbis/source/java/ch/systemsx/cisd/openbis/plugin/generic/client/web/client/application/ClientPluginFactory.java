@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GeneralImportComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -98,6 +99,26 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     public final <T extends BasicEntityType, I extends IIdAndCodeHolder> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
+        if (entityKind == null)
+        {
+            return new ClientPluginAdapter<T, I>()
+                {
+                    @Override
+                    public Widget createBatchRegistrationForEntityType(final T entityType)
+                    {
+                        return createBatchUpdateForEntityType(entityType);
+                    }
+
+                    @Override
+                    public Widget createBatchUpdateForEntityType(T entityType)
+                    {
+                        return new GeneralImportForm(getViewContext(),
+                                GeneralImportComponent.createId(),
+                                GeneralImportComponent.SESSION_KEY);
+                    }
+
+                };
+        }
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
             return (IClientPlugin<T, I>) new ExperimentClientPlugin();

@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
 {
-
     private final IAuthenticationService authenticationService;
 
     protected final ICommonBusinessObjectFactory businessObjectFactory;

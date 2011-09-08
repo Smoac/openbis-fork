@@ -694,6 +694,8 @@ public abstract class Dict
 
     public static final String MENU_ARCHIVING = "menu_archiving";
 
+    public static final String MENU_GENERAL_IMPORT = "menu_general_import";
+
     //
     // Tab Titles
     //
@@ -733,6 +735,8 @@ public abstract class Dict
     public static final String CONFIRM_TITLE = "confirm_title";
 
     public static final String CONFIRM_CLOSE_MSG = "confirm_close_msg";
+
+    public static final String GENERAL_IMPORT = "general_import";
 
     //
     // Role View
@@ -1056,7 +1060,7 @@ public abstract class Dict
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
     public static final String UPDATE_EXISTING_ENTITIES_LABEL = "update_existing_entities_label";
-    
+
     public static final String URL = "url";
 
     public static final String REASON = "reason";

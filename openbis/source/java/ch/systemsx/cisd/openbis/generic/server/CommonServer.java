@@ -2486,5 +2486,4 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return UserFailureException.fromTemplate(exception, "%s '%s': %s", entity.getEntityKind()
                 .getDescription(), entity.getIdentifier(), exception.getMessage());
     }
-
 }

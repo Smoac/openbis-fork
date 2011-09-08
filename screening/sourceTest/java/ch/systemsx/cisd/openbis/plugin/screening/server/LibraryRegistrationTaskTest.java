@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
-import static org.hamcrest.text.StringContains.containsString;
-
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,8 +28,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.mail.From;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -59,8 +56,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
 {
     private static final String SESSION_TOKEN = "session";
 
-    private static final String USER_EMAIL = "micky.mouse@acme.org";
-
     private Mockery context;
 
     private ICommonServer commonServer;
@@ -70,8 +65,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
     private IDAOFactory daoFactory;
 
     private IEntityTypeDAO entityTypeDAO;
-
-    private IMailClient mailClient;
 
     private LibraryRegistrationTask task;
 
@@ -83,7 +76,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         genericServer = context.mock(IGenericServer.class);
         daoFactory = context.mock(IDAOFactory.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
-        mailClient = context.mock(IMailClient.class);
     }
 
     @AfterMethod
@@ -110,8 +102,8 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
                 new RecordingMatcher<List<NewMaterialsWithTypes>>();
 
         task =
-                new LibraryRegistrationTask(SESSION_TOKEN, USER_EMAIL, newGenes, null, null,
-                        commonServer, genericServer, daoFactory, mailClient);
+                new LibraryRegistrationTask(SESSION_TOKEN, newGenes, null, null, commonServer,
+                        genericServer, daoFactory);
 
         context.checking(new Expectations()
             {
@@ -129,16 +121,10 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
 
                     one(genericServer).registerOrUpdateMaterials(with(SESSION_TOKEN),
                             with(materialsWithTypesMatcher));
-
-                    String[] emailTo = new String[]
-                        { USER_EMAIL };
-                    one(mailClient).sendMessage(with(containsString("success")),
-                            with(any(String.class)), with(aNull(String.class)),
-                            with(aNull(From.class)), with(emailTo));
                 }
             });
 
-        task.run();
+        task.doAction(new StringWriter());
 
         assertEquals("ABC A AB", extractGeneSymbol(g1));
         assertEquals("AB", extractGeneSymbol(g2));

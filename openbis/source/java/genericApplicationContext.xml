@@ -221,6 +221,18 @@
     <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
     <bean class="ch.systemsx.cisd.common.spring.MarkerLogApplicationListener"/>
 
+        
+    <!--
+        //Mail Client Parameters
+    -->
+    <bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
+        <property name="from" value="${mail.from}"/>
+        <property name="smtpHost" value="${mail.smtp.host}"/>
+        <property name="smtpUser" value="${mail.smtp.user}"/>
+        <property name="smtpPassword" value="${mail.smtp.password}"/>
+    </bean>
+    
+    
     <!--
         // Plugins
     -->
@@ -231,5 +243,4 @@
         <plugins:exclude-filter type="annotation"
             expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
-
 </beans>
