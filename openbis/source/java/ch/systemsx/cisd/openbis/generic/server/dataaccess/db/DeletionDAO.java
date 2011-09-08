@@ -188,6 +188,10 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     public List<String> findTrashedDataSetCodes(final List<TechId> deletionIds)
     {
+        if (deletionIds.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         final DetachedCriteria criteria =
                 DetachedCriteria.forClass(EntityKind.DATA_SET.getDeletedEntityClass());
         final List<Long> longIds = TechId.asLongs(deletionIds);
@@ -264,6 +268,10 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     public List<DeletionPE> findAllById(List<Long> ids)
     {
+        if (ids.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         final Criteria criteria = getSession().createCriteria(DeletionPE.class);
         criteria.add(Restrictions.in("id", ids));
 
@@ -307,6 +315,10 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     public List<? extends IDeletablePE> listDeletedEntities(EntityKind entityKind,
             List<TechId> entityIds)
     {
+        if (entityIds.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
         List<Long> ids = TechId.asLongs(entityIds);
         criteria.add(Restrictions.in(ID, ids));
