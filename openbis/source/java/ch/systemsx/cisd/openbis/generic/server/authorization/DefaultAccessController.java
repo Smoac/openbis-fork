@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,8 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 public final class DefaultAccessController implements IAccessController
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DefaultAccessController.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DefaultAccessController.class);
 
     @Private
     static final String MATCHING_ROLE_NOT_FOUND_TEMPLATE =
@@ -69,7 +70,10 @@ public final class DefaultAccessController implements IAccessController
     /**
      * Cache for the method roles as they are <code>static</code>.
      */
-    private final Map<Method, Set<RoleWithHierarchy>> methodRolesCache = new HashMap<Method, Set<RoleWithHierarchy>>();
+    private final Map<Method, Set<RoleWithHierarchy>> methodRolesCache =
+            new HashMap<Method, Set<RoleWithHierarchy>>();
+
+    private final CapabilityMap capabilities = new CapabilityMap(new File("etc/capabilities"));
 
     public DefaultAccessController(final IAuthorizationDAOFactory daoFactory)
     {
@@ -112,12 +116,19 @@ public final class DefaultAccessController implements IAccessController
             if (roles == null)
             {
                 roles = new LinkedHashSet<RoleWithHierarchy>();
-                final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
-                if (rolesAllowed != null)
+                final RoleWithHierarchy rootRole = capabilities.tryGetRole(method);
+                if (rootRole != null)
                 {
-                    for (RoleWithHierarchy role : rolesAllowed.value())
+                    roles.addAll(rootRole.getRoles());
+                } else
+                {
+                    final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);
+                    if (rolesAllowed != null)
                     {
-                        roles.addAll(role.getRoles());
+                        for (RoleWithHierarchy role : rolesAllowed.value())
+                        {
+                            roles.addAll(role.getRoles());
+                        }
                     }
                 }
                 methodRolesCache.put(method, roles);
@@ -142,16 +153,16 @@ public final class DefaultAccessController implements IAccessController
                 // TODO 2008-08-07, Tomasz Pylak: why this is not a programming error? What a user
                 // can do if a programmer does not put an authorization annotation for a method?
                 final String msg =
-                        String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE, MethodUtils
-                                .describeMethod(method));
+                        String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE,
+                                MethodUtils.describeMethod(method));
                 return Status.createError(msg);
             }
             PersonPE person = session.tryGetPerson();
             if (person == null || person.getAllPersonRoles().size() == 0)
             {
                 final String msg =
-                        String.format(USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE, session
-                                .getUserName());
+                        String.format(USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE,
+                                session.getUserName());
                 return Status.createError(msg);
             }
             final List<RoleWithIdentifier> userRoles = getUserRoles(person);
@@ -160,8 +171,8 @@ public final class DefaultAccessController implements IAccessController
             if (userRoles.size() == 0)
             {
                 final String msg =
-                        String.format(MATCHING_ROLE_NOT_FOUND_TEMPLATE, methodRoles, session
-                                .getUserName());
+                        String.format(MATCHING_ROLE_NOT_FOUND_TEMPLATE, methodRoles,
+                                session.getUserName());
                 return Status.createError(msg);
             }
             if (arguments.length > 0)

@@ -21,23 +21,28 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for corresponding {@link DefaultAccessController} class.
@@ -47,7 +52,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 @Friend(toClasses = DefaultAccessController.class)
 public final class DefaultAccessControllerTest
 {
-    private final DefaultAccessController accessController = new DefaultAccessController(null);
+    private DefaultAccessController accessController;
+
+    @BeforeTest
+    void init()
+    {
+        LogInitializer.initDebug();
+        final File capFile = new File("etc/capabilities");
+        capFile.delete();
+        capFile.deleteOnExit();
+        try
+        {
+            FileUtils.writeLines(capFile, Arrays.asList("# Test overriding annotation",
+                    "MyInterface.myMethodWithOtherRolesOverridden: SPACE_OBSERVER"));
+        } catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+        accessController = new DefaultAccessController(null);
+    }
 
     private final static Set<RoleAssignmentPE> createRoleAssignments()
     {
@@ -105,8 +128,8 @@ public final class DefaultAccessControllerTest
         final Status authorized = accessController.isAuthorized(session, method, arguments);
         assertEquals(StatusFlag.ERROR, authorized.getFlag());
         assertEquals(String.format(
-                DefaultAccessController.USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE, session
-                        .getUserName()), authorized.tryGetErrorMessage());
+                DefaultAccessController.USER_ROLE_ASSIGNMENTS_NOT_FOUND_TEMPLATE,
+                session.getUserName()), authorized.tryGetErrorMessage());
     }
 
     @Test
@@ -133,6 +156,19 @@ public final class DefaultAccessControllerTest
         final IAuthSession session = AuthorizationTestUtil.createSession();
         session.tryGetPerson().setRoleAssignments(createRoleAssignments());
         final Method method = MyInterface.class.getMethod("myMethodWithOtherRoles");
+        assertNotNull(method);
+        final Argument<?>[] arguments = Argument.EMPTY_ARRAY;
+        final Status authorized = accessController.isAuthorized(session, method, arguments);
+        assertEquals(StatusFlag.OK, authorized.getFlag());
+        assertNull(authorized.tryGetErrorMessage());
+    }
+
+    @Test
+    public final void testIsAuthorizedWithMatchingRoleOverrideCapabilities() throws Exception
+    {
+        final IAuthSession session = AuthorizationTestUtil.createSession();
+        session.tryGetPerson().setRoleAssignments(createRoleAssignments());
+        final Method method = MyInterface.class.getMethod("myMethodWithOtherRolesOverridden");
         assertNotNull(method);
         final Argument<?>[] arguments = Argument.EMPTY_ARRAY;
         final Status authorized = accessController.isAuthorized(session, method, arguments);
@@ -182,6 +218,9 @@ public final class DefaultAccessControllerTest
 
         @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
         public void myMethodWithOtherRoles();
+
+        @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+        public void myMethodWithOtherRolesOverridden();
 
         @RolesAllowed(
             { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
