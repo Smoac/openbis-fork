@@ -1158,7 +1158,7 @@ public interface ICommonServer extends IServer
      * @return number of data sets scheduled for archiving.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public int archiveDatasets(
             String sessionToken,
