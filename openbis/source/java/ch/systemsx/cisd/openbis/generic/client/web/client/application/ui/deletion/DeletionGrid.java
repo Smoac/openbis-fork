@@ -72,7 +72,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
-        Button revertButton =
+        final Button revertButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_REVERT_DELETION),
                         new AbstractCreateDialogListener()
                             {
@@ -90,10 +90,11 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                             deletions, createRefreshCallback(invoker));
                                 }
                             });
+
         addButton(revertButton);
 
-        EmptyTrashButtonMenu emptyTrashButtonMenu =
-                new EmptyTrashButtonMenu(viewContext, createRefreshCallback(asActionInvoker()));
+        EmptyTrashButton emptyTrashButtonMenu =
+                new EmptyTrashButton(viewContext, createRefreshCallback(asActionInvoker()));
         addButton(emptyTrashButtonMenu);
 
         Button deletePermanentlyButton =
@@ -114,6 +115,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
                                             deletions, createRefreshCallback(invoker));
                                 }
                             });
+
         deletePermanentlyButton.hide(); // FIXME rollback of deleted data sets is not possible
         addButton(deletePermanentlyButton);
         allowMultipleSelection(); // we allow deletion/revert of multiple deletions
