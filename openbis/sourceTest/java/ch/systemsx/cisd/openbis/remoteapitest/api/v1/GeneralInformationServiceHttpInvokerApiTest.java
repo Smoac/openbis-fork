@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
@@ -42,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
-import ch.systemsx.cisd.openbis.remoteapitest.api.v1.GeneralInformationServiceAbstractTestCases.IGeneralInformationServiceFactory;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via
@@ -53,64 +48,52 @@ import ch.systemsx.cisd.openbis.remoteapitest.api.v1.GeneralInformationServiceAb
  */
 @Test(groups =
     { "remote api" })
-public class GeneralInformationServiceHttpInvokerApiTest extends RemoteApiTestCase implements
-        IGeneralInformationServiceFactory
+public class GeneralInformationServiceHttpInvokerApiTest extends
+        GeneralInformationServiceJsonApiTest
 {
 
     private static final String SERVICE_URL = "http://localhost:8888/";
 
-    private IGeneralInformationService service;
-
-    private String sessionToken;
-
-    @BeforeMethod
-    public void beforeMethod()
+    @Override
+    protected IGeneralInformationService createService()
     {
-        service = createService();
-        sessionToken = service.tryToAuthenticateForAllServices("test", "a");
-    }
-
-    @AfterMethod
-    public void afterMethod()
-    {
-        service.logout(sessionToken);
-    }
-
-    @Factory
-    public Object[] createTestCases()
-    {
-        return new Object[]
-            { new GeneralInformationServiceAbstractTestCases(this) };
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        return generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                SERVICE_URL, 5000);
     }
 
     @Test
     public void testRegistrationDetailsAvailable()
     {
         // project
-        List<Project> projects = service.listProjects(sessionToken);
+        List<Project> projects = generalInformationService.listProjects(sessionToken);
         assertTrue(projects.size() > 0);
         checkRegistrationDetails(projects.get(0).getRegistrationDetails());
 
         // experiment
-        List<Experiment> experiments = service.listExperiments(sessionToken, projects, "SIRNA_HCS");
+        List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
         assertTrue(experiments.size() > 0);
         checkRegistrationDetails(experiments.get(0).getRegistrationDetails());
 
         // sample
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "CP-TEST-1"));
-        List<Sample> samples = service.searchForSamples(sessionToken, sc);
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
         assertTrue(samples.size() > 0);
         Sample sample = samples.get(0);
         checkRegistrationDetails(sample.getRegistrationDetails());
 
         // data set
-        List<DataSet> dataSets = service.listDataSetsForSample(sessionToken, sample, false);
+        List<DataSet> dataSets =
+                generalInformationService.listDataSetsForSample(sessionToken, sample, false);
         assertTrue(dataSets.size() > 0);
         assertNotNull(dataSets.get(0).getRegistrationDetails().getRegistrationDate());
 
         // vocabularies
-        Map<Vocabulary, List<VocabularyTerm>> termMap = service.getVocabularyTermsMap(sessionToken);
+        Map<Vocabulary, List<VocabularyTerm>> termMap =
+                generalInformationService.getVocabularyTermsMap(sessionToken);
         ArrayList<Vocabulary> vocabs = new ArrayList<Vocabulary>(termMap.keySet().size());
         vocabs.addAll(termMap.keySet());
         List<VocabularyTerm> terms = termMap.get(vocabs.get(0));
@@ -130,11 +113,4 @@ public class GeneralInformationServiceHttpInvokerApiTest extends RemoteApiTestCa
 
     }
 
-    public IGeneralInformationService createService()
-    {
-        ServiceFinder generalInformationServiceFinder =
-                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-        return generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                SERVICE_URL, 5000);
-    }
 }
