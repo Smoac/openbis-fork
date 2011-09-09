@@ -22,6 +22,8 @@ public final class Channel extends AbstractHashable
 
     private ChannelColor channelColorOrNull;
 
+    private ImageTransformation[] availableTransformations = new ImageTransformation[0];
+
     /**
      * Constructs a channel with a specified code and label. The channel will be presented in a
      * default color.
@@ -66,13 +68,21 @@ public final class Channel extends AbstractHashable
 
     /**
      * @return color for the specified channel which will be used to display merged channels images.
-     *         null only during dataset registration wheb default color should be used, afterwards
+     *         null only during dataset registration when default color should be used, afterwards
      *         never null.
      */
     public ChannelColor tryGetChannelColor()
     {
         return channelColorOrNull;
     }
+
+    // never null, can be empty
+    public ImageTransformation[] getAvailableTransformations()
+    {
+        return availableTransformations;
+    }
+
+    // ------------------- setters -------------------
 
     /** Sets the description of the channel.Optional. */
     public void setDescription(String description)
@@ -90,6 +100,18 @@ public final class Channel extends AbstractHashable
     public void setChannelColor(ChannelColor channelColor)
     {
         this.channelColorOrNull = channelColor;
+    }
+
+    /** Sets available transformations which can be applied to images of this channel on request. */
+    public void setAvailableTransformations(ImageTransformation[] transformations)
+    {
+        if (transformations == null)
+        {
+            this.availableTransformations = new ImageTransformation[0];
+        } else
+        {
+            this.availableTransformations = transformations;
+        }
     }
 
 }
