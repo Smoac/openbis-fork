@@ -265,7 +265,7 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * A list of data sets owned by specified plate and passing specified filter. The data set
      * objects provide metadata (e.g. code, properties etc. from the openBIS AS) as well as data
-     * (e.g. files from from openBIS DSS).
+     * (e.g. files from openBIS DSS).
      * 
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
