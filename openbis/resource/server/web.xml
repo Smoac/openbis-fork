@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app [
     <!ENTITY common SYSTEM "web-common.xml">
+    <!ENTITY biscommon SYSTEM "bis-common.xml">
     <!ENTITY gwt SYSTEM "gwt.xml">
 ]>
 <web-app>
@@ -9,48 +10,15 @@
     <description>openBIS server</description>
 
     &common;
-
+    
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext.xml</param-value>
         <description>File for Spring beans.</description>
     </context-param>
+        
+    &biscommon;
 
-    <context-param>
-        <param-name>infoClass</param-name>
-        <param-value>ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo</param-value>
-    </context-param>
-
-    <context-param>
-        <!-- 
-        The path of cookie with openBIS session id needs to be set explicitly here. Otherwise 
-        this cookie will be overwritten with a cookie created for the openBIS-DSS session.
-        -->
-        <param-name>org.mortbay.jetty.servlet.SessionPath</param-name>
-        <param-value>/openbis</param-value>
-    </context-param>
-
-
-    <listener>
-        <listener-class>
-            ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
-        </listener-class>
-    </listener>
-    
-    <filter>
-        <filter-name>CacheFilter</filter-name>
-        <filter-class>ch.systemsx.cisd.openbis.generic.server.CacheFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>CacheFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
-    <servlet-mapping>
-        <servlet-name>spring</servlet-name>
-        <url-pattern>/openbis/*</url-pattern>
-    </servlet-mapping>
      
   <!--
     // Additional servlets
