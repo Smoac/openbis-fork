@@ -39,7 +39,7 @@ public class IntensityRescaling
 
         final int maxLevel;
 
-        Levels(int minLevel, int maxLevel)
+        public Levels(int minLevel, int maxLevel)
         {
             this.minLevel = minLevel;
             this.maxLevel = maxLevel;
@@ -194,7 +194,7 @@ public class IntensityRescaling
     }
 
     /**
-     * Process <var>image</var> and add its pixesl to the <var>histogram</var>. Calling this method
+     * Process <var>image</var> and add its pixels to the <var>histogram</var>. Calling this method
      * multiple times with the same <var>histogram</var> accumulates the histogram for all images.
      */
     public static void addToLevelStats(PixelHistogram histogram, BufferedImage image)
@@ -286,11 +286,15 @@ public class IntensityRescaling
         {
             for (int y = 0; y < image.getHeight(); ++y)
             {
-                final int intensity =
-                        Math.round(Math.max(0,
-                                Math.min(levels.maxLevel, getGrayIntensity(image, x, y))
-                                        - levels.minLevel)
-                                / dynamicRange * 255);
+                int originalIntensity = getGrayIntensity(image, x, y);
+
+                // cut all intensities above the white point
+                int intensity = Math.min(levels.maxLevel, originalIntensity);
+                // cut all intensities below the black point and move the origin to 0
+                intensity = Math.max(0, intensity - levels.minLevel);
+                // normalize to [0, 1] and rescale to 8 bits
+                intensity = Math.round(intensity / dynamicRange * 255);
+
                 rescaledImage.getRaster().setSample(x, y, 0, intensity);
             }
         }
