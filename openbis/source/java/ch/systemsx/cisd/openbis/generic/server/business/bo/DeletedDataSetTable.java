@@ -183,6 +183,7 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             throw new UserFailureException(
                     "The following data sets are unknown by Data Store Servers they were registered in. "
                             + "May be the responsible Data Store Servers are not running.\n"
+                            + "If you are sure that you want to delete the data, try to Force Empty Trash by clicking on the button when holding Alt key.\n"
                             + unknownDataSets);
         }
     }
