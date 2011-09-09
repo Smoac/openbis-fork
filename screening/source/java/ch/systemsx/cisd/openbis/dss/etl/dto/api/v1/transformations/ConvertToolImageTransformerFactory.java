@@ -21,6 +21,10 @@ import ch.systemsx.cisd.base.image.IStreamingImageTransformerFactory;
 /**
  * A {@link IStreamingImageTransformerFactory} that constructs {@link ConvertToolImageTransformer}
  * instances.
+ * <p>
+ * Warning: The serialized version of this class can be stored in the database for each image.
+ * Moving this class to a different package or changing it in a backward incompatible way would make
+ * all the saved transformations invalid.
  * 
  * @author Kaloyan Enimanev
  */
@@ -42,15 +46,14 @@ public class ConvertToolImageTransformerFactory implements IStreamingImageTransf
     }
 
     /**
-     * Constructs the factory with {@link ToolChoice#PREFER_IMAGEMAGICK}. 
+     * Constructs the factory with {@link ToolChoice#PREFER_IMAGEMAGICK}.
      */
     public ConvertToolImageTransformerFactory(String convertCliArguments)
     {
         this(convertCliArguments, ToolChoice.ENFORCE_IMAGEMAGICK);
     }
 
-    public ConvertToolImageTransformerFactory(String convertCliArguments,
-            ToolChoice choice)
+    public ConvertToolImageTransformerFactory(String convertCliArguments, ToolChoice choice)
     {
         this.convertCliArguments = convertCliArguments;
         this.choice = choice;

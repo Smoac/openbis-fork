@@ -53,9 +53,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolIm
 
 /**
  * An {@link IStreamingImageTransformer} using the convert command line tool for transformations.
- * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package would make all the saved transformations invalid.
  * 
  * @author Kaloyan Enimanev
  */
