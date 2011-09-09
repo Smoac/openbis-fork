@@ -126,6 +126,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         viewContext.getClientPluginFactoryProvider().registerModuleInitializationObserver(this);
     }
 
+    protected abstract String getDeleteButtonLabel();
+
     private Button createEditButton()
     {
         Button result = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
@@ -148,7 +150,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected Button createDeleteButton(final IDelegatedAction deleteAction)
     {
-        Button result = new Button(viewContext.getMessage(Dict.BUTTON_DELETE));
+        Button result = new Button(getDeleteButtonLabel());
         result.setId(getId() + ID_DELETE_SUFFIX);
         result.addListener(Events.Select, new Listener<BaseEvent>()
             {

@@ -206,4 +206,10 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     {
         return DatabaseModificationKind.any(ObjectKind.PROJECT);
     }
+
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_PROJECT);
+    }
 }

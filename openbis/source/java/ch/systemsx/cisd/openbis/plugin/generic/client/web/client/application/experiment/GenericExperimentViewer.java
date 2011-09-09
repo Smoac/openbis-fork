@@ -337,4 +337,10 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     {
         createModificationObserver().update(observedModifications);
     }
+
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_EXPERIMENT);
+    }
 }

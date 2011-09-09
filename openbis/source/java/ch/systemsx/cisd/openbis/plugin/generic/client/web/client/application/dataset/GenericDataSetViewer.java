@@ -496,4 +496,9 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         }
     }
 
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_DATA_SET);
+    }
 }

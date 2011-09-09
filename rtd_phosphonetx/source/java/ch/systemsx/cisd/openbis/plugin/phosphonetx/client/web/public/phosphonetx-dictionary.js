@@ -40,6 +40,7 @@ var phosphonetx = {
   sequence_name: "Sequence Reference",
   false_discovery_rate_column: "FDR (Protein Prophet)",
   protein_probability: "Probability (Protein Prophet)",
+  button_delete_protein: "Delete Protein",
   
   // ProteinRelatedSampleGrid
   openbis_protein_related_sample_grid_main_SAMPLE_IDENTIFIER: "Identifier",

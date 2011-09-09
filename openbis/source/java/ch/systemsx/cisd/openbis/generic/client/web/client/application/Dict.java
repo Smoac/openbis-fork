@@ -1041,6 +1041,16 @@ public abstract class Dict
 
     public static final String BUTTON_DELETE = "button_delete";
 
+    public static final String BUTTON_DELETE_SAMPLE = "button_delete_sample";
+
+    public static final String BUTTON_DELETE_EXPERIMENT = "button_delete_experiment";
+
+    public static final String BUTTON_DELETE_MATERIAL = "button_delete_material";
+
+    public static final String BUTTON_DELETE_DATA_SET = "button_delete_data_set";
+
+    public static final String BUTTON_DELETE_PROJECT = "button_delete_project";
+
     public static final String BUTTON_CONFIGURE = "button_configure";
 
     public static final String BUTTON_FILTERS = "button_filters";

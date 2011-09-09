@@ -13,7 +13,7 @@ var generic = {
   // Sample Viewer
   //
 
-	sample_properties_panel_sample_identifier: "Sample", 
+  sample_properties_panel_sample_identifier: "Sample", 
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   derived_samples_heading: "Derived Samples",

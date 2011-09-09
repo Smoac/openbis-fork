@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
@@ -72,7 +73,8 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
     protected void reloadAllData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(getViewContext(), this);
-        getViewContext().getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
+        getViewContext().getService()
+                .getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
 
     //
@@ -108,6 +110,12 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
             sampleViewer.add(sampleViewer.createUI(result));
             sampleViewer.layout();
         }
+    }
+
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_SAMPLE);
     }
 
 }

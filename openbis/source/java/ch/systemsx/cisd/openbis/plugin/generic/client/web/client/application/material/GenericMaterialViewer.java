@@ -298,7 +298,11 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
                 viewer.setupRemovedEntityView();
             }
         }
-
     }
 
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_MATERIAL);
+    }
 }

@@ -436,4 +436,10 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
 
     }
 
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_PROTEIN);
+    }
+
 }

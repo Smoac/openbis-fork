@@ -90,6 +90,8 @@ public class Dict
     // Protein Detail View
     public static final String PROBABILITY = "protein_probability";
 
+    public static final String BUTTON_DELETE_PROTEIN = "button_delete_protein";
+
     // SampleAbundance Browser
 
     public static final String ABUNDANCE = "abundance";
@@ -103,7 +105,5 @@ public class Dict
     public static final String COPY_DATA_SETS_TITLE = "copy_data_sets_title";
     public static final String COPY_DATA_SETS_MESSAGE = "copy_data_sets_message";
     public static final String COPY_DATA_SETS_DATA_SET_TYPE_FIELD = "copy_data_sets_data_set_type_field";
-
-
 
 }

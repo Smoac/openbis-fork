@@ -161,14 +161,16 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
-                @SuppressWarnings({ "unchecked", "rawtypes" })
+                @SuppressWarnings(
+                    { "unchecked", "rawtypes" })
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
-                    new SampleListDeletionConfirmationDialog(getViewContext().getCommonViewContext(),
-                            getOriginalDataAsSingleton(), callback, getOriginalData()).show();
+                    new SampleListDeletionConfirmationDialog(getViewContext()
+                            .getCommonViewContext(), getOriginalDataAsSingleton(), callback,
+                            getOriginalData()).show();
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
@@ -202,8 +204,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final Sample generator = sampleGeneration.getParent();
 
         final IViewContext<?> context = getViewContext();
-        final SectionsPanel container =
-                new SectionsPanel(context.getCommonViewContext(), getId());
+        final SectionsPanel container = new SectionsPanel(context.getCommonViewContext(), getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
@@ -220,8 +221,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         parentSamplesSection = new ParentSamplesSection(context, generator);
         container.addSection(parentSamplesSection);
         // Data Sets
-        dataSetSection =
-                new SampleDataSetsSection(context, sampleId, generator.getSampleType());
+        dataSetSection = new SampleDataSetsSection(context, sampleId, generator.getSampleType());
         container.addSection(dataSetSection);
 
         // Attachments
@@ -522,7 +522,11 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 genericSampleViewer.setupRemovedEntityView();
             }
         }
-
     }
 
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_SAMPLE);
+    }
 }
