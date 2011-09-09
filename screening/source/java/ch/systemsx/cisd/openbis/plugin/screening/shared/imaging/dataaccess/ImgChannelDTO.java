@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import net.lemnik.eodsql.ResultColumn;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 
 /**
@@ -25,11 +26,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelCo
  */
 public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
 {
-    @ResultColumn("LABEL")
-    private String label;
-
     @ResultColumn("CODE")
     private String code;
+
+    @ResultColumn("LABEL")
+    private String label;
 
     @ResultColumn("DESCRIPTION")
     private String descriptionOrNull;
@@ -49,7 +50,7 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     @ResultColumn("COLOR")
     private String channelColor;
 
-    // GWT only
+    // EODSQL only
     @SuppressWarnings("unused")
     private ImgChannelDTO()
     {
@@ -62,7 +63,7 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
                 || (datasetIdOrNull != null && experimentIdOrNull == null);
-        this.code = code.toUpperCase();
+        this.code = CodeNormalizer.normalize(code);
         this.label = label;
         this.descriptionOrNull = descriptionOrNull;
         this.wavelengthOrNull = wavelengthOrNull;
