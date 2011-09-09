@@ -40,9 +40,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -157,6 +157,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
             return new DatabaseModificationKind[]
                 {
                         DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                        DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
                         DatabaseModificationKind
                                 .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                         DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
