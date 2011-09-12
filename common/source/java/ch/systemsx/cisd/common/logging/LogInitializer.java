@@ -154,7 +154,6 @@ public class LogInitializer
             if (logFile.exists())
             {
                 configureFromFile(logFile);
-                Logger.getRootLogger().setLevel(Level.DEBUG);
                 finishInit();
                 return;
             }
@@ -165,13 +164,11 @@ public class LogInitializer
             if (url != null)
             {
                 configureFromURL(url);
-                Logger.getRootLogger().setLevel(Level.DEBUG);
                 finishInit();
                 return;
             }
         }
         BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.DEBUG);
         finishInit();
     }
 }
