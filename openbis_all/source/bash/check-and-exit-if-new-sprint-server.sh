@@ -30,12 +30,12 @@ CURRENT_VERSION=UNKNOWN
 if [ -f $LOG_FILE ]; then
     CURRENT_VERSION=`awk '/STATUS.CISDContextLoaderListener - Version/ {print $1" "$2" "$8" "$9}' $LOG_FILE | head -n 1`
     CURRENT_VERSION_NAME=`echo $CURRENT_VERSION|awk '{print $3}'`
-    if [ $CURRENT_VERSION_NAME == "" ]; then
+    if [ "$CURRENT_VERSION_NAME" == "" ]; then
         echo "Current version of openBIS Application Server not known"
         exit
     fi
     echo "Current openBIS Application Server: $CURRENT_VERSION"
-    if [ "SNAPSHOT" != $CURRENT_VERSION_NAME ]; then
+    if [ "SNAPSHOT" != "$CURRENT_VERSION_NAME" ]; then
         CURRENT_MAJOR_VERSION=${CURRENT_VERSION_NAME%.*}
         echo "Current major version: $CURRENT_MAJOR_VERSION"
         TIME_STAMP=`getValue "$VERSION_FILE" $CURRENT_MAJOR_VERSION`
