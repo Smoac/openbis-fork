@@ -869,22 +869,7 @@ public class ImageChannelsUtils
     
     private static IContent createPngContent(BufferedImage image, String nameOrNull)
     {
-        // TODO 2011-08-31, Franz-Josef Elmer: Uncomment when new fast method is working correctly for colored images
-//        final byte[] output = ImageUtil.imageToPngFast(image);
-        final byte[] output = writeBufferImageAsPng(image).toByteArray();
+        final byte[] output = ImageUtil.imageToPngFast(image);
         return new ByteArrayBasedContent(output, nameOrNull);
-    }
-
-  private static ByteArrayOutputStream writeBufferImageAsPng(BufferedImage image)
-    {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        try
-        {
-            ImageIO.write(image, "png", output);
-        } catch (IOException ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
-        }
-        return output;
     }
 }

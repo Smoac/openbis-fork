@@ -39,6 +39,8 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FilenameUtils;
 
 import ar.com.hjg.pngj.ImageInfo;
+import ar.com.hjg.pngj.ImageLine;
+import ar.com.hjg.pngj.ImageLineHelper;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
 
@@ -328,19 +330,22 @@ public class ImageUtil
     {
         final int cols = image.getWidth();
         final int rows = image.getHeight();
+        int bitDepth = image.getColorModel().getComponentSize(0);
+        ImageInfo imgInfo = new ImageInfo(cols, rows, bitDepth, false, false, false);
         PngWriter png =
-                new PngWriter(out, new ImageInfo(cols, rows, image.getColorModel()
-                        .getComponentSize(0), false, true, false));
+                new PngWriter(out, imgInfo);
         png.setFilterType(filterType == null ? PngFilterType.FILTER_DEFAULT : filterType);
         png.setCompLevel(compressionLevel == -1 ? 6 : compressionLevel);
-        int[] rowData = new int[cols];
+        ImageLine imageLine = new ImageLine(imgInfo);
         for (int row = 0; row < rows; ++row)
         {
             for (int col = 0; col < cols; ++col)
             {
-                rowData[col] = image.getRaster().getSample(col, row, 0);
+                int pixel = image.getRGB(col, row);
+                ImageLineHelper.setPixelRGB8(imageLine, col, pixel);
             }
-            png.writeRow(rowData, row);
+            imageLine.setRown(row);
+            png.writeRow(imageLine);
         }
         png.end();
     }
