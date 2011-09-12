@@ -49,10 +49,6 @@
 				<include name="*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
-    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
-    		<exclude name="META_INF/*"/>
-    		<include name="**/*"/>
-    	</zipfileset>
     	<fileset dir="${lib}/nativedata">
     		<include name="native/**/*"/>
     	</fileset>
@@ -83,10 +79,6 @@
 	
   <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum">
     <jar update="true" destfile="${dss-jar.file}">
-    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
-    		<exclude name="META_INF/*"/>
-    		<include name="**/*"/>
-    	</zipfileset>
       <fileset dir="source">
         <include name="sql/imaging/**/*.sql" />
       </fileset>

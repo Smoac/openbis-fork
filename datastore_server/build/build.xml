@@ -119,6 +119,7 @@
   	</copy>
   	<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
