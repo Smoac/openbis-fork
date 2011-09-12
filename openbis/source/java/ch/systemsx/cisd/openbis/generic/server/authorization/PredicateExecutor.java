@@ -36,52 +36,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class PredicateExecutor
 {
-    private static IPredicateFactory predicateFactory;
+    private IPredicateFactory predicateFactory;
 
-    private static IAuthorizationDataProvider authorizationDataProvider;
+    private IAuthorizationDataProvider authorizationDataProvider;
 
-    private PredicateExecutor()
+    /**
+     * Sets the <code>IPredicateProvider</code> implementation.
+     */
+    final void setPredicateFactory(final IPredicateFactory predicateProvider)
     {
-        // Can not be instantiated.
+        predicateFactory = predicateProvider;
     }
 
     /**
-     * Statically sets the <code>IPredicateProvider</code> implementation.
+     * Sets the {@link IAuthorizationDAOFactory} implementation.
      */
-    static final void setPredicateFactory(final IPredicateFactory predicateProvider)
+    final void setDAOFactory(final IAuthorizationDAOFactory daoFactory)
     {
-        PredicateExecutor.predicateFactory = predicateProvider;
+        authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
     }
 
-    static final IPredicateFactory getPredicateFactory()
+    final void setAuthorizationDataProvider(IAuthorizationDataProvider authorizationDataProvider)
     {
-        return predicateFactory;
-    }
-
-    /**
-     * Statically sets the {@link IAuthorizationDAOFactory} implementation.
-     */
-    static final void setDAOFactory(final IAuthorizationDAOFactory daoFactory)
-    {
-        PredicateExecutor.authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
-    }
-
-    static final IAuthorizationDataProvider getAuthorizationDataProvider()
-    {
-        return authorizationDataProvider;
-    }
-
-    static final void setAuthorizationDataProvider(
-            IAuthorizationDataProvider authorizationDataProvider)
-    {
-        PredicateExecutor.authorizationDataProvider = authorizationDataProvider;
+        this.authorizationDataProvider = authorizationDataProvider;
     }
 
     /**
      * Creates, casts and ensures that the returned {@link IPredicate} is not <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    private final static <T> IPredicate<T> createPredicate(
+    private final <T> IPredicate<T> createPredicate(
             final Class<? extends IPredicate<?>> predicateClass)
     {
         assert predicateFactory != null : "Unspecified predicate factory";
@@ -105,7 +89,7 @@ public final class PredicateExecutor
     /**
      * Finds out and executes the appropriate {@link IPredicate} for given <var>argument</var>.
      */
-    public final static <T> Status evaluate(final PersonPE person,
+    public final <T> Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final Argument<T> argument)
     {
         assert person != null : "Person unspecified";
@@ -124,10 +108,9 @@ public final class PredicateExecutor
     }
 
     @Private
-    final static <T> Status evaluate(final PersonPE person,
-            final List<RoleWithIdentifier> allowedRoles, final T argumentValue,
-            final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType,
-            final boolean shouldFlattenCollections)
+    final <T> Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+            final T argumentValue, final Class<? extends IPredicate<?>> predicateClass,
+            final Class<T> argumentType, final boolean shouldFlattenCollections)
     {
         assert authorizationDataProvider != null : "Authorization data provider not set";
         final IPredicate<T> predicate = createPredicate(predicateClass);

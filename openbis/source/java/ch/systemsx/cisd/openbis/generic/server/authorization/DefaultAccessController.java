@@ -75,10 +75,13 @@ public final class DefaultAccessController implements IAccessController
 
     private final CapabilityMap capabilities = new CapabilityMap(new File("etc/capabilities"));
 
+    private PredicateExecutor predicateExecutor;
+
     public DefaultAccessController(final IAuthorizationDAOFactory daoFactory)
     {
-        PredicateExecutor.setPredicateFactory(new PredicateFactory());
-        PredicateExecutor.setDAOFactory(daoFactory);
+        predicateExecutor = new PredicateExecutor();
+        predicateExecutor.setPredicateFactory(new PredicateFactory());
+        predicateExecutor.setDAOFactory(daoFactory);
     }
 
     public final static List<RoleWithIdentifier> getUserRoles(final PersonPE person)
@@ -179,7 +182,7 @@ public final class DefaultAccessController implements IAccessController
             {
                 for (final Argument<?> argument : arguments)
                 {
-                    final Status status = PredicateExecutor.evaluate(person, userRoles, argument);
+                    final Status status = predicateExecutor.evaluate(person, userRoles, argument);
                     if (status.getFlag().equals(StatusFlag.OK) == false)
                     {
                         return status;

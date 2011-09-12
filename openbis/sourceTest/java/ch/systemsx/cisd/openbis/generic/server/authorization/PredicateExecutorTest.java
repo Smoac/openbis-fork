@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -57,9 +56,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private IDatabaseInstanceDAO dbInstanceDAO;
 
-    private IPredicateFactory previousFactory;
-
-    private IAuthorizationDataProvider previousProvider;
+    private PredicateExecutor predicateExecutor;
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
@@ -75,8 +72,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
         dbInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
-        previousFactory = PredicateExecutor.getPredicateFactory();
-        PredicateExecutor.setPredicateFactory(predicateFactory);
+        predicateExecutor = new PredicateExecutor();
+        predicateExecutor.setPredicateFactory(predicateFactory);
         context.checking(new Expectations()
             {
                 {
@@ -88,8 +85,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                     will(returnValue(Collections.EMPTY_LIST));
                 }
             });
-        previousProvider = PredicateExecutor.getAuthorizationDataProvider();
-        PredicateExecutor.setDAOFactory(daoFactory);
+        predicateExecutor.setDAOFactory(daoFactory);
     }
 
     /**
@@ -108,15 +104,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     public void setUpStringCollectionPredicate()
     {
         stringCollectionPredicate = context.mock(IPredicate.class);
-    }
-
-    @Override
-    @AfterMethod
-    public void tearDown()
-    {
-        PredicateExecutor.setAuthorizationDataProvider(previousProvider);
-        PredicateExecutor.setPredicateFactory(previousFactory);
-        super.tearDown();
     }
 
     @SuppressWarnings("unchecked")
@@ -150,7 +137,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, value,
+        assertEquals(Status.OK, predicateExecutor.evaluate(person, allowedRoles, value,
                 castToStringPredicateClass(), String.class, true));
         context.assertIsSatisfied();
     }
@@ -177,7 +164,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, array,
+        assertEquals(Status.OK, predicateExecutor.evaluate(person, allowedRoles, array,
                 castToStringPredicateClass(), String[].class, true));
         context.assertIsSatisfied();
     }
@@ -204,7 +191,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, list,
+        assertEquals(Status.OK, predicateExecutor.evaluate(person, allowedRoles, list,
                 castToStringPredicateClass(), List.class, true));
         context.assertIsSatisfied();
     }
@@ -230,7 +217,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        assertEquals(Status.OK, PredicateExecutor.evaluate(person, allowedRoles, list,
+        assertEquals(Status.OK, predicateExecutor.evaluate(person, allowedRoles, list,
                 castToStringCollectionPredicateClass(), List.class, false));
         context.assertIsSatisfied();
     }
