@@ -47,7 +47,9 @@ for i in {1..120}; do
     echo -n "."
     sleep 2
     
+    set +o errexit
     started=`egrep -R "($STARTING_MESSAGE|$STOPPED_MESSAGE)" "$LOG_FILE" | tail -1 | grep "$STOPPED_MESSAGE"`
+    set -o errexit
     if [ -n "$started" ]; then
         echo "Done."
         exit 0;
