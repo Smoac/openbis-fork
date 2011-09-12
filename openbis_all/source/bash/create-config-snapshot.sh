@@ -27,7 +27,7 @@ SERVERS="$1"
 REPOSITORY="$2"
 shift 2
 
-TIMESTAMP=`date +%Y-%m-%d_%H:%M:%S`
+TIMESTAMP=`date +%Y-%m-%d_%H%M%S`
 SNAPSHOT_FOLDER_NAME="openbis-config-snapshot-$TIMESTAMP"
 SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
 

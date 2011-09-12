@@ -71,7 +71,7 @@ if [ ! -d "$INDEX" ]; then
     echo "Index folder $INDEX doesn't exist."
     exit 1
 fi
-TIMESTAMP=`date +%Y-%m-%d_%H:%M:%S`
+TIMESTAMP=`date +%Y-%m-%d_%H%M%S`
 SNAPSHOT_FOLDER_NAME="openbis-snapshot-$TIMESTAMP"
 SNAPSHOT="$REPOSITORY/$SNAPSHOT_FOLDER_NAME"
 
