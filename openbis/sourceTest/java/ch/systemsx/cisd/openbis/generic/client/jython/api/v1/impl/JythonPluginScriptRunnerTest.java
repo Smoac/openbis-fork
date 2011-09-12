@@ -45,7 +45,7 @@ public class JythonPluginScriptRunnerTest extends AssertJUnit
     private static final String SESSION_TOKEN = "SESSION_TOKEN";
 
     private static final String SCRIPTS_FOLDER =
-            "sourceTest/java/ch/systemsx/cisd/openbis/plugin/jython/api/v1/impl";
+            "sourceTest/java/ch/systemsx/cisd/openbis/generic/client/jython/api/v1/impl";
 
     private Mockery context;
 

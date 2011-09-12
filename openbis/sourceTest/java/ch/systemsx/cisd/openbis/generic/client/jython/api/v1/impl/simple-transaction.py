@@ -1,4 +1,4 @@
-import ch.systemsx.cisd.openbis.plugin.jython.api.v1.DataType as DataType
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.DataType as DataType
 
 tr = service.transaction()
 
