@@ -745,15 +745,15 @@
       <lib dir="${lib}/jython">
         <include name="jython.jar" />
       </lib>
-      <fileset dir="${lib}/jsonrpc4j">
+      <lib dir="${lib}/jsonrpc4j">
         <include name="jsonrpc4j.jar" />
-      </fileset>
-      <fileset dir="${lib}/jackson">
+      </lib>
+      <lib dir="${lib}/jackson">
         <include name="jackson-core-asl.jar" />
-      </fileset>
-      <fileset dir="${lib}/jackson">
+      </lib>
+      <lib dir="${lib}/jackson">
         <include name="jackson-mapper-asl.jar" />
-      </fileset>
+      </lib>
     </war>
     <!-- Does some cleaning. -->
     <delete file="${jar.file}" failonerror="true" />
