@@ -12,7 +12,7 @@
   <appender name="NULL" class="org.apache.log4j.varia.NullAppender" />
 
   <root>
-     <priority value ="info" />
+     <priority value ="debug" />
      <appender-ref ref="STDOUT" />
   </root>
 
