@@ -476,6 +476,12 @@
       <fileset dir="${lib}/jsonrpc4j">
         <include name="jsonrpc4j.jar" />
       </fileset>
+      <fileset dir="${lib}/jackson">
+        <include name="jackson-core-asl.jar" />
+      </fileset>
+      <fileset dir="${lib}/jackson">
+        <include name="jackson-mapper-asl.jar" />
+      </fileset>
     </copy>
   	<antcall target="prepare-gwt.copy-common-source" />
   </target>

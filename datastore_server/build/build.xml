@@ -161,6 +161,9 @@
     <copy file="${lib}/poi/ooxml-lib/dom4j-1.6.1.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/poi/ooxml-lib/xmlbeans-2.3.0.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jsonrpc4j/jsonrpc4j.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jackson/jackson-core-asl.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/jackson/jackson-mapper-asl.jar" todir="${dist.datastore_server.lib}" />
   	
   	<!-- The dss_upload_gui folder is no longer needed; clean it up here (not in the task that makes the zip) -->
   	<delete dir="${dist.dss_upload_gui}" />
