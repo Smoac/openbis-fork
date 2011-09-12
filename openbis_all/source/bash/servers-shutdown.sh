@@ -43,7 +43,7 @@ if [ ! -f "$LOG_FILE" ]; then
 fi
 STARTING_MESSAGE="STARTING SERVER"
 STOPPED_MESSAGE="SERVER STOPPED"
-for i in {1..20}; do 
+for i in {1..10}; do 
     echo -n "."
     sleep 2
     
@@ -56,4 +56,4 @@ for i in {1..20}; do
     fi
 done
 
-echo "Operation timed out. Waiting aborted ..."
+echo "Operation timed out."
