@@ -573,6 +573,9 @@
       <fileset dir="${application.server.resource}">
         <include name="spring-servlet.xml" />
       </fileset>
+      <fileset dir="${application.server.resource}">
+        <include name="bis-common.xml" />
+      </fileset>
       <fileset dir="../server-common/${server-resource}">
         <include name="web-common.xml" />
       </fileset>
