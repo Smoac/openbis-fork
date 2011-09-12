@@ -234,8 +234,10 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, true);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
+        assertEquals(
+                "INFO  OPERATION.AbstractDatastorePlugin - "
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
     }    
@@ -269,8 +271,11 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1), archiverTaskContext, false);
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
+        assertEquals(
+                "INFO  OPERATION.AbstractDatastorePlugin - "
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.\n"
+                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
     }
@@ -320,8 +325,10 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1), archiverTaskContext);
         
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
-                + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
+        assertEquals(
+                "INFO  OPERATION.AbstractDatastorePlugin - "
+                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                        + "DEBUG OPERATION.AbstractDatastorePlugin - Unarchiving for dataset ds1 finished with the status: OK.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
