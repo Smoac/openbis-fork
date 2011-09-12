@@ -301,6 +301,7 @@ public abstract class AbstractClientService implements IClientService,
         user.setHomeGroupCode(session.tryGetHomeGroupCode());
         user.setUserEmail(session.getUserEmail());
         sessionContext.setUser(user);
+        sessionContext.setAnonymous(session.isAnonymous());
 
         return sessionContext;
     }
@@ -471,7 +472,7 @@ public abstract class AbstractClientService implements IClientService,
             if (session == null)
             {
                 return null;
-            } else if (anonymous != session.isAnonymous())
+            } else if (anonymous == false && session.isAnonymous())
             {
                 operationLog.debug("expected: " + anonymous + " found: " + session.isAnonymous());
                 getServer().logout(sessionToken);

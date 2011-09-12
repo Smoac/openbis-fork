@@ -213,7 +213,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     model.setApplicationInfo(info);
                     model.setViewMode(viewMode);
                     boolean anonymous = isAnonymousLogin(info);
-                    model.setAnonymousLogin(anonymous);
+                    model.setAnonymousAllowed(anonymous);
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
                     SessionContextCallback sessionContextCallback =
@@ -331,7 +331,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
             final Dispatcher dispatcher = Dispatcher.get();
             if (sessionContext == null)
             {
-                if (viewContext.getModel().isAnonymousLogin())
+                if (viewContext.getModel().isAnonymousAllowed())
                 {
                     viewContext.getService().tryToLoginAnonymously(
                             new BasicLoginCallback(viewContext.getCommonViewContext(), null)
@@ -354,6 +354,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 // restart than display settings of the user that logged in first would be used
                 // also for the second user.
                 viewContext.initDisplaySettingsManager();
+
                 dispatcher.dispatch(AppEvents.INIT);
 
                 if (viewContext.isSimpleOrEmbeddedMode() == false)

@@ -37,6 +37,8 @@ public class SessionContext implements IsSerializable
 
     private DisplaySettings displaySettings;
 
+    private boolean anonymous;
+
     public final User getUser()
     {
         return user;
@@ -75,6 +77,16 @@ public class SessionContext implements IsSerializable
     public final void setDisplaySettings(DisplaySettings displaySettings)
     {
         this.displaySettings = displaySettings;
+    }
+
+    public void setAnonymous(boolean anonymous)
+    {
+        this.anonymous = anonymous;
+    }
+
+    public boolean isAnonymous()
+    {
+        return this.anonymous;
     }
 
 }
