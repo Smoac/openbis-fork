@@ -60,7 +60,7 @@ public class GeneralInformationServiceHttpInvokerApiTest extends
         ServiceFinder generalInformationServiceFinder =
                 new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
         return generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                SERVICE_URL, 5000);
+                SERVICE_URL, 10000);
     }
 
     @Test
