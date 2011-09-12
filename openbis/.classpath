@@ -72,5 +72,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
+	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

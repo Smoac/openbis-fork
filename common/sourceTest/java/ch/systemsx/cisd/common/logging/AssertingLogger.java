@@ -17,12 +17,10 @@
 package ch.systemsx.cisd.common.logging;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A logger useful for testing.
@@ -47,6 +45,15 @@ public class AssertingLogger implements ISimpleLogger
     {
         assertEquals(expectedLevel, records.get(i).level);
         assertEquals(expectedMessage, records.get(i).message);
+    }
+
+    public void assertMatches(final int i, final LogLevel expectedLevel, final String pattern)
+    {
+        assertEquals(expectedLevel, records.get(i).level);
+        final String message = records.get(i).message;
+        final String assertError = String.format("Log message '%s' does not matches speficied pattern '%s'",
+                message, pattern);
+        assertTrue(assertError, message.matches(pattern));
     }
 
     private static class LogRecord

@@ -273,8 +273,11 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             final PropertyTypePE propertyType, ScriptPE scriptOrNull, boolean shownInEditView)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
+        Long previousOrdinal =
+                (previousETPTOrdinal == null) ? getEntityPropertyTypeDAO(entityKind).getMaxOrdinal(
+                        entityType) : previousETPTOrdinal;
         // need to shift existing etpts to create space for new one
-        final Long currentOrdinal = previousETPTOrdinal + 1;
+        final Long currentOrdinal = previousOrdinal + 1;
         increaseOrdinals(entityType, currentOrdinal, 1);
 
         final EntityTypePropertyTypePE etpt =

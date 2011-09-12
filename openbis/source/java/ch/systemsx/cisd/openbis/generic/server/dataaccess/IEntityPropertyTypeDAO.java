@@ -111,6 +111,8 @@ public interface IEntityPropertyTypeDAO
 
     public void increaseOrdinals(EntityTypePE entityType, Long startOrdinal, int increment);
 
+    public Long getMaxOrdinal(EntityTypePE entityType);
+
     /**
      * Creates properties based on given property for entities with specified ids.
      */

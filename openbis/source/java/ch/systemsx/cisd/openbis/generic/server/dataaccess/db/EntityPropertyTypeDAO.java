@@ -394,6 +394,21 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
     }
 
+    public Long getMaxOrdinal(EntityTypePE entityType)
+    {
+        assert entityType != null : "Unspecified entity type.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        String query =
+                String.format("select max(etpt.ordinal) from %s etpt "
+                        + "WHERE etpt.entityTypeInternal = ?", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+
+        List<Long> resultList = cast(hibernateTemplate.find(query, entityType));
+        Long maxOrdinal = resultList.get(0);
+        return maxOrdinal == null ? 0L : maxOrdinal;
+    }
+
     public final void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity)
     {
         assert entity != null : "entity is null";
