@@ -143,36 +143,6 @@ public class LogInitializer
      */
     public final static synchronized void init()
     {
-        init(false);
-    }
-
-    /**
-     * Initializes logging system for log level DEBUG. Does nothing if already initialized.
-     * <p>
-     * Logging configuration file is assumed to be in
-     * <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
-     * resource named <code>/etc/log.xml</code>.<br>
-     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
-     * is used.
-     * </p>
-     */
-    public final static synchronized void initDebug()
-    {
-        init(true);
-    }
-
-    /**
-     * Initializes logging system. Does nothing if already initialized.
-     * <p>
-     * Logging configuration file is assumed to be in
-     * <code>&lt;working directory&gt;/etc/log.xml</code>. If not found we look for a classpath
-     * resource named <code>/etc/log.xml</code>.<br>
-     * If nothing found in both locations <code>org.apache.log4j.BaseConfigurator.configure()</code>
-     * is used.
-     * </p>
-     */
-    private final static synchronized void init(boolean debug)
-    {
         if (initialized)
         {
             return;

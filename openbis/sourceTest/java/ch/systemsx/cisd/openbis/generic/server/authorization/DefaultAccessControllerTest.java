@@ -58,7 +58,7 @@ public final class DefaultAccessControllerTest
     @BeforeTest
     void init()
     {
-        LogInitializer.initDebug();
+        LogInitializer.init();
         final File capFile = new File("etc/capabilities");
         capFile.delete();
         capFile.deleteOnExit();

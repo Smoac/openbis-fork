@@ -38,7 +38,7 @@ public class CapabilityMapTest
     @BeforeClass
     public void init()
     {
-        LogInitializer.initDebug();
+        LogInitializer.init();
     }
 
     @Capability("A")
