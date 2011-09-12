@@ -34,6 +34,8 @@ public class HierarchicalStructureDuplicatorFileToHDF5
 {
     private final File file;
 
+    private final String rootPath;
+
     private final IHDF5ContainerWriter writer;
 
     /**
@@ -45,14 +47,22 @@ public class HierarchicalStructureDuplicatorFileToHDF5
     {
         private final File file;
 
+        private final String rootPath;
+
         public DuplicatorWriterClient(File file)
         {
+            this(file, "/");
+        }
+
+        public DuplicatorWriterClient(File file, String rootPath)
+        {
             this.file = file;
+            this.rootPath = rootPath;
         }
 
         public void runWithSimpleWriter(IHDF5ContainerWriter writer)
         {
-            HierarchicalStructureDuplicatorFileToHDF5.makeDuplicate(file, writer);
+            HierarchicalStructureDuplicatorFileToHDF5.makeDuplicate(file, rootPath, writer);
         }
 
     }
@@ -61,19 +71,24 @@ public class HierarchicalStructureDuplicatorFileToHDF5
      * Makes a duplicate; does not close the writer when finished it is expected that users of this
      * method close the writer.
      * 
+     * @param file The file to duplicate.
+     * @param rootPath The root path in the container. Should end with "/"
+     * @param writer The writer on the container that should house the duplicate.
      * @throws IllegalArgumentException Thrown if one of the files to duplicate is a symbolic link
      *             or the file does not exist
      * @throws CheckedExceptionTunnel Thrown if an underlying error occurs
      * @throws IOExceptionUnchecked Thrown if an underlying error occurs
      */
-    public static void makeDuplicate(File file, IHDF5ContainerWriter writer)
+    public static void makeDuplicate(File file, String rootPath, IHDF5ContainerWriter writer)
     {
-        new HierarchicalStructureDuplicatorFileToHDF5(file, writer).makeDuplicate();
+        new HierarchicalStructureDuplicatorFileToHDF5(file, rootPath, writer).makeDuplicate();
     }
 
-    private HierarchicalStructureDuplicatorFileToHDF5(File file, IHDF5ContainerWriter writer)
+    private HierarchicalStructureDuplicatorFileToHDF5(File file, String rootPath,
+            IHDF5ContainerWriter writer)
     {
         this.file = file;
+        this.rootPath = rootPath;
         this.writer = writer;
     }
 
@@ -90,12 +105,12 @@ public class HierarchicalStructureDuplicatorFileToHDF5
             // If there the file is a normal file, create an HDF5 container with the file in the
             // root
             String name = file.getName();
-            String hdf5Path = "/" + name;
+            String hdf5Path = rootPath + name;
             mirrorDataSet(file, hdf5Path);
         } else
         {
             // Mirror the whole file structure
-            mirrorGroup(file, "/");
+            mirrorGroup(file, rootPath);
         }
     }
 
@@ -130,7 +145,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5
         IOException e = null;
         try
         {
-            istream = new FileInputStream(normalFile); 
+            istream = new FileInputStream(normalFile);
             writer.writeToHDF5Container(hdf5Path, istream, normalFile.length());
         } catch (IOException ex)
         {

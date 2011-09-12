@@ -36,6 +36,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
+import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -256,7 +257,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
 
         // create HDF5 container with subDir contents
         final File subContainerDir = new File(rootDir, "subDir.h5");
-        createHDF5Container(subContainerDir, subDir);
+        createHDF5Container(subContainerDir, subDir, false);
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
         prepareCreateRootNode(rootContent);
@@ -267,7 +268,35 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
             // get node of subDirFile counterpart from container
             final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subDirFile);
             final String containerRelativePath =
-                    relativePath.replace(subDir.getName(), subContainerDir.getName());
+                    getContainerRelativePath(subContainerDir, relativePath, false);
+            final IHierarchicalContentNode fileNode = rootContent.getNode(containerRelativePath);
+            checkHDF5ContainerFileNodeMatchesFile(fileNode, subDirFile);
+            assertEquals(containerRelativePath, fileNode.getRelativePath());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetNodeInsideHDF5ContainerWithOriginalPrepended() throws IOExceptionUnchecked,
+            UnsupportedOperationException, IOException
+    {
+        // NOTE: this test depends on HDF5Container and HierarchicalStructureDuplicatorFileToHdf5
+
+        // create HDF5 container with subDir contents
+        final File subContainerDir = new File(rootDir, "subDir.h5");
+        createHDF5Container(subContainerDir, subDir, true);
+
+        final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+        prepareCreateRootNode(rootContent);
+
+        final List<File> subDirFiles = Arrays.asList(subFile1, subFile2, subFile3, subSubFile);
+        for (File subDirFile : subDirFiles)
+        {
+            // get node of subDirFile counterpart from container
+            final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subDirFile);
+            final String containerRelativePath =
+                    getContainerRelativePath(subContainerDir, relativePath, true);
             final IHierarchicalContentNode fileNode = rootContent.getNode(containerRelativePath);
             checkHDF5ContainerFileNodeMatchesFile(fileNode, subDirFile);
             assertEquals(containerRelativePath, fileNode.getRelativePath());
@@ -405,13 +434,34 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     {
         // create HDF5 container with subDir contents
         final File subContainerDir = new File(rootDir, "subDir.h5");
-        createHDF5Container(subContainerDir, subDir);
+        createHDF5Container(subContainerDir, subDir, false);
 
         final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
 
         final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subSubDir);
         final String containerRelativePath =
-                relativePath.replace(subDir.getName(), subContainerDir.getName());
+                getContainerRelativePath(subContainerDir, relativePath, false);
+        final List<IHierarchicalContentNode> matchingNodes =
+                rootContent.listMatchingNodes(containerRelativePath, ".*[fF]ile.*");
+        assertEquals(1, matchingNodes.size());
+        checkHDF5ContainerFileNodeMatchesFile(matchingNodes.get(0), subSubFile);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListMatchingNodesWithStartingPathInsideHDF5ContainerWithOriginalPrepended()
+            throws IOExceptionUnchecked, UnsupportedOperationException, IOException
+    {
+        // create HDF5 container with subDir contents
+        final File subContainerDir = new File(rootDir, "subDir.h5");
+        createHDF5Container(subContainerDir, subDir, true);
+
+        final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+
+        final String relativePath = FileUtilities.getRelativeFilePath(rootDir, subSubDir);
+        final String containerRelativePath =
+                getContainerRelativePath(subContainerDir, relativePath, true);
         final List<IHierarchicalContentNode> matchingNodes =
                 rootContent.listMatchingNodes(containerRelativePath, ".*[fF]ile.*");
         assertEquals(1, matchingNodes.size());
@@ -512,11 +562,23 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     /** creates HDF5 container file with <var>containedDir</var> content */
-    private static void createHDF5Container(File containerFile, File containedDir)
+    private static void createHDF5Container(File containerFile, File containedDir,
+            boolean prependOriginal)
     {
         HDF5Container container = new HDF5Container(containerFile);
-        container.runWriterClient(true,
-                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(containedDir));
+        final DuplicatorWriterClient writerClient =
+                (prependOriginal) ? new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(
+                        containedDir, "/original/")
+                        : new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(
+                                containedDir);
+        container.runWriterClient(true, writerClient);
+    }
+
+    private String getContainerRelativePath(final File subContainerDir, final String relativePath,
+            boolean prependOriginal)
+    {
+        return (prependOriginal) ? relativePath.replace(subDir.getName(), subContainerDir.getName()
+                + "/original") : relativePath.replace(subDir.getName(), subContainerDir.getName());
     }
 
     private static IHierarchicalContentNode createDummyFileBasedRootNode(final File root)
