@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -40,20 +43,27 @@ public class ImageChannel implements ISerializable
 
     private ImageChannelColor channelColor;
 
+    private List<ImageTransformationInfo> availableImageTransformations;
+
     // GWT only
     @SuppressWarnings("unused")
     private ImageChannel()
     {
     }
 
+    // FIXME add List<ImageTransformationInfo> availableImageTransformations param
     public ImageChannel(String code, String label, String description, Integer wavelength,
             ImageChannelColor channelColor)
     {
+        assert code != null;
+        assert availableImageTransformations != null;
+
         this.code = code;
         this.label = label;
         this.description = description;
         this.wavelength = wavelength;
         this.channelColor = channelColor;
+        this.availableImageTransformations = new ArrayList<ImageTransformationInfo>();
     }
 
     public String getCode()
@@ -82,6 +92,11 @@ public class ImageChannel implements ISerializable
     public ImageChannelColor getChannelColor()
     {
         return channelColor;
+    }
+
+    public List<ImageTransformationInfo> getAvailableImageTransformations()
+    {
+        return availableImageTransformations;
     }
 
 }

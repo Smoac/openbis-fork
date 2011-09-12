@@ -128,6 +128,19 @@ public class ImageDatasetParameters implements ISerializable
         return channels.size();
     }
 
+    /** never null, can be empty if channel does not exist or no transformations are available */
+    public List<ImageTransformationInfo> getAvailableImageTransformationsFor(String channelCode)
+    {
+        for (ImageChannel channel : channels)
+        {
+            if (channel.getCode().equalsIgnoreCase(channelCode))
+            {
+                return channel.getAvailableImageTransformations();
+            }
+        }
+        return new ArrayList<ImageTransformationInfo>();
+    }
+
     public boolean isMultidimensional()
     {
         return isMultidimensional;
