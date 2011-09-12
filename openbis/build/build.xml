@@ -473,6 +473,9 @@
       <fileset dir="${lib}/jython">
         <include name="jython.jar" />
       </fileset>
+      <fileset dir="${lib}/jsonrpc4j">
+        <include name="jsonrpc4j.jar" />
+      </fileset>
     </copy>
   	<antcall target="prepare-gwt.copy-common-source" />
   </target>
