@@ -194,6 +194,7 @@
 				<include name="setup-env" />
 				<include name="shutdown.sh" />
 				<include name="startup.sh" />
+				<include name="run-jython-plugin-script.sh" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  etc/{1}">
