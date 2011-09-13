@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -197,6 +198,20 @@ public class EntityHelper
         IEntityProperty property = createNewProperty(propertyCode);
         property.setValue(propertyValue);
         return property;
+    }
+
+    public static Map<String, String> convertToStringMap(List<IEntityProperty> properties)
+    {
+        Map<String, String> map = new HashMap<String, String>();
+        if (properties != null)
+        {
+            for (IEntityProperty prop : properties)
+            {
+                map.put(prop.getPropertyType().getCode(), prop.tryGetAsString());
+            }
+        }
+
+        return map;
     }
 
     private static IEntityProperty createNewProperty(String propertyCode)

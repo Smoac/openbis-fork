@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -124,7 +125,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 7;
+    public static final int MINOR_VERSION = 8;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -514,6 +515,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public int getMinorVersion()
     {
         return MINOR_VERSION;
+    }
+
+    public List<PlateWithWells> getPlates(String sessionToken,
+            List<? extends PlateIdentifier> plateIdentifiers) throws IllegalArgumentException
+    {
+        return createScreeningApiImpl(sessionToken).getPlates(plateIdentifiers);
     }
 
 }

@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -386,6 +387,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         logAccess(sessionToken, "listAnalysisProcedures",
                 "sessionToken(%s), experimentSearchCriteria(%s)", sessionToken,
                 experimentSearchCriteria);
+        return null;
+    }
+
+    public List<PlateWithWells> getPlates(
+            String sessionToken, List<? extends PlateIdentifier> plates)
+            throws IllegalArgumentException
+    {
+        logAccess(sessionToken, "getPlates", "plates(%s)", plates);
         return null;
     }
 }

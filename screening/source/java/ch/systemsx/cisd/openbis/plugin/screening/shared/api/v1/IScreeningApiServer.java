@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 
 /**
@@ -94,6 +95,7 @@ public interface IScreeningApiServer extends IRpcService
     @ReturnValueFilter(validatorClass = ScreeningPlateValidator.class)
     List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
 
+
     /**
      * Return the list of all plates assigned to the given experiment.
      * 
@@ -105,6 +107,20 @@ public interface IScreeningApiServer extends IRpcService
     List<Plate> listPlates(
             String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experiment)
+            throws IllegalArgumentException;
+
+    /**
+     * Fetches the contents of a given list of plates. The result will contain well and material
+     * properties.
+     * 
+     * @since 1.8
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(8)
+    List<PlateWithWells> getPlates(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;
 
     /**

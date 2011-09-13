@@ -115,6 +115,13 @@ public class PlateContentLoader
                 .getImageDatasetInfosForSample(sampleId, wellLocationOrNull);
     }
 
+    public static List<PlateMetadata> loadPlateMetadatas(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, List<TechId> plateIds)
+    {
+        return new PlateContentLoader(session, businessObjectFactory).getPlateMetadatas(plateIds);
+
+    }
+
     private final Session session;
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
@@ -423,4 +430,22 @@ public class PlateContentLoader
         List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);
         return new ImageSampleContent(logicalImages, unknownDatasetReferences);
     }
+
+    private List<PlateMetadata> getPlateMetadatas(List<TechId> plateIds)
+    {
+        ArrayList<PlateMetadata> result = new ArrayList<PlateMetadata>();
+        for (TechId plateId : plateIds)
+        {
+            Sample plate = loadPlate(plateId);
+            List<WellMetadata> wells = loadWells(plateId);
+            Geometry plateGeometry = PlateDimensionParser.getPlateGeometry(plate.getProperties());
+            int rows = plateGeometry.getNumberOfRows();
+            int cols = plateGeometry.getNumberOfColumns();
+            PlateMetadata plateMetadata = new PlateMetadata(plate, wells, rows, cols);
+            result.add(plateMetadata);
+        }
+
+        return result;
+    }
+
 }
