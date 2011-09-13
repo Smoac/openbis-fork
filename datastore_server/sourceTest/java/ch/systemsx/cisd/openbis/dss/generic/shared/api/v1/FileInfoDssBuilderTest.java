@@ -37,8 +37,21 @@ public class FileInfoDssBuilderTest extends AssertJUnit
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);
         builder.appendFileInfosForFile(requestedFile, list, false);
-        // The 3 test files + 1 sub dir + .svn
-        assertEquals(5, list.size());
+        removeSvnFoldersFromList(list);
+        // The 3 test files + 1 sub dir
+        assertEquals(4, list.size());
+    }
+
+    private void removeSvnFoldersFromList(ArrayList<FileInfoDssDTO> list)
+    {
+        // Copy the list since we will modify it
+        for (FileInfoDssDTO info : new ArrayList<FileInfoDssDTO>(list))
+        {
+            if (info.getPathInDataSet().endsWith(".svn"))
+            {
+                list.remove(info);
+            }
+        }
     }
 
     @Test
@@ -50,8 +63,9 @@ public class FileInfoDssBuilderTest extends AssertJUnit
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         File requestedFile = new File(root);
         builder.appendFileInfosForFile(requestedFile, list, false);
-        // The 3 test files + 1 sub dir + .svn
-        assertEquals(5, list.size());
+        removeSvnFoldersFromList(list);
+        // The 3 test files + 1 sub dir
+        assertEquals(4, list.size());
     }
 
     @Test
