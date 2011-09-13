@@ -53,6 +53,10 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
             {
                 public BufferedImage transform(BufferedImage image)
                 {
+                    if (IntensityRescaling.isNotGrayscale(image))
+                    {
+                        return image;
+                    }
                     Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }

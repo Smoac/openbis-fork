@@ -33,6 +33,10 @@ final class BitShiftingImageTransformerFactory implements IImageTransformerFacto
             {
                 public BufferedImage transform(BufferedImage image)
                 {
+                    if (IntensityRescaling.isNotGrayscale(image))
+                    {
+                        return image;
+                    }
                     return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(image, shiftBits);
                 }
             };

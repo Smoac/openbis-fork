@@ -51,6 +51,10 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
             {
                 public BufferedImage transform(BufferedImage image)
                 {
+                    if (IntensityRescaling.isNotGrayscale(image))
+                    {
+                        return image;
+                    }
                     Levels levels = IntensityRescaling.computeLevels(image, threshold);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
