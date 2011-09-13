@@ -73,9 +73,9 @@ public class ImageTransformationBuffer
      * consecutive bits. All shifts which make sense for 12 bit images will be appended (from 0 to
      * 4).
      */
-    public void appendAllBitShiftsFor12Bit()
+    public void appendAllBitShiftsFor12BitGrayscale()
     {
-        appendAllAvailableBitShifts(12);
+        appendAllAvailableGrayscaleBitShifts(12);
     }
 
     /**
@@ -83,16 +83,16 @@ public class ImageTransformationBuffer
      * consecutive bits. All shifts which make sense for 16 bit images will be appended (from 0 to
      * 8).
      */
-    public void appendAllBitShiftsFor16Bit()
+    public void appendAllBitShiftsFor16BitGrayscale()
     {
-        appendAllAvailableBitShifts(16);
+        appendAllAvailableGrayscaleBitShifts(16);
     }
 
-    private void appendAllAvailableBitShifts(int totalNumberOfBits)
+    private void appendAllAvailableGrayscaleBitShifts(int totalNumberOfBits)
     {
         for (int i = 0; i <= (totalNumberOfBits - 8); i++)
         {
-            appendBitShiftingTransformation(i);
+            appendGrayscaleBitShifting(i);
         }
     }
 
@@ -100,9 +100,9 @@ public class ImageTransformationBuffer
      * Appends transformation which extracts a range of grayscale image colors by choosing 8
      * consecutive bits starting from the specified one.
      */
-    public void appendBitShiftingTransformation(int shiftBits)
+    public void appendGrayscaleBitShifting(int shiftBits)
     {
-        append(createBitShifting(shiftBits));
+        append(createGrayscaleBitShifting(shiftBits));
     }
 
     /**
@@ -112,7 +112,7 @@ public class ImageTransformationBuffer
      * This method is useful when one wants to modify the default code, label or description
      * afterwards.
      */
-    public static ImageTransformation createBitShifting(int shiftBits)
+    public static ImageTransformation createGrayscaleBitShifting(int shiftBits)
     {
         if (shiftBits < 0)
         {
@@ -153,20 +153,20 @@ public class ImageTransformationBuffer
      * higher color depth with each other when they do not use the whole range of available
      * intensities.
      */
-    public void appendRescaleIntensityRangeTo8Bits(int blackPointIntensity, int whitePointIntensity)
+    public void appendRescaleGrayscaleIntensity(int blackPointIntensity, int whitePointIntensity)
     {
-        appendRescaleIntensityRangeTo8Bits(blackPointIntensity, whitePointIntensity, null);
+        appendRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity, null);
     }
 
     /**
-     * See {@link #appendRescaleIntensityRangeTo8Bits(int, int)}.
+     * See {@link #appendRescaleGrayscaleIntensity(int, int)}.
      * <p>
      * Additionally sets the label of the transformation.
      */
-    public void appendRescaleIntensityRangeTo8Bits(int blackPointIntensity,
-            int whitePointIntensity, String userFriendlyLabelOrNull)
+    public void appendRescaleGrayscaleIntensity(int blackPointIntensity, int whitePointIntensity,
+            String userFriendlyLabelOrNull)
     {
-        append(createRescaleIntensityRangeTo8Bits(blackPointIntensity, whitePointIntensity,
+        append(createRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity,
                 userFriendlyLabelOrNull));
     }
 
@@ -180,7 +180,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    public static ImageTransformation createRescaleIntensityRangeTo8Bits(int blackPointIntensity,
+    public static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
             int whitePointIntensity, String userFriendlyLabelOrNull)
     {
         if (blackPointIntensity > whitePointIntensity || blackPointIntensity < 0
@@ -233,31 +233,28 @@ public class ImageTransformationBuffer
      * Appends transformation which converts each single grayscale image to 8 bit color depth and
      * rescales pixels intensities so that the darkest pixel will become black and the brightest
      * will become white.
-     */
-    public void appendAutoRescaleIntensityTo8Bits()
-    {
-        appendAutoRescaleIntensityTo8Bits(0, null);
-    }
-
-    /**
-     * See {@link #appendAutoRescaleIntensityTo8Bits()}.
+     * <p>
+     * Note that by default openBIS applies this transformation with threshold 0 if it deals with
+     * grayscale image where color depth is bigger then 8 bit. So calling this method with parameter
+     * 0 is not necessary.
+     * </p>
      * 
      * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest
      *            pixels which will be ignored (they will all become black or white).
      */
-    public void appendAutoRescaleIntensityTo8Bits(float threshold)
+    public void appendAutoRescaleGrayscaleIntensity(float threshold)
     {
-        appendAutoRescaleIntensityTo8Bits(threshold, null);
+        appendAutoRescaleGrayscaleIntensity(threshold, null);
     }
 
     /**
-     * See {@link #appendAutoRescaleIntensityTo8Bits(float)}.
+     * See {@link #appendAutoRescaleGrayscaleIntensity(float)}.
      * <p>
      * Additionally sets the label of the transformation.
      */
-    public void appendAutoRescaleIntensityTo8Bits(float threshold, String userFriendlyLabelOrNull)
+    public void appendAutoRescaleGrayscaleIntensity(float threshold, String userFriendlyLabelOrNull)
     {
-        append(createAutoRescaleIntensityTo8Bits(threshold, userFriendlyLabelOrNull));
+        append(createAutoRescaleGrayscaleIntensity(threshold, userFriendlyLabelOrNull));
     }
 
     /**
@@ -273,7 +270,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    public static ImageTransformation createAutoRescaleIntensityTo8Bits(float threshold,
+    public static ImageTransformation createAutoRescaleGrayscaleIntensity(float threshold,
             String userFriendlyLabelOrNull)
     {
         if (threshold < 0 || threshold > 1)
@@ -293,7 +290,7 @@ public class ImageTransformationBuffer
 
     private static String createAutoRescaleIntensityTransformationCode(float threshold)
     {
-        return PREDEFINED_TRANSFORMATIONS_CODE_PREFIX + "AUTO_INTENSITY_LEVEL_" + threshold;
+        return PREDEFINED_TRANSFORMATIONS_CODE_PREFIX + "AUTO_INTENSITY_LEVEL_" + (threshold * 100);
     }
 
     private static String createAutoRescaleIntensityTransformationDescription(float threshold)
@@ -316,18 +313,17 @@ public class ImageTransformationBuffer
      * Allows to transform the images with ImageMagic convert tool (which has to be installed and
      * accessible). Convert will be called with the specified parameters.
      */
-    public void appendImageMagicConvertTransformation(String convertCliArguments)
+    public void appendImageMagicConvert(String convertCliArguments)
     {
-        appendImageMagicConvertTransformation(convertCliArguments, null);
+        appendImageMagicConvert(convertCliArguments, null);
     }
 
     /**
-     * See {@link #appendImageMagicConvertTransformation(String)}.
+     * See {@link #appendImageMagicConvert(String)}.
      * <p>
      * Additionally sets the label of the transformation.
      */
-    public void appendImageMagicConvertTransformation(String convertCliArguments,
-            String userFriendlyLabelOrNull)
+    public void appendImageMagicConvert(String convertCliArguments, String userFriendlyLabelOrNull)
     {
         append(createImageMagicConvert(convertCliArguments,
                 generateUniqueConvertTransformationCode(), userFriendlyLabelOrNull));
