@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
@@ -472,7 +471,8 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(),
-                        getImageID(imageInfo.tryGetImageIdentifier()), colorComponentOrNull);
+                        getUniqueStringIdentifier(imageInfo.tryGetImageIdentifier()),
+                        colorComponentOrNull);
         Location wellLoc = null;
         if (imageInfo.hasWellLocation())
         {
@@ -486,15 +486,14 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return new AcquiredSingleImage(wellLoc, tileLoc, channelCode, imageInfo.tryGetTimepoint(),
                 imageInfo.tryGetDepth(), imageInfo.tryGetSeriesNumber(), relativeImageRef);
     }
-    
-    private static String getImageID(ImageIdentifier identifier)
+
+    private static String getUniqueStringIdentifier(ImageIdentifier identifier)
     {
         if (identifier == null)
         {
             return null;
         }
-        return new ImageID(identifier.getSeriesIndex(), identifier.getTimeSeriesIndex(),
-                identifier.getFocalPlaneIndex(), identifier.getColorChannelIndex()).getID();
+        return identifier.getUniqueStringIdentifier();
     }
 
     protected static Integer tryAsInt(String valueOrNull)

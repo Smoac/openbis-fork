@@ -190,7 +190,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private byte[] generateThumbnailInternally(File imageFile, String imageIdOrNull,
             ByteArrayOutputStream bufferOutputStream) throws IOException
     {
-        BufferedImage image = loadImage(imageFile, imageIdOrNull);
+        BufferedImage image = loadUnchangedImage(imageFile, imageIdOrNull);
         BufferedImage thumbnail =
                 ImageUtil.rescale(image, thumbnailsStorageFormat.getMaxWidth(),
                         thumbnailsStorageFormat.getMaxHeight(), false,
@@ -199,10 +199,10 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return bufferOutputStream.toByteArray();
     }
 
-    private BufferedImage loadImage(File imageFile, String imageIdOrNull)
+    private BufferedImage loadUnchangedImage(File imageFile, String imageIdOrNull)
     {
-        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContent(imageFile), imageIdOrNull,
-                imageLibraryOrNull);
+        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContent(imageFile),
+                imageIdOrNull, imageLibraryOrNull);
     }
 
     private Status createStatus(String thumbnailPath, IOException ex)

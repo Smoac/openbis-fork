@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import ch.systemsx.cisd.imagereaders.ImageID;
+
 /**
  * Immutable value class of an image ID based on series index, time series index, focal plane index,
  * and color channel index. It will be used to identify images in a container image file format like
@@ -26,7 +28,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 public class ImageIdentifier implements Comparable<ImageIdentifier>
 {
     public static final ImageIdentifier NULL = new ImageIdentifier(0, 0, 0, 0);
-    
+
     private final int seriesIndex;
 
     private final int timeSeriesIndex;
@@ -34,7 +36,7 @@ public class ImageIdentifier implements Comparable<ImageIdentifier>
     private final int focalPlaneIndex;
 
     private final int colorChannelIndex;
-    
+
     /**
      * Creates an instance for the specified series index, time series (or T) index, focal plane (or
      * Z) index, color channel index.
@@ -66,6 +68,12 @@ public class ImageIdentifier implements Comparable<ImageIdentifier>
     public int getColorChannelIndex()
     {
         return colorChannelIndex;
+    }
+
+    public String getUniqueStringIdentifier()
+    {
+        return new ImageID(getSeriesIndex(), getTimeSeriesIndex(), getFocalPlaneIndex(),
+                getColorChannelIndex()).getID();
     }
 
     public int compareTo(ImageIdentifier that)
