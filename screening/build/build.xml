@@ -37,8 +37,6 @@
 	</target>
     			
   <target name="dss-plugin-jar" depends="compile">
-		<mkdir dir="${dist}/data" />
-		<mkdir dir="${dist}/etc" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
@@ -67,14 +65,6 @@
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</jar>
-  	<copy todir="${dist}/data">
-  		<fileset dir="dist/data" />
-  	</copy>
-    <copy todir="${dist}/etc">
-      <fileset dir="dist/etc">
-        <include name="tabular-data-graph.properties" />
-      </fileset>
-    </copy>
   </target>
 	
   <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum, dss-plugin-jar">
@@ -100,6 +90,16 @@
       </fileset>
     </copy>
   	<antcall target="datastore_server.create-distribution" />
+		<mkdir dir="${dist}/data" />
+		<mkdir dir="${dist}/etc" />
+  	<copy todir="${dist}/data">
+  		<fileset dir="dist/data" />
+  	</copy>
+    <copy todir="${dist}/etc">
+      <fileset dir="dist/etc">
+        <include name="tabular-data-graph.properties" />
+      </fileset>
+    </copy>
   </target>
 	
   <!-- 
