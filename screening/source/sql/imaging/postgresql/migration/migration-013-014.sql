@@ -19,8 +19,11 @@ CREATE TABLE IMAGE_TRANSFORMATIONS (
 
 CREATE INDEX IMAGE_TRANSFORMATIONS_CHANNELS_IDX ON IMAGE_TRANSFORMATIONS(CHANNEL_ID);
 
-insert into IMAGE_TRANSFORMATIONS(ID, CODE, LABEL, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID)
-   select nextval('image_transformations_id_seq'), 'CUSTOM', 'Custom', 
+insert into IMAGE_TRANSFORMATIONS(ID, CODE, LABEL, DESCRIPTION, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID)
+   select nextval('image_transformations_id_seq'), '_CUSTOM', 'Custom', 
+   				'Custom image transformation defined with the Color Adjustment tool.',
           ch.IMAGE_TRANSFORMER_FACTORY, 'T', ch.ID
      from channels ch
     where ch.IMAGE_TRANSFORMER_FACTORY is not NULL;
+
+alter table CHANNELS drop column IMAGE_TRANSFORMER_FACTORY;
