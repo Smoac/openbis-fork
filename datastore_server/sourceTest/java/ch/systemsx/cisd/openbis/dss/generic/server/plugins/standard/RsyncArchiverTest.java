@@ -236,8 +236,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.",
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
     }    
@@ -273,9 +272,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - Archiving for dataset ds1 finished with the status: OK.",
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
     }
@@ -327,8 +324,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
-                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                        + "DEBUG OPERATION.AbstractDatastorePlugin - Unarchiving for dataset ds1 finished with the status: OK.",
+                        + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("{class=" + ShareFinder.class.getName() + "\np1=property 1}",
