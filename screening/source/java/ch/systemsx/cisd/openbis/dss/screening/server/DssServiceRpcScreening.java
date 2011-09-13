@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.lemnik.eodsql.QueryTool;
-
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -84,10 +82,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.TransformerFactoryMapper;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -103,12 +102,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
      * The minor version of this service.
      */
     public static final int MINOR_VERSION = 8;
-
-
-    static
-    {
-        QueryTool.getTypeMap().put(IImageTransformerFactory.class, new TransformerFactoryMapper());
-    }
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -282,7 +275,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageAccessor.tryGetRepresentativeImage(channelCode, null, originalOrThumbnail);
             if (image != null)
             {
-                return image.getImage();
+                return image.getUnchangedImage();
             }
         }
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
@@ -298,7 +291,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageAccessor.tryGetRepresentativeThumbnail(channelCode, null);
             if (image != null)
             {
-                return image.getImage();
+                return image.getUnchangedImage();
             }
         }
         return null;
@@ -319,7 +312,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                                     col, row));
                     if (image != null)
                     {
-                        return image.getImage();
+                        return image.getUnchangedImage();
                     }
                 }
             }
@@ -343,7 +336,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                                     row), originalOrThumbnail);
                     if (image != null)
                     {
-                        return image.getImage();
+                        return image.getUnchangedImage();
                     }
                 }
             }
@@ -461,13 +454,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
-        return loadImages(sessionToken, imageReferences, null, convertToPng);
+        return loadImages(sessionToken, imageReferences, null, null, convertToPng);
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)
     {
-        return loadImages(sessionToken, imageReferences, tryAsSize(thumbnailSizeOrNull), true);
+        return loadImages(sessionToken, imageReferences, tryAsSize(thumbnailSizeOrNull), null, true);
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
@@ -476,20 +469,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
         return loadImages(imageReferences, tryAsSize(configuration.getDesiredImageSize()),
+                configuration.getSingleChannelImageTransformationCode(),
                 configuration.isDesiredImageFormatPng(),
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
     }
 
     private InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            final Size sizeOrNull, final boolean convertToPng)
+            final Size sizeOrNull, String singleChannelImageTransformationCodeOrNull,
+            final boolean convertToPng)
     {
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        return loadImages(imageReferences, sizeOrNull, convertToPng, false, imageLoadersMap);
+        return loadImages(imageReferences, sizeOrNull, singleChannelImageTransformationCodeOrNull,
+                convertToPng, false, imageLoadersMap);
     }
 
     private InputStream loadImages(List<PlateImageReference> imageReferences,
-            final Size sizeOrNull, final boolean convertToPng, final boolean transform,
+            final Size sizeOrNull, final String singleChannelImageTransformationCodeOrNull,
+            final boolean convertToPng, final boolean transform,
             final Map<String, IImagingDatasetLoader> imageLoadersMap)
     {
         final List<IContent> imageContents = new ArrayList<IContent>();
@@ -508,7 +505,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     public IContent getContent()
                     {
                         return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, convertToPng, transform);
+                                sizeOrNull, singleChannelImageTransformationCodeOrNull,
+                                convertToPng, transform);
                     }
                 }));
         }
@@ -558,7 +556,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 new HashMap<String, IImagingDatasetLoader>();
         imageLoadersMap.put(dataSetIdentifier.getDatasetCode(), imageAccessor);
 
-        return loadImages(imageReferences, size, true, false, imageLoadersMap);
+        return loadImages(imageReferences, size, null, true, false, imageLoadersMap);
     }
 
     public InputStream loadThumbnailImages(String sessionToken,
@@ -590,7 +588,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     public IContent getContent()
                     {
                         return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, true, false);
+                                sizeOrNull, null, true, false);
                     }
                 }));
         }
@@ -720,6 +718,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return ScreeningConstants.MERGED_CHANNELS.equals(channel);
     }
 
+    static final String IMAGE_VIEWER_TRANSFORMATION_CODE = "_CUSTOM";
+
+    private static final String IMAGE_VIEWER_TRANSFORMATION_LABEL = "Custom";
+
+    private static final String IMAGE_VIEWER_TRANSFORMATION_DESCRIPTION =
+            "Custom image transformation defined with the Color Adjustment tool.";
+
     private void saveImageTransformerFactoryForExperiment(long experimentId, String channel,
             IImageTransformerFactory transformerFactory)
     {
@@ -738,9 +743,34 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 operationLog.info("save image transformer factory " + transformerFactory
                         + " for experiment " + experimentId + " and channel '" + channel + "'.");
             }
-            transformerDAO.saveTransformerFactoryForExperimentChannel(experimentId, channel,
-                    transformerFactory);
+            Long channelId = transformerDAO.getExperimentChannelId(experimentId, channel);
+            createOrUpdateImageViewerTransformation(channelId, transformerFactory);
         }
+    }
+
+    private void createOrUpdateImageViewerTransformation(long channelId,
+            IImageTransformerFactory transformerFactory)
+    {
+        Long transformationIdOrNull =
+                transformerDAO.tryGetImageTransformationId(channelId,
+                        IMAGE_VIEWER_TRANSFORMATION_CODE);
+        if (transformationIdOrNull == null)
+        {
+            transformerDAO.addImageTransformation(createImageViewerTransformation(channelId,
+                    transformerFactory));
+        } else
+        {
+            transformerDAO
+                    .updateImageTransformerFactory(transformationIdOrNull, transformerFactory);
+        }
+    }
+
+    private ImgImageTransformationDTO createImageViewerTransformation(long channelId,
+            IImageTransformerFactory transformerFactory)
+    {
+        return new ImgImageTransformationDTO(IMAGE_VIEWER_TRANSFORMATION_CODE,
+                IMAGE_VIEWER_TRANSFORMATION_LABEL, IMAGE_VIEWER_TRANSFORMATION_DESCRIPTION, true,
+                channelId, transformerFactory);
     }
 
     private void saveImageTransformerFactoryForDataset(long datasetId, String channel,
@@ -761,8 +791,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 operationLog.info("save image transformer factory " + transformerFactory
                         + " for dataset " + datasetId + " and channel '" + channel + "'.");
             }
-            transformerDAO.saveTransformerFactoryForDatasetChannel(datasetId, channel,
-                    transformerFactory);
+            long channelId = transformerDAO.getDatasetChannelId(datasetId, channel);
+            createOrUpdateImageViewerTransformation(channelId, transformerFactory);
         }
     }
 
@@ -818,9 +848,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             return dataset.tryGetImageTransformerFactory();
         } else
         {
-            return getDAO().tryGetChannelForDataset(dataset.getId(), channel)
-                    .tryGetImageTransformerFactory();
+            long channelId = getDAO().getDatasetChannelId(dataset.getId(), channel);
+            return tryGetImageViewerTransformation(channelId);
         }
+    }
+
+    private IImageTransformerFactory tryGetImageViewerTransformation(long channelId)
+    {
+        ImgImageTransformationDTO transformation =
+                getDAO().tryGetImageTransformation(channelId, IMAGE_VIEWER_TRANSFORMATION_CODE);
+        if (transformation == null)
+        {
+            return null;
+        }
+        return transformation.getImageTransformerFactory();
     }
 
     private IImageTransformerFactory tryGetImageTransformerFactoryForExperiment(
@@ -832,8 +873,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     .tryGetImageTransformerFactory();
         } else
         {
-            return getDAO().tryGetChannelForExperimentPermId(experimentPermID, channel)
-                    .tryGetImageTransformerFactory();
+            ImgChannelDTO channelDTO =
+                    getDAO().tryGetChannelForExperimentPermId(experimentPermID, channel);
+            assert channelDTO != null : String.format("No channel '%s' for experiment '%s'.",
+                    channel, experimentPermID);
+            return tryGetImageViewerTransformation(channelDTO.getId());
         }
     }
 
@@ -982,12 +1026,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IContent tryGetImageContent(IImagingDatasetLoader imageAccessor,
             final ImageChannelStackReference channelStackReference, String channelCode,
-            Size thumbnailSizeOrNull, boolean convertToPng, boolean transform)
+            Size thumbnailSizeOrNull, String singleChannelImageTransformationCodeOrNull,
+            boolean convertToPng, boolean transform)
     {
         try
         {
             return ImageChannelsUtils.getImage(imageAccessor, channelStackReference, channelCode,
-                    thumbnailSizeOrNull, convertToPng, transform);
+                    thumbnailSizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
+                    transform);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);

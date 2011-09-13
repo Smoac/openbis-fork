@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -47,11 +45,10 @@ public class ImageDatasetParameters implements ISerializable
 
     private List<ImageChannel> channels;
 
-    private Map<String/* channel code */, String/* signature */> channelsTransformerFactorySignatures =
-            new HashMap<String, String>();
-
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
+
+    private String mergedChannelTransformerFactorySignatureOrNull;
 
     public Integer tryGetRowsNum()
     {
@@ -161,13 +158,39 @@ public class ImageDatasetParameters implements ISerializable
         return channels;
     }
 
-    public void addTransformerFactorySignatureFor(String channelCode, String signatureOrNull)
+    /**
+     * @param channelCodeOrNull null for merged channels (transformationCode is ignored in that
+     *            case)
+     */
+    public String tryGetTransformerFactorySignature(String channelCodeOrNull,
+            String transformationCode)
     {
-        channelsTransformerFactorySignatures.put(channelCode, signatureOrNull);
+        if (channelCodeOrNull == null)
+        {
+            return mergedChannelTransformerFactorySignatureOrNull;
+        }
+        List<ImageTransformationInfo> transformations =
+                getAvailableImageTransformationsFor(channelCodeOrNull);
+        for (ImageTransformationInfo transformation : transformations)
+        {
+            if (transformation.getCode().equalsIgnoreCase(transformationCode))
+            {
+                return transformation.getTransformationSignature();
+            }
+        }
+        return null;
     }
 
-    public String getTransformerFactorySignatureOrNull(String channelCode)
+    public String tryGetMergedChannelTransformerFactorySignature()
     {
-        return channelsTransformerFactorySignatures.get(channelCode);
+        return mergedChannelTransformerFactorySignatureOrNull;
     }
+
+    public void setMergedChannelTransformerFactorySignature(
+            String mergedChannelTransformerFactorySignatureOrNull)
+    {
+        this.mergedChannelTransformerFactorySignatureOrNull =
+                mergedChannelTransformerFactorySignatureOrNull;
+    }
+
 }

@@ -24,6 +24,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -34,14 +36,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 abstract public class SimpleImageDataConfig
 {
-    // --- one of the following two methods have to be overridden -----------------
+    // --- one of the following two methods has to be overridden -----------------
 
     /**
-     * Extracts tile number, channel code and well code for a given relative path to an image.
+     * Extracts tile number, channel code and well code for a given relative path to a single image.
+     * This method should overridden to deal with files containing single images. It is ignored if
+     * {@link #extractImagesMetadata(String, List)} is overridden as well.
      * <p>
-     * Will be called for each file found in the incoming directory which has the extension returned
-     * by {@link #getRecognizedImageExtensions()}.
+     * It will be called for each file found in the incoming directory which has the extension
+     * returned by {@link #getRecognizedImageExtensions()}.
      * </p>
+     * To deal with image containers (like multi-page TIFF files) override
+     * {@link #extractImagesMetadata(String, List)} instead, otherwise leave that method unchanged.
      */
     public ImageMetadata extractImageMetadata(String imagePath)
     {
@@ -50,12 +56,14 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Returns meta-data for each image contained in specified image file path. This method returns
-     * just the {@link ImageMetadata} object returned by {@link #extractImageMetadata(String)}.
+     * Returns meta-data for each image in the specified image container. This method should
+     * overridden to deal with container images (like multi-page TIFF files).
      * <p>
-     * In case of a image container file format (like multi-page TIFF) this method should
-     * overridden.
+     * This implementation returns the result of {@link #extractImageMetadata(String)} wrapped in an
+     * array, image identifiers are ignored.
+     * </p>
      * 
+     * @param imagePath path to the single image or container of many images
      * @param imageIdentifiers Identifiers of all images contained in the image file.
      */
     public ImageMetadata[] extractImagesMetadata(String imagePath,
@@ -103,13 +111,33 @@ abstract public class SimpleImageDataConfig
      * <p>
      * Creates channel description for a given code. Can be overridden in subclasses.
      * </p>
-     * By default rhe channel label will be equal to the code. Channel color returned by
+     * By default the channel label will be equal to the code. Channel color returned by
      * {@link #getChannelColor(String)} will be used.
      */
     public Channel createChannel(String channelCode)
     {
-        ChannelColor channelColor = getChannelColor(channelCode.toUpperCase());
-        return new Channel(channelCode, channelCode, channelColor);
+        ChannelColor channelColor = getChannelColor(channelCode);
+        ImageTransformation[] availableTransformations =
+                getAvailableChannelTransformations(channelCode);
+        String label = channelCode;
+        String normalizedChannelCode = CodeNormalizer.normalize(channelCode);
+        Channel channel = new Channel(normalizedChannelCode, label, channelColor);
+        channel.setAvailableTransformations(availableTransformations);
+        return channel;
+    }
+
+    /**
+     * Sets available transformations which can be applied to images of the specified channel (on
+     * user's request).
+     * <p>
+     * Can be overridden in subclasses. The easiest way to create transformations is to use
+     * {@link ImageTransformationBuffer} class.
+     * <p>
+     * By default returns null.
+     */
+    public ImageTransformation[] getAvailableChannelTransformations(String channelCode)
+    {
+        return null;
     }
 
     /**

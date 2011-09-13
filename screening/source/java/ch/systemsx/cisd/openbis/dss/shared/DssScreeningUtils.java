@@ -20,10 +20,12 @@ import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.TransformerFactoryMapper;
 
 /**
  * Utility methods for DSS.
@@ -33,6 +35,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 public class DssScreeningUtils
 {
     private static final IImagingReadonlyQueryDAO query = createQuery();
+
+    static
+    {
+        QueryTool.getTypeMap().put(IImageTransformerFactory.class, new TransformerFactoryMapper());
+    }
 
     /**
      * Returned query is reused and should NOT be closed.

@@ -201,8 +201,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private BufferedImage loadImage(File imageFile, String imageIdOrNull)
     {
-        // NOTE 2011-04-20, Tomasz Pylak: support paged tiffs when generating thumbnails
-        return AbsoluteImageReference.loadImage(new FileBasedContent(imageFile), imageIdOrNull,
+        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContent(imageFile), imageIdOrNull,
                 imageLibraryOrNull);
     }
 

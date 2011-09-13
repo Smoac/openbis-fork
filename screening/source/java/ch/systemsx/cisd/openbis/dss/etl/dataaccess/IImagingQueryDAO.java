@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -69,8 +70,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
     public long addExperiment(String experimentPermId);
 
-    @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID, COLOR) values "
-            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}, ?{1.dbChannelColor}) returning ID")
+    @Select("insert into CHANNELS (CODE, LABEL, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID, COLOR) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}, ?{1.dbChannelColor}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
@@ -84,6 +85,13 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "?{1.containerId}, ?{1.isMultidimensional}, "
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
+
+    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})", batchUpdate = true)
+    public void addImageTransformations(List<ImgImageTransformationDTO> imageTransformations);
+
+    @Update(sql = "delete from IMAGE_TRANSFORMATIONS where CODE = ?{1} and CHANNEL_ID = ?{2}")
+    public void removeImageTransformation(String transformationCode, long channelId);
 
     @Select("insert into SPOTS (X, Y, CONT_ID) values "
             + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")

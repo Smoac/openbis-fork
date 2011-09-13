@@ -20,7 +20,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
@@ -44,12 +47,14 @@ import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 
 /**
  * @author Franz-Josef Elmer
@@ -115,7 +120,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
         try
         {
-            createImageChannelsUtils(null).calculateBufferedImage(imageRef, true);
+            createImageChannelsUtils(null).calculateBufferedImage(imageRef,
+                    createSingleChannelTransformationParams());
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException ex)
         {
@@ -124,6 +130,11 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         }
 
         context.assertIsSatisfied();
+    }
+
+    private ImageTransformationParams createSingleChannelTransformationParams()
+    {
+        return new ImageTransformationParams(true, false, null);
     }
 
     @Test
@@ -152,8 +163,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         prepareExpectations(absoluteImageReference, imageRef);
 
         BufferedImage image =
-                createImageChannelsUtils(thumbnailSizeOrNull)
-                        .calculateBufferedImage(imageRef, true);
+                createImageChannelsUtils(thumbnailSizeOrNull).calculateBufferedImage(imageRef,
+                        createSingleChannelTransformationParams());
         assertEquals(expectedImageContentDescription, getImageContentDescription(image));
 
         context.assertIsSatisfied();
@@ -165,17 +176,17 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(loader).getImageParameters();
+                    allowing(loader).getImageParameters();
                     ImageDatasetParameters imgParams = new ImageDatasetParameters();
                     imgParams.setChannels(Arrays.asList(new ImageChannel(CHANNEL, CHANNEL, null,
-                            null, null)));
+                            null, null, new ArrayList<ImageTransformationInfo>())));
                     will(returnValue(imgParams));
 
                     RequestedImageSize requestedSize =
                             absoluteImageReferenceOrNull == null ? RequestedImageSize
                                     .createOriginal() : absoluteImageReferenceOrNull
                                     .getRequestedSize();
-                    one(loader).tryGetImage(imageRef.getChannelCodes().get(0),
+                    one(loader).tryGetImage(imageRef.getChannelCodes(null).get(0),
                             imageRef.getChannelStackReference(), requestedSize);
                     will(returnValue(absoluteImageReferenceOrNull));
                 }
@@ -187,8 +198,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         ImageChannelStackReference channelStackReference =
                 ImageChannelStackReference.createFromId(4711);
         final DatasetAcquiredImagesReference imageRef =
-                new DatasetAcquiredImagesReference(DATASET_CODE, channelStackReference,
-                        Arrays.asList(CHANNEL));
+                DatasetAcquiredImagesReference.createForSingleChannel(DATASET_CODE,
+                        channelStackReference, CHANNEL);
         return imageRef;
     }
 
@@ -198,7 +209,10 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
         AbsoluteImageReference imgRef =
                 createAbsoluteImageReference("img1.gif", RequestedImageSize.createOriginal());
-        imgRef.getImageTransfomationFactories().setForChannel(transformerFactory);
+        String transformationCode = "MY_TRANSFORMATION";
+        Map<String, IImageTransformerFactory> transformations =
+                createImageTransformationsMap(transformationCode, transformerFactory);
+        imgRef.getImageTransfomationFactories().setForChannel(transformations);
 
         prepareExpectations(imgRef, imageRef);
         context.checking(new Expectations()
@@ -209,11 +223,22 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 }
             });
 
-        BufferedImage image = createImageChannelsUtils(null).calculateBufferedImage(imageRef, true);
+        BufferedImage image =
+                createImageChannelsUtils(null).calculateBufferedImage(imageRef,
+                        new ImageTransformationParams(true, false, transformationCode));
         assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
                 + "e00 f00 f00 e00\n", getImageContentDescription(image));
 
         context.assertIsSatisfied();
+    }
+
+    private static Map<String, IImageTransformerFactory> createImageTransformationsMap(
+            String transformationCode, IImageTransformerFactory transformerFactory)
+    {
+        Map<String, IImageTransformerFactory> transformations =
+                new HashMap<String, IImageTransformerFactory>();
+        transformations.put(transformationCode, transformerFactory);
+        return transformations;
     }
 
     private static AbsoluteImageReference createAbsoluteImageReference(String fileName,

@@ -95,16 +95,16 @@ public class AbsoluteImageReference extends AbstractImageReference
         }
     }
 
-    public BufferedImage getImage()
+    public BufferedImage getUnchangedImage()
     {
         if (image == null)
         {
-            image = loadImage(content, tryGetImageID(), imageLibraryOrNull);
+            image = loadUnchangedImage(content, tryGetImageID(), imageLibraryOrNull);
         }
         return image;
     }
 
-    static BufferedImage loadImage(IContent content, String imageIdOrNull,
+    static BufferedImage loadUnchangedImage(IContent content, String imageIdOrNull,
             ImageLibraryInfo imageLibraryOrNull)
     {
         String imageLibraryNameOrNull = null;
@@ -114,7 +114,7 @@ public class AbsoluteImageReference extends AbstractImageReference
             imageLibraryNameOrNull = imageLibraryOrNull.getName();
             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
         }
-        return ImageUtil.loadImage(content, imageIdOrNull, imageLibraryNameOrNull,
+        return ImageUtil.loadUnchangedImage(content, imageIdOrNull, imageLibraryNameOrNull,
                 imageLibraryReaderNameOrNull, null);
     }
 

@@ -21,14 +21,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
@@ -49,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -109,7 +106,10 @@ public class ImageChannelsUtils
         if (imageChannels != null)
         {
             RequestedImageSize imageSize = new RequestedImageSize(thumbnailSizeOrNull, false);
-            image = calculateBufferedImage(imageChannels, datasetDirectoryProvider, imageSize);
+            image =
+                    calculateBufferedImage(imageChannels,
+                            params.tryGetSingleChannelTransformationCode(),
+                            datasetDirectoryProvider, imageSize);
         }
 
         RequestedImageSize overlaySize = calcOverlaySize(image, thumbnailSizeOrNull);
@@ -147,7 +147,9 @@ public class ImageChannelsUtils
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 utils.fetchImageContents(imagesReference, mergeAllChannels, true);
-        return calculateSingleImages(imageContents, true, mergeAllChannels);
+        ImageTransformationParams transformationInfo =
+                new ImageTransformationParams(true, mergeAllChannels, null);
+        return calculateSingleImagesForDisplay(imageContents, transformationInfo);
     }
 
     private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
@@ -187,11 +189,19 @@ public class ImageChannelsUtils
 
     private static BufferedImage calculateBufferedImage(
             DatasetAcquiredImagesReference imageChannels,
+            String singleChannelTransformationCodeOrNull,
             IDatasetDirectoryProvider datasetDirectoryProvider, RequestedImageSize imageSizeLimit)
     {
         ImageChannelsUtils imageChannelsUtils =
                 createImageChannelsUtils(imageChannels, datasetDirectoryProvider, imageSizeLimit);
-        return imageChannelsUtils.calculateBufferedImage(imageChannels, true);
+
+        boolean useMergedChannelsTransformation =
+                imageChannelsUtils.isMergeAllChannels(imageChannels);
+        ImageTransformationParams transformationInfo =
+                new ImageTransformationParams(true, useMergedChannelsTransformation,
+                        singleChannelTransformationCodeOrNull);
+
+        return imageChannelsUtils.calculateBufferedImage(imageChannels, transformationInfo);
     }
 
     private static ImageChannelsUtils createImageChannelsUtils(
@@ -205,50 +215,29 @@ public class ImageChannelsUtils
 
     @Private
     BufferedImage calculateBufferedImage(DatasetAcquiredImagesReference imageChannels,
-            boolean transform)
+            ImageTransformationParams transformationInfo)
     {
         boolean mergeAllChannels = isMergeAllChannels(imageChannels);
         List<AbsoluteImageReference> imageContents =
                 fetchImageContents(imageChannels, mergeAllChannels, false);
-        return mergeChannels(imageContents, transform, mergeAllChannels);
+        return calculateBufferedImage(imageContents, transformationInfo);
     }
 
-    // Check if all exiting channels of the image should be merged (and not a single one or a
-    // subset).
-    // We want to treat the case where merged channels were requested in the same way as the case
-    // where all channel names have been enumerated.
     private boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
     {
-        if (imageChannels.isMergeAllChannels())
-        {
-            return true;
-        }
-        List<String> wantedChannelCodes = imageChannels.getChannelCodes();
-        List<String> allChannelsCodes = imageAccessor.getImageParameters().getChannelsCodes();
-        if (allChannelsCodes.size() == 1)
-        {
-            return false; // there is only one channel in total, single channel transformation
-                          // should be used
-        }
-        for (String existingChannelCode : allChannelsCodes)
-        {
-            if (wantedChannelCodes.indexOf(existingChannelCode) == -1)
-            {
-                return false;
-            }
-        }
-        return true;
+        return imageChannels.isMergeAllChannels(getAllChannelCodes());
     }
 
     /**
      * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
      *            exception is thrown
+     * @param mergeAllChannels true if all existing channel images should be merged
      */
     private List<AbsoluteImageReference> fetchImageContents(
             DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels,
             boolean skipNonExisting)
     {
-        List<String> channelCodes = getChannelCodes(imagesReference);
+        List<String> channelCodes = imagesReference.getChannelCodes(getAllChannelCodes());
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
         for (String channelCode : channelCodes)
         {
@@ -289,17 +278,6 @@ public class ImageChannelsUtils
         return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
     }
 
-    private List<String> getChannelCodes(DatasetAcquiredImagesReference imagesReference)
-    {
-        if (imagesReference.isMergeAllChannels())
-        {
-            return imageAccessor.getImageParameters().getChannelsCodes();
-        } else
-        {
-            return imagesReference.getChannelCodes();
-        }
-    }
-
     /**
      * Returns content of the image which is representative for the given dataset.
      */
@@ -311,7 +289,9 @@ public class ImageChannelsUtils
         List<AbsoluteImageReference> imageReferences =
                 new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull)
                         .getRepresentativeImageReferences(wellLocationOrNull);
-        BufferedImage image = mergeChannels(imageReferences, true, true);
+        BufferedImage image =
+                calculateBufferedImage(imageReferences, new ImageTransformationParams(true, true,
+                        null));
         String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
         return createResponseContentStream(image, name);
     }
@@ -344,15 +324,12 @@ public class ImageChannelsUtils
      */
     public static IContent getImage(IImagingDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
-            Size imageSizeLimitOrNull, boolean convertToPng)
+            Size imageSizeLimitOrNull, String singleChannelImageTransformationCodeOrNull,
+            boolean convertToPng, boolean transform)
     {
-        String datasetCode = imageAccessor.getImageParameters().getDatasetCode();
-        boolean isMergedChannels =
-                ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode);
-        List<String> channelCodes = isMergedChannels ? null : Arrays.asList(chosenChannelCode);
-
         DatasetAcquiredImagesReference imagesReference =
-                new DatasetAcquiredImagesReference(datasetCode, channelStackReference, channelCodes);
+                createDatasetAcquiredImagesReference(imageAccessor, channelStackReference,
+                        chosenChannelCode);
 
         ImageChannelsUtils imageChannelsUtils =
                 new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
@@ -365,38 +342,29 @@ public class ImageChannelsUtils
         {
             return rawContent;
         }
-        BufferedImage image = mergeChannels(imageContents, false, mergeAllChannels);
+        ImageTransformationParams transformationInfo =
+                new ImageTransformationParams(transform, mergeAllChannels,
+                        singleChannelImageTransformationCodeOrNull);
+        BufferedImage image = calculateBufferedImage(imageContents, transformationInfo);
         return createPngContent(image, null);
     }
 
-    /**
-     * @return an image for the specified tile in the specified size and for the requested channel.
-     */
-    public static IContent getImage(IImagingDatasetLoader imageAccessor,
-            ImageChannelStackReference channelStackReference, String chosenChannelCode,
-            Size imageSizeLimitOrNull, boolean convertToPng, boolean transform)
+    private static DatasetAcquiredImagesReference createDatasetAcquiredImagesReference(
+            IImagingDatasetLoader imageAccessor, ImageChannelStackReference channelStackReference,
+            String chosenChannelCode)
     {
         String datasetCode = imageAccessor.getImageParameters().getDatasetCode();
         boolean isMergedChannels =
                 ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode);
-        List<String> channelCodes = isMergedChannels ? null : Arrays.asList(chosenChannelCode);
-
-        DatasetAcquiredImagesReference imagesReference =
-                new DatasetAcquiredImagesReference(datasetCode, channelStackReference, channelCodes);
-
-        ImageChannelsUtils imageChannelsUtils =
-                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
-        boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
-        List<AbsoluteImageReference> imageContents =
-                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
-
-        IContent rawContent = tryGetRawContent(convertToPng, imageContents);
-        if (rawContent != null)
+        if (isMergedChannels)
         {
-            return rawContent;
+            return DatasetAcquiredImagesReference.createForMergedChannels(datasetCode,
+                    channelStackReference);
+        } else
+        {
+            return DatasetAcquiredImagesReference.createForSingleChannel(datasetCode,
+                    channelStackReference, chosenChannelCode);
         }
-        BufferedImage image = mergeChannels(imageContents, transform, mergeAllChannels);
-        return createPngContent(image, null);
     }
 
     // optimization: if there is exactly one image reference, maybe its original raw content is the
@@ -417,13 +385,18 @@ public class ImageChannelsUtils
     {
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
-        for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
+        for (String chosenChannel : getAllChannelCodes())
         {
             AbsoluteImageReference image =
                     getRepresentativeImageReference(chosenChannel, wellLocationOrNull);
             images.add(image);
         }
         return images;
+    }
+
+    private List<String> getAllChannelCodes()
+    {
+        return imageAccessor.getImageParameters().getChannelsCodes();
     }
 
     /**
@@ -451,18 +424,19 @@ public class ImageChannelsUtils
      * @param useMergedChannelsTransformation sometimes we can have a single image which contain all
      *            channels merged. In this case a different transformation will be applied to it.
      */
-    private static BufferedImage calculateAndTransformSingleImage(
-            AbsoluteImageReference imageReference, boolean transform,
-            boolean useMergedChannelsTransformation)
+    private static BufferedImage calculateAndTransformSingleImageForDisplay(
+            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
     {
         BufferedImage image = calculateSingleImage(imageReference);
-        return transform(image, imageReference, transform, useMergedChannelsTransformation);
+        image = transform(image, imageReference, transformationInfo);
+        image = ImageUtil.convertForDisplayIfNecessary(image);
+        return image;
     }
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
     {
         long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-        BufferedImage image = imageReference.getImage();
+        BufferedImage image = imageReference.getUnchangedImage();
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
@@ -504,29 +478,51 @@ public class ImageChannelsUtils
      * @param allChannelsMerged if true then we use one special transformation on the merged images
      *            instead of transforming every single image.
      */
-    private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
-            boolean transform, boolean allChannelsMerged)
+    private static BufferedImage calculateBufferedImage(
+            List<AbsoluteImageReference> imageReferences,
+            ImageTransformationParams transformationInfo)
     {
         AbsoluteImageReference singleImageReference = imageReferences.get(0);
         if (imageReferences.size() == 1)
         {
-            return calculateAndTransformSingleImage(singleImageReference, transform,
-                    allChannelsMerged);
+            return calculateAndTransformSingleImageForDisplay(singleImageReference,
+                    transformationInfo);
         } else
         {
-            // We do not transform single images here.
-            // The 'merged channels' transformation will be applied later.
-            List<ImageWithReference> images =
-                    calculateSingleImages(imageReferences, false, allChannelsMerged);
-            BufferedImage mergedImage = mergeImages(images);
-            // NOTE: even if we are not merging all the channels but just few of them we use the
-            // merged-channel transformation
-            return transform(mergedImage, singleImageReference, transform, true);
+            return mergeChannels(imageReferences, transformationInfo, singleImageReference);
         }
     }
 
+    private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
+            ImageTransformationParams transformationInfo,
+            AbsoluteImageReference singleImageReference)
+    {
+        // We do not transform single images here.
+        // The 'merged channels' transformation will be applied later.
+        List<ImageWithReference> images = calculateSingleImagesForDisplay(imageReferences, null);
+        BufferedImage mergedImage = mergeImages(images);
+        // NOTE: even if we are not merging all the channels but just few of them we use the
+        // merged-channel transformation
+
+        // TODO 2011-09-13, Tomasz Pylak: it looks like we are applying image level
+        // transformation from a random single channel to merged images. Replace with following
+        // code after testing:
+
+        // if (transformationInfo.isApplyNonImageLevelTransformation())
+        // {
+        // IImageTransformerFactory transformationOrNull =
+        // singleImageReference.getImageTransfomationFactories().tryGetForMerged();
+        // mergedImage =
+        // applyImageTransformation(mergedImage, transformationOrNull);
+        // }
+        // return mergedImage;
+
+        return transform(mergedImage, singleImageReference,
+                transformationInfo.cloneAndSetUseMergedChannelsTransformation());
+    }
+
     private static BufferedImage transform(BufferedImage image,
-            AbsoluteImageReference imageReference, boolean transform, boolean allChannelsMerged)
+            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
     {
         BufferedImage resultImage = image;
         ImageTransfomationFactories transfomations =
@@ -535,13 +531,21 @@ public class ImageChannelsUtils
         // external image viewer
         resultImage = applyImageTransformation(resultImage, transfomations.tryGetForImage());
 
-        if (transform == false)
+        if (transformationInfo.isApplyNonImageLevelTransformation() == false)
         {
             return resultImage;
         }
-        IImageTransformerFactory channelLevelTransformation =
-                transfomations.tryGetForChannel(allChannelsMerged);
-        return applyImageTransformation(resultImage, channelLevelTransformation);
+        IImageTransformerFactory channelLevelTransformationOrNull;
+        if (transformationInfo.isUseMergedChannelsTransformation())
+        {
+            channelLevelTransformationOrNull = transfomations.tryGetForMerged();
+        } else
+        {
+            channelLevelTransformationOrNull =
+                    transfomations.tryGetForChannel(transformationInfo
+                            .tryGetSingleChannelTransformationCode());
+        }
+        return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
     }
 
     private static BufferedImage applyImageTransformation(BufferedImage image,
@@ -577,24 +581,28 @@ public class ImageChannelsUtils
         }
     }
 
-    /** @param useMergedChannelsTransformation used only if transformEachImage is true */
-    private static List<ImageWithReference> calculateSingleImages(
-            List<AbsoluteImageReference> imageReferences, boolean transformEachImage,
-            boolean useMergedChannelsTransformation)
+    /**
+     * @param transformationInfoOrNull if null all transformations (including image-level) will be
+     *            skipped
+     */
+    private static List<ImageWithReference> calculateSingleImagesForDisplay(
+            List<AbsoluteImageReference> imageReferences,
+            ImageTransformationParams transformationInfoOrNull)
     {
         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
         for (AbsoluteImageReference imageRef : imageReferences)
         {
             BufferedImage image;
-            if (transformEachImage)
+            if (transformationInfoOrNull != null)
             {
                 image =
-                        calculateAndTransformSingleImage(imageRef, true,
-                                useMergedChannelsTransformation);
+                        calculateAndTransformSingleImageForDisplay(imageRef,
+                                transformationInfoOrNull);
             } else
             {
+                // NOTE: here we skip image level transformations as well
                 image = calculateSingleImage(imageRef);
-
+                image = ImageUtil.convertForDisplayIfNecessary(image);
             }
             images.add(new ImageWithReference(image, imageRef));
         }
@@ -636,11 +644,12 @@ public class ImageChannelsUtils
         return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
     }
 
+    // this method always returns RGB images, even if the input was in grayscale
     private static BufferedImage mergeImages(List<ImageWithReference> images)
     {
         assert images.size() > 1 : "more than 1 image expected, but found: " + images.size();
 
-        BufferedImage newImage = createNewImage(images.get(0).getBufferedImage());
+        BufferedImage newImage = createNewRGBImage(images.get(0).getBufferedImage());
         int width = newImage.getWidth();
         int height = newImage.getHeight();
         int colorBuffer[] = new int[4];
@@ -795,7 +804,7 @@ public class ImageChannelsUtils
     private static BufferedImage transformToChannel(BufferedImage bufferedImage,
             ColorComponent colorComponent)
     {
-        BufferedImage newImage = createNewImage(bufferedImage);
+        BufferedImage newImage = createNewRGBImage(bufferedImage);
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
         for (int x = 0; x < width; x++)
@@ -803,7 +812,7 @@ public class ImageChannelsUtils
             for (int y = 0; y < height; y++)
             {
                 int rgb = bufferedImage.getRGB(x, y);
-                int channelColor = getGrayscaleAsChannel(rgb, colorComponent);
+                int channelColor = extractSingleComponent(rgb, colorComponent);
                 newImage.setRGB(x, y, channelColor);
             }
         }
@@ -812,7 +821,7 @@ public class ImageChannelsUtils
 
     // NOTE: drawing on this image will not preserve transparency - but we do not need it and the
     // image is smaller
-    private static BufferedImage createNewImage(RenderedImage bufferedImage)
+    private static BufferedImage createNewRGBImage(RenderedImage bufferedImage)
     {
         BufferedImage newImage =
                 new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
@@ -848,9 +857,9 @@ public class ImageChannelsUtils
         }
     }
 
-    // we assume that the color was in a grayscale
-    // we reset all ingredients besides the one which should be shown
-    private static int getGrayscaleAsChannel(int rgb, ColorComponent colorComponent)
+    // We reset all ingredients besides the one which is specified by color component.
+    // The result is the rgb value with only one component which is non-zero.
+    private static int extractSingleComponent(int rgb, ColorComponent colorComponent)
     {
         return colorComponent.extractSingleComponent(rgb).getRGB();
     }
@@ -866,10 +875,10 @@ public class ImageChannelsUtils
         return new Color(rgb[0], rgb[1], rgb[2], rgb[3]).getRGB();
     }
 
-    
     private static IContent createPngContent(BufferedImage image, String nameOrNull)
     {
         final byte[] output = ImageUtil.imageToPngFast(image);
         return new ByteArrayBasedContent(output, nameOrNull);
     }
+
 }

@@ -24,6 +24,7 @@ import static ch.systemsx.cisd.common.utilities.DataTypeUtil.TIFF_FILE;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
@@ -47,6 +48,8 @@ import ar.com.hjg.pngj.PngWriter;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.HierarchicalNodeBasedContent;
@@ -57,7 +60,6 @@ import ch.systemsx.cisd.imagereaders.IReadParams;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
-import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * Utility function on images.
@@ -83,7 +85,7 @@ public class ImageUtil
             handle.mark(MAX_READ_AHEAD);
             try
             {
-                return loadJavaAdvancedImagingTiff(handle, imageID, false);
+                return loadJavaAdvancedImagingTiff(handle, imageID);
             } catch (RuntimeException ex)
             {
                 if (imageID.equals(ImageID.NULL))
@@ -110,13 +112,9 @@ public class ImageUtil
 
     /**
      * For experts only! Loads some kinds of TIFF images handled by JAI library.
-     * 
-     * @param allow16BitGrayscaleModel if true and the image is 16 bit grayscale, then the
-     *            appropriate buffered imaged type will be used, otherwise the image will be
-     *            converted to 24 bits RGB. Useful if access to original pixel values is needed.
      */
     public static BufferedImage loadJavaAdvancedImagingTiff(IRandomAccessFile handle,
-            ImageID imageID, boolean allow16BitGrayscaleModel) throws EnvironmentFailureException
+            ImageID imageID) throws EnvironmentFailureException
     {
         IImageReader imageReader =
                 ImageReaderFactory.tryGetReader(ImageReaderConstants.JAI_LIBRARY, "tiff");
@@ -126,11 +124,9 @@ public class ImageUtil
                     .fromTemplate("Cannot find JAI image decoder for TIFF files.");
         }
 
-        ReadParams readParams = new ReadParams();
-        readParams.setAllow16BitGrayscaleModel(allow16BitGrayscaleModel);
         try
         {
-            return imageReader.readImage(handle, imageID, readParams);
+            return imageReader.readImage(handle, imageID, null);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
@@ -194,11 +190,14 @@ public class ImageUtil
      * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
      * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
      * loading.
+     * <p>
+     * Note that the original color depth will be kept, so e.g. 12 or 16 bit grayscale images will
+     * not be converted to RGB.
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadImage(IContent content, String imageIdOrNull,
+    public static BufferedImage loadUnchangedImage(IContent content, String imageIdOrNull,
             String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull, IReadParams params)
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
@@ -416,7 +415,7 @@ public class ImageUtil
     @Private
     static BufferedImage loadImage(IContent content)
     {
-        return loadImage(content, null, null, null, null);
+        return loadUnchangedImage(content, null, null, null, null);
     }
 
     /**
@@ -424,26 +423,54 @@ public class ImageUtil
      * 
      * @throws IllegalArgumentException if the file isn't a valid image file.
      */
-    public static BufferedImage loadImage(IHierarchicalContentNode fileNode)
+    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode fileNode)
     {
         if (fileNode.exists() == false)
         {
             throw new IllegalArgumentException("File does not exist: " + fileNode.getRelativePath());
         }
-        return loadImage(new HierarchicalNodeBasedContent(fileNode));
+        BufferedImage result = loadImage(new HierarchicalNodeBasedContent(fileNode));
+        result = convertForDisplayIfNecessary(result);
+        return result;
     }
 
     /**
      * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight)
      * rectangle. Preserves the aspect ratio. If the rectangle is bigger than the image does
-     * nothing. Ignores alpha channel of the original image.
+     * nothing.
+     * <p>
+     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
+     * bits grayscale is done.
+     * </p>
      * 
      * @param maxWidth Maximum width of the result image.
      * @param maxHeight Maximum height of the result image.
      */
-    public static BufferedImage createThumbnail(BufferedImage image, int maxWidth, int maxHeight)
+    public static BufferedImage createThumbnailForDisplay(BufferedImage image, int maxWidth,
+            int maxHeight)
     {
-        return rescale(image, maxWidth, maxHeight, true, false);
+        BufferedImage result = rescale(image, maxWidth, maxHeight, true, false);
+        result = convertForDisplayIfNecessary(result);
+        return result;
+    }
+
+    /**
+     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
+     * bits grayscale is done. Otherwise the original image is returned.
+     */
+    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image)
+    {
+        ColorModel colorModel = image.getColorModel();
+        // is grayscale?
+        if (colorModel.getColorSpace().getNumComponents() == 1)
+        {
+            if (colorModel.getPixelSize() > 8)
+            {
+                Levels intensityRange = IntensityRescaling.computeLevels(image, 0);
+                return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, intensityRange);
+            }
+        }
+        return image;
     }
 
     /**
@@ -480,10 +507,7 @@ public class ImageUtil
         int thumbnailWidth = (int) (scale * width + 0.5);
         int thumbnailHeight = (int) (scale * height + 0.5);
 
-        // preserve alpha channel if it was present before
-        int imageType =
-                image.getColorModel().hasAlpha() ? BufferedImage.TYPE_INT_ARGB
-                        : BufferedImage.TYPE_INT_RGB;
+        int imageType = image.getType();
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         Graphics2D graphics2D = thumbnail.createGraphics();
         Object renderingHint =

@@ -146,6 +146,12 @@ public class ImageUrlUtils
         }
         methodWithParameters.addParameter(ImageServletUrlParameters.TILE_ROW_PARAM, tileRow);
         methodWithParameters.addParameter(ImageServletUrlParameters.TILE_COL_PARAM, tileCol);
+        if (channelReferences.tryGetImageTransformationCode() != null)
+        {
+            methodWithParameters.addParameter(
+                    ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
+                    channelReferences.tryGetImageTransformationCode());
+        }
         addImageTransformerSignature(methodWithParameters, channelReferences);
         String linkURLOrNull = createImageLinks ? methodWithParameters.toString() : null;
         addThumbnailSize(methodWithParameters, width, height);
@@ -170,7 +176,14 @@ public class ImageUrlUtils
         {
             for (String channel : channels)
             {
-                String signature = images.getTransformerFactorySignatureOrNull(channel);
+                String channelOrNull = channel;
+                if (channelOrNull.equalsIgnoreCase(ScreeningConstants.MERGED_CHANNELS))
+                {
+                    channelOrNull = null;
+                }
+                String signature =
+                        images.tryGetTransformerFactorySignature(channelOrNull,
+                                channelReferences.tryGetImageTransformationCode());
                 if (signature != null)
                 {
                     url.addParameter("transformerFactorySignature", signature);
@@ -203,7 +216,6 @@ public class ImageUrlUtils
                 methodWithParameters.addParameter(ImageServletUrlParameters.CHANNEL_PARAM, channel);
             }
         }
-                
 
         addOverlayParameters(channelReferences.getOverlayChannels(), methodWithParameters);
         return methodWithParameters;

@@ -32,6 +32,8 @@ public class ImageGenerationDescription
 {
     private final DatasetAcquiredImagesReference imageChannelsOrNull;
 
+    private final String singleChannelTransformationCodeOrNull;
+
     private final List<DatasetAcquiredImagesReference> overlayChannels;
 
     private final String sessionId;
@@ -40,10 +42,12 @@ public class ImageGenerationDescription
     private final Size thumbnailSizeOrNull;
 
     public ImageGenerationDescription(DatasetAcquiredImagesReference imageChannelsOrNull,
+            String singleChannelTransformationCodeOrNull,
             List<DatasetAcquiredImagesReference> overlayChannels, String sessionId,
             Size thumbnailSizeOrNull)
     {
         this.imageChannelsOrNull = imageChannelsOrNull;
+        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
         this.overlayChannels = overlayChannels;
         this.sessionId = sessionId;
         this.thumbnailSizeOrNull = thumbnailSizeOrNull;
@@ -52,6 +56,11 @@ public class ImageGenerationDescription
     public DatasetAcquiredImagesReference tryGetImageChannels()
     {
         return imageChannelsOrNull;
+    }
+
+    public String tryGetSingleChannelTransformationCode()
+    {
+        return singleChannelTransformationCodeOrNull;
     }
 
     public List<DatasetAcquiredImagesReference> getOverlayChannels()
@@ -116,10 +125,17 @@ public class ImageGenerationDescription
 
     private static void appendChannels(StringBuffer sb, DatasetAcquiredImagesReference imagesRef)
     {
-        for (String channel : imagesRef.getChannelCodes())
+        List<String> channelCodes = imagesRef.getChannelCodes(null);
+        if (channelCodes == null)
         {
-            sb.append("_");
-            sb.append(channel);
+            sb.append("merged");
+        } else
+        {
+            for (String channel : channelCodes)
+            {
+                sb.append("_");
+                sb.append(channel);
+            }
         }
     }
 

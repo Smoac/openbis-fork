@@ -23,9 +23,11 @@ import net.lemnik.eodsql.Update;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
+ * Write operations on {@link IImageTransformerFactory} + all inherited read operations.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface IImagingTransformerDAO extends TransactionQuery
+public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadonlyQueryDAO
 {
     @Update(sql = "update experiments set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
         { TransformerFactoryMapper.class, TypeMapper.class /* default */})
@@ -41,16 +43,12 @@ public interface IImagingTransformerDAO extends TransactionQuery
     public void saveTransformerFactoryForImage(long acquiredImageId,
             IImageTransformerFactory factory);
 
-    @Update(sql = "update channels set image_transformer_factory = ?{3} "
-            + "where code = ?{2} and exp_id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class/* default */, TypeMapper.class /* default */})
-    public void saveTransformerFactoryForExperimentChannel(long experimentId, String channel,
-            IImageTransformerFactory factory);
+    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})")
+    public void addImageTransformation(ImgImageTransformationDTO imageTransformation);
 
-    @Update(sql = "update channels set image_transformer_factory = ?{3} "
-            + "where code = ?{2} and ds_id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class/* default */, TypeMapper.class /* default */})
-    public void saveTransformerFactoryForDatasetChannel(long datasetId, String channel,
+    @Update(sql = "update IMAGE_TRANSFORMATIONS set IMAGE_TRANSFORMER_FACTORY = ?{2} where id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    public void updateImageTransformerFactory(long imageTransformationId,
             IImageTransformerFactory factory);
-
 }

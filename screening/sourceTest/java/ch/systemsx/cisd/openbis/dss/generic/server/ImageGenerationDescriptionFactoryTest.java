@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.ServletParamsParsingTestUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ImageServletUrlParameters;
 
 /**
  * Tests of {@link ImageGenerationDescriptionFactory}.
@@ -62,7 +63,7 @@ public class ImageGenerationDescriptionFactoryTest extends ServletParamsParsingT
 
         DatasetAcquiredImagesReference channelsToMerge = desc.tryGetImageChannels();
         assertEquals(channelStackRef, channelsToMerge.getChannelStackReference());
-        assertEquals(Arrays.asList("DAPI", "GFP"), channelsToMerge.getChannelCodes());
+        assertEquals(Arrays.asList("DAPI", "GFP"), channelsToMerge.getChannelCodes(null));
         assertEquals(BASIC_DATASET_CODE, channelsToMerge.getDatasetCode());
 
         List<DatasetAcquiredImagesReference> overlayChannels = desc.getOverlayChannels();
@@ -73,7 +74,7 @@ public class ImageGenerationDescriptionFactoryTest extends ServletParamsParsingT
         DatasetAcquiredImagesReference firstChannel = overlayChannels.get(firstChannelIx);
 
         assertEquals(channelStackRef, firstChannel.getChannelStackReference());
-        assertEquals(Arrays.asList("X", "Y"), firstChannel.getChannelCodes());
+        assertEquals(Arrays.asList("X", "Y"), firstChannel.getChannelCodes(null));
         assertEquals(firstOverlayDatasetCode, firstChannel.getDatasetCode());
 
         DatasetAcquiredImagesReference secondChannel = overlayChannels.get(1 - firstChannelIx);
@@ -86,16 +87,21 @@ public class ImageGenerationDescriptionFactoryTest extends ServletParamsParsingT
         Map<String, String[]> paramsMap = createBasicParamsMap();
         addListParams(paramsMap, "dataset", BASIC_DATASET_CODE);
         addListParams(paramsMap, "mergeChannels", "true");
+        String myImageTransformationCode = "make-darker";
+        addListParams(paramsMap,
+                ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
+                myImageTransformationCode);
+
         addRequestParamsExpectations(paramsMap);
 
         ImageGenerationDescription desc = ImageGenerationDescriptionFactory.create(request);
 
         DatasetAcquiredImagesReference channelsToMerge = desc.tryGetImageChannels();
         assertNotNull(channelsToMerge);
-        assertNull(channelsToMerge.getChannelCodes());
-        assertTrue(channelsToMerge.isMergeAllChannels());
+        assertNull(channelsToMerge.getChannelCodes(null));
+        assertTrue(channelsToMerge.isMergeAllChannels(null));
         assertEquals(BASIC_DATASET_CODE, channelsToMerge.getDatasetCode());
-
+        assertEquals(myImageTransformationCode, desc.tryGetSingleChannelTransformationCode());
         assertEquals(0, desc.getOverlayChannels().size());
     }
 
@@ -120,7 +126,8 @@ public class ImageGenerationDescriptionFactoryTest extends ServletParamsParsingT
         final Map<String, String[]> paramsMap = new HashMap<String, String[]>();
         addSingleParams(paramsMap, "sessionID", "sessionXXX", "wellRow", "1", "wellCol", "4",
                 "tileRow", "7", "tileCol", "2", "mode", "thumbnail200x120", "channelStackId", null,
-                "mergeChannels", null, "dataset", null);
+                "mergeChannels", null, "dataset", null,
+                ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM, null);
 
         return paramsMap;
     }

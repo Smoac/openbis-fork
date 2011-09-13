@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
+import java.util.Map;
+
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
@@ -25,8 +27,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
  */
 public class ImageTransfomationFactories
 {
-    // applied when a single channel is displayed
-    private IImageTransformerFactory singleChannel;
+    // transformation with a specified code can be applied when a single channel is displayed
+    private Map<String/* transformation code */, IImageTransformerFactory> singleChannelMap;
 
     // applied when all channels of the image are merged
     private IImageTransformerFactory mergedChannels;
@@ -34,14 +36,24 @@ public class ImageTransfomationFactories
     // individual transformation for the image
     private IImageTransformerFactory image;
 
-    public IImageTransformerFactory tryGetForChannel(boolean areChannelsMerged)
+    public IImageTransformerFactory tryGetForChannel(String transformationCodeOrNull)
     {
-        return areChannelsMerged ? mergedChannels : singleChannel;
+        if (transformationCodeOrNull == null)
+        {
+            return null;
+        }
+        return singleChannelMap.get(transformationCodeOrNull);
     }
 
-    public void setForChannel(IImageTransformerFactory transformerFactoryForChannel)
+    public IImageTransformerFactory tryGetForMerged()
     {
-        this.singleChannel = transformerFactoryForChannel;
+        return mergedChannels;
+    }
+
+    public void setForChannel(
+            Map<String/* transformation code */, IImageTransformerFactory> singleChannelMap)
+    {
+        this.singleChannelMap = singleChannelMap;
     }
 
     public void setForMergedChannels(IImageTransformerFactory transformerFactoryForMergedChannels)

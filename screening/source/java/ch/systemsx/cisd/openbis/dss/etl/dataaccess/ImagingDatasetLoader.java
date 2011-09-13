@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -42,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCh
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
  * {@link HCSDatasetLoader} extension with code for handling images.
@@ -98,7 +102,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
         AbsoluteImageReference imgRef =
                 createAbsoluteImageReference(imageDTO, channel, imageSize, thumbnailFetched);
-        if (thumbnailFetched && isThumbnailsTooSmall(imageSize, imgRef.getImage()))
+        if (thumbnailFetched && isThumbnailsTooSmall(imageSize, imgRef.getUnchangedImage()))
         {
             imageDTO = tryGetOriginalImage(channel.getId(), channelStackReference, datasetId);
             if (imageDTO != null)
@@ -143,9 +147,31 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         ImageTransfomationFactories imageTransfomationFactories = new ImageTransfomationFactories();
         imageTransfomationFactories
                 .setForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
-        imageTransfomationFactories.setForChannel(channel.tryGetImageTransformerFactory());
+
+        Map<String, IImageTransformerFactory> singleChannelMap =
+                getAvailableImageTransformationsForChannel(channel);
+        imageTransfomationFactories.setForChannel(singleChannelMap);
+
         imageTransfomationFactories.setForImage(imageDTO.tryGetImageTransformerFactory());
         return imageTransfomationFactories;
+    }
+
+    private Map<String, IImageTransformerFactory> getAvailableImageTransformationsForChannel(
+            ImgChannelDTO channel)
+    {
+        List<ImgImageTransformationDTO> availableImageTransformations =
+                availableImageTransformationsMap.get(channel.getId());
+        Map<String, IImageTransformerFactory> singleChannelMap =
+                new HashMap<String, IImageTransformerFactory>();
+        if (availableImageTransformations != null)
+        {
+            for (ImgImageTransformationDTO transformation : availableImageTransformations)
+            {
+                singleChannelMap.put(transformation.getCode(),
+                        transformation.getImageTransformerFactory());
+            }
+        }
+        return singleChannelMap;
     }
 
     private IImageTransformerFactory tryGetImageTransformerFactoryForMergedChannels()

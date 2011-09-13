@@ -30,7 +30,10 @@ import net.lemnik.eodsql.QueryTool;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ExampleImageTransformerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -41,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -52,6 +56,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
     { "db", "screening" })
 public class ImagingQueryDAOTest extends AbstractDBTest
 {
+
+    private static final boolean IMAGE_TRANSFORMATION_IS_EDITABLE = false;
+
+    private static final String IMAGE_TRANSFORMATION_DESC = "tr_desc";
+
+    private static final String IMAGE_TRANSFORMATION_LABEL = "tr_label";
+
+    private static final String IMAGE_TRANSFORMATION_CODE = "tr_code";
 
     private static final String CHANNEL_LABEL = "Channel Label";
 
@@ -216,8 +228,14 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final long datasetId = addDataset(DS_PERM_ID, containerId);
         final long spotId = addSpot(containerId);
         final long datasetChannelId1 = addDatasetChannel(datasetId);
+        addImageTransformationsAndTestListing(datasetChannelId1);
+        testAddingAndRemovingImageTransformation(datasetChannelId1, DS_CHANNEL, datasetId, null);
+
         assertTrue(dao.hasDatasetChannels(DS_PERM_ID));
         final long experimentChannelId2 = addExperimentChannel(experimentId);
+        addImageTransformationsAndTestListing(experimentChannelId2);
+        testAddingAndRemovingImageTransformation(experimentChannelId2, EXP_CHANNEL, null,
+                experimentId);
 
         testChannelMethods(experimentId, datasetId, datasetChannelId1, experimentChannelId2);
 
@@ -407,6 +425,125 @@ public class ImagingQueryDAOTest extends AbstractDBTest
                 new ImgChannelDTO(DS_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH, datasetId, null,
                         CHANNEL_LABEL, CHANNEL_COLOR);
         return dao.addChannel(channel);
+    }
+
+    private void testAddingAndRemovingImageTransformation(long channelId, String channelCode,
+            Long datasetId, Long experimentId)
+    {
+        ImgImageTransformationDTO transformation = addImageTransformation(channelId, 312);
+
+        String transformationCode = transformation.getCode();
+        Long testedTransformationId =
+                tryGetTransformationIdForDatasetOrExperimentChannel(datasetId, experimentId,
+                        transformationCode);
+        assertNotNull("Cannot get the transformation id back", testedTransformationId);
+
+        ImgImageTransformationDTO testedTransformation =
+                dao.tryGetImageTransformation(channelId, transformationCode);
+        assertNotNull(testedTransformation);
+        assertEquals(testedTransformationId.longValue(), testedTransformation.getId());
+
+        List<ImgImageTransformationDTO> allTransformations =
+                listImageTransformations(datasetId, experimentId);
+        assertEquals(1, allTransformations.size());
+        ImgImageTransformationDTO testedTransformationListed = allTransformations.get(0);
+        assertEquals("list transformations failed", testedTransformation,
+                testedTransformationListed);
+
+        // test removal of transformation
+        dao.removeImageTransformation(transformationCode, channelId);
+        testedTransformationId =
+                tryGetTransformationIdForDatasetOrExperimentChannel(datasetId, experimentId,
+                        transformationCode);
+        assertNull(testedTransformationId);
+
+    }
+
+    private List<ImgImageTransformationDTO> listImageTransformations(Long datasetIdOrNull,
+            Long experimentIdOrNull)
+    {
+        if (datasetIdOrNull != null)
+        {
+            return dao.listImageTransformationsByDatasetId(datasetIdOrNull);
+        } else
+        {
+            assert experimentIdOrNull != null : "both dataset and exp id are null";
+            return dao.listImageTransformationsByExperimentId(experimentIdOrNull);
+        }
+    }
+
+    private Long tryGetTransformationIdForDatasetOrExperimentChannel(Long datasetId,
+            Long experimentId, String transformationCode)
+    {
+        long channelId = getChannelId(datasetId, experimentId);
+        return dao.tryGetImageTransformationId(channelId, transformationCode);
+    }
+
+    private long getChannelId(Long datasetIdOrNull, Long experimentIdOrNull)
+    {
+        if (datasetIdOrNull != null)
+        {
+            return dao.getDatasetChannelId(datasetIdOrNull, DS_CHANNEL);
+        } else
+        {
+            assert experimentIdOrNull != null : "both dataset and exp id are null";
+            return dao.getExperimentChannelId(experimentIdOrNull, EXP_CHANNEL);
+        }
+    }
+
+    private ImgImageTransformationDTO addImageTransformation(long channelId, long codeSuffix)
+    {
+        IImageTransformerFactory transformerFactory1 = new ExampleImageTransformerFactory(123);
+        ImgImageTransformationDTO transformation1 =
+                createImageTransformation(channelId, codeSuffix, transformerFactory1);
+        dao.addImageTransformations(Arrays.asList(transformation1));
+        return transformation1;
+    }
+
+    // adds two transformtion for the channel and tests that they are written correctly
+    private void addImageTransformationsAndTestListing(long channelId)
+    {
+        IImageTransformerFactory transformerFactory1 = new ExampleImageTransformerFactory(123);
+        ImgImageTransformationDTO transformation1 =
+                createImageTransformation(channelId, 0, transformerFactory1);
+        IImageTransformerFactory transformerFactory2 = new ExampleImageTransformerFactory(321);
+        ImgImageTransformationDTO transformation2 =
+                createImageTransformation(channelId, 1, transformerFactory2);
+
+        dao.addImageTransformations(Arrays.asList(transformation1, transformation2));
+
+        // read back and test
+
+        // listImageTransformations() test
+        List<ImgImageTransformationDTO> readTransformations =
+                dao.listImageTransformations(channelId);
+
+        assertEquals(2, readTransformations.size());
+        assertEquals(transformerFactory1, readTransformations.get(0)
+                .tryGetImageTransformerFactory());
+        assertEquals(transformerFactory2, readTransformations.get(1)
+                .tryGetImageTransformerFactory());
+
+        for (int i = 0; i < 2; i++)
+        {
+            ImgImageTransformationDTO readTransformation = readTransformations.get(i);
+            assertEquals(CodeNormalizer.normalize(IMAGE_TRANSFORMATION_CODE + i),
+                    readTransformation.getCode());
+            assertEquals(IMAGE_TRANSFORMATION_LABEL, readTransformation.getLabel());
+            assertEquals(IMAGE_TRANSFORMATION_DESC, readTransformation.getDescription());
+            assertEquals(IMAGE_TRANSFORMATION_IS_EDITABLE, readTransformation.getIsEditable());
+            // clean the db
+            dao.removeImageTransformation(readTransformation.getCode(), channelId);
+
+        }
+    }
+
+    private ImgImageTransformationDTO createImageTransformation(long channelId, long codeSuffix,
+            IImageTransformerFactory transformerFactory)
+    {
+        return new ImgImageTransformationDTO(IMAGE_TRANSFORMATION_CODE + codeSuffix,
+                IMAGE_TRANSFORMATION_LABEL, IMAGE_TRANSFORMATION_DESC,
+                IMAGE_TRANSFORMATION_IS_EDITABLE, channelId, transformerFactory);
     }
 
     private long addExperimentChannel(long experimentId)

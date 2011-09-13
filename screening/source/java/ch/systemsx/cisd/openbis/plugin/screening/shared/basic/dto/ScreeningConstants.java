@@ -178,6 +178,8 @@ public class ScreeningConstants
 
         public final static String WELL_COLUMN_PARAM = "wellCol";
 
+        public final static String SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM = "transformation";
+
         // -- mandatory servlet parameters
 
         public final static String DATASET_CODE_PARAM = "dataset";

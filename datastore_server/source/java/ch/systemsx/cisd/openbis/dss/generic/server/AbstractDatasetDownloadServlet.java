@@ -295,7 +295,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     protected static final BufferedImage createThumbnail(IHierarchicalContentNode fileNode,
             Size thumbnailSize)
     {
-        BufferedImage image = ImageUtil.loadImage(fileNode);
+        BufferedImage image = ImageUtil.loadImageForDisplay(fileNode);
         return createThumbnail(image, thumbnailSize);
     }
 
@@ -303,7 +303,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     {
         int width = thumbnailSize.getWidth();
         int height = thumbnailSize.getHeight();
-        return ImageUtil.createThumbnail(image, width, height);
+        return ImageUtil.createThumbnailForDisplay(image, width, height);
     }
 
     // if display mode describes a thumbnail return its expected size

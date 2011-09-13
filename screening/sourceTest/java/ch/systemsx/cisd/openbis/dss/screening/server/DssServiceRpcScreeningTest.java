@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -94,6 +95,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgEx
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
@@ -175,8 +177,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         imageParameters.setTileRowsNum(1);
         imageParameters.setTileColsNum(2);
         imageParameters.setDatasetCode(DATASET_CODE);
-        imageParameters.setChannels(Arrays.asList(new ImageChannel(CHANNEL_CODE, CHANNEL_CODE,
-                null, null, null)));
+        ImageChannel imageChannel =
+                new ImageChannel(CHANNEL_CODE, CHANNEL_CODE, null, null, null,
+                        new ArrayList<ImageTransformationInfo>());
+        imageParameters.setChannels(Arrays.asList(imageChannel));
         context.checking(new Expectations()
             {
                 {
@@ -395,9 +399,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgChannelDTO channelDTO =
                             new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi",
                                     ImageChannelColor.BLUE);
-                    channelDTO.setSerializedImageTransformerFactory(SerializationUtils
-                            .serialize(transformerFactory));
+                    long channelId = 444;
+                    channelDTO.setId(channelId);
                     will(returnValue(channelDTO));
+
+                    one(dao).tryGetImageTransformation(channelId,
+                            DssServiceRpcScreening.IMAGE_VIEWER_TRANSFORMATION_CODE);
+                    ImgImageTransformationDTO transformationDTO =
+                            new ImgImageTransformationDTO("tr_code", "tr_labal", null, true,
+                                    channelId, transformerFactory);
+                    will(returnValue(transformationDTO));
                 }
             });
 
@@ -494,8 +505,18 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     allowing(dao).hasDatasetChannels(DATASET_CODE);
                     will(returnValue(true));
 
-                    exactly(2).of(transformerDAO).saveTransformerFactoryForDatasetChannel(
-                            datasetId, channel, transformerFactory);
+                    long channelId = 5;
+                    long transactionId = 123;
+                    exactly(2).of(transformerDAO).getDatasetChannelId(datasetId, channel);
+                    will(returnValue(channelId));
+
+                    exactly(2).of(transformerDAO).tryGetImageTransformationId(channelId,
+                            DssServiceRpcScreening.IMAGE_VIEWER_TRANSFORMATION_CODE);
+
+                    will(returnValue(transactionId));
+
+                    exactly(2).of(transformerDAO).updateImageTransformerFactory(transactionId,
+                            transformerFactory);
 
                     one(transformerDAO).commit();
                 }

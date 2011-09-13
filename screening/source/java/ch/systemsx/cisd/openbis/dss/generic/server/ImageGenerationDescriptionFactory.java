@@ -80,7 +80,11 @@ class ImageGenerationDescriptionFactory
             throw new UserFailureException(
                     "Neither channels nor segmentation objects have been specified!");
         }
-        return new ImageGenerationDescription(channelsToMerge, overlayChannels, sessionId,
+
+        String singleChannelTransformationCodeOrNull =
+                request.getParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM);
+        return new ImageGenerationDescription(channelsToMerge,
+                singleChannelTransformationCodeOrNull, overlayChannels, sessionId,
                 thumbnailSizeOrNull);
     }
 
@@ -95,7 +99,7 @@ class ImageGenerationDescriptionFactory
         {
             String datasetCode = entry.getKey();
             List<String> channels = entry.getValue();
-            overlayChannels.add(new DatasetAcquiredImagesReference(datasetCode,
+            overlayChannels.add(DatasetAcquiredImagesReference.createForManyChannels(datasetCode,
                     channelStackReference, channels));
         }
         return overlayChannels;
@@ -143,17 +147,29 @@ class ImageGenerationDescriptionFactory
         {
             return null;
         }
-        List<String> channelsOrNull = null;
         if (isMergedChannels == false)
         {
-            channelsOrNull = tryGetParams(request, ImageServletUrlParameters.CHANNEL_PARAM);
+            List<String> channelsOrNull =
+                    tryGetParams(request, ImageServletUrlParameters.CHANNEL_PARAM);
             if (channelsOrNull == null)
             {
                 return null; // no channels to merge at all
             }
+            if (channelsOrNull.size() > 1)
+            {
+                return DatasetAcquiredImagesReference.createForManyChannels(datasetCode,
+                        channelStackReference, channelsOrNull);
+            } else
+            {
+                String channelCode = channelsOrNull.get(0);
+                return DatasetAcquiredImagesReference.createForSingleChannel(datasetCode,
+                        channelStackReference, channelCode);
+            }
+        } else
+        {
+            return DatasetAcquiredImagesReference.createForMergedChannels(datasetCode,
+                    channelStackReference);
         }
-        return new DatasetAcquiredImagesReference(datasetCode, channelStackReference,
-                channelsOrNull);
     }
 
     private static boolean isMergedChannels(HttpServletRequest request)

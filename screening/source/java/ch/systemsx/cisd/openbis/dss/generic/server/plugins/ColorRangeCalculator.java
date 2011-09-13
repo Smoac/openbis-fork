@@ -153,7 +153,6 @@ public class ColorRangeCalculator
         }
 
         ReadParams params = new ReadParams();
-        params.setAllow16BitGrayscaleModel(true);
         return reader.readImage(file, ImageID.NULL, params);
     }
 

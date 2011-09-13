@@ -124,9 +124,11 @@ public class LogicalImageReference
         return datastoreCode;
     }
 
-    public String getTransformerFactorySignatureOrNull(String channelCode)
+    public String tryGetTransformerFactorySignature(String channelCodeOrNull,
+            String transformationCode)
     {
-        return imageParameters.getTransformerFactorySignatureOrNull(channelCode);
+        return imageParameters.tryGetTransformerFactorySignature(channelCodeOrNull,
+                transformationCode);
     }
 
     public List<DatasetOverlayImagesReference> getOverlayDatasets()

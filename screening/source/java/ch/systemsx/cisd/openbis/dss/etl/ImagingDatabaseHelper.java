@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +28,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageTransformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
  * Helper class for retrieving and/or creating entities associated with the imaging database:
@@ -409,7 +412,31 @@ public class ImagingDatabaseHelper
             ImgChannelDTO channelDTO = makeChannelDTO(channel, channelOwner);
             long channelId = dao.addChannel(channelDTO);
             channelDTO.setId(channelId);
+            saveChannelImageTransformations(channelId, channel.getAvailableTransformations());
             return channelDTO;
+        }
+
+        private void saveChannelImageTransformations(long channelId,
+                ImageTransformation[] transformations)
+        {
+            if (transformations.length == 0)
+            {
+                return;
+            }
+            List<ImgImageTransformationDTO> transformationDTOs =
+                    new ArrayList<ImgImageTransformationDTO>();
+            for (ImageTransformation transformation : transformations)
+            {
+                transformationDTOs.add(createTransformationDTO(transformation, channelId));
+            }
+            dao.addImageTransformations(transformationDTOs);
+        }
+
+        private ImgImageTransformationDTO createTransformationDTO(ImageTransformation tr,
+                long channelId)
+        {
+            return new ImgImageTransformationDTO(tr.getCode(), tr.getLabel(), tr.getDescription(),
+                    tr.isEditable(), channelId, tr.getImageTransformerFactory());
         }
 
         private static ImgChannelDTO makeChannelDTO(Channel channel, ChannelOwner channelOwner)

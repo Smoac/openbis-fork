@@ -43,6 +43,8 @@ public class LoadImageConfiguration implements Serializable
 
     private boolean openBisImageTransformationApplied = false;
 
+    private String singleChannelImageTransformationCodeOrNull = null;
+
     /**
      * The desired size of the image. Null if the original size is requested.
      * <p>
@@ -93,7 +95,8 @@ public class LoadImageConfiguration implements Serializable
     }
 
     /**
-     * Should the image transformation stored in openBIS be applied to the image?
+     * Should the image transformation stored in openBIS for a channel or merged channel be applied
+     * to the image?
      * 
      * @return True if the image transformation should be applied; false if the original image
      *         should be returned.
@@ -104,7 +107,8 @@ public class LoadImageConfiguration implements Serializable
     }
 
     /**
-     * Set whether the image transformation stored in openBIS should be applied.
+     * Set whether the image transformation stored in openBIS for a channel or merged channel should
+     * be applied.
      * 
      * @param openBisImageTransformationApplied Pass in true if the transformation should be
      *            applied; false otherwise.
@@ -112,6 +116,34 @@ public class LoadImageConfiguration implements Serializable
     public void setOpenBisImageTransformationApplied(boolean openBisImageTransformationApplied)
     {
         this.openBisImageTransformationApplied = openBisImageTransformationApplied;
+        if (openBisImageTransformationApplied && getSingleChannelImageTransformationCode() == null)
+        {
+            // for backward compatibility - apply Color Adjustment tool transformation
+            setSingleChannelImageTransformationCode("_CUSTOM");
+        }
+    }
+
+    /** Code of the transformation, which should be applied to the image. Can return null. */
+    public String getSingleChannelImageTransformationCode()
+    {
+        return singleChannelImageTransformationCodeOrNull;
+    }
+
+    /**
+     * Sets the code of the transformation, which should be applied to the image. This parameter
+     * will be ignored if {@link #isOpenBisImageTransformationApplied()} is false. To keep backward
+     * compatibility if {@link #isOpenBisImageTransformationApplied()} is true and no image
+     * transformation code is specified, then the transformation defined by the Color Adjustment
+     * tool will be applied.
+     * <p>
+     * Transformation has to be assigned (usually during dataset registration) to the channel which
+     * will be fetched. Note that such transformations can be channel-specific. If merged channels
+     * image will be requested or the transformation does not exist then untransformed image will be
+     * returned.
+     */
+    public void setSingleChannelImageTransformationCode(String transformationCodeOrNull)
+    {
+        this.singleChannelImageTransformationCodeOrNull = transformationCodeOrNull;
     }
 
     @Override

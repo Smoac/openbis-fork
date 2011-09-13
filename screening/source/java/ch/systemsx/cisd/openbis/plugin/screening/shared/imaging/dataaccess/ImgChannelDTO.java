@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelCo
 /**
  * @author Tomasz Pylak
  */
-public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
+public class ImgChannelDTO extends AbstractImgIdentifiable
 {
     @ResultColumn("CODE")
     private String code;

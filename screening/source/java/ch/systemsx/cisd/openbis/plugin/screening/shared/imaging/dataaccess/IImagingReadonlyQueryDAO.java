@@ -176,16 +176,6 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "where cs.ds_id = ?{1} and cs.spot_id is NULL")
     public List<ImgChannelStackDTO> listSpotlessChannelStacks(long datasetId);
 
-    @Select("select * from CHANNELS where DS_ID = ?{1} order by ID")
-    public List<ImgChannelDTO> getChannelsByDatasetId(long datasetId);
-
-    @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
-    public ImgChannelDTO tryGetChannelForDataset(long datasetId, String chosenChannelCode);
-
-    @Select("select count(*) > 0 from CHANNELS ch "
-            + "join DATA_SETS d on ch.ds_id = d.id where d.PERM_ID = ?{1}")
-    public boolean hasDatasetChannels(String datasetPermId);
-
     // ---------------- Generic ---------------------------------
 
     /** @return an image for the specified channel and channel stack or null */
@@ -221,7 +211,58 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgDatasetDTO> listDatasetsByPermId(String... datasetPermIds);
 
-    // ---------------- HCS - experiments, containers, channels ---------------------------------
+    // ------------ dataset and experiment channels
+
+    @Select("select * from CHANNELS where DS_ID = ?{1} order by ID")
+    public List<ImgChannelDTO> getChannelsByDatasetId(long datasetId);
+
+    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by ID", fetchSize = FETCH_SIZE)
+    public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
+
+    @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForDataset(long datasetId, String channelCode);
+
+    @Select("select * from CHANNELS where (EXP_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForExperiment(long experimentId, String channelCode);
+
+    @Select("select id from channels where ds_id = ?{1} and code = upper(?{2})")
+    public long getDatasetChannelId(long datasetId, String channelCode);
+
+    @Select("select id from channels where exp_id = ?{1} and code = upper(?{2})")
+    public long getExperimentChannelId(long experimentId, String channelCode);
+
+    @Select("select count(*) > 0 from CHANNELS ch "
+            + "join DATA_SETS d on ch.ds_id = d.id where d.PERM_ID = ?{1}")
+    public boolean hasDatasetChannels(String datasetPermId);
+
+    @Select("select * from channels where code = ?{2} and "
+            + "exp_id in (select id from experiments where perm_id = ?{1})")
+    public ImgChannelDTO tryGetChannelForExperimentPermId(String experimentPermId,
+            String channelCode);
+
+    // ----------- image transformations
+
+    @Select("select * from IMAGE_TRANSFORMATIONS tr where tr.channel_id = ?{1} order by tr.ID")
+    public List<ImgImageTransformationDTO> listImageTransformations(long channelId);
+
+    @Select("select id from image_transformations where channel_id = ?{1} and code = ?{2}")
+    public Long tryGetImageTransformationId(long channelId, String transformationCode);
+
+    @Select("select * from image_transformations where channel_id = ?{1} and code = ?{2}")
+    public ImgImageTransformationDTO tryGetImageTransformation(long channelId,
+            String transformationCode);
+
+    @Select("select tr.* from IMAGE_TRANSFORMATIONS tr                       "
+            + " join channels ch on tr.channel_id = ch.id                    "
+            + " where ch.ds_id = ?{1} order by tr.ID                        ")
+    public List<ImgImageTransformationDTO> listImageTransformationsByDatasetId(long datasetId);
+
+    @Select("select tr.* from IMAGE_TRANSFORMATIONS tr                       "
+            + " join channels ch on tr.channel_id = ch.id                    "
+            + " where ch.exp_id = ?{1} order by tr.ID                        ")
+    public List<ImgImageTransformationDTO> listImageTransformationsByExperimentId(long experimentId);
+
+    // ---------------- HCS - experiments, containers ---------------------------------
 
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
     public ImgExperimentDTO tryGetExperimentByPermId(String experimentPermId);
@@ -246,19 +287,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "where cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
 
-    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by ID", fetchSize = FETCH_SIZE)
-    public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
-
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);
-
-    @Select("select * from CHANNELS where (EXP_ID = ?{1}) and CODE = upper(?{2})")
-    public ImgChannelDTO tryGetChannelForExperiment(long experimentId, String chosenChannelCode);
-
-    @Select("select * from channels where code = ?{2} and "
-            + "exp_id in (select id from experiments where perm_id = ?{1})")
-    public ImgChannelDTO tryGetChannelForExperimentPermId(String experimentPermId,
-            String chosenChannelCode);
 
     // ---------------- HCS - feature vectors ---------------------------------
 

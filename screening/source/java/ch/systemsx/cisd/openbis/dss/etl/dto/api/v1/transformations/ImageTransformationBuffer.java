@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageTransformation;
  */
 public class ImageTransformationBuffer
 {
-    private static final String PREDEFINED_TRANSFORMATIONS_CODE_PREFIX = "PREDEFINED_";
+    private static final String PREDEFINED_TRANSFORMATIONS_CODE_PREFIX = "_";
 
     private final List<ImageTransformation> imageTransformations;
 

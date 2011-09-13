@@ -35,6 +35,8 @@ public class ImageTransformationInfo implements ISerializable
     // can be null
     private String description;
 
+    private String transformationSignature;
+
     private boolean isDefault;
 
     // GWT only
@@ -43,7 +45,8 @@ public class ImageTransformationInfo implements ISerializable
     {
     }
 
-    public ImageTransformationInfo(String code, String label, String description, boolean isDefault)
+    public ImageTransformationInfo(String code, String label, String description,
+            String transformationSignature, boolean isDefault)
     {
         assert code != null : "code is null";
         assert label != null : " label is null";
@@ -51,6 +54,7 @@ public class ImageTransformationInfo implements ISerializable
         this.code = code;
         this.label = label;
         this.description = description;
+        this.transformationSignature = transformationSignature;
         this.isDefault = isDefault;
     }
 
@@ -69,8 +73,18 @@ public class ImageTransformationInfo implements ISerializable
         return description;
     }
 
+    public String getTransformationSignature()
+    {
+        return transformationSignature;
+    }
+
     public boolean isDefault()
     {
         return isDefault;
+    }
+
+    public void setDefault(boolean isDefault)
+    {
+        this.isDefault = isDefault;
     }
 }

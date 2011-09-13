@@ -128,8 +128,8 @@ public class ImageUtilTest extends AssertJUnit
     public void testCreateThumbnail()
     {
         BufferedImage image = loadImageByFile("gif-example.gif");
-        assertImageSize(79, 100, ImageUtil.createThumbnail(image, 200, 100));
-        assertImageSize(100, 127, ImageUtil.createThumbnail(image, 100, 200));
+        assertImageSize(79, 100, ImageUtil.createThumbnailForDisplay(image, 200, 100));
+        assertImageSize(100, 127, ImageUtil.createThumbnailForDisplay(image, 100, 200));
     }
 
     @Test
