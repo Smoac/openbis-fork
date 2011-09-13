@@ -28,25 +28,29 @@ import java.util.Set;
 public class LogicalImageChannelsReference
 {
     public static LogicalImageChannelsReference createWithoutOverlays(
-            LogicalImageReference basicImage, List<String> channels)
+            LogicalImageReference basicImage, List<String> channels,
+            String imageTransformationCodeOrNull)
     {
         return new LogicalImageChannelsReference(basicImage, channels,
-                new HashSet<ImageDatasetChannel>());
+                imageTransformationCodeOrNull, new HashSet<ImageDatasetChannel>());
     }
 
     // ----
-    
+
     private final LogicalImageReference basicImage;
 
     private final List<String> channels;
 
+    private final String imageTransformationCodeOrNull;
+
     private final Set<ImageDatasetChannel> overlayChannels;
 
     public LogicalImageChannelsReference(LogicalImageReference basicImage, List<String> channels,
-            Set<ImageDatasetChannel> overlayChannels)
+            String imageTransformationCodeOrNull, Set<ImageDatasetChannel> overlayChannels)
     {
         this.basicImage = basicImage;
         this.channels = channels;
+        this.imageTransformationCodeOrNull = imageTransformationCodeOrNull;
         this.overlayChannels = overlayChannels;
     }
 
@@ -63,5 +67,10 @@ public class LogicalImageChannelsReference
     public Set<ImageDatasetChannel> getOverlayChannels()
     {
         return overlayChannels;
+    }
+
+    public String tryGetImageTransformationCode()
+    {
+        return imageTransformationCodeOrNull;
     }
 }

@@ -160,8 +160,11 @@ public class WellContentDialog extends Dialog
         String sessionId = getSessionId(viewContext);
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
+        // TODO 2011-09-13, Tomasz Pylak: add transformation code for single channel if chosen
+        String imageTransformationCode = null;
         LogicalImageChannelsReference channelReferences =
-                LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels);
+                LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels,
+                        imageTransformationCode);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
                         createImageLinks);
@@ -435,8 +438,7 @@ public class WellContentDialog extends Dialog
                     // TODO KE: pass analysis procedure from plate layout to material detail view
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openImagingMaterialViewer(material, getExperimentCriteria(),
-                                    AnalysisProcedureCriteria.createNoProcedures(),
-                                    viewContext);
+                                    AnalysisProcedureCriteria.createNoProcedures(), viewContext);
                 }
 
             };

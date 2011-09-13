@@ -102,9 +102,11 @@ class ChannelChooser
     /** Refreshes the displayed images, but not the rest of the GUI */
     public void refresh()
     {
+        // TODO 2011-09-13, Tomasz Pylak: add transformation code for single channel if chosen
+        String imageTransformationCode = null;
         LogicalImageChannelsReference state =
                 new LogicalImageChannelsReference(basicImage, basicChannelCodes,
-                        selectedOverlayChannels);
+                        imageTransformationCode, selectedOverlayChannels);
         Widget view = viewerFactory.create(state);
         imageContainer.removeAll();
         imageContainer.add(view);
