@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 
 /**
@@ -118,7 +118,7 @@ public interface IScreeningApiServer extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @MinimalMinorVersion(8)
-    List<PlateWithWells> getPlates(
+    List<PlateMetadata> getPlateMetadataList(
             String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates)
             throws IllegalArgumentException;

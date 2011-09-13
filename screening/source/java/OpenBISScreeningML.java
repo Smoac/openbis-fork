@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.PropertiesBasedData
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -60,6 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeI
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -2038,6 +2040,24 @@ public class OpenBISScreeningML
             }
         }
         return result;
+    }
+
+    /**
+     * Experimental method that returns an array of {@link PlateMetadata} Java objects for a given
+     * list of plate codes.
+     * <p>
+     * The method can be removed from the API in the future if the MATLAB users are unable to cope
+     * with return values.
+     */
+    public static PlateMetadata[] getPlateMetadataList(String[] platesCodes)
+    {
+        checkLoggedIn();
+
+        List<PlateMetadata> metadataList =
+                ((ScreeningOpenbisServiceFacade) openbis)
+                        .getPlateMetadataList(toPlates(platesCodes));
+
+        return metadataList.toArray(new PlateMetadata[0]);
     }
 
     //

@@ -21,12 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link Well} holds a complete set of metadata for an openBIS well. Material properties of wells 
+ * {@link WellMetadata} holds a complete set of metadata for an openBIS well. Material properties of wells 
  * are given a special treatment - API users can retrieve {@link Material} property values via the method {@link #getMaterialProperties()}. All other property values are available via {@link #getProperties()}.
  * @since 1.8
  * @author Kaloyan Enimanev
  */
-public class Well extends WellIdentifier
+public class WellMetadata extends WellIdentifier
 {
     private static final long serialVersionUID = 1L;
 
@@ -36,7 +36,7 @@ public class Well extends WellIdentifier
 
     private final Map<String, Material> materialProperties;
 
-    public Well(PlateIdentifier plateIdentifier, String code, String permId,
+    public WellMetadata(PlateIdentifier plateIdentifier, String code, String permId,
             WellPosition wellPosition, Map<String, String> properties,
             Map<String, Material> materialProperties)
     {
@@ -88,11 +88,11 @@ public class Well extends WellIdentifier
         {
             return false;
         }
-        if (!(obj instanceof Well))
+        if (!(obj instanceof WellMetadata))
         {
             return false;
         }
-        Well other = (Well) obj;
+        WellMetadata other = (WellMetadata) obj;
         if (code == null)
         {
             if (other.code != null)

@@ -69,9 +69,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeI
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -277,10 +277,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.listPlates(sessionToken);
     }
 
-    public List<PlateWithWells> getPlates(List<? extends PlateIdentifier> plateIdentifiers)
+    public List<PlateMetadata> getPlateMetadataList(List<? extends PlateIdentifier> plateIdentifiers)
     {
-        checkASMinimalMinorVersion("getPlates", List.class);
-        return openbisScreeningServer.getPlates(sessionToken, plateIdentifiers);
+        checkASMinimalMinorVersion("getPlateMetadataList", List.class);
+        return openbisScreeningServer.getPlateMetadataList(sessionToken, plateIdentifiers);
     }
 
     /**

@@ -81,17 +81,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWithWells;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Well;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
  * Contains implementations of the screening public API calls.
@@ -868,7 +866,7 @@ public class ScreeningApiImpl
         return plateWellReferences;
     }
 
-    public List<PlateWithWells> getPlates(List<? extends PlateIdentifier> plateIdentifiers)
+    public List<PlateMetadata> getPlateMetadata(List<? extends PlateIdentifier> plateIdentifiers)
     {
         List<TechId> techIds = new ArrayList<TechId>();
         for (PlateIdentifier identifier : plateIdentifiers)
@@ -880,31 +878,33 @@ public class ScreeningApiImpl
             }
         }
 
-        List<PlateMetadata> plateMetadatas =
-                PlateContentLoader.loadPlateMetadatas(session, businessObjectFactory, techIds);
+        List<ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata> plateMetadatas =
+                PlateContentLoader.loadPlateMetadata(session, businessObjectFactory, techIds);
 
-        List<PlateWithWells> result = new ArrayList<PlateWithWells>();
+        List<PlateMetadata> result = new ArrayList<PlateMetadata>();
         Map<Long, Material> materialsCache = new HashMap<Long, Material>();
-        for (PlateMetadata plateMetaData : plateMetadatas)
+        for (ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata plateMetaData : plateMetadatas)
         {
-            result.add(asPlateWithWells(plateMetaData, materialsCache));
+            result.add(asApiPlateMetadata(plateMetaData, materialsCache));
         }
         return result;
     }
 
-    private PlateWithWells asPlateWithWells(PlateMetadata plateMetadata,
+    private PlateMetadata asApiPlateMetadata(
+            ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata plateMetadata,
             Map<Long, Material> materialsCache)
     {
         Sample plate = plateMetadata.getPlate();
         String spaceCodeOrNull = plate.getSpace() == null ? null : plate.getSpace().getCode();
         PlateIdentifier plateIdentifier =
                 new PlateIdentifier(plate.getCode(), spaceCodeOrNull, plate.getPermId());
-        List<Well> wells = new ArrayList<Well>();
+        List<WellMetadata> wells = new ArrayList<WellMetadata>();
         if (plateMetadata.getWells() != null)
         {
-            for (WellMetadata wellMetadata : plateMetadata.getWells())
+            for (ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata wellMetadata : plateMetadata
+                    .getWells())
             {
-                Well well = asWell(plateIdentifier, wellMetadata, materialsCache);
+                WellMetadata well = asApiWell(plateIdentifier, wellMetadata, materialsCache);
                 wells.add(well);
             }
         }
@@ -913,10 +913,11 @@ public class ScreeningApiImpl
                         plateMetadata.getColsNum());
         Map<String, String> properties = EntityHelper.convertToStringMap(plate.getProperties());
 
-        return new PlateWithWells(plateIdentifier, geometry, properties, wells);
+        return new PlateMetadata(plateIdentifier, geometry, properties, wells);
     }
 
-    private Well asWell(PlateIdentifier plateIdentifier, WellMetadata wellMetadata,
+    private WellMetadata asApiWell(PlateIdentifier plateIdentifier,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata wellMetadata,
             Map<Long, Material> materialsCache)
     {
         Sample well = wellMetadata.getWellSample();
@@ -925,7 +926,7 @@ public class ScreeningApiImpl
         Map<String, String> properties = EntityHelper.convertToStringMap(well.getProperties());
         Map<String, Material> materialProperties =
                 convertMaterialProperties(well.getProperties(), materialsCache);
-        return new Well(plateIdentifier, well.getCode(), well.getPermId(), wellPosition,
+        return new WellMetadata(plateIdentifier, well.getCode(), well.getPermId(), wellPosition,
                 properties, materialProperties);
     }
 

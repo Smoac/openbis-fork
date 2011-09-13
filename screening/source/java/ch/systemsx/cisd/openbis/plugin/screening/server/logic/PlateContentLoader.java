@@ -115,7 +115,7 @@ public class PlateContentLoader
                 .getImageDatasetInfosForSample(sampleId, wellLocationOrNull);
     }
 
-    public static List<PlateMetadata> loadPlateMetadatas(Session session,
+    public static List<PlateMetadata> loadPlateMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, List<TechId> plateIds)
     {
         return new PlateContentLoader(session, businessObjectFactory).getPlateMetadatas(plateIds);

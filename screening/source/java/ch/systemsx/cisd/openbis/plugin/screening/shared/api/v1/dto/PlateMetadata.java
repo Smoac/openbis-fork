@@ -28,7 +28,7 @@ import java.util.Map;
  * @since 1.8
  * @author Kaloyan Enimanev
  */
-public class PlateWithWells extends PlateIdentifier
+public class PlateMetadata extends PlateIdentifier
 {
 
     private static final long serialVersionUID = 1L;
@@ -37,10 +37,10 @@ public class PlateWithWells extends PlateIdentifier
 
     private final Map<String, String> properties;
     
-    private final List<Well> wells;
+    private final List<WellMetadata> wells;
 
-    public PlateWithWells(PlateIdentifier identifier, Geometry plateGeometry, Map<String, String> properties,
-            List<Well> unsortedWells)
+    public PlateMetadata(PlateIdentifier identifier, Geometry plateGeometry, Map<String, String> properties,
+            List<WellMetadata> unsortedWells)
     {
         super(identifier.getPlateCode(), identifier.tryGetSpaceCode(), identifier.getPermId());
         this.plateGeometry = plateGeometry;
@@ -58,12 +58,12 @@ public class PlateWithWells extends PlateIdentifier
         return properties;
     }
 
-    public List<Well> getWells()
+    public List<WellMetadata> getWells()
     {
         return Collections.unmodifiableList(wells);
     }
 
-    public Well getWell(int row, int col)
+    public WellMetadata getWell(int row, int col)
     {
         int idx = getWellIndexForRowAndCol(row, col);
         return wells.get(idx);
@@ -74,11 +74,11 @@ public class PlateWithWells extends PlateIdentifier
         return (row - 1) * plateGeometry.getNumberOfColumns() + (col - 1);
     }
 
-    private List<Well> sortWells(List<Well> unsortedWells)
+    private List<WellMetadata> sortWells(List<WellMetadata> unsortedWells)
     {
-        Well[] wellsArray =
-                new Well[plateGeometry.getNumberOfRows() * plateGeometry.getNumberOfColumns()];
-        for (Well well : unsortedWells)
+        WellMetadata[] wellsArray =
+                new WellMetadata[plateGeometry.getNumberOfRows() * plateGeometry.getNumberOfColumns()];
+        for (WellMetadata well : unsortedWells)
         {
             int row = well.getWellPosition().getWellRow();
             int col = well.getWellPosition().getWellColumn();
