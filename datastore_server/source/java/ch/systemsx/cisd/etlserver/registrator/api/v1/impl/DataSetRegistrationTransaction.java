@@ -44,6 +44,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
@@ -470,5 +471,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             throws IllegalArgumentException
     {
         return getStateAsLiveState().getDatabaseQuery(dataSourceName);
+    }
+
+    void invokeDidEncounterSecondaryTransactionErrors(
+            List<SecondaryTransactionFailure> encounteredErrors)
+    {
+        try
+        {
+            registrationService.didEncounterSecondaryTransactionErrors(this, encounteredErrors);
+        } catch (Throwable t)
+        {
+            DataSetRegistrationTransaction.operationLog.warn(
+                    "Failed to invoke secondary transaction error hook:" + t.getMessage(), t);
+        }
     }
 }

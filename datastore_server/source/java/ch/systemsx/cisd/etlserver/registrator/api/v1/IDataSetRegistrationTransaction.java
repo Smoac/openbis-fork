@@ -219,6 +219,10 @@ public interface IDataSetRegistrationTransaction
 
     /**
      * Gets a database query object for the data source with the specified name.
+     * <p>
+     * After the rest of the transaction is committed, the queries are committed. Failures in these
+     * secondary queries are not fatal, but they are caught and the clients of the transaction are
+     * notified.
      * 
      * @param dataSourceName The name of the data source to query against, as declared in the
      *            service.properties file.

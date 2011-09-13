@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
+import java.util.List;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -52,9 +54,16 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     private static final String ROLLBACK_TRANSACTION_FUNCTION_NAME = "rollback_transaction";
 
     /**
-     * The name of the function being called after successful transaction commit.
+     * The name of the function called after successful transaction commit.
      */
     private static final String COMMIT_TRANSACTION_FUNCTION_NAME = "commit_transaction";
+
+    /**
+     * The name of the function called when secondary transactions, DynamicTransactionQuery objects,
+     * fail.
+     */
+    private static final String DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME =
+            "did_encounter_secondary_transaction_errors";
 
     private static final String FACTORY_VARIABLE_NAME = "factory";
 
@@ -185,6 +194,16 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeCommitTransactionFunction(service, transaction);
     }
 
+    @Override
+    public void didEncounterSecondaryTransactionErrors(DataSetRegistrationService<T> service,
+            DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
+        super.didEncounterSecondaryTransactionErrors(service, transaction, secondaryErrors);
+
+        invokeDidEncounterSecondaryTransactionErrorsFunction(service, transaction, secondaryErrors);
+    }
+
     private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
@@ -214,6 +233,21 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         if (null != function)
         {
             invokeCommitTransactionFunction(function, service, transaction);
+        }
+    }
+
+    private void invokeDidEncounterSecondaryTransactionErrorsFunction(
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
+        PythonInterpreter interpreter = getInterpreterFromService(service);
+        PyFunction function =
+                tryJythonFunction(interpreter,
+                        DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
+        if (null != function)
+        {
+            invokeDidEncounterSecondaryTransactionErrorsFunction(function, service, transaction,
+                    secondaryErrors);
         }
     }
 
@@ -261,10 +295,23 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                 Py.java2py(throwable));
     }
 
+    /**
+     * Pulled out as a separate method so tests can hook in.
+     */
     protected void invokeCommitTransactionFunction(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction)
     {
         function.__call__(Py.java2py(service), Py.java2py(transaction));
+    }
+
+    /**
+     * Pulled out as a separate method so tests can hook in.
+     */
+    protected void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,
+            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
+        function.__call__(Py.java2py(service), Py.java2py(transaction), Py.java2py(secondaryErrors));
     }
 
     /**
@@ -301,7 +348,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         {
             return createDataSetRegistrationDetails();
         }
-        
+
         /**
          * Returns the Java class for the given class name.
          */

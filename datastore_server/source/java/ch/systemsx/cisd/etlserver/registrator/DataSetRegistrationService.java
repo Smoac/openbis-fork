@@ -38,6 +38,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -209,6 +210,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public void didCommitTransaction(DataSetRegistrationTransaction<T> transaction)
     {
         registrator.didCommitTransaction(this, transaction);
+    }
+
+    public void didEncounterSecondaryTransactionErrors(
+            DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
+        registrator.didEncounterSecondaryTransactionErrors(this, transaction, secondaryErrors);
     }
 
     /**

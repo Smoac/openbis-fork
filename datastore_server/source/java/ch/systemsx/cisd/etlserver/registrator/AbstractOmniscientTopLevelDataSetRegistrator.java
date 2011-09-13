@@ -49,6 +49,7 @@ import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.PropertiesBasedETLServerPlugin;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
@@ -454,6 +455,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
+     * A method called when there is an error in one of the secondary transactions.
+     * <p>
+     * Subclasses can override and implement their own handling logic.
+     */
+    public void didEncounterSecondaryTransactionErrors(
+            DataSetRegistrationService<T> dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
+    }
+
+    /**
      * Rollback a failure that occurs outside of any *particular* data set registration, but with
      * the whole processing of the incoming folder itself.
      * <p>
@@ -477,7 +490,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings(
+            { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),

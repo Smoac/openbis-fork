@@ -39,6 +39,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -484,10 +485,26 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
+
+            // The queries are optional parts of the commit; catch any errors and inform the
+            // invoker
+            ArrayList<SecondaryTransactionFailure> encounteredErrors =
+                    new ArrayList<SecondaryTransactionFailure>();
             for (DynamicTransactionQuery query : queriesToCommit.values())
             {
-                query.commit();
-                query.close(false);
+                try
+                {
+                    query.commit();
+                    query.close(false);
+                } catch (Throwable e)
+                {
+                    encounteredErrors.add(new SecondaryTransactionFailure(query, e));
+                }
+            }
+
+            if (false == encounteredErrors.isEmpty())
+            {
+                parent.invokeDidEncounterSecondaryTransactionErrors(encounteredErrors);
             }
 
             return datasets.isEmpty() == false;
