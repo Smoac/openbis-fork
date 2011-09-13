@@ -115,6 +115,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         IDispatchableStorageProcessor
 {
     /**
+     * The path inside the HDF5 container used as the root of the images.
+     */
+    private static final String HDF5_CONTAINER_INTERNAL_ROOT_PATH = "/original/";
+
+    /**
      * Stores the references to the extracted images in the imaging database.
      * 
      * @param dao should not be commited or rollbacked, it's done outside of this method.
@@ -495,7 +500,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             saveInHdf5(imagesInStoreFolder, hdf5OriginalContainer, isDataCompressed);
             String hdf5ArchivePathPrefix =
                     hdf5OriginalContainer.getName() + ContentRepository.ARCHIVE_DELIMITER;
-            return hdf5ArchivePathPrefix;
+            return hdf5ArchivePathPrefix + HDF5_CONTAINER_INTERNAL_ROOT_PATH;
         } else
         {
             return getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder) + "/";
@@ -513,7 +518,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         HDF5Container container = new HDF5Container(hdf5DestinationFile);
         container.runWriterClient(compressFiles,
                 new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder,
-                        "/original/"));
+                        HDF5_CONTAINER_INTERNAL_ROOT_PATH));
     }
 
     private File moveToStore(File incomingDataSetDirectory, File rootDirectory)
