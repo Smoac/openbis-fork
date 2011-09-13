@@ -20,8 +20,7 @@ fi
 
 
 LIB=$BASE/../webapps/$APPLICATION_NAME/WEB-INF/lib
-WEBINF_CLASSES=$BASE/../webapps/$APPLICATION_NAME/WEB-INF/classes
 
 $JVM \
- -cp $LIB/*.jar:$WEBINF_CLASSES \
- ch.systemsx.cisd.openbis.plugin.jython.api.v1.impl.JythonPluginScriptStandalone "$@"
+ -cp $LIB/\* \
+ ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl.JythonPluginScriptStandalone "$@"
