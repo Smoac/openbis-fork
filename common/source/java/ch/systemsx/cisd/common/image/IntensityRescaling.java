@@ -125,7 +125,7 @@ public class IntensityRescaling
      */
     public static int computeBitShift(BufferedImage image, float threshold)
     {
-        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        if (isNotGrayscale(image))
         {
             throw new IllegalArgumentException(
                     "computeBitShift() is only applicable to gray scale images.");
@@ -147,6 +147,12 @@ public class IntensityRescaling
             }
         }
         return getBitShiftLowerThanThreshold(b0, pixels, threshold);
+    }
+
+    /** @return true if the specified image in not in grayscale */
+    public static boolean isNotGrayscale(BufferedImage image)
+    {
+        return image.getColorModel().getColorSpace().getNumComponents() > 1;
     }
 
     /**
@@ -175,7 +181,7 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityBitShiftTo8Bits(BufferedImage image, int shiftBits)
     {
-        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        if (isNotGrayscale(image))
         {
             throw new IllegalArgumentException(
                     "rescaleIntensityBitShiftTo8Bits() is only applicable to gray scale images.");
@@ -199,7 +205,7 @@ public class IntensityRescaling
      */
     public static void addToLevelStats(PixelHistogram histogram, BufferedImage image)
     {
-        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        if (isNotGrayscale(image))
         {
             throw new IllegalArgumentException(
                     "addToLevelStats() is only applicable to gray scale images.");
@@ -274,7 +280,7 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
     {
-        if (image.getColorModel().getColorSpace().getNumComponents() > 1)
+        if (isNotGrayscale(image))
         {
             throw new IllegalArgumentException(
                     "rescaleIntensityLevelTo8Bits() is only applicable to gray scale images.");
