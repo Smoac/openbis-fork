@@ -20,55 +20,30 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.python.core.PyFunction;
-import org.python.util.PythonInterpreter;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
-import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
-import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -81,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -89,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTestCase
+public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetHandlerTest
 {
     private static final String SCRIPTS_FOLDER =
             "sourceTest/java/ch/systemsx/cisd/etlserver/registrator/";
@@ -97,8 +71,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     private static final String DATA_SET_CODE = "data-set-code";
 
     private static final String CONTAINER_DATA_SET_CODE = "container-data-set-code";
-
-    private static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
     private static final DataSetType DATA_SET_TYPE = new DataSetType("O1");
 
@@ -108,52 +80,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
 
     private static final String SAMPLE_PERM_ID = "sample-perm-id";
 
-    private JythonTopLevelDataSetHandler<DataSetInformation> handler;
-
-    private Mockery context;
-
-    private IEncapsulatedOpenBISService openBisService;
-
-    private IMailClient mailClient;
-
-    private IDataSetValidator dataSetValidator;
-
-    private File incomingDataSetFile;
-
-    private File markerFile;
-
-    private File subDataSet1;
-
-    private File subDataSet2;
-
-    private boolean didDataSetRollbackHappen;
-
-    private boolean didServiceRollbackHappen;
-
     private BufferedAppender logAppender;
-
-    @BeforeTest
-    public void init()
-    {
-        QueueingPathRemoverService.start();
-    }
-
-    @AfterTest
-    public void finish()
-    {
-        QueueingPathRemoverService.stop();
-    }
 
     @BeforeMethod
     @Override
     public void setUp() throws IOException
     {
         super.setUp();
-
-        context = new Mockery();
-        openBisService = context.mock(IEncapsulatedOpenBISService.class);
-        dataSetValidator = context.mock(IDataSetValidator.class);
-        mailClient = context.mock(IMailClient.class);
 
         logAppender = new BufferedAppender();
 
@@ -800,7 +733,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
     {
         setUpHomeDataBaseExpectations();
         Properties threadProperties = createThreadPropertiesRelativeToScriptsFolder("search.py");
-        createHandler(threadProperties, false);
+        createHandler(threadProperties, false, true);
 
         createData();
 
@@ -814,8 +747,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertTrue(logAppender.getLogContent(), logAppender.getLogContent().length() > 0);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didTransactionRollbackHappen);
         assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
         assertFalse(theHandler.didRollbackServiceFunctionRun);
+
         context.assertIsSatisfied();
     }
 
@@ -825,7 +761,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         setUpHomeDataBaseExpectations();
         Properties threadProperties =
                 createThreadPropertiesRelativeToScriptsFolder("query-interface-test.py");
-        createHandler(threadProperties, false);
+        createHandler(threadProperties, false, true);
 
         createData();
 
@@ -837,11 +773,34 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
 
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
+        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didTransactionRollbackHappen);
         context.assertIsSatisfied();
     }
-    
+
+    @Test
+    public void testDynamicQueryCommitFail()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties threadProperties =
+                createThreadPropertiesRelativeToScriptsFolder("dynamic-query-failure-test.py");
+        createHandler(threadProperties, false, true);
+
+        createData();
+
+        setUpDynamicQueryExpectations();
+
+        handler.handle(markerFile);
+
+        assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+
+        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
+        assertFalse(didServiceRollbackHappen);
+        assertFalse(theHandler.didTransactionRollbackHappen);
+        context.assertIsSatisfied();
+    }
+
     private Properties createThreadProperties(String scriptPath)
     {
         Properties threadProperties = new Properties();
@@ -855,9 +814,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         return threadProperties;
     }
 
-    private Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
+    protected String getRegistrationScriptsFolderPath()
     {
-        return createThreadProperties(SCRIPTS_FOLDER + scriptPath);
+        return SCRIPTS_FOLDER;
     }
 
     @Test
@@ -887,53 +846,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         context.assertIsSatisfied();
     }
 
-    private File createDirectory(File parentDir, String directoryName)
-    {
-        final File file = new File(parentDir, directoryName);
-        file.mkdir();
-        return file;
-    }
-
     private void createHandler(Properties threadProperties, final boolean registrationShouldFail)
     {
         createHandler(threadProperties, registrationShouldFail, false);
-    }
-
-    private void createHandler(Properties threadProperties, final boolean registrationShouldFail,
-            boolean shouldReThrowException)
-    {
-        TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(threadProperties);
-
-        handler =
-                new TestingDataSetHandler(globalState, registrationShouldFail,
-                        shouldReThrowException);
-    }
-
-    private TopLevelDataSetRegistratorGlobalState createGlobalState(Properties threadProperties)
-    {
-        ThreadParameters threadParameters =
-                new ThreadParameters(threadProperties, "jython-handler-test");
-
-        TopLevelDataSetRegistratorGlobalState globalState =
-                new TopLevelDataSetRegistratorGlobalState("dss",
-                        ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, openBisService, mailClient, dataSetValidator, null, true,
-                        threadParameters);
-        return globalState;
-    }
-
-    private void setUpHomeDataBaseExpectations()
-    {
-        context.checking(new Expectations()
-            {
-                {
-
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid(DATABASE_INSTANCE_UUID);
-                    one(openBisService).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                }
-            });
     }
 
     private void setUpSearchExpectations()
@@ -960,15 +875,44 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
                     searchCriteria = createTestSearchCriteria("SAMPLE_TYPE");
                     oneOf(openBisService).searchForSamples(searchCriteria);
                     will(returnValue(Collections.EMPTY_LIST));
+
+                    oneOf(openBisService)
+                            .performEntityOperations(
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
                 }
             });
     }
-    
+
     private void setUpQueryExpectations()
     {
         context.checking(new Expectations()
             {
                 {
+                    oneOf(dataSourceQueryService).select("path-info-db",
+                            "SELECT * from data_set_files WHERE parent_id is NULL");
+                    Object[] args =
+                        { 155555 };
+                    will(returnValue(new MockDataSet<Map<String, Object>>()));
+                    oneOf(dataSourceQueryService).select("path-info-db",
+                            "SELECT * from data_set_files WHERE parent_id = ?1", args);
+                    will(returnValue(new MockDataSet<Map<String, Object>>()));
+                }
+            });
+    }
+
+    private void setUpDynamicQueryExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    oneOf(dynamicTransactionQuery)
+                            .select("SELECT * from data_set_files WHERE parent_id is NULL",
+                                    (Object[]) null);
+                    will(returnValue(new MockDataSet<Map<String, Object>>()));
+
+                    oneOf(openBisService)
+                            .performEntityOperations(
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
 
                 }
             });
@@ -980,297 +924,5 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractFileSystemTest
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, typeString));
         sc.addMatchClause(MatchClause.createPropertyMatch("PROP", "VALUE"));
         return sc;
-    }
-
-    public static final class MockStorageProcessor implements IStorageProcessorTransactional
-    {
-        static MockStorageProcessor instance;
-
-        int calledGetStoreRootDirectoryCount = 0;
-
-        int calledCommitCount = 0;
-
-        File storeRootDirectory;
-
-        String dataSetInfoString;
-
-        private List<File> incomingDirs = new ArrayList<File>();
-
-        private List<File> rootDirs = new ArrayList<File>();
-
-        public MockStorageProcessor(ExtendedProperties props)
-        {
-            instance = this;
-        }
-
-        public File getStoreRootDirectory()
-        {
-            calledGetStoreRootDirectoryCount++;
-            return storeRootDirectory;
-        }
-
-        public void setStoreRootDirectory(File storeRootDirectory)
-        {
-            this.storeRootDirectory = storeRootDirectory;
-        }
-
-        public StorageFormat getStorageFormat()
-        {
-            return StorageFormat.PROPRIETARY;
-        }
-
-        public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
-        {
-            return UnstoreDataAction.LEAVE_UNTOUCHED;
-        }
-
-        public IStorageProcessorTransaction createTransaction()
-        {
-            return new IStorageProcessorTransaction()
-                {
-
-                    private File storedFolder;
-
-                    public void storeData(DataSetInformation dataSetInformation,
-                            ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetDirectory, File rootDir)
-                    {
-                        incomingDirs.add(incomingDataSetDirectory);
-                        rootDirs.add(rootDir);
-                        dataSetInfoString = dataSetInformation.toString();
-                        try
-                        {
-                            FileUtils.copyDirectory(incomingDataSetDirectory, rootDir);
-                        } catch (IOException ex)
-                        {
-                            throw new IOExceptionUnchecked(ex);
-                        }
-                        storedFolder = rootDir;
-                    }
-
-                    public UnstoreDataAction rollback(Throwable exception)
-                    {
-                        return null;
-                    }
-
-                    public File getStoredDataDirectory()
-                    {
-                        return storedFolder;
-                    }
-
-                    public void commit()
-                    {
-                        calledCommitCount++;
-                    }
-
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
-                    }
-                };
-        }
-    }
-
-    private class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
-    {
-        private final boolean shouldRegistrationFail;
-
-        private final boolean shouldReThrowRollbackException;
-
-        private boolean didRollbackServiceFunctionRun = false;
-
-        private boolean didRollbackDataSetRegistrationFunctionRun = false;
-
-        private boolean didTransactionRollbackHappen = false;
-
-        private boolean didRollbackTransactionFunctionRunHappen = false;
-
-        private boolean didCommitTransactionFunctionRunHappen = false;
-
-        public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
-                boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
-        {
-            super(globalState);
-            this.shouldRegistrationFail = shouldRegistrationFail;
-            this.shouldReThrowRollbackException = shouldReThrowRollbackException;
-        }
-
-        @Override
-        public void registerDataSetInApplicationServer(DataSetInformation dataSetInformation,
-                NewExternalData data) throws Throwable
-        {
-            if (shouldRegistrationFail)
-            {
-                throw new UserFailureException("Didn't work.");
-            } else
-            {
-                super.registerDataSetInApplicationServer(dataSetInformation, data);
-            }
-        }
-
-        @Override
-        public void rollback(DataSetRegistrationService<DataSetInformation> service,
-                Throwable throwable)
-        {
-            super.rollback(service, throwable);
-            didServiceRollbackHappen = true;
-            if (shouldReThrowRollbackException)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
-            } else
-            {
-                throwable.printStackTrace();
-            }
-        }
-
-        @Override
-        public void didRollbackTransaction(DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationTransaction<DataSetInformation> transaction,
-                DataSetStorageAlgorithmRunner<DataSetInformation> algorithmRunner,
-                Throwable throwable)
-        {
-            super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
-
-            didTransactionRollbackHappen = true;
-            if (shouldReThrowRollbackException)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
-            } else
-            {
-                throwable.printStackTrace();
-            }
-        }
-
-        @Override
-        protected void invokeRollbackServiceFunction(PyFunction function,
-                DataSetRegistrationService<DataSetInformation> service, Throwable throwable)
-        {
-            super.invokeRollbackServiceFunction(function, service, throwable);
-            PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
-                            .getInterpreter();
-            didRollbackServiceFunctionRun =
-                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
-        }
-
-        @Override
-        protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
-                DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
-        {
-            super.invokeRollbackDataSetRegistrationFunction(function, service,
-                    registrationAlgorithm, throwable);
-
-            PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
-                            .getInterpreter();
-            didRollbackDataSetRegistrationFunctionRun =
-                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
-        }
-
-        @Override
-        protected void invokeRollbackTransactionFunction(PyFunction function,
-                DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationTransaction<DataSetInformation> transaction,
-                DataSetStorageAlgorithmRunner<DataSetInformation> algorithmRunner,
-                Throwable throwable)
-        {
-            super.invokeRollbackTransactionFunction(function, service, transaction,
-                    algorithmRunner, throwable);
-
-            PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
-                            .getInterpreter();
-            didRollbackTransactionFunctionRunHappen =
-                    interpreter.get("didTransactionRollbackHappen", Boolean.class);
-        }
-
-        @Override
-        protected void invokeCommitTransactionFunction(PyFunction function,
-                DataSetRegistrationService<DataSetInformation> service,
-                DataSetRegistrationTransaction<DataSetInformation> transaction)
-        {
-            super.invokeCommitTransactionFunction(function, service, transaction);
-
-            PythonInterpreter interpreter =
-                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
-                            .getInterpreter();
-            didCommitTransactionFunctionRunHappen =
-                    interpreter.get("didTransactionCommitHappen", Boolean.class);
-        }
-
-        @Override
-        protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
-                File aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
-                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
-        {
-            JythonDataSetRegistrationService<DataSetInformation> service =
-                    new TestDataRegistrationService(this, aDataSetFile,
-                            userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
-                            interpreter, shouldRegistrationFail);
-            return service;
-        }
-
-    }
-
-    protected static class TestDataRegistrationService extends
-            JythonDataSetRegistrationService<DataSetInformation>
-    {
-        private final boolean shouldRegistrationFail;
-
-        /**
-         * @param registrator
-         * @param globalCleanAfterwardsAction
-         * @param interpreter
-         */
-        public TestDataRegistrationService(
-                JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
-                DataSetInformation userProvidedDataSetInformationOrNull,
-                IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                PythonInterpreter interpreter, boolean shouldRegistrationFail)
-        {
-            super(registrator, aDataSetFile, userProvidedDataSetInformationOrNull,
-                    globalCleanAfterwardsAction,
-                    new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter);
-            this.shouldRegistrationFail = shouldRegistrationFail;
-        }
-
-        @Override
-        public IEntityOperationService<DataSetInformation> getEntityRegistrationService()
-        {
-            return new TestEntityOperationService(getRegistrator(), shouldRegistrationFail);
-        }
-
-    }
-
-    protected static class TestEntityOperationService extends
-            DefaultEntityOperationService<DataSetInformation>
-    {
-
-        private final boolean shouldRegistrationFail;
-
-        /**
-         * @param registrator
-         */
-        public TestEntityOperationService(
-                AbstractOmniscientTopLevelDataSetRegistrator<DataSetInformation> registrator,
-                boolean shouldRegistrationFail)
-        {
-            super(registrator, new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate());
-            this.shouldRegistrationFail = shouldRegistrationFail;
-        }
-
-        @Override
-        public AtomicEntityOperationResult performOperationsInApplcationServer(
-                AtomicEntityOperationDetails<DataSetInformation> registrationDetails)
-        {
-            if (shouldRegistrationFail)
-            {
-                assert false;
-            }
-            return super.performOperationsInApplcationServer(registrationDetails);
-        }
-
     }
 }

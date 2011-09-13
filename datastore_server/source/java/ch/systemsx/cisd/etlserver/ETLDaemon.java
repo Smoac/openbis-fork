@@ -331,7 +331,8 @@ public final class ETLDaemon
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
                         openBISService, mailClient, dataSetValidator, dataSourceQueryService,
-                        notifySuccessfulRegistration, threadParameters);
+                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
+                        threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
@@ -360,9 +361,10 @@ public final class ETLDaemon
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
                         openBISService, mailClient, dataSetValidator, dataSourceQueryService,
-                        notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
-                        deleteUnidentified, preRegistrationScriptOrNull,
-                        postRegistrationScriptOrNull, validationScriptsOrNull);
+                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
+                        threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
+                        preRegistrationScriptOrNull, postRegistrationScriptOrNull,
+                        validationScriptsOrNull);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils

@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-import net.lemnik.eodsql.QueryTool;
-
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
@@ -445,7 +444,10 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DynamicTransactionQuery query = queriesToCommit.get(dataSourceName);
             if (null == query)
             {
-                query = QueryTool.getQuery(DynamicTransactionQuery.class);
+                DynamicTransactionQueryFactory factory =
+                        registrationService.getRegistratorContext().getGlobalState()
+                                .getDynamicTransactionQueryFactory();
+                query = factory.createDynamicTransactionQuery(dataSourceName);
                 queriesToCommit.put(dataSourceName, query);
             }
             return query;

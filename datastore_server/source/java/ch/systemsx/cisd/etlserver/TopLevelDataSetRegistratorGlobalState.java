@@ -64,6 +64,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final boolean deleteUnidentified;
 
+    private final DynamicTransactionQueryFactory dynamicTransactionQueryFactory;
+
     private final String preRegistrationScriptOrNull;
 
     private final String postRegistrationScriptOrNull;
@@ -85,11 +87,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
-            boolean notifySuccessfulRegistration,
-            ThreadParameters threadParameters)
+            DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
+            boolean notifySuccessfulRegistration, ThreadParameters threadParameters)
     {
         this(dssCode, shareId, storeRootDir, openBisService, mailClient, dataSetValidator,
-                dataSourceQueryService,
+                dataSourceQueryService, dynamicTransactionQueryFactory,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
@@ -99,8 +101,10 @@ public class TopLevelDataSetRegistratorGlobalState
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
             IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
+            DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
             boolean notifySuccessfulRegistration, ThreadParameters threadParameters,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
+
             String preRegistrationScriptOrNull, String postRegistrationScriptOrNull,
             String[] validationScriptsOrNull)
     {
@@ -111,6 +115,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
         this.dataSourceQueryService = dataSourceQueryService;
+        this.dynamicTransactionQueryFactory = dynamicTransactionQueryFactory;
         this.notifySuccessfulRegistration = notifySuccessfulRegistration;
         this.threadParameters = threadParameters;
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
@@ -153,6 +158,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public IDataSourceQueryService getDataSourceQueryService()
     {
         return dataSourceQueryService;
+    }
+
+    public DynamicTransactionQueryFactory getDynamicTransactionQueryFactory()
+    {
+        return dynamicTransactionQueryFactory;
     }
 
     public boolean isNotifySuccessfulRegistration()

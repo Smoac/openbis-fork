@@ -10,6 +10,5 @@ registrationDetails = factory.createRegistrationDetails()
 dataSetInformation = registrationDetails.getDataSetInformation()
 dataSetInformation.setExperimentIdentifier(identifier)
 registrationDetails.setDataSetType(dto.DataSetType("O1"));
-futureDataSet = service.queueDataSetRegistration(io.File(incoming, "sub_data_set_1"), registrationDetails)
 
 None.non_existant_function()

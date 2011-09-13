@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -420,8 +421,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, openBisService, mailClient, dataSetValidator, null, true,
-                        threadParameters);
+                        workingDirectory, openBisService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters);
         return globalState;
     }
 

@@ -30,13 +30,13 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
-import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetRegistratorTest.MockStorageProcessor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -111,8 +111,8 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, openBisService, mailClient, dataSetValidator, null, true,
-                        threadParameters);
+                        workingDirectory, openBisService, mailClient, dataSetValidator, null,
+                        new DynamicTransactionQueryFactory(), true, threadParameters);
         return globalState;
     }
 
@@ -123,8 +123,10 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
         threadProperties.put(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         threadProperties.put(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
-        threadProperties.put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
-                MockStorageProcessor.class.getName());
+        threadProperties
+                .put(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
+                        ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest.MockStorageProcessor.class
+                                .getName());
         return threadProperties;
     }
 

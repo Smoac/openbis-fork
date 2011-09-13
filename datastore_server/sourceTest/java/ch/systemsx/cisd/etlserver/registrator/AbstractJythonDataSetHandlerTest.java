@@ -22,9 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.python.core.PyFunction;
 import org.python.util.PythonInterpreter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
@@ -39,7 +42,10 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
+import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -68,7 +74,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
      */
     protected abstract String getRegistrationScriptsFolderPath();
 
-    private static final String DATABASE_INSTANCE_UUID = "db-uuid";
+    protected static final String DATABASE_INSTANCE_UUID = "db-uuid";
 
     protected JythonTopLevelDataSetHandler<? extends DataSetInformation> handler;
 
@@ -82,6 +88,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected IDataSourceQueryService dataSourceQueryService;
 
+    protected DynamicTransactionQuery dynamicTransactionQuery;
+
     protected File stagingDirectory;
 
     protected File incomingDataSetFile;
@@ -91,6 +99,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     protected File subDataSet1;
 
     protected File subDataSet2;
+
+    protected boolean didDataSetRollbackHappen;
+
+    protected boolean didServiceRollbackHappen;
 
     @BeforeTest
     public void init()
@@ -115,6 +127,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         dataSetValidator = context.mock(IDataSetValidator.class);
         mailClient = context.mock(IMailClient.class);
         dataSourceQueryService = context.mock(IDataSourceQueryService.class);
+        dynamicTransactionQuery = context.mock(DynamicTransactionQuery.class);
 
         stagingDirectory = new File(workingDirectory, "staging");
     }
@@ -147,11 +160,20 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         ThreadParameters threadParameters =
                 new ThreadParameters(threadProperties, "jython-handler-test");
 
+        DynamicTransactionQueryFactory myFactory = new DynamicTransactionQueryFactory()
+            {
+                @Override
+                public DynamicTransactionQuery createDynamicTransactionQuery(String dataSourceName)
+                {
+                    return dynamicTransactionQuery;
+                }
+            };
+
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
                         workingDirectory, openBisService, mailClient, dataSetValidator,
-                        dataSourceQueryService, true, threadParameters);
+                        dataSourceQueryService, myFactory, true, threadParameters);
         return globalState;
     }
 
@@ -168,6 +190,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 }
             });
     }
+
     /**
      * adds an extension to the Jython Path, so that all libraries in it will be visible to the
      * Jython environment.
@@ -213,7 +236,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         return threadProperties;
     }
 
-
     public static final class MockStorageProcessor implements IStorageProcessorTransactional
     {
         static MockStorageProcessor instance;
@@ -226,9 +248,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         String dataSetInfoString;
 
-        private List<File> incomingDirs = new ArrayList<File>();
+        protected List<File> incomingDirs = new ArrayList<File>();
 
-        private List<File> rootDirs = new ArrayList<File>();
+        protected List<File> rootDirs = new ArrayList<File>();
 
         public MockStorageProcessor(ExtendedProperties props)
         {
@@ -309,11 +331,21 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         }
     }
 
-    private class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
+    protected class TestingDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
     {
-        private final boolean shouldRegistrationFail;
+        protected final boolean shouldRegistrationFail;
 
-        private final boolean shouldReThrowRollbackException;
+        protected final boolean shouldReThrowRollbackException;
+
+        protected boolean didRollbackServiceFunctionRun = false;
+
+        protected boolean didRollbackDataSetRegistrationFunctionRun = false;
+
+        protected boolean didTransactionRollbackHappen = false;
+
+        protected boolean didRollbackTransactionFunctionRunHappen = false;
+
+        protected boolean didCommitTransactionFunctionRunHappen = false;
 
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
@@ -341,6 +373,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 Throwable throwable)
         {
             super.rollback(service, throwable);
+            didServiceRollbackHappen = true;
             if (shouldReThrowRollbackException)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
@@ -358,6 +391,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         {
             super.didRollbackTransaction(service, transaction, algorithmRunner, throwable);
 
+            didTransactionRollbackHappen = true;
             if (shouldReThrowRollbackException)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
@@ -365,6 +399,77 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             {
                 throwable.printStackTrace();
             }
+        }
+
+        @Override
+        protected void invokeRollbackServiceFunction(PyFunction function,
+                DataSetRegistrationService<DataSetInformation> service, Throwable throwable)
+        {
+            super.invokeRollbackServiceFunction(function, service, throwable);
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didRollbackServiceFunctionRun =
+                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
+        }
+
+        @Override
+        protected void invokeRollbackDataSetRegistrationFunction(PyFunction function,
+                DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationAlgorithm registrationAlgorithm, Throwable throwable)
+        {
+            super.invokeRollbackDataSetRegistrationFunction(function, service,
+                    registrationAlgorithm, throwable);
+
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didRollbackDataSetRegistrationFunctionRun =
+                    interpreter.get("didRollbackServiceFunctionRun", Boolean.class);
+        }
+
+        @Override
+        protected void invokeRollbackTransactionFunction(PyFunction function,
+                DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationTransaction<DataSetInformation> transaction,
+                DataSetStorageAlgorithmRunner<DataSetInformation> algorithmRunner,
+                Throwable throwable)
+        {
+            super.invokeRollbackTransactionFunction(function, service, transaction,
+                    algorithmRunner, throwable);
+
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didRollbackTransactionFunctionRunHappen =
+                    interpreter.get("didTransactionRollbackHappen", Boolean.class);
+        }
+
+        @Override
+        protected void invokeCommitTransactionFunction(PyFunction function,
+                DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationTransaction<DataSetInformation> transaction)
+        {
+            super.invokeCommitTransactionFunction(function, service, transaction);
+
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didCommitTransactionFunctionRunHappen =
+                    interpreter.get("didTransactionCommitHappen", Boolean.class);
+        }
+
+        @Override
+        protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
+                File aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
+                IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
+        {
+            JythonDataSetRegistrationService<DataSetInformation> service =
+                    new TestDataRegistrationService(this, aDataSetFile,
+                            userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
+                            interpreter, shouldRegistrationFail);
+            return service;
         }
 
     }
