@@ -75,4 +75,10 @@ public final class PlateSampleViewer extends GenericSampleViewer
         return screeningViewContext.getMessage(Dict.PLATE_VIEWER_TITLE, originalData.getCode());
     }
 
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_PLATE);
+    }
+
 }

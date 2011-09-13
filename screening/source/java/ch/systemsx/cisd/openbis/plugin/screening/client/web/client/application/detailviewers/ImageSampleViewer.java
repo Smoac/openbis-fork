@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -86,4 +87,11 @@ public final class ImageSampleViewer extends GenericSampleViewer
         sections.add(new ImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull));
         return sections;
     }
+
+    @Override
+    protected String getDeleteButtonLabel()
+    {
+        return viewContext.getMessage(Dict.BUTTON_DELETE_WELL);
+    }
+
 }

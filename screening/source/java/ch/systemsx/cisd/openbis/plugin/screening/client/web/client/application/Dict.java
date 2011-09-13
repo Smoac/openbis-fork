@@ -119,6 +119,10 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String ANALYSIS_PROCEDURE = "ANALYSIS_PROCEDURE";
 
+    public static final String BUTTON_DELETE_PLATE = "button_delete_plate";
+
+    public static final String BUTTON_DELETE_WELL = "button_delete_well";
+
     private Dict()
     {
         // Can not be instantiated.

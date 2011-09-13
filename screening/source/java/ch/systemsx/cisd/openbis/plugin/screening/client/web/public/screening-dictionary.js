@@ -47,6 +47,8 @@ generated_samples: "Children Samples",
 openbis_plate_metadata_browser_CODE: "Code",
 openbis_plate_metadata_browser_TYPE: "Type",
 openbis_plate_metadata_browser_THUMBNAIL: "Thumbnail",
+button_delete_plate: "Delete Plate",
+button_delete_well: "Delete Well",
 
 
 sample_properties_heading: "Properties",
