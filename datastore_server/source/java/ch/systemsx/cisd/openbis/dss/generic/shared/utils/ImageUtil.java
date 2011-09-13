@@ -24,7 +24,6 @@ import static ch.systemsx.cisd.common.utilities.DataTypeUtil.TIFF_FILE;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
@@ -38,6 +37,7 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
 import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
@@ -54,6 +54,8 @@ import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.HierarchicalNodeBasedContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IReadParams;
@@ -68,6 +70,8 @@ import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
  */
 public class ImageUtil
 {
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageUtil.class);
+
     private static final Set<String> FILE_TYPES = Collections.unmodifiableSet(new HashSet<String>(
             Arrays.asList("gif", "jpg", "jpeg", "png", "tif", "tiff")));
 
@@ -330,23 +334,45 @@ public class ImageUtil
         final int cols = image.getWidth();
         final int rows = image.getHeight();
         int bitDepth = image.getColorModel().getComponentSize(0);
-        ImageInfo imgInfo = new ImageInfo(cols, rows, bitDepth, false, false, false);
-        PngWriter png =
-                new PngWriter(out, imgInfo);
+        boolean hasAlpha = false; // NOTE: it would be nice to support alpha channel
+        boolean isGrayscale = isGrayscale(image);
+        ImageInfo imgInfo = new ImageInfo(cols, rows, bitDepth, hasAlpha, isGrayscale, false);
+        PngWriter png = new PngWriter(out, imgInfo);
         png.setFilterType(filterType == null ? PngFilterType.FILTER_DEFAULT : filterType);
         png.setCompLevel(compressionLevel == -1 ? 6 : compressionLevel);
         ImageLine imageLine = new ImageLine(imgInfo);
         for (int row = 0; row < rows; ++row)
         {
-            for (int col = 0; col < cols; ++col)
+            if (isGrayscale)
             {
-                int pixel = image.getRGB(col, row);
-                ImageLineHelper.setPixelRGB8(imageLine, col, pixel);
+                fillGrayscaleLine(image, cols, isGrayscale, imageLine, row);
+            } else
+            {
+                fillRGBLine(image, cols, isGrayscale, imageLine, row);
             }
             imageLine.setRown(row);
             png.writeRow(imageLine);
         }
         png.end();
+    }
+
+    private static void fillGrayscaleLine(BufferedImage image, final int cols, boolean isGrayscale,
+            ImageLine imageLine, int row)
+    {
+        for (int col = 0; col < cols; ++col)
+        {
+            imageLine.scanline[col] = image.getRaster().getSample(col, row, 0);
+        }
+    }
+
+    private static void fillRGBLine(BufferedImage image, final int cols, boolean isGrayscale,
+            ImageLine imageLine, int row)
+    {
+        for (int col = 0; col < cols; ++col)
+        {
+            int pixel = image.getRGB(col, row);
+            ImageLineHelper.setPixelRGB8(imageLine, col, pixel);
+        }
     }
 
     /**
@@ -460,17 +486,20 @@ public class ImageUtil
      */
     public static BufferedImage convertForDisplayIfNecessary(BufferedImage image)
     {
-        ColorModel colorModel = image.getColorModel();
-        // is grayscale?
-        if (colorModel.getColorSpace().getNumComponents() == 1)
+        if (isGrayscale(image))
         {
-            if (colorModel.getPixelSize() > 8)
+            if (image.getColorModel().getPixelSize() > 8)
             {
                 Levels intensityRange = IntensityRescaling.computeLevels(image, 0);
                 return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, intensityRange);
             }
         }
         return image;
+    }
+
+    private static boolean isGrayscale(BufferedImage image)
+    {
+        return image.getColorModel().getColorSpace().getNumComponents() == 1;
     }
 
     /**
