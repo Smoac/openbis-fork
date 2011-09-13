@@ -56,7 +56,7 @@ public class ImageChannel implements ISerializable
             ImageChannelColor channelColor)
     {
         assert code != null;
-        assert availableImageTransformations != null;
+//        assert availableImageTransformations != null;
 
         this.code = code;
         this.label = label;
