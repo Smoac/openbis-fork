@@ -35,22 +35,6 @@ public class ReadParams implements IReadParams
      */
     private Integer intensityRescalingChannel;
 
-    /**
-     * only supported from JAI readers.
-     */
-    private boolean allow16BitGrayscaleModel;
-
-
-    public boolean isAllow16BitGrayscaleModel()
-    {
-        return allow16BitGrayscaleModel;
-    }
-
-    public void setAllow16BitGrayscaleModel(boolean allow16BitGrayscaleModel)
-    {
-        this.allow16BitGrayscaleModel = allow16BitGrayscaleModel;
-    }
-
     public Integer getIntensityRescalingChannel()
     {
         return intensityRescalingChannel;

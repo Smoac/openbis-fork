@@ -31,7 +31,6 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.IReadParams;
 import ch.systemsx.cisd.imagereaders.ImageID;
-import ch.systemsx.cisd.imagereaders.ReadParams;
 
 /**
  * JAI {@link IImageReader} for TIFF files.
@@ -46,24 +45,16 @@ class TiffImageReader extends DefaultImageReader
         super(libraryName, readerName);
     }
 
-
     @Override
     public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
             throws IOExceptionUnchecked
     {
-        boolean allow16BitGrayscaleModel = false;
-        ReadParams readParams = (ReadParams) params;
-        if (readParams != null)
-        {
-            allow16BitGrayscaleModel = readParams.isAllow16BitGrayscaleModel();
-        }
-
         try
         {
             InputStream input = new AdapterIInputStreamToInputStream(handle);
             ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
             Raster raster = decoder.decodeAsRaster(imageID.getTimeSeriesIndex());
-            int bufferType = findBestImageBufferType(raster, allow16BitGrayscaleModel);
+            int bufferType = findBestImageBufferType(raster);
             BufferedImage image =
                     new BufferedImage(raster.getWidth(), raster.getHeight(), bufferType);
             image.setData(raster);
@@ -74,12 +65,23 @@ class TiffImageReader extends DefaultImageReader
         }
     }
 
-    private int findBestImageBufferType(Raster raster, boolean allow16BitGrayscaleModel)
+    private int findBestImageBufferType(Raster raster)
     {
-        boolean is16BitGrayscale =
-                raster.getNumBands() == 1 && raster.getSampleModel().getSampleSize()[0] == 16;
-        return is16BitGrayscale && allow16BitGrayscaleModel ? BufferedImage.TYPE_USHORT_GRAY
-                : BufferedImage.TYPE_INT_RGB;
+        boolean isGrayscale = raster.getNumBands() == 1;
+        int numberOfBits = raster.getSampleModel().getSampleSize()[0];
+        if (isGrayscale)
+        {
+            if (numberOfBits <= 8)
+            {
+                return BufferedImage.TYPE_BYTE_GRAY;
+            } else
+            {
+                return BufferedImage.TYPE_USHORT_GRAY;
+            }
+        } else
+        {
+            return BufferedImage.TYPE_INT_RGB;
+        }
     }
 
 }
