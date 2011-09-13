@@ -68,18 +68,7 @@
   </target>
 	
   <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum, dss-plugin-jar">
-    <jar update="true" destfile="${dss-jar.file}">
-      <fileset dir="source">
-        <include name="sql/imaging/**/*.sql" />
-      </fileset>
-    	<fileset dir="${lib}/nativedata">
-    		<include name="native/**/*"/>
-    	</fileset>
-    	<fileset dir="${lib}/unix">
-    		<include name="native/**/*"/>
-    	</fileset>
-    </jar>
-    <copy file="${plugin-jar.file}" todir="${dist.datastore_server.lib}" />
+    <copy file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin${variant}.jar" />
     <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
   	<copy todir="${dist.datastore_server}/data">
   		<fileset dir="${original.dist}/data" />
