@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -65,7 +66,7 @@ abstract class AbstractImageDatasetUploader
                 RelativeImageReference thumbnailPathOrNull,
                 IImageTransformerFactory imageTransformerFactoryOrNull)
         {
-            this.channelCode = channelCode.toUpperCase();
+            this.channelCode = CodeNormalizer.normalize(channelCode);
             this.imageFilePath = imageFilePath;
             this.thumbnailPathOrNull = thumbnailPathOrNull;
             this.imageTransformerFactoryOrNull = imageTransformerFactoryOrNull;
