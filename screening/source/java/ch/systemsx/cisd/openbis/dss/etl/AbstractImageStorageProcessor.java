@@ -512,7 +512,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         HDF5Container container = new HDF5Container(hdf5DestinationFile);
         container.runWriterClient(compressFiles,
-                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder));
+                new HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient(sourceFolder,
+                        "/original/"));
     }
 
     private File moveToStore(File incomingDataSetDirectory, File rootDirectory)
