@@ -50,6 +50,7 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -347,6 +348,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         protected boolean didCommitTransactionFunctionRunHappen = false;
 
+        protected boolean didSecondaryTransactionErrorNotificationHappen = false;
+
         public TestingDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState,
                 boolean shouldRegistrationFail, boolean shouldReThrowRollbackException)
         {
@@ -457,6 +460,22 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                             .getInterpreter();
             didCommitTransactionFunctionRunHappen =
                     interpreter.get("didTransactionCommitHappen", Boolean.class);
+        }
+
+        @Override
+        public void didEncounterSecondaryTransactionErrors(
+                DataSetRegistrationService<DataSetInformation> service,
+                DataSetRegistrationTransaction<DataSetInformation> transaction,
+                List<SecondaryTransactionFailure> secondaryErrors)
+        {
+            super.didEncounterSecondaryTransactionErrors(service, transaction, secondaryErrors);
+
+            PythonInterpreter interpreter =
+                    ((JythonDataSetRegistrationService<DataSetInformation>) service)
+                            .getInterpreter();
+            didSecondaryTransactionErrorNotificationHappen =
+                    interpreter
+                            .get("didSecondaryTransactionErrorNotificationHappen", Boolean.class);
         }
 
         @Override

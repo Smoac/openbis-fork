@@ -796,6 +796,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
         assertFalse(didServiceRollbackHappen);
         assertFalse(theHandler.didTransactionRollbackHappen);
+        assertTrue(theHandler.didSecondaryTransactionErrorNotificationHappen);
         context.assertIsSatisfied();
     }
 

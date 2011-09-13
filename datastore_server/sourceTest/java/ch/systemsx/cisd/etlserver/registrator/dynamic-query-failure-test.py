@@ -1,5 +1,9 @@
 import sys
 
+def did_encounter_secondary_transaction_errors(service, transaction, errors):
+    global didSecondaryTransactionErrorNotificationHappen
+    didSecondaryTransactionErrorNotificationHappen = True
+
 # Execute a query
 tr = service.transaction()
 query = tr.getDatabaseQuery("path-info-db")
