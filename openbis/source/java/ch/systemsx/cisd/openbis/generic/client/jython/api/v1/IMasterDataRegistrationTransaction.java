@@ -50,18 +50,7 @@ public interface IMasterDataRegistrationTransaction
      * @param propertyType The property type to assign to the entity type.
      * @return An object representing the assignment.
      */
-    IPropertyAssignment assignPropertyType(IEntityType entityType, IPropertyTypeImmutable propertyType);
-
-    IPropertyAssignment assignToExperimentType(IExperimentTypeImmutable experimentType,
-            IPropertyTypeImmutable propertyType);
-
-    IPropertyAssignment assignToSampleType(ISampleTypeImmutable sampleType,
-            IPropertyTypeImmutable propertyType);
-
-    IPropertyAssignment assignToDataSetType(IDataSetTypeImmutable dataSetType,
-            IPropertyTypeImmutable propertyType);
-
-    IPropertyAssignment assignToMaterialType(IMaterialTypeImmutable materialType,
+    IPropertyAssignment assignPropertyType(IEntityType entityType,
             IPropertyTypeImmutable propertyType);
 
     // controlled vocabularies not yet implemented

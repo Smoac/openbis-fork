@@ -26,9 +26,11 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl.MasterDataTransactionErrors.TransactionError;
 
 /**
+ * A class for running python scripts that register master data.
+ * 
  * @author Kaloyan Enimanev
  */
-public class JythonPluginScriptRunner
+public class MasterDataRegistrationScriptRunner
 {
     private final static String SERVICE_VARIABLE_NAME = "service";
 
@@ -36,7 +38,8 @@ public class JythonPluginScriptRunner
 
     private final ISimpleLogger errorLogger;
 
-    JythonPluginScriptRunner(EncapsulatedCommonServer commonServer, ISimpleLogger errorLogger)
+    MasterDataRegistrationScriptRunner(EncapsulatedCommonServer commonServer,
+            ISimpleLogger errorLogger)
     {
         this.commonServer = commonServer;
         this.errorLogger = errorLogger;
@@ -44,7 +47,7 @@ public class JythonPluginScriptRunner
 
     public void executeScript(File jythonScript)
     {
-        JythonPluginService service = new JythonPluginService(commonServer);
+        MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
         runScript(service, jythonScript);
 
         try
@@ -56,7 +59,7 @@ public class JythonPluginScriptRunner
         }
     }
 
-    private void runScript(JythonPluginService service, File jythonScript)
+    private void runScript(MasterDataRegistrationService service, File jythonScript)
     {
         checkValidJythonScript(jythonScript);
 

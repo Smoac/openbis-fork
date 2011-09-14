@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.ConsoleLogger;
  * 
  * @author Kaloyan Enimanev
  */
-public class JythonPluginScriptStandalone
+public class MasterDataRegistrationScriptRunnerStandalone
 {
 
     public static class Arguments extends ConsoleClientArguments
@@ -81,14 +81,14 @@ public class JythonPluginScriptStandalone
                 EncapsulatedCommonServer.create(arguments.getServerBaseUrl(),
                         arguments.getUsername(), arguments.getPassword());
 
-        JythonPluginScriptRunner scriptRunner =
-                new JythonPluginScriptRunner(commonServer, new ConsoleLogger());
+        MasterDataRegistrationScriptRunner scriptRunner =
+                new MasterDataRegistrationScriptRunner(commonServer, new ConsoleLogger());
         scriptRunner.executeScript(new File(arguments.scriptFileName));
     }
 
     public static void main(String[] args)
     {
-        JythonPluginScriptStandalone cliApplication = new JythonPluginScriptStandalone();
+        MasterDataRegistrationScriptRunnerStandalone cliApplication = new MasterDataRegistrationScriptRunnerStandalone();
         cliApplication.runMe(args);
     }
 

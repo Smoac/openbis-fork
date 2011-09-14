@@ -137,47 +137,27 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     {
         if (entityType instanceof IExperimentTypeImmutable)
         {
-            return assignToExperimentType((IExperimentTypeImmutable) entityType, propertyType);
+            return createAssignment(EntityKind.EXPERIMENT, (IExperimentTypeImmutable) entityType,
+                    propertyType);
         } else if (entityType instanceof ISampleTypeImmutable)
         {
-            return assignToSampleType((ISampleTypeImmutable) entityType, propertyType);
+            return createAssignment(EntityKind.SAMPLE, (ISampleTypeImmutable) entityType,
+                    propertyType);
         } else
 
         if (entityType instanceof IDataSetTypeImmutable)
         {
-            return assignToDataSetType((IDataSetTypeImmutable) entityType, propertyType);
+            return createAssignment(EntityKind.DATA_SET, (IDataSetTypeImmutable) entityType,
+                    propertyType);
         } else if (entityType instanceof IMaterialTypeImmutable)
         {
-            return assignToMaterialType((IMaterialTypeImmutable) entityType, propertyType);
+            return createAssignment(EntityKind.MATERIAL, (IMaterialTypeImmutable) entityType,
+                    propertyType);
         }
 
         throw new IllegalArgumentException(
                 "The argument entityType must be one of IExperimentTypeImmutable, ISampleTypeImmutable, IDataSetTypeImmutable, or IMaterialTypeImmutable. "
                         + entityType + " is not valid.");
-    }
-
-    public IPropertyAssignment assignToExperimentType(IExperimentTypeImmutable experimentType,
-            IPropertyTypeImmutable propertyType)
-    {
-        return createAssignment(EntityKind.EXPERIMENT, experimentType, propertyType);
-    }
-
-    public IPropertyAssignment assignToSampleType(ISampleTypeImmutable sampleType,
-            IPropertyTypeImmutable propertyType)
-    {
-        return createAssignment(EntityKind.SAMPLE, sampleType, propertyType);
-    }
-
-    public IPropertyAssignment assignToDataSetType(IDataSetTypeImmutable dataSetType,
-            IPropertyTypeImmutable propertyType)
-    {
-        return createAssignment(EntityKind.DATA_SET, dataSetType, propertyType);
-    }
-
-    public IPropertyAssignment assignToMaterialType(IMaterialTypeImmutable materialType,
-            IPropertyTypeImmutable propertyType)
-    {
-        return createAssignment(EntityKind.MATERIAL, materialType, propertyType);
     }
 
     private <T extends IAbstractType> T findTypeForCode(List<T> types, String code)

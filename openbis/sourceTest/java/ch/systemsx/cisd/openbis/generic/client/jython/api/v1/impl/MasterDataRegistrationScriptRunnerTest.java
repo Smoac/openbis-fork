@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * @author Kaloyan Enimanev
  */
-public class JythonPluginScriptRunnerTest extends AssertJUnit
+public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
 {
 
     private static final String SESSION_TOKEN = "SESSION_TOKEN";
@@ -51,7 +51,7 @@ public class JythonPluginScriptRunnerTest extends AssertJUnit
 
     private ICommonServer commonServer;
 
-    private JythonPluginScriptRunner pluginScriptRunner;
+    private MasterDataRegistrationScriptRunner pluginScriptRunner;
 
     private AssertingLogger errorLogger;
 
@@ -63,7 +63,7 @@ public class JythonPluginScriptRunnerTest extends AssertJUnit
         EncapsulatedCommonServer encapsulatedServer =
                 new EncapsulatedCommonServer(commonServer, SESSION_TOKEN);
         errorLogger = new AssertingLogger();
-        pluginScriptRunner = new JythonPluginScriptRunner(encapsulatedServer, errorLogger);
+        pluginScriptRunner = new MasterDataRegistrationScriptRunner(encapsulatedServer, errorLogger);
 
     }
 

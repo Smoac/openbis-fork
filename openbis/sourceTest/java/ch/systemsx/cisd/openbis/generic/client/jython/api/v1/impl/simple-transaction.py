@@ -34,9 +34,9 @@ materialPropertyType.setManagedInternally(False)
 #xmlPropertyType.setXmlSchema('')
 #xmlPropertyType.setTransformation('')
 
-assigment1 = tr.assignToSampleType(sampleType, materialPropertyType)
+assigment1 = tr.assignPropertyType(sampleType, materialPropertyType)
 assigment1.setMandatory(True)
 
-assigment2 = tr.assignToExperimentType(expType, stringPropertyType)
+assigment2 = tr.assignPropertyType(expType, stringPropertyType)
 assigment2.setMandatory(False)
 assigment2.setDefaultValue("Default STRING Value")

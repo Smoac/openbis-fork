@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IJythonPluginService;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMasterDataRegistrationService;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMasterDataRegistrationTransaction;
 
 /**
  * @author Kaloyan Enimanev
  */
-public class JythonPluginService implements IJythonPluginService
+public class MasterDataRegistrationService implements IMasterDataRegistrationService
 {
 
     private final EncapsulatedCommonServer commonServer;
@@ -33,7 +33,7 @@ public class JythonPluginService implements IJythonPluginService
     private final List<MasterDataRegistrationTransaction> createdTransactions =
             new ArrayList<MasterDataRegistrationTransaction>();
 
-    public JythonPluginService(EncapsulatedCommonServer commonServer)
+    public MasterDataRegistrationService(EncapsulatedCommonServer commonServer)
     {
         this.commonServer = commonServer;
     }

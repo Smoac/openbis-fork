@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
 /**
+ * A service that provides methods for registering master data.
+ * 
  * @author Kaloyan Enimanev
  */
-public interface IJythonPluginService
+public interface IMasterDataRegistrationService
 {
 
+    /**
+     * Create a transaction for registering master data.
+     */
     IMasterDataRegistrationTransaction transaction();
 
 }
