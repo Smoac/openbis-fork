@@ -2,7 +2,7 @@ import sys
 
 def did_encounter_secondary_transaction_errors(service, transaction, errors):
     global didSecondaryTransactionErrorNotificationHappen
-    didSecondaryTransactionErrorNotificationHappen = True
+    didSecondaryTransactionErrorNotificationHappen = errors.size() > 0
 
 # Execute a query
 tr = service.transaction()

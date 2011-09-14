@@ -27,7 +27,6 @@ import java.util.Properties;
 
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -92,12 +91,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         didDataSetRollbackHappen = false;
         didServiceRollbackHappen = false;
-    }
-
-    @AfterMethod
-    public void tearDown() throws IOException
-    {
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -813,6 +806,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return threadProperties;
     }
 
+    @Override
     protected String getRegistrationScriptsFolderPath()
     {
         return SCRIPTS_FOLDER;
