@@ -98,7 +98,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
     private CheckBox createCheckBox()
     {
         final CheckBox checkBox = new CheckBox();
-        checkBox.setFieldLabel("Asynchronous?");
+        checkBox.setFieldLabel("Send confirmation?");
         checkBox.setBoxLabel("");
         checkBox.setValue(true);
         checkBox.addListener(Events.Change, new Listener<BaseEvent>()
