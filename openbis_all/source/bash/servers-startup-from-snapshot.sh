@@ -98,6 +98,7 @@ for db in $DATABASES; do
     echo "Database '$db' has been successfully restored."
 done
 ############## restore store ##############
+rm -rf "$INDEX"
 mkdir -p "$INDEX"
 if ! tar -xf $SNAPSHOT_FILES/index.tar -C "$INDEX"; then
     echo "Error: Couldn't restore index."
