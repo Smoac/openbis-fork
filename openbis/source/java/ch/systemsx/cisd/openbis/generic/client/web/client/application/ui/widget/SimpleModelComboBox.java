@@ -37,7 +37,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
      * corresponding label.
      */
     public SimpleModelComboBox(IMessageProvider messageProvider, List<T> items,
-            List<String> labels, List<String> tooltips, int widthPx)
+            List<String> labels, List<String> tooltips, Integer widthPx)
     {
         this(messageProvider, createModelItems(items, labels, tooltips), widthPx);
     }
@@ -46,20 +46,23 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
      * Creates a combobox with a specified model.
      */
     public SimpleModelComboBox(IMessageProvider messageProvider, List<LabeledItem<T>> model,
-            int widthPx)
+            Integer widthPx)
     {
         configure(messageProvider, widthPx);
         setModel(model);
         GWTUtils.autoselect(this);
     }
 
-    private void configure(IMessageProvider messageProvider, int widthPx)
+    private void configure(IMessageProvider messageProvider, Integer widthPx)
     {
         setTriggerAction(TriggerAction.ALL);
         setAllowBlank(false);
         setEditable(false);
         setEmptyText(messageProvider.getMessage(Dict.COMBO_BOX_CHOOSE));
-        setWidth("" + widthPx);
+        if (widthPx != null)
+        {
+            setWidth("" + widthPx);
+        }
         setTemplate(GWTUtils.getTooltipTemplate(LabeledItem.LABEL_FIELD, LabeledItem.TOOLTIP_FIELD));
     }
 
