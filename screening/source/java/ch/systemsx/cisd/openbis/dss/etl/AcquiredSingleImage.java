@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 
 /**
  * Describes properties extracted for one logical screening image (note that one file can contain
@@ -54,7 +55,7 @@ public class AcquiredSingleImage extends AbstractHashable
     {
         this.wellLocationOrNull = wellLocationOrNull;
         this.tileLocation = tileLocation;
-        this.channelCode = channelCode.toUpperCase();
+        this.channelCode = CodeNormalizer.normalize(channelCode);
         this.timePointOrNull = timePointOrNull;
         this.depthOrNull = depthOrNull;
         this.seriesNumberOrNull = seriesNumberOrNull;
