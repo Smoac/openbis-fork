@@ -346,10 +346,9 @@ public class SimpleImageDataSetRegistrator
         {
             String channelCode = channel.getCode();
             List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
-            operationLog
-                    .info(String
-                            .format("Computing intensity range for channel '%s'. Found %d images in incoming directory '%s'.",
-                                    channelCode, imagePaths.size(), incomingDir.getName()));
+            operationLog.info(String.format("Computing intensity range for channel '%s'. "
+                    + "Found %d images for the channel in incoming directory '%s'.", channelCode,
+                    imagePaths.size(), incomingDir.getName()));
             Levels intensityRange =
                     tryComputeCommonIntensityRange(readerOrNull, imagePaths,
                             simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
