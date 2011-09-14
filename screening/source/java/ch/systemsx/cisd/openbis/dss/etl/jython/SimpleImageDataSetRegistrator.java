@@ -346,14 +346,26 @@ public class SimpleImageDataSetRegistrator
         {
             String channelCode = channel.getCode();
             List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
-            operationLog.info("Computing intensity range for channel " + channelCode + ". Found "
-                    + imagePaths.size() + " images");
+            operationLog
+                    .info(String
+                            .format("Computing intensity range for channel '%s'. Found %d images in incoming directory '%s'.",
+                                    channelCode, imagePaths.size(), incomingDir.getName()));
             Levels intensityRange =
-                    computeCommonIntensityRange(readerOrNull, imagePaths,
+                    tryComputeCommonIntensityRange(readerOrNull, imagePaths,
                             simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
-            operationLog.info("Computed intensity range for channel " + channelCode + ": "
-                    + intensityRange);
-            appendCommonIntensityRangeTransformation(channel, intensityRange);
+            if (intensityRange != null)
+            {
+                operationLog.info(String.format(
+                        "Computed intensity range for channel '%s': %s (incoming directory '%s').",
+                        channelCode, intensityRange.toString(), incomingDir.getName()));
+                appendCommonIntensityRangeTransformation(channel, intensityRange);
+            } else
+            {
+                operationLog
+                        .warn(String
+                                .format("Transformation cannot be generated for channel '%s' (incoming directory '%s').",
+                                        channelCode, incomingDir.getName()));
+            }
         }
     }
 
@@ -417,7 +429,7 @@ public class SimpleImageDataSetRegistrator
         return normalizedCodes;
     }
 
-    private static Levels computeCommonIntensityRange(IImageReader readerOrNull,
+    private static Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
             List<File> imageFiles, float threshold)
     {
         String libraryName = (readerOrNull == null) ? null : readerOrNull.getLibraryName();
@@ -431,6 +443,14 @@ public class SimpleImageDataSetRegistrator
             {
                 BufferedImage image =
                         loadUnchangedImage(imageFile, imageIdentifier, libraryName, readerName);
+                if (IntensityRescaling.isNotGrayscale(image))
+                {
+                    operationLog
+                            .warn(String
+                                    .format("Intensity range cannot be computed because image '%s' is not in grayscale.",
+                                            imageFile.getPath()));
+                    return null;
+                }
                 IntensityRescaling.addToLevelStats(histogram, image);
             }
         }
