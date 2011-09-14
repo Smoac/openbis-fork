@@ -135,4 +135,9 @@ public class LogicalImageReference
     {
         return overlayDatasets;
     }
+
+    public ImageDatasetParameters getImagetParameters()
+    {
+        return this.imageParameters;
+    }
 }

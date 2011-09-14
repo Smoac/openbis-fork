@@ -232,8 +232,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         WellSearchGrid reviewer =
                 new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria,
-                        analysisProcedureCriteria,
-                        restrictGlobalScopeLinkToProject);
+                        analysisProcedureCriteria, restrictGlobalScopeLinkToProject);
         final ToolBar toolbar = reviewer.createToolbar();
         return reviewer.asDisposableWithToolbar(new IDisposableComponent()
             {
@@ -288,7 +287,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
 
         final IDefaultChannelState defaultChannelState =
                 createDefaultChannelState(viewContext, experimentCriteriaOrNull);
-        channelChooser = new ChannelChooserPanel(defaultChannelState);
+        channelChooser = new ChannelChooserPanel(screeningViewContext, defaultChannelState);
         linkExperiment();
         linkPlate();
         linkWell();
@@ -533,7 +532,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     {
         if (entityOrNull != null)
         {
-            new OpenEntityDetailsTabAction(entityOrNull, getViewContext(), specialKeyPressed).execute();
+            new OpenEntityDetailsTabAction(entityOrNull, getViewContext(), specialKeyPressed)
+                    .execute();
         }
     }
 
@@ -567,7 +567,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                 }
             };
     }
-
 
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
@@ -614,19 +613,22 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                     final ISimpleChanneledViewerFactory viewerFactory =
                             new ISimpleChanneledViewerFactory()
                                 {
-                                    public Widget create(List<String> channels)
+                                    public Widget create(List<String> channels,
+                                            String imageTransformationCodeOrNull)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
-                                                getViewContext(), entity, IMAGE_SIZE_PX, channels);
+                                                getViewContext(), entity, IMAGE_SIZE_PX, channels,
+                                                imageTransformationCodeOrNull);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
-                    widgetWithListener.selectionChanged(channelChooser.getSelectedValues());
+                    widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
+                            channelChooser.tryGetSelectedTransformationCode());
 
                     ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.addSelectionChangedListener(widgetWithListener);
-                    channelChooser.addCodes(imageParameters.getChannelsCodes());
+                    channelChooser.addCodes(imageParameters);
 
                     return widgetWithListener.asWidget();
                 }

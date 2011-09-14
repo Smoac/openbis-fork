@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
@@ -50,6 +51,21 @@ public class DefaultChannelState implements IDefaultChannelState
     private ScreeningDisplaySettingsManager getDisplaySettingManager()
     {
         return ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
+    }
+
+    public void setDefaultTransformation(String channel, String codes)
+    {
+        getTransformations().put(channel, codes);
+    }
+
+    public String tryGetDefaultTransformation(String channel)
+    {
+        return getTransformations().get(channel);
+    }
+
+    private Map<String, String> getTransformations()
+    {
+        return getDisplaySettingManager().getDefaultTransformationsForChannels(displayTypeId);
     }
 
 }

@@ -88,7 +88,7 @@ public class MaterialReplicaSummaryComponent
             AnalysisProcedureListenerHolder analysisProcedureListenerHolder)
     {
         return new MaterialReplicaSummaryComponent(screeningViewContext,
-                restrictGlobalScopeLinkToProject, experiment, null).createViewer(material, 
+                restrictGlobalScopeLinkToProject, experiment, null).createViewer(material,
                 analysisProcedureListenerHolder);
     }
 
@@ -154,7 +154,8 @@ public class MaterialReplicaSummaryComponent
         String displayTypeId = ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL.createID(null);
         final IDefaultChannelState defaultChannelState =
                 new DefaultChannelState(screeningViewContext, displayTypeId);
-        ChannelChooserPanel channelChooser = new ChannelChooserPanel(defaultChannelState);
+        ChannelChooserPanel channelChooser =
+                new ChannelChooserPanel(screeningViewContext, defaultChannelState);
         LayoutContainer panel = new NotScrollableContainer();
         panel.setLayout(new RowLayout());
         panel.add(channelChooser);
@@ -342,18 +343,19 @@ public class MaterialReplicaSummaryComponent
         assert image.tryGetImageDataset() != null;
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
             {
-                public Widget create(List<String> channels)
+                public Widget create(List<String> channels, String imageTransformationCodeOrNull)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, oneImageSizeFactorPx, channels);
+                            image, oneImageSizeFactorPx, channels, imageTransformationCodeOrNull);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
-        widgetWithListener.selectionChanged(channelChooser.getSelectedValues());
+        widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
+                channelChooser.tryGetSelectedTransformationCode());
 
         ImageDatasetParameters imageParameters = image.tryGetImageDataset().getImageParameters();
         channelChooser.addSelectionChangedListener(widgetWithListener);
-        channelChooser.addCodes(imageParameters.getChannelsCodes());
+        channelChooser.addCodes(imageParameters);
 
         return widgetWithListener.asWidget();
     }

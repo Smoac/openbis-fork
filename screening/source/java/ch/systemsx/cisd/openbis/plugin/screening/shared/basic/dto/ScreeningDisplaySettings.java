@@ -31,7 +31,10 @@ public class ScreeningDisplaySettings implements ISerializable
     private static final long serialVersionUID = 1L;
 
     private Map<String/* displayTypeID */, String/* channel name */> defaultChannels =
-            new HashMap<String, String>(); 
+            new HashMap<String, String>();
+
+    private Map<String, Map<String, String>> defaultTransformations =
+            new HashMap<String, Map<String, String>>();
 
     private String defaultAnalysisProcedure;
 
@@ -66,5 +69,25 @@ public class ScreeningDisplaySettings implements ISerializable
     public String getDefaultAnalysisProcedure()
     {
         return this.defaultAnalysisProcedure;
+    }
+
+    /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
+    @Deprecated
+    public Map<String, Map<String, String>> getDefaultTransformations()
+    {
+        if (defaultTransformations == null)
+        {
+            this.defaultTransformations = new HashMap<String, Map<String, String>>();
+        }
+
+        return defaultTransformations;
+    }
+
+    // for serialization
+
+    @SuppressWarnings("unused")
+    private void setDefaultTransformations(Map<String, Map<String, String>> defaultTransformations)
+    {
+        this.defaultTransformations = defaultTransformations;
     }
 }

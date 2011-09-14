@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -81,4 +83,20 @@ public class ScreeningDisplaySettingsManager
     {
         return screeningSettings.getDefaultAnalysisProcedure();
     }
+
+    @SuppressWarnings("deprecation")
+    public Map<String, String> getDefaultTransformationsForChannels(String displayTypeId)
+    {
+        Map<String, String> transformations =
+                screeningSettings.getDefaultTransformations().get(displayTypeId);
+
+        if (transformations == null)
+        {
+            transformations = new HashMap<String, String>();
+            screeningSettings.getDefaultTransformations().put(displayTypeId, transformations);
+        }
+
+        return transformations;
+    }
+
 }

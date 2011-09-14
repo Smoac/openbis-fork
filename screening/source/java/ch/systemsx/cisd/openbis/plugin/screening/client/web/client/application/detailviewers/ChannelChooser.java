@@ -79,6 +79,8 @@ class ChannelChooser
 
     private List<String> basicChannelCodes;
 
+    private String imageTransformationCodeOrNull;
+
     public ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
             IDefaultChannelState defaultChannelState)
     {
@@ -102,11 +104,9 @@ class ChannelChooser
     /** Refreshes the displayed images, but not the rest of the GUI */
     public void refresh()
     {
-        // TODO 2011-09-13, Tomasz Pylak: add transformation code for single channel if chosen
-        String imageTransformationCode = null;
         LogicalImageChannelsReference state =
                 new LogicalImageChannelsReference(basicImage, basicChannelCodes,
-                        imageTransformationCode, selectedOverlayChannels);
+                        imageTransformationCodeOrNull, selectedOverlayChannels);
         Widget view = viewerFactory.create(state);
         imageContainer.removeAll();
         imageContainer.add(view);
@@ -124,9 +124,10 @@ class ChannelChooser
         }
         // basic channels
         List<String> channels = basicImage.getChannelsCodes();
+
         if (channels.size() > 1)
         {
-            Widget channelChooserWithLabel = createBasicChannelChooser(channels);
+            Widget channelChooserWithLabel = createBasicChannelChooser(channels, viewContext);
             container.add(channelChooserWithLabel);
         }
         // images
@@ -271,17 +272,21 @@ class ChannelChooser
                 channelCode);
     }
 
-    private Widget createBasicChannelChooser(List<String> channels)
+    private Widget createBasicChannelChooser(List<String> channels, IViewContext<?> viewContext)
     {
         final ChannelChooserPanel channelChooser =
-                new ChannelChooserPanel(defaultChannelState, channels, basicChannelCodes);
+                new ChannelChooserPanel(viewContext, defaultChannelState, channels,
+                        basicChannelCodes, basicImage.getImagetParameters());
 
         channelChooser
                 .addSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
                     {
-                        public void selectionChanged(List<String> newlySelectedChannels)
+                        public void selectionChanged(List<String> newlySelectedChannels,
+                                @SuppressWarnings("hiding") String imageTransformationCodeOrNull)
                         {
                             basicChannelCodes = newlySelectedChannels;
+                            ChannelChooser.this.imageTransformationCodeOrNull =
+                                    imageTransformationCodeOrNull;
                             refresh();
                         }
                     });

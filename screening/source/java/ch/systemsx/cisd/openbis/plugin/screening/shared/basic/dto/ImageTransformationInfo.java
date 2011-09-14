@@ -87,4 +87,22 @@ public class ImageTransformationInfo implements ISerializable
     {
         this.isDefault = isDefault;
     }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof ImageTransformationInfo)
+        {
+            ImageTransformationInfo other = (ImageTransformationInfo) o;
+            return other.code.equals(other.code);
+        }
+
+        return false;
+    }
 }

@@ -137,7 +137,8 @@ public class WellContentDialog extends Dialog
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellImage wellImage, int imageSizePx, List<String> channels)
+            final WellImage wellImage, int imageSizePx, List<String> channels,
+            String imageTransformationCodeOrNull)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
         if (imageDataset == null)
@@ -160,11 +161,9 @@ public class WellContentDialog extends Dialog
         String sessionId = getSessionId(viewContext);
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
-        // TODO 2011-09-13, Tomasz Pylak: add transformation code for single channel if chosen
-        String imageTransformationCode = null;
         LogicalImageChannelsReference channelReferences =
                 LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels,
-                        imageTransformationCode);
+                        imageTransformationCodeOrNull);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
                         createImageLinks);

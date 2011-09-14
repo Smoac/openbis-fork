@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -28,8 +32,17 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -39,14 +52,31 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class ChannelChooserPanel extends LayoutContainer
 {
+    private static class ComboBoxGroup extends MultiField<Widget>
+    {
+        private ComboBoxGroup()
+        {
+            super();
+
+            this.setSpacing(5);
+        }
+    }
 
     /**
      * Can be used from external classes wishing to be notified when the channel selection changes.
      */
     public static interface ChannelSelectionListener
     {
-        void selectionChanged(List<String> channels);
+        void selectionChanged(List<String> channels, String imageTransformationCodeOrNull);
     }
+
+    private static final String DEFAULT_CODE = "$DEFAULT$";
+
+    private static final LabeledItem<ImageTransformationInfo> DEFAULT_TRANSFORMATION =
+            convertToLabeledItem(new ImageTransformationInfo(DEFAULT_CODE, "Default",
+                    "Default transformation or original picture if not tranformed.", "", false));
+
+    private final IMessageProvider messageProvider;
 
     private IDefaultChannelState defaultChannelState;
 
@@ -54,12 +84,18 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private SimpleComboBox<String> channelsComboBox;
 
+    private SimpleModelComboBox<ImageTransformationInfo> transformationsComboBox;
+
+    private LabelField adjustLabel = new LabelField("Adjust:");
+
+    private Map<String, Set<ImageTransformationInfo>> transformationsForChannels =
+            new HashMap<String, Set<ImageTransformationInfo>>();
+
     private List<ChannelSelectionListener> channelSelectionListeners =
             new ArrayList<ChannelSelectionListener>();
 
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
-
             public void handleEvent(BaseEvent be)
             {
                 selectionChanged();
@@ -67,26 +103,55 @@ public class ChannelChooserPanel extends LayoutContainer
 
         };
 
-    public ChannelChooserPanel(IDefaultChannelState defChannelState)
+    private final Listener<BaseEvent> transformationSelection = new Listener<BaseEvent>()
+        {
+            public void handleEvent(BaseEvent be)
+            {
+                defaultChannelState.setDefaultTransformation(getSelectedValues().get(0),
+                        transformationsComboBox.getSimpleValue().getItem().getCode());
+                notifySelectionListeners(getSelectedValues(), tryGetSelectedTransformationCode());
+            }
+
+        };
+
+    public ChannelChooserPanel(IMessageProvider messageProvider,
+            IDefaultChannelState defChannelState)
     {
-        this(defChannelState, Collections.<String> emptyList(), Collections.<String> emptyList());
+        this(messageProvider, defChannelState, Collections.<String> emptyList(), Collections
+                .<String> emptyList(), null);
     }
 
-    public ChannelChooserPanel(IDefaultChannelState defChannelState, List<String> names,
-            List<String> selectedChannelsOrNull)
+    public ChannelChooserPanel(IMessageProvider messageProvider,
+            IDefaultChannelState defChannelState, List<String> names,
+            List<String> selectedChannelsOrNull, ImageDatasetParameters imageDatasetParameters)
     {
+        this.messageProvider = messageProvider;
         this.defaultChannelState = defChannelState;
 
         setAutoHeight(true);
         setAutoWidth(true);
 
         channelsComboBox = createChannelsComboBox();
-        add(channelsComboBox);
+
+        transformationsComboBox =
+                new SimpleModelComboBox<ImageTransformationInfo>(this.messageProvider,
+                        new ArrayList<LabeledItem<ImageTransformationInfo>>(), null);
+        transformationsComboBox.setTriggerAction(TriggerAction.ALL);
+        transformationsComboBox.setAllowBlank(false);
+        transformationsComboBox.setEditable(false);
+        transformationsComboBox.addListener(Events.SelectionChange, transformationSelection);
+
+        ComboBoxGroup group = new ComboBoxGroup();
+        group.add(channelsComboBox);
+        group.add(adjustLabel);
+        group.add(transformationsComboBox);
+
+        add(group);
 
         channelsCheckBoxGroup = createCheckBoxGroup();
         add(channelsCheckBoxGroup);
 
-        addChannels(names);
+        addChannels(names, imageDatasetParameters);
         updateChannelSelection(selectedChannelsOrNull);
     }
 
@@ -102,13 +167,12 @@ public class ChannelChooserPanel extends LayoutContainer
 
         return comboBox;
     }
-    
 
     private CheckBoxGroup createCheckBoxGroup()
     {
         CheckBoxGroup group = new CheckBoxGroup();
         return group;
-    }    
+    }
 
     /**
      * adds a {@link ChannelSelectionListener} that will be receiving notifications when the
@@ -122,9 +186,9 @@ public class ChannelChooserPanel extends LayoutContainer
     /**
      * a quite specific method, currently only needed by the well-search grid.
      */
-    public void addCodes(List<String> codes)
+    public void addCodes(ImageDatasetParameters imageParameters)
     {
-        addChannels(codes);
+        addChannels(imageParameters.getChannelsCodes(), imageParameters);
         updateChannelSelection(null);
     }
 
@@ -174,7 +238,7 @@ public class ChannelChooserPanel extends LayoutContainer
         return channels;
     }
 
-    private void addChannels(List<String> codes)
+    private void addChannels(List<String> codes, ImageDatasetParameters imageParameters)
     {
         addCodeToComboBox(ScreeningConstants.MERGED_CHANNELS);
         if (codes == null || codes.isEmpty())
@@ -186,6 +250,20 @@ public class ChannelChooserPanel extends LayoutContainer
         for (String code : codes)
         {
             boolean codeAdded = addCodeToComboBox(code);
+
+            if (imageParameters != null)
+            {
+                Set<ImageTransformationInfo> transformationsForChannel =
+                        transformationsForChannels.get(code);
+                if (transformationsForChannel == null)
+                {
+                    transformationsForChannel = new LinkedHashSet<ImageTransformationInfo>();
+                    transformationsForChannels.put(code, transformationsForChannel);
+                }
+                transformationsForChannel.addAll(imageParameters
+                        .getAvailableImageTransformationsFor(code));
+            }
+
             if (codeAdded)
             {
                 // also add a checkBockbox for the channel
@@ -227,8 +305,8 @@ public class ChannelChooserPanel extends LayoutContainer
         }
 
         channelsComboBox.setSimpleValue(comboBoxValue);
-
         initializeCheckBoxValues(channels);
+        updateTransformationComboBox();
     }
 
     private void initializeCheckBoxValues(List<String> selectedChannels)
@@ -254,14 +332,36 @@ public class ChannelChooserPanel extends LayoutContainer
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 
         ensureAtLeastOneCheckboxChecked();
-        notifySelectionListeners(selection);
+        updateTransformationComboBox();
+
+        notifySelectionListeners(selection, tryGetSelectedTransformationCode());
     }
 
-    private void notifySelectionListeners(List<String> selection)
+    public String tryGetSelectedTransformationCode()
+    {
+        if (transformationsComboBox.isVisible())
+        {
+            String code =
+                    transformationsComboBox.getSelection().get(0).getValue().getItem().getCode();
+
+            if (DEFAULT_CODE.equals(code))
+            {
+                return null;
+            } else
+            {
+                return code;
+            }
+        }
+
+        return null;
+    }
+
+    private void notifySelectionListeners(List<String> selection,
+            String imageTransformationCodeOrNull)
     {
         for (ChannelSelectionListener listener : channelSelectionListeners)
         {
-            listener.selectionChanged(selection);
+            listener.selectionChanged(selection, imageTransformationCodeOrNull);
         }
     }
 
@@ -339,5 +439,93 @@ public class ChannelChooserPanel extends LayoutContainer
             }
         }
         return result;
+    }
+
+    private void updateTransformationComboBox()
+    {
+        List<String> selectedValues = getSelectedValues();
+
+        transformationsComboBox.removeAll();
+        transformationsComboBox.clearState();
+
+        List<LabeledItem<ImageTransformationInfo>> model =
+                new ArrayList<LabeledItem<ImageTransformationInfo>>();
+        Set<ImageTransformationInfo> infos = null;
+        if (selectedValues.size() == 1
+                && (infos = transformationsForChannels.get(selectedValues.get(0))) != null
+                && infos.size() > 0)
+        {
+            model.add(DEFAULT_TRANSFORMATION);
+            for (ImageTransformationInfo imageTransformationInfo : infos)
+            {
+                model.add(convertToLabeledItem(imageTransformationInfo));
+            }
+            if (model.size() <= 1)
+            {
+                transformationsComboBox.setVisible(false);
+                adjustLabel.setVisible(false);
+                return;
+            }
+            transformationsComboBox.add(model);
+            setTransformationsVisible(true);
+
+            selectTransformation(selectedValues.get(0));
+        } else
+        {
+            setTransformationsVisible(false);
+        }
+    }
+
+    private void setTransformationsVisible(boolean visible)
+    {
+        transformationsComboBox.setVisible(visible);
+        adjustLabel.setVisible(visible);
+    }
+
+    private void selectTransformation(String channelCode)
+    {
+        boolean selected = false;
+        String code = defaultChannelState.tryGetDefaultTransformation(channelCode);
+        if (code != null)
+        {
+            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : transformationsComboBox
+                    .getStore().getModels())
+            {
+                if (info.getValue().getItem().getCode().equals(code))
+                {
+                    selected = true;
+                    // transformationsComboBox.select(info);
+                    transformationsComboBox.setSelection(Collections.singletonList(info));
+                    break;
+                }
+            }
+        }
+        if (false == selected)
+        {
+            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : transformationsComboBox
+                    .getStore().getModels())
+            {
+                if (info.getValue().getItem().isDefault())
+                {
+                    // transformationsComboBox.select(info);
+                    transformationsComboBox.setSelection(Collections.singletonList(info));
+                    selected = true;
+                    break;
+                }
+            }
+        }
+
+        if (false == selected)
+        {
+            transformationsComboBox.setSelection(Collections.singletonList(transformationsComboBox
+                    .getStore().getModels().get(0)));
+        }
+    }
+
+    private static LabeledItem<ImageTransformationInfo> convertToLabeledItem(
+            ImageTransformationInfo imageTransformationInfo)
+    {
+        return new LabeledItem<ImageTransformationInfo>(imageTransformationInfo,
+                imageTransformationInfo.getLabel(), imageTransformationInfo.getDescription());
     }
 }

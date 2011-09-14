@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 
 /**
  * Allows to create a {@link Widget} ({@link #asWidget()}) containing channel view and allows to
- * manually update visible channel via the ({@link #selectionChanged(List)}) method.
+ * manually update visible channel via the ({@link #selectionChanged(List, String)}) method.
  * 
  * @author Izabela Adamczyk
  */
@@ -37,7 +37,7 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
 
     interface ISimpleChanneledViewerFactory
     {
-        Widget create(List<String> channelCodes);
+        Widget create(List<String> channelCodes, String imageTransformationCodeOrNull);
     }
 
     public ChannelWidgetWithListener(final ISimpleChanneledViewerFactory viewerFactory)
@@ -51,11 +51,12 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
         return container;
     }
 
-    public void selectionChanged(List<String> channelNames)
+    public void selectionChanged(List<String> channelNames, String imageTransformationCodeOrNull)
     {
         if (channelNames != null)
         {
-            GuiUtils.replaceLastItem(container, viewerFactory.create(channelNames));
+            GuiUtils.replaceLastItem(container,
+                    viewerFactory.create(channelNames, imageTransformationCodeOrNull));
         }
     }
 }

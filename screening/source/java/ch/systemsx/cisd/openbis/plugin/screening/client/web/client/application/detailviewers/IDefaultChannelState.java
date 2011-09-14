@@ -12,4 +12,8 @@ public interface IDefaultChannelState
     public List<String> tryGetDefaultChannels();
 
     public void setDefaultChannels(List<String> channels);
+
+    public void setDefaultTransformation(String channel, String code);
+
+    public String tryGetDefaultTransformation(String channel);
 }
