@@ -205,7 +205,8 @@ public class GenericClientService extends AbstractClientService implements IGene
 
                 List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
                 results.add(new BatchRegistrationResult(uploadedFiles.iterable().iterator().next()
-                        .getOriginalFilename(), "File will be processed asynchronously."));
+                        .getOriginalFilename(),
+                        "When the import is complete the confirmation or failure report will be sent by email."));
 
                 return results;
             } else
