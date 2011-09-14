@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
@@ -90,6 +91,9 @@ class ChannelChooser
 
         this.basicChannelCodes =
                 getInitialChannelCodes(defaultChannelState, basicImage.getChannelsCodes());
+        this.imageTransformationCodeOrNull =
+                tryGetInitialImageTransformationCode(defaultChannelState, basicChannelCodes,
+                        basicImage.getImagetParameters());
         this.defaultChannelState = defaultChannelState;
         this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
     }
@@ -305,4 +309,37 @@ class ChannelChooser
         return defaultChannels;
     }
 
+    private static String tryGetInitialImageTransformationCode(
+            IDefaultChannelState defaultChannelState, List<String> channels,
+            ImageDatasetParameters imageParameters)
+    {
+        if (imageParameters != null && channels.size() == 1)
+        {
+            String channel = channels.get(0);
+            String initialTransformation = defaultChannelState.tryGetDefaultTransformation(channel);
+            if (ChannelChooserPanel.DEFAULT_TRANSFORMATION_CODE.equals(initialTransformation))
+            {
+                return null;
+            }
+
+            String defaultSelection = null;
+            List<ImageTransformationInfo> transformations =
+                    imageParameters.getAvailableImageTransformationsFor(channel);
+            for (ImageTransformationInfo transformation : transformations)
+            {
+                if (transformation.getCode().equals(initialTransformation))
+                {
+                    return initialTransformation;
+                }
+                if (transformation.isDefault() && defaultSelection == null)
+                {
+                    defaultSelection = transformation.getCode();
+                }
+            }
+
+            return defaultSelection;
+        }
+
+        return null;
+    }
 }

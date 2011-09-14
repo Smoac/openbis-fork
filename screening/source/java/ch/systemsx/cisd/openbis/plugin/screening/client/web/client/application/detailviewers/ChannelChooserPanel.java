@@ -70,10 +70,10 @@ public class ChannelChooserPanel extends LayoutContainer
         void selectionChanged(List<String> channels, String imageTransformationCodeOrNull);
     }
 
-    private static final String DEFAULT_CODE = "$DEFAULT$";
+    public static final String DEFAULT_TRANSFORMATION_CODE = "$DEFAULT$";
 
     private static final LabeledItem<ImageTransformationInfo> DEFAULT_TRANSFORMATION =
-            convertToLabeledItem(new ImageTransformationInfo(DEFAULT_CODE, "Default",
+            convertToLabeledItem(new ImageTransformationInfo(DEFAULT_TRANSFORMATION_CODE, "Default",
                     "Default transformation or original picture if not tranformed.", "", false));
 
     private final IMessageProvider messageProvider;
@@ -344,7 +344,7 @@ public class ChannelChooserPanel extends LayoutContainer
             String code =
                     transformationsComboBox.getSelection().get(0).getValue().getItem().getCode();
 
-            if (DEFAULT_CODE.equals(code))
+            if (DEFAULT_TRANSFORMATION_CODE.equals(code))
             {
                 return null;
             } else
