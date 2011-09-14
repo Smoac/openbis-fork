@@ -34,13 +34,17 @@ Manifest
 		* generate-test-plate-overlays.py -- A script that generates overlay-images for a plate
 			* n.b. This script will only run on MacOS 10.5+			
 
-		* generate-test-plate.py -- A script that generates raw-images for a plate.
-			* It can be configured, by modifying the source, to generate time and/or depth points and produce merged (RGB) or split (R, G, B in separate files) files.
-			* running generate-test-plate.py will produce a folder named PLATONIC containing images in the current directory
+		* generate-test-plate.py -- A script that generates raw-images for a plate. This can be
+		  colorful images or black-and-white images for each channel.
 			* n.b. This script will only run on MacOS 10.5+
 
 		* generate-test-series.py -- A script that generates a microscopy image series
-			* n.b. This script will only run on MacOS 10.5+		
+			* n.b. This script will only run on MacOS 10.5+	
+			
+			
+* exp-1-library.xls
+  An Excel file for importing a library (defining materials and plates) to be uploaded by
+  menu item "Administration -> General Import"	
 
 Use
 ===
@@ -66,21 +70,18 @@ Configure openBIS
 * targets/platonic
 * targets/platonic/store
 * targets/platonic/incoming-platonic-plate
+* targets/platonic/incoming-platonic-plate-splitted
+* targets/platonic/incoming-platonic-plate-overlays
+* targets/platonic/incoming-platonic-plate-features
 * targets/platonic/incoming-platonic-microscope
 
-Start openBIS
--------------
+Start openBIS and Create Fake Data
+----------------------------------
 
 1. Start openBIS and DSS and log in as admin/admin.
-2. Create space PLATONIC with a project in it.
-3. Create an experiment in this project.
-4. Create a plate sample called (you can call it PLATONIC if you want) with an 8x12 geometry. 
-   It should be in space PLATONIC and assigned to the experiment just created.
+2. Create space PLATONIC with a project SCREENING-EXAMPLES in it.
+3. Create experiment EXP-1 of type HCS_PLATONIC in this project.
+4. Upload library exp-1-library.xls
+5. Create a data sets with raw images, overlays, and feature vectors by using generate-*.py scripts.
+6. Drop created data sets into appropriated drop boxes (see generate scripts)
 
-Generate and Register Plate
---------------
-
-Run the generate-test-plate.py script. If your plate is not called PLATONIC, you will need 
-to rename the folder to the name of your plate. Put the folder with the images into the incoming-platonic-plate dropbox.
-
-View the plate in openBIS; you should see the images you registered.

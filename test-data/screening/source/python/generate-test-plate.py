@@ -3,10 +3,15 @@
 """
 Generate a plate.
 
-Usage: generate-test-plate.py <plate code> [<color 1>:<inset 1> <color 2>:<inset 2> ...]
+Usage: generate-test-plate.py <plate code> [<channel 1>:<inset 1> <channel 2>:<inset 2> ...]
 
 It creates a folder named <plate code> (default PLATONIC) with colorful images. It can be dropped
 into a dropbox with Python script data-set-handler-plate.py.
+
+If channels are specified black-and-white images are created for each channel. The inset value
+specifies the distance from the border of a rectangle to be created. The actual inset is random
+number around the specified value. Such data sets can be dropped into a dropbox with Python script
+data-set-handler-plate-splitted.py
 
 """
 
