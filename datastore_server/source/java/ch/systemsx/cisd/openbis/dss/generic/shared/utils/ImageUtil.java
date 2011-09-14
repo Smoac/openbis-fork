@@ -537,6 +537,12 @@ public class ImageUtil
         int thumbnailHeight = (int) (scale * height + 0.5);
 
         int imageType = image.getType();
+        if (imageType == BufferedImage.TYPE_CUSTOM)
+        {
+            imageType =
+                    image.getColorModel().hasAlpha() ? BufferedImage.TYPE_INT_ARGB
+                            : BufferedImage.TYPE_INT_RGB;
+        }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         Graphics2D graphics2D = thumbnail.createGraphics();
         Object renderingHint =
