@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface ISampleTypeImmutable extends IAbstractType
+public interface ISampleTypeImmutable extends IEntityType
 {
 
     boolean isListable();

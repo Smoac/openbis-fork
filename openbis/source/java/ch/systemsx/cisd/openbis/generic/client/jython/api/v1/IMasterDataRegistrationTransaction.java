@@ -42,6 +42,16 @@ public interface IMasterDataRegistrationTransaction
 
     IPropertyTypeImmutable getPropertyType(String code);
 
+    /**
+     * Assigns a property type to an entity type.
+     * 
+     * @param entityType One of IExperimentTypeImmutable, ISampleTypeImmutable,
+     *            IDataSetTypeImmutable, or IMaterialTypeImmutable.
+     * @param propertyType The property type to assign to the entity type.
+     * @return An object representing the assignment.
+     */
+    IPropertyAssignment assignPropertyType(IEntityType entityType, IPropertyTypeImmutable propertyType);
+
     IPropertyAssignment assignToExperimentType(IExperimentTypeImmutable experimentType,
             IPropertyTypeImmutable propertyType);
 

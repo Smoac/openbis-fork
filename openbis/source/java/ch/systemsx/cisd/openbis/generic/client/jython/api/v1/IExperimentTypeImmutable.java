@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IExperimentTypeImmutable extends IAbstractType
+public interface IExperimentTypeImmutable extends IEntityType
 {
 
 }

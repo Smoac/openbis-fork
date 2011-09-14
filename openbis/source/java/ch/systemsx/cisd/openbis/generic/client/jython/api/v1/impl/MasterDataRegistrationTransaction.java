@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IAbstractType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IDataSetType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IDataSetTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IEntityType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMasterDataRegistrationTransaction;
@@ -131,6 +132,30 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listPropertyTypes(), code);
     }
 
+    public IPropertyAssignment assignPropertyType(IEntityType entityType,
+            IPropertyTypeImmutable propertyType)
+    {
+        if (entityType instanceof IExperimentTypeImmutable)
+        {
+            return assignToExperimentType((IExperimentTypeImmutable) entityType, propertyType);
+        } else if (entityType instanceof ISampleTypeImmutable)
+        {
+            return assignToSampleType((ISampleTypeImmutable) entityType, propertyType);
+        } else
+
+        if (entityType instanceof IDataSetTypeImmutable)
+        {
+            return assignToDataSetType((IDataSetTypeImmutable) entityType, propertyType);
+        } else if (entityType instanceof IMaterialTypeImmutable)
+        {
+            return assignToMaterialType((IMaterialTypeImmutable) entityType, propertyType);
+        }
+
+        throw new IllegalArgumentException(
+                "The argument entityType must be one of IExperimentTypeImmutable, ISampleTypeImmutable, IDataSetTypeImmutable, or IMaterialTypeImmutable. "
+                        + entityType + " is not valid.");
+    }
+
     public IPropertyAssignment assignToExperimentType(IExperimentTypeImmutable experimentType,
             IPropertyTypeImmutable propertyType)
     {
@@ -167,7 +192,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return null;
     }
 
-    private PropertyAssignment createAssignment(EntityKind entityKind, IAbstractType type,
+    private PropertyAssignment createAssignment(EntityKind entityKind, IEntityType type,
             IPropertyTypeImmutable propertyType)
     {
         PropertyAssignment assignment =

@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
 /**
- * @author Kaloyan Enimanev
+ * The superinterface for all entity types (as opposed to property types).
+ * <p>
+ * The interface currently specifies no methods; it exists only to make some things explicit to the
+ * type system.
+ * 
+ * @author Chandrasekhar Ramakrishnan
  */
-public interface IDataSetTypeImmutable extends IEntityType
+public interface IEntityType extends IAbstractType
 {
-
-    public boolean isContainerType();
 
 }
