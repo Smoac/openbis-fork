@@ -112,7 +112,7 @@ public class ExcelFileSection
         List<ExcelFileSection> defaultSheetSections = null;
 
         Sheet sheet = null;
-        String prefix = excelSheetName + "-";
+        String prefix = excelSheetName;
         for (int i = 0; i < wb.getNumberOfSheets(); i++)
         {
             String sheetName = wb.getSheetName(i);
@@ -120,9 +120,9 @@ public class ExcelFileSection
             {
                 sheet = wb.getSheetAt(i);
                 defaultSheetSections = extractSectionsFromDefaultSheet(sheet);
-            } else if (sheetName.startsWith(prefix))
+            } else if (sheetName.toUpperCase().startsWith(prefix.toUpperCase()))
             {
-                String sectionName = sheetName.substring(prefix.length());
+                String sectionName = sheetName.substring(prefix.length() + 1);
                 sheet = wb.getSheetAt(i);
                 if (SECTION_FILE_DEFAULT.equalsIgnoreCase(sectionName))
                 {

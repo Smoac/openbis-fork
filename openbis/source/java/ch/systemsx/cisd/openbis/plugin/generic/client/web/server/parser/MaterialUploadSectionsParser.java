@@ -111,6 +111,7 @@ public class MaterialUploadSectionsParser
         {
             final String fileName = multipartFile.getOriginalFilename();
             final String loweredFileName = fileName.toLowerCase();
+            String registrationMessage = "Registration/update of %d material(s) is complete.";
             if (loweredFileName.endsWith("xls") || loweredFileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
@@ -164,7 +165,7 @@ public class MaterialUploadSectionsParser
                     }
                 }
                 results.add(new BatchRegistrationResult(fileName, String.format(
-                        "Registration of %d material(s) is complete.", materialCounter)));
+                        registrationMessage, materialCounter)));
             } else
             {
 
@@ -217,7 +218,7 @@ public class MaterialUploadSectionsParser
                     }
                 }
                 results.add(new BatchRegistrationResult(fileName, String.format(
-                        "Registration of %d material(s) is complete.", materialCounter)));
+                        registrationMessage, materialCounter)));
             }
         }
         return results;

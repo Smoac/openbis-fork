@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -799,13 +800,31 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             {
                 public String getName()
                 {
-                    return "General Import";
+                    return "General Batch Import";
                 }
 
                 public boolean doAction(Writer messageWriter)
                 {
-                    genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
-                            newSamplesWithType, newMaterialsWithType);
+                    try
+                    {
+                        genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                                newSamplesWithType, newMaterialsWithType);
+                    } catch (RuntimeException ex)
+                    {
+                        try
+                        {
+                            messageWriter.write(getName()
+                                    + " has failed with a following exception: ");
+                            messageWriter.write(ex.getMessage());
+                            messageWriter
+                                    .write("\n\nPlease correct the error or contact your administrator.");
+                        } catch (IOException writingEx)
+                        {
+                            throw new UserFailureException(writingEx.getMessage()
+                                    + " when trying to throw exception: " + ex.getMessage(), ex);
+                        }
+                        throw ex;
+                    }
                     return true;
                 }
             });

@@ -454,7 +454,7 @@ var common = {
   ARCHIVING_MENU_LOCK: "Disable",
   ARCHIVING_MENU_UNLOCK: "Enable",
   
-  GENERAL_IMPORT_MENU: "General Import",
+  GENERAL_IMPORT_MENU: "General Batch Import",
   
   menu_modules: "Utilities",
     
