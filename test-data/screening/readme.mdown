@@ -10,7 +10,13 @@ Manifest
  	* openbis and dss system.properties files for a local instance of openbis
 
 * etc 
-	* A python drop-box script for dss that imports plates and analysis data
+	* data-set-handler-microscope.py -- A python drop-box that imports microscopy images
+
+	* data-set-handler-features.py -- A python drop-box that imports feature vectors
+
+	* data-set-handler-splitted.py -- A python drop-box that imports plates comprised multiple single-channel images
+
+	* data-set-handler-plate.py -- A python drop-box script for dss that imports plates and analysis data
 
 * source
 	* admin-console
@@ -23,15 +29,19 @@ Manifest
 			  database for the test data if no database exists.
 			
 	* python
-		* generate-test-plate.py
-			* A python script that generates raw-images for a plate. It can be configured, 
-			  by modifying the source, to generate time and/or depth points and produce merged (RGB) or 
-			  split (R, G, B in separate files) files.
-			* Later, this will be expanded to produce overlay images as well
-			* running generate-test-plate.py will produce a folder named PLATONIC containing images 
-			  in the current directory
+		* generate-test-plate-analysis.py -- A script that generates analysis data (csv files)
+
+		* generate-test-plate-overlays.py -- A script that generates overlay-images for a plate
+			* n.b. This script will only run on MacOS 10.5+			
+
+		* generate-test-plate.py -- A script that generates raw-images for a plate.
+			* It can be configured, by modifying the source, to generate time and/or depth points and produce merged (RGB) or split (R, G, B in separate files) files.
+			* running generate-test-plate.py will produce a folder named PLATONIC containing images in the current directory
 			* n.b. This script will only run on MacOS 10.5+
-			
+
+		* generate-test-series.py -- A script that generates a microscopy image series
+			* n.b. This script will only run on MacOS 10.5+		
+
 Use
 ===
 
