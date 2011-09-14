@@ -32,16 +32,19 @@ public class WellMetadata extends WellIdentifier
 
     private final String code;
 
+    private final String type;
+
     private final Map<String, String> properties;
 
     private final Map<String, Material> materialProperties;
 
-    public WellMetadata(PlateIdentifier plateIdentifier, String code, String permId,
+    public WellMetadata(PlateIdentifier plateIdentifier, String code, String permId, String type,
             WellPosition wellPosition, Map<String, String> properties,
             Map<String, Material> materialProperties)
     {
         super(plateIdentifier, wellPosition, permId);
         this.code = code;
+        this.type = type;
         this.properties = new HashMap<String, String>(properties);
         this.materialProperties = new HashMap<String, Material>(materialProperties);
     }
@@ -104,6 +107,11 @@ public class WellMetadata extends WellIdentifier
             return false;
         }
         return true;
+    }
+
+    public String getType()
+    {
+        return type;
     }
 
 }

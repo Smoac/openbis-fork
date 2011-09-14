@@ -926,7 +926,8 @@ public class ScreeningApiImpl
         Map<String, String> properties = EntityHelper.convertToStringMap(well.getProperties());
         Map<String, Material> materialProperties =
                 convertMaterialProperties(well.getProperties(), materialsCache);
-        return new WellMetadata(plateIdentifier, well.getCode(), well.getPermId(), wellPosition,
+        return new WellMetadata(plateIdentifier, well.getCode(), well.getPermId(), well
+                .getSampleType().getCode(), wellPosition,
                 properties, materialProperties);
     }
 
