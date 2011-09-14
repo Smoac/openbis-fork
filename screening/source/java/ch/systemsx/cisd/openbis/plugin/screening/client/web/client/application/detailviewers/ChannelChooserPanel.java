@@ -73,8 +73,11 @@ public class ChannelChooserPanel extends LayoutContainer
     public static final String DEFAULT_TRANSFORMATION_CODE = "$DEFAULT$";
 
     private static final LabeledItem<ImageTransformationInfo> DEFAULT_TRANSFORMATION =
-            convertToLabeledItem(new ImageTransformationInfo(DEFAULT_TRANSFORMATION_CODE, "Default",
-                    "Default transformation or original picture if not tranformed.", "", false));
+            convertToLabeledItem(new ImageTransformationInfo(
+                    DEFAULT_TRANSFORMATION_CODE,
+                    "None",
+                    "No filter is applied. Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image.",
+                    "", false));
 
     private final IMessageProvider messageProvider;
 
@@ -86,7 +89,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private SimpleModelComboBox<ImageTransformationInfo> transformationsComboBox;
 
-    private LabelField adjustLabel = new LabelField("Adjust:");
+    private LabelField adjustLabel = new LabelField("Filter:");
 
     private Map<String, Set<ImageTransformationInfo>> transformationsForChannels =
             new HashMap<String, Set<ImageTransformationInfo>>();
