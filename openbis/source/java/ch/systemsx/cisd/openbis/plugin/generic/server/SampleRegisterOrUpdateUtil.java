@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -80,12 +78,6 @@ public class SampleRegisterOrUpdateUtil
     {
         String newSampleContainerCode = newSampleIdentifier.tryGetContainerCode();
         String newSampleContainerSpace = newSample.getDefaultSpaceIdentifier();
-        if (false == StringUtils.isBlank(newSampleContainerCode)
-                && false == StringUtils.isBlank(newSample.getCurrentContainerIdentifier()))
-        {
-            throw new UserFailureException("Current container is specified, but the identifier '"
-                    + newSample.getIdentifier() + "' includes the container code.");
-        }
         if (newSampleContainerCode == null && newSample.getCurrentContainerIdentifier() != null)
         {
             SampleIdentifier newSampleContainerIdentifier =
