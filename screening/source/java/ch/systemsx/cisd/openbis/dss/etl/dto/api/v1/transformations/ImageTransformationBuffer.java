@@ -46,18 +46,22 @@ public class ImageTransformationBuffer
     }
 
     /**
-     * Appends any specified transformation. Note that code of each added transformation should be
+     * Appends any specified transformations. Note that code of each added transformation should be
      * unique.
      */
-    public void append(ImageTransformation transformation)
+    public void append(ImageTransformation... transformations)
     {
-        String newCode = transformation.getCode();
-        if (usedTransformationCodes.contains(newCode))
+        for (ImageTransformation transformation : transformations)
         {
-            throw new IllegalArgumentException("Two transformations have the same code: " + newCode);
+            String newCode = transformation.getCode();
+            if (usedTransformationCodes.contains(newCode))
+            {
+                throw new IllegalArgumentException("Two transformations have the same code: "
+                        + newCode);
+            }
+            usedTransformationCodes.add(newCode);
+            imageTransformations.add(transformation);
         }
-        usedTransformationCodes.add(newCode);
-        imageTransformations.add(transformation);
     }
 
     /** @returns all appended transformations */

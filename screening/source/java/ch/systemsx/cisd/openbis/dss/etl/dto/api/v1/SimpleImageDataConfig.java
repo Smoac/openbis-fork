@@ -191,6 +191,14 @@ abstract public class SimpleImageDataConfig
 
     private boolean isMicroscopy;
 
+    // If null then no common intensity rescaling parameters are computed.
+    // If empty the computation will take place for all channels.
+    // Otherwise all images of these channels are analysed during dataset registration (costly
+    // operation!)
+    private List<String> computeCommonIntensityRangeOfAllImagesForChannelsOrNull = null;
+
+    private float computeCommonIntensityRangeOfAllImagesThreshold = 0.005f;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -266,6 +274,16 @@ abstract public class SimpleImageDataConfig
     public String tryGetConvertTransformationCliArguments()
     {
         return convertTransformationCliArgumentsOrNull;
+    }
+
+    public List<String> getComputeCommonIntensityRangeOfAllImagesForChannels()
+    {
+        return computeCommonIntensityRangeOfAllImagesForChannelsOrNull;
+    }
+
+    public float getComputeCommonIntensityRangeOfAllImagesThreshold()
+    {
+        return computeCommonIntensityRangeOfAllImagesThreshold;
     }
 
     // ----- Setters -------------------------
@@ -348,6 +366,63 @@ abstract public class SimpleImageDataConfig
     public void setGenerateHighQualityThumbnails(boolean highQualityThumbnails)
     {
         this.generateThumbnailsInHighQuality = highQualityThumbnails;
+    }
+
+    /**
+     * <p>
+     * Can be used only for grayscale images, Useful when images do not use the whole available
+     * color depth of the format in which they are stored (e.g. 10 bits out of 12). By default
+     * switched off. Causes that the conversion to 8 bit color depth looses less information. At the
+     * same time allows to compare images of one dataset to each other.<br>
+     * Warning: causes that all images have to be analysed before registration, this is a costly
+     * operation!
+     * </p>
+     * <p>
+     * If isComputed is set to true all dataset images will be analysed and one range of pixel
+     * intensities used across all images will be computed (with 0.5% threshold). The result will be
+     * saved and it will be possible to apply on-the-fly transformation when browsing images.
+     * </p>
+     * <p>
+     * Example: let's assume that all plate images are saved as 12 bit grayscales. Each image has
+     * ability to use pixel intensities from 0 to 4095. In our example only a range of the available
+     * intensities is used, let's say from 1024 to 2048. Before the image is displayed to the user
+     * it has to be converted to 8-bit color depth (range of intensities from 0 to 255). Without
+     * taking the effectively used intensities into account the range 1024...2048 would be converted
+     * to a range of 64..128 and other intensities would be unused. Analysing the images allows to
+     * convert 1024...2048 range to the full 0..255 range.
+     * </p>
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesForAllChannels()
+    {
+        this.computeCommonIntensityRangeOfAllImagesForChannelsOrNull = Collections.emptyList();
+    }
+
+    /**
+     * See {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()}.
+     * 
+     * @param channelCodesOrNull list of channel codes for which the optimal intensity rescaling
+     *            parameters will be computed. If empty all channels will be analysed. If null
+     *            nothing will be analysed (default behavior).
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesForChannels(String[] channelCodesOrNull)
+    {
+        this.computeCommonIntensityRangeOfAllImagesForChannelsOrNull =
+                Arrays.asList(channelCodesOrNull);
+    }
+
+    /**
+     * Sets the threshold of intensities which should be ignored when computing common intensity
+     * range of all images. By default equal to 0.5%. Note that
+     * {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} or
+     * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} has to be called to
+     * switch on analysis.
+     * 
+     * @param threshold value from 0 to 1. If set to e.g. 0.1 then 10% of brightest and darkest
+     *            pixels will be ignored.
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesThreshold(float threshold)
+    {
+        this.computeCommonIntensityRangeOfAllImagesThreshold = threshold;
     }
 
     /** Should all dataset in one experiment use the same channels? By default set to false. */

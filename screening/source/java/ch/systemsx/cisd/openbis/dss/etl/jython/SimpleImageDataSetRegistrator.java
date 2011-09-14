@@ -16,18 +16,28 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.jython;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.PixelHistogram;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -41,7 +51,10 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -54,12 +67,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
  */
 public class SimpleImageDataSetRegistrator
 {
-    @Private static interface IImageReaderFactory 
+    @Private
+    static interface IImageReaderFactory
     {
         IImageReader tryGetReader(String libraryName, String readerName);
+
         IImageReader tryGetReaderForFile(String libraryName, String fileName);
     }
-    
+
     private static class ImageTokensWithPath extends ImageMetadata
     {
         /** path relative to the incoming dataset directory */
@@ -113,10 +128,15 @@ public class SimpleImageDataSetRegistrator
         return registrator.createImageDatasetDetails(incoming, factory);
     }
 
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SimpleImageDataSetRegistrator.class);
+
     private final SimpleImageDataConfig simpleImageConfig;
+
     private final IImageReaderFactory readerFactory;
 
-    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig, IImageReaderFactory readerFactory)
+    private SimpleImageDataSetRegistrator(SimpleImageDataConfig simpleImageConfig,
+            IImageReaderFactory readerFactory)
     {
         this.simpleImageConfig = simpleImageConfig;
         this.readerFactory = readerFactory;
@@ -146,42 +166,15 @@ public class SimpleImageDataSetRegistrator
     /**
      * Tokenizes file names of all images in the directory.
      */
-    protected List<ImageTokensWithPath> parseImageTokens(File incomingDirectory)
+    protected List<ImageTokensWithPath> parseImageTokens(List<File> imageFiles,
+            File incomingDirectory, IImageReader imageReaderOrNull)
     {
-        List<File> imageFiles = listImageFiles(incomingDirectory);
-        if (imageFiles.isEmpty())
-        {
-            throw UserFailureException.fromTemplate(
-                    "Incoming directory '%s' contains no images with extensions %s!",
-                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
-                            simpleImageConfig.getRecognizedImageExtensions(), -1));
-        }
-
         List<ImageTokensWithPath> imageTokensList = new ArrayList<ImageTokensWithPath>();
-        ImageLibraryInfo imageLibraryInfoOrNull =
-                simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
+
         for (File imageFile : imageFiles)
         {
             File file = new File(imageFile.getPath());
-            IImageReader readerOrNull = null;
-            if (imageLibraryInfoOrNull != null)
-            {
-                String libraryName = imageLibraryInfoOrNull.getName();
-                String readerNameOrNull = imageLibraryInfoOrNull.getReaderName();
-                if (readerNameOrNull != null)
-                {
-                    readerOrNull = readerFactory.tryGetReader(libraryName, readerNameOrNull);
-                } else
-                {
-                    readerOrNull =
-                            readerFactory.tryGetReaderForFile(libraryName, imageFile.getPath());
-                    if (readerOrNull != null)
-                    {
-                        imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
-                    }
-                }
-            }
-            List<ImageIdentifier> identifiers = getImageIdentifiers(readerOrNull, file);
+            List<ImageIdentifier> identifiers = getImageIdentifiers(imageReaderOrNull, file);
             String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
             ImageMetadata[] imageTokens =
                     simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
@@ -193,15 +186,73 @@ public class SimpleImageDataSetRegistrator
         }
         if (imageTokensList.isEmpty())
         {
-            throw UserFailureException.fromTemplate(
+            throw UserFailureException
+                    .fromTemplate(
                             "No image tokens could be parsed from incoming directory '%s' for extensions %s!",
-                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
-                            simpleImageConfig.getRecognizedImageExtensions(), -1));
+                            incomingDirectory.getPath(),
+                            CollectionUtils.abbreviate(
+                                    simpleImageConfig.getRecognizedImageExtensions(), -1));
         }
         return imageTokensList;
     }
 
-    private List<ImageIdentifier> getImageIdentifiers(IImageReader readerOrNull, File imageFile)
+    private List<File> extractImageFiles(File incomingDirectory)
+    {
+        List<File> imageFiles = listImageFiles(incomingDirectory);
+        if (imageFiles.isEmpty())
+        {
+            throw UserFailureException.fromTemplate(
+                    "Incoming directory '%s' contains no images with extensions %s!",
+                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
+                            simpleImageConfig.getRecognizedImageExtensions(), -1));
+        }
+        return imageFiles;
+    }
+
+    // this method can have a side effect - it autodetects the image reader if only the library is
+    // specified
+    private IImageReader tryCreateAndSaveImageReader(List<File> imageFiles)
+    {
+        IImageReader readerOrNull = null;
+        ImageLibraryInfo imageLibraryInfoOrNull = tryGetImageLibrary();
+        if (imageLibraryInfoOrNull != null)
+        {
+            readerOrNull = tryCreateImageReader(imageFiles, imageLibraryInfoOrNull);
+            if (readerOrNull != null)
+            {
+                // NOTE: ugly side effect which is used later on
+                imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+            }
+        }
+        return readerOrNull;
+    }
+
+    private IImageReader tryCreateImageReader(List<File> imageFiles,
+            ImageLibraryInfo imageLibraryInfo)
+    {
+        if (imageFiles.isEmpty())
+        {
+            return null;
+        }
+        File imageFile = imageFiles.get(0);
+        String libraryName = imageLibraryInfo.getName();
+        String readerNameOrNull = imageLibraryInfo.getReaderName();
+        if (readerNameOrNull != null)
+        {
+            return readerFactory.tryGetReader(libraryName, readerNameOrNull);
+        } else
+        {
+            return readerFactory.tryGetReaderForFile(libraryName, imageFile.getPath());
+        }
+    }
+
+    private ImageLibraryInfo tryGetImageLibrary()
+    {
+        return simpleImageConfig.getImageStorageConfiguration().tryGetImageLibrary();
+    }
+
+    private static List<ImageIdentifier> getImageIdentifiers(IImageReader readerOrNull,
+            File imageFile)
     {
         List<ImageIdentifier> ids = new ArrayList<ImageIdentifier>();
         if (readerOrNull == null)
@@ -209,8 +260,7 @@ public class SimpleImageDataSetRegistrator
             ids.add(ImageIdentifier.NULL);
         } else
         {
-            List<ImageID> imageIDs =
-                readerOrNull.getImageIDs(imageFile);
+            List<ImageID> imageIDs = readerOrNull.getImageIDs(imageFile);
             for (ImageID imageID : imageIDs)
             {
                 ids.add(new ImageIdentifier(imageID.getSeriesIndex(), imageID.getTimeSeriesIndex(),
@@ -220,7 +270,6 @@ public class SimpleImageDataSetRegistrator
         Collections.sort(ids);
         return ids;
     }
-    
 
     /**
      * Creates ImageFileInfo for a given path to an image.
@@ -282,6 +331,121 @@ public class SimpleImageDataSetRegistrator
         return max;
     }
 
+    // -------------------
+
+    private void computeAndAppendCommonIntensityRangeTransformation(List<ImageFileInfo> images,
+            File incomingDir, List<Channel> channels, IImageReader readerOrNull)
+    {
+        List<Channel> channelsForComputation =
+                tryFindChannelsToComputeCommonIntensityRange(channels);
+        if (channelsForComputation == null)
+        {
+            return;
+        }
+        for (Channel channel : channelsForComputation)
+        {
+            String channelCode = channel.getCode();
+            List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
+            operationLog.info("Computing intensity range for channel " + channelCode + ". Found "
+                    + imagePaths.size() + " images");
+            Levels intensityRange =
+                    computeCommonIntensityRange(readerOrNull, imagePaths,
+                            simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
+            operationLog.info("Computed intensity range for channel " + channelCode + ": "
+                    + intensityRange);
+            appendCommonIntensityRangeTransformation(channel, intensityRange);
+        }
+    }
+
+    private void appendCommonIntensityRangeTransformation(Channel channel, Levels intensityRange)
+    {
+        ImageTransformationBuffer buffer = new ImageTransformationBuffer();
+        buffer.appendRescaleGrayscaleIntensity(intensityRange.getMinLevel(),
+                intensityRange.getMaxLevel());
+        buffer.append(channel.getAvailableTransformations());
+        channel.setAvailableTransformations(buffer.getTransformations());
+    }
+
+    private static List<File> chooseChannelImages(List<ImageFileInfo> images, File incomingDir,
+            String channelCode)
+    {
+        String normalizedChannelCode = CodeNormalizer.normalize(channelCode);
+        List<File> channelImages = new ArrayList<File>();
+        for (ImageFileInfo imageFileInfo : images)
+        {
+            String imageChannelCode = CodeNormalizer.normalize(imageFileInfo.getChannelCode());
+            if (imageChannelCode.equals(normalizedChannelCode))
+            {
+                channelImages.add(new File(incomingDir, imageFileInfo.getImageRelativePath()));
+            }
+        }
+        return channelImages;
+    }
+
+    private List<Channel> tryFindChannelsToComputeCommonIntensityRange(List<Channel> channels)
+    {
+        List<String> channelCodes =
+                simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesForChannels();
+        if (channelCodes == null)
+        {
+            return null;
+        }
+        if (channelCodes.isEmpty())
+        {
+            return channels;
+        }
+
+        Set<String> channelCodesSet = createNormalizedCodesSet(channelCodes);
+        List<Channel> chosenChannels = new ArrayList<Channel>();
+        for (Channel channel : channels)
+        {
+            if (channelCodesSet.contains(channel.getCode()))
+            {
+                chosenChannels.add(channel);
+            }
+        }
+        return chosenChannels;
+    }
+
+    private static Set<String> createNormalizedCodesSet(List<String> channelCodes)
+    {
+        Set<String> normalizedCodes = new HashSet<String>();
+        for (String code : channelCodes)
+        {
+            normalizedCodes.add(CodeNormalizer.normalize(code));
+        }
+        return normalizedCodes;
+    }
+
+    private static Levels computeCommonIntensityRange(IImageReader readerOrNull,
+            List<File> imageFiles, float threshold)
+    {
+        String libraryName = (readerOrNull == null) ? null : readerOrNull.getLibraryName();
+        String readerName = (readerOrNull == null) ? null : readerOrNull.getName();
+        PixelHistogram histogram = new PixelHistogram();
+
+        for (File imageFile : imageFiles)
+        {
+            List<ImageIdentifier> imageIdentifiers = getImageIdentifiers(readerOrNull, imageFile);
+            for (ImageIdentifier imageIdentifier : imageIdentifiers)
+            {
+                BufferedImage image =
+                        loadUnchangedImage(imageFile, imageIdentifier, libraryName, readerName);
+                IntensityRescaling.addToLevelStats(histogram, image);
+            }
+        }
+        return IntensityRescaling.computeLevels(histogram, threshold);
+    }
+
+    private static BufferedImage loadUnchangedImage(File imageFile,
+            ImageIdentifier imageIdentifier, String libraryName, String readerName)
+    {
+        String imageStringIdentifier = imageIdentifier.getUniqueStringIdentifier();
+        return ImageUtil.loadUnchangedImage(new FileBasedContent(imageFile), imageStringIdentifier,
+                libraryName, readerName, null);
+    }
+
+    // -------------------
     /**
      * Extracts all images from the incoming directory.
      * 
@@ -299,11 +463,18 @@ public class SimpleImageDataSetRegistrator
         dataset.setSample(spaceCode, sampleCode);
         dataset.setMeasured(true);
 
-        List<ImageTokensWithPath> imageTokensList = parseImageTokens(incoming);
+        List<File> imageFiles = extractImageFiles(incoming);
+        IImageReader imageReaderOrNull = tryCreateAndSaveImageReader(imageFiles);
+        List<ImageTokensWithPath> imageTokensList =
+                parseImageTokens(imageFiles, incoming, imageReaderOrNull);
+
         int maxTileNumber = getMaxTileNumber(imageTokensList);
         Geometry tileGeometry = simpleImageConfig.getTileGeometry(imageTokensList, maxTileNumber);
         List<ImageFileInfo> images = createImageInfos(imageTokensList, tileGeometry);
         List<Channel> channels = getAvailableChannels(images);
+
+        computeAndAppendCommonIntensityRangeTransformation(images, incoming, channels,
+                imageReaderOrNull);
 
         dataset.setImages(images);
         dataset.setChannels(channels);
@@ -316,7 +487,8 @@ public class SimpleImageDataSetRegistrator
             DataSetRegistrationDetails<T> registrationDetails, T dataset)
     {
         registrationDetails.setDataSetInformation(dataset);
-        registrationDetails.setFileFormatType(new FileFormatType(simpleImageConfig.getFileFormatType()));
+        registrationDetails.setFileFormatType(new FileFormatType(simpleImageConfig
+                .getFileFormatType()));
         registrationDetails.setDataSetType(new DataSetType(simpleImageConfig.getDataSetType()));
         registrationDetails.setMeasuredData(simpleImageConfig.isMeasuredData());
 
