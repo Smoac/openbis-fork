@@ -61,7 +61,7 @@ Run the initialization script.
 
 This will create an initial screening database with the name used by the configuration files.
 
-Configure openBIS
+Configure Servers
 -----------------
 
 1. Replace the openBIS service.properties with screening/config/openbis-service.properties
@@ -69,19 +69,31 @@ Configure openBIS
 3. In the screening folder create the following sub-folders 
 * targets/platonic
 * targets/platonic/store
-* targets/platonic/incoming-platonic-plate
-* targets/platonic/incoming-platonic-plate-splitted
-* targets/platonic/incoming-platonic-plate-overlays
-* targets/platonic/incoming-platonic-plate-features
 * targets/platonic/incoming-platonic-microscope
+* targets/platonic/incoming-platonic-plate
+* targets/platonic/incoming-platonic-plate-features
+* targets/platonic/incoming-platonic-plate-overlays
+* targets/platonic/incoming-platonic-plate-splitted
 
-Start openBIS and Create Fake Data
-----------------------------------
+Configure openBIS
+-----------------
 
 1. Start openBIS and DSS and log in as admin/admin.
-2. Create space PLATONIC with a project SCREENING-EXAMPLES in it.
-3. Create experiment EXP-1 of type HCS_PLATONIC in this project.
-4. Upload library exp-1-library.xls
-5. Create a data sets with raw images, overlays, and feature vectors by using generate-*.py scripts.
-6. Drop created data sets into appropriated drop boxes (see generate scripts)
+2. Create space PLATONIC.
+3. Create project SCREENING-EXAMPLES.
+3. Create an experiment EXP-1 of type HCS_PLATONIC in this project.
+4. Use the Administration->General Import to import the file screening/exp-1-library.xls
+
+Generate and Register Plate
+---------------------------
+
+Run the script screening/source/bash/generate-test-experiment.sh and register the resulting files.
+
+6. Register
+
+* PLATE-1 -> targets/platonic/incoming-platonic-plate
+* PLATE-1.OVERLAY-1 -> targets/platonic/incoming-platonic-plate-overlays
+* PLATE-1.OVERLAY-2 -> targets/platonic/incoming-platonic-plate-overlays
+* PLATE-1.analysis1.csv -> targets/platonic/incoming-platonic-plate-features
+* PLATE-1.analysis2.csv -> targets/platonic/incoming-platonic-plate-features
 
