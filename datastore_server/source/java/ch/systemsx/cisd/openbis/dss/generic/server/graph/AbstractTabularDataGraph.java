@@ -214,17 +214,33 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     protected JFreeChart createErrorChart()
     {
         DefaultXYDataset dataset = new DefaultXYDataset();
-        JFreeChart chart =
-                ChartFactory.createXYAreaChart(
-                        "Error : Could not find requested columns in dataset.", // title
-                        getXAxisLabel(), // x-axis label
-                        getYAxisLabel(), // y-axis label
-                        dataset, // data
-                        PlotOrientation.VERTICAL, // plot orientation
-                        false, // create legend?
-                        false, // generate tooltips?
-                        false // generate URLs?
-                        );
+        JFreeChart chart = ChartFactory.createXYAreaChart("", // title
+                "", // x-axis label
+                "", // y-axis label
+                dataset, // data
+                PlotOrientation.VERTICAL, // plot orientation
+                false, // create legend?
+                false, // generate tooltips?
+                false // generate URLs?
+                );
+
+        // Set the background color
+        chart.setBackgroundPaint(Color.WHITE);
+        chart.setBorderVisible(false);
+
+        // Configure the plot
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinesVisible(false);
+        plot.setRangeGridlinesVisible(false);
+        plot.setDomainCrosshairVisible(false);
+        plot.setRangeCrosshairVisible(false);
+        plot.setDomainZeroBaselineVisible(false);
+        plot.setRangeZeroBaselineVisible(false);
+        plot.setForegroundAlpha(0.f);
+        plot.setOutlineVisible(false);
+        plot.setDomainAxis(null);
+        plot.setRangeAxis(null);
 
         return chart;
     }
