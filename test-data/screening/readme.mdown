@@ -84,10 +84,10 @@ Configure openBIS
 3. Create an experiment EXP-1 of type HCS_PLATONIC in this project.
 4. Use the Administration->General Import to import the file screening/exp-1-library.xls
 
-Generate and Register Plate
----------------------------
+Generate and Register Data
+--------------------------
 
-Run the script screening/source/bash/generate-test-experiment.sh and register the resulting files.
+Run the script screening/source/bash/generate-test-experiment.sh to generate data for the experiment.
 
 6. Register
 
@@ -96,4 +96,3 @@ Run the script screening/source/bash/generate-test-experiment.sh and register th
 * PLATE-1.OVERLAY-2 -> targets/platonic/incoming-platonic-plate-overlays
 * PLATE-1.analysis1.csv -> targets/platonic/incoming-platonic-plate-features
 * PLATE-1.analysis2.csv -> targets/platonic/incoming-platonic-plate-features
-

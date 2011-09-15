@@ -53,6 +53,7 @@ class ImageGeneratorConfig:
     def __init__(self):
         self.number_of_tiles = 9
         self.image_size = 512
+        self.bitdepth = 8
         self.is_split = False
         self.color_configs = [ None ]
         # Use an array with None for not time points / depth points
@@ -106,15 +107,16 @@ class WellGenerator:
                     file_name = self._generate_overlay_file_name(self.well, overlay_name, desc)
                     self._generate_overlay(file_name, overlay_name + '-' + self.well + '-' + desc, x, y)        
         
-    def _generate_tile(self, filename, tile_desc, inset):
-        tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
-        drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
-        
+    def _generate_tile(self, filename, tile_desc, inset):        
         if self.config.is_split:
             # if split, we want to draw white instead of the specified color, since
             # the channel assignment will happen in openBIS, not here
+            tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size, self.config.bitdepth, True)
+            drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
             drawRect(tile_canvas, 1, 1, 1, inset * random.gauss(1.0, 0.2))
         else:
+            tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
+            drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
             drawRect(tile_canvas, 1, 0, 0, 20) # red
             drawRect(tile_canvas, 0, 1, 0, 70) # green
             drawRect(tile_canvas, 0, 0, 1, random.randint(120, 200)) # blue
