@@ -71,7 +71,7 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
 
     def getChannelColor(self, channelCode):
         # codes should be in upper case
-        dict = { "GFP" : ChannelColor.GREEN, "DAPI" : ChannelColor.RED_BLUE, "CY3" : ChannelColor.BLUE, "CY5" : ChannelColor.RED }
+        dict = { "GFP" : ChannelColor.GREEN, "DAPI" : ChannelColor.BLUE, "CY3" : ChannelColor.RED_BLUE, "CY5" : ChannelColor.RED }
         if channelCode in dict:
             return dict[channelCode]
         else:
