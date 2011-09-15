@@ -75,8 +75,8 @@ public class ChannelChooserPanel extends LayoutContainer
     private static final LabeledItem<ImageTransformationInfo> DEFAULT_TRANSFORMATION =
             convertToLabeledItem(new ImageTransformationInfo(
                     DEFAULT_TRANSFORMATION_CODE,
-                    "None",
-                    "No filter is applied. Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image.",
+                    "Optimal (image)",
+                    "Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image. Otherwise no filter is applied.",
                     "", false));
 
     private final IMessageProvider messageProvider;
