@@ -94,7 +94,8 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
 
         List<BatchRegistrationResult> result = registerMaterials(materialBatchData);
 
-        assertEquals("Registration of 2 material(s) is complete.", result.get(0).getMessage());
+        assertEquals("Registration/update of 2 material(s) is complete.", result.get(0)
+                .getMessage());
         assertEquals(1, result.size());
 
         assertProperties("[COMMENT: x & y, DESCRIPTION: compound 1, SIZE: 42]", "C1");

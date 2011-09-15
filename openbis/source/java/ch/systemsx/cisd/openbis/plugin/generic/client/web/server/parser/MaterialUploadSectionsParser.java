@@ -112,6 +112,7 @@ public class MaterialUploadSectionsParser
             final String fileName = multipartFile.getOriginalFilename();
             final String loweredFileName = fileName.toLowerCase();
             String registrationMessage = "Registration/update of %d material(s) is complete.";
+            int materialCounter = 0;
             if (loweredFileName.endsWith("xls") || loweredFileName.endsWith("xlsx"))
             {
                 List<ExcelFileSection> materialSections = new ArrayList<ExcelFileSection>();
@@ -126,7 +127,6 @@ public class MaterialUploadSectionsParser
                                     multipartFile.getInputStream(), materialType.getCode(),
                                     loweredFileName));
                 }
-                int materialCounter = 0;
                 Map<String, String> defaults = new HashMap<String, String>();
                 for (ExcelFileSection fs : materialSections)
                 {
@@ -164,8 +164,6 @@ public class MaterialUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(fileName, String.format(
-                        registrationMessage, materialCounter)));
             } else
             {
 
@@ -179,7 +177,6 @@ public class MaterialUploadSectionsParser
                     materialSections.add(FileSection.createFromInputStream(
                             multipartFile.getInputStream(), materialType.getCode()));
                 }
-                int materialCounter = 0;
                 Map<String, String> defaults = new HashMap<String, String>();
                 for (FileSection fs : materialSections)
                 {
@@ -217,9 +214,9 @@ public class MaterialUploadSectionsParser
                         }
                     }
                 }
-                results.add(new BatchRegistrationResult(fileName, String.format(
-                        registrationMessage, materialCounter)));
             }
+            results.add(new BatchRegistrationResult(fileName, String.format(
+                    registrationMessage, materialCounter)));
         }
         return results;
     }
