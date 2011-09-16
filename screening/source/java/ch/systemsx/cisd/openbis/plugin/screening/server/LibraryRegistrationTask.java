@@ -192,7 +192,9 @@ class LibraryRegistrationTask implements IASyncAction
         {
             return;
         }
-        String mergedGeneType = mergeGeneTypes(existingGene, newGeneProp.getValue());
+
+        String normalizedValue = normalizeGeneValue(newGeneProp.getValue());
+        String mergedGeneType = mergeGeneTypes(existingGene, normalizedValue);
         newGeneProp.setValue(mergedGeneType);
     }
 
@@ -214,6 +216,21 @@ class LibraryRegistrationTask implements IASyncAction
         {
             return existingType + DELIM + newType;
         }
+    }
+
+    /**
+     * Remove leading and trailing underscores.
+     */
+    private String normalizeGeneValue(String value)
+    {
+        final String UNDERSCORE = "_";
+        if (value.startsWith(UNDERSCORE) || value.endsWith(UNDERSCORE))
+        {
+            String normalized = value.replaceAll("_*$", "");
+            normalized = normalized.replaceAll("^_*", "");
+            return normalized;
+        }
+        return value;
     }
 
     public boolean doAction(Writer messageWriter)
