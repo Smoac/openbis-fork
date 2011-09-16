@@ -127,17 +127,17 @@ public class EntityTypeLabelUtils
         String label =
                 tryWithoutPrefix(datasetTypeCode,
                         ScreeningConstants.HCS_ANALYSIS_DATASET_TYPE_PREFIX);
-        if (label == null)
+        if (StringUtils.isBlank(label))
         {
             label =
                     tryWithoutPrefix(datasetTypeCode,
                             ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX);
         }
-        if (label == null)
+        if (StringUtils.isBlank(label))
         {
             label = tryWithoutPrefix(datasetTypeCode, ScreeningConstants.HCS_DATASET_TYPE_PREFIX);
         }
-        if (label == null)
+        if (StringUtils.isBlank(label))
         {
             label = datasetTypeCode;
         }
