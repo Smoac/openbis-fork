@@ -51,6 +51,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         configure(messageProvider, widthPx);
         setModel(model);
         GWTUtils.autoselect(this);
+        GWTUtils.setupAutoWidth(this);
     }
 
     private void configure(IMessageProvider messageProvider, Integer widthPx)
