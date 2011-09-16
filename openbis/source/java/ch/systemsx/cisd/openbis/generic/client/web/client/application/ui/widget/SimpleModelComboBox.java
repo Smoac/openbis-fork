@@ -126,4 +126,19 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
     {
         return se.getSelectedItem().getValue().getItem();
     }
+
+    public LabeledItem<T> findModelForVal(T val)
+    {
+        LabeledItem<T> result = null;
+        for (SimpleComboValue<LabeledItem<T>> c : getStore().getModels())
+        {
+            if (c.getValue().getItem().equals(value))
+            {
+                result = c.getValue();
+                break;
+            }
+        }
+        return result;
+    }
+
 }

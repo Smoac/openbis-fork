@@ -316,10 +316,14 @@ public interface IScreeningQuery extends BaseQuery
                     + "  where "
                     + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
 
+    final static String AT_LEAST_ONE_WELL_EXISTS = "EXISTS (select wells.id "
+            + "             from samples wells "
+            + "                     join samples plates on wells.samp_id_part_of = plates.id "
+            + "             where plates.expe_id = exp.id) ";
     @Select(sql = ANALYSIS_PROCEDURE_SELECT)
     public List<AnalysisProcedureResult> listAllAnalysisProcedures();
 
-    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} ")
+    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} and " + AT_LEAST_ONE_WELL_EXISTS)
     public List<AnalysisProcedureResult> listAnalysisProceduresForExperiment(long experimentId);
 
 }

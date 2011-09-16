@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
@@ -35,6 +34,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
@@ -157,7 +158,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private final AnalysisProcedureLister analysisProcedureLister;
 
-    private final SimpleComboBox<String> analysisProceduresComboBox;
+    private final SimpleModelComboBox<String> analysisProceduresComboBox;
 
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
@@ -185,10 +186,10 @@ class AnalysisProcedureChooser extends LayoutContainer
         initSelection(selectedAnalysisProcedureOrNull, triggerInitialSelectionEvent);
     }
 
-    private SimpleComboBox<String> createLayout(boolean horizontalLayout)
+    private SimpleModelComboBox<String> createLayout(boolean horizontalLayout)
     {
 
-        SimpleComboBox<String> comboBox = createProceduresComboBox();
+        SimpleModelComboBox<String> comboBox = createProceduresComboBox();
         Widget layoutPanel;
         if (horizontalLayout)
         {
@@ -275,11 +276,12 @@ class AnalysisProcedureChooser extends LayoutContainer
                 + GenericConstants.LABEL_SEPARATOR;
     }
 
-    private SimpleComboBox<String> createProceduresComboBox()
+    private SimpleModelComboBox<String> createProceduresComboBox()
     {
-        SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
+        SimpleModelComboBox<String> comboBox =
+                new SimpleModelComboBox<String>(messageProvider,
+                        new ArrayList<LabeledItem<String>>(), COMBOX_WIDTH_PX);
 
-        comboBox.setWidth(COMBOX_WIDTH_PX);
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);
         comboBox.setEditable(false);
@@ -317,9 +319,9 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void addCodeToComboBox(String code)
     {
-        if (analysisProceduresComboBox.findModel(code) == null)
+        if (analysisProceduresComboBox.findModelForVal(code) == null)
         {
-            analysisProceduresComboBox.add(code);
+            analysisProceduresComboBox.add(new LabeledItem<String>(code, code));
         }
     }
 
@@ -333,17 +335,18 @@ class AnalysisProcedureChooser extends LayoutContainer
 
         String comboBoxValue = analysisCodeToComboBoxValue(analysisProcedureOrNull);
 
-        if (UNSPECIFIED_PROCEDURE.equals(comboBoxValue)
-                || analysisProceduresComboBox.findModel(comboBoxValue) == null)
+        LabeledItem<String> valueToSelect =
+                analysisProceduresComboBox.findModelForVal(comboBoxValue);
+        if (UNSPECIFIED_PROCEDURE.equals(comboBoxValue) || valueToSelect == null)
         {
-            comboBoxValue = getFirstValueFromCombo();
+            valueToSelect = getFirstValueFromCombo();
         }
 
-        analysisProceduresComboBox.setSimpleValue(comboBoxValue);
+        analysisProceduresComboBox.setSimpleValue(valueToSelect);
 
     }
 
-    private String getFirstValueFromCombo()
+    private LabeledItem<String> getFirstValueFromCombo()
     {
         return analysisProceduresComboBox.getStore().getAt(0).getValue();
     }
@@ -357,7 +360,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private AnalysisProcedureCriteria getSelectionAsCriteria()
     {
-        String selection = analysisProceduresComboBox.getSimpleValue();
+        String selection = analysisProceduresComboBox.getChosenItem();
         String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
         return StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
                 .createNoProcedures() : AnalysisProcedureCriteria
@@ -388,4 +391,5 @@ class AnalysisProcedureChooser extends LayoutContainer
     {
         return UNSPECIFIED_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
     }
+
 }
