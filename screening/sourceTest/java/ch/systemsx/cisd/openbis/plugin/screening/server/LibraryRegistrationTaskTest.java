@@ -89,15 +89,15 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
     {
         NewMaterial g1 = createNewGene("G1", "AB");
         NewMaterial g2 = createNewGene("G2", "AB");
-        NewMaterial g3 = createNewGene("G3", "AB");
-        NewMaterial g4 = createNewGene("G4", "AB");
-        NewMaterial g5 = createNewGene("G5", "AB");
+        NewMaterial g3 = createNewGene("G3", "BC AB");
+        NewMaterial g4 = createNewGene("G4", "AB AB");
+        NewMaterial g5 = createNewGene("G5", "AB DDD");
 
         final List<NewMaterial> newGenes = Arrays.asList(g1, g2, g3, g4, g5);
         final List<Material> existingGenes =
                 Arrays.asList(createExistingGene("G1", "ABC A"), createExistingGene("G2", "AB"),
                         createExistingGene("G3", "AB BC"), createExistingGene("G4", "XY AB"),
-                        createExistingGene("G5", "XY AB YZ"));
+                        createExistingGene("G5", "XY AB YZ DDD"));
         final RecordingMatcher<List<NewMaterialsWithTypes>> materialsWithTypesMatcher =
                 new RecordingMatcher<List<NewMaterialsWithTypes>>();
 
@@ -130,7 +130,7 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         assertEquals("AB", extractGeneSymbol(g2));
         assertEquals("AB BC", extractGeneSymbol(g3));
         assertEquals("XY AB", extractGeneSymbol(g4));
-        assertEquals("XY AB YZ", extractGeneSymbol(g5));
+        assertEquals("XY AB YZ DDD", extractGeneSymbol(g5));
 
         List<NewMaterialsWithTypes> materialsWithTypes =
                 LibraryRegistrationTask.createMaterialsWithTypes(
@@ -147,54 +147,6 @@ public class LibraryRegistrationTaskTest extends AssertJUnit
         }
     }
 
-    @Test
-    public void testUpdateWithUnderscores()
-    {
-        NewMaterial g1 = createNewGene("G1", "_AB_");
-        NewMaterial g2 = createNewGene("G2", "_AB_");
-        NewMaterial g3 = createNewGene("G3", "_AB_");
-        NewMaterial g4 = createNewGene("G4", "_AB_");
-        NewMaterial g5 = createNewGene("G5", "_AB_");
-
-        final List<NewMaterial> newGenes = Arrays.asList(g1, g2, g3, g4, g5);
-        final List<Material> existingGenes =
-                Arrays.asList(createExistingGene("G1", "ABC A"), createExistingGene("G2", "AB"),
-                        createExistingGene("G3", "AB BC"), createExistingGene("G4", "XY AB"),
-                        createExistingGene("G5", "XY AB YZ"));
-        final RecordingMatcher<List<NewMaterialsWithTypes>> materialsWithTypesMatcher =
-                new RecordingMatcher<List<NewMaterialsWithTypes>>();
-
-        task =
-                new LibraryRegistrationTask(SESSION_TOKEN, newGenes, null, null, commonServer,
-                        genericServer, daoFactory);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
-                    will(returnValue(entityTypeDAO));
-
-                    one(entityTypeDAO).tryToFindEntityTypeByCode(
-                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
-                    will(returnValue(new MaterialTypePE()));
-
-                    one(commonServer).listMaterials(with(SESSION_TOKEN),
-                            with(any(ListMaterialCriteria.class)), with(true));
-                    will(returnValue(existingGenes));
-
-                    one(genericServer).registerOrUpdateMaterials(with(SESSION_TOKEN),
-                            with(materialsWithTypesMatcher));
-                }
-            });
-
-        task.doAction(new StringWriter());
-
-        assertEquals("ABC A AB", extractGeneSymbol(g1));
-        assertEquals("AB", extractGeneSymbol(g2));
-        assertEquals("AB BC", extractGeneSymbol(g3));
-        assertEquals("XY AB", extractGeneSymbol(g4));
-        assertEquals("XY AB YZ", extractGeneSymbol(g5));
-    }
     private NewMaterial createNewGene(String code, String geneSymbol)
     {
         IEntityProperty geneSymbolProperty = createGeneSymbolProperty(geneSymbol);

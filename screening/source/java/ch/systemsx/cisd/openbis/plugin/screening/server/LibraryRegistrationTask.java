@@ -193,44 +193,36 @@ class LibraryRegistrationTask implements IASyncAction
             return;
         }
 
-        String normalizedValue = normalizeGeneValue(newGeneProp.getValue());
-        String mergedGeneType = mergeGeneTypes(existingGene, normalizedValue);
-        newGeneProp.setValue(mergedGeneType);
+        String mergedGeneSymbols = mergeGeneSymbols(existingGene, newGeneProp.getValue());
+        newGeneProp.setValue(mergedGeneSymbols);
     }
 
-    private String mergeGeneTypes(String existingType, String newType)
+    private String mergeGeneSymbols(String existingSymbols, String newSymbolString)
     {
-        if (StringUtils.isBlank(newType) || newType.equals(existingType))
+        if (StringUtils.isBlank(newSymbolString) || newSymbolString.equals(existingSymbols))
         {
-            return existingType;
+            return existingSymbols;
         }
-
-        boolean ignoreNewType =
-                existingType.startsWith(newType + DELIM) || existingType.endsWith(DELIM + newType)
-                        || (existingType.indexOf(DELIM + newType + DELIM) > 0);
-
-        if (ignoreNewType)
+        
+        String[] newSymbols = newSymbolString.split("\\s+");
+        StringBuilder result = new StringBuilder(existingSymbols);
+        for (String newSymbol : newSymbols)
         {
-            return existingType;
-        } else
-        {
-            return existingType + DELIM + newType;
+            if (StringUtils.isBlank(newSymbol))
+            {
+                continue;
+            }
+            boolean alreadyExisting =
+                existingSymbols.startsWith(newSymbol + DELIM) || existingSymbols.endsWith(DELIM + newSymbol)
+                        || (existingSymbols.indexOf(DELIM + newSymbol + DELIM) > 0);
+
+            if (false == alreadyExisting)
+            {
+                result.append(DELIM);
+                result.append(newSymbol);
+            }
         }
-    }
-
-    /**
-     * Remove leading and trailing underscores.
-     */
-    private String normalizeGeneValue(String value)
-    {
-        final String UNDERSCORE = "_";
-        if (value.startsWith(UNDERSCORE) || value.endsWith(UNDERSCORE))
-        {
-            String normalized = value.replaceAll("_*$", "");
-            normalized = normalized.replaceAll("^_*", "");
-            return normalized;
-        }
-        return value;
+        return result.toString();
     }
 
     public boolean doAction(Writer messageWriter)

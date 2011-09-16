@@ -109,7 +109,7 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
 
     public String getGeneSymbol(String[] row)
     {
-        return getCodeValue(row, GENE_SYMBOL);
+        return getValue(row, GENE_SYMBOL);
     }
 
     public String getGeneDescription(String[] row)
