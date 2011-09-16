@@ -323,21 +323,58 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
-    public AttachmentPE getSampleFileAttachment(final String filename, final int version)
+    public AttachmentPE getSampleFileAttachment(final String filename, final Integer versionOrNull)
     {
         checkSampleLoaded();
         sample.ensureAttachmentsLoaded();
+        AttachmentPE att =
+                versionOrNull == null ? getAttachment(filename) : getAttachment(filename,
+                        versionOrNull);
+        if (att != null)
+        {
+            HibernateUtils.initialize(att.getAttachmentContent());
+            return att;
+        }
+
+        throw new UserFailureException(
+                "Attachment '"
+                        + filename
+                        + "' "
+                        + (versionOrNull == null ? "(latest version)" : "(version '"
+                                + versionOrNull + "')") + " not found in sample '"
+                        + sample.getIdentifier() + "'.");
+    }
+
+    private AttachmentPE getAttachment(String filename, final int version)
+    {
         final Set<AttachmentPE> attachmentsSet = sample.getAttachments();
         for (AttachmentPE att : attachmentsSet)
         {
             if (att.getFileName().equals(filename) && att.getVersion() == version)
             {
-                HibernateUtils.initialize(att.getAttachmentContent());
                 return att;
             }
         }
-        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
-                + "') not found in sample '" + sample.getIdentifier() + "'.");
+
+        return null;
+    }
+
+    private AttachmentPE getAttachment(String filename)
+    {
+        AttachmentPE latest = null;
+        final Set<AttachmentPE> attachmentsSet = sample.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
+        {
+            if (att.getFileName().equals(filename))
+            {
+                if (latest == null || latest.getVersion() < att.getVersion())
+                {
+                    latest = att;
+                }
+            }
+        }
+
+        return latest;
     }
 
     public final void enrichWithAttachments()

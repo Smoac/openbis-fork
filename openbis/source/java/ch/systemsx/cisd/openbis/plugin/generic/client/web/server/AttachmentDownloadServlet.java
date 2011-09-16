@@ -63,8 +63,14 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception
     {
-        final int version =
-                Integer.parseInt(request.getParameter(GenericConstants.VERSION_PARAMETER));
+        final String versionStringOrNull = request.getParameter(GenericConstants.VERSION_PARAMETER);
+        Integer versionOrNull = null;
+
+        if (versionStringOrNull != null)
+        {
+            versionOrNull = Integer.parseInt(versionStringOrNull);
+        }
+
         String name = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
         String encoding = request.getCharacterEncoding();
         if (encoding == null)
@@ -82,45 +88,42 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
             final TechId techId = new TechId(Long.parseLong(techIdString));
             if (attachmentHolderKind.equals(AttachmentHolderKind.EXPERIMENT.name()))
             {
-                return getExperimentFile(request, version, fileName, techId);
+                return getExperimentFile(request, versionOrNull, fileName, techId);
             } else if (attachmentHolderKind.equals(AttachmentHolderKind.SAMPLE.name()))
             {
-                return getSampleFile(request, version, fileName, techId);
+                return getSampleFile(request, versionOrNull, fileName, techId);
             } else if (attachmentHolderKind.equals(AttachmentHolderKind.PROJECT.name()))
             {
-                return getProjectFile(request, version, fileName, techId);
+                return getProjectFile(request, versionOrNull, fileName, techId);
             }
         }
         return null;
     }
 
-    private FileContent getExperimentFile(final HttpServletRequest request, final int version,
-            final String fileName, final TechId experimentId)
+    private FileContent getExperimentFile(final HttpServletRequest request,
+            final Integer versionOrNull, final String fileName, final TechId experimentId)
     {
         final AttachmentWithContent attachment =
                 server.getExperimentFileAttachment(getSessionToken(request), experimentId,
-                        fileName, version);
-        return new FileContent(attachment.getContent(), attachment
-                .getFileName());
+                        fileName, versionOrNull);
+        return new FileContent(attachment.getContent(), attachment.getFileName());
     }
 
-    private FileContent getSampleFile(final HttpServletRequest request, final int version,
-            final String fileName, final TechId sampleId)
+    private FileContent getSampleFile(final HttpServletRequest request,
+            final Integer versionOrNull, final String fileName, final TechId sampleId)
     {
         final AttachmentWithContent attachment =
                 server.getSampleFileAttachment(getSessionToken(request), sampleId, fileName,
-                        version);
-        return new FileContent(attachment.getContent(), attachment
-                .getFileName());
+                        versionOrNull);
+        return new FileContent(attachment.getContent(), attachment.getFileName());
     }
 
-    private FileContent getProjectFile(final HttpServletRequest request, final int version,
-            final String fileName, final TechId projectId)
+    private FileContent getProjectFile(final HttpServletRequest request,
+            final Integer versionOrNull, final String fileName, final TechId projectId)
     {
         final AttachmentWithContent attachment =
                 server.getProjectFileAttachment(getSessionToken(request), projectId, fileName,
-                        version);
-        return new FileContent(attachment.getContent(), attachment
-                .getFileName());
+                        versionOrNull);
+        return new FileContent(attachment.getContent(), attachment.getFileName());
     }
 }

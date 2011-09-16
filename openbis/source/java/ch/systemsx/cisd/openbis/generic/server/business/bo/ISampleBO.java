@@ -102,9 +102,10 @@ public interface ISampleBO extends IEntityBusinessObject
     void addAttachment(AttachmentPE attachment);
 
     /**
-     * Returns attachment (with content) given defined by filename and version.
+     * Returns attachment (with content) given defined by filename and version (or latest one if
+     * version is <code>null</code>).
      */
-    public AttachmentPE getSampleFileAttachment(String fileName, int version);
+    public AttachmentPE getSampleFileAttachment(String fileName, Integer versionOrNull);
 
     /** Adds attachments */
     void enrichWithAttachments();

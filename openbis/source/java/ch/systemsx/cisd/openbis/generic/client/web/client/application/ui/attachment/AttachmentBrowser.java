@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -75,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PopupDialogBasedInfoHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -594,6 +596,7 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
         {
             final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
             columns.add(createVersionFileNameColumn());
+            columns.add(createPermlinkColumn());
             columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
             columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
             return columns;
@@ -626,6 +629,33 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
 
         }
 
+        private ColumnConfig createPermlinkColumn()
+        {
+            final ColumnConfig column =
+                    ColumnConfigFactory.createDefaultColumnConfig(
+                            messageProvider.getMessage(Dict.PERMLINK),
+                            AttachmentVersionModel.PERMLINK);
+
+            column.setWidth(100);
+            column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
+                {
+
+                    public Object render(AttachmentVersionModel model, String property,
+                            ColumnData config, int rowIndex, int colIndex,
+                            ListStore<AttachmentVersionModel> store,
+                            Grid<AttachmentVersionModel> grid)
+                    {
+                        String url =
+                                StringEscapeUtils.unescapeHtml(StringUtils
+                                        .toStringEmptyIfNull(model.get(property)));
+
+                        return LinkRenderer.renderAsLinkWithAnchor(
+                                messageProvider.getMessage(Dict.PERMLINK), url, true);
+                    }
+                });
+
+            return column;
+        }
     }
 
 }

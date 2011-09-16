@@ -117,8 +117,10 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                 } catch (final DataAccessException e)
                 {
                     final String fileName = attachment.getFileName();
-                    throwException(e, String.format("Filename '%s' for project '%s'", fileName,
-                            project.getIdentifier()));
+                    throwException(
+                            e,
+                            String.format("Filename '%s' for project '%s'", fileName,
+                                    project.getIdentifier()));
                 }
             }
             attachments.clear();
@@ -146,8 +148,8 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         project = getProjectDAO().tryFindProject(databaseInstanceCode, spaceCode, projectCode);
         if (project == null)
         {
-            throw new UserFailureException(String
-                    .format("Project '%s' does not exist.", identifier));
+            throw new UserFailureException(
+                    String.format("Project '%s' does not exist.", identifier));
         }
         dataChanged = false;
     }
@@ -181,21 +183,58 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         }
     }
 
-    public AttachmentPE getProjectFileAttachment(final String filename, final int version)
+    public AttachmentPE getProjectFileAttachment(final String filename, final Integer versionOrNull)
     {
         checkProjectLoaded();
         project.ensureAttachmentsLoaded();
+        AttachmentPE att =
+                versionOrNull == null ? getAttachment(filename) : getAttachment(filename,
+                        versionOrNull);
+        if (att != null)
+        {
+            HibernateUtils.initialize(att.getAttachmentContent());
+            return att;
+        }
+
+        throw new UserFailureException(
+                "Attachment '"
+                        + filename
+                        + "' "
+                        + (versionOrNull == null ? "(latest version)" : "(version '"
+                                + versionOrNull + "')") + " not found in project '"
+                        + project.getIdentifier() + "'.");
+    }
+
+    private AttachmentPE getAttachment(String filename, final int version)
+    {
         final Set<AttachmentPE> attachmentsSet = project.getAttachments();
         for (AttachmentPE att : attachmentsSet)
         {
             if (att.getFileName().equals(filename) && att.getVersion() == version)
             {
-                HibernateUtils.initialize(att.getAttachmentContent());
                 return att;
             }
         }
-        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
-                + "') not found in project '" + project.getIdentifier() + "'.");
+
+        return null;
+    }
+
+    private AttachmentPE getAttachment(String filename)
+    {
+        AttachmentPE latest = null;
+        final Set<AttachmentPE> attachmentsSet = project.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
+        {
+            if (att.getFileName().equals(filename))
+            {
+                if (latest == null || latest.getVersion() < att.getVersion())
+                {
+                    latest = att;
+                }
+            }
+        }
+
+        return latest;
     }
 
     private void checkProjectLoaded()

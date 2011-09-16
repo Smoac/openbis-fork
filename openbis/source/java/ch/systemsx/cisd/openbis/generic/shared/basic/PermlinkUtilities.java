@@ -52,7 +52,7 @@ public class PermlinkUtilities
     public static final String VERSION_KEY = "version";
 
     private final static URLMethodWithParameters createAttachmentParameters(
-            final String baseIndexURL, final String fileName, final int version)
+            final String baseIndexURL, final String fileName, final Integer version)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
         ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, ViewMode.SIMPLE.name());
@@ -60,12 +60,15 @@ public class PermlinkUtilities
         ulrWithParameters.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
                 DOWNLOAD_ATTACHMENT_ACTION);
         ulrWithParameters.addParameter(FILE_NAME_KEY, fileName);
-        ulrWithParameters.addParameter(VERSION_KEY, version);
+        if (version != null)
+        {
+            ulrWithParameters.addParameter(VERSION_KEY, version);
+        }
         return ulrWithParameters;
     }
 
     public final static String createAttachmentPermlinkURL(final String baseIndexURL,
-            final String fileName, final int version, final AttachmentHolderKind entityKind,
+            final String fileName, final Integer version, final AttachmentHolderKind entityKind,
             final String permId)
     {
         URLMethodWithParameters ulrWithParameters =
@@ -76,7 +79,8 @@ public class PermlinkUtilities
     }
 
     public final static String createProjectAttachmentPermlinkURL(final String baseIndexURL,
-            final String fileName, final int version, final String projectCode, final String space)
+            final String fileName, final Integer version, final String projectCode,
+            final String space)
     {
         URLMethodWithParameters ulrWithParameters =
                 createAttachmentParameters(baseIndexURL, fileName, version);

@@ -35,6 +35,8 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
 
     private String permlink;
 
+    private String latestVersionPermlink;
+
     public Attachment()
     {
     }
@@ -95,4 +97,13 @@ public class Attachment extends AbstractRegistrationHolder implements Comparable
         this.permlink = permlink;
     }
 
+    public String getLatestVersionPermlink()
+    {
+        return latestVersionPermlink;
+    }
+
+    public void setLatestVersionPermlink(String latestVersionPermlink)
+    {
+        this.latestVersionPermlink = latestVersionPermlink;
+    }
 }

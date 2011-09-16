@@ -118,27 +118,27 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
-            final TechId experimentId, final String filename, final int version)
+            final TechId experimentId, final String filename, final Integer versionOrNull)
             throws UserFailureException
     {
         logAccess(sessionToken, "get_attachment", "EXPERIMENT_ID(%s) FILE(%s) VERSION(%s)",
-                experimentId, filename, version);
+                experimentId, filename, versionOrNull);
         return null;
     }
 
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
-            String fileName, int version)
+            String fileName, Integer versionOrNull)
     {
         logAccess(sessionToken, "get_attachment", "PROJECT_ID(%s) FILE(%s) VERSION(%s)", projectId,
-                fileName, version);
+                fileName, versionOrNull);
         return null;
     }
 
     public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
-            String fileName, int version)
+            String fileName, Integer versionOrNull)
     {
         logAccess(sessionToken, "get_attachment", "SAMPLE_ID(%s) FILE(%s) VERSION(%s)", sampleId,
-                fileName, version);
+                fileName, versionOrNull);
         return null;
     }
 

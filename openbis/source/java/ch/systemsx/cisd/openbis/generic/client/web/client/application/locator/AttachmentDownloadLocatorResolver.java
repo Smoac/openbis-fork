@@ -40,10 +40,13 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
         String versionOrNull = locator.getParameters().get(PermlinkUtilities.VERSION_KEY);
 
         checkRequiredParameter(fileNameOrNull, PermlinkUtilities.FILE_NAME_KEY);
-        checkRequiredParameter(versionOrNull, PermlinkUtilities.VERSION_KEY);
         try
         {
-            int version = Integer.parseInt(versionOrNull);
+            Integer version = null;
+            if (versionOrNull != null)
+            {
+                version = Integer.parseInt(versionOrNull);
+            }
             if (attachmentHolderKind == AttachmentHolderKind.PROJECT)
             {
                 BasicProjectIdentifier projectIdentifier =
@@ -66,7 +69,8 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
     }
 
     private void downloadAttachment(EntityKind entityKind,
-            AttachmentHolderKind attachmentHolderKind, String permId, String fileName, int version)
+            AttachmentHolderKind attachmentHolderKind, String permId, String fileName,
+            Integer version)
     {
         viewContext.getService()
                 .getEntityInformationHolder(
@@ -77,7 +81,7 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
     }
 
     private void downloadProjectAttachment(BasicProjectIdentifier identifier,
-            final String fileName, final int version) throws UserFailureException
+            final String fileName, final Integer version) throws UserFailureException
     {
         viewContext.getService().getProjectInfo(identifier,
                 new ProjectAttachmentDownloadCallback(viewContext, fileName, version));
@@ -103,10 +107,11 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
 
         private final String fileName;
 
-        private final int version;
+        private final Integer version;
 
         private AttachmentDownloadCallback(final IViewContext<?> viewContext,
-                AttachmentHolderKind attachmentHolderKind, final String fileName, final int version)
+                AttachmentHolderKind attachmentHolderKind, final String fileName,
+                final Integer version)
         {
             super(viewContext);
             this.attachmentHolderKind = attachmentHolderKind;
@@ -149,10 +154,10 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
     {
         private final String fileName;
 
-        private final int version;
+        private final Integer version;
 
         private ProjectAttachmentDownloadCallback(final IViewContext<?> viewContext,
-                final String fileName, final int version)
+                final String fileName, final Integer version)
         {
             super(viewContext);
             this.fileName = fileName;

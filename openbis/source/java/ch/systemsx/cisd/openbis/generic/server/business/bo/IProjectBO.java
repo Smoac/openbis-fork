@@ -55,9 +55,10 @@ public interface IProjectBO extends IEntityBusinessObject
     public void loadByProjectIdentifier(ProjectIdentifier project);
 
     /**
-     * Returns attachment (with content) given defined by filename and version.
+     * Returns attachment (with content) given defined by filename and version (or latest one if
+     * version is <code>null</code>.
      */
-    public AttachmentPE getProjectFileAttachment(String fileName, int version);
+    public AttachmentPE getProjectFileAttachment(String fileName, Integer versionOrNull);
 
     /** Loads attachments */
     public void enrichWithAttachments();

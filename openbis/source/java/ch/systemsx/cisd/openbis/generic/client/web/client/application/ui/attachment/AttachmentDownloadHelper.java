@@ -28,23 +28,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
  */
 public class AttachmentDownloadHelper
 {
-    public static void download(String fileName, int version, IAttachmentHolder holder)
+    public static void download(String fileName, Integer version, IAttachmentHolder holder)
     {
         WindowUtils.openWindow(createURL(fileName, version, holder));
     }
 
-    public final static String createURL(final String fileName, final int version,
+    public final static String createURL(final String fileName, final Integer version,
             final IAttachmentHolder attachmentHolder)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
-        methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
+        if (version != null)
+        {
+            methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
+        }
         methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
         methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER,
                 attachmentHolder.getAttachmentHolderKind().name());
         // NOTE: this exp.getId() could be null if exp is a proxy
-        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER, attachmentHolder
-                .getId());
+        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER,
+                attachmentHolder.getId());
         return methodWithParameters.toString();
     }
 }

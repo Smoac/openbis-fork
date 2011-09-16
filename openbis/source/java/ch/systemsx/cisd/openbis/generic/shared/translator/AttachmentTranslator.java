@@ -51,7 +51,8 @@ public final class AttachmentTranslator
             return null;
         }
         final Attachment result = new Attachment();
-        result.setPermlink(createPermlink(attachment, baseIndexURL));
+        result.setPermlink(createPermlink(attachment, baseIndexURL, false));
+        result.setLatestVersionPermlink(createPermlink(attachment, baseIndexURL, true));
         result.setFileName(attachment.getFileName());
         result.setTitle(attachment.getTitle());
         result.setDescription(attachment.getDescription());
@@ -61,20 +62,21 @@ public final class AttachmentTranslator
         return result;
     }
 
-    private static String createPermlink(AttachmentPE attachment, String baseIndexURL)
+    private static String createPermlink(AttachmentPE attachment, String baseIndexURL,
+            boolean latestVersionPermlink)
     {
         final AttachmentHolderPE holder = attachment.getParent();
         final String fileName = attachment.getFileName();
-        final int version = attachment.getVersion();
+        final Integer versionOrNull = latestVersionPermlink ? null : attachment.getVersion();
         if (holder.getAttachmentHolderKind() == AttachmentHolderKind.PROJECT)
         {
             ProjectPE project = (ProjectPE) holder;
             return PermlinkUtilities.createProjectAttachmentPermlinkURL(baseIndexURL, fileName,
-                    version, project.getCode(), project.getSpace().getCode());
+                    versionOrNull, project.getCode(), project.getSpace().getCode());
         } else
         {
-            return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version,
-                    holder.getAttachmentHolderKind(), holder.getPermId());
+            return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName,
+                    versionOrNull, holder.getAttachmentHolderKind(), holder.getPermId());
         }
     }
 

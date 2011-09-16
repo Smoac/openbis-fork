@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
-
 /**
  * Encapsulation of all versions of an {@link Attachment} file.
  * 
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 public class AttachmentVersions implements Comparable<AttachmentVersions>, ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     /** sorted list of all versions of an {@link Attachment} file */
     private List<Attachment> versions;
 
@@ -63,6 +62,11 @@ public class AttachmentVersions implements Comparable<AttachmentVersions>, ISeri
     public String getPermlink()
     {
         return getCurrent().getPermlink();
+    }
+
+    public String getLatestVersionPermlink()
+    {
+        return getCurrent().getLatestVersionPermlink();
     }
 
     // serialization

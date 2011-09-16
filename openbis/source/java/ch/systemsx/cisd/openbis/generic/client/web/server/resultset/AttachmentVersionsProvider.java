@@ -39,16 +39,18 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Provider of {@link AttachmentVersions} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class AttachmentVersionsProvider extends AbstractCommonTableModelProvider<AttachmentVersions>
+public class AttachmentVersionsProvider extends
+        AbstractCommonTableModelProvider<AttachmentVersions>
 {
     private final TechId holderId;
+
     private final AttachmentHolderKind holderKind;
 
-    public AttachmentVersionsProvider(ICommonServer commonServer, String sessionToken, TechId holderId,
-            AttachmentHolderKind holderKind)
+    public AttachmentVersionsProvider(ICommonServer commonServer, String sessionToken,
+            TechId holderId, AttachmentHolderKind holderKind)
     {
         super(commonServer, sessionToken);
         this.holderId = holderId;
@@ -59,7 +61,8 @@ public class AttachmentVersionsProvider extends AbstractCommonTableModelProvider
     protected TypedTableModel<AttachmentVersions> createTableModel()
     {
         List<Attachment> attachments = listAttachments();
-        TypedTableModelBuilder<AttachmentVersions> builder = new TypedTableModelBuilder<AttachmentVersions>();
+        TypedTableModelBuilder<AttachmentVersions> builder =
+                new TypedTableModelBuilder<AttachmentVersions>();
         builder.addColumn(FILE_NAME).withDefaultWidth(200);
         builder.addColumn(PERMLINK);
         builder.addColumn(VERSION);
@@ -71,7 +74,7 @@ public class AttachmentVersionsProvider extends AbstractCommonTableModelProvider
         {
             builder.addRow(versions);
             builder.column(FILE_NAME).addString(versions.getCurrent().getFileName());
-            builder.column(PERMLINK).addString(versions.getPermlink());
+            builder.column(PERMLINK).addString(versions.getLatestVersionPermlink());
             builder.column(VERSION).addInteger((long) versions.getCurrent().getVersion());
             builder.column(TITLE).addString(versions.getCurrent().getTitle());
             builder.column(DESCRIPTION).addString(versions.getCurrent().getDescription());

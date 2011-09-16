@@ -35,6 +35,8 @@ public class AttachmentVersionModel extends SimplifiedBaseModelData
 
     public static final String VERSION_FILE_NAME = "versionsFileName";
 
+    public static final String PERMLINK = "permlink";
+
     private static final long serialVersionUID = 1L;
 
     public AttachmentVersionModel()
@@ -45,8 +47,9 @@ public class AttachmentVersionModel extends SimplifiedBaseModelData
     {
         set(VERSION_FILE_NAME, createDescription(attachament));
         set(VERSION, attachament.getVersion());
-        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(attachament
-                .getRegistrator()));
+        set(PERMLINK, attachament.getPermlink());
+        set(ModelDataPropertyNames.REGISTRATOR,
+                PersonRenderer.createPersonAnchor(attachament.getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, attachament.getRegistrationDate());
         set(ModelDataPropertyNames.OBJECT, attachament);
     }

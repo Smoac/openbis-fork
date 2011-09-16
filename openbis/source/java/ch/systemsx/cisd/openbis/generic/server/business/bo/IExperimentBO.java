@@ -54,9 +54,10 @@ public interface IExperimentBO extends IEntityBusinessObject
     public void enrichWithAttachments();
 
     /**
-     * Returns attachment (with content) given defined by filename and version.
+     * Returns attachment (with content) given defined by filename and version (or latest one if
+     * version is <code>null</code>.
      */
-    public AttachmentPE getExperimentFileAttachment(String filename, int version);
+    public AttachmentPE getExperimentFileAttachment(String filename, Integer versionOrNull);
 
     /**
      * Defines a new experiment. After invocation of this method {@link IExperimentBO#save()} should

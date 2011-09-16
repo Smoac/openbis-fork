@@ -190,21 +190,58 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    public AttachmentPE getExperimentFileAttachment(final String filename, final int version)
+    public AttachmentPE getExperimentFileAttachment(final String filename,
+            final Integer versionOrNull)
     {
         checkExperimentLoaded();
         experiment.ensureAttachmentsLoaded();
+
+        AttachmentPE att =
+                versionOrNull == null ? getAttachment(filename) : getAttachment(filename,
+                        versionOrNull);
+        if (att != null)
+        {
+            HibernateUtils.initialize(att.getAttachmentContent());
+            return att;
+        }
+
+        throw new UserFailureException("Attachment '"
+                + filename
+                + "' "
+                + (versionOrNull == null ? "(latestaa version)" : "(version '" + versionOrNull
+                        + "')") + " not found in experiment '" + experiment.getIdentifier() + "'.");
+    }
+
+    private AttachmentPE getAttachment(String filename, final int version)
+    {
         final Set<AttachmentPE> attachmentsSet = experiment.getAttachments();
         for (AttachmentPE att : attachmentsSet)
         {
             if (att.getFileName().equals(filename) && att.getVersion() == version)
             {
-                HibernateUtils.initialize(att.getAttachmentContent());
                 return att;
             }
         }
-        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
-                + "') not found in experiment '" + experiment.getIdentifier() + "'.");
+
+        return null;
+    }
+
+    private AttachmentPE getAttachment(String filename)
+    {
+        AttachmentPE latest = null;
+        final Set<AttachmentPE> attachmentsSet = experiment.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
+        {
+            if (att.getFileName().equals(filename))
+            {
+                if (latest == null || latest.getVersion() < att.getVersion())
+                {
+                    latest = att;
+                }
+            }
+        }
+
+        return latest;
     }
 
     public void deleteByTechIds(List<TechId> experimentIds, String reason)

@@ -229,14 +229,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
-            final TechId experimentId, final String filename, final int version)
+            final TechId experimentId, final String filename, final Integer versionOrNull)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadDataByTechId(experimentId);
         return AttachmentTranslator.translateWithContent(experimentBO.getExperimentFileAttachment(
-                filename, version));
+                filename, versionOrNull));
     }
 
     public final void registerOrUpdateSamples(final String sessionToken,
@@ -579,23 +579,23 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
-            String fileName, int version)
+            String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.loadDataByTechId(projectId);
         return AttachmentTranslator.translateWithContent(bo.getProjectFileAttachment(fileName,
-                version));
+                versionOrNull));
     }
 
     public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
-            String fileName, int version)
+            String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
         bo.loadDataByTechId(sampleId);
         return AttachmentTranslator.translateWithContent(bo.getSampleFileAttachment(fileName,
-                version));
+                versionOrNull));
     }
 
     public List<String> generateCodes(String sessionToken, String prefix, int number)
