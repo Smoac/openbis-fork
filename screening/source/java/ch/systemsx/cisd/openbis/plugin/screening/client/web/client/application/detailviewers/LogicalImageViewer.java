@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -267,7 +266,6 @@ public class LogicalImageViewer
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
-        container.setScrollMode(Scroll.AUTO);
 
         RowData layoutData = new RowData();
         layoutData.setMargins(new Margins(3, 0, 0, 0));
