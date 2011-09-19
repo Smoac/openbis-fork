@@ -92,6 +92,10 @@ public class SslCertificateHelper
         {
             URL url = new URL(serviceURL);
             int port = url.getPort();
+            if (port == -1)
+            {
+                port = 433;
+            }
             String hostname = url.getHost();
             SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
             socket = (SSLSocket) factory.createSocket(hostname, port);
