@@ -37,6 +37,22 @@ import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecora
  */
 class RollbackStack
 {
+    /**
+     * Delegate methods for the rollback stack, giving clients of the stack control over its
+     * behavior.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static interface IRollbackStackDelegate
+    {
+
+        /**
+         * Informs clients that the stack will rollback another item. Implementations may throw
+         * exceptions or block the thread until the stack can continue.
+         */
+        void willContinueRollbackAll(RollbackStack stack);
+    }
+
     // The files that store the persistent queue. Used for discarding the queues.
     private final File queue1File;
 
@@ -185,10 +201,28 @@ class RollbackStack
      */
     public void rollbackAll()
     {
+        rollbackAll(new IRollbackStackDelegate()
+            {
+
+                @Override
+                public void willContinueRollbackAll(RollbackStack stack)
+                {
+                    // Don't do anything
+                }
+            });
+    }
+
+    /**
+     * Rollback any commands that have been executed. Rollback is done in the reverse order of
+     * execution.
+     */
+    public void rollbackAll(IRollbackStackDelegate delegate)
+    {
         getOperationLog().info("Rolling back stack " + this);
         // Pop and rollback all
         while (size() > 0)
         {
+            delegate.willContinueRollbackAll(this);
             rollbackAndPop();
         }
     }

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
@@ -83,8 +85,14 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
      * @author Chandrasekhar Ramakrishnan
      */
     static class LiveTransactionState<T extends DataSetInformation> extends
-            AbstractTransactionState<T>
+            AbstractTransactionState<T> implements RollbackStack.IRollbackStackDelegate
     {
+        // Wait for up to 5 minutes for the file system to become available
+        private static final int MAX_DIRECTORY_AVAILABLE_WAIT_COUNT = 6 * 5;
+
+        // Poll every 10 seconds
+        private static final int STAGING_DIR_AVAILABILITY_POLLING_WAIT_TIME = 10 * 1000;
+
         // Keeps track of steps that have been executed and may need to be reverted. Elements are
         // kept in the order they need to be reverted.
         private final RollbackStack rollbackStack;
@@ -518,7 +526,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
          */
         public void rollback()
         {
-            rollbackStack.rollbackAll();
+            rollbackStack.rollbackAll(this);
             registeredDataSets.clear();
             for (DynamicTransactionQuery query : queriesToCommit.values())
             {
@@ -657,6 +665,43 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         public boolean isRolledback()
         {
             return false;
+        }
+
+        @Override
+        public void willContinueRollbackAll(RollbackStack stack)
+        {
+            // Stop rolling back if the thread was interrupted
+            InterruptedExceptionUnchecked.check();
+
+            // Poll until the folder becomes accessible
+            if (null != FileUtilities.checkDirectoryFullyAccessible(stagingDirectory, "staging"))
+            {
+                boolean keepPolling = true;
+                for (int waitCount = 0; waitCount < MAX_DIRECTORY_AVAILABLE_WAIT_COUNT
+                        && keepPolling; ++waitCount)
+                {
+                    try
+                    {
+                        Thread.sleep(STAGING_DIR_AVAILABILITY_POLLING_WAIT_TIME);
+                        // If the directory is not accessible (i.e., return not null), wait again
+                        keepPolling =
+                                (null != FileUtilities.checkDirectoryFullyAccessible(
+                                        stagingDirectory, "staging"));
+                    } catch (InterruptedException e)
+                    {
+                        throw new InterruptedExceptionUnchecked(e);
+                    }
+                }
+
+                // The file never became available -- throw an exception
+                if (null != FileUtilities
+                        .checkDirectoryFullyAccessible(stagingDirectory, "staging"))
+                {
+                    throw new IOExceptionUnchecked("The staging directory "
+                            + stagingDirectory.getAbsolutePath()
+                            + " is not available. Could not rollback transaction.");
+                }
+            }
         }
     }
 
