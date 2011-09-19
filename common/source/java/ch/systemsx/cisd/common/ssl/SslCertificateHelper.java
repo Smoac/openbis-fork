@@ -94,7 +94,7 @@ public class SslCertificateHelper
             int port = url.getPort();
             if (port == -1)
             {
-                port = 433;
+                port = 433; // standard port for https
             }
             String hostname = url.getHost();
             SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
