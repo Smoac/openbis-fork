@@ -355,7 +355,7 @@ public class MaterialReplicaSummaryComponent
 
         ImageDatasetParameters imageParameters = image.tryGetImageDataset().getImageParameters();
         channelChooser.addSelectionChangedListener(widgetWithListener);
-        channelChooser.addCodes(imageParameters);
+        channelChooser.addChannels(imageParameters);
 
         return widgetWithListener.asWidget();
     }

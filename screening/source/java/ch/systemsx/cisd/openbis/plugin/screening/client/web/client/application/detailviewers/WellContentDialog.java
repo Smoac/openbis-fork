@@ -434,7 +434,6 @@ public class WellContentDialog extends Dialog
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
-                    // TODO KE: pass analysis procedure from plate layout to material detail view
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openImagingMaterialViewer(material, getExperimentCriteria(),
                                     AnalysisProcedureCriteria.createNoProcedures(), viewContext);

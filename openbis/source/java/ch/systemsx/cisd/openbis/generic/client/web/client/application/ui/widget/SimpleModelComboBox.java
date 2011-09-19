@@ -133,7 +133,7 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         LabeledItem<T> result = null;
         for (SimpleComboValue<LabeledItem<T>> c : getStore().getModels())
         {
-            if (c.getValue().getItem().equals(value))
+            if (c.getValue().getItem().equals(val))
             {
                 result = c.getValue();
                 break;

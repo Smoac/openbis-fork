@@ -37,6 +37,11 @@ public class LabeledItem<T>
         return item;
     }
 
+    public String getLabel()
+    {
+        return label;
+    }
+
     public String getTooltip()
     {
         return tooltip;
@@ -47,4 +52,5 @@ public class LabeledItem<T>
     {
         return label;
     }
+
 }

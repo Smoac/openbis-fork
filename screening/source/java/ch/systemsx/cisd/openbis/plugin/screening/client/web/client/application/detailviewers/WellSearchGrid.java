@@ -628,7 +628,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
 
                     ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.addSelectionChangedListener(widgetWithListener);
-                    channelChooser.addCodes(imageParameters);
+                    channelChooser.addChannels(imageParameters);
 
                     return widgetWithListener.asWidget();
                 }

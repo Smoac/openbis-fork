@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MERGED_CHANNELS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,14 +32,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -85,7 +86,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private CheckBoxGroup channelsCheckBoxGroup;
 
-    private SimpleComboBox<String> channelsComboBox;
+    private SimpleModelComboBox<String> channelsComboBox;
 
     private SimpleModelComboBox<ImageTransformationInfo> transformationsComboBox;
 
@@ -120,13 +121,12 @@ public class ChannelChooserPanel extends LayoutContainer
     public ChannelChooserPanel(IMessageProvider messageProvider,
             IDefaultChannelState defChannelState)
     {
-        this(messageProvider, defChannelState, Collections.<String> emptyList(), Collections
-                .<String> emptyList(), null);
+        this(messageProvider, defChannelState, Collections.<String> emptyList(), null);
     }
 
     public ChannelChooserPanel(IMessageProvider messageProvider,
-            IDefaultChannelState defChannelState, List<String> names,
-            List<String> selectedChannelsOrNull, ImageDatasetParameters imageDatasetParameters)
+            IDefaultChannelState defChannelState, List<String> selectedChannelsOrNull,
+            ImageDatasetParameters imageDatasetParameters)
     {
         this.messageProvider = messageProvider;
         this.defaultChannelState = defChannelState;
@@ -139,9 +139,6 @@ public class ChannelChooserPanel extends LayoutContainer
         transformationsComboBox =
                 new SimpleModelComboBox<ImageTransformationInfo>(this.messageProvider,
                         new ArrayList<LabeledItem<ImageTransformationInfo>>(), null);
-        transformationsComboBox.setTriggerAction(TriggerAction.ALL);
-        transformationsComboBox.setAllowBlank(false);
-        transformationsComboBox.setEditable(false);
         transformationsComboBox.addListener(Events.SelectionChange, transformationSelection);
 
         ComboBoxGroup group = new ComboBoxGroup();
@@ -154,18 +151,15 @@ public class ChannelChooserPanel extends LayoutContainer
         channelsCheckBoxGroup = createCheckBoxGroup();
         add(channelsCheckBoxGroup);
 
-        addChannels(names, imageDatasetParameters);
+        addChannels(imageDatasetParameters);
         updateChannelSelection(selectedChannelsOrNull);
     }
 
-    private SimpleComboBox<String> createChannelsComboBox()
+    private SimpleModelComboBox<String> createChannelsComboBox()
     {
-        SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
-
-        comboBox.setTriggerAction(TriggerAction.ALL);
-        comboBox.setAllowBlank(false);
-        comboBox.setEditable(false);
-        comboBox.setEmptyText("Choose...");
+        SimpleModelComboBox<String> comboBox =
+                new SimpleModelComboBox<String>(this.messageProvider,
+                        new ArrayList<LabeledItem<String>>(), 1);
         comboBox.addListener(Events.SelectionChange, selectionChangeListener);
 
         return comboBox;
@@ -189,9 +183,9 @@ public class ChannelChooserPanel extends LayoutContainer
     /**
      * a quite specific method, currently only needed by the well-search grid.
      */
-    public void addCodes(ImageDatasetParameters imageParameters)
+    public void addChannels(ImageDatasetParameters imageParameters)
     {
-        addChannels(imageParameters.getChannelsCodes(), imageParameters);
+        addChannelsForParameters(imageParameters);
         updateChannelSelection(null);
     }
 
@@ -201,7 +195,7 @@ public class ChannelChooserPanel extends LayoutContainer
      */
     public List<String> getSelectedValues()
     {
-        String comboBoxValue = channelsComboBox.getSimpleValue();
+        String comboBoxValue = channelsComboBox.getSimpleValue().getItem();
         if (comboBoxValue == null)
         {
             return Collections.<String> emptyList();
@@ -225,7 +219,7 @@ public class ChannelChooserPanel extends LayoutContainer
         {
             if (cb.getValue() == true)
             {
-                channels.add(cb.getBoxLabel());
+                channels.add(cb.getValueAttribute());
             } else
             {
                 allSelected = false;
@@ -236,42 +230,42 @@ public class ChannelChooserPanel extends LayoutContainer
         {
             // all channels selected
             // do not list them one-by-one. use the more general "MERGED_CHANNELS" term instead
-            return Collections.singletonList(ScreeningConstants.MERGED_CHANNELS);
+            return Collections.singletonList(MERGED_CHANNELS);
         }
         return channels;
     }
 
-    private void addChannels(List<String> codes, ImageDatasetParameters imageParameters)
+    private void addChannelsForParameters(ImageDatasetParameters imageParameters)
     {
-        addCodeToComboBox(ScreeningConstants.MERGED_CHANNELS);
-        if (codes == null || codes.isEmpty())
+        addChannelToComboBox(new LabeledItem<String>(MERGED_CHANNELS, MERGED_CHANNELS));
+
+        List<LabeledItem<String>> channels = extractLabeledChannels(imageParameters);
+        if (channels == null || channels.isEmpty())
         {
             return;
         }
 
         List<CheckBox> newCheckBoxes = new ArrayList<CheckBox>();
-        for (String code : codes)
+        for (LabeledItem<String> channel : channels)
         {
-            boolean codeAdded = addCodeToComboBox(code);
-
-            if (imageParameters != null)
+            boolean codeAdded = addChannelToComboBox(channel);
+            String code = channel.getItem();
+            Set<ImageTransformationInfo> transformationsForChannel =
+                    transformationsForChannels.get(code);
+            if (transformationsForChannel == null)
             {
-                Set<ImageTransformationInfo> transformationsForChannel =
-                        transformationsForChannels.get(code);
-                if (transformationsForChannel == null)
-                {
-                    transformationsForChannel = new LinkedHashSet<ImageTransformationInfo>();
-                    transformationsForChannels.put(code, transformationsForChannel);
-                }
-                transformationsForChannel.addAll(imageParameters
-                        .getAvailableImageTransformationsFor(code));
+                transformationsForChannel = new LinkedHashSet<ImageTransformationInfo>();
+                transformationsForChannels.put(code, transformationsForChannel);
             }
+            transformationsForChannel.addAll(imageParameters
+                    .getAvailableImageTransformationsFor(code));
 
             if (codeAdded)
             {
                 // also add a checkBockbox for the channel
                 CheckBox checkBox = new CheckBox();
-                checkBox.setBoxLabel(code);
+                checkBox.setBoxLabel(channel.getLabel());
+                checkBox.setValueAttribute(channel.getItem());
                 checkBox.addListener(Events.Change, selectionChangeListener);
                 newCheckBoxes.add(checkBox);
             }
@@ -280,11 +274,33 @@ public class ChannelChooserPanel extends LayoutContainer
         updateCheckBoxGroup(newCheckBoxes);
     }
 
-    private boolean addCodeToComboBox(String code)
+    private List<LabeledItem<String>> extractLabeledChannels(ImageDatasetParameters imageParameters)
     {
-        if (channelsComboBox.findModel(code) == null)
+        if (imageParameters == null || imageParameters.getChannelsNumber() == 0)
         {
-            channelsComboBox.add(code);
+            return Collections.emptyList();
+        }
+        List<String> codes = imageParameters.getChannelsCodes();
+        List<String> labels = imageParameters.getChannelsLabels();
+        List<LabeledItem<String>> result = new ArrayList<LabeledItem<String>>();
+        for (int i = 0; i < codes.size(); i++)
+        {
+            String code = codes.get(i);
+            String label = code;
+            if (i < labels.size() && false == StringUtils.isBlank(labels.get(i)))
+            {
+                label = labels.get(i);
+            }
+            result.add(new LabeledItem<String>(code, label));
+        }
+        return result;
+    }
+
+    private boolean addChannelToComboBox(LabeledItem<String> channel)
+    {
+        if (channelsComboBox.findModelForVal(channel.getItem()) == null)
+        {
+            channelsComboBox.add(channel);
             return true;
         }
         return false;
@@ -301,13 +317,14 @@ public class ChannelChooserPanel extends LayoutContainer
             }
         }
 
-        String comboBoxValue = ScreeningConstants.MERGED_CHANNELS;
+        String codeToSelect = ScreeningConstants.MERGED_CHANNELS;
         if (channels != null && channels.size() == 1)
         {
-            comboBoxValue = channels.get(0);
+            codeToSelect = channels.get(0);
         }
 
-        channelsComboBox.setSimpleValue(comboBoxValue);
+        LabeledItem<String> itemToSelect = channelsComboBox.findModelForVal(codeToSelect);
+        channelsComboBox.setSimpleValue(itemToSelect);
         initializeCheckBoxValues(channels);
         updateTransformationComboBox();
     }
@@ -319,7 +336,8 @@ public class ChannelChooserPanel extends LayoutContainer
         for (CheckBox cb : getAllCheckBoxes())
         {
             @SuppressWarnings("null")
-            boolean checked = selectAllChannels || selectedChannels.contains(cb.getBoxLabel());
+            boolean checked =
+                    selectAllChannels || selectedChannels.contains(cb.getValueAttribute());
             cb.setValue(checked);
         }
 
@@ -330,7 +348,7 @@ public class ChannelChooserPanel extends LayoutContainer
         List<String> selection = getSelectedValues();
         defaultChannelState.setDefaultChannels(selection);
 
-        String selectedComboValue = channelsComboBox.getSimpleValue();
+        String selectedComboValue = channelsComboBox.getSimpleValue().getItem();
         boolean showCheckBoxGroup = ScreeningConstants.MERGED_CHANNELS.equals(selectedComboValue);
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 

@@ -126,12 +126,10 @@ class ChannelChooser
         {
             container.add(createOverlayChannelsChooser(overlayDatasets, viewContext));
         }
-        // basic channels
-        List<String> channels = basicImage.getChannelsCodes();
 
-        if (channels.size() > 1)
+        if (basicImage.getChannelsCodes().size() > 0)
         {
-            Widget channelChooserWithLabel = createBasicChannelChooser(channels, viewContext);
+            Widget channelChooserWithLabel = createBasicChannelChooser(viewContext);
             container.add(channelChooserWithLabel);
         }
         // images
@@ -276,11 +274,11 @@ class ChannelChooser
                 channelCode);
     }
 
-    private Widget createBasicChannelChooser(List<String> channels, IViewContext<?> viewContext)
+    private Widget createBasicChannelChooser(IViewContext<?> viewContext)
     {
         final ChannelChooserPanel channelChooser =
-                new ChannelChooserPanel(viewContext, defaultChannelState, channels,
-                        basicChannelCodes, basicImage.getImagetParameters());
+                new ChannelChooserPanel(viewContext, defaultChannelState, basicChannelCodes,
+                        basicImage.getImagetParameters());
 
         channelChooser
                 .addSelectionChangedListener(new ChannelChooserPanel.ChannelSelectionListener()
