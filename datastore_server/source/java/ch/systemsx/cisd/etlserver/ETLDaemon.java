@@ -326,13 +326,14 @@ public final class ETLDaemon
             final boolean notifySuccessfulRegistration)
     {
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
+        File dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        openBISService, mailClient, dataSetValidator, dataSourceQueryService,
-                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
-                        threadParameters);
+                        dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                        dataSourceQueryService, new DynamicTransactionQueryFactory(),
+                        notifySuccessfulRegistration, threadParameters);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
@@ -356,15 +357,16 @@ public final class ETLDaemon
             Class<?> defaultTopLevelDataSetRegistratorClass)
     {
         final File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(properties);
+        File dssInternalTempDir = DssPropertyParametersUtil.getDssInternalTempDir(properties);
         migrateStoreRootDir(storeRootDir, openBISService.getHomeDatabaseInstance());
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState(dssCode, shareId, storeRootDir,
-                        openBISService, mailClient, dataSetValidator, dataSourceQueryService,
-                        new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
-                        threadParameters, useIsFinishedMarkerFile, deleteUnidentified,
-                        preRegistrationScriptOrNull, postRegistrationScriptOrNull,
-                        validationScriptsOrNull);
+                        dssInternalTempDir, openBISService, mailClient, dataSetValidator,
+                        dataSourceQueryService, new DynamicTransactionQueryFactory(),
+                        notifySuccessfulRegistration, threadParameters, useIsFinishedMarkerFile,
+                        deleteUnidentified, preRegistrationScriptOrNull,
+                        postRegistrationScriptOrNull, validationScriptsOrNull);
 
         ITopLevelDataSetRegistrator registrator =
                 ClassUtils

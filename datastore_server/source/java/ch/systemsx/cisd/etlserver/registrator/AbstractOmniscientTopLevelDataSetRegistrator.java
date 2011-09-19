@@ -236,7 +236,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread(),
                         onErrorDecision);
 
-        DataSetRegistrationTransaction.rollbackDeadTransactions(globalState.getStoreRootDir());
+        DataSetRegistrationTransaction.rollbackDeadTransactions(globalState
+                .getDssInternalTempDir());
 
     }
 

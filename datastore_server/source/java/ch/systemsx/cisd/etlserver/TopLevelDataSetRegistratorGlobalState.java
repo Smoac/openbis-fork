@@ -48,6 +48,8 @@ public class TopLevelDataSetRegistratorGlobalState
 
     private final File storeRootDir;
 
+    private final File dssInternalTempDir;
+
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -85,13 +87,14 @@ public class TopLevelDataSetRegistratorGlobalState
      * @param threadParameters
      */
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
-            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
+            File dssInternalTempDir, IEncapsulatedOpenBISService openBisService,
+            IMailClient mailClient, IDataSetValidator dataSetValidator,
+            IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
             boolean notifySuccessfulRegistration, ThreadParameters threadParameters)
     {
-        this(dssCode, shareId, storeRootDir, openBisService, mailClient, dataSetValidator,
-                dataSourceQueryService, dynamicTransactionQueryFactory,
+        this(dssCode, shareId, storeRootDir, dssInternalTempDir, openBisService, mailClient,
+                dataSetValidator, dataSourceQueryService, dynamicTransactionQueryFactory,
                 notifySuccessfulRegistration, threadParameters, threadParameters
                         .useIsFinishedMarkerFile(), threadParameters.deleteUnidentified(),
                 threadParameters.tryGetPreRegistrationScript(), threadParameters
@@ -99,8 +102,9 @@ public class TopLevelDataSetRegistratorGlobalState
     }
 
     public TopLevelDataSetRegistratorGlobalState(String dssCode, String shareId, File storeRootDir,
-            IEncapsulatedOpenBISService openBisService, IMailClient mailClient,
-            IDataSetValidator dataSetValidator, IDataSourceQueryService dataSourceQueryService,
+            File dssInternalTempDir, IEncapsulatedOpenBISService openBisService,
+            IMailClient mailClient, IDataSetValidator dataSetValidator,
+            IDataSourceQueryService dataSourceQueryService,
             DynamicTransactionQueryFactory dynamicTransactionQueryFactory,
             boolean notifySuccessfulRegistration, ThreadParameters threadParameters,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
@@ -111,6 +115,7 @@ public class TopLevelDataSetRegistratorGlobalState
         this.dssCode = dssCode;
         this.shareId = shareId;
         this.storeRootDir = storeRootDir;
+        this.dssInternalTempDir = dssInternalTempDir;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
         this.dataSetValidator = dataSetValidator;
@@ -138,6 +143,14 @@ public class TopLevelDataSetRegistratorGlobalState
     public File getStoreRootDir()
     {
         return storeRootDir;
+    }
+
+    /**
+     * Get a directory that can be used for temporary files, and is local to the server.
+     */
+    public File getDssInternalTempDir()
+    {
+        return dssInternalTempDir;
     }
 
     public IEncapsulatedOpenBISService getOpenBisService()

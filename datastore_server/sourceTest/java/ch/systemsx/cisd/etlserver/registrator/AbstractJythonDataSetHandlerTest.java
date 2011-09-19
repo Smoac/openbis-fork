@@ -173,8 +173,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         TopLevelDataSetRegistratorGlobalState globalState =
                 new TopLevelDataSetRegistratorGlobalState("dss",
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID,
-                        workingDirectory, openBisService, mailClient, dataSetValidator,
-                        dataSourceQueryService, myFactory, true, threadParameters);
+                        workingDirectory, workingDirectory, openBisService, mailClient,
+                        dataSetValidator, dataSourceQueryService, myFactory, true, threadParameters);
         return globalState;
     }
 

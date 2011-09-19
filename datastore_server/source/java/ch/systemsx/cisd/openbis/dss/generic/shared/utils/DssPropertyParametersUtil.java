@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -43,6 +44,11 @@ public class DssPropertyParametersUtil
 
     public static final String SERVER_URL_KEY = "server-url";
 
+    /**
+     * Temp directory for dss usage.
+     */
+    static final String DSS_TEMP_DIR_PATH = "dss-temp-dir";
+
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
@@ -57,7 +63,8 @@ public class DssPropertyParametersUtil
         Properties properties = PropertyUtils.loadProperties(filePath);
         Properties systemProperties = System.getProperties();
         ExtendedProperties dssSystemProperties =
-                ExtendedProperties.getSubset(systemProperties, OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX, true);
+                ExtendedProperties.getSubset(systemProperties,
+                        OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX, true);
         Set<Entry<Object, Object>> entrySet = dssSystemProperties.entrySet();
         for (Entry<Object, Object> entry : entrySet)
         {
@@ -80,5 +87,24 @@ public class DssPropertyParametersUtil
     public static String getOpenBisServerUrl(Properties serviceProperties)
     {
         return PropertyUtils.getMandatoryProperty(serviceProperties, SERVER_URL_KEY);
+    }
+
+    public static File getDssInternalTempDir(final Properties properties)
+    {
+        String defaultTempDirPath =
+                new File(System.getProperty("user.dir"), "dss-tmp").getAbsolutePath();
+        String tempDirPath =
+                PropertyUtils.getProperty(properties, DSS_TEMP_DIR_PATH, defaultTempDirPath);
+        File tempDir = new File(tempDirPath);
+        tempDir.mkdirs();
+        if (false == tempDir.exists())
+        {
+            throw new ConfigurationFailureException(
+                    "Could not create an internal temp directory for the data store server at path: "
+                            + tempDir.getPath()
+                            + ". Please make sure this directory exists and is writable by the data store server or provide an alternate using directory for the "
+                            + DSS_TEMP_DIR_PATH + " configuration setting");
+        }
+        return tempDir;
     }
 }

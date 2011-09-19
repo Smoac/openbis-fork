@@ -147,7 +147,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         // Clone this service for the transaction to keep them independent
         DataSetRegistrationTransaction<T> transaction =
                 new DataSetRegistrationTransaction<T>(registrator.getGlobalState()
-                        .getStoreRootDir(), workingDirectory, stagingDirectory, this,
+                        .getDssInternalTempDir(), workingDirectory, stagingDirectory, this,
                         detailsFactory);
 
         transactions.add(transaction);

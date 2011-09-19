@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 
 /**
  * Configuration parameters for the Data Set Download Server.
@@ -97,6 +98,8 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     private final File storePath;
 
+    private final File dssInternalTempDir;
+
     private final File rpcIncomingDirectory;
 
     private final int port;
@@ -136,6 +139,7 @@ public final class ConfigParameters implements IServletPropertiesManager
     {
         this.properties = properties;
         storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
+        dssInternalTempDir = getInternalTempDirectory(properties);
         rpcIncomingDirectory = getRpcIncomingDirectory(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
@@ -162,12 +166,17 @@ public final class ConfigParameters implements IServletPropertiesManager
                         DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS);
         pluginServlets = new LinkedHashMap<String, PluginServletConfig>();
         SectionProperties[] pluginServicesProperties =
-            PropertyParametersUtil.extractSectionProperties(properties,
-                    PLUGIN_SERVICES_LIST_KEY, false);
+                PropertyParametersUtil.extractSectionProperties(properties,
+                        PLUGIN_SERVICES_LIST_KEY, false);
         addServletsProperties("", pluginServicesProperties);
 
         webstartJarPath =
                 PropertyUtils.getProperty(properties, WEBSTART_JAR_PATH, WEBSTART_JAR_PATH_DEFAULT);
+    }
+
+    private File getInternalTempDirectory(Properties properties)
+    {
+        return DssPropertyParametersUtil.getDssInternalTempDir(properties);
     }
 
     private static File getRpcIncomingDirectory(final Properties properties)
@@ -231,6 +240,11 @@ public final class ConfigParameters implements IServletPropertiesManager
     public final File getRpcIncomingDirectory()
     {
         return rpcIncomingDirectory;
+    }
+
+    public File getDssInternalTempDir()
+    {
+        return dssInternalTempDir;
     }
 
     public final int getPort()
@@ -308,6 +322,7 @@ public final class ConfigParameters implements IServletPropertiesManager
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Store root directory: '%s'.", storePath));
+            operationLog.info(String.format("Temp file directory: '%s'.", dssInternalTempDir));
             operationLog.info(String.format("RPC incoming directory: '%s'.", rpcIncomingDirectory));
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
