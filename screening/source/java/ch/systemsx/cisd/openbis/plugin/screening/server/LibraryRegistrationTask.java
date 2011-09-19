@@ -135,7 +135,7 @@ class LibraryRegistrationTask implements IASyncAction
                     Material existingGene = existingGenes.tryGet(newGene.getCode());
                     if (existingGene != null)
                     {
-                        mergeGeneTypeCode(existingGene, newGene);
+                        mergeGeneSymbols(existingGene, newGene);
                     }
                 }
 
@@ -172,7 +172,7 @@ class LibraryRegistrationTask implements IASyncAction
      * <p>
      * For further information see LMS-1929.
      */
-    private void mergeGeneTypeCode(Material existingMaterial, NewMaterial newMaterial)
+    private void mergeGeneSymbols(Material existingMaterial, NewMaterial newMaterial)
     {
         IEntityProperty existingGeneProp =
                 EntityHelper.tryFindProperty(existingMaterial.getProperties(),
