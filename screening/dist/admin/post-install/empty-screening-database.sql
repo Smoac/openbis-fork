@@ -2057,15 +2057,6 @@ COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, per
 \.
 
 --
--- Data for Name: data_stores; Type: TABLE DATA; Schema: public; Owner: -
---
-
-COPY data_stores (id, dbin_id, code, download_url, remote_url, session_token, registration_timestamp, modification_timestamp, is_archiver_configured) FROM stdin;
-1	1	STANDARD				2010-05-10 17:57:14.310868+02	2010-05-10 17:57:14.310868+02	f
-\.
-
-
---
 -- Data for Name: data_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
