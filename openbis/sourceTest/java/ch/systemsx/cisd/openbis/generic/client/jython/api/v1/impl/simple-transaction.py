@@ -2,6 +2,9 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.DataType as DataTyp
 
 tr = service.transaction()
 
+fileFormatType = tr.createNewFileFormatType('FILE-FORMAT-TYPE')
+fileFormatType.setDescription('File format type description.')
+
 expType = tr.createNewExperimentType('EXPERIMENT-TYPE')
 expType.setDescription('Experiment type description.')
 
@@ -27,12 +30,6 @@ materialPropertyType.setDescription('Material property type description.')
 materialPropertyType.setLabel('MATERIAL')
 materialPropertyType.setMaterialType(materialType)
 materialPropertyType.setManagedInternally(False)
-
-#xmlPropertyType = tr.createNewPropertyType('XML-PROPERTY-TYPE', DataType.XML)
-#xmlPropertyType.setDescription('XML property type description.')
-#xmlPropertyType.setLabel('XML')
-#xmlPropertyType.setXmlSchema('')
-#xmlPropertyType.setTransformation('')
 
 assigment1 = tr.assignPropertyType(sampleType, materialPropertyType)
 assigment1.setMandatory(True)

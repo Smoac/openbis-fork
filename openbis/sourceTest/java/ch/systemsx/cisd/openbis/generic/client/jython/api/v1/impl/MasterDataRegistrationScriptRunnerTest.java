@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -63,7 +66,8 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         EncapsulatedCommonServer encapsulatedServer =
                 new EncapsulatedCommonServer(commonServer, SESSION_TOKEN);
         errorLogger = new AssertingLogger();
-        pluginScriptRunner = new MasterDataRegistrationScriptRunner(encapsulatedServer, errorLogger);
+        pluginScriptRunner =
+                new MasterDataRegistrationScriptRunner(encapsulatedServer, errorLogger);
 
     }
 
@@ -81,9 +85,13 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                 new RecordingMatcher<PropertyType>();
         final RecordingMatcher<NewETPTAssignment> assignmentMatcher =
                 new RecordingMatcher<NewETPTAssignment>();
+        final RecordingMatcher<FileFormatType> fileFormatMatcher =
+                new RecordingMatcher<FileFormatType>();
         context.checking(new Expectations()
             {
                 {
+                    one(commonServer).registerFileFormatType(with(equal(SESSION_TOKEN)),
+                            with(fileFormatMatcher));
                     one(commonServer).registerExperimentType(with(equal(SESSION_TOKEN)),
                             with(experimentTypeMatcher));
                     one(commonServer).registerSampleType(with(equal(SESSION_TOKEN)),
@@ -102,6 +110,11 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         File scriptFile = getScriptFile("simple-transaction.py");
         pluginScriptRunner.executeScript(scriptFile);
         errorLogger.assertNumberOfMessage(0);
+
+        assertEquals(1, fileFormatMatcher.getRecordedObjects().size());
+        FileFormatType fileFormatType = fileFormatMatcher.recordedObject();
+        assertEquals("FILE-FORMAT-TYPE", fileFormatType.getCode());
+        assertEquals("File format type description.", fileFormatType.getDescription());
 
         assertEquals(1, experimentTypeMatcher.getRecordedObjects().size());
         ExperimentType experimentType = experimentTypeMatcher.recordedObject();
@@ -163,6 +176,9 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(commonServer).registerFileFormatType(with(any(String.class)),
+                            with(any(FileFormatType.class)));
+                    will(throwException(new RuntimeException("FAILED0")));
                     one(commonServer).registerExperimentType(with(any(String.class)),
                             with(any(ExperimentType.class)));
                     will(throwException(new RuntimeException("FAILED1")));
@@ -186,22 +202,26 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
 
         File scriptFile = getScriptFile("simple-transaction.py");
         pluginScriptRunner.executeScript(scriptFile);
-        errorLogger.assertNumberOfMessage(9);
-        errorLogger.assertMatches(0, LogLevel.ERROR,
-                "Failed to commit all transactions for script .*");
-        errorLogger.assertEq(1, LogLevel.ERROR,
-                "Failed to register type 'EXPERIMENT-TYPE': FAILED1");
-        errorLogger.assertEq(2, LogLevel.ERROR, "Failed to register type 'SAMPLE-TYPE': FAILED2");
-        errorLogger.assertEq(3, LogLevel.ERROR, "Failed to register type 'DATA-SET-TYPE': FAILED3");
-        errorLogger.assertEq(4, LogLevel.ERROR, "Failed to register type 'MATERIAL-TYPE': FAILED4");
-        errorLogger.assertEq(5, LogLevel.ERROR,
-                "Failed to register type 'VARCHAR-PROPERTY-TYPE': FAILED5");
-        errorLogger.assertEq(6, LogLevel.ERROR,
-                "Failed to register type 'MATERIAL-PROPERTY-TYPE': FAILED5");
-        errorLogger.assertEq(7, LogLevel.ERROR,
-                "Failed to assign property 'SAMPLE-TYPE' <-> 'MATERIAL-PROPERTY-TYPE': FAILED6");
-        errorLogger.assertEq(8, LogLevel.ERROR,
-                "Failed to assign property 'EXPERIMENT-TYPE' <-> 'VARCHAR-PROPERTY-TYPE': FAILED6");
+
+        List<String> errorLines =
+                Arrays.asList(
+                        "Failed to commit all transactions for script .*",
+                        "Failed to register type 'FILE-FORMAT-TYPE': FAILED0",
+                        "Failed to register type 'EXPERIMENT-TYPE': FAILED1",
+                        "Failed to register type 'SAMPLE-TYPE': FAILED2",
+                        "Failed to register type 'DATA-SET-TYPE': FAILED3",
+                        "Failed to register type 'MATERIAL-TYPE': FAILED4",
+                        "Failed to register type 'VARCHAR-PROPERTY-TYPE': FAILED5",
+                        "Failed to register type 'MATERIAL-PROPERTY-TYPE': FAILED5",
+                        "Failed to assign property 'SAMPLE-TYPE' <-> 'MATERIAL-PROPERTY-TYPE': FAILED6",
+                        "Failed to assign property 'EXPERIMENT-TYPE' <-> 'VARCHAR-PROPERTY-TYPE': FAILED6");
+
+        errorLogger.assertNumberOfMessage(errorLines.size());
+        errorLogger.assertMatches(0, LogLevel.ERROR, errorLines.get(0));
+        for (int i = 1; i < errorLines.size(); i++)
+        {
+            errorLogger.assertEq(i, LogLevel.ERROR, errorLines.get(i));
+        }
     }
 
     private File getScriptFile(String scriptFilename)

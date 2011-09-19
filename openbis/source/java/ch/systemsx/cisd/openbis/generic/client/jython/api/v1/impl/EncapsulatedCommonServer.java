@@ -112,6 +112,17 @@ public class EncapsulatedCommonServer
         return result;
     }
 
+    public List<FileFormatTypeImmutable> listFileFormatTypes()
+    {
+        List<FileFormatTypeImmutable> result = new ArrayList<FileFormatTypeImmutable>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType type : commonServer
+                .listFileFormatTypes(sessionToken))
+        {
+            result.add(new FileFormatTypeImmutable(type));
+        }
+        return result;
+    }
+
     public void registerExperimentType(ExperimentTypeImmutable experimentType)
     {
         commonServer.registerExperimentType(sessionToken, experimentType.getExperimentType());
@@ -140,6 +151,11 @@ public class EncapsulatedCommonServer
     public void registerPropertyAssignment(PropertyAssignment assignment)
     {
         commonServer.assignPropertyType(sessionToken, assignment.getAssignment());
+    }
+
+    public void registerFileFormatType(FileFormatTypeImmutable fileFormatType)
+    {
+        commonServer.registerFileFormatType(sessionToken, fileFormatType.getFileFormatType());
     }
 
     public void logout()

@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IDataSetTypeImmutab
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IEntityType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IFileFormatType;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IFileFormatTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMasterDataRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
@@ -52,6 +54,8 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     private final List<MaterialType> createdMaterialTypes = new ArrayList<MaterialType>();
 
     private final List<PropertyType> createdPropertyTypes = new ArrayList<PropertyType>();
+
+    private final List<FileFormatType> createdFileTypes = new ArrayList<FileFormatType>();
 
     private final List<PropertyAssignment> createdAssignments = new ArrayList<PropertyAssignment>();
 
@@ -120,6 +124,18 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listMaterialTypes(), code);
     }
 
+    public IFileFormatType createNewFileFormatType(String code)
+    {
+        FileFormatType fileFormatType = new FileFormatType(code);
+        createdFileTypes.add(fileFormatType);
+        return fileFormatType;
+    }
+
+    public IFileFormatTypeImmutable getFileFormatType(String code)
+    {
+        return findTypeForCode(commonServer.listFileFormatTypes(), code);
+    }
+
     public IPropertyType createNewPropertyType(String code, DataType dataType)
     {
         PropertyType propertyType = new PropertyType(code, dataType);
@@ -137,22 +153,18 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     {
         if (entityType instanceof IExperimentTypeImmutable)
         {
-            return createAssignment(EntityKind.EXPERIMENT, (IExperimentTypeImmutable) entityType,
-                    propertyType);
+            return createAssignment(EntityKind.EXPERIMENT, entityType, propertyType);
         } else if (entityType instanceof ISampleTypeImmutable)
         {
-            return createAssignment(EntityKind.SAMPLE, (ISampleTypeImmutable) entityType,
-                    propertyType);
+            return createAssignment(EntityKind.SAMPLE, entityType, propertyType);
         } else
 
         if (entityType instanceof IDataSetTypeImmutable)
         {
-            return createAssignment(EntityKind.DATA_SET, (IDataSetTypeImmutable) entityType,
-                    propertyType);
+            return createAssignment(EntityKind.DATA_SET, entityType, propertyType);
         } else if (entityType instanceof IMaterialTypeImmutable)
         {
-            return createAssignment(EntityKind.MATERIAL, (IMaterialTypeImmutable) entityType,
-                    propertyType);
+            return createAssignment(EntityKind.MATERIAL, entityType, propertyType);
         }
 
         throw new IllegalArgumentException(
@@ -184,12 +196,27 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
 
     void commit()
     {
+        registerFileFormatTypes(createdFileTypes);
         registerExperimentTypes(createdExperimentTypes);
         registerSampleTypes(createdSampleTypes);
         registerDataSetTypes(createdDataSetTypes);
         registerMaterialTypes(createdMaterialTypes);
         registerPropertyTypes(createdPropertyTypes);
         registerPropertyAssignments(createdAssignments);
+    }
+
+    private void registerFileFormatTypes(List<FileFormatType> fileFormatTypes)
+    {
+        for (FileFormatType fileFormatType : fileFormatTypes)
+        {
+            try
+            {
+                commonServer.registerFileFormatType(fileFormatType);
+            } catch (Exception ex)
+            {
+                transactionErrors.addTypeRegistrationError(ex, fileFormatType);
+            }
+        }
     }
 
     private void registerExperimentTypes(List<ExperimentType> experimentTypes)

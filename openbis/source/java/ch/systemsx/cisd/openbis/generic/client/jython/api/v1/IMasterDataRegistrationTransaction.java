@@ -57,7 +57,7 @@ public interface IMasterDataRegistrationTransaction
     // IVocabulary createNewVocabulary(String code)
     // IVocabularyImmutable getVocabulary(String code)
 
-    // FileTypes not yet implemented
-    // IFileType createFileType(String code)
-    // IFileTypeImmutable getFileType(String code)
+    IFileFormatType createNewFileFormatType(String code);
+
+    IFileFormatTypeImmutable getFileFormatType(String code);
 }
