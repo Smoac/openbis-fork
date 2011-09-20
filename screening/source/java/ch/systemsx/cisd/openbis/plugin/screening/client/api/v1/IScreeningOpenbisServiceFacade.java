@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeI
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
@@ -79,6 +80,12 @@ public interface IScreeningOpenbisServiceFacade
      * hierarchical context (space, project, experiment).
      */
     public List<Plate> listPlates();
+
+    /**
+     * Return full metadata for each specified plate, including wells and their properties. If a
+     * well contains a material, its properties are also available.
+     */
+    public List<PlateMetadata> getPlateMetadataList(List<? extends PlateIdentifier> plateIdentifiers);
 
     /**
      * Return the list of all plates for the given <var>experiment</var>.
