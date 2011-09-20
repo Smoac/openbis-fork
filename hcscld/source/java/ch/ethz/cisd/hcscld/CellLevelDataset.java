@@ -59,6 +59,11 @@ public abstract class CellLevelDataset implements ICellLevelDataset
     {
         return null;
     }
+    
+    public ICellLevelSegmentationDataset tryAsSegmentationDataset()
+    {
+        return null;
+    }
 
     String getDatasetTypeAttributeName()
     {
@@ -70,10 +75,29 @@ public abstract class CellLevelDataset implements ICellLevelDataset
         return datasetCode + "_" + name;
     }
 
+    String getObjectPath()
+    {
+        return getObjectPath(datasetCode);
+    }
+
     String getObjectPath(WellFieldId id)
     {
-        return getDatasetCode() + "/row_" + id.getRow() + "/column_" + id.getColumn() + "/field_"
-                + id.getField();
+        return getObjectPath() + "/" + id.createObjectName(null);
+    }
+
+    String getGeometryObjectPath()
+    {
+        return getGeometryObjectPath(datasetCode);
+    }
+
+    static String getObjectPath(String datasetCode)
+    {
+        return "DataSet_" + datasetCode;
+    }
+
+    static String getGeometryObjectPath(String datasetCode)
+    {
+        return getObjectPath(datasetCode) + "/geometry";
     }
 
 }

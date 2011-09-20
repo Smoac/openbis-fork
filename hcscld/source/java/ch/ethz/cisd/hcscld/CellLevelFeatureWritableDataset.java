@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -28,11 +29,11 @@ import ch.systemsx.cisd.hdf5.IHDF5Writer;
  * 
  * @author Bernd Rinn
  */
-public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset
-        implements ICellLevelFeatureWritableDataset
+public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
+        ICellLevelFeatureWritableDataset
 {
     private final CellLevelBaseWritableDataset base;
-    
+
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
             final WellFieldGeometry geometry, final HDF5EnumerationType hdf5KindEnum)
     {
@@ -94,7 +95,7 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset
                     public void run(WellFieldId id, Object state)
                     {
                         base.writer.createCompoundArray(featureGroup.getObjectPath(id), type, size,
-                                blockSize);
+                                blockSize, HDF5GenericStorageFeatures.GENERIC_DEFLATE);
                     }
                 }, null);
         }
@@ -104,7 +105,12 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
-        base.writer.writeCompoundArray(fg.getObjectPath(id), fg.getType(), features);
+        base.writer.writeCompoundArray(
+                fg.getObjectPath(id),
+                fg.getType(),
+                features,
+                CellLevelBaseWritableDataset.getStorageFeatures(features.length
+                        * fg.getType().getRecordSize()));
     }
 
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features,

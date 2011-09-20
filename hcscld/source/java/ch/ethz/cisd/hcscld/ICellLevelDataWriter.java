@@ -34,9 +34,35 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
             WellFieldGeometry geometry);
 
-    public ICellLevelClassificationWritableDataset addClassificationDataset(
-            String datasetCode, WellFieldGeometry geometry, Class<? extends Enum<?>> enumType);
+    /**
+     * Adds a new classification data set.
+     * 
+     * @param datasetCode The code of the new data set.
+     * @param geometry The geometry of the new data set.
+     * @param enumType The type of the enumeration that represents the classification results.
+     */
+    public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
+            WellFieldGeometry geometry, Class<? extends Enum<?>> enumType);
 
-    public ICellLevelClassificationWritableDataset addClassificationDataset(
-            String datasetCode, WellFieldGeometry geometry, List<String> options);
+    /**
+     * Adds a new classification data set.
+     * 
+     * @param datasetCode The code of the new data set.
+     * @param geometry The geometry of the new data set.
+     * @param options The options that represents the classification results.
+     */
+    public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
+            WellFieldGeometry geometry, List<String> options);
+
+    /**
+     * Adds a new image segmentation data set.
+     * 
+     * @param datasetCode The code of the new data set.
+     * @param geometry The geometry of the new data set.
+     * @param imageGeometry The geometry of the images that have segmented.
+     * @param storeEdgeMasks Store the edge masks (compute if necessary) so that they can be
+     *            retrieved faster.
+     */
+    public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
+            WellFieldGeometry geometry, ImageGeometry imageGeometry, boolean storeEdgeMasks);
 }

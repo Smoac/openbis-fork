@@ -17,6 +17,8 @@ import ch.ethz.cisd.hcscld.WellFieldId;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 
 /**
+ * A demo program for writing and reading cell-level featuer data.
+ *  
  * @author Bernd Rinn
  */
 public class CellLevelFeaturesDemo

@@ -18,28 +18,21 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.List;
 
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
-
 /**
- * The interface for a feature group.
+ * Writable dataset of cell-level image segmentation results.
  * 
  * @author Bernd Rinn
  */
-public interface IFeatureGroup extends Iterable<WellFieldId>
+public interface ICellLevelSegmentationWritableDataset extends ICellLevelSegmentationDataset
 {
     /**
-     * Returns the name of this feature group.
+     * Adds a new image segmentation to this data set.
      */
-    public String getName();
+    public IImageSegmentation addSegmentation(String name);
 
     /**
-     * Returns the names of the features.
+     * Writes the image segmentation for one <var>id</var>.
      */
-    public List<String> getMemberNames();
-
-    /**
-     * Returns information about each feature.
-     */
-    public List<HDF5CompoundMemberInformation> getMembers();
-
+    public void writeImageSegmentation(IImageSegmentation segmentation, WellFieldId id,
+            List<SegmentedObject> objects);
 }

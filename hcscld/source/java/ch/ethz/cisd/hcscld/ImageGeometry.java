@@ -16,30 +16,40 @@
 
 package ch.ethz.cisd.hcscld;
 
-import java.util.List;
-
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
-
 /**
- * The interface for a feature group.
- * 
+ * An image geometry object.
+ *
  * @author Bernd Rinn
  */
-public interface IFeatureGroup extends Iterable<WellFieldId>
+public class ImageGeometry
 {
-    /**
-     * Returns the name of this feature group.
-     */
-    public String getName();
+    int width, height;
+
+    // Used by JHDF5 when constructing the geometry from a compound. 
+    ImageGeometry()
+    {
+    }
+    
+    public ImageGeometry(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+    }
 
     /**
-     * Returns the names of the features.
+     * Returns the number of pixels of the image in x dimension.
      */
-    public List<String> getMemberNames();
+    public int getWidth()
+    {
+        return width;
+    }
 
     /**
-     * Returns information about each feature.
+     * Returns the number of pixels of the image in y dimension.
      */
-    public List<HDF5CompoundMemberInformation> getMembers();
+    public int getHeight()
+    {
+        return height;
+    }
 
 }

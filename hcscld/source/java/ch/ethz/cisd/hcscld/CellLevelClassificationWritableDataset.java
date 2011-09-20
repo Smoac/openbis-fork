@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValueArray;
+import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -91,18 +92,24 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
             ordinals[i] = classifications[i].ordinal();
         }
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                ordinals));
+                ordinals), HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                .getStorageFeatures(classifications.length)));
     }
 
     public void writeClassification(WellFieldId id, String[] classifications)
     {
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                classifications));
+                classifications), HDF5IntStorageFeatures
+                .createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(classifications.length)));
     }
 
     public void writeClassification(WellFieldId id, int[] classificationOrdinals)
     {
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
-                classificationOrdinals));
+                classificationOrdinals), HDF5IntStorageFeatures
+                .createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(classificationOrdinals.length)));
     }
+
 }

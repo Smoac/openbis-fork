@@ -32,4 +32,6 @@ public interface ICellLevelDataset
     public ICellLevelFeatureDataset tryAsFeatureDataset();
 
     public ICellLevelClassificationDataset tryAsClassificationDataset();
+    
+    public ICellLevelSegmentationDataset tryAsSegmentationDataset();
 }

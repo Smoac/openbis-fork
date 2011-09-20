@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
+import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -38,15 +39,8 @@ class CellLevelBaseWritableDataset extends CellLevelDataset
         super(writer, datasetCode, geometry);
         this.writer = writer;
         this.datasetType = datasetType;
-        run(new IWellFieldRunnable()
-            {
-                public void run(WellFieldId id, Object state)
-                {
-                    writer.createGroup(getObjectPath(id));
-                }
-            }, null);
-        writer.writeCompound(getDatasetCode() + "/geometry", geometry);
-        writer.setEnumAttribute(getDatasetCode(), getDatasetTypeAttributeName(),
+        writer.writeCompound(getGeometryObjectPath(), geometry);
+        writer.setEnumAttribute(getObjectPath(), getDatasetTypeAttributeName(),
                 new HDF5EnumerationValue(hdf5KindEnum, datasetType.ordinal()));
     }
 
@@ -89,4 +83,14 @@ class CellLevelBaseWritableDataset extends CellLevelDataset
         return writer.getEnumType(datasetCode + "_" + enumClass.getSimpleName(), options);
     }
 
+    static HDF5GenericStorageFeatures getStorageFeatures(int size)
+    {
+        if (size < 8000)
+        {
+            return HDF5GenericStorageFeatures.GENERIC_COMPACT;
+        } else
+        {
+            return HDF5GenericStorageFeatures.GENERIC_DEFLATE;
+        }
+    }
 }

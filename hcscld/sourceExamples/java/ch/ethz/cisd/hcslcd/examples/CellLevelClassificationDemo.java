@@ -2,6 +2,7 @@ package ch.ethz.cisd.hcslcd.examples;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Random;
 
 import ch.ethz.cisd.hcscld.CellLevelClassificationsEnum;
 import ch.ethz.cisd.hcscld.CellLevelDataFactory;
@@ -13,6 +14,8 @@ import ch.ethz.cisd.hcscld.WellFieldGeometry;
 import ch.ethz.cisd.hcscld.WellFieldId;
 
 /**
+ * A demo program for writing and reading cell-level classification data. 
+ * 
  * @author Bernd Rinn
  */
 public class CellLevelClassificationDemo
@@ -31,13 +34,16 @@ public class CellLevelClassificationDemo
         ICellLevelClassificationWritableDataset wds =
                 writer.addClassificationDataset("456", new WellFieldGeometry(16, 24, 9),
                         CellState.class);
+        Random rng = new Random();
         long start = System.currentTimeMillis();
+        CellState[] state = new CellState[160];
         for (WellFieldId id : wds.getGeometry())
         {
-            wds.writeClassification(id, new CellState[]
-                { CellState.STEADY, CellState.STEADY, CellState.MITOTIC, CellState.DEAD,
-                        CellState.STEADY, CellState.APOPTOTIC, CellState.STEADY, CellState.DEAD,
-                        CellState.STEADY });
+            for (int i = 0; i < state.length; ++i)
+            {
+                state[i] = CellState.values()[rng.nextInt(CellState.values().length)];
+            }
+            wds.writeClassification(id, state);
         }
         writer.close();
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");

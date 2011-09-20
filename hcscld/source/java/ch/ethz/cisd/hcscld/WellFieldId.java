@@ -18,25 +18,24 @@ package ch.ethz.cisd.hcscld;
 
 /**
  * An identifier for a field of a well in an HCS screen.
- *
+ * 
  * @author Bernd Rinn
  */
 public class WellFieldId
 {
     private final int row;
-    
+
     private final int column;
-    
+
     private final int field;
 
     public WellFieldId(int row, int column, int field)
     {
-        super();
         this.row = row;
         this.column = column;
         this.field = field;
     }
-    
+
     public int getRow()
     {
         return row;
@@ -50,6 +49,12 @@ public class WellFieldId
     public int getField()
     {
         return field;
+    }
+
+    String createObjectName(String prefixOrNull)
+    {
+        return (prefixOrNull == null) ? String.format("Row%d_col%d_field%d", row, column, field)
+                : String.format("%s_row%d_col%d_field%d", prefixOrNull, row, column, field);
     }
 
     @Override

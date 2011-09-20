@@ -62,8 +62,8 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     private CellLevelDatasetType getDatasetType(String datasetCode)
     {
-        return CellLevelDatasetType.valueOf(reader.getEnumAttributeAsString(datasetCode,
-                "datasetType"));
+        return CellLevelDatasetType.valueOf(reader.getEnumAttributeAsString(
+                CellLevelDataset.getObjectPath(datasetCode), "datasetType"));
     }
 
     public List<ICellLevelDataset> getDataSets()
@@ -75,21 +75,24 @@ class CellLevelDataReader implements ICellLevelDataReader
             switch (getDatasetType(code))
             {
                 case CLASSIFICATION:
-                    result.add(new CellLevelClassificationDataset(reader, code, reader.readCompound(
-                            code + "/geometry", WellFieldGeometry.class)));
+                    result.add(new CellLevelClassificationDataset(reader, code, reader
+                            .readCompound(CellLevelDataset.getGeometryObjectPath(code),
+                                    WellFieldGeometry.class)));
                     break;
                 case FEATURES:
                     result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(
-                            code + "/geometry", WellFieldGeometry.class)));
+                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class)));
                     break;
                 case SEGMENTATION:
-                    throw new UnsupportedOperationException(
-                            "Segmentation data sets not yet implemented");
+                    result.add(new CellLevelSegmentationDataset(reader, code, reader.readCompound(
+                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class),
+                            reader.readCompound(
+                                    CellLevelSegmentationDataset.getImageGeometryObjectPath(code),
+                                    ImageGeometry.class)));
+                    break;
                 default:
                     throw new Error("Unknown enum type.");
             }
-            result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(code
-                    + "/geometry", WellFieldGeometry.class)));
         }
         return result;
     }
@@ -100,13 +103,18 @@ class CellLevelDataReader implements ICellLevelDataReader
         {
             case CLASSIFICATION:
                 return new CellLevelClassificationDataset(reader, datasetCode, reader.readCompound(
-                        datasetCode + "/geometry", WellFieldGeometry.class));
+                        CellLevelDataset.getGeometryObjectPath(datasetCode),
+                        WellFieldGeometry.class));
             case FEATURES:
                 return new CellLevelFeatureDataset(reader, datasetCode, reader.readCompound(
-                        datasetCode + "/geometry", WellFieldGeometry.class));
+                        CellLevelDataset.getGeometryObjectPath(datasetCode),
+                        WellFieldGeometry.class));
             case SEGMENTATION:
-                throw new UnsupportedOperationException(
-                        "Segmentation data sets not yet implemented");
+                return new CellLevelSegmentationDataset(reader, datasetCode, reader.readCompound(
+                        CellLevelDataset.getGeometryObjectPath(datasetCode),
+                        WellFieldGeometry.class), reader.readCompound(
+                        CellLevelSegmentationDataset.getImageGeometryObjectPath(datasetCode),
+                        ImageGeometry.class));
             default:
                 throw new Error("Unknown enum type.");
         }
