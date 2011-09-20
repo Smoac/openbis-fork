@@ -84,7 +84,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
 
         private final boolean deleteUnzipped;
 
-        private final UnstoreDataAction unstoreDataAction;
+        protected final UnstoreDataAction unstoreDataAction;
 
         public DefaultStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
                 DefaultStorageProcessor processor)

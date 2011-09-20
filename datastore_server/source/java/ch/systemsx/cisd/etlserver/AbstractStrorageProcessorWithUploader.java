@@ -57,54 +57,68 @@ public abstract class AbstractStrorageProcessorWithUploader extends
         IStorageProcessorTransaction nestedTransaction =
                 super.createTransaction(transactionParameters);
 
-        return new AbstractDelegatingStorageProcessorTransaction(transactionParameters,
-                nestedTransaction)
-            {
-
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-                    File storeData = nestedTransaction.getStoredDataDirectory();
-                    File originalData = nestedTransaction.tryGetProprietaryData();
-                    if (originalData == null)
-                    {
-                        throw new ConfigurationFailureException(
-                                "The original data is no longer available by the wrapped storage processor. "
-                                        + "Another storage processor should be used.");
-                    }
-                    uploader.upload(originalData, dataSetInformation);
-                    return storeData;
-                }
-
-                @Override
-                public UnstoreDataAction executeRollback(Throwable exception)
-                {
-                    try
-                    {
-                        nestedTransaction.rollback(exception);
-                    } finally
-                    {
-                        uploader.rollback();
-                    }
-                    logDataSetFileError(incomingDataSetDirectory, exception);
-                    return UnstoreDataAction.LEAVE_UNTOUCHED;
-                }
-
-                @Override
-                public void executeCommit()
-                {
-                    nestedTransaction.commit();
-                    uploader.commit();
-                }
-
-            };
-
+        return new StorageProcessorWithUploaderTransaction(transactionParameters,
+                nestedTransaction, this);
     }
+
+    static class StorageProcessorWithUploaderTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private final transient AbstractStrorageProcessorWithUploader processor;
+
+        StorageProcessorWithUploaderTransaction(StorageProcessorTransactionParameters parameters, IStorageProcessorTransaction nestedTransaction, AbstractStrorageProcessorWithUploader processor) {
+            super(parameters, nestedTransaction);
+            this.processor = processor;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+
+                nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            File storeData = nestedTransaction.getStoredDataDirectory();
+            File originalData = nestedTransaction.tryGetProprietaryData();
+            if (originalData == null)
+                {
+                throw new ConfigurationFailureException(
+                        "The original data is no longer available by the wrapped storage processor. "
+                                + "Another storage processor should be used.");
+                }
+            processor.uploader.upload(originalData, dataSetInformation);
+            return storeData;
+        }
+
+            @Override
+        public UnstoreDataAction executeRollback(Throwable exception)
+        {
+            try
+            {
+                nestedTransaction.rollback(exception);
+            } finally
+            {
+                if (processor != null)
+                {
+                    processor.uploader.rollback();
+                }
+            }
+            if (processor != null)
+            {
+                processor.logDataSetFileError(incomingDataSetDirectory, exception);
+            }
+            return UnstoreDataAction.LEAVE_UNTOUCHED;
+        }
+
+            @Override
+        public void executeCommit()
+        {
+            nestedTransaction.commit();
+            processor.uploader.commit();
+        }
+
+        }
 
     /**
      * Logs an error for the specified data set and exception.

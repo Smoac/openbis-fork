@@ -85,22 +85,24 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
             StorageProcessorTransactionParameters parameters)
     {
         final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
-        return new FeatureVectorStorageProcessorTransaction(parameters,
-                superTransaction);
+        return new FeatureVectorStorageProcessorTransaction(parameters, superTransaction, this);
     }
 
-    private final class FeatureVectorStorageProcessorTransaction extends
+    private static final class FeatureVectorStorageProcessorTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
         private static final long serialVersionUID = 1L;
 
-        private IImagingQueryDAO dataAccessObject = null;
+        private transient IImagingQueryDAO dataAccessObject = null;
+
+        private final transient FeatureVectorStorageProcessor processor;
 
         private FeatureVectorStorageProcessorTransaction(
                 StorageProcessorTransactionParameters parameters,
-                IStorageProcessorTransaction transaction)
+                IStorageProcessorTransaction transaction, FeatureVectorStorageProcessor processor)
         {
             super(parameters, transaction);
+            this.processor = processor;
         }
 
         @Override
@@ -108,12 +110,12 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         {
             nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
 
-            dataAccessObject = createDAO();
+            dataAccessObject = processor.createDAO();
             File parent = new File(nestedTransaction.getStoredDataDirectory(), ORIGINAL_DIR);
             File dataSet = new File(parent, incomingDataSetDirectory.getName());
             try
             {
-                loadDataSetIntoDatabase(dataAccessObject, dataSet, dataSetInformation);
+                processor.loadDataSetIntoDatabase(dataAccessObject, dataSet, dataSetInformation);
             } catch (IOException ex)
             {
                 throw new IOExceptionUnchecked(ex);

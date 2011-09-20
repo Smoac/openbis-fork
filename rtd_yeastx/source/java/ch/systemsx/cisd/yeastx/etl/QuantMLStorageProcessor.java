@@ -57,66 +57,11 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(parameters,
-                super.createTransaction(parameters))
-            {
+        return new QuantMLStorageProcessorTransaction(parameters,
+                super.createTransaction(parameters), this);
 
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-                    ensureUploadableFileExists(incomingDataSetDirectory);
-                    acquireWriteAccess(incomingDataSetDirectory);
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-                    File originalData = nestedTransaction.tryGetProprietaryData();
-                    File quantML = findFile(originalData, mlFileExtension);
-                    databaseUploader.upload(quantML, dataSetInformation);
-                    return nestedTransaction.getStoredDataDirectory();
-                }
-
-                @Override
-                protected void executeCommit()
-                {
-                    nestedTransaction.commit();
-                    databaseUploader.commit();
-                }
-
-                @Override
-                protected UnstoreDataAction executeRollback(Throwable ex)
-                {
-                    try
-                    {
-                        nestedTransaction.rollback(ex);
-                    } finally
-                    {
-                        if (databaseUploader != null)
-                        {
-                            databaseUploader.rollback();
-                        }
-                    }
-                    return UnstoreDataAction.LEAVE_UNTOUCHED;
-                }
-            };
     }
 
-
-    private void acquireWriteAccess(final File incomingDataSetDirectory)
-    {
-        String incomingName = incomingDataSetDirectory.getName();
-        boolean ok = writeAccessSetter.execute(incomingName);
-        if (ok == false)
-        {
-            throw UserFailureException.fromTemplate("Cannot get the write access to the dataset: "
-                    + incomingName);
-        }
-    }
-
-    private void ensureUploadableFileExists(File incomingDataSetDirectory)
-    {
-        findFile(incomingDataSetDirectory, mlFileExtension);
-    }
 
     // returns the only file with the specified extension or throws an exceptions if none or more
     // than one is found.
@@ -137,5 +82,73 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
                     incomingItem.getPath(), files.size());
         }
         return files.get(0);
+    }
+
+    private void acquireWriteAccess(final File incomingDataSetDirectory)
+    {
+        String incomingName = incomingDataSetDirectory.getName();
+        boolean ok = writeAccessSetter.execute(incomingName);
+        if (ok == false)
+        {
+            throw UserFailureException.fromTemplate("Cannot get the write access to the dataset: "
+                    + incomingName);
+        }
+    }
+
+    private void ensureUploadableFileExists(File incomingDataSetDirectory)
+    {
+        findFile(incomingDataSetDirectory, mlFileExtension);
+    }
+
+    private static class QuantMLStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private transient QuantMLStorageProcessor processor;
+
+        public QuantMLStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction nestedTransaction,
+                QuantMLStorageProcessor quantMLStorageProcessor)
+        {
+            super(parameters, nestedTransaction);
+            this.processor = quantMLStorageProcessor;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            processor.ensureUploadableFileExists(incomingDataSetDirectory);
+            processor.acquireWriteAccess(incomingDataSetDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            File originalData = nestedTransaction.tryGetProprietaryData();
+            File quantML = findFile(originalData, processor.mlFileExtension);
+            processor.databaseUploader.upload(quantML, dataSetInformation);
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
+            processor.databaseUploader.commit();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            try
+            {
+                nestedTransaction.rollback(ex);
+            } finally
+            {
+                if (processor != null && processor.databaseUploader != null)
+                {
+                    processor.databaseUploader.rollback();
+                }
+            }
+            return UnstoreDataAction.LEAVE_UNTOUCHED;
+        }
     }
 }

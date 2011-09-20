@@ -96,64 +96,8 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(parameters,
-                super.createTransaction(parameters))
-            {
-
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-                    File answer = nestedTransaction.getStoredDataDirectory();
-
-                    if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()
-                            .equals(DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
-                    {
-                        File originalDir = new File(answer, ORIGINAL_DIR);
-                        File[] files = originalDir.listFiles();
-                        assert files.length == 1;
-                        File seqFile = files[0];
-
-                        String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
-                        String svgFileName = baseFileName + SVG_FILE_EXTENSION;
-                        String gbFileName = baseFileName + GB_FILE_EXTENSION;
-
-                        File generatedDir = new File(answer, GENERATED_DIR);
-                        if (generatedDir.mkdir())
-                        {
-                            final File svgFileDest = new File(generatedDir, svgFileName);
-                            final File gbFileDest = new File(generatedDir, gbFileName);
-
-                            operationLog.info("Uploading '" + seqFile.getName()
-                                    + "' to PlasMapper.");
-                            uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP,
-                                    svgFileDest);
-                            uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT,
-                                    gbFileDest);
-                        } else
-                        {
-                            throw new EnvironmentFailureException("Couldn't create directory '"
-                                    + generatedDir + "'.");
-                        }
-                    }
-                    return answer;
-                }
-
-                @Override
-                protected UnstoreDataAction executeRollback(Throwable ex)
-                {
-                    return nestedTransaction.rollback(ex);
-                }
-
-                @Override
-                protected void executeCommit()
-                {
-                    nestedTransaction.commit();
-                }
-            };
+        return new PlasmidStorageProcessorTransaction(parameters,
+                super.createTransaction(parameters), this);
     }
 
     // WORKAROUND cannot move the file because it is on a different filesystem
@@ -178,6 +122,73 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
         {
             throw new EnvironmentFailureException("'" + outputFile
                     + "' doesn't exist or is not a file.");
+        }
+    }
+
+    static class PlasmidStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private final transient PlasmidStorageProcessor processor;
+
+        public PlasmidStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction superTransaction, PlasmidStorageProcessor processor)
+        {
+            super(parameters, superTransaction);
+            this.processor = processor;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            File answer = nestedTransaction.getStoredDataDirectory();
+
+            if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()
+                    .equals(DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
+            {
+                File originalDir = new File(answer, ORIGINAL_DIR);
+                File[] files = originalDir.listFiles();
+                assert files.length == 1;
+                File seqFile = files[0];
+
+                String baseFileName = FilenameUtils.getBaseName(seqFile.getName());
+                String svgFileName = baseFileName + SVG_FILE_EXTENSION;
+                String gbFileName = baseFileName + GB_FILE_EXTENSION;
+
+                File generatedDir = new File(answer, GENERATED_DIR);
+                if (generatedDir.mkdir())
+                {
+                    final File svgFileDest = new File(generatedDir, svgFileName);
+                    final File gbFileDest = new File(generatedDir, gbFileName);
+
+                    operationLog.info("Uploading '" + seqFile.getName() + "' to PlasMapper.");
+                    processor.uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP,
+                            svgFileDest);
+                    processor.uploadAndCopyGeneratedFile(seqFile,
+                            PlasMapperService.GENEBANK_OUTPUT,
+                            gbFileDest);
+                } else
+                {
+                    throw new EnvironmentFailureException("Couldn't create directory '"
+                            + generatedDir + "'.");
+                }
+            }
+            return answer;
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            return nestedTransaction.rollback(ex);
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
         }
     }
 

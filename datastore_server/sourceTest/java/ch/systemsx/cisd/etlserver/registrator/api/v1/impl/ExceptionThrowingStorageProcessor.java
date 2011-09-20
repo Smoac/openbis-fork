@@ -48,7 +48,7 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
         return new ExceptionThrowingStorageProcessorTransaction(parameters, this);
     }
 
-    private class ExceptionThrowingStorageProcessorTransaction extends
+    private static class ExceptionThrowingStorageProcessorTransaction extends
             DefaultStorageProcessorTransaction
     {
 
@@ -103,7 +103,7 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
             // directory structure will persist. Right now, we consider this is fine as these empty
             // directories will not disturb the running application.
             FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
-            return getDefaultUnstoreDataAction(ex);
+            return unstoreDataAction;
         }
     }
 

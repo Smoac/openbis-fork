@@ -73,22 +73,26 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
             StorageProcessorTransactionParameters parameters)
     {
         final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
-        return new StorageProcessorWithDropboxTransaction(parameters, superTransaction);
+        final IPostRegistrationDatasetHandler dropboxHandler =
+                createPostRegistrationDataSetHandler();
+        return new StorageProcessorWithDropboxTransaction(parameters, superTransaction,
+                dropboxHandler);
     }
 
-    public final class StorageProcessorWithDropboxTransaction extends
+    public static final class StorageProcessorWithDropboxTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
         private static final long serialVersionUID = 1L;
 
-        private final IPostRegistrationDatasetHandler dropboxHandler =
-                createPostRegistrationDataSetHandler();
+        private final transient IPostRegistrationDatasetHandler dropboxHandler;
 
         private StorageProcessorWithDropboxTransaction(
                 StorageProcessorTransactionParameters parameters,
-                IStorageProcessorTransaction transaction)
+                IStorageProcessorTransaction transaction,
+                IPostRegistrationDatasetHandler dropboxHandler)
         {
             super(parameters, transaction);
+            this.dropboxHandler = dropboxHandler;
         }
 
         @Override
@@ -109,7 +113,10 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
         @Override
         protected UnstoreDataAction executeRollback(Throwable ex)
         {
-            dropboxHandler.undoLastOperation();
+            if (dropboxHandler != null)
+            {
+                dropboxHandler.undoLastOperation();
+            }
             return nestedTransaction.rollback(ex);
         }
 

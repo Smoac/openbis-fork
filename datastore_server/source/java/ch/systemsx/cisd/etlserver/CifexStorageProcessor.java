@@ -74,24 +74,33 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     {
 
         IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
-        return new CifexStorageProcessorTransaction(parameters, superTransaction);
+        return new CifexStorageProcessorTransaction(parameters, superTransaction, keepFileRegex,
+                moveToErrorFolder);
     }
 
-    private final class CifexStorageProcessorTransaction extends
+    private static final class CifexStorageProcessorTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
         private static final long serialVersionUID = 1L;
 
-        private File dirToRestore;
+        private final String keepFileRegex;
 
-        private File fileToMove;
+        private final boolean moveToErrorFolder;
 
-        private boolean dirDeleted = false;
+        private transient File dirToRestore;
+
+        private transient File fileToMove;
+
+        private transient boolean dirDeleted = false;
+
 
         private CifexStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
-                IStorageProcessorTransaction transaction)
+                IStorageProcessorTransaction transaction, String keepFileRegex,
+                boolean moveErrorToFolder)
         {
             super(parameters, transaction);
+            this.keepFileRegex = keepFileRegex;
+            this.moveToErrorFolder = moveErrorToFolder;
         }
 
         @Override
@@ -100,7 +109,8 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             File newIncomingDataSetDirectory = incomingDataSetDirectory;
             if (StringUtils.isBlank(keepFileRegex) == false)
             {
-                newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
+                newIncomingDataSetDirectory =
+ clean(incomingDataSetDirectory, keepFileRegex);
             }
             nestedTransaction.storeData(typeExtractor, mailClient, newIncomingDataSetDirectory);
 
@@ -200,11 +210,5 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             }
         }
 
-    }
-
-    @Override
-    public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
-    {
-        return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
     }
 }

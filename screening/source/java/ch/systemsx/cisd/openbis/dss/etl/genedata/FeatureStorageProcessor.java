@@ -172,62 +172,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             StorageProcessorTransactionParameters parameters)
     {
         final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
-        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
-            {
-                private static final long serialVersionUID = 1L;
-
-                private IImagingQueryDAO dataAccessObject = null;
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-
-                    dataAccessObject = createDAO();
-                    File storedDataSet = nestedTransaction.getStoredDataDirectory();
-                    File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
-                    File targetFile =
-                            new File(originalDir, incomingDataSetDirectory.getName());
-                    transform(dataAccessObject, targetFile, storedDataSet, dataSetInformation);
-                    return nestedTransaction.getStoredDataDirectory();
-                }
-
-                @Override
-                protected void executeCommit()
-                {
-                    nestedTransaction.commit();
-
-                    if (null == dataAccessObject)
-                    {
-                        return;
-                    }
-                    dataAccessObject.commit();
-                    closeDataAccessObject();
-                }
-
-                @Override
-                protected UnstoreDataAction executeRollback(Throwable ex)
-                {
-                    // Delete the data from the database
-                    if (null != dataAccessObject)
-                    {
-                        dataAccessObject.rollback();
-                        closeDataAccessObject();
-                    }
-
-                    return nestedTransaction.rollback(ex);
-                }
-
-                /**
-                 * Close the DAO and set it to null to make clear that it is not initialized.
-                 */
-                private void closeDataAccessObject()
-                {
-                    dataAccessObject.close();
-                    dataAccessObject = null;
-                }
-            };
+        return new FeatureStorageProcessorTransaction(parameters, superTransaction, this);
     }
 
     protected void transform(IImagingQueryDAO dataAccessObject, File originalDataSet,
@@ -387,5 +332,73 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         return new UserFailureException("Error in line " + lineIndex + 1 + ": " + reason + ": "
                 + line);
     }
+    
+    private static class FeatureStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+        private static final long serialVersionUID = 1L;
+
+        private transient final FeatureStorageProcessor processor;
+
+        private transient IImagingQueryDAO dataAccessObject = null;
+
+        FeatureStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction nestedTransaction, FeatureStorageProcessor processor)
+        {
+            super(parameters, nestedTransaction);
+            this.processor = processor;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            nestedTransaction
+                    .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+
+            dataAccessObject = processor.createDAO();
+            File storedDataSet = nestedTransaction.getStoredDataDirectory();
+            File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
+            File targetFile =
+                    new File(originalDir, incomingDataSetDirectory.getName());
+            processor.transform(dataAccessObject, targetFile, storedDataSet, dataSetInformation);
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
+
+            if (null == dataAccessObject)
+            {
+                return;
+            }
+            dataAccessObject.commit();
+            closeDataAccessObject();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            // Delete the data from the database
+            if (null != dataAccessObject)
+            {
+                dataAccessObject.rollback();
+                closeDataAccessObject();
+            }
+
+            return nestedTransaction.rollback(ex);
+        }
+
+        /**
+         * Close the DAO and set it to null to make clear that it is not initialized.
+         */
+        private void closeDataAccessObject()
+        {
+            dataAccessObject.close();
+            dataAccessObject = null;
+        }
+    }
+    
 
 }

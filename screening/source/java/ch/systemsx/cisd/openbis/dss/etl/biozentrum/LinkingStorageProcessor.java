@@ -70,58 +70,67 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
             StorageProcessorTransactionParameters parameters)
     {
         final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
-        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
-            {
-                
-                private static final long serialVersionUID = 1L;
-
-                private File symbolicLink;
-
-                private File markerFile;
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-                    
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-                    File source = nestedTransaction.tryGetProprietaryData();
-                    boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
-                    if (success)
-                    {
-                        symbolicLink = new File(targetDir, source.getName());
-                        markerFile =
-                                new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
-                        FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
-                    } else
-                    {
-                        throw EnvironmentFailureException.fromTemplate(
-                                "Can not create symbolic link to '%s' in '%s'.", source.getPath(),
-                                targetDir.getPath());
-                    }
-                    return nestedTransaction.getStoredDataDirectory();
-                }
-                
-                @Override
-                protected UnstoreDataAction executeRollback(Throwable ex)
-                {
-                    if (symbolicLink != null)
-                    {
-                        FileUtilities.deleteRecursively(symbolicLink);
-                    }
-                    if (markerFile != null)
-                    {
-                        FileUtilities.delete(markerFile);
-                    }
-                    return nestedTransaction.rollback(ex);
-                }
-                
-                @Override
-                protected void executeCommit()
-                {
-                    nestedTransaction.commit();
-                }
-            };
+        return new LinkingStorageProcessorTransaction(parameters, superTransaction, targetDir);
     }
 
+    private static class LinkingStorageProcessorTransaction extends
+            AbstractDelegatingStorageProcessorTransaction
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private final File targetDir;
+
+        private transient File symbolicLink;
+
+        private transient File markerFile;
+
+        public LinkingStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction superTransaction, File targetDir)
+        {
+            super(parameters, superTransaction);
+            this.targetDir = targetDir;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            File source = nestedTransaction.tryGetProprietaryData();
+            boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
+            if (success)
+            {
+                symbolicLink = new File(targetDir, source.getName());
+                markerFile = new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
+                FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
+            } else
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Can not create symbolic link to '%s' in '%s'.", source.getPath(),
+                        targetDir.getPath());
+            }
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            if (symbolicLink != null)
+            {
+                FileUtilities.deleteRecursively(symbolicLink);
+            }
+            if (markerFile != null)
+            {
+                FileUtilities.delete(markerFile);
+            }
+            return nestedTransaction.rollback(ex);
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            nestedTransaction.commit();
+        }
+    }
 }
