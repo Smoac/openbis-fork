@@ -18,7 +18,6 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.List;
 
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
@@ -56,6 +55,12 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset imp
         return null;
     }
 
+    @Override
+    public ICellLevelSegmentationWritableDataset tryAsSegmentationDataset()
+    {
+        return null;
+    }
+
     public HDF5EnumerationType addEnum(String name, List<String> values)
     {
         return base.addEnum(name, values);
@@ -66,24 +71,29 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset imp
         return base.addEnum(enumClass);
     }
 
-    public IFeatureGroup addFeatureGroup(final String name,
-            final List<HDF5CompoundMemberMapping> members)
+    public FeaturesDefinition createFeatures()
     {
-        return addFeatureGroup(name, members, 0L, -1);
+        return new FeaturesDefinition(this);
     }
 
     public IFeatureGroup addFeatureGroup(final String name,
-            final List<HDF5CompoundMemberMapping> members, final int blockSize)
+            final FeaturesDefinition features)
     {
-        return addFeatureGroup(name, members, 0L, blockSize);
+        return addFeatureGroup(name, features, 0L, -1);
     }
 
     public IFeatureGroup addFeatureGroup(final String name,
-            final List<HDF5CompoundMemberMapping> members, final long size, final int blockSize)
+            final FeaturesDefinition features, final int blockSize)
+    {
+        return addFeatureGroup(name, features, 0L, blockSize);
+    }
+
+    public IFeatureGroup addFeatureGroup(final String name,
+            final FeaturesDefinition features, final long size, final int blockSize)
     {
         final HDF5CompoundType<Object[]> type =
                 base.writer.getCompoundType(getNameInDataset(name), Object[].class,
-                        members.toArray(new HDF5CompoundMemberMapping[members.size()]));
+                        features.getFeatures());
         final FeatureGroup featureGroup = new FeatureGroup(name, type);
         final String featureGroupsFile = getFeatureGroupsFilename();
         base.writer.writeStringArrayBlock(featureGroupsFile, new String[]

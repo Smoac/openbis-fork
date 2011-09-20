@@ -16,9 +16,6 @@
 
 package ch.ethz.cisd.hcscld;
 
-import java.util.List;
-
-import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 
 /**
  * Base class for all writable cell level data sets.
@@ -27,21 +24,6 @@ import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
  */
 public interface ICellLevelWritableDataset extends ICellLevelDataset
 {
-    /**
-     * Returns an HDF5 enum data type.
-     * 
-     * @param name The name of the enum data type.
-     * @param values The values of the enum.
-     */
-    public HDF5EnumerationType addEnum(String name, List<String> values);
-
-    /**
-     * Returns an HDF5 enum data type.
-     * 
-     * @param enumClass The enum class to get the name and the values of the enum from.
-     */
-    public HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass);
-
     /**
      * Returns the data set as {@link ICellLevelFeatureWritableDataset}, if the data set is a
      * feature data set and <code>null</code> otherwise.
@@ -53,4 +35,11 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
      * classification data set and <code>null</code> otherwise.
      */
     public ICellLevelClassificationWritableDataset tryAsClassificationDataset();
+
+    /**
+     * Returns the data set as {@link ICellLevelSegmentationWritableDataset}, if the data set is a
+     * segmentation data set and <code>null</code> otherwise.
+     */
+    public ICellLevelSegmentationWritableDataset tryAsSegmentationDataset();
+
 }

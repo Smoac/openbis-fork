@@ -1,7 +1,5 @@
 package ch.ethz.cisd.hcslcd.examples;
 
-import static ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping.mapping;
-
 import java.io.File;
 import java.util.Arrays;
 
@@ -14,11 +12,10 @@ import ch.ethz.cisd.hcscld.ICellLevelFeatureWritableDataset;
 import ch.ethz.cisd.hcscld.IFeatureGroup;
 import ch.ethz.cisd.hcscld.WellFieldGeometry;
 import ch.ethz.cisd.hcscld.WellFieldId;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 
 /**
  * A demo program for writing and reading cell-level featuer data.
- *  
+ * 
  * @author Bernd Rinn
  */
 public class CellLevelFeaturesDemo
@@ -31,12 +28,14 @@ public class CellLevelFeaturesDemo
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset("123", new WellFieldGeometry(16, 24, 9));
-        HDF5EnumerationType etype =
-                wds.addEnum("CellState", Arrays.asList("INFECTED", "HEALTHY", "UNCLEAR"));
         IFeatureGroup fg =
-                wds.addFeatureGroup("stdfeatures", Arrays.asList(
-                        mapping("a").memberClass(Integer.TYPE), mapping("b")
-                                .memberClass(Float.TYPE), mapping("c").enumType(etype)));
+                wds.addFeatureGroup(
+                        "stdfeatures",
+                        wds.createFeatures()
+                                .addInt32Feature("a")
+                                .addFloatSinglePrecisionFeature("b")
+                                .addEnumFeature("c", "CellState",
+                                        Arrays.asList("INFECTED", "HEALTHY", "UNCLEAR")));
         long start = System.currentTimeMillis();
         for (WellFieldId id : wds.getGeometry())
         {

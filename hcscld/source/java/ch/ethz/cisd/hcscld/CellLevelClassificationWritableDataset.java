@@ -69,6 +69,12 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     @Override
+    public ICellLevelSegmentationWritableDataset tryAsSegmentationDataset()
+    {
+        return null;
+    }
+
+    @Override
     public ICellLevelClassificationWritableDataset tryAsClassificationDataset()
     {
         return this;

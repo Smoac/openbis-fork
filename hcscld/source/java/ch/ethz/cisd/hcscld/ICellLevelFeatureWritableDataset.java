@@ -16,10 +16,6 @@
 
 package ch.ethz.cisd.hcscld;
 
-import java.util.List;
-
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
-
 /**
  * An interface for a writable dataset of cell-level features.
  * 
@@ -29,6 +25,11 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
         ICellLevelFeatureDataset
 {
     /**
+     * Creates an (empty) object to define the features of a feature group.
+     */
+    public FeaturesDefinition createFeatures();
+
+    /**
      * Adds a new feature group to this dataset.
      * 
      * @param name The name of the feature group.
@@ -36,7 +37,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      *            this list establish an order and thus an index for each feature.
      * @return The new feature group.
      */
-    public IFeatureGroup addFeatureGroup(String name, final List<HDF5CompoundMemberMapping> features);
+    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features);
 
     /**
      * Adds a new feature group to this dataset.
@@ -47,8 +48,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param blockSize The block size of the storage form (in feature records).
      * @return The new feature group.
      */
-    public IFeatureGroup addFeatureGroup(String name,
-            final List<HDF5CompoundMemberMapping> features, int blockSize);
+    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features, int blockSize);
 
     /**
      * Adds a new feature group to this dataset.
@@ -60,8 +60,8 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param size The size (in feature records) of the feature group on the storage.
      * @return The new feature group.
      */
-    public IFeatureGroup addFeatureGroup(String name, List<HDF5CompoundMemberMapping> features,
-            long blockSize, int size);
+    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features, long blockSize,
+            int size);
 
     /**
      * Writes the values of the feature group to the storage form.
@@ -69,7 +69,8 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureGroup The feature group to write.
      * @param id The well and field to write the features for.
      * @param features The feature values to write. The first index is the object id, the second
-     *            index is the feature index as defined by {@link #addFeatureGroup(String, List)}.
+     *            index is the feature index as defined by
+     *            {@link #addFeatureGroup(String, FeaturesDefinition)}.
      */
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features);
 
@@ -79,7 +80,8 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureGroup The feature group to write.
      * @param id The well and field to write the features for.
      * @param features The feature values to write. The first index is the object id, the second
-     *            index is the feature index as defined by {@link #addFeatureGroup(String, List)}.
+     *            index is the feature index as defined by
+     *            {@link #addFeatureGroup(String, FeaturesDefinition)}.
      * @param blockNumber The number of the block to write.
      */
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features,
