@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
+import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -124,36 +125,7 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
         public IStorageProcessorTransaction createTransaction(
                 StorageProcessorTransactionParameters parameters)
         {
-            return new IStorageProcessorTransaction()
-                {
-
-                    private static final long serialVersionUID = 1L;
-
-                    public void commit()
-                    {
-                    }
-
-                    public UnstoreDataAction rollback(Throwable exception)
-                    {
-                        return null;
-                    }
-
-                    public File getStoredDataDirectory()
-                    {
-                        return null;
-                    }
-
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
-                    }
-
-                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetFolder)
-                    {
-                    }
-
-                };
+            return new NullStorageProcessorTransaction();
         }
 
         public StorageFormat getStorageFormat()
