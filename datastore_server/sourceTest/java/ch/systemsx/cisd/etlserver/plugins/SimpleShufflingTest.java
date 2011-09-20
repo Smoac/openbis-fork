@@ -81,7 +81,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         {
             File file = path.getFile();
             List<Long> list = freeSpace.get(file);
-            assertTrue("Unknown file " + file, list != null);
+            assertNotNull("Unknown file " + file, list);
             assertFalse("Unexpected invocation for file " + file, list.isEmpty());
             return list.remove(0);
         }
