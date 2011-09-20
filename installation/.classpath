@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
-        <classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
@@ -10,16 +10,17 @@
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar" sourcepath="/libraries/junit/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-ant.jar"/>
-	<classpathentry kind="lib" path="/libraries/izpack/izpack-api.jar"/>
+	<classpathentry kind="lib" path="/libraries/izpack/izpack-api.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-compiler.jar"/>
-	<classpathentry kind="lib" path="/libraries/izpack/izpack-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/izpack/izpack-core.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-event.jar"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-gui.jar"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-ini4j.jar"/>
-	<classpathentry kind="lib" path="/libraries/izpack/izpack-installer.jar"/>
+	<classpathentry kind="lib" path="/libraries/izpack/izpack-installer.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-native.jar"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-panel.jar"/>
 	<classpathentry kind="lib" path="/libraries/izpack/izpack-tools.jar"/>
-	<classpathentry kind="lib" path="/libraries/izpack/izpack-uninstaller.jar"/>
-	<classpathentry kind="lib" path="/libraries/izpack/izpack-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/izpack/izpack-uninstaller.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
+	<classpathentry kind="lib" path="/libraries/izpack/izpack-util.jar" sourcepath="/libraries/izpack/sources/izpack.zip"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

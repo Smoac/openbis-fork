@@ -2,7 +2,7 @@
 <installation version="1.0">
   <info>
     <appname>openBIS</appname>
-    <appversion>@{version.number}</appversion>
+    <appversion>@{version.number} (r@{revision.number})</appversion>
     <url>http://www.cisd.ethz.ch/software/openBIS</url>
     <uninstaller write="no"/>
     <javaversion>1.6</javaversion>
