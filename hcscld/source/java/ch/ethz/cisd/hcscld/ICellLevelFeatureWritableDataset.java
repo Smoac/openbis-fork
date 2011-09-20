@@ -28,16 +28,60 @@ import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableDataset,
         ICellLevelFeatureDataset
 {
-    public IFeatureGroup addFeatureGroup(String name, final List<HDF5CompoundMemberMapping> members);
+    /**
+     * Adds a new feature group to this dataset.
+     * 
+     * @param name The name of the feature group.
+     * @param features The features defined as HDF5 compound members. The order of the features in
+     *            this list establish an order and thus an index for each feature.
+     * @return The new feature group.
+     */
+    public IFeatureGroup addFeatureGroup(String name, final List<HDF5CompoundMemberMapping> features);
 
+    /**
+     * Adds a new feature group to this dataset.
+     * 
+     * @param name The name of the feature group.
+     * @param features The features defined as HDF5 compound members. The order of the features in
+     *            this list establish an order and thus an index for each feature.
+     * @param blockSize The block size of the storage form (in feature records).
+     * @return The new feature group.
+     */
     public IFeatureGroup addFeatureGroup(String name,
-            final List<HDF5CompoundMemberMapping> members, int blockSize);
+            final List<HDF5CompoundMemberMapping> features, int blockSize);
 
-    public IFeatureGroup addFeatureGroup(String name, List<HDF5CompoundMemberMapping> members,
+    /**
+     * Adds a new feature group to this dataset.
+     * 
+     * @param name The name of the feature group.
+     * @param features The features defined as HDF5 compound members. The order of the features in
+     *            this list establish an order and thus an index for each feature.
+     * @param blockSize The block size (in feature records) of the storage form.
+     * @param size The size (in feature records) of the feature group on the storage.
+     * @return The new feature group.
+     */
+    public IFeatureGroup addFeatureGroup(String name, List<HDF5CompoundMemberMapping> features,
             long blockSize, int size);
 
+    /**
+     * Writes the values of the feature group to the storage form.
+     * 
+     * @param featureGroup The feature group to write.
+     * @param id The well and field to write the features for.
+     * @param features The feature values to write. The first index is the object id, the second
+     *            index is the feature index as defined by {@link #addFeatureGroup(String, List)}.
+     */
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features);
 
+    /**
+     * Writes the values of one block of the feature group to the storage form.
+     * 
+     * @param featureGroup The feature group to write.
+     * @param id The well and field to write the features for.
+     * @param features The feature values to write. The first index is the object id, the second
+     *            index is the feature index as defined by {@link #addFeatureGroup(String, List)}.
+     * @param blockNumber The number of the block to write.
+     */
     public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features,
             long blockNumber);
 }
