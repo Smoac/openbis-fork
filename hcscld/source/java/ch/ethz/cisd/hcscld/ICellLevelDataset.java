@@ -18,20 +18,41 @@ package ch.ethz.cisd.hcscld;
 
 /**
  * Base interface for all cell level datasets.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ICellLevelDataset
 {
+    /**
+     * Returns the code of the dataset.
+     */
     public String getDatasetCode();
-    
+
+    /**
+     * Returns the well/field geometry.
+     */
     public WellFieldGeometry getGeometry();
-    
+
+    /**
+     * Returns the type of the dataset.
+     */
     public CellLevelDatasetType getType();
-    
+
+    /**
+     * Returns the dataset as a feature dataset, if {@link #getType()} ==
+     * {@link CellLevelDatasetType#FEATURES}, or <code>null</code> otherwise.
+     */
     public ICellLevelFeatureDataset tryAsFeatureDataset();
 
+    /**
+     * Returns the dataset as a classification dataset, if {@link #getType()} ==
+     * {@link CellLevelDatasetType#CLASSIFICATION}, or <code>null</code> otherwise.
+     */
     public ICellLevelClassificationDataset tryAsClassificationDataset();
-    
+
+    /**
+     * Returns the dataset as an image segmentation dataset, if {@link #getType()} ==
+     * {@link CellLevelDatasetType#SEGMENTATION}, or <code>null</code> otherwise.
+     */
     public ICellLevelSegmentationDataset tryAsSegmentationDataset();
 }
