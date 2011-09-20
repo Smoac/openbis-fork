@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
+import java.io.Serializable;
 
 /**
- * Package-internal class to track and execute progress in the transaction.
+ * Interface for tracking and executing parts of a transaction.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractTransactionalCommand implements ITransactionalCommand
+public interface ITransactionalCommand extends Serializable
 {
-    private static final long serialVersionUID = 1L;
+    /**
+     * Provisionally execute the actions requested by this step.
+     */
+    void execute();
 
-    protected Logger getOperationLog()
-    {
-        return DataSetRegistrationTransaction.operationLog;
-    }
-
+    /**
+     * Rollback any side-effects of the execute. Rollback is assumed to be idempotent -- multiple
+     * invocations are allowed. If there is nothing to rollback, just ignore.
+     */
+    void rollback();
 }

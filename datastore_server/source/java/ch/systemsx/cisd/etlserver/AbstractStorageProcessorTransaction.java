@@ -40,7 +40,8 @@ public abstract class AbstractStorageProcessorTransaction implements
 
     protected File rootDirectory;
 
-    protected DataSetInformation dataSetInformation;
+    // KE: could optionally be serialized in the future
+    protected transient DataSetInformation dataSetInformation;
 
     protected File storedDataDirectory;
 

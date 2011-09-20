@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 
 /**
  * A package internal class to manage the rollback stack.
@@ -35,7 +37,7 @@ import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecora
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class RollbackStack
+class RollbackStack implements IRollbackStack
 {
     /**
      * Delegate methods for the rollback stack, giving clients of the stack control over its
@@ -151,7 +153,48 @@ class RollbackStack
      */
     public ITransactionalCommand rollbackAndPop()
     {
-        // Pop is a bit more complicated, since the element we want to pop, the *head* of he stack,
+        StackElement elt = peek();
+        try
+        {
+            // Roll it back
+            elt.command.rollback();
+        } catch (Throwable ex)
+        {
+            Logger operationLog = getOperationLog();
+            // If any problems happen rolling back a command, log them
+            operationLog.error("Encountered error rolling back command " + elt.toString(), ex);
+        }
+
+        // Remove it from the live stack
+        liveLifo.remove();
+
+        // Make the live the temp
+        swapStacks();
+
+        // return the command
+        return elt.command;
+    }
+
+    /**
+     * Pop the value from the top of the stack *without* rollbacking.
+     */
+    public ITransactionalCommand pop()
+    {
+        StackElement elt = peek();
+        // Remove it from the live stack
+        liveLifo.remove();
+
+        // Make the live the temp
+        swapStacks();
+
+        // return the command
+        return elt.command;
+    }
+
+    StackElement peek()
+    {
+        // Peek is a bit more complicated, since the element we want to peek, the *head* of he
+        // stack,
         // is at the *tail* of the queue. We first need to move all other elements to the temp stack
         // and do this such that an interruption of the process does not result in any loss of data
         // (it could result in a duplication, though).
@@ -172,27 +215,7 @@ class RollbackStack
         }
 
         // This is the tail of the queue, i.e., the head of the stack.
-        StackElement elt = liveLifo.peek();
-
-        try
-        {
-            // Roll it back
-            elt.command.rollback();
-        } catch (Throwable ex)
-        {
-            Logger operationLog = getOperationLog();
-            // If any problems happen rolling back a command, log them
-            operationLog.error("Encountered error rolling back command " + elt.toString(), ex);
-        }
-
-        // Remove it from the live stack
-        liveLifo.remove();
-
-        // Make the live the temp
-        swapStacks();
-
-        // return the command
-        return elt.command;
+        return liveLifo.peek();
     }
 
     /**

@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
-
-import java.io.Serializable;
+package ch.systemsx.cisd.etlserver.registrator;
 
 /**
- * Package-internal interface for tracking and executing parts of a transaction.
+ * This interface publishes a small part of the API of an RollbackStack, that is needed to
+ * (de)serialize storage processor transactions.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Kaloyan Enimanev
  */
-interface ITransactionalCommand extends Serializable
+public interface IRollbackStack
 {
-    /**
-     * Provisionally execute the actions requested by this step.
-     */
-    void execute();
 
     /**
-     * Rollback any side-effects of the execute. Rollback is assumed to be idempotent -- multiple
-     * invocations are allowed. If there is nothing to rollback, just ignore.
+     * Push the command onto the stack and execute it.
      */
-    void rollback();
+    void pushAndExecuteCommand(ITransactionalCommand cmd);
+
+    /**
+     * Pop the value from the top of the stack *without* rollbacking.
+     * <p>
+     * This method should not be called
+     */
+    @Deprecated
+    ITransactionalCommand pop();
+
 }

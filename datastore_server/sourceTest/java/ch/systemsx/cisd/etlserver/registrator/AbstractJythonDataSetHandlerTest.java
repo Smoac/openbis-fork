@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -237,8 +238,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         return threadProperties;
     }
 
-    public static final class MockStorageProcessor implements IStorageProcessorTransactional
+    public static final class MockStorageProcessor implements IStorageProcessorTransactional,
+            Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         static MockStorageProcessor instance;
 
         int calledGetStoreRootDirectoryCount = 0;
@@ -280,8 +284,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         }
 
         public IStorageProcessorTransaction createTransaction(
-                final StorageProcessorTransactionParameters parameters)
+                StorageProcessorTransactionParameters parameters)
         {
+            final File rootDir = parameters.getRootDir();
+            dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
                 {
 
@@ -292,11 +298,9 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                     public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
                             File incomingDataSetFile)
                     {
-                        File rootDir = parameters.getRootDir();
 
                         incomingDirs.add(incomingDataSetFile);
                         rootDirs.add(rootDir);
-                        dataSetInfoString = parameters.getDataSetInformation().toString();
                         try
                         {
                             if (incomingDataSetFile.isDirectory())

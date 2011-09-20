@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -521,8 +522,11 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             });
     }
 
-    public static final class MockStorageProcessor implements IStorageProcessorTransactional
+    public static final class MockStorageProcessor implements IStorageProcessorTransactional,
+            Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         static MockStorageProcessor instance;
 
         int calledGetStoreRootDirectoryCount = 0;
@@ -562,8 +566,11 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
 
         public IStorageProcessorTransaction createTransaction(
-                final StorageProcessorTransactionParameters parameters)
+                StorageProcessorTransactionParameters parameters)
         {
+            final File rootDir = parameters.getRootDir();
+            dataSetInfoString = parameters.getDataSetInformation().toString();
+
             return new IStorageProcessorTransaction()
                 {
                     private static final long serialVersionUID = 1L;
@@ -574,8 +581,6 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                             File incomingDataSetDirectory)
                     {
                         calledStoreDataCount++;
-                        dataSetInfoString = parameters.getDataSetInformation().toString();
-                        File rootDir = parameters.getRootDir();
                         try
                         {
                             if (incomingDataSetDirectory.isDirectory())

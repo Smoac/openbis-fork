@@ -17,13 +17,10 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
@@ -48,19 +45,19 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
-        return new ExceptionThrowingStorageProcessorTransaction(parameters);
+        return new ExceptionThrowingStorageProcessorTransaction(parameters, this);
     }
 
     private class ExceptionThrowingStorageProcessorTransaction extends
-            AbstractStorageProcessorTransaction
+            DefaultStorageProcessorTransaction
     {
 
         private static final long serialVersionUID = 1L;
 
         public ExceptionThrowingStorageProcessorTransaction(
-                StorageProcessorTransactionParameters parameters)
+                StorageProcessorTransactionParameters parameters, DefaultStorageProcessor processor)
         {
-            super(parameters);
+            super(parameters, processor);
         }
 
         @Override
@@ -107,23 +104,6 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
             // directories will not disturb the running application.
             FileRenamer.renameAndLog(targetFile, incomingDataSetDirectory);
             return getDefaultUnstoreDataAction(ex);
-        }
-
-        /**
-         * returns the only file or directory which is expected to be found inside original
-         * directory
-         */
-        public final File tryGetProprietaryData()
-        {
-            File originalDir = getOriginalDirectory(storedDataDirectory);
-            List<File> files = FileUtilities.listFilesAndDirectories(originalDir, false, null);
-            if (files.size() != 1)
-            {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Exactly one file expected in '%s' directory, but %d found.",
-                        originalDir.getPath(), files.size());
-            }
-            return files.get(0);
         }
     }
 

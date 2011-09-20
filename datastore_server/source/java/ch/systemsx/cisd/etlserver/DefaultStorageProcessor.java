@@ -71,17 +71,28 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
-        return new DefaultStorageProcessorTransaction(parameters);
+        return new DefaultStorageProcessorTransaction(parameters, this);
     }
 
-    private class DefaultStorageProcessorTransaction extends AbstractStorageProcessorTransaction
+    protected static class DefaultStorageProcessorTransaction extends
+            AbstractStorageProcessorTransaction
     {
 
         private static final long serialVersionUID = 1L;
 
-        public DefaultStorageProcessorTransaction(StorageProcessorTransactionParameters parameters)
+        private final boolean unzip;
+
+        private final boolean deleteUnzipped;
+
+        private final UnstoreDataAction unstoreDataAction;
+
+        public DefaultStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                DefaultStorageProcessor processor)
         {
             super(parameters);
+            this.unzip = processor.unzip;
+            this.deleteUnzipped = processor.deleteUnzipped;
+            this.unstoreDataAction = processor.getDefaultUnstoreDataAction(null);
         }
 
         @Override
@@ -133,14 +144,14 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
                 operationLog.warn(message);
 
             }
-            return getDefaultUnstoreDataAction(ex);
+            return unstoreDataAction;
         }
 
         /**
          * returns the only file or directory which is expected to be found inside original
          * directory
          */
-        public final File tryGetProprietaryData()
+        public File tryGetProprietaryData()
         {
             File originalDir = getOriginalDirectory(storedDataDirectory);
             List<File> files = FileUtilities.listFilesAndDirectories(originalDir, false, null);
@@ -152,6 +163,18 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             }
             return files.get(0);
         }
+
+        /**
+         * Unzips given archive file to selected output directory.
+         */
+        protected Status unzipIfMatching(File archiveFile, File outputDirectory)
+        {
+            if (unzip && isZipFile(archiveFile))
+            {
+                return Unzipper.unzip(archiveFile, outputDirectory, deleteUnzipped);
+            }
+            return Status.OK;
+        }
     }
 
     public static File getOriginalDirectory(final File storedDataDirectory)
@@ -159,15 +182,4 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         return new File(storedDataDirectory, ORIGINAL_DIR);
     }
 
-    /**
-     * Unzips given archive file to selected output directory.
-     */
-    protected final Status unzipIfMatching(File archiveFile, File outputDirectory)
-    {
-        if (unzip && isZipFile(archiveFile))
-        {
-            return Unzipper.unzip(archiveFile, outputDirectory, deleteUnzipped);
-        }
-        return Status.OK;
-    }
 }

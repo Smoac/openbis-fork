@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -76,22 +77,26 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IRollbackDelegate<T> rollbackDelegate;
 
+    private final IRollbackStack rollbackStack;
+
     public DataSetStorageAlgorithmRunner(IEncapsulatedOpenBISService openBisService,
             List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            IRollbackDelegate<T> rollbackDelegate)
+            IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack)
     {
         this(dataSetStorageAlgorithms, rollbackDelegate,
-                new DefaultApplicationServerRegistrator<T>(openBisService));
+                new DefaultApplicationServerRegistrator<T>(openBisService), rollbackStack);
     }
 
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             IRollbackDelegate<T> rollbackDelegate,
-            IDataSetInApplicationServerRegistrator<T> applicationServerRegistrator)
+            IDataSetInApplicationServerRegistrator<T> applicationServerRegistrator,
+            IRollbackStack rollbackStack)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
         this.rollbackDelegate = rollbackDelegate;
         this.applicationServerRegistrator = applicationServerRegistrator;
+        this.rollbackStack = rollbackStack;
     }
 
     /**
@@ -101,8 +106,40 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            storageAlgorithm.prepare();
+            IStorageProcessorTransaction transaction = storageAlgorithm.prepare();
+            ITransactionalCommand command = new StorageProcessorTransactionCommand(transaction);
+            rollbackStack.pushAndExecuteCommand(command);
         }
+    }
+
+    /**
+     * This object will live in the persistent stack of the transaction. In case the server process
+     * is killed in the middle of a transaction, the {@link #rollback()} will attempt to rollback
+     * the storage processor transaction after restart.
+     */
+    public static class StorageProcessorTransactionCommand implements ITransactionalCommand
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        final IStorageProcessorTransaction transaction;
+
+        StorageProcessorTransactionCommand(IStorageProcessorTransaction transaction)
+        {
+            this.transaction = transaction;
+        }
+
+        public void execute()
+        {
+
+        }
+
+        public void rollback()
+        {
+            // execute rollback after server restart
+            transaction.rollback(null);
+        }
+
     }
 
     /**
@@ -216,6 +253,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void rollbackStorageProcessors(Throwable ex)
     {
         operationLog.error("Error during dataset registertion", ex);
@@ -234,6 +272,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             DataSetStorageAlgorithm<T> storageAlgorithm = dataSetStorageAlgorithms.get(i);
             storageAlgorithm.rollbackStorageProcessor(ex);
             storageAlgorithm.executeUndoStoreAction();
+            // remove the serialized transaction
+            rollbackStack.pop();
         }
     }
 

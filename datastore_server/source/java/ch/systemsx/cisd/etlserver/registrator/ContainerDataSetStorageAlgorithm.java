@@ -22,7 +22,9 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -64,12 +66,13 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     }
 
     @Override
-    public void prepare()
+    public IStorageProcessorTransaction prepare()
     {
         InitializedState<T> initializedState = (InitializedState<T>) state;
         initializedState.prepare();
 
         state = new PreparedState<T>(initializedState);
+        return new NullStorageProcessorTransaction();
     }
 
     @Override

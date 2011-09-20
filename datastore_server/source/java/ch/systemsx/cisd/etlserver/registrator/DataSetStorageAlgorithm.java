@@ -140,12 +140,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     /**
      * Prepare registration of a data set.
      */
-    public void prepare()
+    public IStorageProcessorTransaction prepare()
     {
         InitializedState<T> initializedState = (InitializedState<T>) state;
         initializedState.prepare();
 
         state = new PreparedState<T>(initializedState);
+        return ((PreparedState<T>) state).transaction;
     }
 
     /**
@@ -322,6 +323,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     {
         protected BaseDirectoryHolder baseDirectoryHolder;
 
+        protected IStorageProcessorTransaction transaction;
+
         public InitializedState(DataSetStorageAlgorithm<T> storageAlgorithm)
         {
             super(storageAlgorithm);
@@ -338,6 +341,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
                             storageAlgorithm.getDataSetInformation());
             baseDirectoryHolder =
                     new BaseDirectoryHolder(dataStoreStrategy, baseDirectory, incomingDataSetFile);
+
+            StorageProcessorTransactionParameters transactionParameters =
+                    new StorageProcessorTransactionParameters(
+                            storageAlgorithm.getDataSetInformation(), incomingDataSetFile,
+                            baseDirectoryHolder.getBaseDirectory());
+            transaction =
+                    storageAlgorithm.getStorageProcessor().createTransaction(transactionParameters);
+
         }
     }
 
@@ -345,8 +356,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             DataSetStorageAlgorithmState<T>
     {
         protected final BaseDirectoryHolder baseDirectoryHolder;
-
-        protected final IStorageProcessorTransactional storageProcessor;
 
         protected final DataSetInformation dataSetInformation;
 
@@ -357,9 +366,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         public PreparedState(InitializedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
-            this.storageProcessor = storageAlgorithm.getStorageProcessor();
             this.baseDirectoryHolder = oldState.baseDirectoryHolder;
             this.dataSetInformation = storageAlgorithm.getDataSetInformation();
+            this.transaction = oldState.transaction;
         }
 
         public void storeData()
@@ -373,11 +382,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             final StopWatch watch = new StopWatch();
             watch.start();
 
-            StorageProcessorTransactionParameters transactionParameters =
-                    new StorageProcessorTransactionParameters(
-                            storageAlgorithm.getDataSetInformation(), incomingDataSetFile,
-                            baseDirectoryHolder.getBaseDirectory());
-            transaction = storageProcessor.createTransaction(transactionParameters);
             transaction.storeData(storageAlgorithm.getRegistrationDetails(), getMailClient(),
                     incomingDataSetFile);
             if (getOperationLog().isInfoEnabled())

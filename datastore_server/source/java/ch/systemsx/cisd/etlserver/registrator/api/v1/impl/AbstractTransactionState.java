@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
@@ -494,7 +495,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             }
 
             DataSetStorageAlgorithmRunner<T> runner =
-                    new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
+                    new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent, rollbackStack);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
 
             // TODO KE: query.commit() executed even when storage processor transaction fails ?

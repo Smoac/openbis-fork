@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -253,21 +254,28 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     // ---------------------------------
-    private class AbstractImageStorageProcessorTransaction extends
+    protected static class AbstractImageStorageProcessorTransaction extends
             AbstractStorageProcessorTransaction
     {
 
         private static final long serialVersionUID = 1L;
 
+        private final UnstoreDataAction unstoreAction;
+
+        private final transient AbstractImageStorageProcessor processor;
+
         private transient IImagingQueryDAO dbTransaction;
 
         // used when HDF5 is used to store original data
-        private boolean shouldDeleteOriginalDataOnCommit;
+        private transient boolean shouldDeleteOriginalDataOnCommit;
 
         public AbstractImageStorageProcessorTransaction(
-                StorageProcessorTransactionParameters parameters)
+                StorageProcessorTransactionParameters parameters,
+                AbstractImageStorageProcessor processor)
         {
             super(parameters);
+            this.processor = processor;
+            this.unstoreAction = processor.getDefaultUnstoreDataAction(null);
         }
 
         @Override
@@ -286,17 +294,18 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
 
             ImageFileExtractionWithConfig extractionResultWithConfig =
-                    extractImages(dataSetInformation, incomingDataSetDirectory);
+                    processor.extractImages(dataSetInformation, incomingDataSetDirectory);
             ImageFileExtractionResult extractionResult =
                     extractionResultWithConfig.getExtractionResult();
 
-            validateImages(dataSetInformation, mailClient, incomingDataSetDirectory,
+            processor.validateImages(dataSetInformation, mailClient, incomingDataSetDirectory,
                     extractionResult);
             List<AcquiredSingleImage> plateImages = extractionResult.getImages();
             ImageStorageConfiguraton imageStorageConfiguraton =
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
-            File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
+            File imagesInStoreFolder =
+                    processor.moveToStore(incomingDataSetDirectory, rootDirectory);
             this.storedDataDirectory = rootDirectory;
             // NOTE: plateImages will be changed by reference
             processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
@@ -304,8 +313,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
 
-            dbTransaction = createQuery();
-            storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
+            dbTransaction = processor.createQuery();
+            processor.storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
 
             return rootDirectory;
         }
@@ -330,7 +339,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             {
                 rollbackDatabaseChanges();
             }
-            return getDefaultUnstoreDataAction(exception);
+            return unstoreAction;
         }
 
         private void rollbackDatabaseChanges()
@@ -374,7 +383,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
         private final void moveFilesBackFromStore()
         {
-            // TODO KE: fix me
             if (storedDataDirectory == null)
             {
                 // nothing has been stored yet
@@ -425,12 +433,20 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
         }
 
+        private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException
+        {
+            ois.defaultReadObject();
+            // pretend that a move operation has succeeded before serialization
+            // the rollback logic will handle the non-null "storedDataDirectory" appropriately
+            this.storedDataDirectory = this.rootDirectory;
+        }
+
     }
 
     public final IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractImageStorageProcessorTransaction(parameters);
+        return new AbstractImageStorageProcessorTransaction(parameters, this);
     }
 
     private final class ImageFileExtractionWithConfig
@@ -460,7 +476,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private File tryUnzipToFolder(File incomingDataSetDirectory)
+    static File tryUnzipToFolder(File incomingDataSetDirectory)
     {
         if (isZipFile(incomingDataSetDirectory) == false)
         {
