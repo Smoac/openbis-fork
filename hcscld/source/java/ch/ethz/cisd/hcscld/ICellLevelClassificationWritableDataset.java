@@ -21,14 +21,34 @@ package ch.ethz.cisd.hcscld;
  * 
  * @author Bernd Rinn
  */
-public interface ICellLevelClassificationWritableDataset extends
-        ICellLevelClassificationDataset, ICellLevelWritableDataset
+public interface ICellLevelClassificationWritableDataset extends ICellLevelClassificationDataset,
+        ICellLevelWritableDataset
 {
 
+    /**
+     * Writes out the classification values for the given well and field.
+     * 
+     * @param id The well and field id.
+     * @param classifications The classification values.
+     */
     public void writeClassification(WellFieldId id, Enum<?>[] classifications);
 
+    /**
+     * Writes out the classification values for the given well and field.
+     * 
+     * @param id The well and field id.
+     * @param classifications The classification values.
+     */
     public void writeClassification(WellFieldId id, String[] classifications);
 
+    /**
+     * Writes out the classification values for the given well and field.
+     * 
+     * @param id The well and field id.
+     * @param classificationOrdinals The ordinal values of the classification as defined by
+     *            {@link CellLevelDataWriter#addClassificationDataset(String, WellFieldGeometry, java.util.List)}
+     *            .
+     */
     public void writeClassification(WellFieldId id, int[] classificationOrdinals);
 
 }
