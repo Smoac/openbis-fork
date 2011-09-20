@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -49,16 +50,16 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     @BeforeMethod
     public void init()
     {
-        transaction = storageProcessor.createTransaction();
         storageProcessor = createStorageProcessor();
     }
 
     @Test
     public final void testStoreData()
     {
+        transaction = createTransaction(null, null);
         try
         {
-            transaction.storeData(null, null, null, null, null);
+            transaction.storeData(null, null, null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -67,7 +68,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         final File rootDir = createDirectory("root");
-        transaction.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory, rootDir);
+        transaction = createTransaction(incomingDataSetDirectory, rootDir);
+        transaction.storeData(TYPE_EXTRACTOR, null, incomingDataSetDirectory);
         final File storeData = transaction.getStoredDataDirectory();
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
@@ -87,6 +89,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
     @Test
     public final void testUnstoreData()
     {
+        transaction = createTransaction(null, null);
         try
         {
             transaction.rollback(null);
@@ -99,8 +102,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final File incomingDataSetDirectory = createDirectory("incoming");
         File readMeFile = new File(incomingDataSetDirectory, "read.me");
         FileUtilities.writeToFile(readMeFile, "hi");
-        transaction.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
-                        root);
+        transaction = createTransaction(incomingDataSetDirectory, root);
+        transaction.storeData(TYPE_EXTRACTOR, null, incomingDataSetDirectory);
         final File storeData = transaction.getStoredDataDirectory();
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
@@ -115,6 +118,13 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final DefaultStorageProcessor result = new DefaultStorageProcessor(properties);
         result.setStoreRootDirectory(workingDirectory);
         return result;
+    }
+
+    private IStorageProcessorTransaction createTransaction(File incoming, File rootDir)
+    {
+        StorageProcessorTransactionParameters parameters =
+                new StorageProcessorTransactionParameters(null, incoming, rootDir);
+        return storageProcessor.createTransaction(parameters);
     }
 
     private File createDirectory(final String directoryName)

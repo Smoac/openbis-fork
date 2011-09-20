@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -495,6 +496,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             DataSetStorageAlgorithmRunner<T> runner =
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
+
+            // TODO KE: query.commit() executed even when storage processor transaction fails ?
 
             // The queries are optional parts of the commit; catch any errors and inform the
             // invoker

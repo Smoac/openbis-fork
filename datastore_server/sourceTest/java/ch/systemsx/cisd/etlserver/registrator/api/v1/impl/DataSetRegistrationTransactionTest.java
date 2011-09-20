@@ -561,18 +561,21 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
             return UnstoreDataAction.LEAVE_UNTOUCHED;
         }
 
-        public IStorageProcessorTransaction createTransaction()
+        public IStorageProcessorTransaction createTransaction(
+                final StorageProcessorTransactionParameters parameters)
         {
             return new IStorageProcessorTransaction()
                 {
+                    private static final long serialVersionUID = 1L;
+
                     private File storedFile;
 
-                    public void storeData(DataSetInformation dataSetInformation,
-                            ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetDirectory, File rootDir)
+                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetDirectory)
                     {
                         calledStoreDataCount++;
-                        dataSetInfoString = dataSetInformation.toString();
+                        dataSetInfoString = parameters.getDataSetInformation().toString();
+                        File rootDir = parameters.getRootDir();
                         try
                         {
                             if (incomingDataSetDirectory.isDirectory())

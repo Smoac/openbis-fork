@@ -81,27 +81,32 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new FeatureVectorStorageProcessorTransaction(super.createTransaction());
+        final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
+        return new FeatureVectorStorageProcessorTransaction(parameters,
+                superTransaction);
     }
 
     private final class FeatureVectorStorageProcessorTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
+        private static final long serialVersionUID = 1L;
+
         private IImagingQueryDAO dataAccessObject = null;
 
-        private FeatureVectorStorageProcessorTransaction(IStorageProcessorTransaction transaction)
+        private FeatureVectorStorageProcessorTransaction(
+                StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction transaction)
         {
-            super(transaction);
+            super(parameters, transaction);
         }
 
         @Override
-        protected File storeData(DataSetInformation dataSetInformation,
-                ITypeExtractor typeExtractor, IMailClient mailClient)
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
-            nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                    incomingDataSetDirectory, rootDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
 
             dataAccessObject = createDAO();
             File parent = new File(nestedTransaction.getStoredDataDirectory(), ORIGINAL_DIR);

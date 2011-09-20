@@ -24,7 +24,6 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Storage processor which delegates to a wrapped {@link IStorageProcessorTransactional}. In
@@ -70,28 +69,32 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
     //
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new StorageProcessorWithDropboxTransaction(super.createTransaction());
+        final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
+        return new StorageProcessorWithDropboxTransaction(parameters, superTransaction);
     }
 
     public final class StorageProcessorWithDropboxTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
+        private static final long serialVersionUID = 1L;
+
         private final IPostRegistrationDatasetHandler dropboxHandler =
                 createPostRegistrationDataSetHandler();
 
-        private StorageProcessorWithDropboxTransaction(IStorageProcessorTransaction transaction)
+        private StorageProcessorWithDropboxTransaction(
+                StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction transaction)
         {
-            super(transaction);
+            super(parameters, transaction);
         }
 
         @Override
-        protected File storeData(DataSetInformation dataSetInformation,
-                ITypeExtractor typeExtractor, IMailClient mailClient)
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
-            nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                    incomingDataSetDirectory, rootDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
             File originalData = nestedTransaction.tryGetProprietaryData();
             dropboxHandler.handle(originalData, dataSetInformation, null);
             return nestedTransaction.getStoredDataDirectory();

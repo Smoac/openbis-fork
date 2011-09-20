@@ -27,7 +27,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
@@ -119,55 +118,11 @@ public class DispatcherStorageProcessor extends AbstractStorageProcessor
 
     // --- dispatcher implementation
 
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(final StorageProcessorTransactionParameters transactionParameters)
     {
-        return new IStorageProcessorTransaction()
-            {
-
-                private IStorageProcessorTransaction transaction;
-            
-                public void storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-                        IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
-                {
-                    IStorageProcessorTransactional storageProcessor =
-                        chooseStorageProcessor(dataSetInformation, incomingDataSetDirectory);
-                    
-                    transaction = storageProcessor.createTransaction();
-                    transaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDir);
-                }
-                
-                public UnstoreDataAction rollback(Throwable exception)
-                {
-                    checkTransactionPresent("rollback");
-                    return transaction.rollback(exception);
-                }
-                
-                public File getStoredDataDirectory()
-                {
-                    return (transaction != null) ? transaction.getStoredDataDirectory() : null;
-                }
-
-                public void commit()
-                {
-                    checkTransactionPresent("commit");
-                    transaction.commit();
-                }
-
-                private void checkTransactionPresent(String operation)
-                {
-                    if (transaction == null)
-                    {
-                        throw new IllegalStateException(
-                                "You must invoke storeData(...) before calling '" + operation + "'");
-                    }
-                }
-
-                public File tryGetProprietaryData()
-                {
-                    return transaction.tryGetProprietaryData();
-                }
-            };
+        final IStorageProcessorTransactional storageProcessor =
+            chooseStorageProcessor(transactionParameters.getDataSetInformation(), transactionParameters.getIncomingDataSetDirectory());
+        return storageProcessor.createTransaction(transactionParameters);
     }
 
 }

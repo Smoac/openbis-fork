@@ -279,20 +279,24 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             return UnstoreDataAction.LEAVE_UNTOUCHED;
         }
 
-        public IStorageProcessorTransaction createTransaction()
+        public IStorageProcessorTransaction createTransaction(
+                final StorageProcessorTransactionParameters parameters)
         {
             return new IStorageProcessorTransaction()
                 {
 
+                    private static final long serialVersionUID = 1L;
+
                     private File storedFolder;
 
-                    public void storeData(DataSetInformation dataSetInformation,
-                            ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetFile, File rootDir)
+                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetFile)
                     {
+                        File rootDir = parameters.getRootDir();
+
                         incomingDirs.add(incomingDataSetFile);
                         rootDirs.add(rootDir);
-                        dataSetInfoString = dataSetInformation.toString();
+                        dataSetInfoString = parameters.getDataSetInformation().toString();
                         try
                         {
                             if (incomingDataSetFile.isDirectory())

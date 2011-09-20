@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDataTypeExtractor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 
 /**
  * Test cases for {@link CifexStorageProcessor}.
@@ -99,8 +100,10 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
     private File storeData(final CifexStorageProcessor storageProcessor, File incoming,
             final File rootDir)
     {
-        IStorageProcessorTransaction transaction = storageProcessor.createTransaction();
-        transaction.storeData(null, TYPE_EXTRACTOR, null, incoming, rootDir);
+        StorageProcessorTransactionParameters parameters =
+                new StorageProcessorTransactionParameters(null, incoming, rootDir);
+        IStorageProcessorTransaction transaction = storageProcessor.createTransaction(parameters);
+        transaction.storeData(TYPE_EXTRACTOR, null, incoming);
         return transaction.getStoredDataDirectory();
     }
 

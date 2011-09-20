@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.etlserver.DispatcherStorageProcessor.IDispatchableStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -78,7 +79,8 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
                     one(dummyB).accepts(dataset1, null);
                     will(returnValue(true));
 
-                    one(dummyB).createTransaction();
+                    one(dummyB).createTransaction(
+                            with(any(StorageProcessorTransactionParameters.class)));
                     will(returnValue(transactionB));
 
                     store(one(transactionB), dataset1);
@@ -87,7 +89,8 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
                     one(dummyA).accepts(dataset2, null);
                     will(returnValue(true));
                     
-                    one(dummyA).createTransaction();
+                    one(dummyA).createTransaction(
+                            with(any(StorageProcessorTransactionParameters.class)));
                     will(returnValue(transactionA));
                     store(one(transactionA), dataset2);
 
@@ -103,14 +106,16 @@ public class DispatcherStorageProcessorTest extends AssertJUnit
     private void store(IStorageProcessorTransaction transaction,
             final DataSetInformation dataset)
     {
-        transaction.storeData(dataset, null, null, null, null);
+        transaction.storeData(null, null, null);
     }
 
     private IStorageProcessorTransaction storeTransactionally(
             IStorageProcessorTransactional storageProcessor, final DataSetInformation dataset)
     {
-        IStorageProcessorTransaction transaction = storageProcessor.createTransaction();
-        transaction.storeData(dataset, null, null, null, null);
+        final StorageProcessorTransactionParameters parameters =
+                new StorageProcessorTransactionParameters(dataset, null, null);
+        IStorageProcessorTransaction transaction = storageProcessor.createTransaction(parameters);
+        transaction.storeData(null, null, null);
         return transaction;
     }
 

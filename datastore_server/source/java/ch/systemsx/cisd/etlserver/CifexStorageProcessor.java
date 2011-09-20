@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Removes the artificial structure of data sets.
@@ -70,38 +69,41 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
 
-        return new CifexStorageProcessorTransaction(super.createTransaction());
-
+        IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
+        return new CifexStorageProcessorTransaction(parameters, superTransaction);
     }
 
     private final class CifexStorageProcessorTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
+        private static final long serialVersionUID = 1L;
+
         private File dirToRestore;
 
         private File fileToMove;
 
         private boolean dirDeleted = false;
 
-        private CifexStorageProcessorTransaction(IStorageProcessorTransaction transaction)
+        private CifexStorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction transaction)
         {
-            super(transaction);
+            super(parameters, transaction);
         }
 
         @Override
-        protected File storeData(DataSetInformation dataSetInformation,
-                ITypeExtractor typeExtractor, IMailClient mailClient)
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
             File newIncomingDataSetDirectory = incomingDataSetDirectory;
             if (StringUtils.isBlank(keepFileRegex) == false)
             {
                 newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
             }
-            nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                    newIncomingDataSetDirectory, rootDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, newIncomingDataSetDirectory);
+
             return nestedTransaction.getStoredDataDirectory();
         }
 

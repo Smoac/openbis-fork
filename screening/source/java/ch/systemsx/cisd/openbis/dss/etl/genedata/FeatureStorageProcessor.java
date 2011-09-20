@@ -168,18 +168,21 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+        final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
+        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
             {
+                private static final long serialVersionUID = 1L;
+
                 private IImagingQueryDAO dataAccessObject = null;
 
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
 
                     dataAccessObject = createDAO();
                     File storedDataSet = nestedTransaction.getStoredDataDirectory();

@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Creates a symbolic link to original data in directory specified in {@link #TARGET_DIR} and a
@@ -67,22 +66,25 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+        final IStorageProcessorTransaction superTransaction = super.createTransaction(parameters);
+        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
             {
                 
+                private static final long serialVersionUID = 1L;
+
                 private File symbolicLink;
 
                 private File markerFile;
 
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
                     
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
                     File source = nestedTransaction.tryGetProprietaryData();
                     boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
                     if (success)

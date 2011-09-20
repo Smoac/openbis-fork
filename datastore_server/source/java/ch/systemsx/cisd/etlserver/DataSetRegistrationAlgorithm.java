@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -411,9 +412,11 @@ public class DataSetRegistrationAlgorithm
             state.preRegistrationAction.execute(data.getCode(),
                     incomingDataSetFile.getAbsolutePath());
 
-            state.transaction = getStorageProcessor().createTransaction();
-            state.transaction.storeData(dataSetInformation, getTypeExtractor(), state.mailClient,
-                    incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
+            StorageProcessorTransactionParameters transactionParameters =
+                    new StorageProcessorTransactionParameters(dataSetInformation,
+                            incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
+            state.transaction = getStorageProcessor().createTransaction(transactionParameters);
+            state.transaction.storeData(getTypeExtractor(), state.mailClient, incomingDataSetFile);
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info(

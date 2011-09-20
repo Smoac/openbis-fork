@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * A default {@link IStorageProcessorTransactional} implementation. The data set is stored in
@@ -69,17 +68,24 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     // AbstractStorageProcessor
     //
 
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new DefaultStorageProcessorTransaction();
+        return new DefaultStorageProcessorTransaction(parameters);
     }
 
     private class DefaultStorageProcessorTransaction extends AbstractStorageProcessorTransaction
     {
 
+        private static final long serialVersionUID = 1L;
+
+        public DefaultStorageProcessorTransaction(StorageProcessorTransactionParameters parameters)
+        {
+            super(parameters);
+        }
+
         @Override
-        protected File storeData(DataSetInformation dataSetInformation,
-                ITypeExtractor typeExtractor, IMailClient mailClient)
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
             checkParameters(incomingDataSetDirectory, rootDirectory);
             File originalDir = getOriginalDirectory(rootDirectory);

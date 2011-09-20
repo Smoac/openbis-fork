@@ -256,14 +256,23 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private class AbstractImageStorageProcessorTransaction extends
             AbstractStorageProcessorTransaction
     {
-        private IImagingQueryDAO dbTransaction;
+
+        private static final long serialVersionUID = 1L;
+
+        private transient IImagingQueryDAO dbTransaction;
 
         // used when HDF5 is used to store original data
         private boolean shouldDeleteOriginalDataOnCommit;
 
+        public AbstractImageStorageProcessorTransaction(
+                StorageProcessorTransactionParameters parameters)
+        {
+            super(parameters);
+        }
+
         @Override
-        public final File storeData(final DataSetInformation dataSetInformation,
-                final ITypeExtractor typeExtractor, final IMailClient mailClient)
+        public final File executeStoreData(final ITypeExtractor typeExtractor,
+                final IMailClient mailClient)
         {
             assert rootDirectory != null : "Root directory can not be null.";
             assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
@@ -272,8 +281,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             File unzipedFolder = tryUnzipToFolder(incomingDataSetDirectory);
             if (unzipedFolder != null)
             {
-                storeData(dataSetInformation, typeExtractor, mailClient, unzipedFolder,
-                        rootDirectory);
+                this.incomingDataSetDirectory = unzipedFolder;
                 return getStoredDataDirectory();
             }
 
@@ -366,6 +374,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
         private final void moveFilesBackFromStore()
         {
+            // TODO KE: fix me
             if (storedDataDirectory == null)
             {
                 // nothing has been stored yet
@@ -418,9 +427,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     }
 
-    public final IStorageProcessorTransaction createTransaction()
+    public final IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractImageStorageProcessorTransaction();
+        return new AbstractImageStorageProcessorTransaction(parameters);
     }
 
     private final class ImageFileExtractionWithConfig

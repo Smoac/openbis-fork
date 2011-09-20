@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.io.Serializable;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -52,7 +53,7 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
         DELETE
     }
 
-    public static interface IStorageProcessorTransaction
+    public static interface IStorageProcessorTransaction extends Serializable
     {
         /**
          * Stores the specified incoming data set file to the specified directory. In general some
@@ -61,23 +62,18 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
          * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
          * them.
          * </p>
+         * TODO KE: the incomingDataSetDirectory is here just to make the CifexStorageProcessor work
+         * (because is modifies the incoming directory before invoking a wrapped transaction).
          * 
-         * @param dataSetInformation Information about the data set.
          * @param typeExtractor the {@link ITypeExtractor} implementation.
          * @param mailClient mail client.
-         * @param incomingDataSetDirectory folder to store. Do not remove it after the
-         *            implementation has finished processing. {@link TransferredDataSetHandler}
-         *            takes care of this.
-         * @param rootDir directory to whom the data will be stored.
          */
-        public void storeData(final DataSetInformation dataSetInformation,
-                final ITypeExtractor typeExtractor, final IMailClient mailClient,
-                final File incomingDataSetDirectory, final File rootDir);
+        public void storeData(final ITypeExtractor typeExtractor, final IMailClient mailClient,
+                final File incomingDataSetDirectory);
 
         /**
-         * Commits the changes done by the recent
-         * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} call if
-         * the dataset has been also successfully registered openBIS.
+         * Commits the changes done by the recent {@link #storeData(ITypeExtractor, IMailClient, File)}
+         * call if the dataset has been also successfully registered openBIS.
          * <p>
          * This operation is useful when the storage processor adds the data to an additional
          * database. If all the storage processor operations are done on the file system, the
@@ -87,9 +83,8 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
         public void commit();
 
         /**
-         * Performs a rollback of
-         * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} The data
-         * created in <code>directory</code> will also be removed.
+         * Performs a rollback of {@link #storeData(ITypeExtractor, IMailClient, File)} The data created
+         * in <code>directory</code> will also be removed.
          * <p>
          * Call to this method is safe as implementations should try/catch exceptions that could
          * occur here.
@@ -115,10 +110,53 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
         public File tryGetProprietaryData();
     }
 
+    public static class StorageProcessorTransactionParameters
+    {
+        private final DataSetInformation dataSetInformation;
+
+        private final File incomingDataSetDirectory;
+
+        private final File rootDir;
+
+        /**
+         * @param dataSetInformation Information about the data set.
+         * @param incomingDataSetDirectory folder to store. Do not remove it after the
+         *            implementation has finished processing. {@link TransferredDataSetHandler}
+         *            takes care of this.
+         * @param rootDir directory to whom the data will be stored.
+         */
+        public StorageProcessorTransactionParameters(DataSetInformation dataSetInformation,
+                File incomingDataSetDirectory, File rootDir)
+        {
+
+            this.dataSetInformation = dataSetInformation;
+            this.incomingDataSetDirectory = incomingDataSetDirectory;
+            this.rootDir = rootDir;
+        }
+
+        public DataSetInformation getDataSetInformation()
+        {
+            return dataSetInformation;
+        }
+
+        public File getIncomingDataSetDirectory()
+        {
+            return incomingDataSetDirectory;
+        }
+
+        public File getRootDir()
+        {
+            return rootDir;
+        }
+
+    }
+
     /**
      * Create a new {@link IStorageProcessorTransaction} object.
+     * 
      */
-    public IStorageProcessorTransaction createTransaction();
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters transactionParameters);
 
     /**
      * Returns the format that this storage processor is storing data sets in.

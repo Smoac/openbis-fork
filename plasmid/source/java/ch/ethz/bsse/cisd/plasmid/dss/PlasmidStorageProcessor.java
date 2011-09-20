@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Stores files containing plasmid data in the DSS store. Additionally for files holding a DNA
@@ -94,17 +93,20 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+        return new AbstractDelegatingStorageProcessorTransaction(parameters,
+                super.createTransaction(parameters))
             {
 
+                private static final long serialVersionUID = 1L;
+
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
                     File answer = nestedTransaction.getStoredDataDirectory();
 
                     if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()

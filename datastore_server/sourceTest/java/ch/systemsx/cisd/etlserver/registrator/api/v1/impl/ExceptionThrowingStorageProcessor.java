@@ -27,7 +27,6 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -46,18 +45,26 @@ public class ExceptionThrowingStorageProcessor extends DefaultStorageProcessor
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new ExceptionThrowingStorageProcessorTransaction();
+        return new ExceptionThrowingStorageProcessorTransaction(parameters);
     }
 
     private class ExceptionThrowingStorageProcessorTransaction extends
             AbstractStorageProcessorTransaction
     {
 
+        private static final long serialVersionUID = 1L;
+
+        public ExceptionThrowingStorageProcessorTransaction(
+                StorageProcessorTransactionParameters parameters)
+        {
+            super(parameters);
+        }
+
         @Override
-        protected File storeData(DataSetInformation dataSetInformation,
-                ITypeExtractor typeExtractor, IMailClient mailClient)
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
             checkParameters(incomingDataSetDirectory, rootDirectory);
             File originalDir = getOriginalDirectory(rootDirectory);

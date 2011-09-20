@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
@@ -372,10 +373,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             final StopWatch watch = new StopWatch();
             watch.start();
 
-            transaction = storageProcessor.createTransaction();
-            transaction.storeData(storageAlgorithm.getDataSetInformation(),
-                    storageAlgorithm.getRegistrationDetails(), getMailClient(),
-                    incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
+            StorageProcessorTransactionParameters transactionParameters =
+                    new StorageProcessorTransactionParameters(
+                            storageAlgorithm.getDataSetInformation(), incomingDataSetFile,
+                            baseDirectoryHolder.getBaseDirectory());
+            transaction = storageProcessor.createTransaction(transactionParameters);
+            transaction.storeData(storageAlgorithm.getRegistrationDetails(), getMailClient(),
+                    incomingDataSetFile);
             if (getOperationLog().isInfoEnabled())
             {
                 getOperationLog().info(

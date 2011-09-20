@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
@@ -55,14 +56,15 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         final File incomingDirectory = new File("incomingData");
         final String dropboxIncomingDirName = "dropboxIncomingDir";
 
+        final StorageProcessorTransactionParameters transactionParameters =
+                new StorageProcessorTransactionParameters(dataSetInfo, incomingDirectory, null);
         context.checking(new Expectations()
             {
                 {
-                    one(delegateStorageProcessor).createTransaction();
+                    one(delegateStorageProcessor).createTransaction(transactionParameters);
                     will(returnValue(delegateTransaction));
 
-                    one(delegateTransaction).storeData(dataSetInfo, null, null,
-                            incomingDirectory, null);
+                    one(delegateTransaction).storeData(null, null, incomingDirectory);
                     one(delegateTransaction).getStoredDataDirectory();
                     will(returnValue(incomingDirectory));
 
@@ -86,8 +88,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
 
         DelegatingStorageProcessorWithDropbox storageProcessor =
                 new StorageProcessorWithDropboxTest(props, delegateStorageProcessor, fileOperations);
-        storageProcessor.createTransaction().storeData(dataSetInfo, null, null, incomingDirectory,
-                null);
+        storageProcessor.createTransaction(transactionParameters).storeData(null, null,
+                incomingDirectory);
 
         context.assertIsSatisfied();
     }
@@ -210,7 +212,10 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         File store = new File(workingDirectory, "store");
         store.mkdirs();
 
-        processor.createTransaction().storeData(dataSetInfo, null, null, dataSetFile, store);
+        final StorageProcessorTransactionParameters parameters =
+                new StorageProcessorTransactionParameters(dataSetInfo, dataSetFile, store);
+
+        processor.createTransaction(parameters).storeData(null, null, dataSetFile);
 
         File storeData = new File(store, "original/data.txt");
         assertEquals(true, storeData.exists());

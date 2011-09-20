@@ -29,7 +29,6 @@ import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.PreprocessingExecutor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Stores directories containing quantML files in the DSS store. Additionally extracts and uploads
@@ -55,19 +54,22 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters parameters)
     {
-        return new AbstractDelegatingStorageProcessorTransaction(super.createTransaction())
+        return new AbstractDelegatingStorageProcessorTransaction(parameters,
+                super.createTransaction(parameters))
             {
 
+                private static final long serialVersionUID = 1L;
+
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
                     ensureUploadableFileExists(incomingDataSetDirectory);
                     acquireWriteAccess(incomingDataSetDirectory);
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
                     File originalData = nestedTransaction.tryGetProprietaryData();
                     File quantML = findFile(originalData, mlFileExtension);
                     databaseUploader.upload(quantML, dataSetInformation);
@@ -89,7 +91,10 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
                         nestedTransaction.rollback(ex);
                     } finally
                     {
-                        databaseUploader.rollback();
+                        if (databaseUploader != null)
+                        {
+                            databaseUploader.rollback();
+                        }
                     }
                     return UnstoreDataAction.LEAVE_UNTOUCHED;
                 }

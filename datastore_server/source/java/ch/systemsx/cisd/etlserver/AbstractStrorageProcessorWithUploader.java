@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by a
@@ -52,20 +51,24 @@ public abstract class AbstractStrorageProcessorWithUploader extends
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters transactionParameters)
     {
-        IStorageProcessorTransaction nestedTransaction = super.createTransaction();
+        IStorageProcessorTransaction nestedTransaction =
+                super.createTransaction(transactionParameters);
 
-        return new AbstractDelegatingStorageProcessorTransaction(nestedTransaction)
+        return new AbstractDelegatingStorageProcessorTransaction(transactionParameters,
+                nestedTransaction)
             {
 
+                private static final long serialVersionUID = 1L;
+
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
 
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
                     File storeData = nestedTransaction.getStoredDataDirectory();
                     File originalData = nestedTransaction.tryGetProprietaryData();
                     if (originalData == null)

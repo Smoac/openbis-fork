@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5ReaderClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 
 /**
  * Tests for {@link HDF5StorageProcessor}.
@@ -36,15 +37,13 @@ abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCa
 {
     protected final HDF5StorageProcessor storageProcessor;
 
-    protected final IStorageProcessorTransaction transaction;
+    protected IStorageProcessorTransaction transaction;
 
     protected AbstractHDF5StorageProcessorTest(Properties properties)
     {
         super();
-
         storageProcessor = new HDF5StorageProcessor(properties);
         storageProcessor.setStoreRootDirectory(workingDirectory);
-        transaction = storageProcessor.createTransaction();
     }
 
     private File createDirectory(final String directoryName)
@@ -59,7 +58,8 @@ abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCa
         final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         File rootDir = createDirectory("root");
-        transaction.storeData(null, null, null, incomingDataSetDirectory, rootDir);
+        transaction = createTransaction(incomingDataSetDirectory, rootDir);
+        transaction.storeData(null, null, incomingDataSetDirectory);
         assertTrue(incomingDataSetDirectory.exists());
         assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
@@ -92,7 +92,8 @@ abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCa
         File incomingDataSetDirectory = createDirectory("incoming");
         File readMeFile = new File(incomingDataSetDirectory, "read.me");
         FileUtilities.writeToFile(readMeFile, "hi");
-        transaction.storeData(null, null, null, incomingDataSetDirectory, rootDir);
+        transaction = createTransaction(incomingDataSetDirectory, rootDir);
+        transaction.storeData(null, null, incomingDataSetDirectory);
         assertTrue(incomingDataSetDirectory.exists());
         assertTrue(transaction.getStoredDataDirectory().isDirectory());
 
@@ -113,6 +114,14 @@ abstract class AbstractHDF5StorageProcessorTest extends AbstractFileSystemTestCa
 
     protected void testStoreDataNullValues()
     {
-        storageProcessor.createTransaction().storeData(null, null, null, null, null);
+        createTransaction(null, null).storeData(null, null, null);
     }
+
+    private IStorageProcessorTransaction createTransaction(File incoming, File rootDir)
+    {
+        StorageProcessorTransactionParameters parameters = new StorageProcessorTransactionParameters(null, incoming, rootDir);
+        return storageProcessor.createTransaction(parameters);
+
+    }
+
 }

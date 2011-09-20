@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 
 /**
  * <p>
@@ -29,10 +30,14 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcess
 public abstract class AbstractDelegatingStorageProcessorTransaction extends
         AbstractStorageProcessorTransaction
 {
+    private static final long serialVersionUID = 1L;
     protected final IStorageProcessorTransaction nestedTransaction;
 
-    public AbstractDelegatingStorageProcessorTransaction(IStorageProcessorTransaction transaction)
+    public AbstractDelegatingStorageProcessorTransaction(
+            StorageProcessorTransactionParameters parameters,
+            IStorageProcessorTransaction transaction)
     {
+        super(parameters);
         this.nestedTransaction = transaction;
     }
 

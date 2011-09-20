@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -33,9 +34,13 @@ public abstract class AbstractStorageProcessorTransaction implements
         IStorageProcessorTransaction
 {
 
+    private static final long serialVersionUID = 1L;
+
     protected File incomingDataSetDirectory;
 
     protected File rootDirectory;
+
+    protected DataSetInformation dataSetInformation;
 
     protected File storedDataDirectory;
 
@@ -50,8 +55,7 @@ public abstract class AbstractStorageProcessorTransaction implements
     // abstract methods to be implemented by extenders
     // --------------
 
-    protected abstract File storeData(DataSetInformation dataSetInformation,
-            ITypeExtractor typeExtractor, IMailClient mailClient);
+    protected abstract File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient);
 
     protected abstract void executeCommit();
 
@@ -60,16 +64,19 @@ public abstract class AbstractStorageProcessorTransaction implements
     //
     // Default implementation
     //
+    public AbstractStorageProcessorTransaction(StorageProcessorTransactionParameters parameters)
+    {
+        this.dataSetInformation = parameters.getDataSetInformation();
+        this.incomingDataSetDirectory = parameters.getIncomingDataSetDirectory();
+        this.rootDirectory = parameters.getRootDir();
+    }
 
-    public final void storeData(final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataDirectory, final File rootDir)
+    public final void storeData(final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetOverride)
     {
         ensureState("storeData", TransactionState.INITIAL);
-        this.incomingDataSetDirectory = incomingDataDirectory;
-        this.rootDirectory = rootDir;
-        this.storedDataDirectory = storeData(dataSetInformation, typeExtractor, mailClient);
-
+        this.incomingDataSetDirectory = incomingDataSetOverride;
+        this.storedDataDirectory = executeStoreData(typeExtractor, mailClient);
         state = TransactionState.STORED;
     }
 

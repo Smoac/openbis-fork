@@ -41,6 +41,7 @@ import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.DataSetRegistrati
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IDataSetInApplicationServerRegistrator;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm.IRollbackDelegate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -333,11 +334,11 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
 
-                    one(storageProcessor).createTransaction();
+                    one(storageProcessor).createTransaction(
+                            with(any(StorageProcessorTransactionParameters.class)));
                     will(returnValue(transaction));
 
-                    one(transaction).storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetFile, workingDirectory);
+                    one(transaction).storeData(typeExtractor, mailClient, incomingDataSetFile);
 
                     one(transaction).getStoredDataDirectory();
                     will(storeDataAction);

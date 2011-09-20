@@ -91,9 +91,10 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     // delegation
     //
 
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            StorageProcessorTransactionParameters transactionParameters)
     {
-        return delegate.createTransaction();
+        return delegate.createTransaction(transactionParameters);
     }
 
     public StorageFormat getStorageFormat()

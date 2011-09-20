@@ -28,7 +28,6 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -49,30 +48,32 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
     }
 
     @Override
-    public IStorageProcessorTransaction createTransaction()
+    public IStorageProcessorTransaction createTransaction(
+            final StorageProcessorTransactionParameters parameters)
     {
         final StorageProcessorWithDropboxTransaction superTransaction =
-                (StorageProcessorWithDropboxTransaction) super.createTransaction();
+                (StorageProcessorWithDropboxTransaction) super.createTransaction(parameters);
 
         final StorageProcessorWithUploader storageProcessorWithUploader =
                 new StorageProcessorWithUploader(new DummyStorageProcessor(),
                         (IDataSetUploader) superTransaction.getPostReigstrationHandler());
 
-        return new AbstractDelegatingStorageProcessorTransaction(superTransaction)
+        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
             {
 
+                private static final long serialVersionUID = 1L;
+
                 private final IStorageProcessorTransaction uploaderTransaction =
-                        storageProcessorWithUploader.createTransaction();
+                        storageProcessorWithUploader.createTransaction(parameters);
 
                 @Override
-                protected File storeData(DataSetInformation dataSetInformation,
-                        ITypeExtractor typeExtractor, IMailClient mailClient)
+                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
                 {
-                    nestedTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    nestedTransaction
+                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
 
-                    uploaderTransaction.storeData(dataSetInformation, typeExtractor, mailClient,
-                            incomingDataSetDirectory, rootDirectory);
+                    uploaderTransaction.storeData(typeExtractor, mailClient,
+                            incomingDataSetDirectory);
 
                     return nestedTransaction.getStoredDataDirectory();
                 }
@@ -120,16 +121,13 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
         {
         }
 
-        public IStorageProcessorTransaction createTransaction()
+        public IStorageProcessorTransaction createTransaction(
+                StorageProcessorTransactionParameters parameters)
         {
             return new IStorageProcessorTransaction()
                 {
 
-                    public void storeData(DataSetInformation dataSetInformation,
-                            ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetDirectory, File rootDir)
-                    {
-                    }
+                    private static final long serialVersionUID = 1L;
 
                     public void commit()
                     {
@@ -149,6 +147,12 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
                     {
                         return null;
                     }
+
+                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
+                            File incomingDataSetFolder)
+                    {
+                    }
+
                 };
         }
 
