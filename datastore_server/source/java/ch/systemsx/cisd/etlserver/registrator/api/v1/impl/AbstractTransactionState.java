@@ -667,7 +667,6 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return false;
         }
 
-        @Override
         public void willContinueRollbackAll(RollbackStack stack)
         {
             // Stop rolling back if the thread was interrupted

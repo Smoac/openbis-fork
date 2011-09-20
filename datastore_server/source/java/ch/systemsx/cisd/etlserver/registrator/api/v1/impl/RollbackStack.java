@@ -203,8 +203,6 @@ class RollbackStack
     {
         rollbackAll(new IRollbackStackDelegate()
             {
-
-                @Override
                 public void willContinueRollbackAll(RollbackStack stack)
                 {
                     // Don't do anything
