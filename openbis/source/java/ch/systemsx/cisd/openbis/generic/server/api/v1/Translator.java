@@ -263,7 +263,15 @@ public class Translator
         return terms;
     }
 
-    public static List<DataSet> translate(Collection<ExternalData> dataSets,
+    /**
+     * Translates specified iterable collection of {@link ExternalData} into a list of
+     * {@link DataSet} instance.
+     * 
+     * @param connectionsToGet Set of data set connections which should also be translated. This
+     *            assumes that the {@link ExternalData} instances are populated with these
+     *            connections.
+     */
+    public static List<DataSet> translate(Iterable<ExternalData> dataSets,
             EnumSet<Connections> connectionsToGet)
     {
         ArrayList<DataSet> translated = new ArrayList<DataSet>();
@@ -274,6 +282,13 @@ public class Translator
         return translated;
     }
 
+    /**
+     * Translates the specified {@link ExternalData} instance into a {@link DataSet} instance.
+     * 
+     * @param connectionsToGet Set of data set connections which should also be translated. This
+     *            assumes that the {@link ExternalData} instance is populated with these
+     *            connections.
+     */
     public static DataSet translate(ExternalData externalDatum,
             EnumSet<Connections> connectionsToGet)
     {
@@ -301,6 +316,15 @@ public class Translator
                         parentCodes.add(parentDatum.getCode());
                     }
                     initializer.setParentCodes(parentCodes);
+                    break;
+                case CHILDREN:
+                    Collection<ExternalData> children = externalDatum.getChildren();
+                    ArrayList<String> childrenCodes = new ArrayList<String>();
+                    for (ExternalData parentDatum : nullSafe(children))
+                    {
+                        childrenCodes.add(parentDatum.getCode());
+                    }
+                    initializer.setChildrenCodes(childrenCodes);
                     break;
             }
         }

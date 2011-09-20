@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfigurati
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -578,7 +580,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final Sample sample, IDataSetFilter filter)
     {
         final List<DataSet> dataSets =
-                generalInformationService.listDataSetsForSample(sessionToken, sample, true);
+                generalInformationService.listDataSets(sessionToken, Arrays.asList(sample),
+                        EnumSet.of(Connections.PARENTS));
         final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
                 new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();
         for (DataSet dataSet : dataSets)
@@ -591,6 +594,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
                 result.add(fullDataset);
             }
+        }
+        return result;
+    }
+
+    public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getDataSetMetaData(
+            List<String> dataSetCodes)
+    {
+        List<DataSet> dataSets = generalInformationService.getDataSetMetaData(sessionToken, dataSetCodes);
+        final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
+                new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();
+        for (DataSet dataSet : dataSets)
+        {
+            ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet fullDataset =
+                    new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(openbisServiceFacade,
+                            dssComponent, dataSet, null);
+            result.add(fullDataset);
         }
         return result;
     }

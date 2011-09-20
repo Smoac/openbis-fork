@@ -140,7 +140,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLES(%s) CONNECTIONS(%s)", samples,
                 connectionsToGet);
+        return null;
+    }
 
+    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "get-data-set-meta-data", "DATA_SETS(%s)", dataSetCodes);
         return null;
     }
 

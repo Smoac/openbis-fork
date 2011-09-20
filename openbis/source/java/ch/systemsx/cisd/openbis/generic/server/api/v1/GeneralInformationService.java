@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -162,7 +164,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 11;
+        return 12;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -393,6 +395,28 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
         List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
         return Translator.translate(dataSets, connectionsToGet);
+    }
+
+    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
+    {
+        Session session = getSession(sessionToken);
+
+        IDataDAO dataDAO = getDAOFactory().getDataDAO();
+        List<DataSet> result = new ArrayList<DataSet>();
+        EnumSet<Connections> connections = EnumSet.of(Connections.PARENTS, Connections.CHILDREN);
+        for (String dataSetCode : dataSetCodes)
+        {
+            DataPE dataPE = dataDAO.tryToFindDataSetByCode(dataSetCode);
+            if (dataPE == null)
+            {
+                throw new UserFailureException("Unknown data set " + dataSetCode);
+            }
+            HibernateUtils.initialize(dataPE.getChildren());
+            HibernateUtils.initialize(dataPE.getProperties());
+            ExternalData ds = DataSetTranslator.translate(dataPE, session.getBaseIndexURL());
+            result.add(Translator.translate(ds, connections));
+        }
+        return result;
     }
 
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)

@@ -1266,6 +1266,28 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals("[dir, dir/hello.txt, readme]", paths.toString());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testGetDataSetMetaData()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(generalInformationService).getDataSetMetaData(SESSION_TOKEN,
+                            Arrays.asList("ds1", "ds2"));
+                    will(returnValue(Arrays.asList(new DataSet(dataSetInitializer("ds1")),
+                            new DataSet(dataSetInitializer("ds2")))));
+                }
+            });
+        
+        List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> dataSets =
+                facade.getDataSetMetaData(Arrays.asList("ds1", "ds2"));
+        
+        assertEquals("ds1", dataSets.get(0).getCode());
+        assertEquals("ds2", dataSets.get(1).getCode());
+        assertEquals(2, dataSets.size());
+        context.assertIsSatisfied();
+    }
 
     private SampleInitializer sampleInitializer()
     {

@@ -128,6 +128,14 @@ public class DataSet
     }
 
     /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getChildrenCodes()
+     */
+    public List<String> getChildrenCodes()
+    {
+        return getMetadata().getChildrenCodes();
+    }
+    
+    /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#equals(java.lang.Object)
      */
     @Override

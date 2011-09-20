@@ -282,6 +282,18 @@ public interface IScreeningOpenbisServiceFacade
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
     /**
+     * Returns meta data for all specified data set codes. This contains data set type, properties,
+     * and codes of linked parent and children data sets.
+     * 
+     * @return result in the same order as the list of data set codes.
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<DataSet> getDataSetMetaData(List<String> dataSetCodes)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
      * Upload a new data set to the DSS for a plate.
      * 
      * @param plateIdentifier Identifier of a plate that should become owner of the new data set

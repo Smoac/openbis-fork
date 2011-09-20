@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -785,6 +787,8 @@ public class OpenBISScreeningML
      * props(1,1)
      * % Get property value of first property
      * props(1,2)
+     * % Get all parents of first data set (assuming there is at least one)
+     * dsInfo(1,4)
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
@@ -795,7 +799,7 @@ public class OpenBISScreeningML
      *            system mounts.
      * @return Each row contains information about one data set:
      *         <p>
-     *         <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...} }</code>
+     *         <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
      */
     public static Object[][] loadDataSets(String augmentedPlateCode, String dataSetTypeCodePattern,
             String overrideStoreRootPathOrNull)
@@ -827,6 +831,8 @@ public class OpenBISScreeningML
      * props(1,1)
      * % Get property value of first property
      * props(1,2)
+     * % Get all parents of first data set (assuming there is at least one)
+     * dsInfo(1,4)
      * </pre>
      * 
      * @param augmentedPlateCode The augmented plate code.
@@ -840,7 +846,7 @@ public class OpenBISScreeningML
      *            the DSS' store root. If null, paths are returned in the context of the DSS' file
      *            system mounts.
      *            <p>
-     *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...} }</code>
+     *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
      */
     public static Object[][] loadDataSets(String augmentedPlateCode,
             final String dataSetTypeCodePattern, final Object[][] properties,
@@ -866,9 +872,15 @@ public class OpenBISScreeningML
                             dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
                                     dataSetsDir);
                 }
+                List<String> parents = dataSet.getParentCodes();
+                Object[] parentCodes = new Object[parents.size()];
+                for (int j = 0; j < parentCodes.length; j++)
+                {
+                    parentCodes[j] = parents.get(j);
+                }
                 Object[][] dataSetProperties = listProperties(dataSet.getProperties());
                 result[i] = new Object[]
-                    { code, file.getPath(), dataSetProperties };
+                    { code, file.getPath(), dataSetProperties, parentCodes };
             }
             return result;
         } catch (Exception ex)
@@ -949,7 +961,7 @@ public class OpenBISScreeningML
             IDataSetDss dataSet = dataSets.get(i);
             FileInfoDssDTO[] fileInfos = dataSet.listFiles("/", true);
             String code = dataSet.getCode();
-            result[i] = new Object[2][];
+            result[i] = new Object[4][];
             result[i][0] = new Object[]
                 { code };
             result[i][1] = new Object[fileInfos.length];
@@ -959,6 +971,55 @@ public class OpenBISScreeningML
                 result[i][1][j] = fileInfo.getPathInDataSet();
             }
         }
+        return result;
+    }
+    
+    /**
+     * Lists meta data of specified data sets. This includes data set type, properties and codes of connected parent and children data sets.
+     * The result is returned in the same order as the data set code array argument.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % List meta data for data sets 20101006020318852-10 and 20110919083636428-236
+     * metadata = OpenBISScreeningML.getDataSetMetaData({ '20101006020318852-10' '20110919083636428-236'})
+     * % Codes of all data sets
+     * metadata(:,1,1)
+     * % Types of all data sets
+     * metadata(:,1,2)
+     * % Properties of first data set
+     * metadata(1, 2)
+     * % Parents of second data set
+     * metadata(2, 3, :)
+     * % Children of first data set
+     * metadata(1, 4, :)
+     * </pre>
+     * 
+     * @param dataSetCodes Codes of data sets from whom meta data are queried.
+     * @return For each data set: <code>{{data set code, data set type}, { {key1, value1}, {key2, value2} ...}, parents, children }</code>
+     */
+    public static Object[][][] getDataSetMetaData(String[] dataSetCodes)
+    {
+        checkLoggedIn();
+        List<DataSet> dataSets = openbis.getDataSetMetaData(Arrays.asList(dataSetCodes));
+        TableMap<String, DataSet> dataSetMap = new TableMap<String, DataSet>(dataSets, new IKeyExtractor<String, DataSet>()
+            {
+                public String getKey(DataSet e)
+                {
+                    return e.getCode();
+                }
+            });
+        Object[][][] result = new Object[dataSetCodes.length][][];
+        for (int i = 0; i < dataSetCodes.length; i++)
+        {
+            DataSet dataSet = dataSetMap.tryGet(dataSetCodes[i]);
+            result[i] = new Object[4][];
+            result[i][0] = new Object[] { dataSet.getCode(), dataSet.getDataSetTypeCode() };
+            result[i][1] = listProperties(dataSet.getProperties());
+            result[i][2] = dataSet.getParentCodes().toArray();
+            result[i][3] = dataSet.getChildrenCodes().toArray();
+        }
+
         return result;
     }
 

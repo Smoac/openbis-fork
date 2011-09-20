@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -58,10 +60,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExternalDataPEBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SpacePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -490,6 +497,70 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertEquals(1, result.size());
         Experiment resultExperiment = result.get(0);
         assertEquals("/SPACE-1/PROJECT-1/EXP-CODE", resultExperiment.getIdentifier());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetDataSetMetaData()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    ExperimentPE experiment = new ExperimentPE();
+                    experiment.setCode("E1");
+                    ExperimentTypePE experimentType = new ExperimentTypePE();
+                    experimentType.setCode("MY_EXPERIMENT_TYPE");
+                    experiment.setExperimentType(experimentType);
+                    ProjectPE project = new ProjectPE();
+                    project.setCode("P");
+                    project.setSpace(new SpacePEBuilder()
+                            .code("S")
+                            .databaseInstance(
+                                    new DatabaseInstancePEBuilder().code("DB1")
+                                            .getDatabaseInstance()).getSpace());
+                    experiment.setProject(project);
+                    one(dataSetDAO).tryToFindDataSetByCode("ds1");
+                    ExternalDataPEBuilder ds1 =
+                            new ExternalDataPEBuilder(1).code("ds1").type("T1").store("S")
+                                    .experiment(experiment)
+                                    .property("alpha", DataTypeCode.REAL, "3.14159")
+                                    .property("status", DataTypeCode.VARCHAR, "normal");
+                    will(returnValue(ds1.getDataSet()));
+
+                    one(dataSetDAO).tryToFindDataSetByCode("ds2");
+                    ExternalDataPEBuilder ds2 =
+                            new ExternalDataPEBuilder(1).code("ds2").type("T2").store("S")
+                                    .experiment(experiment)
+                                    .property("status", DataTypeCode.VARCHAR, "low")
+                                    .parent(ds1.getDataSet());
+                    will(returnValue(ds2.getDataSet()));
+                }
+            });
+
+        List<DataSet> dataSets =
+                service.getDataSetMetaData(SESSION_TOKEN, Arrays.asList("ds1", "ds2"));
+
+        assertEquals("ds1", dataSets.get(0).getCode());
+        assertEquals("T1", dataSets.get(0).getDataSetTypeCode());
+        assertEquals("DB1:/S/P/E1", dataSets.get(0).getExperimentIdentifier());
+        assertEquals(null, dataSets.get(0).getSampleIdentifierOrNull());
+        HashMap<String, String> properties = dataSets.get(0).getProperties();
+        assertEquals("3.14159", properties.get("ALPHA"));
+        assertEquals("normal", properties.get("STATUS"));
+        assertEquals(2, properties.size());
+        assertEquals("[ds2]", dataSets.get(0).getChildrenCodes().toString());
+        assertEquals("[]", dataSets.get(0).getParentCodes().toString());
+
+        assertEquals("ds2", dataSets.get(1).getCode());
+        assertEquals("T2", dataSets.get(1).getDataSetTypeCode());
+        assertEquals("DB1:/S/P/E1", dataSets.get(1).getExperimentIdentifier());
+        assertEquals(null, dataSets.get(1).getSampleIdentifierOrNull());
+        assertEquals("{STATUS=low}", dataSets.get(1).getProperties().toString());
+        assertEquals("[]", dataSets.get(1).getChildrenCodes().toString());
+        assertEquals("[ds1]", dataSets.get(1).getParentCodes().toString());
+
+        assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
 

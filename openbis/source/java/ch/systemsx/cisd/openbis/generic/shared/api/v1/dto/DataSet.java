@@ -43,7 +43,7 @@ public final class DataSet implements Serializable
 
     public static enum Connections
     {
-        PARENTS
+        PARENTS, CHILDREN
     }
 
     /**
@@ -64,7 +64,9 @@ public final class DataSet implements Serializable
 
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
-        private ArrayList<String> parentCodes = new ArrayList<String>();
+        private List<String> parentCodes = new ArrayList<String>();
+
+        private List<String> childrenCodes = new ArrayList<String>();
 
         private HashMap<String, String> properties = new HashMap<String, String>();
 
@@ -132,7 +134,7 @@ public final class DataSet implements Serializable
             return retrievedConnections;
         }
 
-        public void setParentCodes(ArrayList<String> parentCodes)
+        public void setParentCodes(List<String> parentCodes)
         {
             this.parentCodes = (null == parentCodes) ? new ArrayList<String>() : parentCodes;
         }
@@ -140,6 +142,16 @@ public final class DataSet implements Serializable
         public List<String> getParentCodes()
         {
             return parentCodes;
+        }
+
+        public List<String> getChildrenCodes()
+        {
+            return childrenCodes;
+        }
+
+        public void setChildrenCodes(List<String> childrenCodes)
+        {
+            this.childrenCodes = (null == childrenCodes) ? new ArrayList<String>() : childrenCodes;
         }
 
         public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
@@ -169,6 +181,8 @@ public final class DataSet implements Serializable
 
     private List<String> parentCodes = Collections.emptyList();
 
+    private List<String> childrenCodes = Collections.emptyList();
+
     private EntityRegistrationDetails registrationDetails;
 
     /**
@@ -196,6 +210,7 @@ public final class DataSet implements Serializable
 
         this.retrievedConnections = initializer.getRetrievedConnections();
         this.parentCodes = initializer.getParentCodes();
+        this.childrenCodes = initializer.getChildrenCodes();
 
         checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
@@ -264,7 +279,7 @@ public final class DataSet implements Serializable
      * retrieved.
      * 
      * @return A list of parent data set codes or an empty list if there are no parents.
-     * @throws IllegalArgumentException Thrown if the parent codes were not retireved from the
+     * @throws IllegalArgumentException Thrown if the parent codes were not retrieved from the
      *             server.
      */
     @JsonIgnore
@@ -276,6 +291,27 @@ public final class DataSet implements Serializable
         } else
         {
             throw new IllegalArgumentException("Parent codes were not retrieved for data set "
+                    + getCode() + ".");
+        }
+    }
+
+    /**
+     * Return the children codes. This throws an IllegalArgumentException if the children codes were
+     * not retrieved.
+     * 
+     * @return A list of chidlren data set codes or an empty list if there are no children.
+     * @throws IllegalArgumentException Thrown if the children codes were not retrieved from the
+     *             server.
+     */
+    @JsonIgnore
+    public List<String> getChildrenCodes() throws IllegalArgumentException
+    {
+        if (getRetrievedConnections().contains(Connections.CHILDREN))
+        {
+            return Collections.unmodifiableList(childrenCodes);
+        } else
+        {
+            throw new IllegalArgumentException("Children codes were not retrieved for data set "
                     + getCode() + ".");
         }
     }

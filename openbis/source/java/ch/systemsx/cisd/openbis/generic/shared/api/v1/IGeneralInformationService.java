@@ -208,6 +208,18 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
+     * Returns meta data for all specified data sets. This contains data set type, properties, and
+     * codes of linked parent and children data sets. Available since minor version 12.
+     * 
+     * @param dataSetCodes Codes of requested data sets.
+     * @return result in the same order as the list of data set codes.
+     * @since 1.12
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes);
+
+    /**
      * Return all data sets matching a specified search criteria. Available since minor version 8.
      * 
      * @param searchCriteria the criteria used for searching.

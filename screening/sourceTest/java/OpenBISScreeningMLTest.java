@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
@@ -644,8 +646,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         final RecordingMatcher<IDataSetFilter> filterMatcher =
                 new RecordingMatcher<IDataSetFilter>();
 
-        final DataSet dataSet1 = createDataSet("ds-1", ds1);
-        final DataSet dataSet2 = createDataSet("ds-2", ds2);
+        List<String> codes = new ArrayList<String>();
+        final DataSet dataSet1 = createDataSet("ds-1", ds1, codes, codes);
+        final DataSet dataSet2 = createDataSet("ds-2", ds2, codes, codes);
 
         context.checking(new Expectations()
             {
@@ -687,8 +690,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         final RecordingMatcher<IDataSetFilter> filterMatcher =
                 new RecordingMatcher<IDataSetFilter>();
 
-        final DataSet dataSet1 = createDataSet("ds-1", ds1);
-        final DataSet dataSet2 = createDataSet("ds-2", ds2);
+        List<String> codes = new ArrayList<String>();
+        final DataSet dataSet1 = createDataSet("ds-1", ds1, codes, codes);
+        final DataSet dataSet2 = createDataSet("ds-2", ds2, codes, codes);
 
         context.checking(new Expectations()
             {
@@ -1056,6 +1060,44 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 Arrays.toString(returnedAnalysisProcedures));
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testGetDataSetMetaData()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).getDataSetMetaData(Arrays.asList("ds1", "ds2"));
+                    List<String> noCodes = Arrays.asList();
+                    will(returnValue(Arrays.asList(createDataSet("ds1", ds1, Arrays.asList("ds3", "ds4"), noCodes), 
+                            createDataSet("ds2", ds2, Arrays.asList("ds1"), Arrays.asList("ds3", "ds5")))));
+                }
+            });
+        
+        Object[][][] dataSets = OpenBISScreeningML.getDataSetMetaData(new String[] {"ds1", "ds2"});
+        
+        
+        assertEquals("ds1", dataSets[0][0][0]);
+        assertEquals("ds-type", dataSets[0][0][1]);
+        assertEquals("ds1-key1", ((Object[]) dataSets[0][1][0])[0]);
+        assertEquals("ds1-value1", ((Object[]) dataSets[0][1][0])[1]);
+        assertEquals("ds1-key2", ((Object[]) dataSets[0][1][1])[0]);
+        assertEquals("ds1-value2", ((Object[]) dataSets[0][1][1])[1]);
+        assertEquals("[ds3, ds4]", Arrays.asList(dataSets[0][2]).toString());
+        assertEquals("[]", Arrays.asList(dataSets[0][3]).toString());
+        
+        assertEquals("ds2", dataSets[1][0][0]);
+        assertEquals("ds-type", dataSets[1][0][1]);
+        assertEquals("ds2-key1", ((Object[]) dataSets[1][1][0])[0]);
+        assertEquals("ds2-value1", ((Object[]) dataSets[1][1][0])[1]);
+        assertEquals("ds2-key2", ((Object[]) dataSets[1][1][1])[0]);
+        assertEquals("ds2-value2", ((Object[]) dataSets[1][1][1])[1]);
+        assertEquals("[ds1]", Arrays.asList(dataSets[1][2]).toString());
+        assertEquals("[ds3, ds5]", Arrays.asList(dataSets[1][3]).toString());
+
+        assertEquals(2, dataSets.length);
+        context.assertIsSatisfied();
+    }
 
     private void assertEqualProperties(Map<String, String> properties, Object[][] matlabProps)
     {
@@ -1084,7 +1126,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
     }
 
-    private DataSet createDataSet(String code, IDataSetDss dataSetDss)
+    private DataSet createDataSet(String code, IDataSetDss dataSetDss, List<String> parentCodes, List<String> childrenCodes)
     {
         EntityRegistrationDetailsInitializer entityRegInitializer =
                 new EntityRegistrationDetailsInitializer();
@@ -1095,6 +1137,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         dsInitializer.setCode(code);
         dsInitializer.setExperimentIdentifier("EXPERIMENT");
         dsInitializer.setDataSetTypeCode("ds-type");
+        dsInitializer.setParentCodes(parentCodes);
+        dsInitializer.setChildrenCodes(childrenCodes);
+        dsInitializer.setRetrievedConnections(EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
 
         Map<String, String> properties = createProperties(code);
         for (String propKey : properties.keySet())
@@ -1110,8 +1155,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     private Map<String, String> createProperties(String dataSetCode)
     {
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(dataSetCode + "-key1", dataSetCode + "value1");
-        properties.put(dataSetCode + "-key2", dataSetCode + "value2");
+        properties.put(dataSetCode + "-key1", dataSetCode + "-value1");
+        properties.put(dataSetCode + "-key2", dataSetCode + "-value2");
         return properties;
     }
 }
