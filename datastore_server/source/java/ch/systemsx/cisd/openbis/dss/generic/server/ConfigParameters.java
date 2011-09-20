@@ -174,7 +174,7 @@ public final class ConfigParameters implements IServletPropertiesManager
                 PropertyUtils.getProperty(properties, WEBSTART_JAR_PATH, WEBSTART_JAR_PATH_DEFAULT);
     }
 
-    private File getInternalTempDirectory(Properties properties)
+    private static File getInternalTempDirectory(Properties properties)
     {
         return DssPropertyParametersUtil.getDssInternalTempDir(properties);
     }
