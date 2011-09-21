@@ -52,47 +52,18 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
     public IStorageProcessorTransaction createTransaction(
             final StorageProcessorTransactionParameters parameters)
     {
-        final StorageProcessorWithDropboxTransaction superTransaction =
+        StorageProcessorWithDropboxTransaction superTransaction =
                 (StorageProcessorWithDropboxTransaction) super.createTransaction(parameters);
 
-        final StorageProcessorWithUploader storageProcessorWithUploader =
+        StorageProcessorWithUploader storageProcessorWithUploader =
                 new StorageProcessorWithUploader(new DummyStorageProcessor(),
                         (IDataSetUploader) superTransaction.getPostReigstrationHandler());
 
-        return new AbstractDelegatingStorageProcessorTransaction(parameters, superTransaction)
-            {
+        IStorageProcessorTransaction uploaderTransaction =
+                storageProcessorWithUploader.createTransaction(parameters);
 
-                private static final long serialVersionUID = 1L;
+        return new StorageProcessorTransaction(parameters, superTransaction, uploaderTransaction);
 
-                private final IStorageProcessorTransaction uploaderTransaction =
-                        storageProcessorWithUploader.createTransaction(parameters);
-
-                @Override
-                protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
-                {
-                    nestedTransaction
-                            .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
-
-                    uploaderTransaction.storeData(typeExtractor, mailClient,
-                            incomingDataSetDirectory);
-
-                    return nestedTransaction.getStoredDataDirectory();
-                }
-
-                @Override
-                protected UnstoreDataAction executeRollback(Throwable ex)
-                {
-                    nestedTransaction.rollback(ex);
-                    return uploaderTransaction.rollback(ex);
-                }
-
-                @Override
-                protected void executeCommit()
-                {
-                    uploaderTransaction.commit();
-                    nestedTransaction.commit();
-                }
-            };
     }
 
     private static final class StorageProcessorWithUploader extends
@@ -109,6 +80,46 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
         {
         }
 
+    }
+
+    static class StorageProcessorTransaction extends AbstractDelegatingStorageProcessorTransaction
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private final IStorageProcessorTransaction uploaderTransaction;
+
+        StorageProcessorTransaction(StorageProcessorTransactionParameters parameters,
+                IStorageProcessorTransaction nestedTransaction,
+                IStorageProcessorTransaction uploaderTransaction)
+        {
+            super(parameters, nestedTransaction);
+            this.uploaderTransaction = uploaderTransaction;
+        }
+
+        @Override
+        protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
+        {
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+
+            uploaderTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+
+            return nestedTransaction.getStoredDataDirectory();
+        }
+
+        @Override
+        protected UnstoreDataAction executeRollback(Throwable ex)
+        {
+            nestedTransaction.rollback(ex);
+            return uploaderTransaction.rollback(ex);
+        }
+
+        @Override
+        protected void executeCommit()
+        {
+            uploaderTransaction.commit();
+            nestedTransaction.commit();
+        }
     }
 
     private final class DummyStorageProcessor implements IStorageProcessorTransactional
