@@ -147,12 +147,12 @@ class MaterialMergedSummarySection extends DisposableTabContent
 
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
-        String initialAnalysisProcedureOrNull =
-                (initialAnalysisProcedureCriteriaOrNull == null) ? null
-                        : initialAnalysisProcedureCriteriaOrNull.tryGetAnalysisProcedureCode();
+        AnalysisProcedureCriteria initialSelection =
+                (initialAnalysisProcedureCriteriaOrNull == null) ? AnalysisProcedureCriteria
+                        .createNoProcedures() : initialAnalysisProcedureCriteriaOrNull;
 
         return AnalysisProcedureChooser.createVertical(screeningViewContext,
-                experimentSearchCriteriaHolder, initialAnalysisProcedureOrNull,
+                experimentSearchCriteriaHolder, initialSelection,
                 createAnalysisProcedureListener(), false);
     }
 

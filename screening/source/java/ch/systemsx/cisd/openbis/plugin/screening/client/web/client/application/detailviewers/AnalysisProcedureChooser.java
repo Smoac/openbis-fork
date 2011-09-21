@@ -59,6 +59,8 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private final static String UNSPECIFIED_PROCEDURE = "Unspecified";
 
+    private final static String ALL_PROCEDURES = "All";
+
     /**
      * Can be used from external classes wishing to be notified when the analysis procedure
      * selection changes.
@@ -82,16 +84,15 @@ class AnalysisProcedureChooser extends LayoutContainer
     public static final AnalysisProcedureChooser createHorizontal(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
-            String selectedAnalysisProcedureOrNull,
+            AnalysisProcedureCriteria initialSelection,
             IAnalysisProcedureSelectionListener selectionListener,
             boolean triggerInitialSelectionEvent)
     {
         AnalysisProcedureLister analysisProcedureLister =
                 createNumericalDatasetsAnalysisProcedureLister(viewContext,
                         experimentCriteriaHolder);
-        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
-                selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
-                true);
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister, initialSelection,
+                selectionListener, triggerInitialSelectionEvent, true);
     }
 
     /**
@@ -102,16 +103,15 @@ class AnalysisProcedureChooser extends LayoutContainer
     public static final AnalysisProcedureChooser createVertical(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteriaHolder experimentCriteriaHolder,
-            String selectedAnalysisProcedureOrNull,
+            AnalysisProcedureCriteria initialSelection,
             IAnalysisProcedureSelectionListener selectionListener,
             boolean triggerInitialSelectionEvent)
     {
         AnalysisProcedureLister analysisProcedureLister =
                 createNumericalDatasetsAnalysisProcedureLister(viewContext,
                         experimentCriteriaHolder);
-        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
-                selectedAnalysisProcedureOrNull, selectionListener, triggerInitialSelectionEvent,
-                false);
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister, initialSelection,
+                selectionListener, triggerInitialSelectionEvent, false);
     }
 
     /**
@@ -119,7 +119,8 @@ class AnalysisProcedureChooser extends LayoutContainer
      * separate row above the combobox.
      */
     public static final AnalysisProcedureChooser create(IViewContext<?> viewContext,
-            final AnalysisProcedures analysisProcedures, String selectedAnalysisProcedureOrNull,
+            final AnalysisProcedures analysisProcedures,
+            AnalysisProcedureCriteria initialSelection,
             IAnalysisProcedureSelectionListener selectionListener)
     {
         // dummy lister which always returns the same result
@@ -131,8 +132,8 @@ class AnalysisProcedureChooser extends LayoutContainer
                     resultsCallback.onSuccess(analysisProcedures);
                 }
             };
-        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister,
-                selectedAnalysisProcedureOrNull, selectionListener, true, false);
+        return new AnalysisProcedureChooser(viewContext, analysisProcedureLister, initialSelection,
+                selectionListener, true, false);
     }
 
     private static AnalysisProcedureLister createNumericalDatasetsAnalysisProcedureLister(
@@ -160,6 +161,8 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private final SimpleModelComboBox<String> analysisProceduresComboBox;
 
+    private final boolean displaySelectAllProcedures;
+
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
 
@@ -172,7 +175,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private AnalysisProcedureChooser(IViewContext<?> viewContext,
             AnalysisProcedureLister analysisProcedureLister,
-            String selectedAnalysisProcedureOrNull,
+            AnalysisProcedureCriteria initialSelection,
             IAnalysisProcedureSelectionListener selectionListener,
             boolean triggerInitialSelectionEvent, boolean horizontalLayout)
     {
@@ -182,8 +185,9 @@ class AnalysisProcedureChooser extends LayoutContainer
         this.selectionListener = selectionListener;
         this.analysisProcedureLister = analysisProcedureLister;
         this.analysisProceduresComboBox = createLayout(horizontalLayout);
+        this.displaySelectAllProcedures = initialSelection.isAllProcedures();
 
-        initSelection(selectedAnalysisProcedureOrNull, triggerInitialSelectionEvent);
+        initSelection(initialSelection, triggerInitialSelectionEvent);
     }
 
     private SimpleModelComboBox<String> createLayout(boolean horizontalLayout)
@@ -214,14 +218,14 @@ class AnalysisProcedureChooser extends LayoutContainer
         return layoutPanel;
     }
 
-    private void initSelection(String selectedAnalysisProcedureOrNull, boolean triggerEvents)
+    private void initSelection(AnalysisProcedureCriteria initialSelection, boolean triggerEvents)
     {
         if (false == triggerEvents)
         {
             disableEvents(true);
         }
 
-        refresh(selectedAnalysisProcedureOrNull);
+        refresh(initialSelection);
 
         if (false == triggerEvents)
         {
@@ -232,11 +236,10 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     public void updateAnalysisProcedures()
     {
-        String selectedProcedureOrNull = getSelectionAsCriteria().tryGetAnalysisProcedureCode();
-        refresh(selectedProcedureOrNull);
+        refresh(getSelectionAsCriteria());
     }
 
-    private void refresh(final String selectedAnalysisProcedureOrNull)
+    private void refresh(final AnalysisProcedureCriteria selectedProcedureCriteria)
     {
 
         analysisProceduresComboBox.removeAll();
@@ -246,7 +249,7 @@ class AnalysisProcedureChooser extends LayoutContainer
                     {
                         public void onSuccess(AnalysisProcedures analysisProcedures)
                         {
-                            refresh(selectedAnalysisProcedureOrNull, analysisProcedures);
+                            refresh(selectedProcedureCriteria, analysisProcedures);
                         }
 
                         public void onFailure(Throwable caught)
@@ -256,11 +259,11 @@ class AnalysisProcedureChooser extends LayoutContainer
                     });
     }
 
-    private void refresh(final String selectedAnalysisProcedureOrNull,
+    private void refresh(AnalysisProcedureCriteria selectedProcedureCriteria,
             AnalysisProcedures analysisProcedures)
     {
         addAnalysisProcedures(analysisProcedures.getProcedureCodes());
-        setInitialSelection(selectedAnalysisProcedureOrNull);
+        setInitialSelection(selectedProcedureCriteria);
     }
 
     private Component createComboLabel()
@@ -304,11 +307,15 @@ class AnalysisProcedureChooser extends LayoutContainer
         List<String> sortedCodes = new ArrayList<String>();
         for (String code : codes)
         {
-            sortedCodes.add(analysisCodeToComboBoxValue(code));
+            sortedCodes.add(unspecifiedIfEmpty(code));
 
         }
         boolean unspecifiedPresent = sortedCodes.remove(UNSPECIFIED_PROCEDURE);
         Collections.sort(sortedCodes);
+        if (displaySelectAllProcedures)
+        {
+            sortedCodes.add(0, ALL_PROCEDURES);
+        }
         if (unspecifiedPresent)
         {
             // unspecified is always displayed at the end
@@ -325,15 +332,18 @@ class AnalysisProcedureChooser extends LayoutContainer
         }
     }
 
-    private void setInitialSelection(String value)
+    private void setInitialSelection(AnalysisProcedureCriteria selectedProcedureCriteria)
     {
-        String analysisProcedureOrNull = value;
+        String analysisProcedureOrNull = selectedProcedureCriteria.tryGetAnalysisProcedureCode();
         if (StringUtils.isBlank(analysisProcedureOrNull))
         {
             analysisProcedureOrNull = getDefaultAnalysisProcedure();
         }
-
-        String comboBoxValue = analysisCodeToComboBoxValue(analysisProcedureOrNull);
+        
+        String comboBoxValue = analysisProcedureOrNull;
+        if (StringUtils.isBlank(comboBoxValue)) {
+            comboBoxValue = selectedProcedureCriteria.isNoProcedures() ? UNSPECIFIED_PROCEDURE : ALL_PROCEDURES;
+        }
 
         LabeledItem<String> valueToSelect =
                 analysisProceduresComboBox.findModelForVal(comboBoxValue);
@@ -360,11 +370,18 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private AnalysisProcedureCriteria getSelectionAsCriteria()
     {
-        String selection = analysisProceduresComboBox.getChosenItem();
-        String analysisProcedureOrNull = comboBoxValueToAnalysisProcedure(selection);
-        return StringUtils.isBlank(analysisProcedureOrNull) ? AnalysisProcedureCriteria
-                .createNoProcedures() : AnalysisProcedureCriteria
-                .createFromCode(analysisProcedureOrNull);
+        String selectedAP = analysisProceduresComboBox.getChosenItem();
+        if (UNSPECIFIED_PROCEDURE.equals(selectedAP))
+        {
+            return AnalysisProcedureCriteria.createNoProcedures();
+        } else if (ALL_PROCEDURES.equals(selectedAP))
+        {
+            return AnalysisProcedureCriteria.createAllProcedures();
+        } else
+        {
+            return AnalysisProcedureCriteria.createFromCode(selectedAP);
+        }
+
     }
 
     private String getDefaultAnalysisProcedure()
@@ -374,22 +391,19 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private void setDefaultAnalysisProcedure(AnalysisProcedureCriteria analysisProcedureCriteria)
     {
-        String analysisProcedureCode = analysisProcedureCriteria.tryGetAnalysisProcedureCode();
+        String analysisProcedureCode =
+                (analysisProcedureCriteria.isAllProcedures()) ? ALL_PROCEDURES
+                        : analysisProcedureCriteria.tryGetAnalysisProcedureCode();
         if (StringUtils.isNotBlank(analysisProcedureCode))
         {
             screeningDisplaySettingsManager.setDefaultAnalysisProcedure(analysisProcedureCode);
         }
     }
 
-    private String analysisCodeToComboBoxValue(String analysisProcedureOrNull)
+    private String unspecifiedIfEmpty(String analysisProcedureOrNull)
     {
         return StringUtils.isBlank(analysisProcedureOrNull) ? UNSPECIFIED_PROCEDURE
                 : analysisProcedureOrNull;
-    }
-
-    private String comboBoxValueToAnalysisProcedure(String comboBoxValue)
-    {
-        return UNSPECIFIED_PROCEDURE.equals(comboBoxValue) ? null : comboBoxValue;
     }
 
 }

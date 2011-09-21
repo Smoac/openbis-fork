@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.AnalysisProcedureChooser.IAnalysisProcedureSelectionListener;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteriaHolder;
 
@@ -81,7 +82,7 @@ public class ExperimentAnalysisSummarySection extends DisposableTabContent
         ExperimentSearchCriteriaHolder criteriaHolder = new ExperimentSearchCriteriaHolder(experimentCriteria);
 
         return AnalysisProcedureChooser.createHorizontal(screeningViewContext, criteriaHolder,
-                null, getGridAsListener(), true);
+                AnalysisProcedureCriteria.createNoProcedures(), getGridAsListener(), true);
     }
 
 }

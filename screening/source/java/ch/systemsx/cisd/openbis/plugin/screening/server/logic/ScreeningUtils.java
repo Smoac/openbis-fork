@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AnalysisProcedureResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
@@ -63,9 +64,12 @@ public class ScreeningUtils
         @SuppressWarnings("deprecation")
         String fileTypeCode = dataset.getFileFormatType().getCode();
         Experiment experiment = dataset.getExperiment();
+        String analysisProcedureOrNull =
+                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
                 dataset.getRegistrationDate(), fileTypeCode, dataStore.getCode(),
-                dataStore.getHostUrl(), experiment.getPermId(), experiment.getIdentifier());
+                dataStore.getHostUrl(), experiment.getPermId(), experiment.getIdentifier(),
+                analysisProcedureOrNull);
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasetsPE(List<ExternalDataPE> datasets)

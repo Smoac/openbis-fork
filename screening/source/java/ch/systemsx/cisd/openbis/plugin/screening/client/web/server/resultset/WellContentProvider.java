@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.ANALYSIS_PROCEDURE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.FILE_FORMAT_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.WellSearchGridColumnIds.IMAGE_ANALYSIS_DATA_SET;
@@ -103,6 +104,7 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         builder.addColumn(FILE_FORMAT_TYPE);
         builder.addColumn(IMAGE_DATA_SET);
         builder.addColumn(IMAGE_ANALYSIS_DATA_SET);
+        builder.addColumn(ANALYSIS_PROCEDURE);
     }
 
     private void addMaterialColumns(TypedTableModelBuilder<WellContent> builder,
@@ -173,6 +175,8 @@ public class WellContentProvider extends AbstractTableModelProvider<WellContent>
         DatasetReference dataset = well.tryGetFeatureVectorDataset();
         builder.column(IMAGE_ANALYSIS_DATA_SET).addString(
                 dataset == null ? null : dataset.getCode());
+        builder.column(ANALYSIS_PROCEDURE).addString(
+                dataset == null ? null : dataset.getAnalysisProcedure());
 
     }
 

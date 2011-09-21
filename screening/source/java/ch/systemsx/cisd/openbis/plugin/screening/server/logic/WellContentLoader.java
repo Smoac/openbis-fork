@@ -143,8 +143,10 @@ public class WellContentLoader extends AbstractContentLoader
         List<WellContent> withPropsAndDataSets =
                 loader.enrichWithDatasets(locations,
                         materialCriteria.getAnalysisProcedureCriteria());
-        List<WellContent> withFeatureVectors =
-                loader.enrichWithFeatureVectors(withPropsAndDataSets);
+        List<WellContent> byAnalysisProcedure =
+                loader.filterByAnalysisProcedure(withPropsAndDataSets,
+                        materialCriteria.getAnalysisProcedureCriteria());
+        List<WellContent> withFeatureVectors = loader.enrichWithFeatureVectors(byAnalysisProcedure);
         return withFeatureVectors;
     }
 
@@ -972,4 +974,27 @@ public class WellContentLoader extends AbstractContentLoader
         return new ExperimentReference(loc.exp_id, loc.exp_perm_id, loc.exp_code,
                 loc.exp_type_code, loc.proj_code, loc.space_code);
     }
+
+    private List<WellContent> filterByAnalysisProcedure(List<WellContent> wells,
+            AnalysisProcedureCriteria criteria)
+    {
+        if (criteria.isAllProcedures())
+        {
+            return wells;
+        }
+        ArrayList<WellContent> filtered = new ArrayList<WellContent>();
+        for (WellContent well : wells)
+        {
+            String analysisProcedureCode =
+                    well.tryGetFeatureVectorDataset() == null ? null : well
+                            .tryGetFeatureVectorDataset().getAnalysisProcedure();
+            if (criteria.matches(analysisProcedureCode))
+            {
+                filtered.add(well);
+            }
+        }
+
+        return filtered;
+    }
+
 }

@@ -128,7 +128,7 @@ public class EntityHelper
     {
         IEntityProperty property = null;
 
-        if (holder.getProperties() != null)
+        if (holder != null && holder.getProperties() != null)
         {
             property = EntityHelper.tryFindProperty(holder.getProperties(), propertyCode);
         }

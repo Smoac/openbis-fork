@@ -39,6 +39,8 @@ public class WellSearchGridColumnIds
 
     public static final String WELL_IMAGES = "WELL_IMAGES";
 
+    public static final String ANALYSIS_PROCEDURE = "ANALYSIS_PROCEDURE";
+
     private static final String MATERIAL_PROPERTY_GROUP = "MATERIAL_PROPERTY-";
 
     private static final String PROPERTY_CODE_MARKER = "$$$";

@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -165,21 +163,9 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
     private boolean isMatchingAnalysisProcedure(ExternalData dataset)
     {
-        if (analysisProcedureCriteria.isAllProcedures())
-        {
-            return true;
-        }
-
         String dataSetAnalysisProcedure =
                 EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
-        if (analysisProcedureCriteria.isNoProcedures())
-        {
-            return StringUtils.isBlank(dataSetAnalysisProcedure);
-        } else
-        {
-            String analysisProcedureCode = analysisProcedureCriteria.tryGetAnalysisProcedureCode();
-            return analysisProcedureCode.equals(dataSetAnalysisProcedure);
-        }
+        return analysisProcedureCriteria.matches(dataSetAnalysisProcedure);
     }
 
     private boolean isMatchingAnalysisDataSet(ExternalData dataset)

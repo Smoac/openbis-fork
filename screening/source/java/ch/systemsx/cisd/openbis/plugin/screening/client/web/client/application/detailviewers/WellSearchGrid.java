@@ -571,8 +571,9 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
         AnalysisProcedureChooser analysisProcedureChooser =
-                AnalysisProcedureChooser.createVertical(getViewContext(), experimentCriteriaHolder,
-                        null, this, true);
+                AnalysisProcedureChooser.createVertical(getViewContext(),
+                        experimentCriteriaHolder,
+                        AnalysisProcedureCriteria.createAllProcedures(), this, true);
         return analysisProcedureChooser;
     }
 

@@ -586,6 +586,19 @@ public class WellSearchCriteria implements ISerializable
             return analysisProcedureCodeOrNull;
         }
 
+        public boolean matches(String codeOrNull)
+        {
+            if (isAllProcedures())
+            {
+                return true;
+            }
+            if (StringUtils.isBlank(codeOrNull))
+            {
+                return isNoProcedures();
+            }
+            return codeOrNull.equals(analysisProcedureCodeOrNull);
+        }
+
         @Override
         public String toString()
         {

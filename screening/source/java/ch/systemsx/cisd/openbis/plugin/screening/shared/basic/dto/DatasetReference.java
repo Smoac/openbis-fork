@@ -51,6 +51,8 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
 
     private String experimentIdentifier;
 
+    private String analysisProcedure;
+
     // GWT only
     @SuppressWarnings("unused")
     private DatasetReference()
@@ -59,7 +61,7 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
 
     public DatasetReference(long id, String code, String typeCode, Date registrationDate,
             String fileTypeCode, String datastoreCode, String datastoreHostUrl,
-            String experimentPermId, String experimentIdentifier)
+            String experimentPermId, String experimentIdentifier, String analysisProcedure)
     {
         this.id = id;
         this.datasetCode = code;
@@ -70,6 +72,7 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
         this.datastoreHostUrl = datastoreHostUrl;
         this.experimentPermId = experimentPermId;
         this.experimentIdentifier = experimentIdentifier;
+        this.analysisProcedure = analysisProcedure;
     }
 
     public String getCode()
@@ -125,5 +128,10 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
     public String getExperimentIdentifier()
     {
         return experimentIdentifier;
+    }
+
+    public String getAnalysisProcedure()
+    {
+        return analysisProcedure;
     }
 }
