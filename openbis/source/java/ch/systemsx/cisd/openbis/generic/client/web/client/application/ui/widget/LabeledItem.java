@@ -71,7 +71,8 @@ public class LabeledItem<T>
             return false;
         if (getClass() != obj.getClass())
             return false;
-        LabeledItem other = (LabeledItem) obj;
+        @SuppressWarnings("unchecked")
+        LabeledItem<T> other = (LabeledItem<T>) obj;
         if (item == null)
         {
             if (other.item != null)
