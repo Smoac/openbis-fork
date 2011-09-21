@@ -159,7 +159,7 @@ public class ChannelChooserPanel extends LayoutContainer
     {
         SimpleModelComboBox<String> comboBox =
                 new SimpleModelComboBox<String>(this.messageProvider,
-                        new ArrayList<LabeledItem<String>>(), 1);
+                        new ArrayList<LabeledItem<String>>(), null);
         comboBox.addListener(Events.SelectionChange, selectionChangeListener);
 
         return comboBox;
@@ -195,7 +195,7 @@ public class ChannelChooserPanel extends LayoutContainer
      */
     public List<String> getSelectedValues()
     {
-        String comboBoxValue = channelsComboBox.getSimpleValue().getItem();
+        String comboBoxValue = channelsComboBox.getChosenItem();
         if (comboBoxValue == null)
         {
             return Collections.<String> emptyList();
@@ -324,7 +324,7 @@ public class ChannelChooserPanel extends LayoutContainer
         }
 
         LabeledItem<String> itemToSelect = channelsComboBox.findModelForVal(codeToSelect);
-        channelsComboBox.setSimpleValue(itemToSelect);
+        channelsComboBox.setSelection(itemToSelect);
         initializeCheckBoxValues(channels);
         updateTransformationComboBox();
     }
@@ -348,7 +348,7 @@ public class ChannelChooserPanel extends LayoutContainer
         List<String> selection = getSelectedValues();
         defaultChannelState.setDefaultChannels(selection);
 
-        String selectedComboValue = channelsComboBox.getSimpleValue().getItem();
+        String selectedComboValue = channelsComboBox.getChosenItem();
         boolean showCheckBoxGroup = ScreeningConstants.MERGED_CHANNELS.equals(selectedComboValue);
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 
@@ -476,7 +476,10 @@ public class ChannelChooserPanel extends LayoutContainer
                 && (infos = transformationsForChannels.get(selectedValues.get(0))) != null
                 && infos.size() > 0)
         {
-            model.add(DEFAULT_TRANSFORMATION);
+            if (isDefaultTransformationDefined(infos) == false)
+            {
+                model.add(DEFAULT_TRANSFORMATION);
+            }
             for (ImageTransformationInfo imageTransformationInfo : infos)
             {
                 model.add(convertToLabeledItem(imageTransformationInfo));
@@ -497,6 +500,18 @@ public class ChannelChooserPanel extends LayoutContainer
         }
     }
 
+    private static boolean isDefaultTransformationDefined(Set<ImageTransformationInfo> infos)
+    {
+        for (ImageTransformationInfo imageTransformationInfo : infos)
+        {
+            if (imageTransformationInfo.isDefault())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void setTransformationsVisible(boolean visible)
     {
         transformationsComboBox.setVisible(visible);
@@ -507,20 +522,9 @@ public class ChannelChooserPanel extends LayoutContainer
     {
         boolean selected = false;
         String code = defaultChannelState.tryGetDefaultTransformation(channelCode);
-        if (code != null)
-        {
-            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : transformationsComboBox
-                    .getStore().getModels())
-            {
-                if (info.getValue().getItem().getCode().equals(code))
-                {
-                    selected = true;
-                    // transformationsComboBox.select(info);
-                    transformationsComboBox.setSelection(Collections.singletonList(info));
-                    break;
-                }
-            }
-        }
+
+        SimpleModelComboBox<ImageTransformationInfo> combobox = transformationsComboBox;
+        selected = setSelectedValue(code, combobox);
         if (false == selected)
         {
             for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : transformationsComboBox
@@ -528,7 +532,6 @@ public class ChannelChooserPanel extends LayoutContainer
             {
                 if (info.getValue().getItem().isDefault())
                 {
-                    // transformationsComboBox.select(info);
                     transformationsComboBox.setSelection(Collections.singletonList(info));
                     selected = true;
                     break;
@@ -541,6 +544,24 @@ public class ChannelChooserPanel extends LayoutContainer
             transformationsComboBox.setSelection(Collections.singletonList(transformationsComboBox
                     .getStore().getModels().get(0)));
         }
+    }
+
+    private boolean setSelectedValue(String code,
+            SimpleModelComboBox<ImageTransformationInfo> combobox)
+    {
+        if (code != null)
+        {
+            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : combobox.getStore()
+                    .getModels())
+            {
+                if (info.getValue().getItem().getCode().equals(code))
+                {
+                    combobox.setSelection(Collections.singletonList(info));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static LabeledItem<ImageTransformationInfo> convertToLabeledItem(
