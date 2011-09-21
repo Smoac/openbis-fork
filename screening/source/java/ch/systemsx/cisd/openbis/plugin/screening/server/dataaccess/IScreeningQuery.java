@@ -319,7 +319,7 @@ public interface IScreeningQuery extends BaseQuery
     final static String AT_LEAST_ONE_WELL_EXISTS = "EXISTS (select wells.id "
             + "             from samples wells "
             + "                     join samples plates on wells.samp_id_part_of = plates.id "
-            + "             where plates.id = data.samp_id) ";
+            + "             where plates.id = ds.samp_id) ";
 
     @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and " + AT_LEAST_ONE_WELL_EXISTS)
     public List<AnalysisProcedureResult> listAllAnalysisProcedures();
