@@ -170,6 +170,8 @@
   <target name="clean" description="Cleans distribution directory.">
     <delete dir="${dist}" failonerror="true" />
     <mkdir dir="${dist}" />
+  	<!-- make Hudson happy (it expects a test-output folder -->
+    <mkdir dir="${dist}/../test-output" />
   </target>
 
 	<target name="ci" depends="clean, dist" />
