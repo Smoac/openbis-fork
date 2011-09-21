@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -142,4 +143,15 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         return result;
     }
 
+    /** This method works only if T implement equals() correctly. */
+    public void setSelection(LabeledItem<T> itemToSelect)
+    {
+        for (SimpleComboValue<LabeledItem<T>> info : getStore().getModels())
+        {
+            if (info.getValue().getItem().equals(itemToSelect.getItem()))
+            {
+                setSelection(Collections.singletonList(info));
+            }
+        }
+    }
 }
