@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchF
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2010-08-09, Piotr Buczek: write headless system tests
-@DoNotRunWith(Platform.HtmlUnit)
+@DoNotRunWith(Platform.HtmlUnitUnknown)
 public class DataSetSearchTest extends AbstractGWTTestCase
 {
 

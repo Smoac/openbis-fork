@@ -6,7 +6,7 @@
 
   <property name="mainfolder" value="openbis" />
 
-  <property name="gwt.lib" value="${lib}/gwt2.0" />
+  <property name="gwt.lib" value="${lib}/gwt2.4" />
   <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
   <property name="gwt.debugpanel.lib" value="${lib}/gwt-debug-panel/gwt-debug-panel.jar" />
 
@@ -545,7 +545,7 @@
         <include name="**/*BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
-      <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+      <zipfileset src="${lib}/gwt2.4/gwt-user.jar">
         <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
         <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
       </zipfileset>

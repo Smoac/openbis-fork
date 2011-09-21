@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAs
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentViewer}.
@@ -214,7 +214,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
+    @DoNotRunWith(Platform.HtmlUnitUnknown)
     public final void testListOfAttachments()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
@@ -238,7 +238,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
+    @DoNotRunWith(Platform.HtmlUnitUnknown)
     public final void testListOfSamples()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
@@ -271,7 +271,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
+    @DoNotRunWith(Platform.HtmlUnitUnknown)
     public final void testListOfDataSets()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
@@ -309,7 +309,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         return version + " (show all versions)";
     }
-    
+
     private final static String versionCellText(int version)
     {
         return version + " (<a href=\"#\">show all versions</a>)";

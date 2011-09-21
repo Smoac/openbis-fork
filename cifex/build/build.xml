@@ -7,7 +7,7 @@
 	<property name="original.dist.server" value="${original.dist}/server" />
 	<property name="original.dist.client" value="${original.dist}/client" />
 
-	<property name="gwt.lib" value="${lib}/gwt2.0" />
+	<property name="gwt.lib" value="${lib}/gwt2.4" />
 	<property name="gwt.dev.lib" value="${gwt.lib}/gwt-dev.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 	<property name="gxt.lib" value="${lib}/gxt2.1/gxt.jar" />

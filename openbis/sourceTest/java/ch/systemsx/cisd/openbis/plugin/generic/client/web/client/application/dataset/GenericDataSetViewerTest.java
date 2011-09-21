@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * 
  * @author Piotr Buczek
  */
-@DoNotRunWith(Platform.HtmlUnit)
+@DoNotRunWith(Platform.HtmlUnitUnknown)
 public class GenericDataSetViewerTest extends AbstractGWTTestCase
 {
 
@@ -90,10 +90,10 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         checkDataSet.property("Experiment").asString(EXP_TEST_1);
         checkDataSet.property("Sample").asCode(SAMPLE_TEST_1);
 
-        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION, checkDataSet
-                .createParentsTableCheck(), parentCodes);
-        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION, checkDataSet
-                .createChildrenTableCheck(), childCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
+                checkDataSet.createParentsTableCheck(), parentCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION,
+                checkDataSet.createChildrenTableCheck(), childCodes);
 
         remoteConsole.prepare(checkDataSet);
 
@@ -122,10 +122,10 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         // high level entity relationships
         checkDataSet.property("Experiment").asString(EXP_REUSE_ID);
 
-        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION, checkDataSet
-                .createParentsTableCheck(), parentCodes);
-        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION, checkDataSet
-                .createChildrenTableCheck(), childCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
+                checkDataSet.createParentsTableCheck(), parentCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION,
+                checkDataSet.createChildrenTableCheck(), childCodes);
 
         remoteConsole.prepare(checkDataSet);
 

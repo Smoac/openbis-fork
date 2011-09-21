@@ -12,12 +12,6 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar"/>
-	<classpathentry kind="lib" path="/libraries/gxt2.2/gxt.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gxt2.2/gxt-api.zip!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
@@ -53,5 +47,9 @@
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar" sourcepath="/libraries/junit/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt-image-loader/gwt-image-loader.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/libraries/gxt2.2.5/gxt.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

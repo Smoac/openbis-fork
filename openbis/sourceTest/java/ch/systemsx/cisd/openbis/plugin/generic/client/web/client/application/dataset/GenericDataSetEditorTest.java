@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Piotr Buczek
  */
-@DoNotRunWith(Platform.HtmlUnit)
+@DoNotRunWith(Platform.HtmlUnitUnknown)
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
     // private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
