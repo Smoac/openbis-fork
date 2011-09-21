@@ -17,23 +17,25 @@ class TileCanvas:
         """Constructor that takes the size of the canvas."""
         self.width = width
         self.height = height
+        self.bitdepth = bitdepth
         if grayscale:
-            self.ctx = self._create_gray_bitmap_context(bitdepth)
+            self.ctx = self._create_gray_bitmap_context()
         else:
             self.ctx = self._create_rgba_bitmap_context()
         
-    def draw_inset_rect(self, r, g, b, inset, isUnfilled = 0):
+    def draw_inset_rect(self, r, g, b, inset, fill = True):
         """Draw a rectange inset in the canvas."""
         ctx = self.ctx
         with CGSavedGState(ctx):
             CGContextSetRGBStrokeColor(ctx, r, g, b, 1)
-            if isUnfilled:
-                CGContextSetRGBFillColor(ctx, 0, 0, 0, 0) # transparent
-            else:
-                CGContextSetRGBFillColor(ctx, r, g, b, 1)
+            CGContextSetRGBFillColor(ctx, r, g, b, 1)
             CGContextSetLineWidth(ctx, 40)
             CGContextAddRect(ctx, CGRectMake(inset, inset, self.width - 2 * inset, self.height - 2 * inset))
-            CGContextDrawPath(ctx, kCGPathFillStroke)
+            if fill:
+                draw_mode = kCGPathFillStroke
+            else:
+                draw_mode = kCGPathStroke
+            CGContextDrawPath(ctx, draw_mode)
     
     def draw_text(self, x, y, text):
         """Draw some text"""
@@ -52,7 +54,9 @@ class TileCanvas:
         image = CGBitmapContextCreateImage(ctx)
         fileUrl = NSURL.fileURLWithPath_(filename)
         dest = CGImageDestinationCreateWithURL(fileUrl, kUTTypePNG, 1, None)
-        CGImageDestinationAddImage(dest, image, None)
+        options = NSMutableDictionary.dictionary()
+        options[kCGImagePropertyDepth] = self.bitdepth
+        CGImageDestinationAddImage(dest, image, options)
         CGImageDestinationFinalize(dest)
     
     
@@ -73,12 +77,12 @@ class TileCanvas:
                     bitmap_bytes_per_row, color_space, kCGImageAlphaPremultipliedLast)
         return ctx
 
-    def _create_gray_bitmap_context(self, bitdepth):
+    def _create_gray_bitmap_context(self):
         """Create a new CG Graphics Context."""
         color_space = CGColorSpaceCreateDeviceGray()
         pixels_wide = self.width
         pixels_high = self.height
-        bits_per_component = bitdepth
+        bits_per_component = self.bitdepth
         number_of_components = 1 # gray
         # Convert bits per component to bytes per pixel, rounding up to the next int if necessary
         bytes_per_pixel = (bits_per_component * number_of_components + 7)/8

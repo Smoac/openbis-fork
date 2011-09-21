@@ -28,8 +28,8 @@ def generate_file_name(well, channel, desc):
     
     return "bPLATE_w" + well + "_" + desc + "_c" + channel + ".png"
 
-def drawRect(canvas, r, g, b, start, isUnfilled = 0):
-    canvas.draw_inset_rect(r, g, b, start, isUnfilled)
+def drawRect(canvas, r, g, b, start, fill = False):
+    canvas.draw_inset_rect(r, g, b, start, fill)
 
 def drawText(canvas, x, y, text):
     canvas.draw_text(x, y, text)
@@ -53,7 +53,7 @@ class ImageGeneratorConfig:
     def __init__(self):
         self.number_of_tiles = 9
         self.image_size = 512
-        self.bitdepth = 8
+        self.bit_depth = 8
         self.is_split = False
         self.color_configs = [ None ]
         # Use an array with None for not time points / depth points
@@ -111,9 +111,9 @@ class WellGenerator:
         if self.config.is_split:
             # if split, we want to draw white instead of the specified color, since
             # the channel assignment will happen in openBIS, not here
-            tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size, self.config.bitdepth, True)
-            drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
-            drawRect(tile_canvas, 1, 1, 1, inset * random.gauss(1.0, 0.2))
+            tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size, self.config.bit_depth, True)
+            drawRect(tile_canvas, 0, 0, 0, 0, False) # fill with black
+            drawRect(tile_canvas, 1, 1, 1, inset * random.gauss(1.0, 0.2), False)
         else:
             tile_canvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
             drawRect(tile_canvas, 0, 0, 0, 0) # fill with black
@@ -157,21 +157,6 @@ class WellGenerator:
         """
             
         return "c" + channel + "_w" + well + "_" + desc + ".png"
-
-    def drawMatrix(self, coordsList, dir, channel, isOverlay):
-        nonemptyTiles = set([ calcTile(coords) for coords in coordsList ])
-        for tile in range(1, 10):
-            imageCanvas = canvas.TileCanvas(self.config.image_size, self.config.image_size)
-            if tile in nonemptyTiles:
-                if not isOverlay:
-                    drawRect(imageCanvas, 0, 0, 0, 0)
-                    drawRect(imageCanvas, 0.5, 0.5, 0.5, 70, isUnfilled = 0)
-                elif isOverlay == 1:
-                    drawRect(imageCanvas, 1, 1, 1, 30, isUnfilled = 1)
-                else:
-                    drawText(imageCanvas, size/2, size/2, "X")
-            destFile = dir + "/c"+channel + "_s" + str(tile) +".png"
-            imageCanvas.write_png_file(destFile)
 
         
 class PlateGenerator:

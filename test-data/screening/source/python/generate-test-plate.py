@@ -19,28 +19,44 @@ import imagegen
 import os
 import shutil
 import sys
+import getopt
 
 def recreateDir(dir):
   if os.path.exists(dir):
     shutil.rmtree(dir)
   os.mkdir(dir)
+  
+def usage():
+    print "generate-test-plate.py [-b|--bit-depth=<integer>] <plate code> [<channel 1>:<inset 1> <channel 2>:<inset 2> ...]"
 
-plateName = "PLATONIC"
-if len(sys.argv) > 1:
-  plateName = sys.argv[1]
-recreateDir(plateName)
+# Default settings for all options/arguments
 config = imagegen.PlateGeneratorConfig()
+plateName = "PLATONIC"
+  
+opts, args = getopt.getopt(sys.argv[1:], "hb:", ["help", "bit-depth="])
+for o, a in opts:
+    if o in ("-h", "--help"):
+        usage()
+        sys.exit(2)
+    elif o in ("-b", "--bit-depth"):
+        config.bit_depth = int(a)
+    else:
+        print "Option " + o + " unknown. Ignoring."
+
+if len(args) > 0:
+  plateName = args[0]
+recreateDir(plateName)
 
 # Alternative Configurations
 #config.time_points = [ 5, 10, 15 ]
 #config.depth_points = [ 3, 6, 9 ]
-if len(sys.argv) > 2:
+if len(args) > 1:
     config.is_split = True
     color_configs = []
-    for color_and_inset in sys.argv[2:]:
+    for color_and_inset in args[1:]:
         splitted = color_and_inset.split(':')
         color_configs = color_configs + [ imagegen.ColorConfig(splitted[0], int(splitted[1])) ]
     config.color_configs = color_configs
-
+    
 generator = imagegen.PlateGenerator(config)
-generator.generate_raw_images(plateName	)
+generator.generate_raw_images(plateName)
