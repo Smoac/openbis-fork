@@ -29,20 +29,14 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SECTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.TYPE_OF;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -50,10 +44,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Provider of instances of {@link EntityTypePropertyType}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class EntityTypePropertyTypeProvider extends AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
+public class EntityTypePropertyTypeProvider extends
+        AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
 {
 
     public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken)
@@ -64,9 +59,10 @@ public class EntityTypePropertyTypeProvider extends AbstractCommonTableModelProv
     @Override
     protected TypedTableModel<EntityTypePropertyType<?>> createTableModel()
     {
-        List<PropertyType> propertyTypes = commonServer.listPropertyTypes(sessionToken, true);
-        List<EntityTypePropertyType<?>> entityTypePropertyTypes = extractAssignments(propertyTypes);
-        TypedTableModelBuilder<EntityTypePropertyType<?>> builder = new TypedTableModelBuilder<EntityTypePropertyType<?>>();
+        List<EntityTypePropertyType<?>> entityTypePropertyTypes =
+                commonServer.listEntityTypePropertyTypes(sessionToken);
+        TypedTableModelBuilder<EntityTypePropertyType<?>> builder =
+                new TypedTableModelBuilder<EntityTypePropertyType<?>>();
         builder.addColumn(PROPERTY_TYPE_CODE).withDefaultWidth(200);
         builder.addColumn(LABEL).hideByDefault();
         builder.addColumn(DESCRIPTION).hideByDefault();
@@ -144,39 +140,6 @@ public class EntityTypePropertyTypeProvider extends AbstractCommonTableModelProv
     {
         MaterialType materialType = entity.getMaterialType();
         return materialType != null ? materialType.getCode() : null;
-    }
-
-    private static List<EntityTypePropertyType<?>> extractAssignments(
-            List<PropertyType> listPropertyTypes)
-    {
-        List<EntityTypePropertyType<?>> result = new ArrayList<EntityTypePropertyType<?>>();
-        for (PropertyType propertyType : listPropertyTypes)
-        {
-            extractAssignments(result, propertyType);
-        }
-        Collections.sort(result);
-        return result;
-    }
-
-    private static void extractAssignments(List<EntityTypePropertyType<?>> result,
-            final PropertyType propertyType)
-    {
-        for (ExperimentTypePropertyType etpt : propertyType.getExperimentTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (SampleTypePropertyType etpt : propertyType.getSampleTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
-        for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
-        {
-            result.add(etpt);
-        }
     }
 
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMasterDataRegistra
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyAssignment;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleType;
@@ -92,6 +93,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listExperimentTypes(), code);
     }
 
+    public List<IExperimentTypeImmutable> listExperimentTypes()
+    {
+        return commonServer.listExperimentTypes();
+    }
+
     public ISampleType createNewSampleType(String code)
     {
         SampleType sampleType = new SampleType(code);
@@ -102,6 +108,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public ISampleTypeImmutable getSampleType(String code)
     {
         return findTypeForCode(commonServer.listSampleTypes(), code);
+    }
+
+    public List<ISampleTypeImmutable> listSampleTypes()
+    {
+        return commonServer.listSampleTypes();
     }
 
     public IDataSetType createNewDataSetType(String code)
@@ -116,6 +127,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listDataSetTypes(), code);
     }
 
+    public List<IDataSetTypeImmutable> listDataSetTypes()
+    {
+        return commonServer.listDataSetTypes();
+    }
+
     public IMaterialType createNewMaterialType(String code)
     {
         MaterialType materialType = new MaterialType(code);
@@ -126,6 +142,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public IMaterialTypeImmutable getMaterialType(String code)
     {
         return findTypeForCode(commonServer.listMaterialTypes(), code);
+    }
+
+    public List<IMaterialTypeImmutable> listMaterialTypes()
+    {
+        return commonServer.listMaterialTypes();
     }
 
     public IFileFormatType createNewFileFormatType(String code)
@@ -140,6 +161,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listFileFormatTypes(), code);
     }
 
+    public List<IFileFormatTypeImmutable> listFileFormatTypes()
+    {
+        return commonServer.listFileFormatTypes();
+    }
+
     public IPropertyType createNewPropertyType(String code, DataType dataType)
     {
         PropertyType propertyType = new PropertyType(code, dataType);
@@ -152,28 +178,16 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return findTypeForCode(commonServer.listPropertyTypes(), code);
     }
 
+    public List<IPropertyTypeImmutable> listPropertyTypes()
+    {
+        return commonServer.listPropertyTypes();
+    }
+
     public IPropertyAssignment assignPropertyType(IEntityType entityType,
             IPropertyTypeImmutable propertyType)
     {
-        if (entityType instanceof IExperimentTypeImmutable)
-        {
-            return createAssignment(EntityKind.EXPERIMENT, entityType, propertyType);
-        } else if (entityType instanceof ISampleTypeImmutable)
-        {
-            return createAssignment(EntityKind.SAMPLE, entityType, propertyType);
-        } else
-
-        if (entityType instanceof IDataSetTypeImmutable)
-        {
-            return createAssignment(EntityKind.DATA_SET, entityType, propertyType);
-        } else if (entityType instanceof IMaterialTypeImmutable)
-        {
-            return createAssignment(EntityKind.MATERIAL, entityType, propertyType);
-        }
-
-        throw new IllegalArgumentException(
-                "The argument entityType must be one of IExperimentTypeImmutable, ISampleTypeImmutable, IDataSetTypeImmutable, or IMaterialTypeImmutable. "
-                        + entityType + " is not valid.");
+        EntityKind entityKind = EntityKind.valueOf(entityType.getEntityKind().name());
+        return createAssignment(entityKind, entityType, propertyType);
     }
 
     private <T extends IAbstractType> T findTypeForCode(List<T> types, String code)
@@ -196,6 +210,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         createdAssignments.add(assignment);
         return assignment;
 
+    }
+
+    public List<IPropertyAssignmentImmutable> listPropertyAssignments()
+    {
+        return commonServer.listPropertyAssignments();
     }
 
     public IVocabularyTerm createNewVocabularyTerm(String code)

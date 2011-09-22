@@ -17,15 +17,20 @@
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
 /**
- * The superinterface for all entity types (as opposed to property types).
- * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Kaloyan Enimanev
  */
-public interface IEntityType extends IAbstractType
+public interface IPropertyAssignmentImmutable
 {
-
-    /**
-     * Return the entity kind.
-     */
     EntityKind getEntityKind();
+
+    String getEntityTypeCode();
+
+    String getPropertyTypeCode();
+
+    boolean isMandatory();
+
+    String getSection();
+
+    Long getPositionInForms();
+
 }

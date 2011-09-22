@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentTypeImmutable;
 
 /**
@@ -50,6 +51,11 @@ public class ExperimentTypeImmutable implements IExperimentTypeImmutable
     public String getDescription()
     {
         return getExperimentType().getDescription();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
     }
 
 }

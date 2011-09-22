@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IDataSetTypeImmutable;
 
 /**
@@ -55,6 +56,11 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     public boolean isContainerType()
     {
         return getDataSetType().isContainerType();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
     }
 
 }

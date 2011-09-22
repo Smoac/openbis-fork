@@ -19,25 +19,16 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IPropertyAssignment
+public interface IPropertyAssignment extends IPropertyAssignmentImmutable
 {
-    String getEntityTypeCode();
-
-    String getPropertyTypeCode();
-
-    boolean isMandatory();
-
     void setMandatory(boolean mandatory);
-
-    String getDefaultValue();
-
-    void setDefaultValue(String defaultValue);
-
-    String getSection();
 
     void setSection(String section);
 
-    Long getPositionInForms();
+    /**
+     * Any already existing entity types will receive the specified default value.
+     */
+    void setDefaultValue(String defaultValue);
 
     /**
      * Sets the position where the property will appear in forms. If not specified the property will

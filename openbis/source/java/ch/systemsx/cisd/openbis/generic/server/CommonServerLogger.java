@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -1143,6 +1144,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "deletePermanently", "ID(%s), FORCE(%s)",
                 abbreviate(deletionIds), force);
+    }
+
+    public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken)
+    {
+        logTracking(sessionToken, "listEntityTypePropertyTypes", "");
+        return null;
     }
 
 }

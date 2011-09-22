@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
 
 /**
@@ -51,6 +52,11 @@ public class MaterialTypeImmutable implements IMaterialTypeImmutable
     public String getDescription()
     {
         return getMaterialType().getDescription();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
     }
 
 }

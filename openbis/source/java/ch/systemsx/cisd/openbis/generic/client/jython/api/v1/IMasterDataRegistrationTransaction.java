@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
+import java.util.List;
+
 /**
  * @author Kaloyan Enimanev
  */
@@ -52,6 +54,11 @@ public interface IMasterDataRegistrationTransaction
      */
     IPropertyAssignment assignPropertyType(IEntityType entityType,
             IPropertyTypeImmutable propertyType);
+
+    /**
+     * Return a list of all existing property assignments.
+     */
+    List<IPropertyAssignmentImmutable> listPropertyAssignments();
 
     IVocabularyTerm createNewVocabularyTerm(String code);
 

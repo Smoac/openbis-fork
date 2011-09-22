@@ -23,7 +23,16 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IDataSetTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IFileFormatTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyAssignmentImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -39,6 +48,7 @@ public class EncapsulatedCommonServer
 
     public static EncapsulatedCommonServer create(String openBisUrl, String userID, String password)
     {
+        SslCertificateHelper.trustAnyCertificate(openBisUrl);
         ICommonServer commonService =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, openBisUrl + SERVICE_PATH,
                         5 * DateUtils.MILLIS_PER_MINUTE);
@@ -57,9 +67,9 @@ public class EncapsulatedCommonServer
         this.sessionToken = sessionToken;
     }
 
-    public List<ExperimentTypeImmutable> listExperimentTypes()
+    public List<IExperimentTypeImmutable> listExperimentTypes()
     {
-        List<ExperimentTypeImmutable> result = new ArrayList<ExperimentTypeImmutable>();
+        List<IExperimentTypeImmutable> result = new ArrayList<IExperimentTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType type : commonServer
                 .listExperimentTypes(sessionToken))
         {
@@ -68,9 +78,9 @@ public class EncapsulatedCommonServer
         return result;
     }
 
-    public List<SampleTypeImmutable> listSampleTypes()
+    public List<ISampleTypeImmutable> listSampleTypes()
     {
-        List<SampleTypeImmutable> result = new ArrayList<SampleTypeImmutable>();
+        List<ISampleTypeImmutable> result = new ArrayList<ISampleTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType type : commonServer
                 .listSampleTypes(sessionToken))
         {
@@ -79,9 +89,9 @@ public class EncapsulatedCommonServer
         return result;
     }
 
-    public List<DataSetTypeImmutable> listDataSetTypes()
+    public List<IDataSetTypeImmutable> listDataSetTypes()
     {
-        List<DataSetTypeImmutable> result = new ArrayList<DataSetTypeImmutable>();
+        List<IDataSetTypeImmutable> result = new ArrayList<IDataSetTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType type : commonServer
                 .listDataSetTypes(sessionToken))
         {
@@ -90,9 +100,9 @@ public class EncapsulatedCommonServer
         return result;
     }
 
-    public List<MaterialTypeImmutable> listMaterialTypes()
+    public List<IMaterialTypeImmutable> listMaterialTypes()
     {
-        List<MaterialTypeImmutable> result = new ArrayList<MaterialTypeImmutable>();
+        List<IMaterialTypeImmutable> result = new ArrayList<IMaterialTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType type : commonServer
                 .listMaterialTypes(sessionToken))
         {
@@ -101,9 +111,9 @@ public class EncapsulatedCommonServer
         return result;
     }
 
-    public List<PropertyTypeImmutable> listPropertyTypes()
+    public List<IPropertyTypeImmutable> listPropertyTypes()
     {
-        List<PropertyTypeImmutable> result = new ArrayList<PropertyTypeImmutable>();
+        List<IPropertyTypeImmutable> result = new ArrayList<IPropertyTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType type : commonServer
                 .listPropertyTypes(sessionToken, false))
         {
@@ -112,9 +122,9 @@ public class EncapsulatedCommonServer
         return result;
     }
 
-    public List<FileFormatTypeImmutable> listFileFormatTypes()
+    public List<IFileFormatTypeImmutable> listFileFormatTypes()
     {
-        List<FileFormatTypeImmutable> result = new ArrayList<FileFormatTypeImmutable>();
+        List<IFileFormatTypeImmutable> result = new ArrayList<IFileFormatTypeImmutable>();
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType type : commonServer
                 .listFileFormatTypes(sessionToken))
         {
@@ -168,4 +178,16 @@ public class EncapsulatedCommonServer
         commonServer.registerVocabulary(sessionToken, vocabulary.getVocabulary());
     }
 
+    public List<IPropertyAssignmentImmutable> listPropertyAssignments()
+    {
+        ArrayList<IPropertyAssignmentImmutable> assignments =
+                new ArrayList<IPropertyAssignmentImmutable>();
+        for (EntityTypePropertyType<?> etpt : commonServer
+                .listEntityTypePropertyTypes(sessionToken))
+        {
+            PropertyAssignmentImmutable assignment = new PropertyAssignmentImmutable(etpt);
+            assignments.add(assignment);
+        }
+        return assignments;
+    }
 }

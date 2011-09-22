@@ -91,4 +91,10 @@ public class PropertyAssignment implements IPropertyAssignment
         return assignment.getPropertyTypeCode();
     }
 
+    public ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind getEntityKind()
+    {
+        String name = assignment.getEntityKind().name();
+        return ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind.valueOf(name);
+    }
+
 }

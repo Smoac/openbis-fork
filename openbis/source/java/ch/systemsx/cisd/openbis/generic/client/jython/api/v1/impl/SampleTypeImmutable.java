@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleTypeImmutable;
 
 /**
@@ -69,5 +70,10 @@ public class SampleTypeImmutable implements ISampleTypeImmutable
     public String getGeneratedCodePrefix()
     {
         return getSampleType().getGeneratedCodePrefix();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
     }
 }

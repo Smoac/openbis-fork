@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -111,8 +112,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -135,6 +138,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -153,6 +157,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -559,6 +564,45 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Collections.sort(propertyTypes);
         return PropertyTypeTranslator.translate(propertyTypes,
                 new HashMap<PropertyTypePE, PropertyType>());
+    }
+
+    public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken)
+    {
+        List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
+        return extractAssignments(propertyTypes);
+    }
+
+    private static List<EntityTypePropertyType<?>> extractAssignments(
+            List<PropertyType> listPropertyTypes)
+    {
+        List<EntityTypePropertyType<?>> result = new ArrayList<EntityTypePropertyType<?>>();
+        for (PropertyType propertyType : listPropertyTypes)
+        {
+            extractAssignments(result, propertyType);
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    private static void extractAssignments(List<EntityTypePropertyType<?>> result,
+            final PropertyType propertyType)
+    {
+        for (ExperimentTypePropertyType etpt : propertyType.getExperimentTypePropertyTypes())
+        {
+            result.add(etpt);
+        }
+        for (SampleTypePropertyType etpt : propertyType.getSampleTypePropertyTypes())
+        {
+            result.add(etpt);
+        }
+        for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
+        {
+            result.add(etpt);
+        }
+        for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
+        {
+            result.add(etpt);
+        }
     }
 
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
@@ -2486,4 +2530,5 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return UserFailureException.fromTemplate(exception, "%s '%s': %s", entity.getEntityKind()
                 .getDescription(), entity.getIdentifier(), exception.getMessage());
     }
+
 }

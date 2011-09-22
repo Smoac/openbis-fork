@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
-/**
- * The superinterface for all entity types (as opposed to property types).
- * 
- * @author Chandrasekhar Ramakrishnan
- */
-public interface IEntityType extends IAbstractType
-{
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
-    /**
-     * Return the entity kind.
-     */
-    EntityKind getEntityKind();
+/**
+ * Available entity kinds.
+ * 
+ * @author Kaloyan Enimanev
+ */
+public enum EntityKind implements ISerializable
+{
+    EXPERIMENT, SAMPLE, DATA_SET, MATERIAL;
+
 }
