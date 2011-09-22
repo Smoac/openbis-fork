@@ -18,7 +18,7 @@ def extract_strains():
   lines = timeSeriesData.getRawDataLines()
   for i in range(1, len(lines)):
     line = lines[i]
-    strains.append(line[0])
+    strains.append(line[0].upper())
   return ",".join(strains)
 
 def assign_properties(dataset, metadata):

@@ -11,9 +11,9 @@ def validate_data(timeSeriesData, errors):
       continue
 
     # The compound id should be one of these forms
-    strain = line[0]
+    strain = line[0].upper()
     if not isStrainIdValid(strain):
-      errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be MGP[0-999] (instead of " + strain + ")."))
+      errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 " + strainValidationErrorMessageFragment(strain)))
     lineCount = lineCount + 1
 
 def validate_metadata(time_series_data, errors):

@@ -68,7 +68,7 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("MGP90", strainProperty.getValue());
+        assertEquals("JJS-MGP90", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 
