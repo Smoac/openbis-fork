@@ -128,7 +128,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
                     findFile(context, dataset, GERALD_DIR, dataset.getSampleCode()
                             + DATA_INTENSITIES_BASE_CALLS_PATH);
 
-            if (f != null)
+            if (f != null && f.length > 0)
             {
                 createRows(f, SUMMARY_FILE_NAME, builder, dataset);
             } else
