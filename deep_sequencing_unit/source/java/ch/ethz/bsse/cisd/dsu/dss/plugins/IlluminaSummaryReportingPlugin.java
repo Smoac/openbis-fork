@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  */
 public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingPlugin
 {
-    private static final String UNALIGNED_PATH = "/Unaligned";
+    private static final String UNALIGNED_PATH = "/Unaligned_no_mismatch";
 
     private static final int MEGA = 1000000;
 
@@ -103,6 +103,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     {
         File summaryFile = new File(f[0], fileName);
         describe(b, dataset, summaryFile);
+
     }
 
     public TableModel createReport(List<DatasetDescription> datasets,
@@ -178,8 +179,16 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         addTableRow(laneResultSummary.getRead().getLanes().get(4).getClusterCountPF().getMean(),
                 row);
         addTableRow(laneResultSummary.getRead().getLanes().get(4).getLaneYield() / KILO, row);
-        addTableRow(laneResultSummary.getRead().getLanes().get(4).getPercentUniquelyAlignedPF()
-                .getMean(), row);
+
+        try
+        {
+            addTableRow(laneResultSummary.getRead().getLanes().get(4).getPercentUniquelyAlignedPF()
+                    .getMean(), row);
+        } catch (RuntimeException exc)
+        {
+            row.add(new StringTableCell(""));
+
+        }
 
         addTableRow(summary.getSoftware(), row);
         addTableRow(summary.getDate(), row);
