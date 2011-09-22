@@ -158,8 +158,8 @@ public class GatherRevisionAndVersionTask extends Property
     @Private
     ProcessInfo createGitCommand()
     {
-        return gitCommand(new AntTaskSimpleLoggerAdapter(this), false, null, "svn", "log",
-                "--oneline", "--limit=1");
+        return gitCommand(new AntTaskSimpleLoggerAdapter(this), false, getProject().getBaseDir(),
+                "svn", "log", "--oneline", "--limit=1");
     }
 
     static ProcessInfo gitCommand(final ISimpleLogger logger, final boolean redirectErrorStream,
