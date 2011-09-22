@@ -55,7 +55,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 class Lane
 {
-    private Integer laneNumber = 0;
+    private Long laneNumber = 0L;
 
     // since Casava 1.7 available
     private doubleStats averageAlignScorePF;
@@ -67,7 +67,7 @@ class Lane
     // since Casava 1.7 available
     private doubleStats errorPF;
 
-    private Integer laneYield = 0;
+    private Long laneYield = 0L;
 
     private stats oneSig;
 
@@ -79,12 +79,12 @@ class Lane
     private doubleStats signal20AsPctOf1;
 
     @XmlElement(name = "laneNumber")
-    public Integer getLaneNumber()
+    public Long getLaneNumber()
     {
         return laneNumber;
     }
 
-    public void setLaneNumber(Integer laneNumber)
+    public void setLaneNumber(Long laneNumber)
     {
         this.laneNumber = laneNumber;
     }
@@ -134,12 +134,12 @@ class Lane
     }
 
     @XmlElement(name = "laneYield")
-    public Integer getLaneYield()
+    public Long getLaneYield()
     {
         return laneYield;
     }
 
-    public void setLaneYield(Integer laneYield)
+    public void setLaneYield(Long laneYield)
     {
         this.laneYield = laneYield;
     }

@@ -48,7 +48,7 @@ public class IlluminaSummaryXMLLoaderTest extends AbstractFileSystemTestCase
                 .getClusterCountRaw().getMean());
         assertEquals(new Long(277736L), laneResultsSummary.getRead().getLanes().get(0)
                 .getClusterCountPF().getMean());
-        assertEquals(new Integer(1199819), laneResultsSummary.getRead().getLanes().get(0)
+        assertEquals(new Long(1199819L), laneResultsSummary.getRead().getLanes().get(0)
                 .getLaneYield());
         assertEquals(new Double(79.37), laneResultsSummary.getRead().getLanes().get(0)
                 .getPercentUniquelyAlignedPF().getMean());

@@ -48,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  */
 public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingPlugin
 {
+    private static final String UNALIGNED_PATH = "/Unaligned";
+
     private static final int MEGA = 1000000;
 
     private static final int KILO = 1000;
@@ -56,34 +58,63 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
     private static final String SUMMARY_FILE_NAME = "Summary.xml";
 
+    private static final String BUSTARD_SUMMARY_FILE_NAME = "BustardSummary.xml";
+
     private static final String DATA_INTENSITIES_BASE_CALLS_PATH = "/Data/Intensities/BaseCalls";
 
     private static final String GERALD_DIR = "GERALD";
 
+    private static final String BASECALL_DIR = "Basecall";
+
     private static final String[] PROPERTIES =
         { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
                 "CYCLES_REQUESTED_BY_CUSTOMER" };
+
+    private static final String[] COLUMNS =
+        { "Sample Code", "Clusters", "Clusters (PF)", "Yield (Mbases)", "Density Ratio",
+                "PhiX: Clusters", "PhiX: ClustersPF", "PhiX: Yield (Mbases)", "PhiX: % Align (PF)",
+                "Software", "Eland finished" };
 
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
     }
 
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    private File[] findFile(DataSetProcessingContext context, DatasetDescription dataset,
+            final String summaryFilePath, String path)
+    {
+
+        File originalData = getDataSubDir(context.getDirectoryProvider(), dataset);
+
+        File childDirectory = new File(originalData, dataset.getSampleCode() + path);
+
+        File[] files = childDirectory.listFiles(new FileFilter()
+            {
+                public boolean accept(File file)
+                {
+                    return file.isDirectory() && file.getName().startsWith(summaryFilePath);
+                }
+            });
+        return files;
+    }
+
+    private static void createRows(File[] f, String fileName, SimpleTableModelBuilder b,
+            DatasetDescription dataset)
+    {
+        File summaryFile = new File(f[0], fileName);
+        describe(b, dataset, summaryFile);
+    }
+
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Sample Code");
-        builder.addHeader("Clusters");
-        builder.addHeader("Clusters (PF)");
-        builder.addHeader("Yield (Mbases)");
-        builder.addHeader("Density Ratio");
-        builder.addHeader("PhiX: Clusters");
-        builder.addHeader("PhiX: ClustersPF");
-        builder.addHeader("PhiX: Yield (Mbases)");
-        builder.addHeader("PhiX: % Align (PF)");
 
-        builder.addHeader("Software");
-        builder.addHeader("Eland finished");
+        for (String column : COLUMNS)
+        {
+            builder.addHeader(column);
+        }
+
         for (String property : PROPERTIES)
         {
             builder.addHeader(property);
@@ -91,24 +122,30 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
         for (DatasetDescription dataset : datasets)
         {
-            File originalData = getDataSubDir(context.getDirectoryProvider(), dataset);
 
-            // set the directory containing the Summary.xml
-            File childDirectory =
-                    new File(originalData, dataset.getSampleCode()
-                            + DATA_INTENSITIES_BASE_CALLS_PATH);
-            File[] files = childDirectory.listFiles(new FileFilter()
+            File[] f = findFile(context, dataset, GERALD_DIR, DATA_INTENSITIES_BASE_CALLS_PATH);
+
+            if (f != null)
+            {
+                createRows(f, SUMMARY_FILE_NAME, builder, dataset);
+            } else
+            {
+                File[] fileNewCasava = findFile(context, dataset, BASECALL_DIR, UNALIGNED_PATH);
+                try
                 {
-                    public boolean accept(File file)
+                    createRows(fileNewCasava, BUSTARD_SUMMARY_FILE_NAME, builder, dataset);
+                } catch (RuntimeException exc)
+                {
+                    List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
+                    row.add(new StringTableCell(dataset.getSampleCode()));
+                    for (int i = 0; i <= COLUMNS.length + PROPERTIES.length - 2; ++i)
                     {
-                        return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
+                        row.add(new StringTableCell(""));
                     }
-                });
+                    builder.addRow(row);
+                }
+            }
 
-            // just take the first GERALD folder which was found
-            File geraldDir = files[0];
-            File summaryFile = new File(geraldDir, SUMMARY_FILE_NAME);
-            describe(builder, dataset, summaryFile);
         }
         return builder.getTableModel();
     }
@@ -127,36 +164,67 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         LaneResultsSummary laneResultSummary = summary.getLaneResultsSummary();
         // ChipSummary chipSummary = summary.getChipSummary();
 
-        String software_version = summary.getSoftware();
-        if (software_version == null)
-        {
-            software_version = "Not available";
-        }
-
-        // TODO 2010-10-20, Manuel Kohler : Cover Paired end runs
-
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
         row.add(new StringTableCell(dataset.getSampleCode()));
-        row.add(new IntegerTableCell(chipResultSummary.getClusterCountRaw()));
-        row.add(new IntegerTableCell(chipResultSummary.getClusterCountPF()));
-        row.add(new IntegerTableCell(chipResultSummary.getYield() / MEGA));
-        row.add(new DoubleTableCell(chipResultSummary.getDensityRatio()));
+
+        addTableRow(chipResultSummary.getClusterCountRaw(), row);
+        addTableRow(chipResultSummary.getClusterCountPF(), row);
+        addTableRow(chipResultSummary.getYield() / MEGA, row);
+        addTableRow(chipResultSummary.getDensityRatio(), row);
 
         // PhiX Lane
-        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4)
-                .getClusterCountRaw().getMean()));
-        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4)
-                .getClusterCountPF().getMean()));
-        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4).getLaneYield()
-                / KILO));
-        row.add(new DoubleTableCell(laneResultSummary.getRead().getLanes().get(4)
-                .getPercentUniquelyAlignedPF().getMean()));
+        addTableRow(laneResultSummary.getRead().getLanes().get(4).getClusterCountRaw().getMean(),
+                row);
+        addTableRow(laneResultSummary.getRead().getLanes().get(4).getClusterCountPF().getMean(),
+                row);
+        addTableRow(laneResultSummary.getRead().getLanes().get(4).getLaneYield() / KILO, row);
+        addTableRow(laneResultSummary.getRead().getLanes().get(4).getPercentUniquelyAlignedPF()
+                .getMean(), row);
 
-        row.add(new StringTableCell(software_version));
-        row.add(new StringTableCell(summary.getDate()));
+        addTableRow(summary.getSoftware(), row);
+        addTableRow(summary.getDate(), row);
         addPropertyColumnValues(dataset, row);
 
         builder.addRow(row);
+    }
+
+    private static void addTableRow(Long number, List<ISerializableComparable> row)
+    {
+        try
+        {
+            row.add(new IntegerTableCell(number));
+
+        } catch (RuntimeException exc)
+        {
+            row.add(new StringTableCell(""));
+
+        }
+    }
+
+    private static void addTableRow(Double number, List<ISerializableComparable> row)
+    {
+        try
+        {
+            row.add(new DoubleTableCell(number));
+
+        } catch (RuntimeException exc)
+        {
+            row.add(new StringTableCell(""));
+
+        }
+    }
+
+    private static void addTableRow(String s, List<ISerializableComparable> row)
+    {
+        try
+        {
+            row.add(new StringTableCell(s));
+
+        } catch (RuntimeException exc)
+        {
+            row.add(new StringTableCell(""));
+
+        }
     }
 
     private static void addPropertyColumnValues(DatasetDescription dataset,
