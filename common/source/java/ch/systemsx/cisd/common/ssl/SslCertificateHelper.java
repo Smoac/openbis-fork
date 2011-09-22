@@ -162,4 +162,21 @@ public class SslCertificateHelper
             // Ignore this one.
         }
     }
+
+    public static void trustAnyCertificate(String url)
+    {
+        if (url.startsWith("https://"))
+        {
+            try
+            {
+                File tempKeyStore = File.createTempFile("cert", "keystore");
+                tempKeyStore.deleteOnExit();
+                SslCertificateHelper helper = new SslCertificateHelper(url, tempKeyStore, "cert");
+                helper.setUpKeyStore();
+            } catch (IOException ioex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
+            }
+        }
+    }
 }
