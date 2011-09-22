@@ -86,7 +86,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
         File originalData = getDataSubDir(context.getDirectoryProvider(), dataset);
 
-        File childDirectory = new File(originalData, dataset.getSampleCode() + path);
+        File childDirectory = new File(originalData, path);
 
         File[] files = childDirectory.listFiles(new FileFilter()
             {
@@ -124,7 +124,9 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         for (DatasetDescription dataset : datasets)
         {
 
-            File[] f = findFile(context, dataset, GERALD_DIR, DATA_INTENSITIES_BASE_CALLS_PATH);
+            File[] f =
+                    findFile(context, dataset, GERALD_DIR, dataset.getSampleCode()
+                            + DATA_INTENSITIES_BASE_CALLS_PATH);
 
             if (f != null)
             {
