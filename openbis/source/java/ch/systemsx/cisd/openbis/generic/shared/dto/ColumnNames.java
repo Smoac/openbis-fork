@@ -240,6 +240,8 @@ public final class ColumnNames
 
     public static final String MODIFICATION_TIMESTAMP_COLUMN = "modification_timestamp";
 
+    public static final String VALID_UNTIL_TIMESTAMP_COLUMN = "valid_until_timestamp";
+
     public static final String EVENT_TYPE = "event_type";
 
     public static final String ENTITY_TYPE = "entity_type";
