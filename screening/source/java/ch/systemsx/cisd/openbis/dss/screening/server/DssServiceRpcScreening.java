@@ -44,6 +44,8 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
+import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -496,6 +498,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
 
+            final IImagingLoaderStrategy imageLoaderStrategy =
+                    ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor);
+
             final ImageChannelStackReference channelStackRef =
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
@@ -504,9 +509,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 {
                     public IContent getContent()
                     {
-                        return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, singleChannelImageTransformationCodeOrNull,
-                                convertToPng, transform);
+                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
+                                channelCode, sizeOrNull,
+                                singleChannelImageTransformationCodeOrNull, convertToPng, transform);
                     }
                 }));
         }
@@ -523,6 +528,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
 
+            final IImagingLoaderStrategy imageLoaderStrategy =
+                    ImagingLoaderStrategyFactory.createThumbnailLoaderStrategy(imageAccessor);
+
             final ImageChannelStackReference channelStackRef =
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
@@ -531,7 +539,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 {
                     public IContent getContent()
                     {
-                        return imageAccessor.tryGetThumbnail(channelCode, channelStackRef);
+                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
+                                channelCode, null, null, false, false);
                     }
                 }));
         }
@@ -587,8 +596,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 {
                     public IContent getContent()
                     {
-                        return tryGetImageContent(imageAccessor, channelStackRef, channelCode,
-                                sizeOrNull, null, true, false);
+                        return tryGetImageContent(ImagingLoaderStrategyFactory
+                                .createImageLoaderStrategy(imageAccessor), channelStackRef,
+                                channelCode, sizeOrNull, null, true, false);
                     }
                 }));
         }
@@ -599,12 +609,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         final IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        assert imageAccessor != null : "imageAccessor not found for: " + dataSetIdentifier;
         final List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channels, imageAccessor);
-
         final List<IContent> imageContents = new ArrayList<IContent>();
         for (final MicroscopyImageReference imageReference : imageReferences)
         {
+            final IImagingLoaderStrategy imageLoaderStrategy =
+                    ImagingLoaderStrategyFactory.createThumbnailLoaderStrategy(imageAccessor);
+
             final ImageChannelStackReference channelStackRef =
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
@@ -613,7 +626,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 {
                     public IContent getContent()
                     {
-                        return imageAccessor.tryGetThumbnail(channelCode, channelStackRef);
+                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
+                                channelCode, null, null, false, false);
                     }
                 }));
         }
@@ -1024,16 +1038,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return imageDatasetsMap;
     }
 
-    private IContent tryGetImageContent(IImagingDatasetLoader imageAccessor,
+    private IContent tryGetImageContent(IImagingLoaderStrategy imageLoaderStrategy,
             final ImageChannelStackReference channelStackReference, String channelCode,
             Size thumbnailSizeOrNull, String singleChannelImageTransformationCodeOrNull,
             boolean convertToPng, boolean transform)
     {
         try
         {
-            return ImageChannelsUtils.getImage(imageAccessor, channelStackReference, channelCode,
-                    thumbnailSizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
-                    transform);
+            return ImageChannelsUtils.getImage(imageLoaderStrategy, channelStackReference,
+                    channelCode, thumbnailSizeOrNull, singleChannelImageTransformationCodeOrNull,
+                    convertToPng, transform);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);

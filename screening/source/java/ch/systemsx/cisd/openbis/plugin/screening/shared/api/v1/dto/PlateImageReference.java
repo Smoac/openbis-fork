@@ -13,20 +13,20 @@ public class PlateImageReference extends DatasetIdentifier
 
     private final int tile;
 
-    private final String channel;
+    private final String channelOrNull;
 
     /**
      * @param dataset if image dataset is specified, image will be fetched from it. If a feature
      *            vector dataset is specified, a connected image dataset will be found and image
      *            will be fetched from it.
      */
-    public PlateImageReference(int tile, String channel, WellPosition wellPosition,
+    public PlateImageReference(int tile, String channelOrNull, WellPosition wellPosition,
             IDatasetIdentifier dataset)
     {
         super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
         this.wellPosition = wellPosition;
         this.tile = tile;
-        this.channel = channel.toUpperCase();
+        this.channelOrNull = channelOrNull != null ? channelOrNull.toUpperCase() : null;
     }
 
     /**
@@ -37,10 +37,7 @@ public class PlateImageReference extends DatasetIdentifier
     public PlateImageReference(int wellRow, int wellColumn, int tile, String channel,
             IDatasetIdentifier dataset)
     {
-        super(dataset.getDatasetCode(), dataset.getDatastoreServerUrl());
-        this.wellPosition = new WellPosition(wellRow, wellColumn);
-        this.tile = tile;
-        this.channel = channel.toUpperCase();
+        this(tile, channel, new WellPosition(wellRow, wellColumn), dataset);
     }
 
     /** Well position on the plate */
@@ -60,14 +57,14 @@ public class PlateImageReference extends DatasetIdentifier
      */
     public String getChannel()
     {
-        return channel;
+        return channelOrNull;
     }
 
     @Override
     public String toString()
     {
         String wellDesc = wellPosition != null ? ", well " + wellPosition : "";
-        return "Image for [dataset " + getDatasetCode() + wellDesc + ", channel " + channel
+        return "Image for [dataset " + getDatasetCode() + wellDesc + ", channel " + channelOrNull
                 + ", tile " + tile + "]";
     }
 
@@ -77,7 +74,7 @@ public class PlateImageReference extends DatasetIdentifier
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result + super.hashCode();
-        result = prime * result + channel.hashCode();
+        result = prime * result + (channelOrNull == null ? 0 : channelOrNull.hashCode());
         result = prime * result + tile;
         result = prime * result + wellPosition.hashCode();
         return result;
@@ -100,7 +97,8 @@ public class PlateImageReference extends DatasetIdentifier
         }
 
         final PlateImageReference other = (PlateImageReference) obj;
-        if (channel.equals(other.channel) == false)
+        if ((channelOrNull == null && other.channelOrNull != null)
+                || channelOrNull.equals(other.channelOrNull) == false)
         {
             return false;
         }

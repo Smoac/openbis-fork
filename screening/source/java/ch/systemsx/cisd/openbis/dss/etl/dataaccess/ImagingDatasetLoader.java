@@ -374,7 +374,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                 Size.NULL_SIZE, false), false);
     }
 
-    public IContent tryGetThumbnail(String channelCode,
+    public AbsoluteImageReference tryGetThumbnail(String channelCode,
             ImageChannelStackReference channelStackReference)
     {
         if (StringUtils.isBlank(channelCode))
@@ -396,9 +396,9 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         {
             return null;
         }
-        final String path = thumbnailDTO.getFilePath();
-        final IContent content = contentRepository.getContent(path);
-        return content;
+
+        return createAbsoluteImageReference(thumbnailDTO, channel,
+                RequestedImageSize.createOriginal(), false);
     }
 
     private static ImageLibraryInfo tryGetImageLibrary(ImgDatasetDTO dataset, boolean isThumbnail)

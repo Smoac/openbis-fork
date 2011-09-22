@@ -114,7 +114,6 @@ class ChannelChooser
         Widget view = viewerFactory.create(state);
         imageContainer.removeAll();
         imageContainer.add(view);
-
         imageContainer.layout();
     }
 

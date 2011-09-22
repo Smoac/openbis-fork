@@ -1659,8 +1659,9 @@ public class OpenBISScreeningML
         imageDir.mkdirs();
         final File f =
                 new File(imageDir, "img_" + plate.getPlateCode() + "_" + image.getDatasetCode()
-                        + "_row" + well.getWellRow() + "_col" + well.getWellColumn() + "_"
-                        + image.getChannel() + "_tile" + image.getTile() + ".tiff");
+                        + "_row" + well.getWellRow() + "_col" + well.getWellColumn()
+                        + (image.getChannel() == null ? "" : "_" + image.getChannel()) + "_tile"
+                        + image.getTile() + ".tiff");
         f.deleteOnExit();
         return f;
     }

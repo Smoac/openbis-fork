@@ -40,6 +40,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
+import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
@@ -73,21 +75,21 @@ public class ImageChannelsUtils
         File getDatasetRoot(String datasetCode);
     }
 
-    private final IImagingDatasetLoader imageAccessor;
+    private final IImagingLoaderStrategy imageLoaderStrategy;
 
     private final RequestedImageSize imageSizeLimit;
 
     @Private
-    ImageChannelsUtils(IImagingDatasetLoader imageAccessor, RequestedImageSize imageSizeLimit)
+    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, RequestedImageSize imageSizeLimit)
     {
-        this.imageAccessor = imageAccessor;
+        this.imageLoaderStrategy = imageLoaderStrategy;
         this.imageSizeLimit = imageSizeLimit;
     }
 
     @Private
-    ImageChannelsUtils(IImagingDatasetLoader imageAccessor, Size imageSizeLimitOrNull)
+    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull)
     {
-        this(imageAccessor, new RequestedImageSize(imageSizeLimitOrNull, false));
+        this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false));
     }
 
     /**
@@ -210,7 +212,9 @@ public class ImageChannelsUtils
     {
         IImagingDatasetLoader imageAccessor =
                 createImageAccessor(imageChannels, datasetDirectoryProvider);
-        return new ImageChannelsUtils(imageAccessor, imageSizeLimit);
+        return new ImageChannelsUtils(
+                ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
+                imageSizeLimit);
     }
 
     @Private
@@ -244,7 +248,8 @@ public class ImageChannelsUtils
             ImageChannelStackReference channelStackReference =
                     imagesReference.getChannelStackReference();
             AbsoluteImageReference image =
-                    imageAccessor.tryGetImage(channelCode, channelStackReference, imageSizeLimit);
+                    imageLoaderStrategy.tryGetImage(channelCode, channelStackReference,
+                            imageSizeLimit);
             if (image == null && skipNonExisting == false)
             {
                 throw createImageNotFoundException(channelStackReference, channelCode);
@@ -287,8 +292,9 @@ public class ImageChannelsUtils
         IImagingDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         List<AbsoluteImageReference> imageReferences =
-                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull)
-                        .getRepresentativeImageReferences(wellLocationOrNull);
+                new ImageChannelsUtils(
+                        ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
+                        imageSizeLimitOrNull).getRepresentativeImageReferences(wellLocationOrNull);
         BufferedImage image =
                 calculateBufferedImage(imageReferences, new ImageTransformationParams(true, true,
                         null));
@@ -322,17 +328,18 @@ public class ImageChannelsUtils
     /**
      * @return an image for the specified tile in the specified size and for the requested channel.
      */
-    public static IContent getImage(IImagingDatasetLoader imageAccessor,
+    public static IContent getImage(IImagingLoaderStrategy imageLoaderStrategy,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size imageSizeLimitOrNull, String singleChannelImageTransformationCodeOrNull,
             boolean convertToPng, boolean transform)
     {
         DatasetAcquiredImagesReference imagesReference =
-                createDatasetAcquiredImagesReference(imageAccessor, channelStackReference,
-                        chosenChannelCode);
+                createDatasetAcquiredImagesReference(imageLoaderStrategy, channelStackReference,
+                        chosenChannelCode == null ? ScreeningConstants.MERGED_CHANNELS
+                                : chosenChannelCode);
 
         ImageChannelsUtils imageChannelsUtils =
-                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
+                new ImageChannelsUtils(imageLoaderStrategy, imageSizeLimitOrNull);
         boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
@@ -350,10 +357,10 @@ public class ImageChannelsUtils
     }
 
     private static DatasetAcquiredImagesReference createDatasetAcquiredImagesReference(
-            IImagingDatasetLoader imageAccessor, ImageChannelStackReference channelStackReference,
-            String chosenChannelCode)
+            IImagingLoaderStrategy imageLoaderStrategy,
+            ImageChannelStackReference channelStackReference, String chosenChannelCode)
     {
-        String datasetCode = imageAccessor.getImageParameters().getDatasetCode();
+        String datasetCode = imageLoaderStrategy.getImageParameters().getDatasetCode();
         boolean isMergedChannels =
                 ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode);
         if (isMergedChannels)
@@ -396,7 +403,7 @@ public class ImageChannelsUtils
 
     private List<String> getAllChannelCodes()
     {
-        return imageAccessor.getImageParameters().getChannelsCodes();
+        return imageLoaderStrategy.getImageParameters().getChannelsCodes();
     }
 
     /**
@@ -406,7 +413,7 @@ public class ImageChannelsUtils
             Location wellLocationOrNull)
     {
         AbsoluteImageReference image =
-                imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
+                imageLoaderStrategy.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
                         imageSizeLimit);
         if (image != null)
         {

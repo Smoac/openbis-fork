@@ -44,6 +44,7 @@ import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -250,7 +251,9 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
     {
-        return new ImageChannelsUtils(loader, new RequestedImageSize(thumbnailSizeOrNull, false));
+        return new ImageChannelsUtils(
+                ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
+                new RequestedImageSize(thumbnailSizeOrNull, false));
     }
 
     public void assertPNG(IContent image)
