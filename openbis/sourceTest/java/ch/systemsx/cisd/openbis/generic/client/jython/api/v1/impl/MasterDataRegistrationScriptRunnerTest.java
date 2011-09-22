@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -87,11 +88,15 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                 new RecordingMatcher<NewETPTAssignment>();
         final RecordingMatcher<FileFormatType> fileFormatMatcher =
                 new RecordingMatcher<FileFormatType>();
+        final RecordingMatcher<NewVocabulary> vocabularyMatcher =
+                new RecordingMatcher<NewVocabulary>();
         context.checking(new Expectations()
             {
                 {
                     one(commonServer).registerFileFormatType(with(equal(SESSION_TOKEN)),
                             with(fileFormatMatcher));
+                    one(commonServer).registerVocabulary(with(equal(SESSION_TOKEN)),
+                            with(vocabularyMatcher));
                     one(commonServer).registerExperimentType(with(equal(SESSION_TOKEN)),
                             with(experimentTypeMatcher));
                     one(commonServer).registerSampleType(with(equal(SESSION_TOKEN)),
@@ -115,6 +120,17 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         FileFormatType fileFormatType = fileFormatMatcher.recordedObject();
         assertEquals("FILE-FORMAT-TYPE", fileFormatType.getCode());
         assertEquals("File format type description.", fileFormatType.getDescription());
+
+        assertEquals(1, vocabularyMatcher.getRecordedObjects().size());
+        NewVocabulary vocabulary = vocabularyMatcher.recordedObject();
+        assertEquals("ANIMALS", vocabulary.getCode());
+        assertEquals("Vocabulary description", vocabulary.getDescription());
+        assertEquals("http://ask.com/%s", vocabulary.getURLTemplate());
+        assertEquals(2, vocabulary.getTerms().size());
+        assertEquals("TIGER", vocabulary.getTerms().get(0).getCode());
+        assertEquals("A wild cat", vocabulary.getTerms().get(0).getDescription());
+        assertEquals("PUMA", vocabulary.getTerms().get(1).getCode());
+        assertEquals("Another wild cat", vocabulary.getTerms().get(1).getDescription());
 
         assertEquals(1, experimentTypeMatcher.getRecordedObjects().size());
         ExperimentType experimentType = experimentTypeMatcher.recordedObject();
@@ -178,25 +194,28 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                 {
                     one(commonServer).registerFileFormatType(with(any(String.class)),
                             with(any(FileFormatType.class)));
-                    will(throwException(new RuntimeException("FAILED0")));
+                    will(throwException(new RuntimeException("FAILED FILE FORMAT")));
+                    one(commonServer).registerVocabulary(with(any(String.class)),
+                            with(any(NewVocabulary.class)));
+                    will(throwException(new RuntimeException("FAILED VOCABULARY")));
                     one(commonServer).registerExperimentType(with(any(String.class)),
                             with(any(ExperimentType.class)));
-                    will(throwException(new RuntimeException("FAILED1")));
+                    will(throwException(new RuntimeException("FAILED EXPERIMENT TYPE")));
                     one(commonServer).registerSampleType(with(any(String.class)),
                             with(any(SampleType.class)));
-                    will(throwException(new RuntimeException("FAILED2")));
+                    will(throwException(new RuntimeException("FAILED SAMPLE TYPE")));
                     one(commonServer).registerDataSetType(with(any(String.class)),
                             with(any(DataSetType.class)));
-                    will(throwException(new RuntimeException("FAILED3")));
+                    will(throwException(new RuntimeException("FAILED DATA SET TYPE")));
                     one(commonServer).registerMaterialType(with(any(String.class)),
                             with(any(MaterialType.class)));
-                    will(throwException(new RuntimeException("FAILED4")));
+                    will(throwException(new RuntimeException("FAILED MATERIAL TYPE")));
                     exactly(2).of(commonServer).registerPropertyType(with(any(String.class)),
                             with(any(PropertyType.class)));
-                    will(throwException(new RuntimeException("FAILED5")));
+                    will(throwException(new RuntimeException("FAILED PROPERTY TYPE")));
                     exactly(2).of(commonServer).assignPropertyType(with(any(String.class)),
                             with(any(NewETPTAssignment.class)));
-                    will(throwException(new RuntimeException("FAILED6")));
+                    will(throwException(new RuntimeException("FAILED ASSIGNMENT")));
                 }
             });
 
@@ -206,15 +225,16 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         List<String> errorLines =
                 Arrays.asList(
                         "Failed to commit all transactions for script .*",
-                        "Failed to register type 'FILE-FORMAT-TYPE': FAILED0",
-                        "Failed to register type 'EXPERIMENT-TYPE': FAILED1",
-                        "Failed to register type 'SAMPLE-TYPE': FAILED2",
-                        "Failed to register type 'DATA-SET-TYPE': FAILED3",
-                        "Failed to register type 'MATERIAL-TYPE': FAILED4",
-                        "Failed to register type 'VARCHAR-PROPERTY-TYPE': FAILED5",
-                        "Failed to register type 'MATERIAL-PROPERTY-TYPE': FAILED5",
-                        "Failed to assign property 'SAMPLE-TYPE' <-> 'MATERIAL-PROPERTY-TYPE': FAILED6",
-                        "Failed to assign property 'EXPERIMENT-TYPE' <-> 'VARCHAR-PROPERTY-TYPE': FAILED6");
+                        "Failed to register type 'FILE-FORMAT-TYPE': FAILED FILE FORMAT",
+                        "Failed to register vocabulary 'ANIMALS': FAILED VOCABULARY",
+                        "Failed to register type 'EXPERIMENT-TYPE': FAILED EXPERIMENT TYPE",
+                        "Failed to register type 'SAMPLE-TYPE': FAILED SAMPLE TYPE",
+                        "Failed to register type 'DATA-SET-TYPE': FAILED DATA SET TYPE",
+                        "Failed to register type 'MATERIAL-TYPE': FAILED MATERIAL TYPE",
+                        "Failed to register type 'VARCHAR-PROPERTY-TYPE': FAILED PROPERTY TYPE",
+                        "Failed to register type 'MATERIAL-PROPERTY-TYPE': FAILED PROPERTY TYPE",
+                        "Failed to assign property 'SAMPLE-TYPE' <-> 'MATERIAL-PROPERTY-TYPE': FAILED ASSIGNMENT",
+                        "Failed to assign property 'EXPERIMENT-TYPE' <-> 'VARCHAR-PROPERTY-TYPE': FAILED ASSIGNMENT");
 
         errorLogger.assertNumberOfMessage(errorLines.size());
         errorLogger.assertMatches(0, LogLevel.ERROR, errorLines.get(0));

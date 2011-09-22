@@ -21,12 +21,25 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
  */
 public interface IPropertyTypeImmutable extends IAbstractType
 {
-
+    /**
+     * Return the property type label.
+     */
     String getLabel();
 
+    /**
+     * Return the data type of the property.
+     */
     DataType getDataType();
 
+    /**
+     * Returns the material type for properties with data type {@link DataType#MATERIAL}
+     */
     IMaterialTypeImmutable getMaterialType();
+
+    /**
+     * Returns the vocabulary for properties with data type {@link DataType#CONTROLLEDVOCABULARY}
+     */
+    IVocabularyImmutable getVocabulary();
 
     /**
      * Return an XSD used to verify the validity of properties with XML {@link DataType}. Return

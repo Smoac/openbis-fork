@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IAbstractType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyAssignment;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabulary;
 
 /**
  * @author Kaloyan Enimanev
@@ -82,6 +83,24 @@ public class MasterDataTransactionErrors
         }
     }
 
+    private static class VocabularyRegistrationError extends TransactionError
+    {
+        private final IVocabulary vocabulary;
+
+        VocabularyRegistrationError(Exception ex, IVocabulary vocabulary)
+        {
+            super(ex);
+            this.vocabulary = vocabulary;
+        }
+
+        @Override
+        String getDescription()
+        {
+            return String.format("Failed to register vocabulary '%s': %s", vocabulary.getCode(),
+                    getException().getMessage());
+        }
+    }
+
     private List<TransactionError> errors =
             new ArrayList<MasterDataTransactionErrors.TransactionError>();
 
@@ -108,4 +127,9 @@ public class MasterDataTransactionErrors
 
     }
 
+    public void addVocabularyRegistrationError(Exception ex, IVocabulary vocabulary)
+    {
+        VocabularyRegistrationError error = new VocabularyRegistrationError(ex, vocabulary);
+        errors.add(error);
+    }
 }

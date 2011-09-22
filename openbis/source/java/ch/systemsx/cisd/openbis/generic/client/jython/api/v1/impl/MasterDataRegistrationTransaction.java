@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabulary;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -56,6 +58,8 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     private final List<PropertyType> createdPropertyTypes = new ArrayList<PropertyType>();
 
     private final List<FileFormatType> createdFileTypes = new ArrayList<FileFormatType>();
+
+    private final List<Vocabulary> createdVocabularies = new ArrayList<Vocabulary>();
 
     private final List<PropertyAssignment> createdAssignments = new ArrayList<PropertyAssignment>();
 
@@ -194,9 +198,22 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
 
     }
 
+    public IVocabularyTerm createNewVocabularyTerm(String code)
+    {
+        return new VocabularyTerm(code);
+    }
+
+    public IVocabulary createNewVocabulary(String code)
+    {
+        Vocabulary vocabulary = new Vocabulary(code);
+        createdVocabularies.add(vocabulary);
+        return vocabulary;
+    }
+
     void commit()
     {
         registerFileFormatTypes(createdFileTypes);
+        registerVocabularies(createdVocabularies);
         registerExperimentTypes(createdExperimentTypes);
         registerSampleTypes(createdSampleTypes);
         registerDataSetTypes(createdDataSetTypes);
@@ -299,6 +316,20 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             } catch (Exception ex)
             {
                 transactionErrors.addPropertyAssignmentError(ex, assignment);
+            }
+        }
+    }
+
+    private void registerVocabularies(List<Vocabulary> vocabularies)
+    {
+        for (Vocabulary vocabulary : vocabularies)
+        {
+            try
+            {
+                commonServer.registerVocabulary(vocabulary);
+            } catch (Exception ex)
+            {
+                transactionErrors.addVocabularyRegistrationError(ex, vocabulary);
             }
         }
     }

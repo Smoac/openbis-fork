@@ -5,6 +5,20 @@ tr = service.transaction()
 fileFormatType = tr.createNewFileFormatType('FILE-FORMAT-TYPE')
 fileFormatType.setDescription('File format type description.')
 
+animalsVocabulary = tr.createNewVocabulary('ANIMALS')
+animalsVocabulary.setDescription("Vocabulary description")
+animalsVocabulary.setUrlTemplate("http://ask.com/%s")
+
+termTiger = tr.createNewVocabularyTerm("TIGER")
+termTiger.setDescription("A wild cat")
+termTiger.setLabel("Tiger")
+animalsVocabulary.addTerm(termTiger)
+
+termPuma = tr.createNewVocabularyTerm("PUMA")
+termPuma.setDescription("Another wild cat")
+termPuma.setLabel("Puma")
+animalsVocabulary.addTerm(termPuma)
+
 expType = tr.createNewExperimentType('EXPERIMENT-TYPE')
 expType.setDescription('Experiment type description.')
 

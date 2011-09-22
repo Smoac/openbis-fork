@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author Kaloyan Enimanev
@@ -100,4 +103,30 @@ public class PropertyTypeImmutable implements IPropertyTypeImmutable
     {
         return getPropertyType().isInternalNamespace();
     }
+
+    public IVocabularyImmutable getVocabulary()
+    {
+        final Vocabulary vocabulary = getPropertyType().getVocabulary();
+        if (vocabulary != null)
+        {
+            return new VocabularyImmutable(asNewVocabulary(vocabulary));
+        }
+        return null;
+    }
+
+    private NewVocabulary asNewVocabulary(Vocabulary vocabulary)
+    {
+        NewVocabulary result = new NewVocabulary();
+        result.setId(vocabulary.getId());
+        result.setCode(vocabulary.getCode());
+        result.setDescription(vocabulary.getDescription());
+        result.setChosenFromList(vocabulary.isChosenFromList());
+        result.setInternalNamespace(vocabulary.isInternalNamespace());
+        result.setManagedInternally(vocabulary.isManagedInternally());
+        result.setURLTemplate(vocabulary.getURLTemplate());
+        result.setRegistrationDate(vocabulary.getRegistrationDate());
+        result.setRegistrator(vocabulary.getRegistrator());
+        return result;
+    }
+
 }

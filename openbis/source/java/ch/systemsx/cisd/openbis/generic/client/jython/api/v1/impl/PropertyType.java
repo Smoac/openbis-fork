@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyType;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -65,5 +66,11 @@ public class PropertyType extends PropertyTypeImmutable implements IPropertyType
     public void setInternalNamespace(boolean isInternalNamespace)
     {
         getPropertyType().setInternalNamespace(isInternalNamespace);
+    }
+
+    public void setVocabulary(IVocabularyImmutable vocabulary)
+    {
+        VocabularyImmutable internalVocabulary = (VocabularyImmutable) vocabulary;
+        getPropertyType().setVocabulary(internalVocabulary.getVocabulary());
     }
 }

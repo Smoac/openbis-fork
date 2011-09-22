@@ -53,9 +53,12 @@ public interface IMasterDataRegistrationTransaction
     IPropertyAssignment assignPropertyType(IEntityType entityType,
             IPropertyTypeImmutable propertyType);
 
-    // controlled vocabularies not yet implemented
-    // IVocabulary createNewVocabulary(String code)
-    // IVocabularyImmutable getVocabulary(String code)
+    IVocabularyTerm createNewVocabularyTerm(String code);
+
+    IVocabulary createNewVocabulary(String code);
+
+    // Not yet implemented
+    // IVocabularyImmutable getVocabulary(String code);
 
     IFileFormatType createNewFileFormatType(String code);
 

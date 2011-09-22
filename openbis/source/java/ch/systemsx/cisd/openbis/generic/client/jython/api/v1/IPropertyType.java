@@ -39,6 +39,11 @@ public interface IPropertyType extends IPropertyTypeImmutable
     void setMaterialType(IMaterialTypeImmutable materialType);
 
     /**
+     * Set the associated vocabulary. Mandatory when {@link DataType} is CONTROLLEDVOCABULARY.
+     */
+    void setVocabulary(IVocabularyImmutable vocabulary);
+
+    /**
      * Set an XSD used to verify the validity of properties with XML {@link DataType}.
      */
     void setXmlSchema(String schema);

@@ -163,4 +163,9 @@ public class EncapsulatedCommonServer
         commonServer.logout(sessionToken);
     }
 
+    public void registerVocabulary(Vocabulary vocabulary)
+    {
+        commonServer.registerVocabulary(sessionToken, vocabulary.getVocabulary());
+    }
+
 }
