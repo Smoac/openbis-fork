@@ -278,7 +278,6 @@ public class OpenBISScreeningML
      */
     public static void login(String user, String password, String url)
     {
-        System.setProperty("force-accept-ssl-certificate", "true");
         IScreeningOpenbisServiceFacade facade = facadeFactory.tryToCreate(user, password, url);
         if (facade == null)
         {
