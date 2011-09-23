@@ -39,13 +39,6 @@ public class ImagingLoaderStrategyFactory
             this.imageAccessor = imageAccessor;
         }
 
-        public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-                Location wellLocationOrNull, RequestedImageSize imageSize)
-        {
-            return imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
-                    imageSize);
-        }
-
         public ImageDatasetParameters getImageParameters()
         {
             return imageAccessor.getImageParameters();
@@ -69,6 +62,13 @@ public class ImagingLoaderStrategyFactory
                     return this.imageAccessor.tryGetThumbnail(channelCode, channelStackReference);
                 }
 
+                public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
+                        Location wellLocationOrNull, RequestedImageSize imageSize)
+                {
+                    return imageAccessor.tryGetRepresentativeThumbnail(channelCode,
+                            wellLocationOrNull);
+                }
+
             };
     }
 
@@ -82,6 +82,13 @@ public class ImagingLoaderStrategyFactory
                         RequestedImageSize imageSize)
                 {
                     return this.imageAccessor.tryGetImage(channelCode, channelStackReference,
+                            imageSize);
+                }
+
+                public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
+                        Location wellLocationOrNull, RequestedImageSize imageSize)
+                {
+                    return imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
                             imageSize);
                 }
             };
