@@ -31,7 +31,7 @@ STORE_CHANNELS_ON_EXPERIMENT_LEVEL = False
 ORIGINAL_DATA_STORAGE_FORMAT = OriginalDataStorageFormat.UNCHANGED
 
 """ Change to 'False' if 'convert' tool is not installed """
-USE_IMAGE_MAGIC_CONVERT_TOOL = True
+USE_IMAGE_MAGIC_CONVERT_TOOL = False
 
 """ -------------------------------------------- """
 """         This part rarely changes             """ 
