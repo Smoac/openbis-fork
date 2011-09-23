@@ -121,7 +121,7 @@ public class MixColors
      */
     public static Color calcMixedColorQuadratic(Color[] colors, float[] intensities)
     {
-        assert colors.length == intensities.length;
+        assert colors.length == intensities.length : "number of colors and intensities do not match";
 
         float red = 0f;
         float green = 0f;
@@ -191,7 +191,7 @@ public class MixColors
      */
     public static Color calcMixedColorLinear(Color[] colors, float[] intensities)
     {
-        assert colors.length == intensities.length;
+        assert colors.length == intensities.length : "number of colors and intensities do not match";
 
         float red = 0;
         float green = 0;
@@ -199,9 +199,11 @@ public class MixColors
         for (int i = 0; i < colors.length; ++i)
         {
             // Effective color components are proportional to the intensity.
-            final float r = intensities[i] * colors[i].getRed();
-            final float g = intensities[i] * colors[i].getGreen();
-            final float b = intensities[i] * colors[i].getBlue();
+            float intensity = intensities[i];
+            Color color = colors[i];
+            final float r = intensity * color.getRed();
+            final float g = intensity * color.getGreen();
+            final float b = intensity * color.getBlue();
             // All colors contribute linearly.
             red += r;
             green += g;
@@ -247,6 +249,8 @@ public class MixColors
     public static BufferedImage mixImages(BufferedImage[] images, Color[] colors,
             boolean quadratic, float saturationEnhancementFactor)
     {
+        assert colors.length == images.length : "number of colors and images do not match";
+
         for (int i = 0; i < images.length; ++i)
         {
             if (images[i].getColorModel().getNumColorComponents() != 1
@@ -259,9 +263,9 @@ public class MixColors
         final BufferedImage mixed =
                 new BufferedImage(images[0].getWidth(), images[0].getHeight(),
                         BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < images[0].getWidth(); ++x)
+        for (int y = 0; y < images[0].getHeight(); ++y)
         {
-            for (int y = 0; y < images[0].getHeight(); ++y)
+            for (int x = 0; x < images[0].getWidth(); ++x)
             {
                 final float[] intensities = new float[images.length];
                 for (int i = 0; i < images.length; ++i)
