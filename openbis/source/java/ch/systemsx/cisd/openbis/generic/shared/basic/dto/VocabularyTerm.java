@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
@@ -96,6 +98,7 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         return label == null ? code : (code == null ? label : label + " [" + code + "]");
     }
 
+    @JsonIgnore
     public String getCodeOrLabel()
     {
         String code = getCode();
