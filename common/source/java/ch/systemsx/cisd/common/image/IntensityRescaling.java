@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.image;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
 /**
  * Methods for performing an intensity rescaling to 8bits for gray-scale images with a color-depth
@@ -132,9 +133,9 @@ public class IntensityRescaling
         }
         float pixels = image.getWidth() * image.getHeight();
         final int[] b0 = new int[image.getColorModel().getPixelSize() - 8];
-        for (int x = 0; x < image.getWidth(); ++x)
+        for (int y = 0; y < image.getHeight(); ++y)
         {
-            for (int y = 0; y < image.getHeight(); ++y)
+            for (int x = 0; x < image.getWidth(); ++x)
             {
                 final int intensity = getGrayIntensity(image, x, y);
                 for (int b = 0; b < b0.length; ++b)
@@ -181,19 +182,24 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityBitShiftTo8Bits(BufferedImage image, int shiftBits)
     {
-        if (isNotGrayscale(image))
-        {
-            throw new IllegalArgumentException(
-                    "rescaleIntensityBitShiftTo8Bits() is only applicable to gray scale images.");
-        }
+        return rescaleIntensityBitShiftTo8Bits(new GrayscalePixels(image), shiftBits);
+    }
+
+    /** See {@link #rescaleIntensityBitShiftTo8Bits(BufferedImage, int)}. */
+    public static BufferedImage rescaleIntensityBitShiftTo8Bits(GrayscalePixels image, int shiftBits)
+    {
         final BufferedImage rescaledImage =
                 new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        for (int x = 0; x < image.getWidth(); ++x)
+        WritableRaster raster = rescaledImage.getRaster();
+
+        int[] pixelData = image.getPixelData();
+        int offset = 0;
+        for (int y = 0; y < image.getHeight(); ++y)
         {
-            for (int y = 0; y < image.getHeight(); ++y)
+            for (int x = 0; x < image.getWidth(); ++x)
             {
-                final int intensity = Math.min(255, getGrayIntensity(image, x, y) >>> shiftBits);
-                rescaledImage.getRaster().setSample(x, y, 0, intensity);
+                final int intensity = Math.min(255, pixelData[offset++] >>> shiftBits);
+                raster.setSample(x, y, 0, intensity);
             }
         }
         return rescaledImage;
@@ -205,21 +211,93 @@ public class IntensityRescaling
      */
     public static void addToLevelStats(PixelHistogram histogram, BufferedImage image)
     {
-        if (isNotGrayscale(image))
+        GrayscalePixels pixels = new GrayscalePixels(image);
+        addToLevelStats(histogram, pixels);
+    }
+
+    /**
+     * Process <var>image</var> and add its pixels to the <var>histogram</var>. Calling this method
+     * multiple times with the same <var>histogram</var> accumulates the histogram for all images.
+     */
+    public static void addToLevelStats(PixelHistogram histogram, GrayscalePixels pixels)
+    {
+        int[] histogramArray = histogram.histogram;
+        int[] pixelData = pixels.getPixelData();
+        int numberOfPixels = pixels.getNumberOfPixels();
+
+        for (int i = 0; i < numberOfPixels; ++i)
         {
-            throw new IllegalArgumentException(
-                    "addToLevelStats() is only applicable to gray scale images.");
+            histogramArray[pixelData[i]]++;
         }
-        final int width = image.getWidth();
-        final int height = image.getHeight();
-        for (int x = 0; x < width; ++x)
+        histogram.pixelCount += numberOfPixels;
+    }
+
+    /**
+     * Extracts and stores all pixels of a gray scale image. It is usually more efficient to fetch
+     * all the pixels from {@link BufferedImage} because then accessing all the pixels one by one is
+     * much faster due to compiler optimizations.
+     */
+    public static class GrayscalePixels
+    {
+        private final int width;
+
+        private final int height;
+
+        private final int[] pixelData;
+
+        /**
+         * Extracts and stores all pixels of a grayscale image.
+         * 
+         * @throws IllegalArgumentException is the image is not gray scale
+         */
+        public GrayscalePixels(BufferedImage image)
         {
-            for (int y = 0; y < height; ++y)
+            if (isNotGrayscale(image))
             {
-                histogram.histogram[getGrayIntensity(image, x, y)]++;
+                throw new IllegalArgumentException(
+                        "This is not gray scale image, some image transformations cannot be applied to it.");
             }
+
+            width = image.getWidth();
+            height = image.getHeight();
+
+            pixelData = new int[width * height];
+            image.getRaster().getSamples(0, 0, width, height, 0, pixelData);
         }
-        histogram.pixelCount += width * height;
+
+        /**
+         * @return pixel intensity at (x,y). It is usually more efficient to use
+         *         {@link #getPixelData()} and browse the array from the beginning to the end.
+         */
+        public int getPixel(int x, int y)
+        {
+            return pixelData[x + y * width];
+        }
+
+        /** @return all the pixels of the image */
+        public int[] getPixelData()
+        {
+            return pixelData;
+        }
+
+        /** @return number of pixels on the image */
+        public int getNumberOfPixels()
+        {
+            return width * height;
+        }
+
+        /** @return width of the image */
+        public int getWidth()
+        {
+            return width;
+        }
+
+        /** @return height of the image */
+        public int getHeight()
+        {
+            return height;
+        }
+
     }
 
     /**
@@ -266,6 +344,14 @@ public class IntensityRescaling
      */
     public static Levels computeLevels(BufferedImage image, float threshold)
     {
+        return computeLevels(new GrayscalePixels(image), threshold);
+    }
+
+    /**
+     * See {@link #computeLevels(BufferedImage, float)}.
+     */
+    public static Levels computeLevels(GrayscalePixels image, float threshold)
+    {
         final PixelHistogram stats = new PixelHistogram();
         addToLevelStats(stats, image);
         return computeLevels(stats, threshold);
@@ -280,31 +366,40 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
     {
-        if (isNotGrayscale(image))
-        {
-            throw new IllegalArgumentException(
-                    "rescaleIntensityLevelTo8Bits() is only applicable to gray scale images.");
-        }
-        final float dynamicRange = levels.maxLevel - levels.minLevel;
+        return rescaleIntensityLevelTo8Bits(new GrayscalePixels(image), levels);
+    }
+
+    /**
+     * See {@link #rescaleIntensityLevelTo8Bits}.
+     */
+    public static BufferedImage rescaleIntensityLevelTo8Bits(GrayscalePixels image, Levels levels)
+    {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
         final BufferedImage rescaledImage =
-                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        for (int x = 0; x < image.getWidth(); ++x)
+                new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        WritableRaster rescaledRaster = rescaledImage.getRaster();
+
+        final int[] pixelData = image.getPixelData();
+        final float dynamicRange = 255f / (levels.maxLevel - levels.minLevel);
+
+        int offset = 0;
+        for (int y = 0; y < height; ++y)
         {
-            for (int y = 0; y < image.getHeight(); ++y)
+            for (int x = 0; x < width; ++x)
             {
-                int originalIntensity = getGrayIntensity(image, x, y);
+                int originalIntensity = pixelData[offset++];
 
                 // cut all intensities above the white point
                 int intensity = Math.min(levels.maxLevel, originalIntensity);
                 // cut all intensities below the black point and move the origin to 0
                 intensity = Math.max(0, intensity - levels.minLevel);
                 // normalize to [0, 1] and rescale to 8 bits
-                intensity = Math.round(intensity / dynamicRange * 255);
+                intensity = (int) (0.5 + (intensity * dynamicRange));
 
-                rescaledImage.getRaster().setSample(x, y, 0, intensity);
+                rescaledRaster.setSample(x, y, 0, intensity);
             }
         }
         return rescaledImage;
     }
-
 }
