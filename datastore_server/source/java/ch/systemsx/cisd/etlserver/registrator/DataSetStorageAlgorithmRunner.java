@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -201,7 +202,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
     {
-        operationLog.error("Failed to run storage processor", ex);
+        operationLog.error("Failed to run storage processor");
         rollbackStorageProcessors(ex);
         rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
                 ErrorType.STORAGE_PROCESSOR_ERROR);
@@ -256,7 +257,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     @SuppressWarnings("deprecation")
     private void rollbackStorageProcessors(Throwable ex)
     {
-        operationLog.error("Error during dataset registertion", ex);
+        operationLog.error(
+                "Error during dataset registertion: " + ExceptionUtils.getRootCauseMessage(ex), ex);
 
         // Errors which are not AssertionErrors leave the system in a state that we don't
         // know and can't trust. Thus we will not perform any operations any more in this
