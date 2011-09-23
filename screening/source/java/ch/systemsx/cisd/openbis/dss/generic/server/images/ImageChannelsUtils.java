@@ -496,36 +496,27 @@ public class ImageChannelsUtils
                     transformationInfo);
         } else
         {
-            return mergeChannels(imageReferences, transformationInfo, singleImageReference);
+            IImageTransformerFactory mergedChannelTransformationOrNull =
+                    singleImageReference.getImageTransfomationFactories().tryGetForMerged();
+            return mergeChannels(imageReferences, transformationInfo,
+                    mergedChannelTransformationOrNull);
         }
     }
 
     private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
             ImageTransformationParams transformationInfo,
-            AbsoluteImageReference singleImageReference)
+            IImageTransformerFactory mergedChannelTransformationOrNull)
     {
         // We do not transform single images here.
-        // The 'merged channels' transformation will be applied later.
         List<ImageWithReference> images = calculateSingleImagesForDisplay(imageReferences, null);
         BufferedImage mergedImage = mergeImages(images);
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
-
-        // TODO 2011-09-13, Tomasz Pylak: it looks like we are applying image level
-        // transformation from a random single channel to merged images. Replace with following
-        // code after testing:
-
-        // if (transformationInfo.isApplyNonImageLevelTransformation())
-        // {
-        // IImageTransformerFactory transformationOrNull =
-        // singleImageReference.getImageTransfomationFactories().tryGetForMerged();
-        // mergedImage =
-        // applyImageTransformation(mergedImage, transformationOrNull);
-        // }
-        // return mergedImage;
-
-        return transform(mergedImage, singleImageReference,
-                transformationInfo.cloneAndSetUseMergedChannelsTransformation());
+        if (transformationInfo.isApplyNonImageLevelTransformation())
+        {
+            mergedImage = applyImageTransformation(mergedImage, mergedChannelTransformationOrNull);
+        }
+        return mergedImage;
     }
 
     private static BufferedImage transform(BufferedImage image,
@@ -660,9 +651,9 @@ public class ImageChannelsUtils
         int width = newImage.getWidth();
         int height = newImage.getHeight();
         int colorBuffer[] = new int[4];
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
                 int mergedRGB = mergeRGBColor(images, x, y, colorBuffer);
                 newImage.setRGB(x, y, mergedRGB);
@@ -702,9 +693,9 @@ public class ImageChannelsUtils
         int width = Math.min(image.getWidth(), overlayImage.getWidth());
         int height = Math.min(image.getHeight(), overlayImage.getHeight());
 
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
                 int imageRGB = image.getRGB(x, y);
                 int overlayRGB = overlayImage.getRGB(x, y);
@@ -814,9 +805,9 @@ public class ImageChannelsUtils
         BufferedImage newImage = createNewRGBImage(bufferedImage);
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
-        for (int x = 0; x < width; x++)
+        for (int y = 0; y < height; y++)
         {
-            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
                 int rgb = bufferedImage.getRGB(x, y);
                 int channelColor = extractSingleComponent(rgb, colorComponent);

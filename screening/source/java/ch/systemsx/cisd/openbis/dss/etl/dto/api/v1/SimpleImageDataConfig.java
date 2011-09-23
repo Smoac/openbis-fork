@@ -24,7 +24,9 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -192,12 +194,16 @@ abstract public class SimpleImageDataConfig
     private boolean isMicroscopy;
 
     // If null then no common intensity rescaling parameters are computed.
-    // If empty the computation will take place for all channels.
-    // Otherwise all images of these channels are analysed during dataset registration (costly
-    // operation!)
+    // If empty the computation will take place for all channels, otherwise only for specified
+    // channels.
     private List<String> computeCommonIntensityRangeOfAllImagesForChannelsOrNull = null;
 
-    private float computeCommonIntensityRangeOfAllImagesThreshold = 0.005f;
+    private float computeCommonIntensityRangeOfAllImagesThreshold =
+            ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR;
+
+    private String computeCommonIntensityRangeOfAllImagesLabel = "Optimal (series)";
+
+    private boolean computeCommonIntensityRangeOfAllImagesIsDefault = true;
 
     // --- getters & setters ----------------------------------------------
 
@@ -284,6 +290,16 @@ abstract public class SimpleImageDataConfig
     public float getComputeCommonIntensityRangeOfAllImagesThreshold()
     {
         return computeCommonIntensityRangeOfAllImagesThreshold;
+    }
+
+    public String getComputeCommonIntensityRangeOfAllImagesLabel()
+    {
+        return computeCommonIntensityRangeOfAllImagesLabel;
+    }
+
+    public boolean isComputeCommonIntensityRangeOfAllImagesDefault()
+    {
+        return computeCommonIntensityRangeOfAllImagesIsDefault;
     }
 
     // ----- Setters -------------------------
@@ -411,6 +427,18 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
+     * Set the label of the transformation which will rescale dataset images intensities in an
+     * optimal and comparable way. Can be used if the default value is not appropriate.
+     * <p>
+     * See {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} for details.
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesLabel(
+            String userFriendlyTransformationlabel)
+    {
+        this.computeCommonIntensityRangeOfAllImagesLabel = userFriendlyTransformationlabel;
+    }
+
+    /**
      * Sets the threshold of intensities which should be ignored when computing common intensity
      * range of all images. By default equal to 0.5%. Note that
      * {@link #setComputeCommonIntensityRangeOfAllImagesForAllChannels()} or
@@ -423,6 +451,20 @@ abstract public class SimpleImageDataConfig
     public void setComputeCommonIntensityRangeOfAllImagesThreshold(float threshold)
     {
         this.computeCommonIntensityRangeOfAllImagesThreshold = threshold;
+    }
+
+    /**
+     * Sets if the image transformation using common intensity range of all images should be the
+     * default choice when browsing images.
+     * <p>
+     * True by default, which means e.g. that the 'image optimal' transformation will not be
+     * automatically available for users. However one can still add it explicitly with a chosen
+     * threshold by redefining
+     * {@link SimpleImageDataConfig#getAvailableChannelTransformations(String)} method.
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesIsDefault(boolean isDefault)
+    {
+        this.computeCommonIntensityRangeOfAllImagesIsDefault = isDefault;
     }
 
     /** Should all dataset in one experiment use the same channels? By default set to false. */

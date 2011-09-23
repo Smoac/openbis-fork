@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
+package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
@@ -26,16 +26,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
  */
 public class ImageTransformation
 {
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
 
     // can be null
-    private final String description;
+    private String description;
 
-    private final boolean isEditable;
+    private boolean isDefault;
 
     private final IImageTransformerFactory imageTransformerFactory;
+
+    private final boolean isEditable;
 
     public ImageTransformation(String code, String label, String description,
             IImageTransformerFactory imageTransformerFactory)
@@ -47,8 +49,9 @@ public class ImageTransformation
         this.code = CodeNormalizer.normalize(code);
         this.label = label;
         this.description = description;
-        this.isEditable = false; // will be used later for ImageViewer transformations
+        this.isDefault = false;
         this.imageTransformerFactory = imageTransformerFactory;
+        this.isEditable = false; // will be used later for ImageViewer transformations
     }
 
     public String getCode()
@@ -66,9 +69,9 @@ public class ImageTransformation
         return description;
     }
 
-    public boolean isEditable()
+    public boolean isDefault()
     {
-        return isEditable;
+        return isDefault;
     }
 
     public IImageTransformerFactory getImageTransformerFactory()
@@ -76,4 +79,43 @@ public class ImageTransformation
         return imageTransformerFactory;
     }
 
+    public boolean isEditable()
+    {
+        return isEditable;
+    }
+
+    // ----------- setters
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    /**
+     * Calling with true makes this transformation a default user's choice and makes the
+     * 'hard-coded' default unavailable. This transformation will become the first one on the list
+     * automatically.
+     * <p>
+     * Marking more then one transformation as a default for one channel will make it impossible to
+     * register a dataset.
+     * </p>
+     * <p>
+     * If no transformation on the list will be marked as default then a 'hard-coded' default
+     * transformation will become available.
+     * </p>
+     */
+    public void setDefault(boolean isDefault)
+    {
+        this.isDefault = isDefault;
+    }
 }

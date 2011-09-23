@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageTransformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
@@ -423,11 +423,21 @@ public class ImagingDatabaseHelper
             {
                 return;
             }
-            List<ImgImageTransformationDTO> transformationDTOs =
+            ArrayList<ImgImageTransformationDTO> transformationDTOs =
                     new ArrayList<ImgImageTransformationDTO>();
             for (ImageTransformation transformation : transformations)
             {
-                transformationDTOs.add(createTransformationDTO(transformation, channelId));
+                ImgImageTransformationDTO transformationDTO =
+                        createTransformationDTO(transformation, channelId);
+                if (transformationDTO.getIsDefault())
+                {
+                    // default transformation should be always first
+                    transformationDTOs.add(0, transformationDTO);
+                } else
+                {
+                    // add at the end
+                    transformationDTOs.add(transformationDTO);
+                }
             }
             dao.addImageTransformations(transformationDTOs);
         }
@@ -436,7 +446,7 @@ public class ImagingDatabaseHelper
                 long channelId)
         {
             return new ImgImageTransformationDTO(tr.getCode(), tr.getLabel(), tr.getDescription(),
-                    tr.isEditable(), channelId, tr.getImageTransformerFactory());
+                    tr.isDefault(), channelId, tr.getImageTransformerFactory(), tr.isEditable());
         }
 
         private static ImgChannelDTO makeChannelDTO(Channel channel, ChannelOwner channelOwner)

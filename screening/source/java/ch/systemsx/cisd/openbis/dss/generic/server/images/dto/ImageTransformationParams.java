@@ -57,11 +57,4 @@ public class ImageTransformationParams
     {
         return singleChannelTransformationCodeOrNull;
     }
-
-    public ImageTransformationParams cloneAndSetUseMergedChannelsTransformation()
-    {
-        return new ImageTransformationParams(applyNonImageLevelTransformation, true,
-                singleChannelTransformationCodeOrNull);
-    }
-
 }

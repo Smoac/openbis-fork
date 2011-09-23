@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -67,6 +68,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
  */
 public class SimpleImageDataSetRegistrator
 {
+    private static final String OPTIMAL_DATASET_INTENSITY_RESCALING_DESCRIPTION =
+            "Optimal intensity rescaling for a series of images. "
+                    + "It allows to compare images of one plate's dataset to each other."
+                    + "At the same time it causes that the conversion to 8 bit color depth looses less information, "
+                    + "especially when images use only a small part of available intensities range.";
+
     @Private
     static interface IImageReaderFactory
     {
@@ -371,9 +378,16 @@ public class SimpleImageDataSetRegistrator
     private void appendCommonIntensityRangeTransformation(Channel channel, Levels intensityRange)
     {
         ImageTransformationBuffer buffer = new ImageTransformationBuffer();
-        buffer.appendRescaleGrayscaleIntensity(intensityRange.getMinLevel(),
-                intensityRange.getMaxLevel());
-        buffer.append(channel.getAvailableTransformations());
+        // append first
+        String label = simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesLabel();
+        ImageTransformation imageTransformation =
+                buffer.appendRescaleGrayscaleIntensity(intensityRange.getMinLevel(),
+                        intensityRange.getMaxLevel(), label);
+        imageTransformation.setDescription(OPTIMAL_DATASET_INTENSITY_RESCALING_DESCRIPTION);
+        boolean isDefault = simpleImageConfig.isComputeCommonIntensityRangeOfAllImagesDefault();
+        imageTransformation.setDefault(isDefault);
+        buffer.appendAll(channel.getAvailableTransformations());
+
         channel.setAvailableTransformations(buffer.getTransformations());
     }
 

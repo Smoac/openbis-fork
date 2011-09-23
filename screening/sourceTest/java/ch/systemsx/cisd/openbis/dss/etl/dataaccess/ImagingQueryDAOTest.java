@@ -542,8 +542,8 @@ public class ImagingQueryDAOTest extends AbstractDBTest
             IImageTransformerFactory transformerFactory)
     {
         return new ImgImageTransformationDTO(IMAGE_TRANSFORMATION_CODE + codeSuffix,
-                IMAGE_TRANSFORMATION_LABEL, IMAGE_TRANSFORMATION_DESC,
-                IMAGE_TRANSFORMATION_IS_EDITABLE, channelId, transformerFactory);
+                IMAGE_TRANSFORMATION_LABEL, IMAGE_TRANSFORMATION_DESC, false, channelId,
+                transformerFactory, IMAGE_TRANSFORMATION_IS_EDITABLE);
     }
 
     private long addExperimentChannel(long experimentId)

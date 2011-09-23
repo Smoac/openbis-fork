@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 
 /**
  * A channel in which the image has been acquired.

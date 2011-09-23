@@ -233,10 +233,6 @@ public class HCSDatasetLoader implements IImageDatasetLoader
                                                 return convert(transformation);
                                             }
                                         });
-            if (transformations.size() > 0)
-            {
-                transformations.get(0).setDefault(true);
-            }
             return transformations;
         }
     }
@@ -246,7 +242,8 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         String transformationSignature =
                 tryGetSignature(transformation.getSerializedImageTransformerFactory());
         return new ImageTransformationInfo(transformation.getCode(), transformation.getLabel(),
-                transformation.getDescription(), transformationSignature, false);
+                transformation.getDescription(), transformationSignature,
+                transformation.getIsDefault());
     }
 
     private static String tryGetSignature(byte[] bytesOrNull)

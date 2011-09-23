@@ -43,8 +43,8 @@ public interface IImagingTransformerDAO extends TransactionQuery, IImagingReadon
     public void saveTransformerFactoryForImage(long acquiredImageId,
             IImageTransformerFactory factory);
 
-    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
-            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})")
+    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IS_DEFAULT, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.isDefault}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})")
     public void addImageTransformation(ImgImageTransformationDTO imageTransformation);
 
     @Update(sql = "update IMAGE_TRANSFORMATIONS set IMAGE_TRANSFORMER_FACTORY = ?{2} where id = ?{1}", parameterBindings =

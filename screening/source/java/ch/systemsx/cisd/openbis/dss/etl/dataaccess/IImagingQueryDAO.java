@@ -86,8 +86,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
 
-    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
-            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})", batchUpdate = true)
+    @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IS_DEFAULT, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.isDefault}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})", batchUpdate = true)
     public void addImageTransformations(List<ImgImageTransformationDTO> imageTransformations);
 
     @Update(sql = "delete from IMAGE_TRANSFORMATIONS where CODE = ?{1} and CHANNEL_ID = ?{2}")

@@ -406,8 +406,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(dao).tryGetImageTransformation(channelId,
                             DssServiceRpcScreening.IMAGE_VIEWER_TRANSFORMATION_CODE);
                     ImgImageTransformationDTO transformationDTO =
-                            new ImgImageTransformationDTO("tr_code", "tr_labal", null, true,
-                                    channelId, transformerFactory);
+                            new ImgImageTransformationDTO("tr_code", "tr_labal", null, false,
+                                    channelId, transformerFactory, true);
                     will(returnValue(transformationDTO));
                 }
             });

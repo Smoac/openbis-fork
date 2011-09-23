@@ -22,9 +22,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageTransformation;
 
 /**
  * Utility class to construct various kinds of image transformations.
@@ -37,36 +38,77 @@ public class ImageTransformationBuffer
 
     private final List<ImageTransformation> imageTransformations;
 
-    private final Set<String> usedTransformationCodes;
-
     public ImageTransformationBuffer()
     {
         this.imageTransformations = new ArrayList<ImageTransformation>();
-        this.usedTransformationCodes = new HashSet<String>();
+    }
+
+    /**
+     * Appends a single transformation and returns it. Note that code of each added transformation
+     * should be unique.
+     */
+    public ImageTransformation append(ImageTransformation transformation)
+    {
+        appendAll(transformation);
+        return transformation;
     }
 
     /**
      * Appends any specified transformations. Note that code of each added transformation should be
      * unique.
      */
-    public void append(ImageTransformation... transformations)
+    public void appendAll(ImageTransformation... transformations)
     {
         for (ImageTransformation transformation : transformations)
         {
-            String newCode = transformation.getCode();
-            if (usedTransformationCodes.contains(newCode))
+            imageTransformations.add(transformation);
+        }
+        ensureTransformationCodesUnique();
+    }
+
+    // returns a set of used transformation codes
+    private Set<String> ensureTransformationCodesUnique()
+    {
+        Set<String> usedTransformationCodes = new HashSet<String>();
+        for (ImageTransformation transformation : imageTransformations)
+        {
+            String code = transformation.getCode();
+            if (usedTransformationCodes.contains(code))
             {
                 throw new IllegalArgumentException("Two transformations have the same code: "
-                        + newCode);
+                        + code);
             }
-            usedTransformationCodes.add(newCode);
-            imageTransformations.add(transformation);
+            usedTransformationCodes.add(code);
+        }
+        return usedTransformationCodes;
+    }
+
+    private void ensureOnlyOneDefault()
+    {
+        ImageTransformation defaultTansf = null;
+        for (ImageTransformation transformation : imageTransformations)
+        {
+            if (transformation.isDefault())
+            {
+                if (defaultTansf == null)
+                {
+                    defaultTansf = transformation;
+                } else
+                {
+                    throw ConfigurationFailureException.fromTemplate(
+                            "Only one image transformation can be default, but two were found: '%s' and "
+                                    + "'%s'.", defaultTansf.getLabel(), transformation.getLabel());
+                }
+            }
         }
     }
 
     /** @returns all appended transformations */
     public ImageTransformation[] getTransformations()
     {
+        // codes of transformations could be changed after they have been added
+        ensureTransformationCodesUnique();
+        ensureOnlyOneDefault();
         return imageTransformations.toArray(new ImageTransformation[imageTransformations.size()]);
     }
 
@@ -76,37 +118,46 @@ public class ImageTransformationBuffer
      * Appends transformations which extracts a range of grayscale image colors by choosing 8
      * consecutive bits. All shifts which make sense for 12 bit images will be appended (from 0 to
      * 4).
+     * 
+     * @return appended transformations. They can be used to e.g. modify their label or description.
      */
-    public void appendAllBitShiftsFor12BitGrayscale()
+    public ImageTransformation[] appendAllBitShiftsFor12BitGrayscale()
     {
-        appendAllAvailableGrayscaleBitShifts(12);
+        return appendAllAvailableGrayscaleBitShifts(12);
     }
 
     /**
      * Appends transformations which extracts a range of grayscale image colors by choosing 8
      * consecutive bits. All shifts which make sense for 16 bit images will be appended (from 0 to
      * 8).
+     * 
+     * @return appended transformations. They can be used to e.g. modify their label or description.
      */
-    public void appendAllBitShiftsFor16BitGrayscale()
+    public ImageTransformation[] appendAllBitShiftsFor16BitGrayscale()
     {
-        appendAllAvailableGrayscaleBitShifts(16);
+        return appendAllAvailableGrayscaleBitShifts(16);
     }
 
-    private void appendAllAvailableGrayscaleBitShifts(int totalNumberOfBits)
+    private ImageTransformation[] appendAllAvailableGrayscaleBitShifts(int totalNumberOfBits)
     {
-        for (int i = 0; i <= (totalNumberOfBits - 8); i++)
+        int transformationsNumber = totalNumberOfBits - 8 + 1;
+        ImageTransformation[] transformations = new ImageTransformation[transformationsNumber];
+        for (int i = 0; i < transformationsNumber; i++)
         {
-            appendGrayscaleBitShifting(i);
+            transformations[i] = appendGrayscaleBitShifting(i);
         }
+        return transformations;
     }
 
     /**
      * Appends transformation which extracts a range of grayscale image colors by choosing 8
      * consecutive bits starting from the specified one.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendGrayscaleBitShifting(int shiftBits)
+    public ImageTransformation appendGrayscaleBitShifting(int shiftBits)
     {
-        append(createGrayscaleBitShifting(shiftBits));
+        return append(createGrayscaleBitShifting(shiftBits));
     }
 
     /**
@@ -116,7 +167,7 @@ public class ImageTransformationBuffer
      * This method is useful when one wants to modify the default code, label or description
      * afterwards.
      */
-    public static ImageTransformation createGrayscaleBitShifting(int shiftBits)
+    private static ImageTransformation createGrayscaleBitShifting(int shiftBits)
     {
         if (shiftBits < 0)
         {
@@ -156,21 +207,26 @@ public class ImageTransformationBuffer
      * [blackPointIntensity, whitePointIntensity] to 8 bit color depth. Useful to compare images of
      * higher color depth with each other when they do not use the whole range of available
      * intensities.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendRescaleGrayscaleIntensity(int blackPointIntensity, int whitePointIntensity)
+    public ImageTransformation appendRescaleGrayscaleIntensity(int blackPointIntensity,
+            int whitePointIntensity)
     {
-        appendRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity, null);
+        return appendRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity, null);
     }
 
     /**
      * See {@link #appendRescaleGrayscaleIntensity(int, int)}.
      * <p>
      * Additionally sets the label of the transformation.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendRescaleGrayscaleIntensity(int blackPointIntensity, int whitePointIntensity,
-            String userFriendlyLabelOrNull)
+    public ImageTransformation appendRescaleGrayscaleIntensity(int blackPointIntensity,
+            int whitePointIntensity, String userFriendlyLabelOrNull)
     {
-        append(createRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity,
+        return append(createRescaleGrayscaleIntensity(blackPointIntensity, whitePointIntensity,
                 userFriendlyLabelOrNull));
     }
 
@@ -184,7 +240,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    public static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
+    private static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
             int whitePointIntensity, String userFriendlyLabelOrNull)
     {
         if (blackPointIntensity > whitePointIntensity || blackPointIntensity < 0
@@ -228,7 +284,7 @@ public class ImageTransformationBuffer
 
     private static String createIntensityRangeTransformationLabel(String labelOrNull)
     {
-        return labelOrNull != null ? labelOrNull : "Comparable Autorescaling";
+        return labelOrNull != null ? labelOrNull : "Fixed rescaling";
     }
 
     // --------------------------
@@ -245,20 +301,24 @@ public class ImageTransformationBuffer
      * 
      * @param threshold value form 0 to 1, it specifies the percentage of darkest and brightest
      *            pixels which will be ignored (they will all become black or white).
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendAutoRescaleGrayscaleIntensity(float threshold)
+    public ImageTransformation appendAutoRescaleGrayscaleIntensity(float threshold)
     {
-        appendAutoRescaleGrayscaleIntensity(threshold, null);
+        return appendAutoRescaleGrayscaleIntensity(threshold, null);
     }
 
     /**
      * See {@link #appendAutoRescaleGrayscaleIntensity(float)}.
      * <p>
      * Additionally sets the label of the transformation.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendAutoRescaleGrayscaleIntensity(float threshold, String userFriendlyLabelOrNull)
+    public ImageTransformation appendAutoRescaleGrayscaleIntensity(float threshold,
+            String userFriendlyLabelOrNull)
     {
-        append(createAutoRescaleGrayscaleIntensity(threshold, userFriendlyLabelOrNull));
+        return append(createAutoRescaleGrayscaleIntensity(threshold, userFriendlyLabelOrNull));
     }
 
     /**
@@ -274,7 +334,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    public static ImageTransformation createAutoRescaleGrayscaleIntensity(float threshold,
+    private static ImageTransformation createAutoRescaleGrayscaleIntensity(float threshold,
             String userFriendlyLabelOrNull)
     {
         if (threshold < 0 || threshold > 1)
@@ -283,7 +343,8 @@ public class ImageTransformationBuffer
                     "Invalid value of the threshold, should be between 0 and 1, but is: "
                             + threshold);
         }
-        String label = createAutoRescaleIntensityTransformationLabel(userFriendlyLabelOrNull);
+        String label =
+                createAutoRescaleIntensityTransformationLabel(userFriendlyLabelOrNull, threshold);
         String code = createAutoRescaleIntensityTransformationCode(threshold);
         String description = createAutoRescaleIntensityTransformationDescription(threshold);
 
@@ -306,9 +367,12 @@ public class ImageTransformationBuffer
                         new DecimalFormat("#.###").format(threshold));
     }
 
-    private static String createAutoRescaleIntensityTransformationLabel(String labelOrNull)
+    @Private
+    static String createAutoRescaleIntensityTransformationLabel(String labelOrNull, float threshold)
     {
-        return labelOrNull != null ? labelOrNull : "Autorescaling";
+        String thresholdPercentage = new DecimalFormat("##.#").format(threshold * 100);
+        return labelOrNull != null ? labelOrNull : String.format("Optimal (image, %s%% cut)",
+                thresholdPercentage);
     }
 
     // --------------------------
@@ -316,20 +380,25 @@ public class ImageTransformationBuffer
     /**
      * Allows to transform the images with ImageMagic convert tool (which has to be installed and
      * accessible). Convert will be called with the specified parameters.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendImageMagicConvert(String convertCliArguments)
+    public ImageTransformation appendImageMagicConvert(String convertCliArguments)
     {
-        appendImageMagicConvert(convertCliArguments, null);
+        return appendImageMagicConvert(convertCliArguments, null);
     }
 
     /**
      * See {@link #appendImageMagicConvert(String)}.
      * <p>
      * Additionally sets the label of the transformation.
+     * 
+     * @return appended transformation. It can be used to e.g. modify its label or description.
      */
-    public void appendImageMagicConvert(String convertCliArguments, String userFriendlyLabelOrNull)
+    public ImageTransformation appendImageMagicConvert(String convertCliArguments,
+            String userFriendlyLabelOrNull)
     {
-        append(createImageMagicConvert(convertCliArguments,
+        return append(createImageMagicConvert(convertCliArguments,
                 generateUniqueConvertTransformationCode(), userFriendlyLabelOrNull));
     }
 
@@ -342,7 +411,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    public static ImageTransformation createImageMagicConvert(String convertCliArguments,
+    private static ImageTransformation createImageMagicConvert(String convertCliArguments,
             String transformationCode, String userFriendlyLabelOrNull)
     {
         if (StringUtils.isBlank(convertCliArguments))
@@ -367,8 +436,8 @@ public class ImageTransformationBuffer
     private static String createImageMagicConvertTransformationDescription(
             String convertCliArguments)
     {
-        return "Transforms images with ImageMagic 'convert' tool with parameters: "
-                + convertCliArguments;
+        return String.format("Transforms images with ImageMagic tool by calling: 'convert %s ...'",
+                convertCliArguments);
     }
 
     private static String createImageMagicConvertTransformationLabel(String convertCliArguments,
@@ -381,6 +450,7 @@ public class ImageTransformationBuffer
     private String generateUniqueConvertTransformationCode()
     {
         int i = 1;
+        Set<String> usedTransformationCodes = ensureTransformationCodesUnique();
         while (usedTransformationCodes.contains(getConvertTransformationCode(i)))
         {
             i++;

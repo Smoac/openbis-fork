@@ -35,6 +35,9 @@ public class ImgImageTransformationDTO extends AbstractImageTransformerFactoryHo
     @ResultColumn("DESCRIPTION")
     private String descriptionOrNull;
 
+    @ResultColumn("IS_DEFAULT")
+    private boolean isDefault;
+
     @ResultColumn("IS_EDITABLE")
     private boolean isEditable;
 
@@ -49,7 +52,8 @@ public class ImgImageTransformationDTO extends AbstractImageTransformerFactoryHo
     }
 
     public ImgImageTransformationDTO(String code, String label, String descriptionOrNull,
-            boolean isEditable, long channelId, IImageTransformerFactory imageTransformationFactory)
+            boolean isDefault, long channelId, IImageTransformerFactory imageTransformationFactory,
+            boolean isEditable)
     {
         assert code != null : "code is null";
         assert label != null : "label is null";
@@ -58,9 +62,10 @@ public class ImgImageTransformationDTO extends AbstractImageTransformerFactoryHo
         this.code = CodeNormalizer.normalize(code);
         this.label = label;
         this.descriptionOrNull = descriptionOrNull;
-        this.isEditable = isEditable;
+        this.isDefault = isDefault;
         this.channelId = channelId;
         setImageTransformerFactory(imageTransformationFactory);
+        this.isEditable = isEditable;
     }
 
     public String getCode()
@@ -94,14 +99,14 @@ public class ImgImageTransformationDTO extends AbstractImageTransformerFactoryHo
         this.descriptionOrNull = descriptionOrNull;
     }
 
-    public boolean getIsEditable()
+    public boolean getIsDefault()
     {
-        return isEditable;
+        return isDefault;
     }
 
-    public void setEditable(boolean isEditable)
+    public void setDefault(boolean isDefault)
     {
-        this.isEditable = isEditable;
+        this.isDefault = isDefault;
     }
 
     public long getChannelId()
@@ -119,6 +124,16 @@ public class ImgImageTransformationDTO extends AbstractImageTransformerFactoryHo
         IImageTransformerFactory factory = super.tryGetImageTransformerFactory();
         assert factory != null : "image factory is null";
         return factory;
+    }
+
+    public boolean getIsEditable()
+    {
+        return isEditable;
+    }
+
+    public void setEditable(boolean isEditable)
+    {
+        this.isEditable = isEditable;
     }
 
 }

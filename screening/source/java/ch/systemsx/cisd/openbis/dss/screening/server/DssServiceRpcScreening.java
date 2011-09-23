@@ -783,8 +783,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImageTransformerFactory transformerFactory)
     {
         return new ImgImageTransformationDTO(IMAGE_VIEWER_TRANSFORMATION_CODE,
-                IMAGE_VIEWER_TRANSFORMATION_LABEL, IMAGE_VIEWER_TRANSFORMATION_DESCRIPTION, true,
-                channelId, transformerFactory);
+                IMAGE_VIEWER_TRANSFORMATION_LABEL, IMAGE_VIEWER_TRANSFORMATION_DESCRIPTION, false,
+                channelId, transformerFactory, true);
     }
 
     private void saveImageTransformerFactoryForDataset(long datasetId, String channel,
