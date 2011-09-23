@@ -10,10 +10,12 @@ from java.util import Properties
 from ch.systemsx.cisd.common.fileconverter import FileConverter, Tiff2PngConversionStrategy
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationException
 
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations import ImageTransformationBuffer 
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, OriginalDataStorageFormat, Location 
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
+#reload(config)
 
 class MyImageDataSetConfig(SimpleImageDataConfig):
     
@@ -79,12 +81,26 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
             (cols, rows) = (maxTile, 1)
         
         return Geometry.createFromRowColDimensions(cols, rows);
-
+   
+    def getAvailableChannelTransformations(self, channelCode):
+        buffer = ImageTransformationBuffer()
+        buffer.appendAllBitShiftsFor12BitGrayscale()
+        buffer.appendAutoRescaleGrayscaleIntensity(0, "Original contrast")
+        return buffer.getTransformations()
+        
 def createRawImagesDataset(incoming, plate, batchName, transaction, factory):
     imageDatasetConfig = MyImageDataSetConfig(incoming)
     imageDatasetConfig.setRawImageDatasetType()
     imageDatasetConfig.setFileFormatType(config.IMAGE_DATASET_FILE_FORMAT)
     imageDatasetConfig.setUseImageMagicToGenerateThumbnails(config.USE_IMAGE_MAGIC_CONVERT_TOOL)
+   
+    imageDatasetConfig.setImageLibrary("IJ", "tiff")
+    
+    #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesForChannels(["DAPI"])
+    #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesIsDefault(False)
+    #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesForAllChannels()
+    #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesThreshold(0.01)
+
     # Available in the next release:
     #imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
     imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
@@ -109,6 +125,8 @@ def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisPro
     overlayDatasetConfig.setSegmentationImageDatasetType()
     overlayDatasetConfig.setFileFormatType(config.OVERLAY_IMAGE_FILE_FORMAT)
     overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(config.USE_IMAGE_MAGIC_CONVERT_TOOL)
+    overlayDatasetConfig.setGenerateHighQualityThumbnails(True)
+    overlayDatasetConfig.setImageLibrary("IJ", "tiff")
     # Available in the next release:
     #overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
 
