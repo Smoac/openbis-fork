@@ -16,14 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
-
-/** 
+/**
  * New controlled vocabulary.
- *
+ * 
  * @author Izabela Adamczyk
  */
 public class NewVocabulary extends Vocabulary
@@ -32,19 +27,6 @@ public class NewVocabulary extends Vocabulary
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private boolean uploadedFromFile; // transient
-
-    private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-
-    public final List<VocabularyTerm> getTerms()
-    {
-        return terms;
-    }
-
-    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
-    public final void setTerms(final List<VocabularyTerm> terms)
-    {
-        this.terms = terms;
-    }
 
     public boolean isUploadedFromFile()
     {

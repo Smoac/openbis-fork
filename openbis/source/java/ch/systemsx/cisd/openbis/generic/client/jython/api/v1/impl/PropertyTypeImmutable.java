@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmuta
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -109,24 +108,9 @@ public class PropertyTypeImmutable implements IPropertyTypeImmutable
         final Vocabulary vocabulary = getPropertyType().getVocabulary();
         if (vocabulary != null)
         {
-            return new VocabularyImmutable(asNewVocabulary(vocabulary));
+            return new VocabularyImmutable(vocabulary);
         }
         return null;
-    }
-
-    private NewVocabulary asNewVocabulary(Vocabulary vocabulary)
-    {
-        NewVocabulary result = new NewVocabulary();
-        result.setId(vocabulary.getId());
-        result.setCode(vocabulary.getCode());
-        result.setDescription(vocabulary.getDescription());
-        result.setChosenFromList(vocabulary.isChosenFromList());
-        result.setInternalNamespace(vocabulary.isInternalNamespace());
-        result.setManagedInternally(vocabulary.isManagedInternally());
-        result.setURLTemplate(vocabulary.getURLTemplate());
-        result.setRegistrationDate(vocabulary.getRegistrationDate());
-        result.setRegistrator(vocabulary.getRegistrator());
-        return result;
     }
 
 }

@@ -2,7 +2,7 @@
 #
 # (C) 2011, ETH Zurich, CISD
 #
-# Executes a Jython plugin script
+# Executes a Jython master data registration script
 # -----------------------------------------------------------
 
 BASE=`dirname "$0"`

@@ -21,35 +21,13 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyTerm;
 /**
  * @author Kaloyan Enimanev
  */
-public class VocabularyTerm implements IVocabularyTerm
+public class VocabularyTerm extends VocabularyTermImmutable implements IVocabularyTerm
 {
-
-    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm vocabularyTerm;
 
     VocabularyTerm(String code)
     {
-        this(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm());
+        super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm());
         getVocabularyTerm().setCode(code);
-    }
-
-    VocabularyTerm(ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm vocabularyTerm)
-    {
-        this.vocabularyTerm = vocabularyTerm;
-    }
-
-    ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm getVocabularyTerm()
-    {
-        return vocabularyTerm;
-    }
-
-    public String getCode()
-    {
-        return getVocabularyTerm().getCode();
-    }
-
-    public String getDescription()
-    {
-        return getVocabularyTerm().getDescription();
     }
 
     public void setDescription(String description)
@@ -57,29 +35,14 @@ public class VocabularyTerm implements IVocabularyTerm
         getVocabularyTerm().setDescription(description);
     }
 
-    public String getLabel()
-    {
-        return getVocabularyTerm().getLabel();
-    }
-
     public void setLabel(String label)
     {
         getVocabularyTerm().setLabel(label);
     }
 
-    public String getUrl()
-    {
-        return getVocabularyTerm().getUrl();
-    }
-
     public void setUrl(String url)
     {
         getVocabularyTerm().setUrl(url);
-    }
-
-    public Long getOrdinal()
-    {
-        return getVocabularyTerm().getOrdinal();
     }
 
     public void setOrdinal(Long ordinal)

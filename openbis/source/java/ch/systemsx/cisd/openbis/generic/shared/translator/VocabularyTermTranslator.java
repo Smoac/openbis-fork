@@ -54,7 +54,7 @@ public class VocabularyTermTranslator
         return result;
     }
 
-    public static List<VocabularyTerm> translateTerms(List<VocabularyTermPE> terms)
+    public static List<VocabularyTerm> translateTermsList(Collection<VocabularyTermPE> terms)
     {
         final List<VocabularyTerm> result = new ArrayList<VocabularyTerm>();
         for (VocabularyTermPE term : terms)

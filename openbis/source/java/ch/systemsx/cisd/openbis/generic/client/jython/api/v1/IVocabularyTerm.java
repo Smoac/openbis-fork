@@ -19,23 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IVocabularyTerm
+public interface IVocabularyTerm extends IVocabularyTermImmutable
 {
-
-    String getDescription();
-
     void setDescription(String description);
-
-    String getLabel();
 
     void setLabel(String label);
 
-    String getUrl();
-
     void setUrl(String url);
 
-    Long getOrdinal();
-
     void setOrdinal(Long ordinal);
-
 }

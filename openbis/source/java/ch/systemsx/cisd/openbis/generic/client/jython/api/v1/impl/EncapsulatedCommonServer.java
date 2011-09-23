@@ -31,8 +31,11 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IMaterialTypeImmuta
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -173,9 +176,10 @@ public class EncapsulatedCommonServer
         commonServer.logout(sessionToken);
     }
 
-    public void registerVocabulary(Vocabulary vocabulary)
+    public void registerVocabulary(VocabularyImmutable vocabulary)
     {
-        commonServer.registerVocabulary(sessionToken, vocabulary.getVocabulary());
+        NewVocabulary newVocabulary = asNewVocabulary(vocabulary.getVocabulary());
+        commonServer.registerVocabulary(sessionToken, newVocabulary);
     }
 
     public List<IPropertyAssignmentImmutable> listPropertyAssignments()
@@ -190,4 +194,32 @@ public class EncapsulatedCommonServer
         }
         return assignments;
     }
+
+    public List<IVocabularyImmutable> listVocabularies()
+    {
+        ArrayList<IVocabularyImmutable> vocabularies = new ArrayList<IVocabularyImmutable>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary vocabulary : commonServer
+                .listVocabularies(sessionToken, true, false))
+        {
+            vocabularies.add(new VocabularyImmutable(vocabulary));
+        }
+        return vocabularies;
+    }
+
+    private NewVocabulary asNewVocabulary(Vocabulary vocabulary)
+    {
+        NewVocabulary result = new NewVocabulary();
+        result.setId(vocabulary.getId());
+        result.setCode(vocabulary.getCode());
+        result.setDescription(vocabulary.getDescription());
+        result.setChosenFromList(vocabulary.isChosenFromList());
+        result.setInternalNamespace(vocabulary.isInternalNamespace());
+        result.setManagedInternally(vocabulary.isManagedInternally());
+        result.setURLTemplate(vocabulary.getURLTemplate());
+        result.setRegistrationDate(vocabulary.getRegistrationDate());
+        result.setRegistrator(vocabulary.getRegistrator());
+        result.setTerms(vocabulary.getTerms());
+        return result;
+    }
+
 }

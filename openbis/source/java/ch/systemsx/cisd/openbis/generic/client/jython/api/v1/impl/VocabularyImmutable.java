@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyTermImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * @author Kaloyan Enimanev
@@ -24,20 +29,20 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutabl
 public class VocabularyImmutable implements IVocabularyImmutable
 {
 
-    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary vocabulary;
+    private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary vocabulary;
 
     VocabularyImmutable(String code)
     {
-        this(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary());
+        this(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary());
         getVocabulary().setCode(code);
     }
 
-    VocabularyImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary vocabulary)
+    VocabularyImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary vocabulary)
     {
         this.vocabulary = vocabulary;
     }
 
-    ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary getVocabulary()
+    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary getVocabulary()
     {
         return vocabulary;
     }
@@ -70,5 +75,18 @@ public class VocabularyImmutable implements IVocabularyImmutable
     public String getUrlTemplate()
     {
         return getVocabulary().getURLTemplate();
+    }
+
+    public List<IVocabularyTermImmutable> getTerms()
+    {
+        List<IVocabularyTermImmutable> terms = new ArrayList<IVocabularyTermImmutable>();
+        if (getVocabulary().getTerms() != null)
+        {
+            for (VocabularyTerm term : getVocabulary().getTerms())
+            {
+                terms.add(new VocabularyTermImmutable(term));
+            }
+        }
+        return terms;
     }
 }

@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -39,7 +41,7 @@ public final class VocabularyTranslator
         {
             return null;
         }
-        final Vocabulary result = new Vocabulary();
+        Vocabulary result = new Vocabulary();
         result.setId(HibernateUtils.getId(vocabulary));
         result.setCode(vocabulary.getCode());
         result.setDescription(vocabulary.getDescription());
@@ -49,6 +51,11 @@ public final class VocabularyTranslator
         result.setURLTemplate(vocabulary.getURLTemplate());
         result.setRegistrationDate(vocabulary.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
+        Set<VocabularyTermPE> terms = vocabulary.getTerms();
+        if (terms != null)
+        {
+            result.setTerms(VocabularyTermTranslator.translateTermsList(terms));
+        }
         return result;
     }
 

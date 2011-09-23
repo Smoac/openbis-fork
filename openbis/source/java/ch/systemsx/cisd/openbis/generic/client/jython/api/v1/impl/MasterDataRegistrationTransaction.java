@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IPropertyTypeImmuta
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.ISampleTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabulary;
+import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.client.jython.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -227,6 +228,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         Vocabulary vocabulary = new Vocabulary(code);
         createdVocabularies.add(vocabulary);
         return vocabulary;
+    }
+
+    public List<IVocabularyImmutable> listVocabularies()
+    {
+        return commonServer.listVocabularies();
     }
 
     void commit()

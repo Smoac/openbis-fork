@@ -16,36 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.jython.api.v1;
 
-import java.util.List;
-
 /**
  * @author Kaloyan Enimanev
  */
-public interface IVocabularyImmutable
+public interface IVocabularyTermImmutable
 {
+    String getCode();
 
-    /**
-     * Returns the vocabulary code.
-     */
-    public String getCode();
+    String getDescription();
 
-    /**
-     * Returns the vocabulary description.
-     */
-    public String getDescription();
+    String getLabel();
 
-    boolean isManagedInternally();
+    String getUrl();
 
-    boolean isInternalNamespace();
-
-    boolean isChosenFromList();
-
-    /**
-     * Returns a URL template (e.g a search query) that can display additional information for the
-     * concrete vocabulary terms. Can return null.
-     */
-    String getUrlTemplate();
-
-    List<IVocabularyTermImmutable> getTerms();
+    Long getOrdinal();
 
 }

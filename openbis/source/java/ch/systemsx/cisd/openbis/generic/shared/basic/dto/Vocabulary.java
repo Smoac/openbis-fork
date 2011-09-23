@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.common.annotation.CollectionMapping;
+
 /**
  * Controlled vocabulary.
  * 
@@ -36,6 +41,8 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
     private boolean chosenFromList;
 
     private String urlTemplate;
+
+    private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
     public Vocabulary()
     {
@@ -99,6 +106,17 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
     public void setURLTemplate(String urlTemplate)
     {
         this.urlTemplate = urlTemplate;
+    }
+
+    public final List<VocabularyTerm> getTerms()
+    {
+        return terms;
+    }
+
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
+    public final void setTerms(final List<VocabularyTerm> terms)
+    {
+        this.terms = terms;
     }
 
     @Override
