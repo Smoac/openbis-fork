@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.imagereaders.ij;
 
+import ij.ImagePlus;
 import ij.io.Opener;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,8 +40,8 @@ import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 /**
  * Implementation of {@link IImageReader} using ImageJ under the hood.
  * <p>
- * Currently, only the only supported image format for this library is single-page TIFF. In the future we can
- * add support for other image types.
+ * Currently, only the only supported image format for this library is single-page TIFF. In the
+ * future we can add support for other image types.
  * 
  * @author Kaloyan Enimanev
  */
@@ -52,13 +54,41 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
 
     private final IImageReader TIFF_IMAGE_READER = new AbstractImageReader(getName(), TIFF_READER)
         {
-            public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID, IReadParams params)
-                    throws IOExceptionUnchecked
+            public BufferedImage readImage(IRandomAccessFile handle, ImageID imageID,
+                    IReadParams params) throws IOExceptionUnchecked
             {
                 AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);
-                return new Opener().openTiff(is, "").getBufferedImage();
+                ImagePlus imagePlus = new Opener().openTiff(is, "");
+                return createBufferedImageOfSameType(imagePlus);
             }
         };
+
+    private BufferedImage createBufferedImageOfSameType(ImagePlus imagePlus)
+    {
+        int bufferedImageType = findBufferedImageType(imagePlus);
+        BufferedImage bufferedImage =
+                new BufferedImage(imagePlus.getWidth(), imagePlus.getHeight(), bufferedImageType);
+        Graphics2D g = (Graphics2D) bufferedImage.getGraphics();
+        g.drawImage(imagePlus.getImage(), 0, 0, null);
+        return bufferedImage;
+    }
+
+    private static int findBufferedImageType(ImagePlus imagePlus)
+    {
+        switch (imagePlus.getType())
+        {
+            case ImagePlus.GRAY8:
+                return BufferedImage.TYPE_BYTE_GRAY;
+            case ImagePlus.GRAY16:
+            case ImagePlus.GRAY32:
+                return BufferedImage.TYPE_USHORT_GRAY;
+            case ImagePlus.COLOR_256:
+            case ImagePlus.COLOR_RGB:
+                return BufferedImage.TYPE_INT_RGB;
+            default:
+                return BufferedImage.TYPE_INT_RGB;
+        }
+    }
 
     public String getName()
     {
@@ -93,6 +123,5 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
         }
         return null;
     }
-
 
 }
