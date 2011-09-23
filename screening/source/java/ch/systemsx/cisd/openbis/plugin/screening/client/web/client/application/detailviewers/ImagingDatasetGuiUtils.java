@@ -223,7 +223,7 @@ class ImagingDatasetGuiUtils
                                 }
                             }
                         });
-            FeatureVectorDataset chosenDataset = datasetChooser.getChosenItem();
+            FeatureVectorDataset chosenDataset = datasetChooser.tryGetChosenItem();
             datasetUpdater.changeDisplayedFeatureVectorDataset(chosenDataset);
 
             return GuiUtils.renderInRow(
@@ -285,7 +285,7 @@ class ImagingDatasetGuiUtils
                             public void onClick(ClickEvent event)
                             {
                                 DatasetReference datasetReference =
-                                        datasetChooser.getChosenItem().getDatasetReference();
+                                        datasetChooser.tryGetChosenItem().getDatasetReference();
                                 openDatasetDetails(datasetReference, viewContext);
                             }
                         }, createDatasetSimpleViewModeHref(datasetChooser));
@@ -303,7 +303,7 @@ class ImagingDatasetGuiUtils
         private String createDatasetSimpleViewModeHref(
                 SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
         {
-            return LinkExtractor.tryExtract(datasetChooser.getChosenItem().getDatasetReference());
+            return LinkExtractor.tryExtract(datasetChooser.tryGetChosenItem().getDatasetReference());
         }
     }
 
@@ -399,7 +399,7 @@ class ImagingDatasetGuiUtils
                                         datasetDetailsButton);
                             }
                         });
-            ImageDatasetEnrichedReference chosenDataset = datasetChooser.getChosenItem();
+            ImageDatasetEnrichedReference chosenDataset = datasetChooser.tryGetChosenItem();
             datasetUpdater.changeDisplayedImageDataset(chosenDataset);
 
             return GuiUtils.renderInRow(withLabel(datasetChooser, IMAGES_DATASET_CHOOSER_LABEL),
@@ -439,7 +439,7 @@ class ImagingDatasetGuiUtils
         private static DatasetReference getChosenDatasetReference(
                 final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser)
         {
-            return imageDatasetChooser.getChosenItem().getImageDataset().getDatasetReference();
+            return imageDatasetChooser.tryGetChosenItem().getImageDataset().getDatasetReference();
         }
 
     }

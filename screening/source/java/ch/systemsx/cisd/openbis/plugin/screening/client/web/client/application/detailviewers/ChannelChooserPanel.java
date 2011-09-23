@@ -195,7 +195,7 @@ public class ChannelChooserPanel extends LayoutContainer
      */
     public List<String> getSelectedValues()
     {
-        String comboBoxValue = channelsComboBox.getChosenItem();
+        String comboBoxValue = channelsComboBox.tryGetChosenItem();
         if (comboBoxValue == null)
         {
             return Collections.<String> emptyList();
@@ -348,7 +348,7 @@ public class ChannelChooserPanel extends LayoutContainer
         List<String> selection = getSelectedValues();
         defaultChannelState.setDefaultChannels(selection);
 
-        String selectedComboValue = channelsComboBox.getChosenItem();
+        String selectedComboValue = channelsComboBox.tryGetChosenItem();
         boolean showCheckBoxGroup = ScreeningConstants.MERGED_CHANNELS.equals(selectedComboValue);
         channelsCheckBoxGroup.setVisible(showCheckBoxGroup);
 

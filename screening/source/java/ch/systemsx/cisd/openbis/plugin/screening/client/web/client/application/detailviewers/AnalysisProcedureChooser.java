@@ -370,7 +370,7 @@ class AnalysisProcedureChooser extends LayoutContainer
 
     private AnalysisProcedureCriteria getSelectionAsCriteria()
     {
-        String selectedAP = analysisProceduresComboBox.getChosenItem();
+        String selectedAP = analysisProceduresComboBox.tryGetChosenItem();
         if (UNSPECIFIED_PROCEDURE.equals(selectedAP))
         {
             return AnalysisProcedureCriteria.createNoProcedures();
@@ -381,7 +381,6 @@ class AnalysisProcedureChooser extends LayoutContainer
         {
             return AnalysisProcedureCriteria.createFromCode(selectedAP);
         }
-
     }
 
     private String getDefaultAnalysisProcedure()

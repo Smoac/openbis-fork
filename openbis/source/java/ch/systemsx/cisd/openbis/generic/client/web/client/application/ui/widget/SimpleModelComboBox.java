@@ -119,8 +119,12 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
         store.add(new ExtendedSimpleComboValue<T>(value));
     }
 
-    public T getChosenItem()
+    public T tryGetChosenItem()
     {
+        if (getSelectedIndex() == -1)
+        {
+            return null;
+        }
         return getSimpleValue().getItem();
     }
 
@@ -144,13 +148,19 @@ public class SimpleModelComboBox<T> extends SimpleComboBox<LabeledItem<T>>
     }
 
     /** This method works only if T implement equals() correctly. */
-    public void setSelection(LabeledItem<T> itemToSelect)
+    public void setSelection(LabeledItem<T> itemToSelectOrNull)
     {
-        for (SimpleComboValue<LabeledItem<T>> info : getStore().getModels())
+        if (itemToSelectOrNull == null)
         {
-            if (info.getValue().getItem().equals(itemToSelect.getItem()))
+            setSelection(new ArrayList<SimpleComboValue<LabeledItem<T>>>());
+        } else
+        {
+            for (SimpleComboValue<LabeledItem<T>> info : getStore().getModels())
             {
-                setSelection(Collections.singletonList(info));
+                if (info.getValue().getItem().equals(itemToSelectOrNull.getItem()))
+                {
+                    setSelection(Collections.singletonList(info));
+                }
             }
         }
     }
