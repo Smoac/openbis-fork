@@ -49,6 +49,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
@@ -70,6 +71,12 @@ import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
  */
 public class ImageUtil
 {
+    /**
+     * When a grayscale image with color depth > 8 bits has to be displayed and user has not decided
+     * how it should be converted, then this threshold will be used.
+     */
+    public static final float DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR = 0.001f;
+
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageUtil.class);
 
     private static final Set<String> FILE_TYPES = Collections.unmodifiableSet(new HashSet<String>(
@@ -490,8 +497,13 @@ public class ImageUtil
         {
             if (image.getColorModel().getPixelSize() > 8)
             {
-                Levels intensityRange = IntensityRescaling.computeLevels(image, 0);
-                return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, intensityRange);
+                GrayscalePixels pixels = new GrayscalePixels(image);
+                Levels intensityRange =
+                        IntensityRescaling.computeLevels(pixels,
+                                DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
+                BufferedImage result =
+                        IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange);
+                return result;
             }
         }
         return image;
@@ -536,12 +548,11 @@ public class ImageUtil
         int thumbnailWidth = (int) (scale * width + 0.5);
         int thumbnailHeight = (int) (scale * height + 0.5);
 
+        boolean isTransparent = image.getColorModel().hasAlpha();
         int imageType = image.getType();
         if (imageType == BufferedImage.TYPE_CUSTOM)
         {
-            imageType =
-                    image.getColorModel().hasAlpha() ? BufferedImage.TYPE_INT_ARGB
-                            : BufferedImage.TYPE_INT_RGB;
+            imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         Graphics2D graphics2D = thumbnail.createGraphics();
@@ -550,6 +561,7 @@ public class ImageUtil
                         : RenderingHints.VALUE_INTERPOLATION_BILINEAR;
         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
         graphics2D.drawImage(image, 0, 0, thumbnailWidth, thumbnailHeight, null);
+        graphics2D.dispose();
         return thumbnail;
     }
 
