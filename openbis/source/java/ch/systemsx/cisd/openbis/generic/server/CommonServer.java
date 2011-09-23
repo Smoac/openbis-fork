@@ -747,7 +747,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
         }
         Collections.sort(vocabularies);
-        return VocabularyTranslator.translate(vocabularies);
+        return VocabularyTranslator.translate(vocabularies, withTerms);
     }
 
     private void enrichWithTerms(final VocabularyPE vocabularyPE)

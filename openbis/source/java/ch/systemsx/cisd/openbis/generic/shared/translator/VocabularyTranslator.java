@@ -1,5 +1,6 @@
 /*
  * Copyright 2008 ETH Zuerich, CISD
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +38,11 @@ public final class VocabularyTranslator
 
     public final static Vocabulary translate(final VocabularyPE vocabulary)
     {
+        return translate(vocabulary, false);
+    }
+
+    public final static Vocabulary translate(final VocabularyPE vocabulary, boolean withTerms)
+    {
         if (vocabulary == null)
         {
             return null;
@@ -51,20 +57,23 @@ public final class VocabularyTranslator
         result.setURLTemplate(vocabulary.getURLTemplate());
         result.setRegistrationDate(vocabulary.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
-        Set<VocabularyTermPE> terms = vocabulary.getTerms();
-        if (terms != null)
+        if (withTerms)
         {
-            result.setTerms(VocabularyTermTranslator.translateTermsList(terms));
+            Set<VocabularyTermPE> terms = vocabulary.getTerms();
+            if (terms != null)
+            {
+                result.setTerms(VocabularyTermTranslator.translateTermsList(terms));
+            }
         }
         return result;
     }
 
-    public static List<Vocabulary> translate(List<VocabularyPE> vocabularies)
+    public static List<Vocabulary> translate(List<VocabularyPE> vocabularies, boolean withTerms)
     {
         List<Vocabulary> result = new ArrayList<Vocabulary>();
         for (VocabularyPE v : vocabularies)
         {
-            result.add(translate(v));
+            result.add(translate(v, withTerms));
         }
         return result;
     }
