@@ -338,7 +338,6 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         {
             return null;
         }
-        // TODO 2011-04-20, Tomasz Pylak: native library should be used only for thumbnails
         boolean useNativeImageLibrary = false;
         return createAbsoluteImageReference(imageDTO, channel, imageSize, useNativeImageLibrary);
     }
@@ -371,7 +370,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             return null;
         }
         return createAbsoluteImageReference(imageDTO, channel, new RequestedImageSize(
-                Size.NULL_SIZE, false), false);
+                Size.NULL_SIZE, false), true);
     }
 
     public AbsoluteImageReference tryGetThumbnail(String channelCode,
@@ -398,7 +397,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
 
         return createAbsoluteImageReference(thumbnailDTO, channel,
-                RequestedImageSize.createOriginal(), false);
+                RequestedImageSize.createOriginal(), true);
     }
 
     private static ImageLibraryInfo tryGetImageLibrary(ImgDatasetDTO dataset, boolean isThumbnail)
