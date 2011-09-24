@@ -3,6 +3,7 @@ package ch.systemsx.cisd.common.ssl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -13,8 +14,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
@@ -76,8 +75,22 @@ public class SslCertificateHelper
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             } finally
             {
-                IOUtils.closeQuietly(fileOutputStream);
+                closeQuietly(fileOutputStream);
             }
+        }
+    }
+
+    private static void closeQuietly(OutputStream output)
+    {
+        try
+        {
+            if (output != null)
+            {
+                output.close();
+            }
+        } catch (IOException ioe)
+        {
+            // ignore
         }
     }
 
