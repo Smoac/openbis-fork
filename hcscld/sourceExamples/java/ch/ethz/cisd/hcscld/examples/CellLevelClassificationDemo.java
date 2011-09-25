@@ -1,4 +1,4 @@
-package ch.ethz.cisd.hcslcd.examples;
+package ch.ethz.cisd.hcscld.examples;
 
 import java.io.File;
 import java.util.Arrays;

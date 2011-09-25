@@ -46,7 +46,7 @@ public interface ICellLevelClassificationWritableDataset extends ICellLevelClass
      * 
      * @param id The well and field id.
      * @param classificationOrdinals The ordinal values of the classification as defined by
-     *            {@link CellLevelDataWriter#addClassificationDataset(String, WellFieldGeometry, java.util.List)}
+     *            {@link ICellLevelDataWriter#addClassificationDataset(String, WellFieldGeometry, java.util.List)}
      *            .
      */
     public void writeClassification(WellFieldId id, int[] classificationOrdinals);

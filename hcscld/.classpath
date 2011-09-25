@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jhdf5"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

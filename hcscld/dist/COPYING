@@ -13,21 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package ch.ethz.cisd.hcscld;
-
-/**
- * Exception to signal that an uninitialized {@link SegmentedObject} has been used. 
- *
- * @author Bernd Rinn
- */
-public class UninitalizedSegmentationException extends RuntimeException
-{
-    private static final long serialVersionUID = 1L;
-
-    UninitalizedSegmentationException()
-    {
-        super("SegmentedObjectBox is uninitialized.");
-    }
-
-}

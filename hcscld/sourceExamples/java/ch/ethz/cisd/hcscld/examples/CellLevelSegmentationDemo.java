@@ -1,5 +1,6 @@
-package ch.ethz.cisd.hcslcd.examples;
+package ch.ethz.cisd.hcscld.examples;
 
+import java.awt.Frame;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -7,6 +8,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+
+import com.sun.media.jai.widget.DisplayJAI;
 
 import ch.ethz.cisd.hcscld.CellLevelDataFactory;
 import ch.ethz.cisd.hcscld.ICellLevelDataReader;
@@ -30,13 +33,13 @@ public class CellLevelSegmentationDemo
     private static void showImage(final RenderedImage image, final String name)
     {
         // Requires the Java Advanced Imaging Library (JAI)
-//         final Frame frame = new Frame("Image '" + name + "'");
-//         final DisplayJAI panel = new DisplayJAI(image);
-//         frame.add(panel);
-//         frame.setLocationByPlatform(true);
-//        
-//         frame.pack();
-//         frame.setVisible(true);
+         final Frame frame = new Frame("Image '" + name + "'");
+         final DisplayJAI panel = new DisplayJAI(image);
+         frame.add(panel);
+         frame.setLocationByPlatform(true);
+        
+         frame.pack();
+         frame.setVisible(true);
     }
 
     public static void main(String[] args) throws IOException

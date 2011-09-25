@@ -16,18 +16,30 @@
 
 package ch.ethz.cisd.hcscld;
 
+import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
+
 /**
- * Exception to signal that an uninitialized {@link SegmentedObject} has been used. 
+ * The build and environment information for the HCSCLD library.
  *
  * @author Bernd Rinn
  */
-public class UninitalizedSegmentationException extends RuntimeException
+public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
-    private static final long serialVersionUID = 1L;
-
-    UninitalizedSegmentationException()
+    private final static String BASE = "hcscld";
+    
+    public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
+    
+    private BuildAndEnvironmentInfo()
     {
-        super("SegmentedObjectBox is uninitialized.");
+        super(BASE);
+    }
+
+    /**
+     * Shows build and environment information on the console.
+     */
+    public static void main(String[] args)
+    {
+        System.out.println(INSTANCE);
     }
 
 }
