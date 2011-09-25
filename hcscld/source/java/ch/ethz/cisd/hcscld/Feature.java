@@ -80,7 +80,7 @@ public class Feature
         return length;
     }
 
-    public String[] getOptionsOrNull()
+    public String[] tryGetOptions()
     {
         return optionsOrNull;
     }
