@@ -26,13 +26,7 @@ import java.util.List;
 public interface ICellLevelSegmentationWritableDataset extends ICellLevelSegmentationDataset
 {
     /**
-     * Adds a new image segmentation to this data set.
-     */
-    public IImageSegmentation addSegmentation(String name);
-
-    /**
      * Writes the image segmentation for one <var>id</var>.
      */
-    public void writeImageSegmentation(IImageSegmentation segmentation, WellFieldId id,
-            List<SegmentedObject> objects);
+    public void writeImageSegmentation(WellFieldId id, List<SegmentedObject> objects);
 }

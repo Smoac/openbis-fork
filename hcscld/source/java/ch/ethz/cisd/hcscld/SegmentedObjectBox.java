@@ -123,6 +123,14 @@ class SegmentedObjectBox
         return (short) (maxy - miny + 1);
     }
 
+    void checkInitialized() throws UninitalizedSegmentationException
+    {
+        if (minx == Short.MAX_VALUE  || miny == Short.MAX_VALUE)
+        {
+            throw new UninitalizedSegmentationException();
+        }
+    }
+    
     boolean inBox(int x, int y)
     {
         return x >= minx && x <= maxx && y >= miny && y <= maxy;        
@@ -130,7 +138,7 @@ class SegmentedObjectBox
     
     int getRelativeBitIndex(int x, int y)
     {
-        return (x - getLeftUpperX()) * getHeight() + (y - getLeftUpperY());
+        return (x - minx) * (maxy - miny + 1) + (y - miny);
     }
 
     int getAbsoluteBitIndex(int x, int y)

@@ -17,14 +17,17 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * An interface that represents an image segmentation.
+ * Exception to signal that an uninitialized {@link SegmentedObjectBox} has been used. 
  *
  * @author Bernd Rinn
  */
-public interface IImageSegmentation
+public class UninitalizedSegmentationException extends RuntimeException
 {
-    /**
-     * Returns the name of this image segmentation.
-     */
-    public String getName();
+    private static final long serialVersionUID = 1L;
+
+    UninitalizedSegmentationException()
+    {
+        super("SegmentedObjectBox is uninitialized.");
+    }
+
 }

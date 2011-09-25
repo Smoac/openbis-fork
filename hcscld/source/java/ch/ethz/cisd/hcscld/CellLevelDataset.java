@@ -70,6 +70,11 @@ public abstract class CellLevelDataset implements ICellLevelDataset
         return getObjectPath() + "/" + id.createObjectName(null);
     }
 
+    String getObjectPath(WellFieldId id, String prefix)
+    {
+        return getObjectPath() + "/" + id.createObjectName(prefix);
+    }
+
     String getGeometryObjectPath()
     {
         return getGeometryObjectPath(datasetCode);

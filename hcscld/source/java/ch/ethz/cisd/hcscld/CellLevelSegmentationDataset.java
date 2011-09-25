@@ -37,35 +37,10 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     static final String EDGE_MASKS_PREFIX = "EdgeMasks_";
 
     private final ImageGeometry imageGeometry;
+    
+    String segmentedObjectTypeName;
 
     private final HDF5CompoundType<SegmentedObjectBox> indexType;
-
-    final class ImageSegmentation implements IImageSegmentation
-    {
-        ImageSegmentation(String name)
-        {
-            this.name = name;
-        }
-
-        private final String name;
-
-        public String getName()
-        {
-            return name;
-        }
-
-        String getObjectPath()
-        {
-            return CellLevelSegmentationDataset.this.getObjectPath() + "/Segmentation_" + name;
-        }
-
-        String getObjectPath(WellFieldId id, String prefix)
-        {
-            return CellLevelSegmentationDataset.this.getObjectPath() + "/Segmentation_" + name
-                    + "/" + id.createObjectName(prefix);
-        }
-
-    }
 
     CellLevelSegmentationDataset(IHDF5Reader reader, String datasetCode,
             WellFieldGeometry geometry, ImageGeometry imageGeometry)
@@ -80,9 +55,9 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return indexType;
     }
 
-    String getSegmentationsFilename()
+    String getSegmentedObjectFileName()
     {
-        return getObjectPath() + "/imageSegmentations";
+        return getObjectPath() + "/segmentedObjectType";
     }
 
     public CellLevelDatasetType getType()
@@ -93,6 +68,15 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     public ImageGeometry getImageGeometry()
     {
         return imageGeometry;
+    }
+
+    public String getSegmentedObjectTypeName()
+    {
+        if (segmentedObjectTypeName == null)
+        {
+            segmentedObjectTypeName = reader.readString(getSegmentedObjectFileName());
+        }
+        return segmentedObjectTypeName;
     }
 
     public ICellLevelClassificationDataset toClassificationDataset()
@@ -112,35 +96,17 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return this;
     }
 
-    public IImageSegmentation getSegmentation(String name)
+    public SegmentedObject getObject(WellFieldId wellId, int objectId, boolean withEdge)
     {
-        final String segmentationFile = getSegmentationsFilename();
-        final String[] segmentations = reader.readStringArray(segmentationFile);
-        for (String s : segmentations)
-        {
-            if (s.equals(name))
-            {
-                return new ImageSegmentation(name);
-            }
-        }
-        throw new IllegalArgumentException("No segmentation '" + name + "' found.");
-    }
-
-    public SegmentedObject getObject(WellFieldId wellId, IImageSegmentation segmentation,
-            int objectId, boolean withEdge)
-    {
-        final ImageSegmentation seg = (ImageSegmentation) segmentation;
         final SegmentedObjectBox objectBox =
-                reader.readCompoundArrayBlock(seg.getObjectPath(wellId, INDEX_PREFIX), indexType,
+                reader.readCompoundArrayBlock(getObjectPath(wellId, INDEX_PREFIX), indexType,
                         1, objectId)[0];
-        return getObject(wellId, seg, objectBox, withEdge);
+        return getObject(wellId, objectBox, withEdge);
     }
 
-    public SegmentedObject tryFindObject(WellFieldId wellId, IImageSegmentation segmentation,
-            int x, int y, boolean withEdge)
+    public SegmentedObject tryFindObject(WellFieldId wellId, int x, int y, boolean withEdge)
     {
-        final ImageSegmentation seg = (ImageSegmentation) segmentation;
-        final String objectPath = seg.getObjectPath(wellId, INDEX_PREFIX);
+        final String objectPath = getObjectPath(wellId, INDEX_PREFIX);
         final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
         for (int id = 0; id < objectBoxes.length; ++id)
         {
@@ -150,23 +116,23 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
                 final int bitIndex = box.getAbsoluteBitIndex(x, y);
                 if (reader.isBitSetInBitField(objectPath, bitIndex))
                 {
-                    return getObject(wellId, seg, box, withEdge);
+                    return getObject(wellId, box, withEdge);
                 }
             }
         }
         return null;
     }
 
-    SegmentedObject getObject(WellFieldId wellId, final ImageSegmentation seg,
-            final SegmentedObjectBox objectBox, boolean withEdge)
+    SegmentedObject getObject(WellFieldId wellId, final SegmentedObjectBox objectBox,
+            boolean withEdge)
     {
         final BitSet mask =
-                reader.readBitFieldBlockWithOffset(seg.getObjectPath(wellId, MASKS_PREFIX),
+                reader.readBitFieldBlockWithOffset(getObjectPath(wellId, MASKS_PREFIX),
                         objectBox.getSizeInWords(), objectBox.getOffsetInWords());
         final BitSet edgeMask;
         if (withEdge)
         {
-            final String edgeMaskObjectPath = seg.getObjectPath(wellId, EDGE_MASKS_PREFIX);
+            final String edgeMaskObjectPath = getObjectPath(wellId, EDGE_MASKS_PREFIX);
             if (reader.exists(edgeMaskObjectPath))
             {
                 edgeMask =
@@ -187,18 +153,16 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return new SegmentedObject(objectBox, mask, edgeMask);
     }
 
-    public SegmentedObject[] getObjects(WellFieldId wellId, IImageSegmentation segmentation,
-            boolean withEdge)
+    public SegmentedObject[] getObjects(WellFieldId wellId, boolean withEdge)
     {
-        final ImageSegmentation seg = (ImageSegmentation) segmentation;
-        final String objectPath = seg.getObjectPath(wellId, INDEX_PREFIX);
+        final String objectPath = getObjectPath(wellId, INDEX_PREFIX);
         final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
         final BitSet[] masks =
-                getMasks(wellId, seg.getObjectPath(wellId, MASKS_PREFIX), objectBoxes);
+                getMasks(wellId, getObjectPath(wellId, MASKS_PREFIX), objectBoxes);
         final SegmentedObject[] results = new SegmentedObject[objectBoxes.length];
         if (withEdge)
         {
-            final String edgeMasksPath = seg.getObjectPath(wellId, EDGE_MASKS_PREFIX);
+            final String edgeMasksPath = getObjectPath(wellId, EDGE_MASKS_PREFIX);
             final BitSet[] edgeMasks =
                     (reader.exists(edgeMasksPath)) ? getMasks(wellId, edgeMasksPath, objectBoxes)
                             : computeEdgeMasks(objectBoxes, masks);

@@ -34,6 +34,11 @@ public class SegmentedObject extends SegmentedObjectBox
         super();
     }
 
+    public SegmentedObject(short minx, short miny, short maxx, short maxy)
+    {
+        this(minx, miny, maxx, maxy, null, null);
+    }
+
     public SegmentedObject(short minx, short miny, short maxx, short maxy, BitSet mask)
     {
         this(minx, miny, maxx, maxy, mask, null);
@@ -48,8 +53,8 @@ public class SegmentedObject extends SegmentedObjectBox
             BitSet edgeMaskOrNull)
     {
         super(minx, miny, maxx, maxy);
-        assert mask != null;
         this.mask = mask;
+        initializeMask();
         this.edgeMaskOrNull = edgeMaskOrNull;
     }
 
@@ -63,7 +68,7 @@ public class SegmentedObject extends SegmentedObjectBox
      */
     public BitSet getMask()
     {
-        return mask;
+        return mask == null ? new BitSet() : mask;
     }
     
     /**
@@ -71,7 +76,7 @@ public class SegmentedObject extends SegmentedObjectBox
      */
     public boolean getMaskPoint(int x, int y)
     {
-        return this.mask.get(getRelativeBitIndex(x, y));
+        return inBox(x, y) && mask.get(getRelativeBitIndex(x, y));
     }
 
     /**
@@ -87,11 +92,16 @@ public class SegmentedObject extends SegmentedObjectBox
      */
     public void setMaskPoint(int x, int y)
     {
+        initializeMask();
+        this.mask.set(getRelativeBitIndex(x, y));
+    }
+
+    private void initializeMask()
+    {
         if (mask == null)
         {
             this.mask = new BitSet(getSizeInPixels());
         }
-        this.mask.set(getRelativeBitIndex(x, y));
     }
 
     /**

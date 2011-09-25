@@ -58,11 +58,14 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      * Adds a new image segmentation data set.
      * 
      * @param datasetCode The code of the new data set.
+     * @param segmentedObjectTypeName A name for the type of object that was segmented for (e.g.
+     *            "cell")
      * @param geometry The geometry of the new data set.
      * @param imageGeometry The geometry of the images that have segmented.
      * @param storeEdgeMasks Store the edge masks (compute if necessary) so that they can be
      *            retrieved faster.
      */
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            WellFieldGeometry geometry, ImageGeometry imageGeometry, boolean storeEdgeMasks);
+            String segmentedObjectTypeName, WellFieldGeometry geometry,
+            ImageGeometry imageGeometry, boolean storeEdgeMasks);
 }

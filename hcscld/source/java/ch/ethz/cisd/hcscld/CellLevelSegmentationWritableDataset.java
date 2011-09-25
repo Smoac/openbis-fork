@@ -36,8 +36,9 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     private final boolean storeEdgeMasks;
 
     CellLevelSegmentationWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final WellFieldGeometry geometry, final ImageGeometry imageGeometry,
-            final HDF5EnumerationType hdf5KindEnum, final boolean storeEdgeMasks)
+            final String segmentedObjectTypeName, final WellFieldGeometry geometry,
+            final ImageGeometry imageGeometry, final HDF5EnumerationType hdf5KindEnum,
+            final boolean storeEdgeMasks)
     {
         super(writer, datasetCode, geometry, imageGeometry);
         this.base =
@@ -45,26 +46,16 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         CellLevelDatasetType.SEGMENTATION);
         this.storeEdgeMasks = storeEdgeMasks;
         writer.writeCompound(getImageGeometryObjectPath(), imageGeometry);
-        writer.createStringArray(getSegmentationsFilename(), 100, 0, 1);
+        this.segmentedObjectTypeName = segmentedObjectTypeName;
+        writer.writeString(getSegmentedObjectFileName(), segmentedObjectTypeName);
     }
 
-    public IImageSegmentation addSegmentation(final String name)
+    public void writeImageSegmentation(WellFieldId id, List<SegmentedObject> objects)
     {
-        final ImageSegmentation seg = new ImageSegmentation(name);
-        final String segmentationFile = getSegmentationsFilename();
-        base.writer.writeStringArrayBlock(segmentationFile, new String[]
-            { name }, base.writer.getNumberOfElements(segmentationFile));
-        base.writer.createGroup(seg.getObjectPath());
-        return seg;
-    }
-
-    public void writeImageSegmentation(IImageSegmentation segmentation, WellFieldId id,
-            List<SegmentedObject> objects)
-    {
-        final ImageSegmentation seg = (ImageSegmentation) segmentation;
         int offset = 0;
         for (SegmentedObject o : objects)
         {
+            o.checkInitialized();
             o.setOffset(offset * 64);
             offset += o.getSizeInWords();
         }
@@ -93,15 +84,15 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         edgeMaskArray.length);
             }
         }
-        base.writer.writeCompoundArray(seg.getObjectPath(id, INDEX_PREFIX), getIndexType(),
+        base.writer.writeCompoundArray(getObjectPath(id, INDEX_PREFIX), getIndexType(),
                 objects.toArray(new SegmentedObjectBox[objects.size()]),
                 HDF5GenericStorageFeatures.GENERIC_DEFLATE);
-        base.writer.writeBitField(seg.getObjectPath(id, MASKS_PREFIX),
+        base.writer.writeBitField(getObjectPath(id, MASKS_PREFIX),
                 BitSetConversionUtils.fromStorageForm(allMasksArray),
                 HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         if (storeEdgeMasks)
         {
-            base.writer.writeBitField(seg.getObjectPath(id, EDGE_MASKS_PREFIX),
+            base.writer.writeBitField(getObjectPath(id, EDGE_MASKS_PREFIX),
                     BitSetConversionUtils.fromStorageForm(allEdgeMasksArray),
                     HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         }

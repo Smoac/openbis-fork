@@ -30,35 +30,29 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The image geometry object.
      */
     public ImageGeometry getImageGeometry();
-
+    
     /**
-     * Returns the image segmentation with given <var>name</var>.
-     * 
-     * @param name The name of the segmentation to get.
-     * @return The segmentation object.
+     * Returns the name of the object type that was segmented for.
      */
-    public IImageSegmentation getSegmentation(String name);
+    public String getSegmentedObjectTypeName();
 
     /**
      * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
      * <var>segmentation</var>.
      * 
      * @param wellId The well id to read the the object from.
-     * @param segmentation The segmentation to read the object from.
      * @param objectId The object id to read.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return The object as found by <code>segmentation</code>.
      */
-    public SegmentedObject getObject(WellFieldId wellId, IImageSegmentation segmentation,
-            int objectId, boolean withEdge);
+    public SegmentedObject getObject(WellFieldId wellId, int objectId, boolean withEdge);
 
     /**
      * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
      * <var>segmentation</var>.
      * 
      * @param wellId The well id to read the the object from.
-     * @param segmentation The segmentation to read the object from.
      * @param x The x coordinate to look up the object for.
      * @param y The y coordinate to look up the object for.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
@@ -66,20 +60,17 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
      *         , if no object was found at this point.
      */
-    public SegmentedObject tryFindObject(WellFieldId wellId, IImageSegmentation segmentation,
-            int x, int y, boolean withEdge);
+    public SegmentedObject tryFindObject(WellFieldId wellId, int x, int y, boolean withEdge);
 
     /**
      * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
      * <var>segmentation</var>.
      * 
      * @param wellId The well id to read the the object from.
-     * @param segmentation The segmentation to read the object from.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return All objects as found by <code>segmentation</code>.
      */
-    public SegmentedObject[] getObjects(WellFieldId wellId, IImageSegmentation segmentation,
-            boolean withEdge);
+    public SegmentedObject[] getObjects(WellFieldId wellId, boolean withEdge);
 
 }
