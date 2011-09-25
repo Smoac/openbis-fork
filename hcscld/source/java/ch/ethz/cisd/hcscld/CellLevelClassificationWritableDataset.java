@@ -63,19 +63,19 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     @Override
-    public ICellLevelFeatureWritableDataset tryAsFeatureDataset()
+    public ICellLevelFeatureWritableDataset toFeatureDataset()
     {
         return null;
     }
 
     @Override
-    public ICellLevelSegmentationWritableDataset tryAsSegmentationDataset()
+    public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
         return null;
     }
 
     @Override
-    public ICellLevelClassificationWritableDataset tryAsClassificationDataset()
+    public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
         return this;
     }

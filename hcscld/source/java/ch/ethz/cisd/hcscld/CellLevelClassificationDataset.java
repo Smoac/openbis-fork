@@ -44,8 +44,19 @@ public class CellLevelClassificationDataset extends CellLevelDataset implements
         return CellLevelDatasetType.CLASSIFICATION;
     }
 
-    @Override
-    public ICellLevelClassificationDataset tryAsClassificationDataset()
+    public ICellLevelFeatureDataset toFeatureDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.FEATURES,
+                CellLevelDatasetType.CLASSIFICATION);
+    }
+
+    public ICellLevelSegmentationDataset toSegmentationDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.SEGMENTATION,
+                CellLevelDatasetType.CLASSIFICATION);
+    }
+
+    public ICellLevelClassificationDataset toClassificationDataset()
     {
         return this;
     }
@@ -164,119 +175,119 @@ public class CellLevelClassificationDataset extends CellLevelDataset implements
             final Class<T> enumClass)
     {
         return new Iterable<CellLevelClassificationsEnum<T>>()
+            {
+                public Iterator<CellLevelClassificationsEnum<T>> iterator()
                 {
-                    public Iterator<CellLevelClassificationsEnum<T>> iterator()
-                    {
-                        return new Iterator<CellLevelClassificationsEnum<T>>()
-                            {
-                                final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
-                                        geometry, new IExistChecker()
+                    return new Iterator<CellLevelClassificationsEnum<T>>()
+                        {
+                            final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
+                                    geometry, new IExistChecker()
+                                        {
+                                            public boolean exists(WellFieldId id)
                                             {
-                                                public boolean exists(WellFieldId id)
-                                                {
-                                                    return reader.exists(getObjectPath(id));
-                                                }
-                                            });
+                                                return reader.exists(getObjectPath(id));
+                                            }
+                                        });
 
-                                CellLevelClassificationsEnum<T> next = null;
+                            CellLevelClassificationsEnum<T> next = null;
 
-                                public boolean hasNext()
+                            public boolean hasNext()
+                            {
+                                if (next == null)
                                 {
-                                    if (next == null)
+                                    if (idIterator.hasNext() == false)
                                     {
-                                        if (idIterator.hasNext() == false)
-                                        {
-                                            return false;
-                                        }
-                                        final WellFieldId id = idIterator.next();
-                                        next =
-                                                new CellLevelClassificationsEnum<T>(id,
-                                                        getClassifications(id, enumClass));
+                                        return false;
                                     }
-                                    return true;
+                                    final WellFieldId id = idIterator.next();
+                                    next =
+                                            new CellLevelClassificationsEnum<T>(id,
+                                                    getClassifications(id, enumClass));
                                 }
+                                return true;
+                            }
 
-                                public CellLevelClassificationsEnum<T> next()
+                            public CellLevelClassificationsEnum<T> next()
+                            {
+                                try
                                 {
-                                    try
+                                    if (hasNext() == false)
                                     {
-                                        if (hasNext() == false)
-                                        {
-                                            throw new NoSuchElementException();
-                                        }
-                                        return next;
-                                    } finally
-                                    {
-                                        next = null;
+                                        throw new NoSuchElementException();
                                     }
-                                }
-
-                                public void remove()
+                                    return next;
+                                } finally
                                 {
-                                    throw new UnsupportedOperationException();
+                                    next = null;
                                 }
-                            };
-                    }
-                };
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            };
     }
 
     public Iterable<CellLevelClassificationsOrdinal> getClassificationsOrdinal()
     {
         return new Iterable<CellLevelClassificationsOrdinal>()
+            {
+                public Iterator<CellLevelClassificationsOrdinal> iterator()
                 {
-                    public Iterator<CellLevelClassificationsOrdinal> iterator()
-                    {
-                        return new Iterator<CellLevelClassificationsOrdinal>()
-                            {
-                                final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
-                                        geometry, new IExistChecker()
+                    return new Iterator<CellLevelClassificationsOrdinal>()
+                        {
+                            final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
+                                    geometry, new IExistChecker()
+                                        {
+                                            public boolean exists(WellFieldId id)
                                             {
-                                                public boolean exists(WellFieldId id)
-                                                {
-                                                    return reader.exists(getObjectPath(id));
-                                                }
-                                            });
+                                                return reader.exists(getObjectPath(id));
+                                            }
+                                        });
 
-                                CellLevelClassificationsOrdinal next = null;
+                            CellLevelClassificationsOrdinal next = null;
 
-                                public boolean hasNext()
+                            public boolean hasNext()
+                            {
+                                if (next == null)
                                 {
-                                    if (next == null)
+                                    if (idIterator.hasNext() == false)
                                     {
-                                        if (idIterator.hasNext() == false)
-                                        {
-                                            return false;
-                                        }
-                                        final WellFieldId id = idIterator.next();
-                                        next =
-                                                new CellLevelClassificationsOrdinal(id,
-                                                        getClassificationsOrdinal(id));
+                                        return false;
                                     }
-                                    return true;
+                                    final WellFieldId id = idIterator.next();
+                                    next =
+                                            new CellLevelClassificationsOrdinal(id,
+                                                    getClassificationsOrdinal(id));
                                 }
+                                return true;
+                            }
 
-                                public CellLevelClassificationsOrdinal next()
+                            public CellLevelClassificationsOrdinal next()
+                            {
+                                try
                                 {
-                                    try
+                                    if (hasNext() == false)
                                     {
-                                        if (hasNext() == false)
-                                        {
-                                            throw new NoSuchElementException();
-                                        }
-                                        return next;
-                                    } finally
-                                    {
-                                        next = null;
+                                        throw new NoSuchElementException();
                                     }
-                                }
-
-                                public void remove()
+                                    return next;
+                                } finally
                                 {
-                                    throw new UnsupportedOperationException();
+                                    next = null;
                                 }
-                            };
-                    }
-                };
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            };
     }
 
 }

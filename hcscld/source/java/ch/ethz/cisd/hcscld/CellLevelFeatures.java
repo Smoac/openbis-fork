@@ -45,13 +45,13 @@ public class CellLevelFeatures
     }
 
     /**
-     * Returns the feature data block itself.
+     * Returns the values of the features.
      * 
      * @return The features. The first index denotes the object id, the second index denotes the
      *         feature.
-     * @see IFeatureGroup#getMemberNames() 
+     * @see IFeatureGroup#getFeatureNames() 
      */
-    public Object[][] getData()
+    public Object[][] getValues()
     {
         return data;
     }

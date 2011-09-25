@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
+import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints.EnumReturnType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
@@ -36,6 +38,8 @@ class CellLevelDataReader implements ICellLevelDataReader
     private final HDF5EnumerationType hdf5DatasetTypeEnum;
 
     private final boolean manageReader;
+
+    private final HDF5CompoundMappingHints hints;
 
     CellLevelDataReader(File file)
     {
@@ -57,7 +61,7 @@ class CellLevelDataReader implements ICellLevelDataReader
                                     CellLevelDatasetType.FEATURES.name(),
                                     CellLevelDatasetType.CLASSIFICATION.name() });
         this.manageReader = manageReader;
-
+        this.hints = new HDF5CompoundMappingHints().enumReturnType(EnumReturnType.STRING);
     }
 
     private CellLevelDatasetType getDatasetType(String datasetCode)
@@ -81,7 +85,8 @@ class CellLevelDataReader implements ICellLevelDataReader
                     break;
                 case FEATURES:
                     result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(
-                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class)));
+                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class),
+                            hints));
                     break;
                 case SEGMENTATION:
                     result.add(new CellLevelSegmentationDataset(reader, code, reader.readCompound(
@@ -108,7 +113,7 @@ class CellLevelDataReader implements ICellLevelDataReader
             case FEATURES:
                 return new CellLevelFeatureDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getGeometryObjectPath(datasetCode),
-                        WellFieldGeometry.class));
+                        WellFieldGeometry.class), hints);
             case SEGMENTATION:
                 return new CellLevelSegmentationDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getGeometryObjectPath(datasetCode),
@@ -123,6 +128,29 @@ class CellLevelDataReader implements ICellLevelDataReader
     HDF5EnumerationType getHdf5DatasetTypeEnum()
     {
         return hdf5DatasetTypeEnum;
+    }
+
+    HDF5CompoundMappingHints getHints()
+    {
+        return hints;
+    }
+
+    public ICellLevelDataReader enumAsString()
+    {
+        hints.setEnumReturnType(EnumReturnType.STRING);
+        return this;
+    }
+
+    public ICellLevelDataReader enumAsOrdinal()
+    {
+        hints.setEnumReturnType(EnumReturnType.ORDINAL);
+        return this;
+    }
+
+    public ICellLevelDataReader enumAsHDF5Enum()
+    {
+        hints.setEnumReturnType(EnumReturnType.HDF5ENUMERATIONVALUE);
+        return this;
     }
 
     public void close()

@@ -50,21 +50,6 @@ public abstract class CellLevelDataset implements ICellLevelDataset
         return geometry;
     }
 
-    public ICellLevelFeatureDataset tryAsFeatureDataset()
-    {
-        return null;
-    }
-
-    public ICellLevelClassificationDataset tryAsClassificationDataset()
-    {
-        return null;
-    }
-    
-    public ICellLevelSegmentationDataset tryAsSegmentationDataset()
-    {
-        return null;
-    }
-
     String getDatasetTypeAttributeName()
     {
         return "datasetType";

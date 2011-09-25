@@ -39,20 +39,33 @@ public interface ICellLevelDataset
     public CellLevelDatasetType getType();
 
     /**
-     * Returns the dataset as a feature dataset, if {@link #getType()} ==
-     * {@link CellLevelDatasetType#FEATURES}, or <code>null</code> otherwise.
+     * Returns the dataset as a feature dataset.
+     * 
+     * @return This data set.
+     * 
+     * @throws WrongDatasetTypeException if {@link #getType()} !=
+     *             {@link CellLevelDatasetType#FEATURES}.
      */
-    public ICellLevelFeatureDataset tryAsFeatureDataset();
+    public ICellLevelFeatureDataset toFeatureDataset() throws WrongDatasetTypeException;
 
     /**
-     * Returns the dataset as a classification dataset, if {@link #getType()} ==
-     * {@link CellLevelDatasetType#CLASSIFICATION}, or <code>null</code> otherwise.
+     * Returns the dataset as a classification dataset.
+     * 
+     * @return This data set.
+     * 
+     * @throws WrongDatasetTypeException if {@link #getType()} !=
+     *             {@link CellLevelDatasetType#CLASSIFICATION}.
      */
-    public ICellLevelClassificationDataset tryAsClassificationDataset();
+    public ICellLevelClassificationDataset toClassificationDataset()
+            throws WrongDatasetTypeException;
 
     /**
-     * Returns the dataset as an image segmentation dataset, if {@link #getType()} ==
-     * {@link CellLevelDatasetType#SEGMENTATION}, or <code>null</code> otherwise.
+     * Returns the dataset as an image segmentation dataset.
+     * 
+     * @return This data set.
+     * 
+     * @throws WrongDatasetTypeException if {@link #getType()} !=
+     *             {@link CellLevelDatasetType#SEGMENTATION}.
      */
-    public ICellLevelSegmentationDataset tryAsSegmentationDataset();
+    public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
 }

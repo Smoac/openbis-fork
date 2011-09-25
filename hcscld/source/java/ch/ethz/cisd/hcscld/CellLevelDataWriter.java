@@ -51,7 +51,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
             WellFieldGeometry geometry)
     {
         return new CellLevelFeatureWritableDataset(writer, datasetCode, geometry,
-                getHdf5DatasetTypeEnum());
+                getHints(), getHdf5DatasetTypeEnum());
     }
 
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,

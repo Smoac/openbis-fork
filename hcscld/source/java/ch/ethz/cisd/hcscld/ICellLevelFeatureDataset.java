@@ -36,34 +36,38 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     public IFeatureGroup getFeatureGroup(String name);
 
     /**
-     * Returns the features of the given <var>cellId</var> of field <var>id</var> in the given
+     * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
+     */
+    public Object[] getValues(WellFieldId id, int cellId);
+
+    /**
+     * Returns all feature values for all cells of field <var>id</var>.
+     */
+    public Object[][] getValues(WellFieldId id);
+
+    /**
+     * Returns all feature values for all cells in all wells.
+     */
+    public Iterable<CellLevelFeatures> getValues();
+
+    /**
+     * Returns the feature values for the given <var>cellId</var> of field <var>id</var> in the
+     * given <var>featureGroup</var>.
+     */
+    public Object[] getValues(WellFieldId id, IFeatureGroup featureGroup, int cellId);
+
+    /**
+     * Returns the feature values for all cells of field <var>id</var> in the given
      * <var>featureGroup</var>.
+     * 
+     * @return The feature values; the first index is the cell id, the second index is the feature
+     *         index.
      */
-    public Object[] getFeatures(final IFeatureGroup featureGroup, final WellFieldId id, int cellId);
+    public Object[][] getValues(WellFieldId id, IFeatureGroup featureGroup);
 
     /**
-     * Returns the features of all cells of field <var>id</var> in the given
-     * <var>featureGroup</var>.
+     * Returns the feature values for all cells in all wells in the given <var>featureGroup<var>.
      */
-    public Object[][] getFeatures(final IFeatureGroup featureGroup, final WellFieldId id);
-
-    /**
-     * Returns the features for all cells in all wells in the given
-     * <var>featureGroup<var>.
-     */
-    public Iterable<CellLevelFeatures> getFeatures(final IFeatureGroup featureGroup);
-
-    /**
-     * Returns the natural blocks of features for all cells in the given well <var>id</var> and
-     * <var>featureGroup<var>.
-     */
-    public Iterable<CellLevelFeatureBlock> getFeaturesNaturalBlocks(
-            final IFeatureGroup featureGroup, final WellFieldId id);
-
-    /**
-     * Returns the natural blocks of features for all cells in all wells in the given
-     * <var>featureGroup<var>.
-     */
-    public Iterable<CellLevelFeatureBlock> getFeaturesNaturalBlocks(final IFeatureGroup featureGroup);
+    public Iterable<CellLevelFeatures> getValues(IFeatureGroup featureGroup);
 
 }

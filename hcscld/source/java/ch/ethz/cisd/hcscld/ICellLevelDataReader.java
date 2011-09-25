@@ -20,23 +20,45 @@ import java.io.Closeable;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 
 /**
  * An interface for reading cell-level data.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ICellLevelDataReader extends Closeable
 {
     /**
-     * Returns all data sets in this cell-level data file. 
+     * Returns all data sets in this cell-level data file.
      */
     public List<ICellLevelDataset> getDataSets();
-    
+
     /**
      * Returns the data set with code <var>datasetCode</var>.
      */
     public ICellLevelDataset getDataSet(String datasetCode);
+
+    /**
+     * Sets that enums should be returned as strings.
+     * 
+     * @return This reader (for chaining)
+     */
+    public ICellLevelDataReader enumAsString();
+
+    /**
+     * Sets that enums should be returned as integer (by ordinal).
+     * 
+     * @return This reader (for chaining)
+     */
+    public ICellLevelDataReader enumAsOrdinal();
+
+    /**
+     * Sets that enums should be returned as {@link HDF5EnumerationValue}.
+     * 
+     * @return This reader (for chaining)
+     */
+    public ICellLevelDataReader enumAsHDF5Enum();
 
     // New signature: we only throw IOExceptionUnchecked.
     public void close() throws IOExceptionUnchecked;

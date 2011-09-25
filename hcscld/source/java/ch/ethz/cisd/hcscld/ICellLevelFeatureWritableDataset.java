@@ -27,63 +27,27 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
     /**
      * Creates an (empty) object to define the features of a feature group.
      */
-    public FeaturesDefinition createFeatures();
+    public IFeaturesDefinition createFeaturesDefinition();
 
     /**
-     * Adds a new feature group to this dataset.
+     * Writes the values of the feature group to the dataset.
      * 
-     * @param name The name of the feature group.
-     * @param features The features defined as HDF5 compound members. The order of the features in
-     *            this list establish an order and thus an index for each feature.
-     * @return The new feature group.
-     */
-    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features);
-
-    /**
-     * Adds a new feature group to this dataset.
-     * 
-     * @param name The name of the feature group.
-     * @param features The features defined as HDF5 compound members. The order of the features in
-     *            this list establish an order and thus an index for each feature.
-     * @param blockSize The block size of the storage form (in feature records).
-     * @return The new feature group.
-     */
-    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features, int blockSize);
-
-    /**
-     * Adds a new feature group to this dataset.
-     * 
-     * @param name The name of the feature group.
-     * @param features The features defined as HDF5 compound members. The order of the features in
-     *            this list establish an order and thus an index for each feature.
-     * @param blockSize The block size (in feature records) of the storage form.
-     * @param size The size (in feature records) of the feature group on the storage.
-     * @return The new feature group.
-     */
-    public IFeatureGroup addFeatureGroup(String name, FeaturesDefinition features, long blockSize,
-            int size);
-
-    /**
-     * Writes the values of the feature group to the storage form.
-     * 
-     * @param featureGroup The feature group to write.
      * @param id The well and field to write the features for.
-     * @param features The feature values to write. The first index is the object id, the second
-     *            index is the feature index as defined by
-     *            {@link #addFeatureGroup(String, FeaturesDefinition)}.
+     * @param featureGroup The feature group to write.
+     * @param featureValues The feature values to write. The first index is the object id, the
+     *            second index is the feature index as defined by the <var>featureGroup</var>.
      */
-    public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features);
+    public void writeFeatures(WellFieldId id, IFeatureGroup featureGroup, Object[][] featureValues);
 
     /**
-     * Writes the values of one block of the feature group to the storage form.
+     * Writes the values of the features to the dataset.
+     * <p>
+     * <i>This method requires that {@link IFeaturesDefinition#create()} has been called before.</i>
      * 
-     * @param featureGroup The feature group to write.
      * @param id The well and field to write the features for.
-     * @param features The feature values to write. The first index is the object id, the second
-     *            index is the feature index as defined by
-     *            {@link #addFeatureGroup(String, FeaturesDefinition)}.
-     * @param blockNumber The number of the block to write.
+     * @param featureValues The feature values to write. The first index is the object id, the
+     *            second index is the feature index as defined by the default feature group.
      */
-    public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features,
-            long blockNumber);
+    public void writeFeatures(WellFieldId id, Object[][] featureValues);
+
 }

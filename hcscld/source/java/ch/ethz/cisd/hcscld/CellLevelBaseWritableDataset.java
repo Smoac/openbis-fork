@@ -74,13 +74,19 @@ class CellLevelBaseWritableDataset extends CellLevelDataset
     static HDF5EnumerationType addEnum(IHDF5Writer writer, String datasetCode,
             Class<? extends Enum<?>> enumClass)
     {
+        return writer.getEnumType(datasetCode + "_" + enumClass.getSimpleName(),
+                getEnumOptions(enumClass));
+    }
+
+    static String[] getEnumOptions(Class<? extends Enum<?>> enumClass)
+    {
         final Enum<?>[] constants = enumClass.getEnumConstants();
         final String[] options = new String[constants.length];
         for (int i = 0; i < options.length; ++i)
         {
             options[i] = constants[i].name();
         }
-        return writer.getEnumType(datasetCode + "_" + enumClass.getSimpleName(), options);
+        return options;
     }
 
     static HDF5GenericStorageFeatures getStorageFeatures(int size)
@@ -92,5 +98,20 @@ class CellLevelBaseWritableDataset extends CellLevelDataset
         {
             return HDF5GenericStorageFeatures.GENERIC_DEFLATE;
         }
+    }
+
+    public ICellLevelFeatureDataset toFeatureDataset()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ICellLevelClassificationDataset toClassificationDataset()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ICellLevelSegmentationDataset toSegmentationDataset()
+    {
+        throw new UnsupportedOperationException();
     }
 }

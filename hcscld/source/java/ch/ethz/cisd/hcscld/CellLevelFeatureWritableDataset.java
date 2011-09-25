@@ -18,9 +18,9 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.List;
 
+import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
-import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -34,9 +34,10 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset imp
     private final CellLevelBaseWritableDataset base;
 
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final WellFieldGeometry geometry, final HDF5EnumerationType hdf5KindEnum)
+            final WellFieldGeometry geometry, final HDF5CompoundMappingHints hintsOrNull,
+            final HDF5EnumerationType hdf5KindEnum)
     {
-        super(writer, datasetCode, geometry);
+        super(writer, datasetCode, geometry, hintsOrNull);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
                         CellLevelDatasetType.FEATURES);
@@ -44,91 +45,111 @@ public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset imp
     }
 
     @Override
-    public ICellLevelFeatureWritableDataset tryAsFeatureDataset()
+    public ICellLevelFeatureWritableDataset toFeatureDataset()
     {
         return this;
     }
 
     @Override
-    public ICellLevelClassificationWritableDataset tryAsClassificationDataset()
+    public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
         return null;
     }
 
     @Override
-    public ICellLevelSegmentationWritableDataset tryAsSegmentationDataset()
+    public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
         return null;
     }
 
-    public HDF5EnumerationType addEnum(String name, List<String> values)
+    HDF5EnumerationType addEnum(String name, List<String> values)
     {
         return base.addEnum(name, values);
     }
 
-    public HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
+    HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
     {
         return base.addEnum(enumClass);
     }
 
-    public FeaturesDefinition createFeatures()
+    public IFeaturesDefinition createFeaturesDefinition()
     {
         return new FeaturesDefinition(this);
     }
 
-    public IFeatureGroup addFeatureGroup(final String name,
-            final FeaturesDefinition features)
+    public IFeatureGroup addFeatureGroup(final String name, final IFeaturesDefinition features)
     {
-        return addFeatureGroup(name, features, 0L, -1);
+        if (name.equals(DEFAULT_FEATURE_GROUP_NAME))
+        {
+            throw new IllegalArgumentException("Feature group name '" + DEFAULT_FEATURE_GROUP_NAME
+                    + "' is reserved.");
+        }
+        return addFeatureGroupInternal(name, (FeaturesDefinition) features);
     }
 
-    public IFeatureGroup addFeatureGroup(final String name,
-            final FeaturesDefinition features, final int blockSize)
-    {
-        return addFeatureGroup(name, features, 0L, blockSize);
-    }
-
-    public IFeatureGroup addFeatureGroup(final String name,
-            final FeaturesDefinition features, final long size, final int blockSize)
+    FeatureGroup addFeatureGroupInternal(final String name, final FeaturesDefinition features)
     {
         final HDF5CompoundType<Object[]> type =
                 base.writer.getCompoundType(getNameInDataset(name), Object[].class,
-                        features.getFeatures());
+                        features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup = new FeatureGroup(name, type);
         final String featureGroupsFile = getFeatureGroupsFilename();
         base.writer.writeStringArrayBlock(featureGroupsFile, new String[]
             { name }, base.writer.getNumberOfElements(featureGroupsFile));
-        if (blockSize > 0)
-        {
-            base.run(new IWellFieldRunnable()
-                {
-                    public void run(WellFieldId id, Object state)
-                    {
-                        base.writer.createCompoundArray(featureGroup.getObjectPath(id), type, size,
-                                blockSize, HDF5GenericStorageFeatures.GENERIC_DEFLATE);
-                    }
-                }, null);
-        }
+        addFeatureGroupToInternalList(featureGroup);
         return featureGroup;
     }
 
-    public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features)
+    public void writeFeatures(WellFieldId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
+        checkNumberOfElements(id, featureValues.length);
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),
-                features,
-                CellLevelBaseWritableDataset.getStorageFeatures(features.length
+                featureValues,
+                CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
                         * fg.getType().getRecordSize()));
     }
 
-    public void writeFeatureGroup(IFeatureGroup featureGroup, WellFieldId id, Object[][] features,
-            long blockNumber)
+    private void checkNumberOfElements(WellFieldId id, int numberOfObjectsToWrite)
+            throws IllegalArgumentException
     {
-        final FeatureGroup fg = (FeatureGroup) featureGroup;
-        base.writer.writeCompoundArrayBlock(fg.getObjectPath(id), fg.getType(), features,
-                blockNumber);
+        if (featureGroups.isEmpty() == false && featureGroups.get(0).existsIn(id))
+        {
+            final long numberOfObjectsOnDisk =
+                    reader.getDataSetInformation(featureGroups.get(0).getObjectPath(id))
+                            .getNumberOfElements();
+            if (numberOfObjectsOnDisk != numberOfObjectsToWrite)
+            {
+                throw new IllegalArgumentException(
+                        "Wrong number of objects in feature values [found: "
+                                + numberOfObjectsToWrite + ", expected: " + numberOfObjectsOnDisk
+                                + "]");
+            }
+        }
+    }
+
+    public void writeFeatures(WellFieldId id, Object[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        final FeatureGroup fg = featureGroups.get(0);
+        base.writer.writeCompoundArray(
+                fg.getObjectPath(id),
+                fg.getType(),
+                featureValues,
+                CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
+                        * fg.getType().getRecordSize()));
+    }
+
+    private void checkDefaultFeatureGroup() throws IllegalStateException
+    {
+        if (usesDefaultFeatureGroup() == false)
+        {
+            throw new IllegalStateException(
+                    "Cannot use 'writeFeatures(WellFieldId, FeaturesDefinition, Object[][])'"
+                            + " on a dataset with non-default feature groups defined.");
+        }
     }
 
 }

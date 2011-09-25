@@ -95,8 +95,19 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return imageGeometry;
     }
 
-    @Override
-    public ICellLevelSegmentationDataset tryAsSegmentationDataset()
+    public ICellLevelClassificationDataset toClassificationDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.CLASSIFICATION,
+                CellLevelDatasetType.SEGMENTATION);
+    }
+
+    public ICellLevelFeatureDataset toFeatureDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.FEATURES,
+                CellLevelDatasetType.SEGMENTATION);
+    }
+
+    public ICellLevelSegmentationDataset toSegmentationDataset()
     {
         return this;
     }

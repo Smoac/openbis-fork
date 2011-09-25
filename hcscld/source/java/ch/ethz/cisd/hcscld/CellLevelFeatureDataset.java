@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import ch.ethz.cisd.hcscld.WellFieldRunner.IExistChecker;
+import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
-import ch.systemsx.cisd.hdf5.HDF5DataBlock;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
 /**
@@ -35,6 +35,10 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeatureDataset
 {
+    static final String DEFAULT_FEATURE_GROUP_NAME = "default";
+
+    static final String ALL_FEATURE_GROUP_NAME = "all";
+
     /**
      * A feature group implementation.
      * 
@@ -46,21 +50,38 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
         private final String name;
 
-        private List<HDF5CompoundMemberInformation> members;
-        
-        private List<String> memberNames;
-        
+        private final List<Feature> features;
+
+        private final List<String> featureNames;
+
+        FeatureGroup(String name)
+        {
+            this.name = name;
+            this.type = null;
+            this.featureNames = new ArrayList<String>(totalNumberOfFeatures);
+            this.features = new ArrayList<Feature>(totalNumberOfFeatures);
+            for (FeatureGroup fg : featureGroups)
+            {
+                featureNames.addAll(fg.getFeatureNames());
+                features.addAll(fg.getFeatures());
+            }
+        }
+
         FeatureGroup(String name, HDF5CompoundType<Object[]> type)
         {
             this.name = name;
             this.type = type;
-            this.members = Arrays.asList(type.getCompoundMemberInformation());
+            final List<HDF5CompoundMemberInformation> members =
+                    Arrays.asList(type.getCompoundMemberInformation());
+            final FeaturesDefinition fdef =
+                    new FeaturesDefinition(CellLevelFeatureDataset.this, members);
+            this.features = fdef.getFeatures();
             final String[] memberNameArray = new String[members.size()];
             for (int i = 0; i < memberNameArray.length; ++i)
             {
                 memberNameArray[i] = members.get(i).getName();
             }
-            this.memberNames = Arrays.asList(memberNameArray);
+            this.featureNames = Arrays.asList(memberNameArray);
         }
 
         public String getName()
@@ -78,14 +99,19 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return type;
         }
 
-        public List<String> getMemberNames()
+        public List<String> getFeatureNames()
         {
-            return memberNames;
+            return featureNames;
         }
 
-        public List<HDF5CompoundMemberInformation> getMembers()
+        public List<Feature> getFeatures()
         {
-            return members;
+            return features;
+        }
+
+        public int getNumberOfFeatures()
+        {
+            return featureNames.size();
         }
 
         public Iterator<WellFieldId> iterator()
@@ -94,17 +120,63 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 {
                     public boolean exists(WellFieldId id)
                     {
-                        final String path = getObjectPath(id);
-                        return reader.exists(path) && reader.getSize(path) > 0;
+                        return hasWellFieldValues(id);
                     }
                 });
         }
+
+        boolean hasWellFieldValues(WellFieldId id)
+        {
+            final String path = getObjectPath(id);
+            return reader.exists(path) && reader.getSize(path) > 0;
+        }
+
+        boolean existsIn(WellFieldId id)
+        {
+            return reader.exists(getObjectPath(id));
+        }
     }
 
-    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode,
-            WellFieldGeometry geometry)
+    final List<FeatureGroup> featureGroups;
+
+    final int totalNumberOfFeatures;
+
+    final HDF5CompoundMappingHints hintsOrNull;
+
+    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode, WellFieldGeometry geometry,
+            HDF5CompoundMappingHints hintsOrNull)
     {
         super(reader, datasetCode, geometry);
+        this.hintsOrNull = hintsOrNull;
+        this.featureGroups = readFeatureGroups();
+        int numberOfFeatures = 0;
+        for (FeatureGroup fg : featureGroups)
+        {
+            numberOfFeatures += fg.getNumberOfFeatures();
+        }
+        this.totalNumberOfFeatures = numberOfFeatures;
+    }
+
+    void addFeatureGroupToInternalList(FeatureGroup newFeatureGroup)
+    {
+        featureGroups.add(newFeatureGroup);
+    }
+
+    private List<FeatureGroup> readFeatureGroups()
+    {
+        if (reader.exists(getFeatureGroupsFilename()) == false)
+        {
+            return new ArrayList<CellLevelFeatureDataset.FeatureGroup>(3);
+        }
+        final String[] featureGroupNames = reader.readStringArray(getFeatureGroupsFilename());
+        final List<FeatureGroup> result = new ArrayList<FeatureGroup>(featureGroupNames.length);
+        for (String name : featureGroupNames)
+        {
+            final HDF5CompoundType<Object[]> type =
+                    reader.getNamedCompoundType(getNameInDataset(name), Object[].class, hintsOrNull);
+            result.add(new FeatureGroup(name, type));
+        }
+        return result;
     }
 
     public CellLevelDatasetType getType()
@@ -112,173 +184,67 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return CellLevelDatasetType.FEATURES;
     }
 
-    @Override
-    public ICellLevelFeatureDataset tryAsFeatureDataset()
+    public ICellLevelClassificationDataset toClassificationDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.CLASSIFICATION,
+                CellLevelDatasetType.FEATURES);
+    }
+
+    public ICellLevelSegmentationDataset toSegmentationDataset()
+    {
+        throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.SEGMENTATION,
+                CellLevelDatasetType.FEATURES);
+    }
+
+    public ICellLevelFeatureDataset toFeatureDataset()
     {
         return this;
     }
 
-    public Object[] getFeatures(IFeatureGroup featureGroup, WellFieldId id, int cellId)
+    public Object[] getValues(WellFieldId id, IFeatureGroup featureGroup, int cellId)
     {
         return reader.readCompoundArrayBlockWithOffset(
                 ((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
     }
 
-    public Object[][] getFeatures(IFeatureGroup featureGroup, WellFieldId id)
+    public Object[][] getValues(WellFieldId id, IFeatureGroup featureGroup)
     {
         return reader.readCompoundArray(((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType());
     }
 
-    public Iterable<CellLevelFeatureBlock> getFeaturesNaturalBlocks(
-            final IFeatureGroup featureGroup, final WellFieldId id)
-    {
-        final Iterable<HDF5DataBlock<Object[][]>> blockIterable =
-                reader.getCompoundArrayNaturalBlocks(
-                        ((FeatureGroup) featureGroup).getObjectPath(id), Object[].class);
-        return new Iterable<CellLevelFeatureBlock>()
-            {
-                public Iterator<CellLevelFeatureBlock> iterator()
-                {
-                    final Iterator<HDF5DataBlock<Object[][]>> blockIterator =
-                            blockIterable.iterator();
-                    return new Iterator<CellLevelFeatureBlock>()
-                        {
-                            public boolean hasNext()
-                            {
-                                return blockIterator.hasNext();
-                            }
-
-                            public CellLevelFeatureBlock next()
-                            {
-                                return new CellLevelFeatureBlock(featureGroup, id,
-                                        blockIterator.next());
-                            }
-
-                            public void remove()
-                            {
-                                throw new UnsupportedOperationException();
-                            }
-                        };
-                }
-            };
-    }
-
-    public Iterable<CellLevelFeatures> getFeatures(final IFeatureGroup featureGroup)
+    public Iterable<CellLevelFeatures> getValues(final IFeatureGroup featureGroup)
     {
         return new Iterable<CellLevelFeatures>()
-                {
-                    public Iterator<CellLevelFeatures> iterator()
-                    {
-                        return new Iterator<CellLevelFeatures>()
-                            {
-                                final Iterator<WellFieldId> idIterator = featureGroup.iterator();
-
-                                CellLevelFeatures next = null;
-
-                                public boolean hasNext()
-                                {
-                                    if (next == null)
-                                    {
-                                        if (idIterator.hasNext() == false)
-                                        {
-                                            return false;
-                                        }
-                                        final WellFieldId id = idIterator.next();
-                                        final Object[][] data = reader.readCompoundArray(
-                                                ((FeatureGroup) featureGroup).getObjectPath(id),
-                                                Object[].class);
-                                        next = new CellLevelFeatures(featureGroup, id, data);
-                                    }
-                                    return true;
-                                }
-
-                                public CellLevelFeatures next()
-                                {
-                                    try
-                                    {
-                                        if (hasNext() == false)
-                                        {
-                                            throw new NoSuchElementException();
-                                        }
-                                        return next;
-                                    } finally
-                                    {
-                                        next = null;
-                                    }
-                                }
-
-                                public void remove()
-                                {
-                                    throw new UnsupportedOperationException();
-                                }
-                            };
-                    }
-                };
-    }
-
-    public Iterable<CellLevelFeatureBlock> getFeaturesNaturalBlocks(final IFeatureGroup featureGroup)
-    {
-        return new Iterable<CellLevelFeatureBlock>()
             {
-                public Iterator<CellLevelFeatureBlock> iterator()
+                public Iterator<CellLevelFeatures> iterator()
                 {
-                    return new Iterator<CellLevelFeatureBlock>()
+                    return new Iterator<CellLevelFeatures>()
                         {
                             final Iterator<WellFieldId> idIterator = featureGroup.iterator();
 
-                            Iterator<HDF5DataBlock<Object[][]>> blockIterator;
-
-                            WellFieldId id = null;
-
-                            CellLevelFeatureBlock next = null;
-
-                            void init()
-                            {
-                                if (blockIterator == null)
-                                {
-                                    blockIterator = tryNextBlockIterator();
-                                }
-                            }
-
-                            Iterator<HDF5DataBlock<Object[][]>> tryNextBlockIterator()
-                            {
-                                if (idIterator.hasNext() == false)
-                                {
-                                    return null;
-                                }
-                                id = idIterator.next();
-                                return reader.getCompoundArrayNaturalBlocks(
-                                        ((FeatureGroup) featureGroup).getObjectPath(id),
-                                        Object[].class).iterator();
-                            }
-
-                            CellLevelFeatureBlock tryFindNext()
-                            {
-                                init();
-                                if (blockIterator == null || blockIterator.hasNext() == false)
-                                {
-                                    blockIterator = tryNextBlockIterator();
-                                    if (blockIterator == null || blockIterator.hasNext() == false)
-                                    {
-                                        return null;
-                                    }
-                                }
-                                return new CellLevelFeatureBlock(featureGroup, id,
-                                        blockIterator.next());
-                            }
+                            CellLevelFeatures next = null;
 
                             public boolean hasNext()
                             {
                                 if (next == null)
                                 {
-                                    next = tryFindNext();
+                                    if (idIterator.hasNext() == false)
+                                    {
+                                        return false;
+                                    }
+                                    final WellFieldId id = idIterator.next();
+                                    final Object[][] data =
+                                            reader.readCompoundArray(
+                                                    ((FeatureGroup) featureGroup).getObjectPath(id),
+                                                    ((FeatureGroup) featureGroup).getType());
+                                    next = new CellLevelFeatures(featureGroup, id, data);
                                 }
-                                return (next != null);
+                                return true;
                             }
 
-                            public CellLevelFeatureBlock next()
+                            public CellLevelFeatures next()
                             {
                                 try
                                 {
@@ -302,29 +268,132 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             };
     }
 
-    public List<IFeatureGroup> getFeatureGroups()
+    public Object[] getValues(WellFieldId id, int cellId)
     {
-        final String[] featureGroupNames = reader.readStringArray(getFeatureGroupsFilename());
-        final List<IFeatureGroup> result = new ArrayList<IFeatureGroup>(featureGroupNames.length);
-        for (String name : featureGroupNames)
+        final Object[] result = new Object[totalNumberOfFeatures];
+        int offset = 0;
+        for (FeatureGroup fg : featureGroups)
         {
-            final HDF5CompoundType<Object[]> type =
-                    reader.getNamedCompoundType(getNameInDataset(name), Object[].class);
-            result.add(new FeatureGroup(name, type));
+            final Object[] groupValues = getValues(id, fg, cellId);
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            System.arraycopy(groupValues, 0, result, offset, numberOfFeaturesInGroup);
+            offset += numberOfFeaturesInGroup;
         }
         return result;
+    }
+
+    public Object[][] getValues(WellFieldId id)
+    {
+        Object[][] result = null;
+        int offset = 0;
+        for (FeatureGroup fg : featureGroups)
+        {
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                offset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final Object[][] groupValues = getValues(id, fg);
+            if (result == null)
+            {
+                result = new Object[groupValues.length][totalNumberOfFeatures];
+                if (result.length == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.length; ++i)
+            {
+                System.arraycopy(groupValues[i], 0, result[i], offset, numberOfFeaturesInGroup);
+            }
+            offset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    public Iterable<CellLevelFeatures> getValues()
+    {
+        final FeatureGroup all =
+                new FeatureGroup(usesDefaultFeatureGroup() ? DEFAULT_FEATURE_GROUP_NAME
+                        : ALL_FEATURE_GROUP_NAME);
+        return new Iterable<CellLevelFeatures>()
+            {
+                public Iterator<CellLevelFeatures> iterator()
+                {
+                    return new Iterator<CellLevelFeatures>()
+                        {
+                            final Iterator<WellFieldId> idIterator = geometry.iterator();
+
+                            CellLevelFeatures next = null;
+
+                            public boolean hasNext()
+                            {
+                                if (next == null)
+                                {
+                                    if (idIterator.hasNext() == false)
+                                    {
+                                        return false;
+                                    }
+                                    final WellFieldId id = idIterator.next();
+                                    final Object[][] data = getValues(id);
+                                    next = new CellLevelFeatures(all, id, data);
+                                }
+                                return true;
+                            }
+
+                            public CellLevelFeatures next()
+                            {
+                                try
+                                {
+                                    if (hasNext() == false)
+                                    {
+                                        throw new NoSuchElementException();
+                                    }
+                                    return next;
+                                } finally
+                                {
+                                    next = null;
+                                }
+                            }
+
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            };
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<IFeatureGroup> getFeatureGroups()
+    {
+        return getFeatureGroupsUntyped();
+    }
+
+    @SuppressWarnings("rawtypes")
+    private List getFeatureGroupsUntyped()
+    {
+        return featureGroups;
     }
 
     public IFeatureGroup getFeatureGroup(String name)
     {
         final HDF5CompoundType<Object[]> type =
-                reader.getNamedCompoundType(getNameInDataset(name), Object[].class);
+                reader.getNamedCompoundType(getNameInDataset(name), Object[].class, hintsOrNull);
         return new FeatureGroup(name, type);
     }
 
     String getFeatureGroupsFilename()
     {
         return getDatasetCode() + "/featureGroups";
+    }
+
+    boolean usesDefaultFeatureGroup() throws IllegalStateException
+    {
+        return (featureGroups.size() == 1 && DEFAULT_FEATURE_GROUP_NAME.equals(featureGroups.get(0)
+                .getName()));
     }
 
 }

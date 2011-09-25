@@ -18,8 +18,6 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.List;
 
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
-
 /**
  * The interface for a feature group.
  * 
@@ -33,13 +31,18 @@ public interface IFeatureGroup extends Iterable<WellFieldId>
     public String getName();
 
     /**
+     * Returns the number of features in this group.
+     */
+    public int getNumberOfFeatures();
+
+    /**
      * Returns the names of the features.
      */
-    public List<String> getMemberNames();
+    public List<String> getFeatureNames();
 
     /**
      * Returns information about each feature.
      */
-    public List<HDF5CompoundMemberInformation> getMembers();
+    public List<Feature> getFeatures();
 
 }

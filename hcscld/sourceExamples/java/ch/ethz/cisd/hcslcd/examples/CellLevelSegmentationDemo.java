@@ -59,7 +59,7 @@ public class CellLevelSegmentationDemo
         start = System.currentTimeMillis();
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelSegmentationDataset ds =
-                reader.getDataSet("789").tryAsSegmentationDataset();
+                reader.getDataSet("789").toSegmentationDataset();
         ImageGeometry imageGeometry = ds.getImageGeometry();
         IImageSegmentation seg2 = ds.getSegmentation("cell");
         SegmentedObject[] objects = ds.getObjects(new WellFieldId(15, 23, 8), seg2, true);

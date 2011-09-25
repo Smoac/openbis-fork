@@ -49,7 +49,7 @@ public class CellLevelClassificationDemo
         System.out.println(((System.currentTimeMillis() - start) / 1000.0) + " s");
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelClassificationDataset ds =
-                reader.getDataSet("456").tryAsClassificationDataset();
+                reader.getDataSet("456").toClassificationDataset();
         for (CellLevelClassificationsEnum<CellState> cls : ds.getClassifications(CellState.class))
         {
             System.out.println(cls.getId() + ":" + Arrays.toString(cls.getData()));
