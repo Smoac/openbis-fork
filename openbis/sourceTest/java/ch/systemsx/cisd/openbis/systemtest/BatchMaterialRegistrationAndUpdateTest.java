@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
@@ -64,94 +62,6 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
     private static final String MATERIAL_TYPE = "CONTROL";
 
     private static final Set<String> CODES = new HashSet<String>(Arrays.asList("C1", "C2"));
-
-    private static class PropertyHistory
-    {
-        private String propertyTypeCode;
-
-        private String value;
-
-        private Long termID;
-
-        private Long materialID;
-
-        private Date validUntilTimeStamp;
-
-        public Date getValidUntilTimeStamp()
-        {
-            return validUntilTimeStamp;
-        }
-
-        public void setValidUntilTimeStamp(Date validUntilTimeStamp)
-        {
-            this.validUntilTimeStamp = validUntilTimeStamp;
-        }
-
-        public void setPropertyTypeCode(String propertyTypeCode)
-        {
-            this.propertyTypeCode = propertyTypeCode;
-        }
-
-        public void setValue(String value)
-        {
-            this.value = value;
-        }
-
-        public void setTermID(Long termID)
-        {
-            this.termID = termID;
-        }
-
-        public void setMaterialID(Long materialID)
-        {
-            this.materialID = materialID;
-        }
-
-        @Override
-        public String toString()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.append(propertyTypeCode).append(":");
-            if (value != null)
-            {
-                builder.append(' ').append(value);
-            }
-            if (termID != null)
-            {
-                builder.append(" term:").append(termID);
-            }
-            if (materialID != null)
-            {
-                builder.append(" material:").append(materialID);
-            }
-            return builder.toString();
-        }
-
-    }
-
-    private static final class HistoryRowMapper implements ParameterizedRowMapper<PropertyHistory>
-    {
-
-        public PropertyHistory mapRow(java.sql.ResultSet rs, int rowNum) throws SQLException
-        {
-            PropertyHistory propertyHistory = new PropertyHistory();
-            propertyHistory.setPropertyTypeCode(rs.getString("code"));
-            propertyHistory.setValue(rs.getString("value"));
-            long id = rs.getLong("cvte_id");
-            if (rs.wasNull() == false)
-            {
-                propertyHistory.setTermID(id);
-            }
-            id = rs.getLong("mate_prop_id");
-            if (rs.wasNull() == false)
-            {
-                propertyHistory.setMaterialID(id);
-            }
-            propertyHistory.setValidUntilTimeStamp(rs.getTimestamp("valid_until_timestamp"));
-            return propertyHistory;
-        }
-
-    }
 
     @AfterMethod
     public void tearDown()
@@ -227,18 +137,19 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         assertProperties(
                 "[BACTERIUM: BACTERIUM-Y (BACTERIUM), DESCRIPTION: compound 2, GENDER: MALE, SIZE: 43]",
                 "C2");
-        List<PropertyHistory> history = getHistory(getMaterialOrNull("C1").getId());
+        List<PropertyHistory> history =
+                getMaterialPropertiesHistory(getMaterialOrNull("C1").getId());
         assertEquals("[BACTERIUM: material:22, DESCRIPTION: compound 1, GENDER: term:12]",
                 history.toString());
         assertCurrentValidUntilTimeStamp(history.get(0));
-        assertEquals("[BACTERIUM: material:34]", getHistory(getMaterialOrNull("C2").getId())
-                .toString());
+        assertEquals("[BACTERIUM: material:34]",
+                getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
 
         updateMaterials("code\tdescription\tgender\tbacterium\n"
                 + "c2\t--DELETE--\tfemale\tbacterium2\n", MATERIAL_TYPE, false);
 
         assertEquals("[BACTERIUM: material:34, BACTERIUM: material:35, GENDER: term:11]",
-                getHistory(getMaterialOrNull("C2").getId()).toString());
+                getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
         deleteTestMaterials();
     }
 
@@ -282,7 +193,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         for (Material deletedMaterial : materialsToBeDeleted)
         {
             assertEquals("Deleted material: " + deletedMaterial, 0,
-                    getHistory(deletedMaterial.getId()).size());
+                    getMaterialPropertiesHistory(deletedMaterial.getId()).size());
         }
     }
 
@@ -354,25 +265,6 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
                         + historyEntry.getValidUntilTimeStamp(),
                 Math.abs(historyEntry.getValidUntilTimeStamp().getTime()
                         - System.currentTimeMillis()) < 10000);
-    }
-
-    private List<PropertyHistory> getHistory(long materialID)
-    {
-        List<PropertyHistory> list =
-                simpleJdbcTemplate
-                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
-                                + " from material_properties_history as h "
-                                + " join material_type_property_types as etpt on h.mtpt_id = etpt.id"
-                                + " join property_types as t on etpt.prty_id = t.id where h.mate_id = ?",
-                                new HistoryRowMapper(), materialID);
-        Collections.sort(list, new Comparator<PropertyHistory>()
-            {
-                public int compare(PropertyHistory o1, PropertyHistory o2)
-                {
-                    return o1.toString().compareTo(o2.toString());
-                }
-            });
-        return list;
     }
 
 }

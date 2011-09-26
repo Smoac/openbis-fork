@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
@@ -29,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -62,6 +66,11 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testUpdateExperimentProperties()
+    {
+    }
+
+    @Test
     public void testUpdateSampleProperties()
     {
         TechId id = new TechId(1043L);
@@ -86,5 +95,9 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 + "COMMENT: extremely simple stuff, DESCRIPTION: hello example, GENDER: FEMALE, "
                 + "ORGANISM: DOG, SIZE: 42]", commonServer.getSampleInfo(sessionToken, id)
                 .getParent());
+
+        List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
+        assertEquals("[ANY_MATERIAL: material:41, ORGANISM: term:9, SIZE: 321]", history.toString());
+
     }
 }
