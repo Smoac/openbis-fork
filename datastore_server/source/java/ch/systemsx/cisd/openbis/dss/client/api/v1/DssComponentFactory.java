@@ -52,4 +52,16 @@ public class DssComponentFactory
     {
         return DssComponent.tryCreate(sessionToken, openBISUrl, timeoutInMillis);
     }
+
+    /** See {@link #tryCreate(String, String, String, long)}. The timeout is fixed to 5 min. */
+    public static IDssComponent tryCreate(String user, String password, String openBISUrl)
+    {
+        return DssComponent.tryCreate(user, password, openBISUrl, 5000);
+    }
+
+    /** See {@link #tryCreate(String, String, long)}. The timeout is fixed to 5 min. */
+    public static IDssComponent tryCreate(String sessionToken, String openBISUrl)
+    {
+        return DssComponent.tryCreate(sessionToken, openBISUrl, 5000);
+    }
 }
