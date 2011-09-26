@@ -99,13 +99,13 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         service.registerExperiment(experiment);
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
-        String parentDataSetCodesOrNull = properties.getProperty(PARENT_DATA_SET_CODES);
+        String parentDataSetCodesOrNull = getProperty(properties, PARENT_DATA_SET_CODES);
         if (parentDataSetCodesOrNull != null)
         {
             info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull)));
         } else 
         {
-            String baseExperimentIdentifier = properties.getProperty(EXPERIMENT_IDENTIFIER_KEY);
+            String baseExperimentIdentifier = getProperty(properties, EXPERIMENT_IDENTIFIER_KEY);
             if (baseExperimentIdentifier != null)
             {
                 ExperimentIdentifier identifier = new ExperimentIdentifierFactory(baseExperimentIdentifier).createIdentifier();
@@ -125,6 +125,16 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
             }
         }
         return info;
+    }
+    
+    private String getProperty(Properties properties, String key)
+    {
+        String property = properties.getProperty(key);
+        if (property == null)
+        {
+            property = properties.getProperty(key.toUpperCase());
+        }
+        return property;
     }
     
     private Properties loadSearchProperties(File propertiesFile)
