@@ -274,7 +274,7 @@ public class OpenBISScreeningML
      * 
      * @param user The user id on the server
      * @param password The password on the server
-     * @param url The URL, e.g. <code>https://www.infectome.org</var>
+     * @param url The URL, e.g. <code>https://www.infectome.org</code>
      */
     public static void login(String user, String password, String url)
     {
