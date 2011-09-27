@@ -24,6 +24,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
@@ -108,6 +111,70 @@ public class PropertiesHistoryTest extends SystemTestCase
         assertEquals(0, commonClientService.getExperimentInfo(id).getProperties().size());
         List<PropertyHistory> history = getExperimentPropertiesHistory(id.getId());
         assertEquals("[BACTERIUM: material:34, DESCRIPTION: A simple experiment, GENDER: term:11]",
+                history.toString());
+    }
+
+    @Test
+    public void testUpdateSampleProperties()
+    {
+        TechId id = new TechId(1042);
+        logIntoCommonClientService();
+        commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.SAMPLE, "GENDER",
+                "CELL_PLATE", false, "male", null, 1L, false, false, null, true));
+        Sample sample = genericClientService.getSampleInfo(id);
+
+        SampleUpdates updates = new SampleUpdates();
+        updates.setSampleId(id);
+        updates.setSessionKey(SESSION_KEY);
+        updates.setVersion(sample.getModificationDate());
+        updates.setSampleIdentifier(sample.getIdentifier());
+        updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(sample.getExperiment()
+                .getIdentifier()));
+        IEntityProperty p1 = new PropertyBuilder("COMMENT").value("hello world").getProperty();
+        IEntityProperty p2 =
+                new PropertyBuilder("GENDER").value(new VocabularyTermBuilder("female").getTerm())
+                        .getProperty();
+        IEntityProperty p3 =
+                new PropertyBuilder("BACTERIUM").value(
+                        new MaterialBuilder().code("BACTERIUM-Y").type("BACTERIUM").getMaterial())
+                        .getProperty();
+        updates.setProperties(Arrays.asList(p1, p2, p3));
+
+        genericClientService.updateSample(updates);
+
+        List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
+        assertEquals("[BACTERIUM: material:34, COMMENT: very advanced stuff, GENDER: term:11]",
+                history.toString());
+    }
+
+    @Test
+    public void testDeleteSampleProperties()
+    {
+        TechId id = new TechId(1042);
+        logIntoCommonClientService();
+        commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.SAMPLE, "GENDER",
+                "CELL_PLATE", false, "male", null, 1L, false, false, null, true));
+        Sample sample = genericClientService.getSampleInfo(id);
+        assertEquals(6, sample.getProperties().size());
+
+        SampleUpdates updates = new SampleUpdates();
+        updates.setSampleId(id);
+        updates.setSessionKey(SESSION_KEY);
+        updates.setVersion(sample.getModificationDate());
+        updates.setSampleIdentifier(sample.getIdentifier());
+        updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(sample.getExperiment()
+                .getIdentifier()));
+        IEntityProperty p1 = new PropertyBuilder("COMMENT").value((String) null).getProperty();
+        IEntityProperty p2 =
+                new PropertyBuilder("GENDER").value((VocabularyTerm) null).getProperty();
+        IEntityProperty p3 = new PropertyBuilder("BACTERIUM").value((Material) null).getProperty();
+        updates.setProperties(Arrays.asList(p1, p2, p3));
+
+        genericClientService.updateSample(updates);
+
+        assertEquals(3, genericClientService.getSampleInfo(id).getProperties().size());
+        List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
+        assertEquals("[BACTERIUM: material:34, COMMENT: very advanced stuff, GENDER: term:11]",
                 history.toString());
     }
 
