@@ -107,12 +107,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
                 new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
-    /**
-     * Adds a 8-bit integer feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addInt8Feature(String name)
     {
         checkDataset();
@@ -121,12 +115,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a 16-bit integer feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addInt16Feature(String name)
     {
         checkDataset();
@@ -135,12 +123,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a 32-bit integer feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addInt32Feature(String name)
     {
         checkDataset();
@@ -149,12 +131,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a 64-bit integer feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addInt64Feature(String name)
     {
         checkDataset();
@@ -163,12 +139,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a 32-bit float feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addFloat32Feature(String name)
     {
         checkDataset();
@@ -177,12 +147,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a 64-bit float feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addFloat64Feature(String name)
     {
         checkDataset();
@@ -191,12 +155,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a boolean feature.
-     * 
-     * @param name The name of the feature.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addBooleanFeature(String name)
     {
         checkDataset();
@@ -205,13 +163,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds a string feature.
-     * 
-     * @param name The name of the feature.
-     * @param len The (maximum) length of the string values.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addStringFeature(String name, int len)
     {
         checkDataset();
@@ -220,14 +171,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds an enumeration feature.
-     * 
-     * @param name The name of the feature.
-     * @param enumName The name of the enumeration type.
-     * @param options The options defining this enumeration.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addEnumFeature(String name, String enumName, List<String> options)
     {
         checkDataset();
@@ -237,13 +180,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Adds an enumeration feature.
-     * 
-     * @param name The name of the feature.
-     * @param enumClass The class that defines this enumeration type.
-     * @return This object (for call chaining).
-     */
     public FeaturesDefinition addEnumFeature(String name, Class<? extends Enum<?>> enumClass)
     {
         checkDataset();
@@ -254,9 +190,6 @@ public class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
-    /**
-     * Creates the default feature group with these feature definitions.
-     */
     public void create()
     {
         checkDataset();
@@ -264,21 +197,12 @@ public class FeaturesDefinition implements IFeaturesDefinition
                 CellLevelFeatureWritableDataset.DEFAULT_FEATURE_GROUP_NAME, this);
     }
 
-    /**
-     * Creates a feature group with given <var>name</var> and these feature definitions.
-     * 
-     * @param name The name of the feature group.
-     * @return The feature group created.
-     */
     public IFeatureGroup createFeatureGroup(String name)
     {
         checkDataset();
         return datasetOrNull.addFeatureGroup(name, this);
     }
 
-    /**
-     * Returns the features.
-     */
     public List<Feature> getFeatures()
     {
         return Collections.unmodifiableList(memberDefinitions);
