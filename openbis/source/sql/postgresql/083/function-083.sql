@@ -685,10 +685,50 @@ CREATE OR REPLACE RULE material_properties_update AS
          current_timestamp
        );
        
+CREATE OR REPLACE RULE material_properties_delete AS
+    ON DELETE TO material_properties DO ALSO 
+       INSERT INTO material_properties_history (
+         ID, 
+         MATE_ID, 
+         MTPT_ID, 
+         VALUE, 
+         CVTE_ID, 
+         MATE_PROP_ID, 
+         VALID_UNTIL_TIMESTAMP 
+       ) VALUES (
+         nextval('MATERIAL_PROPERTY_ID_SEQ'), 
+         OLD.MATE_ID, 
+         OLD.MTPT_ID, 
+         OLD.VALUE, 
+         OLD.CVTE_ID, 
+         OLD.MATE_PROP_ID, 
+         current_timestamp
+       );
+       
 -- Experiment Properties --
 
 CREATE OR REPLACE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties DO ALSO 
+       INSERT INTO experiment_properties_history (
+         ID, 
+         EXPE_ID,
+         ETPT_ID, 
+         VALUE, 
+         CVTE_ID, 
+         MATE_PROP_ID, 
+         VALID_UNTIL_TIMESTAMP 
+       ) VALUES (
+         nextval('EXPERIMENT_PROPERTY_ID_SEQ'), 
+         OLD.EXPE_ID, 
+         OLD.ETPT_ID, 
+         OLD.VALUE, 
+         OLD.CVTE_ID, 
+         OLD.MATE_PROP_ID, 
+         current_timestamp
+       );
+       
+CREATE OR REPLACE RULE experiment_properties_delete AS
+    ON DELETE TO experiment_properties DO ALSO 
        INSERT INTO experiment_properties_history (
          ID, 
          EXPE_ID,
@@ -729,6 +769,26 @@ CREATE OR REPLACE RULE sample_properties_update AS
          current_timestamp
        );
        
+CREATE OR REPLACE RULE sample_properties_delete AS
+    ON DELETE TO sample_properties DO ALSO
+       INSERT INTO sample_properties_history (
+         ID, 
+         SAMP_ID,
+         STPT_ID, 
+         VALUE, 
+         CVTE_ID, 
+         MATE_PROP_ID, 
+         VALID_UNTIL_TIMESTAMP 
+       ) VALUES (
+         nextval('SAMPLE_PROPERTY_ID_SEQ'), 
+         OLD.SAMP_ID, 
+         OLD.STPT_ID, 
+         OLD.VALUE, 
+         OLD.CVTE_ID, 
+         OLD.MATE_PROP_ID, 
+         current_timestamp
+       );
+       
 -- Data Set Properties --
 
 CREATE OR REPLACE RULE data_set_properties_update AS
@@ -750,4 +810,23 @@ CREATE OR REPLACE RULE data_set_properties_update AS
          OLD.MATE_PROP_ID, 
          current_timestamp
        );
-       
+
+CREATE OR REPLACE RULE data_set_properties_delete AS
+    ON DELETE TO data_set_properties DO ALSO
+       INSERT INTO data_set_properties_history (
+         ID, 
+         DS_ID,
+         DSTPT_ID, 
+         VALUE, 
+         CVTE_ID, 
+         MATE_PROP_ID, 
+         VALID_UNTIL_TIMESTAMP 
+       ) VALUES (
+         nextval('DATA_SET_PROPERTY_ID_SEQ'), 
+         OLD.DS_ID, 
+         OLD.DSTPT_ID, 
+         OLD.VALUE, 
+         OLD.CVTE_ID, 
+         OLD.MATE_PROP_ID, 
+         current_timestamp
+       );

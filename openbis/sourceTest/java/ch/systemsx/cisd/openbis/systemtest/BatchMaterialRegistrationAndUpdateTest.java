@@ -148,7 +148,8 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         updateMaterials("code\tdescription\tgender\tbacterium\n"
                 + "c2\t--DELETE--\tfemale\tbacterium2\n", MATERIAL_TYPE, false);
 
-        assertEquals("[BACTERIUM: material:34, BACTERIUM: material:35, GENDER: term:11]",
+        assertEquals(
+                "[BACTERIUM: material:34, BACTERIUM: material:35, DESCRIPTION: compound 2, GENDER: term:11]",
                 getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
         deleteTestMaterials();
     }
