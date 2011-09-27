@@ -59,6 +59,10 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
             {
                 AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);
                 ImagePlus imagePlus = new Opener().openTiff(is, "");
+                if (imagePlus == null)
+                {
+                    throw new IllegalStateException("Cannot open the image file with ImageJ.");
+                }
                 return createBufferedImageOfSameType(imagePlus);
             }
         };
