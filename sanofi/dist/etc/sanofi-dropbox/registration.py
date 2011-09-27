@@ -12,6 +12,10 @@ from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationExce
 
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations import ImageTransformationBuffer 
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, OriginalDataStorageFormat, Location 
+
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import Channel
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ChannelColorRGB
+
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
@@ -86,7 +90,31 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         buffer = ImageTransformationBuffer()
         buffer.appendAllBitShiftsFor12BitGrayscale()
         buffer.appendAutoRescaleGrayscaleIntensity(0, "Original contrast")
+        
+        # This is an example how to add a transformation which is performed
+        # by the ImageMagic convert command line tool.
+        # Any convert parameters can be specified and many different transformations
+        # can be made available.
+        # It is usually useful to add "-depth 12" parameter additionally
+        # if the original image has color depth > 8 bits.
+        buffer.appendImageMagicConvert("-edge 1 -depth 12", "Edge detection")
+
         return buffer.getTransformations()
+    
+    def createChannel(self, channelCode):
+        channelCode = channelCode.upper()
+        channel = Channel(channelCode, channelCode)
+        if (channelCode == "DAPI"):
+            #channel.setWavelengthAndColor(455)
+            channel.setChannelColorRGB(ChannelColorRGB(0,0,255))
+        elif (channelCode == "FITC"):
+            #channel.setWavelengthAndColor(525)
+            channel.setChannelColorRGB(ChannelColorRGB(0,255,0))
+        elif (channelCode == "CY5"):
+            #channel.setWavelengthAndColor(705)
+            channel.setChannelColorRGB(ChannelColorRGB(255,0,0))
+        return channel
+            
         
 def createRawImagesDataset(incoming, plate, batchName, transaction, factory):
     imageDatasetConfig = MyImageDataSetConfig(incoming)
@@ -101,8 +129,6 @@ def createRawImagesDataset(incoming, plate, batchName, transaction, factory):
     #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesForAllChannels()
     #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesThreshold(0.01)
 
-    # Available in the next release:
-    #imageDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
     imageDatasetDetails = factory.createImageRegistrationDetails(imageDatasetConfig, incoming)
     imageDataSet = transaction.createNewDataSet(imageDatasetDetails)
     imageDataSet.setPropertyValue(config.IMAGE_DATASET_BATCH_PROPCODE, batchName)
@@ -126,7 +152,6 @@ def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisPro
     overlayDatasetConfig.setFileFormatType(config.OVERLAY_IMAGE_FILE_FORMAT)
     overlayDatasetConfig.setUseImageMagicToGenerateThumbnails(config.USE_IMAGE_MAGIC_CONVERT_TOOL)
     overlayDatasetConfig.setGenerateHighQualityThumbnails(True)
-    overlayDatasetConfig.setImageLibrary("IJ", "tiff")
     # Available in the next release:
     #overlayDatasetConfig.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
 
