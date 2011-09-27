@@ -551,6 +551,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.searchForDataSets(session.getToken(), searchCriteria);
     }
 
+    public List<Project> listProjects()
+    {
+        return service.listProjects(session.getToken());
+    }
+
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier)
     {
         return service.listExperiments(session.getToken(), projectIdentifier);

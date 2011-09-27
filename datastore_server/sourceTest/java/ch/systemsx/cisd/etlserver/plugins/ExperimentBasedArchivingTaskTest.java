@@ -1,0 +1,477 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.etlserver.plugins;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
+{
+    private static final String LOG_ENTRY_PREFIX_TEMPLATE = "INFO  %s.ExperimentBasedArchivingTask - ";
+
+    private static final String LOG_ENTRY_PREFIX =
+            String.format(LOG_ENTRY_PREFIX_TEMPLATE, LogCategory.OPERATION);
+
+    private static final String NOTIFY_LOG_ENTRY_PREFIX =
+            String.format(LOG_ENTRY_PREFIX_TEMPLATE, LogCategory.NOTIFY);
+    
+    private static final String FREE_SPACE_LOG_ENTRY = LOG_ENTRY_PREFIX
+            + "Free space is below threshold: 103809024 (99 MB) < 104857600 (100 MB)";
+
+    private static final String LOCATION_PREFIX = "abc/";
+    private static final String SHARE_ID = "3";
+    
+    private BufferedAppender logRecorder;
+    private Mockery context;
+    private IEncapsulatedOpenBISService service;
+    private IFreeSpaceProvider freeSpaceProvider;
+    private IShareIdManager shareIdManager;
+    private ExperimentBasedArchivingTask task;
+    private File share;
+    private Properties properties;
+    private Experiment e1;
+    private Experiment e2;
+    private Experiment e3;
+    private DataSet lockedDataSet;
+    private ExternalData notARealDataSet;
+    private DataSet dataSetInAShareToBeIgnored;
+    private DataSet dataSetOfIgnoredType;
+    private DataSet dataSetWithNoModificationDate;
+    private DataSet veryOldDataSet;
+    private DataSet oldDataSet;
+    private DataSet middleOldDataSet;
+    private DataSet youngDataSet;
+    private DataSet veryYoungDataSet;
+
+    @BeforeMethod
+    public void before()
+    {
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        context = new Mockery();
+        service = context.mock(IEncapsulatedOpenBISService.class);
+        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        shareIdManager = context.mock(IShareIdManager.class);
+        task = new ExperimentBasedArchivingTask(service, freeSpaceProvider, shareIdManager);
+        assertEquals(true, task.requiresDataStoreLock());
+        
+        e1 = new ExperimentBuilder().id(41).identifier("/S/P/E1").getExperiment();
+        e2 = new ExperimentBuilder().id(42).identifier("/S/P/E2").getExperiment();
+        e3 = new ExperimentBuilder().id(43).identifier("/S/P/E3").getExperiment();
+        notARealDataSet = new ExternalData();
+        lockedDataSet = dataSet("lockedDataSet").status(DataSetArchivingStatus.LOCKED).getDataSet();
+        dataSetInAShareToBeIgnored = dataSet("dataSetInAShareToBeIgnored").shareID("42").getDataSet();
+        dataSetOfIgnoredType = dataSet("dataSetOfIgnoredType").type("ABC").getDataSet();
+        dataSetWithNoModificationDate = dataSet("dataSetWithNoModificationDate").getDataSet();
+        veryOldDataSet = dataSet("veryOldDataSet").modificationDate(new Date(200)).getDataSet();
+        oldDataSet = dataSet("oldDataSet").modificationDate(new Date(300)).getDataSet();
+        middleOldDataSet = dataSet("middleOldDataSet").modificationDate(new Date(400)).getDataSet();
+        youngDataSet = dataSet("youngDataSet").modificationDate(new Date(1000)).getDataSet();
+        veryYoungDataSet = dataSet("veryYoungDataSet").modificationDate(new Date(2000)).getDataSet();
+        
+        share = new File(workingDirectory, "store/" + SHARE_ID);
+        share.mkdirs();
+        properties = new Properties();
+        properties.setProperty(ExperimentBasedArchivingTask.STOREROOT_DIR_KEY, share.getParent());
+        properties.setProperty(ExperimentBasedArchivingTask.MONITORED_SHARE_KEY, SHARE_ID);
+        properties.setProperty(ExperimentBasedArchivingTask.MINIMUM_FREE_SPACE_KEY, "100");
+        properties.setProperty(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY, "ABC, B");
+    }
+    
+    private DataSetBuilder dataSet(String code)
+    {
+        return new DataSetBuilder().code(code).shareID(SHARE_ID).type("A")
+                .location(LOCATION_PREFIX + code).status(DataSetArchivingStatus.AVAILABLE)
+                .registrationDate(new Date(100));
+    }
+    
+    private void writeSomeDataTo(DataSet dataSet, int numberOfBytes)
+    {
+        File dataSetFolder =
+                new File(new File(share.getParentFile(), dataSet.getShareId()),
+                        dataSet.getLocation());
+        dataSetFolder.mkdirs();
+        byte[] data = new byte[numberOfBytes];
+        for (int i = 0; i < numberOfBytes; i++)
+        {
+            data[i] = (byte) i;
+        }
+        try
+        {
+            FileUtils.writeByteArrayToFile(new File(dataSetFolder, "data"), data);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+    
+    @AfterMethod
+    public void afterMethod()
+    {
+        logRecorder.reset();
+        // The following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLockedDataSet()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, oldDataSet, lockedDataSet, youngDataSet);
+
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveExperimentContainingNotARealDataSet()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, notARealDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog();
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testArchiveExperiments()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2);
+        prepareListDataSetsOf(e1);
+        prepareListDataSetsOf(e2);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog();
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testArchiveExperimentContainingDataSetsFromDifferentShare()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, dataSetInAShareToBeIgnored, youngDataSet);
+        youngDataSet.setSize(10L);
+        prepareArchivingDataSets(youngDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(logEntry(e1, youngDataSet));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveExperimentContainingDataSetsOfAnyType()
+    {
+        properties.remove(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY);
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
+        dataSetOfIgnoredType.setSize(20L);
+        youngDataSet.setSize(10L);
+        prepareArchivingDataSets(dataSetOfIgnoredType, youngDataSet);
+
+        task.setUp("", properties);
+        task.execute();
+
+        checkLog(logEntry(e1, dataSetOfIgnoredType, youngDataSet));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveExperimentContainingDataSetsOfTypeToBeIgnored()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
+        youngDataSet.setSize(10L);
+        prepareArchivingDataSets(youngDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(logEntry(e1, youngDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCalculatingExperimentAgeWhereSomeDataSetsAreAlreadyArchived()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2);
+        prepareListDataSetsOf(e1, oldDataSet, youngDataSet, veryYoungDataSet);
+        oldDataSet.setSize(10L);
+        youngDataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        veryYoungDataSet.setStatus(DataSetArchivingStatus.ARCHIVED);
+        prepareListDataSetsOf(e2, middleOldDataSet);
+        middleOldDataSet.setSize(10L);
+        prepareArchivingDataSets(oldDataSet);
+        prepareArchivingDataSets(middleOldDataSet);
+
+        task.setUp("", properties);
+        task.execute();
+
+        checkLog(logEntry(e1, oldDataSet), logEntry(e2, middleOldDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testCalculatingDataSetSize()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, youngDataSet);
+        writeSomeDataTo(youngDataSet, 700 * 1024);
+        prepareRetrievingShareIdFor(youngDataSet);
+        prepareArchivingDataSets(youngDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(logEntry(e1, youngDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testArchiveExperimentsUntilThereIsEnoughFreeSpace()
+    {
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2);
+        prepareListDataSetsOf(e1, veryYoungDataSet);
+        prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
+        oldDataSet.setSize(500 * 1024L);
+        youngDataSet.setSize(700 * 1024L);
+        prepareArchivingDataSets(oldDataSet, youngDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+
+        checkLog(logEntry(e2, oldDataSet, youngDataSet));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveExperimentsUntilMaximumNumberOfExperimentsIsReached()
+    {
+        properties.setProperty(ExperimentBasedArchivingTask.MAX_NUMBER_OF_EXPERIMENTS_KEY, "2");
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2, e3);
+        prepareListDataSetsOf(e1, veryYoungDataSet);
+        prepareListDataSetsOf(e2, veryOldDataSet, youngDataSet);
+        prepareListDataSetsOf(e3, middleOldDataSet, oldDataSet);
+        prepareArchivingDataSets(veryOldDataSet, youngDataSet);
+        prepareArchivingDataSets(middleOldDataSet, oldDataSet);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(logEntry(e3, middleOldDataSet, oldDataSet),
+                logEntry(e2, veryOldDataSet, youngDataSet));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testArchiveExperimentsWithMaximumNumberIsLargerThanNumberOfExperiments()
+    {
+        properties.setProperty(ExperimentBasedArchivingTask.MAX_NUMBER_OF_EXPERIMENTS_KEY, "3");
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1);
+        prepareListDataSetsOf(e1, youngDataSet);
+        prepareArchivingDataSets(youngDataSet);
+
+        task.setUp("", properties);
+        task.execute();
+
+        checkLog(logEntry(e1, youngDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testArchiveExperimentsInCorrectOrderWhereTheOldestDataSetHasNoModificationDate()
+    {
+        properties.setProperty(ExperimentBasedArchivingTask.MAX_NUMBER_OF_EXPERIMENTS_KEY, "3");
+        prepareFreeSpaceProvider(99L);
+        prepareListExperiments(e1, e2);
+        prepareListDataSetsOf(e1, youngDataSet);
+        prepareListDataSetsOf(e2, dataSetWithNoModificationDate);
+        prepareArchivingDataSets(youngDataSet);
+        prepareArchivingDataSets(dataSetWithNoModificationDate);
+        
+        task.setUp("", properties);
+        task.execute();
+        
+        checkLog(logEntry(e2, dataSetWithNoModificationDate), logEntry(e1, youngDataSet));
+        context.assertIsSatisfied();
+    }
+    
+    private void checkLog(String... archivingEntries)
+    {
+        StringBuilder operationLogBuilder = new StringBuilder(FREE_SPACE_LOG_ENTRY);
+        StringBuilder notifyMessageBuilder = new StringBuilder();
+        for (String entry : archivingEntries)
+        {
+            operationLogBuilder.append("\n").append(LOG_ENTRY_PREFIX).append(entry);
+            notifyMessageBuilder.append("\n").append(entry);
+        }
+        if (archivingEntries.length > 0)
+        {
+            operationLogBuilder.append("\n").append(NOTIFY_LOG_ENTRY_PREFIX);
+            operationLogBuilder.append("Archiving summary:").append(notifyMessageBuilder);
+        }
+        assertEquals(operationLogBuilder.toString(), logRecorder.getLogContent());
+    }
+    
+    private String logEntry(Experiment experiment, DataSet... dataSets)
+    {
+        List<String> dataSetCodes = getDataSetCodes(dataSets);
+        return "Starting archiving " + dataSetCodes.size()
+                + " data sets (if not already archived) of experiment "
+                + experiment.getIdentifier() + ": " + dataSetCodes;
+    }
+    
+    private void prepareFreeSpaceProvider(final long freeSpace)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(share));
+                        will(returnValue(1024L * freeSpace));
+                    } catch (IOException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                    
+                }
+            });
+    }
+    
+    private void prepareListExperiments(final Experiment... experiments)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listProjects();
+                    Project project = new Project();
+                    project.setIdentifier("/S/P");
+                    will(returnValue(Arrays.asList(project)));
+
+                    one(service).listExperiments(getProjectIdentifier(e1));
+                    will(returnValue(Arrays.asList(experiments)));
+                }
+            });
+    }
+
+    private void prepareListDataSetsOf(final Experiment experiment, final ExternalData... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSetsByExperimentID(experiment.getId());
+                    will(returnValue(Arrays.asList(dataSets)));
+                }
+            });
+    }
+
+    private void prepareArchivingDataSets(ExternalData... dataSets)
+    {
+        final List<String> dataSetCodes = getDataSetCodes(dataSets);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).archiveDataSets(dataSetCodes, false);
+                }
+            });
+    }
+
+    private void prepareRetrievingShareIdFor(final DataSet dataSet)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(shareIdManager).lock(dataSet.getCode());
+                one(shareIdManager).getShareId(dataSet.getCode());
+                will(returnValue(dataSet.getShareId()));
+                one(shareIdManager).releaseLock(dataSet.getCode());
+            }
+        });
+    }
+    
+    private List<String> getDataSetCodes(ExternalData... dataSets)
+    {
+        final List<String> dataSetCodes = new ArrayList<String>();
+        for (ExternalData dataSet : dataSets)
+        {
+            dataSetCodes.add(dataSet.getCode());
+        }
+        return dataSetCodes;
+    }
+    
+    private ProjectIdentifier getProjectIdentifier(Experiment e)
+    {
+        return new ProjectIdentifier(e.getProject().getSpace().getCode(), e.getProject().getCode());
+    }
+
+}

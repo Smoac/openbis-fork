@@ -459,6 +459,12 @@ public interface IEncapsulatedOpenBISService
     public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria);
 
     /**
+     * {@link IETLLIMSService#listProjects(String)}
+     */
+    @ManagedAuthentication
+    public List<Project> listProjects();
+    
+    /**
      * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}
      */
     @ManagedAuthentication
