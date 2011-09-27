@@ -28,7 +28,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Writer;
  * 
  * @author Bernd Rinn
  */
-public class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
+class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         ICellLevelFeatureWritableDataset
 {
     private final CellLevelBaseWritableDataset base;

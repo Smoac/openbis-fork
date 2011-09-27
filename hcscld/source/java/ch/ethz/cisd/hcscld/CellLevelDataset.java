@@ -24,7 +24,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  *
  * @author Bernd Rinn
  */
-public abstract class CellLevelDataset implements ICellLevelDataset
+abstract class CellLevelDataset implements ICellLevelDataset
 {
     final IHDF5Reader reader;
 

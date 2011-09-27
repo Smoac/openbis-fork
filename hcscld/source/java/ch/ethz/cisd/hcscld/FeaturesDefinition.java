@@ -34,7 +34,7 @@ import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
  * 
  * @author Bernd Rinn
  */
-public class FeaturesDefinition implements IFeaturesDefinition
+class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
 

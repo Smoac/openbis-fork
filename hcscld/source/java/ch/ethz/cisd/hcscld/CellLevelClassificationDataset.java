@@ -30,7 +30,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  * 
  * @author Bernd Rinn
  */
-public class CellLevelClassificationDataset extends CellLevelDataset implements
+class CellLevelClassificationDataset extends CellLevelDataset implements
         ICellLevelClassificationDataset
 {
     CellLevelClassificationDataset(IHDF5Reader reader, String datasetCode,
