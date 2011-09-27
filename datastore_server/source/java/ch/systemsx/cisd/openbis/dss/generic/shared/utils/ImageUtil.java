@@ -265,7 +265,7 @@ public class ImageUtil
      */
     public static void writeImageToPngFast(BufferedImage image, OutputStream out)
     {
-        writeImageToPng(image, out, PngFilterType.FILTER_NONE, 0);
+        writeImageToPng(image, out, PngFilterType.FILTER_DEFAULT, 0);
     }
 
     /**
