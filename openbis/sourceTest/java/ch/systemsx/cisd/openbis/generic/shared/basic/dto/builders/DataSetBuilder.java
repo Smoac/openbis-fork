@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -92,6 +93,12 @@ public class DataSetBuilder
         return this;
     }
 
+    public DataSetBuilder status(DataSetArchivingStatus status)
+    {
+        dataSet.setStatus(status);
+        return this;
+    }
+
     public DataSetBuilder size(long size)
     {
         dataSet.setSize(size);
@@ -115,6 +122,12 @@ public class DataSetBuilder
     public DataSetBuilder registrationDate(Date registrationDate)
     {
         dataSet.setRegistrationDate(registrationDate);
+        return this;
+    }
+
+    public DataSetBuilder modificationDate(Date modificationDate)
+    {
+        dataSet.setModificationDate(modificationDate);
         return this;
     }
 
