@@ -37,8 +37,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
     public String getSegmentedObjectTypeName();
 
     /**
-     * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
-     * <var>segmentation</var>.
+     * Returns the segmented object with given <var>objectId</var> in the given <var>wellId</var>.
      * 
      * @param wellId The well id to read the the object from.
      * @param objectId The object id to read.
@@ -49,8 +48,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
     public SegmentedObject getObject(WellFieldId wellId, int objectId, boolean withEdge);
 
     /**
-     * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
-     * <var>segmentation</var>.
+     * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
      * 
      * @param wellId The well id to read the the object from.
      * @param x The x coordinate to look up the object for.
@@ -63,8 +61,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
     public SegmentedObject tryFindObject(WellFieldId wellId, int x, int y, boolean withEdge);
 
     /**
-     * Returns the object with given <var>objectId</var> for the given <var>wellId</var> and
-     * <var>segmentation</var>.
+     * Returns all segmented objects in the given <var>wellId</var>.
      * 
      * @param wellId The well id to read the the object from.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
