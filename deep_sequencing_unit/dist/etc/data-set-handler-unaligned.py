@@ -18,7 +18,7 @@ BASECALL_STATS_FOLDER = 'Basecall_Stats_'
 REGEX_FILES = '*.*'
 REGEX_MAKEFILE = 'Make*'
 REGEX_LANES='/P*'
-REGEX_UNDETERMINED = 'U*/Sample*'
+REGEX_UNDETERMINED = '/U*/Sample*'
 UNALIGNED_FOLDER='Unaligned_no_mismatch'
 LANE_FOLDER='/links/shared/dsu-dss/dss/incoming-jython-lanes/'
 MARKER_STRING='.MARKER_is_finished_'
@@ -48,15 +48,19 @@ if (len(split) ==2):
   flowcell=name.split("_")[-1]
   # fix Illumina Script error: the GA FC Name does not contain a suffix A or B so noes not need to be removed
   # but Illumina removes it anyway, so we just revert this 
-  os.rename(incomingPath + '/' + UNALIGNED_FOLDER + '/' +  BASECALL_STATS_FOLDER + name.split("_")[-1][1:], incomingPath + '/' + UNALIGNED_FOLDER +'/' +  BASECALL_STATS_FOLDER + flowcell)
+  #os.rename(incomingPath + '/' + UNALIGNED_FOLDER + '/' +  BASECALL_STATS_FOLDER + name.split("_")[-1][1:], incomingPath + '/' + UNALIGNED_FOLDER +'/' +  BASECALL_STATS_FOLDER + flowcell)
 
 #move Lanes into a different drop box
-#print(incomingPath + '/'+ UNALIGNED_FOLDER + REGEX_LANES)
 laneList=glob.glob(incomingPath + '/'+ UNALIGNED_FOLDER + REGEX_LANES)
 laneList.sort()
-[shutil.move(lane, LANE_FOLDER+lane.split('/')[-1]) for lane in laneList]
+
 undeterminedList=glob.glob(incomingPath + '/'+ UNALIGNED_FOLDER + REGEX_UNDETERMINED)
-[shutil.move(undeterminedLane, LANE_FOLDER+laneList[undeterminedLane.split('/')[-1][-1]]) for undeterminedLane in undeterminedList]
+undeterminedList.sort()
+# Multiplexing:
+# First move the Undetermined reads to the other ones 
+[shutil.move(undeterminedLane, laneList[int(undeterminedLane.split('/')[-1][-1])-1] +'/' + undeterminedLane.split('/')[-1]) for undeterminedLane in undeterminedList]
+
+[shutil.move(lane, LANE_FOLDER+lane.split('/')[-1]) for lane in laneList]
 markerFileList = [touch_markerfile(LANE_FOLDER+MARKER_STRING+lane.split('/')[-1]) for lane in laneList]
 
 # Create a data set and set type
