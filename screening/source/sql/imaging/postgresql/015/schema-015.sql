@@ -100,7 +100,11 @@ CREATE TABLE CHANNELS (
     LABEL NAME NOT NULL,
     DESCRIPTION DESCRIPTION,
     WAVELENGTH INTEGER,
-    COLOR CHANNEL_COLOR NOT NULL,
+
+    -- RGB color components specify the color in which channel should be displayed
+    RED_CC INTEGER NOT NULL,
+    GREEN_CC INTEGER NOT NULL,
+    BLUE_CC INTEGER NOT NULL,
 
     DS_ID TECH_ID,
     EXP_ID TECH_ID,

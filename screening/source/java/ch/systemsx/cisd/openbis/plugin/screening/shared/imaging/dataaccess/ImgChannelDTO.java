@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 import net.lemnik.eodsql.ResultColumn;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 
 /**
  * @author Tomasz Pylak
@@ -46,9 +45,15 @@ public class ImgChannelDTO extends AbstractImgIdentifiable
     @ResultColumn("EXP_ID")
     private Long experimentIdOrNull;
 
-    /** Value for the {@link ImageChannelColor} enum. Not null. */
-    @ResultColumn("COLOR")
-    private String channelColor;
+    /** RGB color components specify the color in which channel should be displayed. Not null. */
+    @ResultColumn("RED_CC")
+    private int redColorComponent;
+
+    @ResultColumn("GREEN_CC")
+    private int greenColorComponent;
+
+    @ResultColumn("BLUE_CC")
+    private int blueColorComponent;
 
     // EODSQL only
     @SuppressWarnings("unused")
@@ -58,8 +63,7 @@ public class ImgChannelDTO extends AbstractImgIdentifiable
     }
 
     public ImgChannelDTO(String code, String descriptionOrNull, Integer wavelengthOrNull,
-            Long datasetIdOrNull, Long experimentIdOrNull, String label,
-            ImageChannelColor channelColor)
+            Long datasetIdOrNull, Long experimentIdOrNull, String label, int r, int g, int b)
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
                 || (datasetIdOrNull != null && experimentIdOrNull == null);
@@ -69,7 +73,10 @@ public class ImgChannelDTO extends AbstractImgIdentifiable
         this.wavelengthOrNull = wavelengthOrNull;
         this.datasetIdOrNull = datasetIdOrNull;
         this.experimentIdOrNull = experimentIdOrNull;
-        this.channelColor = channelColor.name();
+
+        this.redColorComponent = r;
+        this.greenColorComponent = g;
+        this.blueColorComponent = b;
     }
 
     public String getCode()
@@ -133,14 +140,33 @@ public class ImgChannelDTO extends AbstractImgIdentifiable
         this.experimentIdOrNull = experimentId;
     }
 
-    /** Can be converted to {@link ImageChannelColor}. */
-    public String getDbChannelColor()
+    public int getRedColorComponent()
     {
-        return channelColor;
+        return redColorComponent;
     }
 
-    public void setDbChannelColor(String channelColor)
+    public void setRedColorComponent(int redColorComponent)
     {
-        this.channelColor = channelColor;
+        this.redColorComponent = redColorComponent;
+    }
+
+    public int getGreenColorComponent()
+    {
+        return greenColorComponent;
+    }
+
+    public void setGreenColorComponent(int greenColorComponent)
+    {
+        this.greenColorComponent = greenColorComponent;
+    }
+
+    public int getBlueColorComponent()
+    {
+        return blueColorComponent;
+    }
+
+    public void setBlueColorComponent(int blueColorComponent)
+    {
+        this.blueColorComponent = blueColorComponent;
     }
 }

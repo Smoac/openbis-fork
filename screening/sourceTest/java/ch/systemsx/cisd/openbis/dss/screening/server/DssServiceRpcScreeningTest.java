@@ -51,6 +51,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
@@ -81,7 +82,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -178,7 +178,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         imageParameters.setTileColsNum(2);
         imageParameters.setDatasetCode(DATASET_CODE);
         ImageChannel imageChannel =
-                new ImageChannel(CHANNEL_CODE, CHANNEL_CODE, null, null, null,
+                new ImageChannel(CHANNEL_CODE, CHANNEL_CODE, null, null,
                         new ArrayList<ImageTransformationInfo>());
         imageParameters.setChannels(Arrays.asList(imageChannel));
         context.checking(new Expectations()
@@ -343,14 +343,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize, ImageChannelColor.BLUE,
+                            null, thumbnailSize, createBlueColor(),
                             new ImageTransfomationFactories(), null)));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize, ImageChannelColor.BLUE,
+                            null, thumbnailSize, createBlueColor(),
                             new ImageTransfomationFactories(), null)));
                 }
             });
@@ -372,6 +372,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
         assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
+    }
+
+    private static ChannelColorRGB createBlueColor()
+    {
+        return new ChannelColorRGB(0, 0, 255);
     }
 
     BufferedImage extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter)
@@ -397,8 +402,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(dao).tryGetChannelForExperimentPermId(EXPERIMENT_PERM_ID, channel);
                     ImgChannelDTO channelDTO =
-                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi",
-                                    ImageChannelColor.BLUE);
+                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi", 0, 0,
+                                    255);
                     long channelId = 444;
                     channelDTO.setId(channelId);
                     will(returnValue(channelDTO));

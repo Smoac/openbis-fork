@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
@@ -205,12 +204,10 @@ public class HCSDatasetLoader implements IImageDatasetLoader
 
     private ImageChannel convert(ImgChannelDTO channelDTO)
     {
-        ImageChannelColor imageChannelColor =
-                ImageChannelColor.valueOf(channelDTO.getDbChannelColor());
         List<ImageTransformationInfo> availableImageTransformations =
                 convertTransformations(availableImageTransformationsMap.get(channelDTO.getId()));
         return new ImageChannel(channelDTO.getCode(), channelDTO.getLabel(),
-                channelDTO.getDescription(), channelDTO.getWavelength(), imageChannelColor,
+                channelDTO.getDescription(), channelDTO.getWavelength(),
                 availableImageTransformations);
     }
 

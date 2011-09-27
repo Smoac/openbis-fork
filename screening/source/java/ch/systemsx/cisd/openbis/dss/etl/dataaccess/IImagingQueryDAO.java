@@ -70,8 +70,10 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
     public long addExperiment(String experimentPermId);
 
-    @Select("insert into CHANNELS (CODE, LABEL, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID, COLOR) values "
-            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}, ?{1.dbChannelColor}) returning ID")
+    @Select("insert into CHANNELS (CODE, LABEL, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID, "
+            + "RED_CC, GREEN_CC, BLUE_CC) values "
+            + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}, "
+            + "?{1.redColorComponent}, ?{1.greenColorComponent}, ?{1.blueColorComponent}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
@@ -113,7 +115,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     // updates
 
     @Update("update CHANNELS "
-            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength}, COLOR = ?{1.dbChannelColor} "
+            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength}, "
+            + "RED_CC = ?{1.redColorComponent}, GREEN_CC = ?{1.greenColorComponent}, BLUE_CC = ?{1.blueColorComponent}"
             + "where ID = ?{1.id}")
     public void updateChannel(ImgChannelDTO channel);
 }

@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
@@ -328,13 +328,50 @@ public class ImagingDatabaseHelper
             Set<Integer> usedColorsIndieces = new HashSet<Integer>();
             for (Channel channel : channels)
             {
-                ChannelColor channelColor = channel.tryGetChannelColor();
-                if (channelColor != null)
+                ChannelColorRGB channelColorRGB = channel.tryGetChannelColor();
+                if (channelColorRGB != null)
                 {
+                    ChannelColor channelColor = findNearestPlainChannelColor(channelColorRGB);
                     usedColorsIndieces.add(channelColor.getColorOrderIndex());
                 }
             }
             return usedColorsIndieces;
+        }
+
+        @Private
+        static ChannelColor findNearestPlainChannelColor(ChannelColorRGB color)
+        {
+            int r = color.getR();
+            int g = color.getG();
+            int b = color.getB();
+            int max = (r > g ? r : g);
+            max = (b > max ? b : max);
+
+            if (r == max)
+            {
+                if (r == g)
+                {
+                    return ChannelColor.RED_GREEN;
+                } else if (r == b)
+                {
+                    return ChannelColor.RED_BLUE;
+                } else
+                {
+                    return ChannelColor.RED;
+                }
+            } else if (g == max)
+            {
+                if (g == b)
+                {
+                    return ChannelColor.GREEN_BLUE;
+                } else
+                {
+                    return ChannelColor.GREEN;
+                }
+            } else
+            {
+                return ChannelColor.BLUE;
+            }
         }
 
         private static int getSmallestUnused(Set<Integer> usedColorsIndieces)
@@ -451,13 +488,13 @@ public class ImagingDatabaseHelper
 
         private static ImgChannelDTO makeChannelDTO(Channel channel, ChannelOwner channelOwner)
         {
-            ChannelColor channelColor = channel.tryGetChannelColor();
+            ChannelColorRGB channelColor = channel.tryGetChannelColor();
             assert channelColor != null : "channel color should be specified at this point";
-            ImageChannelColor imageChannelColor = ImageChannelColor.valueOf(channelColor.name());
 
             return new ImgChannelDTO(channel.getCode(), channel.tryGetDescription(),
                     channel.tryGetWavelength(), channelOwner.tryGetDatasetId(),
-                    channelOwner.tryGetExperimentId(), channel.getLabel(), imageChannelColor);
+                    channelOwner.tryGetExperimentId(), channel.getLabel(), channelColor.getR(),
+                    channelColor.getG(), channelColor.getB());
         }
     }
 

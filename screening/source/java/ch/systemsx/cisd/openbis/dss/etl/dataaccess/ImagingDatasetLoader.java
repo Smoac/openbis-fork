@@ -32,12 +32,12 @@ import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -135,10 +135,15 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         ColorComponent colorComponent = imageDTO.getColorComponent();
         ImageTransfomationFactories imageTransfomationFactories =
                 createImageTransfomationFactories(imageDTO, channel);
-        ImageChannelColor channelColor = ImageChannelColor.valueOf(channel.getDbChannelColor());
         ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
         return new AbsoluteImageReference(content, path, imageDTO.getImageID(), colorComponent,
-                imageSize, channelColor, imageTransfomationFactories, imageLibrary);
+                imageSize, getColor(channel), imageTransfomationFactories, imageLibrary);
+    }
+
+    private static ChannelColorRGB getColor(ImgChannelDTO channel)
+    {
+        return new ChannelColorRGB(channel.getRedColorComponent(),
+                channel.getGreenColorComponent(), channel.getBlueColorComponent());
     }
 
     private ImageTransfomationFactories createImageTransfomationFactories(ImgImageDTO imageDTO,

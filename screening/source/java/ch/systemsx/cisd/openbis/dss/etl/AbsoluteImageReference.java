@@ -21,9 +21,9 @@ import java.awt.image.BufferedImage;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -46,15 +46,14 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private BufferedImage image;
 
-    private ImageChannelColor channelColor;
+    private ChannelColorRGB channelColor;
 
     /**
      * @param content is the original content before choosing the color component and the image ID
      */
     public AbsoluteImageReference(IContent content, String uniqueId, String imageIdOrNull,
             ColorComponent colorComponentOrNull, RequestedImageSize imageSize,
-            ImageChannelColor channelColor,
-            ImageTransfomationFactories imageTransfomationFactories,
+            ChannelColorRGB channelColor, ImageTransfomationFactories imageTransfomationFactories,
             ImageLibraryInfo imageLibraryOrNull)
     {
         super(imageIdOrNull, colorComponentOrNull);
@@ -128,7 +127,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         return imageTransfomationFactories;
     }
 
-    public ImageChannelColor getChannelColor()
+    public ChannelColorRGB getChannelColor()
     {
         return channelColor;
     }

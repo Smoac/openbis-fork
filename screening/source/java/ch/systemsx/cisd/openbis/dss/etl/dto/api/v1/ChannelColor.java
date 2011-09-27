@@ -47,4 +47,25 @@ public enum ChannelColor
         }
         throw new IllegalStateException("Invalid color index: " + colorIndex + "!");
     }
+
+    public ChannelColorRGB getRGB()
+    {
+        switch (this)
+        {
+            case RED:
+                return new ChannelColorRGB(255, 0, 0);
+            case GREEN:
+                return new ChannelColorRGB(0, 255, 0);
+            case BLUE:
+                return new ChannelColorRGB(0, 0, 255);
+            case RED_GREEN:
+                return new ChannelColorRGB(255, 255, 0);
+            case GREEN_BLUE:
+                return new ChannelColorRGB(0, 255, 255);
+            case RED_BLUE:
+                return new ChannelColorRGB(255, 0, 255);
+            default:
+                throw new IllegalStateException("unhandled enum " + this);
+        }
+    }
 }

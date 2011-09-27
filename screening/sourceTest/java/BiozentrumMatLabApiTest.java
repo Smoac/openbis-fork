@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /*
  * Copyright 2011 ETH Zuerich, CISD
  *
@@ -28,7 +30,7 @@ public class BiozentrumMatLabApiTest
             System.err
                     .println("Specify the password and optionally the plate identifier, mount point and dataset type pattern!");
         }
-        String passwd = args[0];
+        String passwd = "//misiek911";
         String chosenPlate = "/GROUP_DEHIO/KB03-2O-130";
         String mountPoint = null;
         String datasetTypePattern = "HCS_ANALYSIS_CELL_CLASSIFICATIONS_MAT";
@@ -41,25 +43,56 @@ public class BiozentrumMatLabApiTest
             mountPoint = args[2];
         }
 
-        // OpenBISScreeningML.login("cisd", passwd, "https://infectx.biozentrum.unibas.ch");
-        OpenBISScreeningML.login("cisd", passwd, "http://bc2-openbis01.bc2.unibas.ch:8443");
+        OpenBISScreeningML.login("tpylak", passwd, "https://infectx.biozentrum.unibas.ch");
+        Object[][] metadata = OpenBISScreeningML.getImagesMetadata("/RESEARCH_IT/TEST2");
+        System.out.println(Arrays.toString(metadata[0]));
+        Object[][][] loadImages =
+                OpenBISScreeningML.loadImages("/INFECTX/DZ56-1K", 1, 1, 1, new String[]
+                    { "CY5", "DAPI" });
+        System.out.println(loadImages[0][0][0]);
+
+        // OpenBISScreeningML.login("cisd", passwd, "http://bc2-openbis01.bc2.unibas.ch:8443");
         // OpenBISScreeningML.login("admin", passwd, "https://sprint-openbis.ethz.ch:8446");
+
         // OpenBISScreeningML.login("admin", passwd, "http://127.0.0.1:8888");
+        // Object[][] metadata = OpenBISScreeningML.getImagesMetadata("/TEST/PLATE1");
+        // System.out.println(Arrays.toString(metadata[0]));
+        // Object[][][] loadImages =
+        // OpenBISScreeningML.loadImages("/TEST/PLATE1", 1, 1, 1, new String[]
+        // { "DAPI" });
 
-        String experiment = "/TEST/TEST-USER/MY-ASSAY";
+        // String experiment = "/TEST/TEST-USER/MY-ASSAY";
 
-        testListChannels(experiment);
-        testLoadFeatures(chosenPlate, experiment);
-        testImagesMetadata(chosenPlate);
-        testLoadImage(chosenPlate);
-        testWellProperties(chosenPlate);
-        testLoadDataset(chosenPlate, mountPoint, datasetTypePattern);
-        testUploadDataset(chosenPlate);
+        // testListChannels(experiment);
+        // testLoadFeatures(chosenPlate, experiment);
+        // testImagesMetadata(chosenPlate);
+        // testLoadImage(chosenPlate);
+        // testWellProperties(chosenPlate);
+        // testLoadDataset(chosenPlate, mountPoint, datasetTypePattern);
 
-        testUploadDataset("/RESEARCH_IT/TEST2");
+        // testUploadDataset(chosenPlate);
+        // testUploadDataset("/RESEARCH_IT/TEST2");
         // testUploadDataset("/DEMO/VL0206A-FV1801");
         // testUploadDataset("/TEST/PLATE1");
 
+        // integration server test
+        // OpenBISScreeningML.login("admin", passwd, "https://127.0.0.1:8443");
+        // String datasetType = "HCS_MODULESETTINGS_OBJECTCLASSIFICATION_MAT";
+        // String datasetType = "HCS_ANALYSIS_WELL_CLASSIFICATION_SUMMARIES";
+        // String datasetType = "HCS_ANALYSIS_CELL_CLASSIFICATIONS_MAT";
+        // String datasetType = "UNKNOWN";
+        // testUploadDataset("/GROUP_RESEARCHIT/DZ01-1A", datasetType);
+
+        // PlateMetadata[] plateMetadataList = OpenBISScreeningML.getPlateMetadataList(new String[]
+        // { "/TEST/PLATE1", "/TEST/PLATE2", "/TEST/PLATE1.96WELLS", "/TEST/PLATE1.SUFFIX", });
+        try
+        {
+            Thread.currentThread().sleep(1000000);
+        } catch (InterruptedException ex)
+        {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+        }
         OpenBISScreeningML.logout();
     }
 
@@ -69,21 +102,16 @@ public class BiozentrumMatLabApiTest
         print2DArray(channels);
     }
 
-    private static void testUploadDataset(String chosenPlate)
+    private static void testUploadDataset(String chosenPlate, String datasetType)
     {
         String file = "/Users/tpylak/main/tmp/bioz-test/PlateSummary.csv";
-        String datasetType = "HCS_ANALYSIS_WELL_CLASSIFICATION_SUMMARIES";
         String datasetCode;
         Object[][] dataSetProperties = new Object[][]
             { new Object[] {} };
+
         datasetCode =
                 (String) OpenBISScreeningML.uploadDataSet(chosenPlate, file, datasetType,
                         dataSetProperties);
-        System.out.println("Uploaded classification dataset " + datasetCode);
-
-        datasetCode =
-                (String) OpenBISScreeningML.uploadDataSet(chosenPlate, file,
-                        "HCS_ANALYSIS_CELL_CLASSIFICATIONS_MAT", dataSetProperties);
         System.out.println("Uploaded any dataset " + datasetCode);
     }
 

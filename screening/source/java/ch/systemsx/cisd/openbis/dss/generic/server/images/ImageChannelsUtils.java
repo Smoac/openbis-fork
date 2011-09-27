@@ -23,7 +23,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.image.MixColors;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -51,7 +52,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformatio
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
@@ -449,6 +449,7 @@ public class ImageChannelsUtils
             operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
         }
 
+
         // resized the image if necessary
         RequestedImageSize requestedSize = imageReference.getRequestedSize();
 
@@ -645,21 +646,57 @@ public class ImageChannelsUtils
     // this method always returns RGB images, even if the input was in grayscale
     private static BufferedImage mergeImages(List<ImageWithReference> images)
     {
-        assert images.size() > 1 : "more than 1 image expected, but found: " + images.size();
-
-        BufferedImage newImage = createNewRGBImage(images.get(0).getBufferedImage());
-        int width = newImage.getWidth();
-        int height = newImage.getHeight();
-        int colorBuffer[] = new int[4];
-        for (int y = 0; y < height; y++)
+        BufferedImage[] bufferedImages = new BufferedImage[images.size()];
+        Color[] colors = new Color[images.size()];
+        for (int i = 0; i < images.size(); i++)
         {
-            for (int x = 0; x < width; x++)
-            {
-                int mergedRGB = mergeRGBColor(images, x, y, colorBuffer);
-                newImage.setRGB(x, y, mergedRGB);
-            }
+            ImageWithReference image = images.get(i);
+            bufferedImages[i] = image.getBufferedImage();
+            colors[i] = getColor(image);
         }
-        return newImage;
+
+        ColorComponent[] colorComponents = tryExtractColorComponent(images);
+        if (colorComponents != null)
+        {
+            return ColorComponentImageChannelMerger.mergeByExtractingComponents(bufferedImages,
+                    colorComponents);
+        } else
+        {
+            return MixColors.mixImages(bufferedImages, colors, false, 0);
+        }
+    }
+
+    private static Color getColor(ImageWithReference image)
+    {
+        return getColor(image.getReference().getChannelColor());
+    }
+
+    private static Color getColor(ChannelColorRGB color)
+    {
+        return new Color(color.getR(), color.getG(), color.getB());
+    }
+
+    private static ColorComponent[] tryExtractColorComponent(List<ImageWithReference> images)
+    {
+        ColorComponent[] components = new ColorComponent[images.size()];
+        int i = 0;
+        for (ImageWithReference image : images)
+        {
+            ColorComponent colorComponent = image.getReference().tryGetColorComponent();
+            if (colorComponent == null)
+            {
+                if (i == 0)
+                {
+                    return null;
+                } else
+                {
+                    throw new IllegalStateException(
+                            "Some images have color component set and some have it unset.");
+                }
+            }
+            components[i++] = colorComponent;
+        }
+        return components;
     }
 
     private static void drawOverlay(BufferedImage image, ImageWithReference overlayImage)
@@ -728,63 +765,6 @@ public class ImageChannelsUtils
         return image.getBufferedImage().getColorModel().hasAlpha();
     }
 
-    private static int mergeRGBColor(List<ImageWithReference> images, int x, int y,
-            int colorBuffer[])
-    {
-        Arrays.fill(colorBuffer, 0);
-        for (int index = 0; index < images.size(); index++)
-        {
-            ImageWithReference image = images.get(index);
-            int rgb = image.getBufferedImage().getRGB(x, y);
-            Color singleColor = new Color(rgb, true);
-            AbsoluteImageReference imageReference = image.getReference();
-            setColorComponents(colorBuffer, singleColor, imageReference);
-            // merge alpha channel
-            colorBuffer[3] = Math.max(colorBuffer[3], singleColor.getAlpha());
-        }
-        return asRGB(colorBuffer);
-    }
-
-    private static void setColorComponents(int[] colorBuffer, Color singleColor,
-            AbsoluteImageReference imageReference)
-    {
-        ColorComponent colorComponent = imageReference.tryGetColorComponent();
-        if (colorComponent != null)
-        {
-            int index = getColorComponentIndex(colorComponent);
-            colorBuffer[index] = colorComponent.getComponent(singleColor);
-        } else
-        {
-            ImageChannelColor channelColor = imageReference.getChannelColor();
-            setColorComponentsForChannelIndex(colorBuffer, singleColor, channelColor);
-        }
-    }
-
-    private static int getColorComponentIndex(ColorComponent colorComponent)
-    {
-        switch (colorComponent)
-        {
-            case RED:
-                return 0;
-            case GREEN:
-                return 1;
-            case BLUE:
-                return 2;
-            default:
-                throw new IllegalStateException("Unknown color " + colorComponent);
-        }
-    }
-
-    private static void setColorComponentsForChannelIndex(int[] colorBuffer, Color singleColor,
-            ImageChannelColor channelColor)
-    {
-        int maxIngredient = extractMaxColorIngredient(singleColor);
-        for (int i : getRGBColorIndexes(channelColor))
-        {
-            colorBuffer[i] = Math.max(colorBuffer[i], maxIngredient);
-        }
-    }
-
     // --------- common
 
     private EnvironmentFailureException createImageNotFoundException(
@@ -817,6 +797,13 @@ public class ImageChannelsUtils
         return newImage;
     }
 
+    // We reset all ingredients besides the one which is specified by color component.
+    // The result is the rgb value with only one component which is non-zero.
+    private static int extractSingleComponent(int rgb, ColorComponent colorComponent)
+    {
+        return colorComponent.extractSingleComponent(rgb).getRGB();
+    }
+
     // NOTE: drawing on this image will not preserve transparency - but we do not need it and the
     // image is smaller
     private static BufferedImage createNewRGBImage(RenderedImage bufferedImage)
@@ -825,52 +812,6 @@ public class ImageChannelsUtils
                 new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
                         BufferedImage.TYPE_INT_RGB);
         return newImage;
-    }
-
-    // 0=R, 1=G, 2=B, 3=RG, 4=RB, 5=GB
-    private static int[] getRGBColorIndexes(ImageChannelColor channelColor)
-    {
-        switch (channelColor)
-        {
-            case RED:
-                return new int[]
-                    { 0 };
-            case GREEN:
-                return new int[]
-                    { 1 };
-            case BLUE:
-                return new int[]
-                    { 2 };
-            case RED_GREEN:
-                return new int[]
-                    { 0, 1 };
-            case RED_BLUE:
-                return new int[]
-                    { 0, 2 };
-            case GREEN_BLUE:
-                return new int[]
-                    { 1, 2 };
-            default:
-                throw new IllegalStateException("not possible");
-        }
-    }
-
-    // We reset all ingredients besides the one which is specified by color component.
-    // The result is the rgb value with only one component which is non-zero.
-    private static int extractSingleComponent(int rgb, ColorComponent colorComponent)
-    {
-        return colorComponent.extractSingleComponent(rgb).getRGB();
-    }
-
-    // returns the max ingredient for the color
-    private static int extractMaxColorIngredient(Color c)
-    {
-        return Math.max(Math.max(c.getBlue(), c.getGreen()), c.getRed());
-    }
-
-    private static int asRGB(int[] rgb)
-    {
-        return new Color(rgb[0], rgb[1], rgb[2], rgb[3]).getRGB();
     }
 
     private static IContent createPngContent(BufferedImage image, String nameOrNull)

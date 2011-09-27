@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
+import java.awt.Color;
+
+import ch.systemsx.cisd.common.image.WavelengthColor;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 
@@ -21,7 +24,7 @@ public final class Channel extends AbstractHashable
 
     private Integer wavelength;
 
-    private ChannelColor channelColorOrNull;
+    private ChannelColorRGB channelColorOrNull;
 
     private ImageTransformation[] availableTransformations = new ImageTransformation[0];
 
@@ -31,7 +34,7 @@ public final class Channel extends AbstractHashable
      */
     public Channel(String code, String label)
     {
-        this(code, label, null);
+        this(code, label, (ChannelColorRGB) null);
     }
 
     /**
@@ -40,11 +43,29 @@ public final class Channel extends AbstractHashable
      */
     public Channel(String code, String label, ChannelColor channelColorOrNull)
     {
+        this(code, label, convertColor(channelColorOrNull));
+    }
+
+    /**
+     * Constructs a channel with a specified code and label. The channel will be presented in a
+     * specified color.
+     */
+    public Channel(String code, String label, ChannelColorRGB channelColorOrNull)
+    {
         assert code != null : "code is null";
         assert label != null : "label is null";
         this.label = label;
         this.code = code;
         this.channelColorOrNull = channelColorOrNull;
+    }
+
+    private static ChannelColorRGB convertColor(ChannelColor plainChannelColorOrNull)
+    {
+        if (plainChannelColorOrNull == null)
+        {
+            return null;
+        }
+        return plainChannelColorOrNull.getRGB();
     }
 
     public String getCode()
@@ -72,7 +93,7 @@ public final class Channel extends AbstractHashable
      *         null only during dataset registration when default color should be used, afterwards
      *         never null.
      */
-    public ChannelColor tryGetChannelColor()
+    public ChannelColorRGB tryGetChannelColor()
     {
         return channelColorOrNull;
     }
@@ -85,20 +106,46 @@ public final class Channel extends AbstractHashable
 
     // ------------------- setters -------------------
 
-    /** Sets the description of the channel.Optional. */
+    /** Sets the description of the channel. Optional. */
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    /** Sets the wavelength of the channel.Optional. */
+    /** Sets the wavelength of the light (in nanometers) used to acquire this channel. Optional. */
     public void setWavelength(Integer wavelength)
     {
         this.wavelength = wavelength;
     }
 
-    /** Sets the color in which this channel will be displayed. */
+    /**
+     * Sets the wavelength of the light (in nanometers) used to acquire this channel.<br>
+     * Additionally sets the channel color. The color is calculated for display on a computer
+     * monitor on the basis of the given wavelength using Bruton's algorithm. See <a
+     * href="http://www.midnightkite.com/color.html">COLOR SCIENCE web page</a> for details.
+     * <p>
+     * Optional.
+     */
+    public void setWavelengthAndColor(Integer wavelength)
+    {
+        this.wavelength = wavelength;
+        Color color = WavelengthColor.getColorForWavelength(wavelength);
+        setChannelColorRGB(convertColor(color));
+    }
+
+    private ChannelColorRGB convertColor(Color color)
+    {
+        return new ChannelColorRGB(color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    /** Sets the plain color in which this channel will be displayed. */
     public void setChannelColor(ChannelColor channelColor)
+    {
+        this.channelColorOrNull = convertColor(channelColor);
+    }
+
+    /** Sets RGB color in which this channel will be displayed. */
+    public void setChannelColorRGB(ChannelColorRGB channelColor)
     {
         this.channelColorOrNull = channelColor;
     }

@@ -118,14 +118,34 @@ abstract public class SimpleImageDataConfig
      */
     public Channel createChannel(String channelCode)
     {
-        ChannelColor channelColor = getChannelColor(channelCode);
+        ChannelColorRGB channelColorOrNull = tryGetChannelColor(channelCode);
         ImageTransformation[] availableTransformations =
                 getAvailableChannelTransformations(channelCode);
         String label = channelCode;
         String normalizedChannelCode = CodeNormalizer.normalize(channelCode);
-        Channel channel = new Channel(normalizedChannelCode, label, channelColor);
+        Channel channel = new Channel(normalizedChannelCode, label, channelColorOrNull);
         channel.setAvailableTransformations(availableTransformations);
         return channel;
+    }
+
+    private ChannelColorRGB tryGetChannelColor(String channelCode)
+    {
+        ChannelColor channelColor = getChannelColor(channelCode);
+        ChannelColorRGB channelColorRGB = getChannelColorRGB(channelCode);
+        if (channelColorRGB != null && channelColor != null)
+        {
+            throw new IllegalStateException(String.format(
+                    "Color for channel '%s' is specified in two ways: %s and %s", channelColor,
+                    channelColorRGB));
+        }
+
+        if (channelColor != null)
+        {
+            return channelColor.getRGB();
+        } else
+        {
+            return channelColorRGB;
+        }
     }
 
     /**
@@ -143,14 +163,24 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * Returns color for the specified channel. It will be used to display merged channels images.
+     * Has the same effect as {@link #getChannelColorRGB(String)}, but can return only plain colors.
+     */
+    public ChannelColor getChannelColor(String channelCode)
+    {
+        return null;
+    }
+
+    /**
+     * Returns RGB color for the specified channel. It will be used to display merged channels
+     * images.
      * <p>
      * Can be overridden in subclasses. It is ignored if {@link #createChannel(String)} is
-     * overridden as well.
+     * overridden as well. One should not override {@link #getChannelColor(String)} and
+     * {@link #getChannelColorRGB(String)} at the same time.
      * </p>
      * By default returns null (the arbitrary color will be set).
      */
-    public ChannelColor getChannelColor(String channelCode)
+    public ChannelColorRGB getChannelColorRGB(String channelCode)
     {
         return null;
     }

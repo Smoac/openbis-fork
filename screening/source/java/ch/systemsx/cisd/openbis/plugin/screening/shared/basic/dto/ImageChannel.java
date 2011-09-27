@@ -40,8 +40,6 @@ public class ImageChannel implements ISerializable
 
     private Integer wavelength;
 
-    private ImageChannelColor channelColor;
-
     private List<ImageTransformationInfo> availableImageTransformations;
 
     // GWT only
@@ -51,17 +49,15 @@ public class ImageChannel implements ISerializable
     }
 
     public ImageChannel(String code, String label, String description, Integer wavelength,
-            ImageChannelColor channelColor,
             List<ImageTransformationInfo> availableImageTransformations)
     {
         assert code != null;
-//        assert availableImageTransformations != null;
+        // assert availableImageTransformations != null;
 
         this.code = code;
         this.label = label;
         this.description = description;
         this.wavelength = wavelength;
-        this.channelColor = channelColor;
         this.availableImageTransformations = availableImageTransformations;
     }
 
@@ -83,14 +79,6 @@ public class ImageChannel implements ISerializable
     public String getLabel()
     {
         return label;
-    }
-
-    /**
-     * @return color for the specified channel which will be used to display merged channels images.
-     */
-    public ImageChannelColor getChannelColor()
-    {
-        return channelColor;
     }
 
     public List<ImageTransformationInfo> getAvailableImageTransformations()

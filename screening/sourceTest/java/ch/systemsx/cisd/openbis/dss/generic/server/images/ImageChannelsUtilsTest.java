@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
@@ -53,7 +54,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
 
@@ -180,7 +180,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                     allowing(loader).getImageParameters();
                     ImageDatasetParameters imgParams = new ImageDatasetParameters();
                     imgParams.setChannels(Arrays.asList(new ImageChannel(CHANNEL, CHANNEL, null,
-                            null, null, new ArrayList<ImageTransformationInfo>())));
+                            null, new ArrayList<ImageTransformationInfo>())));
                     will(returnValue(imgParams));
 
                     RequestedImageSize requestedSize =
@@ -246,7 +246,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             RequestedImageSize imageSize)
     {
         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
-                ImageChannelColor.BLUE, new ImageTransfomationFactories(), null);
+                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null);
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
