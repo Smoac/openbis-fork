@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
  * A class that manages the configuring of column settings in the AbstractBrowserGrid.
@@ -92,9 +93,8 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                             DisplaySettingsManager displaySettingsManager =
                                     viewContext.getDisplaySettingsManager();
                             displaySettingsManager.storeSettings(gridDisplayTypeID,
-                                    new IDisplaySettingsGetter()
+                                    new IDisplaySettingsGetter<T>()
                                         {
-
                                             public Object getModifier()
                                             {
                                                 return browserGrid;
@@ -108,6 +108,11 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                                             public ColumnModel getColumnModel()
                                             {
                                                 return newColumnModel;
+                                            }
+
+                                            public SortInfo<T> getSortState()
+                                            {
+                                                return browserGrid.getGridSortInfo();
                                             }
                                         }, false);
 
@@ -182,7 +187,7 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
         }
         return new ColumnModel(columns);
     }
-    
+
     private Map<String, ColumnConfig> getOldColumns()
     {
         List<ColumnConfig> columns = browserGrid.getFullColumnModel().getColumns();
@@ -193,7 +198,7 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
         }
         return map;
     }
-    
+
     private static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
     {
         List<String> filteredColumnsIds = new ArrayList<String>();

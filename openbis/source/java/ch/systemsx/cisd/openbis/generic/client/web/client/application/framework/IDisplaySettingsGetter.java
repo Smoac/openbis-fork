@@ -20,16 +20,20 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+
 /**
  * The interface with which {@link DisplaySettingsManager} gets the current settings.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public interface IDisplaySettingsGetter
+public interface IDisplaySettingsGetter<T>
 {
     ColumnModel getColumnModel();
 
     List<String> getFilteredColumnIds();
 
     Object getModifier();
+
+    SortInfo<T> getSortState();
 }

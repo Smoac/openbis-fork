@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
  * Class storing personalised display settings for a table column. This class implements
@@ -40,6 +41,18 @@ public class ColumnSetting implements ISerializable
     private boolean hasFilter;
 
     private int width;
+
+    private SortDir sortDir;
+
+    public SortDir getSortDir()
+    {
+        return sortDir;
+    }
+
+    public void setSortDir(SortDir sortDir)
+    {
+        this.sortDir = sortDir;
+    }
 
     public final String getColumnID()
     {

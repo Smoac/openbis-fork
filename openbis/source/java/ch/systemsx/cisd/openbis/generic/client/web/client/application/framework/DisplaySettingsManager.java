@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PortletConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
@@ -128,19 +130,13 @@ public class DisplaySettingsManager
      * Register listeners which monitors all the column configuration changes and makes them
      * persistent.
      */
-    public void registerGridSettingsChangesListener(final String displayTypeID,
-            final IDisplaySettingsGetter grid)
+    public <C> void registerGridSettingsChangesListener(final String displayTypeID,
+            final IDisplaySettingsGetter<C> grid)
     {
         Listener<ColumnModelEvent> listener = new Listener<ColumnModelEvent>()
             {
                 public void handleEvent(ColumnModelEvent event)
                 {
-                    // When FAKE width change event is fired display settings are NOT updated.
-                    // check: AbstractBrowserGrid.refreshColumnHeaderWidths()
-                    if (isFakeWidthChangeEvent(event))
-                    {
-                        return;
-                    }
                     if (event.getType() == Events.ColumnMove)
                     {
                         // Update full column model from event triggered by change in trimmed model.
@@ -222,26 +218,33 @@ public class DisplaySettingsManager
      * display type ID. Stored settings (if any) override the current settings.
      */
     public GridDisplaySettings tryApplySettings(String displayTypeID, ColumnModel columnModel,
-            List<String> filteredColumnIds)
+            List<String> filteredColumnIds, SortInfo<?> sortInfo)
     {
         List<ColumnSetting> columnSettings = getColumnSettings(displayTypeID);
         if (columnSettings == null)
         {
             return null;
         }
-        return tryApplySettings(columnSettings, columnModel, filteredColumnIds);
+        return tryApplySettings(columnSettings, columnModel, filteredColumnIds, sortInfo);
     }
 
     public static class GridDisplaySettings
     {
-        List<ColumnConfig> columnConfigs;
+        private List<ColumnConfig> columnConfigs;
 
-        List<String> filteredColumnIds;
+        private List<String> filteredColumnIds;
 
-        public GridDisplaySettings(List<ColumnConfig> columnConfigs, List<String> filteredColumnIds)
+        private String sortField;
+
+        private SortDir sortDir;
+
+        public GridDisplaySettings(List<ColumnConfig> columnConfigs,
+                List<String> filteredColumnIds, String sortField, SortDir sortDirection)
         {
             this.columnConfigs = columnConfigs;
             this.filteredColumnIds = filteredColumnIds;
+            this.sortField = sortField;
+            this.sortDir = sortDirection;
         }
 
         public List<ColumnConfig> getColumnConfigs()
@@ -263,6 +266,26 @@ public class DisplaySettingsManager
         {
             this.filteredColumnIds = filteredColumnIds;
         }
+
+        public String getSortField()
+        {
+            return sortField;
+        }
+
+        public void setSortField(String sortField)
+        {
+            this.sortField = sortField;
+        }
+
+        public SortDir getSortDir()
+        {
+            return sortDir;
+        }
+
+        public void setSortDir(SortDir sortDir)
+        {
+            this.sortDir = sortDir;
+        }
     }
 
     /**
@@ -272,12 +295,18 @@ public class DisplaySettingsManager
      *            defaults
      */
     private static GridDisplaySettings tryApplySettings(List<ColumnSetting> columnSettings,
-            ColumnModel columnModel, List<String> filteredColumnIds)
+            ColumnModel columnModel, List<String> filteredColumnIds, SortInfo<?> sortInfo)
     {
         boolean refreshNeeded = false;
         List<ColumnConfig> newColumnConfigList = new ArrayList<ColumnConfig>();
         Set<String> ids = new HashSet<String>();
         List<String> newFilteredColumnIds = new ArrayList<String>();
+
+        String sortField =
+                sortInfo == null ? null : sortInfo.getSortField() == null ? null : sortInfo
+                        .getSortField().getIdentifier();
+        SortDir sortDirection = sortInfo == null ? null : sortInfo.getSortDir();
+
         for (int i = 0; i < columnSettings.size(); i++)
         {
             ColumnSetting columnSetting = columnSettings.get(i);
@@ -308,6 +337,18 @@ public class DisplaySettingsManager
                 {
                     newFilteredColumnIds.add(columnID);
                 }
+
+                SortDir columnSortDir = columnSetting.getSortDir();
+                if (columnSortDir != null)
+                {
+                    if (sortInfo == null || columnSortDir != sortInfo.getSortDir()
+                            || columnID.equals(sortInfo.getSortField().getIdentifier()) == false)
+                    {
+                        sortField = columnID;
+                        sortDirection = columnSetting.getSortDir();
+                        refreshNeeded = true;
+                    }
+                }
             }
         }
         // add columns for which no settings were stored at the end
@@ -325,19 +366,20 @@ public class DisplaySettingsManager
         }
         if (refreshNeeded)
         {
-            return new GridDisplaySettings(newColumnConfigList, newFilteredColumnIds);
+            return new GridDisplaySettings(newColumnConfigList, newFilteredColumnIds, sortField,
+                    sortDirection);
         } else
         {
             return null;
         }
     }
 
-    public void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid,
+    public <C> void storeSettings(final String displayTypeID, final IDisplaySettingsGetter<C> grid,
             boolean delayed)
     {
         int delayMs = delayed ? QUITE_TIME_BEFORE_SETTINGS_SAVED_MS : 1; // zero not allowed
         storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(),
-                grid.getModifier(), delayMs);
+                grid.getModifier(), grid.getSortState(), delayMs);
     }
 
     public void storeActiveTabSettings(String tabGroupDisplayID, String selectedTabDisplayID,
@@ -347,10 +389,11 @@ public class DisplaySettingsManager
         updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
-    private void storeSettings(String displayTypeID, ColumnModel columnModel,
-            List<String> filteredColumnIds, Object modifier, int delayMs)
+    private <C> void storeSettings(String displayTypeID, ColumnModel columnModel,
+            List<String> filteredColumnIds, Object modifier, SortInfo<C> sortInfo, int delayMs)
     {
-        List<ColumnSetting> columnSettings = createColumnsSettings(columnModel, filteredColumnIds);
+        List<ColumnSetting> columnSettings =
+                createColumnsSettings(columnModel, filteredColumnIds, sortInfo);
         updateColumnSettings(displayTypeID, columnSettings, modifier);
         updater.executeDelayed(delayMs);
     }
@@ -366,8 +409,8 @@ public class DisplaySettingsManager
         updater.executeDelayed(1); // 0 not allowed
     }
 
-    private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,
-            List<String> filteredColumnIdsList)
+    private static <C> List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,
+            List<String> filteredColumnIdsList, SortInfo<C> sortInfo)
     {
         Set<String> filteredColumnIds = new HashSet<String>(filteredColumnIdsList);
         List<ColumnSetting> columnSettings = new ArrayList<ColumnSetting>();
@@ -380,6 +423,11 @@ public class DisplaySettingsManager
             columnSetting.setWidth(columnConfig.getWidth());
             boolean hasFilter = filteredColumnIds.contains(columnConfig.getId());
             columnSetting.setHasFilter(hasFilter);
+            if (sortInfo != null && sortInfo.getSortField() != null
+                    && columnSetting.getColumnID().equals(sortInfo.getSortField().getIdentifier()))
+            {
+                columnSetting.setSortDir(sortInfo.getSortDir());
+            }
             columnSettings.add(columnSetting);
         }
         return columnSettings;

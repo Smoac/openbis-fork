@@ -34,9 +34,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDelayedUpdater;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
@@ -119,7 +119,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         final ColumnModel columnModel = new ColumnModel(new ArrayList<ColumnConfig>());
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertNull(result);
         context.assertIsSatisfied();
     }
@@ -137,7 +137,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertNull(result);
         context.assertIsSatisfied();
     }
@@ -155,7 +155,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertMatches(result.getColumnConfigs(), createColumnConfig(c1Setting), c2);
         context.assertIsSatisfied();
     }
@@ -173,7 +173,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertMatches(result.getColumnConfigs(), c2, c1);
 
         context.assertIsSatisfied();
@@ -192,7 +192,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertMatches(result.getColumnConfigs(), c2);
 
         context.assertIsSatisfied();
@@ -210,7 +210,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertMatches(result.getColumnConfigs(), c2, c1);
 
         context.assertIsSatisfied();
@@ -229,7 +229,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
-                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds);
+                manager.tryApplySettings(DISPLAY_TYPE_ID, columnModel, filterColumnIds, null);
         assertMatches(result.getColumnConfigs(), createColumnConfig(c1Setting), c2);
 
         context.assertIsSatisfied();
