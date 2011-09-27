@@ -256,6 +256,19 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         return list;
     }
 
+    protected List<PropertyHistory> getExperimentPropertiesHistory(long experimentID)
+    {
+        List<PropertyHistory> list =
+                simpleJdbcTemplate
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                                + " from experiment_properties_history as h "
+                                + " join experiment_type_property_types as etpt on h.etpt_id = etpt.id"
+                                + " join property_types as t on etpt.prty_id = t.id where h.expe_id = ?",
+                                new HistoryRowMapper(), experimentID);
+        sort(list);
+        return list;
+    }
+
     protected List<PropertyHistory> getSamplePropertiesHistory(long sampleID)
     {
         List<PropertyHistory> list =
@@ -265,6 +278,19 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
                                 + " join sample_type_property_types as etpt on h.stpt_id = etpt.id"
                                 + " join property_types as t on etpt.prty_id = t.id where h.samp_id = ?",
                                 new HistoryRowMapper(), sampleID);
+        sort(list);
+        return list;
+    }
+
+    protected List<PropertyHistory> getDataSetPropertiesHistory(long dataSetID)
+    {
+        List<PropertyHistory> list =
+                simpleJdbcTemplate
+                        .query("select t.code, h.value, h.cvte_id, h.mate_prop_id, valid_until_timestamp"
+                                + " from data_set_properties_history as h "
+                                + " join data_set_type_property_types as etpt on h.dstpt_id = etpt.id"
+                                + " join property_types as t on etpt.prty_id = t.id where h.ds_id = ?",
+                                new HistoryRowMapper(), dataSetID);
         sort(list);
         return list;
     }
