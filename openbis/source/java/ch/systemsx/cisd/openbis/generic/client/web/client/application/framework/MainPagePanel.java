@@ -82,6 +82,7 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         removeAll();
     }
 
+    @Override
     public Widget asWidget()
     {
         return this;

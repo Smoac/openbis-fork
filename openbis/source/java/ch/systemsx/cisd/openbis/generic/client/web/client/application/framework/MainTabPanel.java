@@ -372,6 +372,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         }
     }
 
+    @Override
     public Widget asWidget()
     {
         return this;
