@@ -33,11 +33,17 @@ public class CellLevelClassificationsEnum<T extends Enum<T>>
         this.data = data;
     }
 
+    /**
+     * Returns the well field id of this classification results.
+     */
     public WellFieldId getId()
     {
         return id;
     }
 
+    /**
+     * Returns the classification results as enums.
+     */
     public T[] getData()
     {
         return data;

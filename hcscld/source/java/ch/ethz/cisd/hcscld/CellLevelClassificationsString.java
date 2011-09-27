@@ -33,11 +33,17 @@ public class CellLevelClassificationsString
         this.data = data;
     }
 
+    /**
+     * Returns the well field id of this classification results.
+     */
     public WellFieldId getId()
     {
         return id;
     }
 
+    /**
+     * Returns the classification results as strings.
+     */
     public String[] getData()
     {
         return data;

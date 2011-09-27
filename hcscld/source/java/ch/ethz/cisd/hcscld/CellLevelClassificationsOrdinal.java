@@ -33,11 +33,17 @@ public class CellLevelClassificationsOrdinal
         this.data = data;
     }
 
+    /**
+     * Returns the well field id of this classification results.
+     */
     public WellFieldId getId()
     {
         return id;
     }
 
+    /**
+     * Returns the classification results represented by their ordinal.
+     */
     public int[] getData()
     {
         return data;
