@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<ImageStack>
+    <UUID value="7697b7dd-0fa1-426a-8aa7-3e0b9d5c198a"/>
+    <Application name="IN Cell Analyzer 2000" software_version="3.0.0.5"/>
+    <Creation date="2010-11-17" time="20:23:53"/>
+    <Operator login="BW-Bios-Screening-1"/>
+    <Computer name="BWKL010859"/>
+    <AutoLeadAcquisitionProtocol name="Val Plates 17-25 2nd run" password="689935b988643b7779f765cf46a32d3b" version="99.9">
+        <UserComment/>
+        <Microscopy type="Fluorescence"/>
+        <ObjectiveCalibration focal_length="10.0" id="12206" lineartype="7" magnification="20.0" numerical_aperture="0.45" objective_name="Nikon 20X/0.45, ELWD, Corr Collar 0-2.0, Plan Fluor, CFI/60" pixel_height="0.3700000524520874" pixel_width="0.3700000524520874" refractive_index="1.0" unit="µm"/>
+        <Polychroic id="X" name="QUAD2"/>
+        <Camera apply_ffc="false" name="K4" use_ffc="false" version="1.0">
+            <Description/>
+            <Binning value="1 X 1"/>
+            <Bias value="0.00"/>
+            <Gain/>
+            <Size height="2048" width="2048"/>
+        </Camera>
+        <Wavelengths>
+            <Wavelength fusion_wave="false" imaging_mode="2-D" index="0" show="false" z_section="0.0" z_slice="1" z_step="0.0">
+                <ExcitationFilter name="FITC" unit="nm" wavelength="490"/>
+                <EmissionFilter name="FITC" unit="nm" wavelength="525"/>
+                <Exposure time="1000" unit="ms"/>
+                <HWAFOffset unit="µm" value="0.0"/>
+                <FocusOffset unit="µm" value="8.0"/>
+                <FusionData/>
+            </Wavelength>
+            <Wavelength fusion_wave="false" imaging_mode="2-D" index="1" show="false" z_section="0.0" z_slice="1" z_step="0.0">
+                <ExcitationFilter name="DAPI" unit="nm" wavelength="350"/>
+                <EmissionFilter name="DAPI" unit="nm" wavelength="455"/>
+                <Exposure time="500" unit="ms"/>
+                <HWAFOffset unit="µm" value="0.0"/>
+                <FocusOffset unit="µm" value="8.0"/>
+                <FusionData/>
+            </Wavelength>
+            <Wavelength fusion_wave="false" imaging_mode="2-D" index="2" show="false" z_section="0.0" z_slice="1" z_step="0.0">
+                <ExcitationFilter name="Cy5" unit="nm" wavelength="645"/>
+                <EmissionFilter name="Cy5" unit="nm" wavelength="705"/>
+                <Exposure time="500" unit="ms"/>
+                <HWAFOffset unit="µm" value="0.0"/>
+                <FocusOffset unit="µm" value="8.0"/>
+                <FusionData/>
+            </Wavelength>
+        </Wavelengths>
+        <SoftwareAutoFocus enabled="false" focus_wavelength="first" init_stepping="0.0" max_search_range="5050.0" min_stepping="0.0" mode_type="Adaptive" mode_value="Large" refocusEachTimePoint="false" show_live_image="false" skip_field="1" skip_well="1"/>
+        <LaserAutoFocus enabled="true"/>
+        <Plate columns="24" name="BD 353962_384 well" rows="16" version="1.0">
+            <PlateHeight unit="mm" value="14.32"/>
+            <BottomThickness unit="µm" value="190.0"/>
+            <BottomInterface name="Plastic"/>
+            <BottomHeight value="2.5"/>
+            <WellVolume value="100.0"/>
+            <WellParameters shape="Round" size="3.3" unit="mm"/>
+            <TopLeftWellCenterOffset horizontal="12.21" unit="mm" vertical="9.05"/>
+            <WellSpacing horizontal="4.49" unit="mm" vertical="4.49"/>
+        </Plate>
+        <Specimen expected_thickness="1.0" on_slide="false" unit="µm"/>
+        <PlateHeater use="false"/>
+        <PlateMap>
+            <AcquisitionMode>
+                <Layout columns="3" rows="1"/>
+                <Spacing spacing_x="0.0" spacing_y="0.0"/>
+                <Shifting shift_x="0.0" shift_y="0.0"/>
+                <FieldOffsets custom_loc_x="0.0" custom_loc_y="0.0" flex_num_fields="false" margin="0.0" mode="formation" number_of_fields="3" weight="user_defined">
+                    <offset_point index="2" x="757.759765625" y="0.0"/>
+                    <offset_point index="1" x="0.0" y="0.0"/>
+                    <offset_point index="0" x="-757.759765625" y="0.0"/>
+                </FieldOffsets>
+                <Direction value="Horizontal Snake"/>
+            </AcquisitionMode>
+            <ZDimensionParameters enabled="false" linked="true"/>
+            <TimeSchedule enabled="false" incubate_between_time_points="false" mode="spit and stare" time_unit="sec"/>
+        </PlateMap>
+        <Output image_format="TIFF" save_3d_image_in_dv="false"/>
+        <StackDestination base_path="system_default" current_path="date_time" image_folder=" "/>
+        <Deconvolution camera_intensity_offset="50" method="Enhanced Ratio (aggressive)" normalize_intensity="true" number_cycles="5"/>
+    </AutoLeadAcquisitionProtocol>
+    <SpecimenHolder label="BD 353962_384 well" type="Plate"/>
+    <CorrectionInfo/>
+    <Images image_format="TIFF" number="3456" path="C:\Paul NRF2 Test Data\Val Plates 17-25 2nd run\Val Plates 17-25 2nd run_VL0206A-FV1801-001_1" version="1.0">
+        <Image GUID="983b895a-db83-4ece-bd57-fe1b91431dca" acquisition_time_ms="0.00163959" cell_count="0" filename="A - 1(fld 1 wv FITC - FITC).tif" version="1.1">
+            <Well label="A - 1">
+                <Row number="1"/>
+                <Column number="1"/>
+            </Well>
+            <OffsetFromWellCenter unit="µm" version="1.0" x="-757.75977" y="0.0"/>
+            <FocusPosition unit="µm" z="2746.62"/>
+            <Exposure time="1000.0" unit="ms"/>
+            <UseOZModule/>
+            <Identifier field_index="0" time_index="0" version="1.1" wave_index="0" z_index="0"/>
+            <ExcitationFilter name="FITC"/>
+            <EmissionFilter name="FITC"/>
+            <ImageErrorLog acquisition="ACQUISITION"/>
+            <FFC applied="false"/>
+        </Image>
+    <Image GUID="92d79498-cf93-4451-839b-7e08b9969f4b" acquisition_time_ms="0.00108861" cell_count="0" filename="A - 1(fld 1 wv DAPI - DAPI).tif" version="1.1">
+            <Well label="A - 1">
+                <Row number="1"/>
+                <Column number="1"/>
+            </Well>
+            <OffsetFromWellCenter unit="µm" version="1.0" x="-757.75977" y="0.0"/>
+            <FocusPosition unit="µm" z="2746.62"/>
+            <Exposure time="500.0" unit="ms"/>
+            <UseOZModule/>
+            <Identifier field_index="0" time_index="0" version="1.1" wave_index="1" z_index="0"/>
+            <ExcitationFilter name="DAPI"/>
+            <EmissionFilter name="DAPI"/>
+            <ImageErrorLog acquisition="ACQUISITION"/>
+            <FFC applied="false"/>
+        </Image>
+    <Image GUID="62e629ba-3560-423c-bcde-a8b37142c0af" acquisition_time_ms="0.00126661" cell_count="0" filename="A - 1(fld 1 wv Cy5 - Cy5).tif" version="1.1">
+            <Well label="A - 1">
+                <Row number="1"/>
+                <Column number="1"/>
+            </Well>
+            <OffsetFromWellCenter unit="µm" version="1.0" x="-757.75977" y="0.0"/>
+            <FocusPosition unit="µm" z="2746.62"/>
+            <Exposure time="500.0" unit="ms"/>
+            <UseOZModule/>
+            <Identifier field_index="0" time_index="0" version="1.1" wave_index="2" z_index="0"/>
+            <ExcitationFilter name="Cy5"/>
+            <EmissionFilter name="Cy5"/>
+            <ImageErrorLog acquisition="ACQUISITION"/>
+            <FFC applied="false"/>
+        </Image>
+    <Image GUID="2b401ce6-7a31-4a4c-b95e-97e79d3603df" acquisition_time_ms="0.00176965" cell_count="0" filename="A - 1(fld 2 wv FITC - FITC).tif" version="1.1">
+            <Well label="A - 1">
+                <Row number="1"/>
+                <Column number="1"/>
+            </Well>
+            <OffsetFromWellCenter unit="µm" version="1.0" x="0.0" y="0.0"/>
+            <FocusPosition unit="µm" z="2748.38"/>
+            <Exposure time="1000.0" unit="ms"/>
+            <UseOZModule/>
+            <Identifier field_index="1" time_index="0" version="1.1" wave_index="0" z_index="0"/>
+            <ExcitationFilter name="FITC"/>
+            <EmissionFilter name="FITC"/>
+            <ImageErrorLog acquisition="ACQUISITION"/>
+            <FFC applied="false"/>
+        </Image>
+    </Images>
+</ImageStack>        
