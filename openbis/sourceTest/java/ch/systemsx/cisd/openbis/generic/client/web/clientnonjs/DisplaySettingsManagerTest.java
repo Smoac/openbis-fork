@@ -261,6 +261,9 @@ public class DisplaySettingsManagerTest extends AssertJUnit
                     allowing(grid).getModifier();
                     will(returnValue(grid));
 
+                    allowing(grid).getSortState();
+                    will(returnValue(null));
+
                     one(updater).executeDelayed(with(any(Integer.class)));
                 }
             });
