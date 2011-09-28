@@ -22,8 +22,8 @@ if [ $1 ]; then
 fi
 SERVERS_VER=$SERVERS_DIR_ALIAS-$VER
 
-if [ -d $SERVERS_DIR_ALIAS-* ]; then
-        cd $SERVERS_DIR_ALIAS-*
+if [ -d $SERVERS_DIR_ALIAS-*/ ]; then
+        cd $SERVERS_DIR_ALIAS-*/
         PREV_VER=${PWD#*-}
         SERVERS_PREV_VER=$SERVERS_DIR_ALIAS-$PREV_VER
         cd ..
