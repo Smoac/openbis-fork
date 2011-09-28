@@ -40,5 +40,5 @@ copyIfExists $ROOT/datastore_server/etc/openBIS.keystore $CONF/.keystore
 copyIfExists $ROOT/datastore_server/ext-lib $CONF
 
 # screening-specific
-cp $ROOT/datastore_server/etc/tabular-data-graph.properties $CONF/tabular-data-graph.properties
+cp $ROOT/datastore_server/etc/tabular-data-graph*.properties $CONF/
 copyIfExists $ROOT/datastore_server/etc/analysis-graph.properties  $CONF/analysis-graph.properties 
