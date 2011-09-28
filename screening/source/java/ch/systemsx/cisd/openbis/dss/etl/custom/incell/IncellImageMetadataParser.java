@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * XML parser for image metadata (xdce) from the Incell microscopes.
+ * XML parser for image metadata (xdce files) from the Incell 2000 microscopes.
  * 
  * @author Tomasz Pylak
  */
