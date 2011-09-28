@@ -30,5 +30,5 @@ if [ ! -d "$SNAPSHOT_REPOSITORY" ]; then
     echo "$SNAPSHOT_REPOSITORY doesn't exist or isn't a directory."
     exit 1
 fi
-LATEST_SNAPSHOT=`ls "$SNAPSHOT_REPOSITORY/openbis-snapshot"*|sort -r|sed q`
+LATEST_SNAPSHOT=`ls "$SNAPSHOT_REPOSITORY/openbis-snapshot"*.tgz|sort -r|sed q`
 "$BIN_DIR/servers-startup-from-snapshot.sh" "$SERVERS" "$LATEST_SNAPSHOT"
