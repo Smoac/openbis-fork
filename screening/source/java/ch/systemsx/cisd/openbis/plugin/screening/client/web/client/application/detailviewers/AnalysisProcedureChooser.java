@@ -339,10 +339,13 @@ class AnalysisProcedureChooser extends LayoutContainer
         {
             analysisProcedureOrNull = getDefaultAnalysisProcedure();
         }
-        
+
         String comboBoxValue = analysisProcedureOrNull;
-        if (StringUtils.isBlank(comboBoxValue)) {
-            comboBoxValue = selectedProcedureCriteria.isNoProcedures() ? UNSPECIFIED_PROCEDURE : ALL_PROCEDURES;
+        if (StringUtils.isBlank(comboBoxValue))
+        {
+            comboBoxValue =
+                    selectedProcedureCriteria.isNoProcedures() ? UNSPECIFIED_PROCEDURE
+                            : ALL_PROCEDURES;
         }
 
         LabeledItem<String> valueToSelect =
@@ -374,7 +377,7 @@ class AnalysisProcedureChooser extends LayoutContainer
         if (UNSPECIFIED_PROCEDURE.equals(selectedAP))
         {
             return AnalysisProcedureCriteria.createNoProcedures();
-        } else if (ALL_PROCEDURES.equals(selectedAP))
+        } else if (StringUtils.isBlank(selectedAP) || ALL_PROCEDURES.equals(selectedAP))
         {
             return AnalysisProcedureCriteria.createAllProcedures();
         } else

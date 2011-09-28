@@ -532,6 +532,11 @@ public class WellSearchCriteria implements ISerializable
 
         public static AnalysisProcedureCriteria createFromCode(String code)
         {
+            if (StringUtils.isBlank(code))
+            {
+                throw new IllegalArgumentException("Cannot construct analysis procedure search "
+                        + "criteria of this type without a specified code.");
+            }
             return new AnalysisProcedureCriteria(MatchType.BY_CODE, code);
         }
 
