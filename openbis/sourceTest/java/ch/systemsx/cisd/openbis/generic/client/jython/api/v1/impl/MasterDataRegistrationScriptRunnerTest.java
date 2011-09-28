@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.AssertingLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -65,7 +67,7 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         context = new Mockery();
         commonServer = context.mock(ICommonServer.class);
         EncapsulatedCommonServer encapsulatedServer =
-                new EncapsulatedCommonServer(commonServer, SESSION_TOKEN);
+                EncapsulatedCommonServer.create(commonServer, SESSION_TOKEN);
         errorLogger = new AssertingLogger();
         pluginScriptRunner =
                 new MasterDataRegistrationScriptRunner(encapsulatedServer, errorLogger);

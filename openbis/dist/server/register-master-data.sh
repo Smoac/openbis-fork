@@ -23,4 +23,4 @@ LIB=$BASE/../webapps/$APPLICATION_NAME/WEB-INF/lib
 
 $JVM \
  -cp $LIB/\* \
- ch.systemsx.cisd.openbis.generic.client.jython.api.v1.impl.MasterDataRegistrationScriptRunnerStandalone "$@"
+ ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunnerStandalone "$@"

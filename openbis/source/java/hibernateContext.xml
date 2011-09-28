@@ -90,6 +90,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSampleRelationshipPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE</value>
 
             </list>
         </property>

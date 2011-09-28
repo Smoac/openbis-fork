@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.CorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DeletedDataSetTable;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
@@ -231,6 +233,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IDeletionTable createDeletionTable(Session session)
     {
         return new DeletionTable(getDaoFactory(), session);
+    }
+
+    public ICorePluginTable createCorePluginTable(Session session)
+    {
+        return new CorePluginTable(getDaoFactory(), session);
     }
 
 }

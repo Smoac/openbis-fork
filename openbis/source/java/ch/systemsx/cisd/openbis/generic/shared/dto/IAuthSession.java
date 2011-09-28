@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
-
 /**
  * Session interface used by authorization framework.
  * 

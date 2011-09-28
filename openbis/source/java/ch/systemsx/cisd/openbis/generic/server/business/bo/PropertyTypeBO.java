@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -80,19 +81,33 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         MaterialTypePE materialType = tryGetMaterialType(propertyType.getMaterialType());
         propertyTypePE.setMaterialType(materialType);
         propertyTypePE.setRegistrator(findRegistrator());
+        propertyTypePE.setManagedInternally(propertyType.isManagedInternally());
+        propertyTypePE.setInternalNamespace(propertyType.isInternalNamespace());
 
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
             Vocabulary vocabulary = propertyType.getVocabulary();
             if (vocabulary.getId() == null)
             {
-                throw new UserFailureException("Vocabulary not selected");
+                if (false == StringUtils.isBlank(vocabulary.getCode()))
+                {
+                    String vocabularyCode =
+                            CodeConverter.tryToBusinessLayer(vocabulary.getCode(),
+                                    vocabulary.isInternalNamespace());
+                    tryLoad(vocabularyCode);
+                }
             } else
             {
                 // loading existing vocabulary
                 loadVocabularyDataByTechId(TechId.create(vocabulary));
             }
-            VocabularyPE vocabularyPE = getVocabulary();
+
+            VocabularyPE vocabularyPE = tryGetVocabulary();
+            if (vocabularyPE == null)
+            {
+                throw new UserFailureException("Vocabulary not selected");
+            }
+
             propertyTypePE.setVocabulary(vocabularyPE);
         }
         // XML data type specific
@@ -121,8 +136,8 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             XmlUtils.validate(document, schema);
         } catch (Exception e)
         {
-            throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName, e
-                    .getMessage());
+            throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName,
+                    e.getMessage());
         }
     }
 

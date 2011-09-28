@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -1150,6 +1151,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "listEntityTypePropertyTypes", "");
         return null;
+    }
+
+    public List<CorePlugin> listCorePluginsByName(String sessionToken, String name)
+    {
+        logTracking(sessionToken, "listCorePluginsByName", "NAME(%s)", name);
+        return null;
+    }
+
+    public void registerPlugin(String sessionToken, CorePlugin plugin)
+    {
+        logTracking(sessionToken, "registerPlugin", "PLUGIN(%s)", plugin);
     }
 
 }

@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
 /**
  * Persistence entity representing property type.
@@ -262,7 +261,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @NotNull
     @Column(name = ColumnNames.IS_INTERNAL_NAMESPACE)
-    @InternalNamespace(message = ValidationMessages.CODE_IN_INTERNAL_NAMESPACE)
+    // @InternalNamespace(message = ValidationMessages.CODE_IN_INTERNAL_NAMESPACE)
     public boolean isInternalNamespace()
     {
         return internalNamespace;

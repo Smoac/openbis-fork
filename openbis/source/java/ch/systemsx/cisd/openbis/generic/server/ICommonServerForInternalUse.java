@@ -16,18 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ICommonServerForInternalUse extends ICommonServer
 {
     @Transactional
     public SessionContextDTO tryToAuthenticateAsSystem();
+
+    /**
+     * Lists all plugins installed on a specified DSS instance.
+     */
+    @Transactional(readOnly = true)
+    List<CorePlugin> listCorePluginsByName(String sessionToken, String name);
+
+    /**
+     * Registers a list of plugins.
+     */
+    @Transactional(readOnly = false)
+    public void registerPlugin(String sessionToken, CorePlugin plugin);
+
 }

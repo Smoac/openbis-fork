@@ -232,6 +232,17 @@
         <property name="smtpPassword" value="${mail.smtp.password}"/>
     </bean>
     
+    <!--  
+       Core plugins
+     -->
+    <bean id="core-plugin-registry" class="ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginRegistry">
+        <constructor-arg ref="common-server" />
+    </bean>
+    
+    <bean id="core-plugin-registrator" class="ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginRegistrator">
+        <property name="corePluginRegistry" ref="core-plugin-registry"/>
+        <property name="pluginsFolderName" value="${core-plugins-folder}"/>
+    </bean>
     
     <!--
         // Plugins

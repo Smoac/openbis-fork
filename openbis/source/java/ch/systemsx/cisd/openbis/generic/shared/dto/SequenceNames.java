@@ -119,6 +119,8 @@ public final class SequenceNames
     public static final String AUTHORIZATION_GROUP_PERSON_ID_SEQUENCE =
             "AUTHORIZATION_GROUP_PERSON_ID_SEQ";
 
+    public static final String CORE_PLUGIN_SEQUENCE = "CORE_PLUGIN_ID_SEQ";
+
     private SequenceNames()
     {
         // Can not be instantiated.

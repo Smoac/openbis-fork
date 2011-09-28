@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTr
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICorePluginTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDeletedDataSetTable;
@@ -97,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -173,6 +175,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -221,6 +224,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.CorePluginTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
@@ -2529,6 +2533,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         return UserFailureException.fromTemplate(exception, "%s '%s': %s", entity.getEntityKind()
                 .getDescription(), entity.getIdentifier(), exception.getMessage());
+    }
+
+    public List<CorePlugin> listCorePluginsByName(String sessionToken, String name)
+    {
+        Session session = getSession(sessionToken);
+        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session);
+        final List<CorePluginPE> pluginPEs = pluginTable.listCorePluginsByName(name);
+        return CorePluginTranslator.translate(pluginPEs);
+    }
+
+    public void registerPlugin(String sessionToken, CorePlugin plugin)
+    {
+        Session session = getSession(sessionToken);
+        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session);
+        CorePluginPE pluginPE = CorePluginTranslator.translate(plugin);
+        pluginTable.registerPlugins(Collections.singletonList(pluginPE));
     }
 
 }

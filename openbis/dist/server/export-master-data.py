@@ -135,21 +135,25 @@ def exportPropertyType(propertyType, out):
     code = codeLiteral(propertyType.getCode())
     label = strLiteral(propertyType.getLabel())
     dataType = propertyType.getDataType().name()
-    materialVar = None
+    specialSetters = ""
+    
     if propertyType.getMaterialType():
         materialVar = getVarName("MATERIAL", propertyType.getMaterialType().getCode())
+        specialSetters = "%(var)s.setMaterialType(%(materialVar)s)" % vars()
+        
+    if propertyType.getVocabulary():
+        vocabularyVar = getVarName("VOCABULARY", propertyType.getVocabulary().getCode())
+        specialSetters = specialSetters + "\n%(var)s.setVocabulary(%(vocabularyVar)s)" % vars()
+        
     isManagedInternally = propertyType.isManagedInternally() 
     isInternalNamespace = propertyType.isInternalNamespace()
-# TODO
-#    IVocabularyImmutable getVocabulary();
-#    String getXmlSchema();
-#    String getTransformation();
+    
     snippet = """
 %(var)s = tr.createNewPropertyType(%(code)s, DataType.%(dataType)s)
 %(var)s.setLabel(%(label)s)
-%(var)s.setMaterialType(%(materialVar)s)
 %(var)s.setManagedInternally(%(isManagedInternally)s)
 %(var)s.setInternalNamespace(%(isInternalNamespace)s)
+%(specialSetters)s
 """ % vars()
     out.write(snippet)
 
@@ -180,6 +184,13 @@ print "# Exporting master data to ", out.name, "..."
 print "# "
 
 tr = service.transaction()
+
+out.write("""
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
+
+tr = service.transaction()
+
+""")
 
 for fileType in tr.listFileFormatTypes():
     exportFileFormatType(fileType, out)

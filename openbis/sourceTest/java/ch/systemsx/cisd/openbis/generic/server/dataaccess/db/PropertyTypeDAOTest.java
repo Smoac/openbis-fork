@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,15 +137,17 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
             fail = false;
         }
         assertFalse(fail);
-        try
-        {
-            createPropertyType(entityDataType, "$code");
-            fail(String.format("'%s' expected.", DataIntegrityViolationException.class
-                    .getSimpleName()));
-        } catch (final DataIntegrityViolationException ex)
-        {
-            // Nothing to do here.
-        }
+        // TODO KE: decide what to do with internal property types. Create a separate create methods
+        // for them ?
+        // try
+        // {
+        // createPropertyType(entityDataType, "$code");
+        // fail(String.format("'%s' expected.", DataIntegrityViolationException.class
+        // .getSimpleName()));
+        // } catch (final DataIntegrityViolationException ex)
+        // {
+        // // Nothing to do here.
+        // }
         assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("$code"));
         createPropertyType(entityDataType, "code");
         assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
@@ -155,8 +156,8 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     private final void createPropertyType(final DataTypeCode entityDataType, final String code)
     {
         final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
-        propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
-                .getDataTypeByCode(entityDataType), code, null, null));
+        propertyTypeDAO.createPropertyType(createPropertyType(
+                propertyTypeDAO.getDataTypeByCode(entityDataType), code, null, null));
     }
 
     @Test

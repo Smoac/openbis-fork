@@ -321,11 +321,11 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             throw new UserFailureException(String.format("Property type '%s' does not exist.",
                     propertyTypeCode));
         }
-        if (propertyType.isManagedInternally())
-        {
-            throw new UserFailureException(String.format(
-                    "Property type '%s' is managed internally.", propertyTypeCode));
-        }
+        // if (propertyType.isManagedInternally())
+        // {
+        // throw new UserFailureException(String.format(
+        // "Property type '%s' is managed internally.", propertyTypeCode));
+        // }
         return propertyType;
     }
 

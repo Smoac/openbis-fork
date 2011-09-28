@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -101,6 +102,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IScriptDAO scriptDAO;
 
+    private final ICorePluginDAO corePluginDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -127,6 +130,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         eventDAO = new EventDAO(sessionFactory, databaseInstance);
         authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
         scriptDAO = new ScriptDAO(sessionFactory, databaseInstance);
+        corePluginDAO = new CorePluginDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -240,6 +244,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
     {
         return fullTextIndexUpdateScheduler;
+    }
+
+    public ICorePluginDAO getCorePluginDAO()
+    {
+        return corePluginDAO;
     }
 
 }

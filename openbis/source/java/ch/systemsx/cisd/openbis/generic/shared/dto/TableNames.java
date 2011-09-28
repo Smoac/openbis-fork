@@ -28,6 +28,8 @@ public final class TableNames
 
     public static final String CONTROLLED_VOCABULARY_TERM_TABLE = "controlled_vocabulary_terms";
 
+    public static final String CORE_PLUGINS_TABLE = "core_plugins";
+
     public static final String DATA_SET_RELATIONSHIPS_ALL_TABLE = "data_set_relationships_all";
 
     public static final String DATA_SET_RELATIONSHIPS_VIEW = "data_set_relationships";

@@ -102,6 +102,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setChosenFromList(vocabulary.isChosenFromList());
         vocabularyPE.setURLTemplate(vocabulary.getURLTemplate());
+        vocabularyPE.setManagedInternally(vocabulary.isManagedInternally());
+        vocabularyPE.setInternalNamespace(vocabulary.isInternalNamespace());
         Long currentTermOrdinal = 1L;
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
@@ -316,6 +318,11 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return vocabularyPE;
     }
 
+    protected final VocabularyPE tryGetVocabulary()
+    {
+        return vocabularyPE;
+    }
+
     public List<VocabularyTermWithStats> countTermsUsageStatistics()
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
@@ -341,12 +348,17 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public void load(String vocabularyCode) throws UserFailureException
     {
-        vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
+        tryLoad(vocabularyCode);
         if (vocabularyPE == null)
         {
             throw UserFailureException.fromTemplate("Vocabulary '%s' does not exist.",
                     vocabularyCode);
         }
+    }
+
+    public void tryLoad(String vocabularyCode) throws UserFailureException
+    {
+        vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
     }
 
     public void loadDataByTechId(TechId vocabularyId)
