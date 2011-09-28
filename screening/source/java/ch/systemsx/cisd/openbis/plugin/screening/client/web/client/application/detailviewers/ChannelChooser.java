@@ -169,7 +169,8 @@ class ChannelChooser
                     createAnalysisProcedureSelectionListener(datasetsByAnalysisProcMap,
                             objectsChooserContainer);
             AnalysisProcedureChooser analysisProcedureChooser =
-                    AnalysisProcedureChooser.create(viewContext, analysisProcedures, null,
+                    AnalysisProcedureChooser.create(viewContext, analysisProcedures,
+                            AnalysisProcedureCriteria.createAllProcedures(),
                             selectionListener);
             chooserPanel.add(analysisProcedureChooser);
             chooserPanel.add(objectsChooserContainer);
