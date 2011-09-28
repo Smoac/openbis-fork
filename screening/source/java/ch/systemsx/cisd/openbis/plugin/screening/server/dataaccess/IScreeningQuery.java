@@ -310,16 +310,13 @@ public interface IScreeningQuery extends BaseQuery
                     + "       ds_props.value as analysisProcedure, ds_type.code as datasetTypeCode"
                     + "  from experiments exp "
                     + "       join data ds on ds.expe_id = exp.id "
+                    + "       join samples plate on plate.id = ds.samp_id "
+                    + "       join samples well on well.samp_id_part_of = plate.id "
                     + "       join data_set_types ds_type on ds.dsty_id = ds_type.id "
                     + "       join data_set_type_property_types  dst_pt on dst_pt.dsty_id = ds_type.id "
                     + "       left outer join data_set_properties ds_props on ds_props.ds_id = ds.id and ds_props.dstpt_id = dst_pt.id"
                     + "  where "
                     + "       dst_pt.prty_id = (select id from property_types where code='ANALYSIS_PROCEDURE' and is_internal_namespace=true)";
-
-    final static String AT_LEAST_ONE_WELL_EXISTS = "EXISTS (select wells.id "
-            + "             from samples wells "
-            + "                     join samples plates on wells.samp_id_part_of = plates.id "
-            + "             where plates.id = ds.samp_id) ";
 
     @Select(sql = ANALYSIS_PROCEDURE_SELECT)
     public List<AnalysisProcedureResult> listAllAnalysisProcedures();
