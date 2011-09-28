@@ -51,8 +51,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class QueueingPathRemoverService
 {
 
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, QueueingPathRemoverService.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            QueueingPathRemoverService.class);
 
     private static final int INITIAL_RECORD_SIZE = 128;
 
@@ -149,6 +149,12 @@ public class QueueingPathRemoverService
      */
     public static boolean removeRecursively(File fileToRemove)
     {
+        if (isRunning() == false)
+        {
+            throw new IllegalStateException(
+                    "Cannot remove the file because the shreder is already stopped: "
+                            + fileToRemove);
+        }
         if (fileToRemove.isFile())
         {
             return fileToRemove.delete();
