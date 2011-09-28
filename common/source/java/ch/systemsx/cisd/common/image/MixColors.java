@@ -244,7 +244,8 @@ public class MixColors
 
     private static interface ColorMergingAlgorithm
     {
-        Color merge(Color[] colors, float[] intensities);
+        /** Computes the color of (x,y) pixel by merging all images using specified channel colors. */
+        Color merge(Color[] colors, int x, int y, BufferedImage[] images);
     }
 
     /**
@@ -263,34 +264,44 @@ public class MixColors
         assert colors.length == images.length : "number of colors and images do not match";
 
         ColorMergingAlgorithm mergeColorsAlgorithm =
-                createColorMergingAlgorithm(quadratic, saturationEnhancementFactor);
-        for (int i = 0; i < images.length; ++i)
-        {
-            if (images[i].getColorModel().getNumColorComponents() != 1
-                    || images[i].getColorModel().getComponentSize(0) != 8)
-            {
-                throw new IllegalArgumentException(
-                        "mixImages() only works on 8-bit gray scale images.");
-            }
-        }
+                createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, images);
+
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        final float[] intensities = new float[images.length];
         for (int y = 0; y < images[0].getHeight(); ++y)
         {
             for (int x = 0; x < images[0].getWidth(); ++x)
             {
-                for (int i = 0; i < images.length; ++i)
-                {
-                    intensities[i] = images[i].getRaster().getSampleFloat(x, y, 0) / 255f;
-                }
-                Color mixColor = mergeColorsAlgorithm.merge(colors, intensities);
+                Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
                 mixed.setRGB(x, y, mixColor.getRGB());
             }
         }
         return mixed;
+    }
+
+    /** For i-th image takes the intensity of (x,y) pixel and saves it in intensities[i]. */
+    private static void fetchGrayscaleIntensities(final float[] intensities, int x, int y,
+            BufferedImage[] images)
+    {
+        for (int i = 0; i < images.length; ++i)
+        {
+            intensities[i] = images[i].getRaster().getSampleFloat(x, y, 0) / 255f;
+        }
+    }
+
+    /** For i-th image takes the intensity of (x,y) pixel and saves it in intensities[i]. */
+    private static void fetchRGBIntensities(float[] intensities, int x, int y,
+            BufferedImage[] images)
+    {
+        for (int i = 0; i < images.length; ++i)
+        {
+            int rgb = images[i].getRGB(x, y);
+            Color color = new Color(rgb);
+            int intensity = getMaxComponent(color.getRed(), color.getGreen(), color.getBlue());
+            intensities[i] = intensity / 255f;
+        }
     }
 
     private static Color saturate(float saturationEnhancementFactor, Color mixColor)
@@ -301,38 +312,53 @@ public class MixColors
                 .getHSBColor(hsb[0], Math.min(1f, saturationEnhancementFactor * hsb[1]), hsb[2]);
     }
 
-    private static ColorMergingAlgorithm createColorMergingAlgorithm(boolean quadratic,
-            final float saturationEnhancementFactor)
+    private static ColorMergingAlgorithm createColorMergingAlgorithm(final boolean quadratic,
+            final float saturationEnhancementFactor, final BufferedImage[] images)
     {
-        if (quadratic)
+        boolean isGrayscale = true;
+        int numberOfImages = images.length;
+        for (int i = 0; i < numberOfImages; ++i)
         {
-            return new ColorMergingAlgorithm()
-                {
-                    public Color merge(Color[] colors, float[] intensities)
-                    {
-                        Color color = calcMixedColorQuadratic(colors, intensities);
-                        if (saturationEnhancementFactor > 0)
-                        {
-                            color = saturate(saturationEnhancementFactor, color);
-                        }
-                        return color;
-                    }
-                };
-        } else
-        {
-            return new ColorMergingAlgorithm()
-                {
-                    public Color merge(Color[] colors, float[] intensities)
-                    {
-                        Color color = calcMixedColorLinear(colors, intensities);
-                        if (saturationEnhancementFactor > 0)
-                        {
-                            color = saturate(saturationEnhancementFactor, color);
-                        }
-                        return color;
-                    }
-                };
+            isGrayscale = isGrayscale && images[i].getColorModel().getNumColorComponents() == 1;
+            if (images[i].getColorModel().getComponentSize(0) != 8)
+            {
+                throw new IllegalArgumentException("Only 8-bit images can be merged.");
+            }
         }
+        return createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, isGrayscale,
+                numberOfImages);
+    }
+
+    private static ColorMergingAlgorithm createColorMergingAlgorithm(final boolean quadratic,
+            final float saturationEnhancementFactor, final boolean isGrayscale, int numberOfImages)
+    {
+        final float[] intensities = new float[numberOfImages];
+        return new ColorMergingAlgorithm()
+            {
+                public Color merge(Color[] colors, int x, int y, BufferedImage[] images)
+                {
+                    if (isGrayscale)
+                    {
+                        fetchGrayscaleIntensities(intensities, x, y, images);
+                    } else
+                    {
+                        fetchRGBIntensities(intensities, x, y, images);
+                    }
+                    Color color;
+                    if (quadratic)
+                    {
+                        color = calcMixedColorQuadratic(colors, intensities);
+                    } else
+                    {
+                        color = calcMixedColorLinear(colors, intensities);
+                    }
+                    if (saturationEnhancementFactor > 0)
+                    {
+                        color = saturate(saturationEnhancementFactor, color);
+                    }
+                    return color;
+                }
+            };
     }
 
 }
