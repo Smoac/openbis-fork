@@ -5,6 +5,7 @@ Each directory should contain:
 - raw images on the main level
 - optionally: segmentation images in the directory containin "_ROITiff"
 - optionally: analysis results in the xml file 
+- optionally: xdce file with image metadata (used to fix colors of the channels determined by the wavelength)
 If all kinds of data are provided, 3 datasets will be registered for each incoming directory. 
 Segmentation and analysis dataset will be linked to the raw images dataset.
 """
@@ -20,7 +21,7 @@ from ch.systemsx.cisd.openbis.generic.shared.basic.dto.api import ValidationExce
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause, MatchClauseAttribute
 
-reload(utils)
+#reload(utils)
 reload(config)
 # Can be switched on manually only after the module's code has been changed on the fly:
 #reload(plateinitializer)

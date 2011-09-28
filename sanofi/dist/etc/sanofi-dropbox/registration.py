@@ -16,6 +16,7 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, I
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import Channel
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ChannelColorRGB
 
+from ch.systemsx.cisd.openbis.dss.etl.custom.incell import IncellImageMetadataParser
 from ch.systemsx.cisd.openbis.dss.etl.custom.geexplorer import GEExplorerImageAnalysisResultParser
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
@@ -97,27 +98,58 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         # can be made available.
         # It is usually useful to add "-depth 12" parameter additionally
         # if the original image has color depth > 8 bits.
-        buffer.appendImageMagicConvert("-edge 1 -depth 12", "Edge detection")
+        # buffer.appendImageMagicConvert("-edge 1 -depth 12", "Edge detection")
 
         return buffer.getTransformations()
-    
+
+    # sets the basic colors 
     def createChannel(self, channelCode):
-        channelCode = channelCode.upper()
         channel = Channel(channelCode, channelCode)
+        channelCode = channelCode.upper()
         if (channelCode == "DAPI"):
-            #channel.setWavelengthAndColor(455)
-            channel.setChannelColorRGB(ChannelColorRGB(0,0,255))
+            channel.setChannelColorRGB(ChannelColorRGB(0, 77, 255))
         elif (channelCode == "FITC"):
-            #channel.setWavelengthAndColor(525)
-            channel.setChannelColorRGB(ChannelColorRGB(0,255,0))
+            channel.setChannelColorRGB(ChannelColorRGB(56, 255, 0))
         elif (channelCode == "CY5"):
-            #channel.setWavelengthAndColor(705)
-            channel.setChannelColorRGB(ChannelColorRGB(255,0,0))
+            channel.setChannelColorRGB(ChannelColorRGB(244, 0, 0))
+            
+        channel.setAvailableTransformations(self.getAvailableChannelTransformations(channelCode))
+        # color of other channels will be set automatically
         return channel
             
+class RawImageDataSetConfig(MyImageDataSetConfig):
+    _codeToWavelengthMap = None
+    
+    def __init__(self, incomingDir):
+        MyImageDataSetConfig.__init__(self, incomingDir)
+        self._codeToWavelengthMap = self._tryReadCodeToWavelengthMap(incomingDir)
         
+    def _tryReadCodeToWavelengthMap(self, incomingDir):
+        imageMetadataFile = utils.findFileByExt(incomingDir, "xdce")
+        if imageMetadataFile is not None:
+            parser = IncellImageMetadataParser(imageMetadataFile.getPath())
+            channelCodes = parser.getChannelCodes()
+            channelWavelengths = parser.getChannelWavelengths()
+            codeToWavelengthMap = {}
+            for i in range(0, len(channelCodes)):
+                codeToWavelengthMap[channelCodes[i].upper()] = channelWavelengths[i]
+            return codeToWavelengthMap
+        return None
+    
+    # overrides the basic colors by using the wavelengths found in the xdce file
+    def createChannel(self, channelCode):
+        channel = MyImageDataSetConfig.createChannel(self, channelCode)
+        channelCode = channelCode.upper()
+        if self._codeToWavelengthMap is not None:
+            if channelCode in self._codeToWavelengthMap:
+                wavelength = self._codeToWavelengthMap[channelCode]
+                # This will override the color from the superclass and set it 
+                # using Bruton's algorithm.
+                channel.setWavelengthAndColor(wavelength)
+        return channel
+    
 def createRawImagesDataset(incoming, plate, batchName, transaction, factory):
-    imageDatasetConfig = MyImageDataSetConfig(incoming)
+    imageDatasetConfig = RawImageDataSetConfig(incoming)
     imageDatasetConfig.setRawImageDatasetType()
     imageDatasetConfig.setFileFormatType(config.IMAGE_DATASET_FILE_FORMAT)
     imageDatasetConfig.setUseImageMagicToGenerateThumbnails(config.USE_IMAGE_MAGIC_CONVERT_TOOL)
