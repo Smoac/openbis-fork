@@ -612,11 +612,7 @@ REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 REVOKE ALL ON SEQUENCE core_plugin_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE core_plugin_id_seq FROM kaloyane;
-GRANT ALL ON SEQUENCE core_plugin_id_seq TO kaloyane;
 GRANT SELECT ON SEQUENCE core_plugin_id_seq TO openbis_readonly;
 REVOKE ALL ON TABLE core_plugins FROM PUBLIC;
-REVOKE ALL ON TABLE core_plugins FROM kaloyane;
-GRANT ALL ON TABLE core_plugins TO kaloyane;
 GRANT SELECT ON TABLE core_plugins TO openbis_readonly;
 
