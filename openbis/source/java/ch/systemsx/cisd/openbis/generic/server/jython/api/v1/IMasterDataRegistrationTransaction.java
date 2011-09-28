@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 import java.util.List;
 
 /**
- * TODO KE: add all list methods ?
- * 
  * @author Kaloyan Enimanev
  */
 public interface IMasterDataRegistrationTransaction
