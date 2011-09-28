@@ -5,6 +5,7 @@ from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
 SPACE_CODE = "TEST"
 PROJECT_CODE = "TEST-PROJECT"
+PROJECT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s" % vars()
 EXPERIMENT_CODE = "DEMO-EXP-HCS"
 EXPERIMENT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(EXPERIMENT_CODE)s" % vars()
 
@@ -14,10 +15,24 @@ PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
 
+def create_space_if_needed(transaction):
+    space = transaction.getSpace(SPACE_CODE)
+    if None == space:
+        space = transaction.createNewSpace(SPACE_CODE, None)
+        space.setDescription("A demo space")
+
+def create_project_if_needed(transaction):
+    project = transaction.getProject(PROJECT_ID)
+    if None == project:
+        create_space_if_needed(transaction)
+        project = transaction.createNewProject(PROJECT_ID)
+        project.setDescription("A demo project")
+        
 def create_experiment_if_needed(transaction):
     """ Get the specified experiment or register it if necessary """
     exp = transaction.getExperiment(EXPERIMENT_ID)
     if None == exp:
+        create_project_if_needed(transaction)
         print 'Creating new experiment : ' + EXPERIMENT_ID
         exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
         exp.setPropertyValue("DESCRIPTION", "A sample experiment")
