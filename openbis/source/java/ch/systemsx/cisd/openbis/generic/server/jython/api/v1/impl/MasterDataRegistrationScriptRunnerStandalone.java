@@ -88,15 +88,6 @@ public class MasterDataRegistrationScriptRunnerStandalone
 
     public static void main(String[] args)
     {
-        args =
-                new String[]
-                    { "-s", "http://localhost:8888/openbis/openbis", "-u", "admin", "-p",
-                            "123",
-                            // "-s", "https://localhost:8443/openbis/openbis", "-u", "admin", "-p",
-                            // "123",
-                            "-f",
-                            "/Users/kaloyane/cisd/modules/openbis/dist/server/export-master-data.py" };
-
         MasterDataRegistrationScriptRunnerStandalone cliApplication =
                 new MasterDataRegistrationScriptRunnerStandalone();
         cliApplication.runMe(args);
