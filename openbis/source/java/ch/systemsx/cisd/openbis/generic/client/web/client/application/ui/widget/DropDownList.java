@@ -148,13 +148,12 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
         StoreFilter<M> filter = new StoreFilter<M>()
             {
-
                 public boolean select(Store<M> s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
                     // WORKAROUND: (GXT2.1) only one option in the list when something
                     // selected and trigger field clicked
-                    if (StringUtils.isBlank(v) || comboBox.getValue() != null)
+                    if (StringUtils.isBlank(v))
                     {
                         return true;
                     }
@@ -181,9 +180,9 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 @Override
                 public void add(List<? extends M> models)
                 {
-                    clearFilters();
+                    // clearFilters();
                     super.add(models);
-                    applyFilters(comboBox.getDisplayField());
+                    // applyFilters(comboBox.getDisplayField());
                 }
             };
         newStore.addFilter(filter);
