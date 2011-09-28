@@ -180,9 +180,9 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 @Override
                 public void add(List<? extends M> models)
                 {
-                    // clearFilters();
+                    clearFilters();
                     super.add(models);
-                    // applyFilters(comboBox.getDisplayField());
+                    applyFilters(comboBox.getDisplayField());
                 }
             };
         newStore.addFilter(filter);
