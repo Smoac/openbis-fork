@@ -118,7 +118,7 @@ abstract public class SimpleImageDataConfig
      */
     public Channel createChannel(String channelCode)
     {
-        ChannelColorRGB channelColorOrNull = tryGetChannelColor(channelCode);
+        ChannelColorRGB channelColorOrNull = tryGetChannelColor(channelCode.toUpperCase());
         ImageTransformation[] availableTransformations =
                 getAvailableChannelTransformations(channelCode);
         String label = channelCode;
