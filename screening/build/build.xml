@@ -279,6 +279,12 @@
         <include name="*.jar" />
       </fileset>
     </copy>
+    <copy todir="${webapp.file}.unpacked/core-plugins" overwrite="true">
+      <fileset dir="${original.dist}/core-plugins">
+        <include name="**/*.*" />
+        <exclude name="**/.svn/*.*" />
+      </fileset>
+    </copy>
     <war warfile="${webapp.file}">
       <fileset dir="${webapp.file}.unpacked"/>
     </war>
