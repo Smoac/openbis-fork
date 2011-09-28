@@ -321,10 +321,10 @@ public interface IScreeningQuery extends BaseQuery
             + "                     join samples plates on wells.samp_id_part_of = plates.id "
             + "             where plates.id = ds.samp_id) ";
 
-    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and " + AT_LEAST_ONE_WELL_EXISTS)
+    @Select(sql = ANALYSIS_PROCEDURE_SELECT)
     public List<AnalysisProcedureResult> listAllAnalysisProcedures();
 
-    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1} and " + AT_LEAST_ONE_WELL_EXISTS)
+    @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1}")
     public List<AnalysisProcedureResult> listAnalysisProceduresForExperiment(long experimentId);
 
 }
