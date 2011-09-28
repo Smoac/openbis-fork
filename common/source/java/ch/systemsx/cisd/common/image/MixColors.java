@@ -209,6 +209,7 @@ public class MixColors
             green += g;
             blue += b;
 
+            // This is an interesting alternative:
             // red = Math.max(red, r);
             // green = Math.max(green, g);
             // blue = Math.max(blue, b);
