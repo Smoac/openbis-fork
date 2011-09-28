@@ -99,14 +99,17 @@ public class ConversionUtils
         List<NewAttachment> attachments = Collections.emptyList();
         String containerIdentifier =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
-        SampleUpdatesDTO sampleUpdate = new SampleUpdatesDTO(TechId.create(sample), // db id
-                sample.getProperties(), // List<IEntityProperty>
-                ExperimentIdentifierFactory.parse(sample.getExperiment().getIdentifier()), // ExperimentIdentifier
-                attachments, // Collection<NewAttachment>
-                sample.getModificationDate(), // Sample version
-                SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
-                containerIdentifier, // Container Identifier
-                null // Parent Identifiers
+        SampleUpdatesDTO sampleUpdate =
+                new SampleUpdatesDTO(TechId.create(sample), // db id
+                        sample.getProperties(), // List<IEntityProperty>
+                        sample.getExperiment() == null ? null
+                                : ExperimentIdentifierFactory.parse(sample.getExperiment()
+                                        .getIdentifier()), // ExperimentIdentifier
+                        attachments, // Collection<NewAttachment>
+                        sample.getModificationDate(), // Sample version
+                        SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
+                        containerIdentifier, // Container Identifier
+                        null // Parent Identifiers
                 );
         return sampleUpdate;
     }
