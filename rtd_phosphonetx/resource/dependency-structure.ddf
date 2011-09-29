@@ -18,16 +18,6 @@ check sets [etlserver]
 check [etlserver] independentOf [private_openbis]
 
 ######################################################################
-# Check that grid column definitions are GUI independent - export on the server side is using it
-#
-[grid-columns] = ${phosphonetx}.client.web.client.application.columns.*
-check sets [grid-columns]
-[gwt] = com.google.gwt.** excluding com.google.gwt.user.client.rpc.IsSerializable
-[extjs] = com.extjs.**
-check [grid-columns] independentOf [gwt]
-check [grid-columns] independentOf [extjs]
-
-######################################################################
 # Check plugin dependencies
 #
 [phosphonetx.client] = ${phosphonetx}.client.*
