@@ -156,7 +156,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
     @Test
     public void testGetAbundanceColumnDefinitionsForProteinByExperiment()
     {
-        final TechId experimentID = new TechId(42L);
+        final TechId experimentID = new TechId(41L);
         final AbundanceColumnDefinition colDef = new AbundanceColumnDefinition();
         colDef.setSampleCode("S1");
         Treatment treatment = new Treatment();
