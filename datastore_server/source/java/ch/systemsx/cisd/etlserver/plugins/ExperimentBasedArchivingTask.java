@@ -77,6 +77,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     
     static final String MAX_NUMBER_OF_EXPERIMENTS_KEY = "max-number-of-experiments";
 
+    static final String REMOVE_DATASETS_FROM_STORE = "remove-datasets-from-store";
+
     private static final EnumSet<DataSetArchivingStatus> ARCHIVE_STATES = EnumSet.of(
             DataSetArchivingStatus.ARCHIVE_PENDING, DataSetArchivingStatus.ARCHIVED);
 
@@ -97,6 +99,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     private Set<String> excludedDataSetTypes;
 
     private int maxNumberOfExperiments;
+
+    private boolean removeFromDataStore;
 
     public ExperimentBasedArchivingTask()
     {
@@ -141,6 +145,9 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                         properties.getProperty(EXCLUDED_DATA_SET_TYPES_KEY, ""),
                         EXCLUDED_DATA_SET_TYPES_KEY)));
         maxNumberOfExperiments = PropertyUtils.getInt(properties, MAX_NUMBER_OF_EXPERIMENTS_KEY, 0);
+
+        removeFromDataStore =
+                PropertyUtils.getBoolean(properties, REMOVE_DATASETS_FROM_STORE, false);
     }
 
     public void execute()
@@ -220,7 +227,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                         + info.getExperimentIdentifier() + ": " + dataSetCodes;
         operationLog.info(message);
         archivingMessages.append('\n').append(message);
-        service.archiveDataSets(dataSetCodes, false);
+        service.archiveDataSets(dataSetCodes, removeFromDataStore);
     }
     
     private final class ExperimentDataSetsInfo
