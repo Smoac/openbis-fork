@@ -422,7 +422,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Lists share ids of all data sets belonging to chosen data store.
+     * Lists share ids of all data sets belonging to chosen data store (even the ones in trash!). //
+     * TODO
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
@@ -476,7 +477,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER })
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken);
 
