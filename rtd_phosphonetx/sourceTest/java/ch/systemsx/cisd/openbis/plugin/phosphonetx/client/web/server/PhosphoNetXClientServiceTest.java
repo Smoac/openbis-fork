@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -190,6 +191,12 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
     {
         final TechId experimentID1 = new TechId(42L);
         final TechId experimentID2 = new TechId(4711L);
+        final AbundanceColumnDefinition colDef = new AbundanceColumnDefinition();
+        colDef.setSampleCode("S1");
+        Treatment treatment = new Treatment();
+        treatment.setType("type1");
+        treatment.setTypeCode("code");
+        colDef.setTreatments(Arrays.asList(treatment));
         final double fdr1 = 0.125;
         final double fdr2 = 0.25;
         final AggregateFunction f1 = AggregateFunction.MAX;
@@ -205,6 +212,15 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(server).getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
+                            experimentID1, treatment1);
+                    will(returnValue(Arrays.asList(colDef)));
+                    one(server).getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
+                            experimentID1, treatment2);
+                    will(returnValue(Arrays.asList(colDef)));
+                    one(server).getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
+                            experimentID2, treatment1);
+                    will(returnValue(Arrays.asList(colDef)));
                     one(server).listProteinsByExperiment(SESSION_TOKEN, experimentID1, fdr1, f1,
                             treatment1, false);
                     will(returnValue(Arrays.asList(p1)));
@@ -239,7 +255,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         listAndCheckProteins(p4, experimentID1, fdr1, f2, treatment1, false);
         listAndCheckProteins(p5, experimentID1, fdr1, f1, treatment2, false);
         listAndCheckProteins(p6, experimentID1, fdr1, f1, treatment1, true);
-        assertEquals(13, cacheFolder.listFiles().length);
+        assertEquals(19, cacheFolder.listFiles().length);
         
         context.assertIsSatisfied();
     }
@@ -267,6 +283,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         ProteinInfo protein = new ProteinInfo();
         protein.setId(new TechId(id));
         protein.setDescription("Protein " + id);
+        protein.setAbundances(new HashMap<Long, Double>());
         return protein;
     }
 
