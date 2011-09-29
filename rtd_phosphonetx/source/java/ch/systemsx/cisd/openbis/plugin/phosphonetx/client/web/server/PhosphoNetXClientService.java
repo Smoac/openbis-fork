@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSam
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.BiologicalSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.DataSetProteinProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ParentlessMsInjectionSampleProvider;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinRelatedSampleProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSequenceProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.resultset.ProteinSummaryProvider;
@@ -246,7 +247,8 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
+    public TypedTableResultSet<ProteinInfo> listProteinsByExperiment(
+            ListProteinByExperimentCriteria criteria)
     {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -258,15 +260,15 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             AggregateFunction aggregateFunction = criteria.getAggregateFunction();
             String treatmentTypeCode = criteria.getTreatmentTypeCode();
             boolean aggregateOnOriginal = criteria.isAggregateOriginal();
-            return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
-                    experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
+            return listEntities(new ProteinProvider(server, sessionToken, experimentID, fdr,
+                    aggregateFunction, treatmentTypeCode, aggregateOnOriginal), criteria);
         } finally
         {
             operationLog.info(stopWatch.getTime() + " msec for listProteinsByExperiment");
         }
     }
 
-    public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
+    public String prepareExportProteins(TableExportCriteria<TableModelRowWithObject<ProteinInfo>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }

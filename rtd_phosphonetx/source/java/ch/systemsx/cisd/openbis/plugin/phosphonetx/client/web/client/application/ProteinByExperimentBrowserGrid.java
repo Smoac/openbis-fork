@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
@@ -35,49 +33,40 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.InternalAbundanceColumnDefinition;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinBrowserColumnIDs;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
  * @author Franz-Josef Elmer
  */
-class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinInfo>
+class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
 {
-    private static final String ABUNDANCE_PROPERTY_KEY = "ABUNDANCE";
-
     private static final String PREFIX = GenericConstants.ID_PREFIX
             + "protein-by-experiment-browser";
 
     // browser consists of the grid and additional toolbars (paging, filtering)
     public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "_grid";
+    public static final String GRID_ID = PREFIX + TypedTableGrid.GRID_POSTFIX;
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
@@ -85,20 +74,12 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     private ListProteinByExperimentCriteria criteria;
 
-    private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
-
-    private boolean abundanceColumnDefinitionsChanged = true;
-
-    private ColumnDefsAndConfigs<ProteinInfo> columnDefinitionsAndConfigs;
-
     private IDataRefreshCallback postRefreshCallback = new IDataRefreshCallback()
         {
             public void postRefresh(boolean wasSuccessful)
             {
             }
         };
-
-    private List<IColumnDefinition<ProteinInfo>> visibleColumnDefinitions;
 
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
@@ -158,21 +139,29 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private ProteinByExperimentBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
         specificViewContext = viewContext;
         toolbar = new ProteinByExperimentBrowerToolBar(viewContext, experiment);
         toolbar.setBrowserGrid(this);
-        registerLinkClickListenerFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
-                new ICellListener<ProteinInfo>()
+        registerListenerAndLinkGenerator(ProteinBrowserColumnIDs.ACCESSION_NUMBER,
+                new ICellListenerAndLinkGenerator<ProteinInfo>()
                     {
-                        public void handle(ProteinInfo rowItem, boolean keyPressed)
+                        public void handle(TableModelRowWithObject<ProteinInfo> rowItem,
+                                boolean keyPressed)
                         {
                             AbstractTabItemFactory tabItemFactory =
                                     ProteinViewer.createTabItemFactory(viewContext,
-                                            toolbar.getExperimentOrNull(), rowItem);
+                                            toolbar.getExperimentOrNull(),
+                                            rowItem.getObjectOrNull());
                             tabItemFactory.setInBackground(keyPressed);
                             DispatcherHelper.dispatchNaviEvent(tabItemFactory);
+                        }
+
+                        public String tryGetLink(ProteinInfo entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return null;
                         }
                     });
     }
@@ -187,8 +176,6 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         criteria.setAggregateFunction(aggregateFunction);
         criteria.setTreatmentTypeCode(treatmentTypeCode);
         criteria.setAggregateOriginal(aggregateOriginal);
-        abundanceColumnDefinitions = definitions;
-        abundanceColumnDefinitionsChanged  = true;
         refresh(postRefreshCallback, true);
     }
 
@@ -198,101 +185,32 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     @Override
-    protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return ProteinColDefKind.values();
+        return columnID.toLowerCase();
     }
     
     @Override
-    protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
+    protected List<String> getColumnIdsOfFilters()
     {
-        if (columnDefinitionsAndConfigs == null || abundanceColumnDefinitionsChanged)
+        return Arrays.asList(ProteinBrowserColumnIDs.PROTEIN_DESCRIPTION);
+    }
+
+    @Override
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ProteinInfo>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<ProteinInfo>> callback)
+    {
+        if (criteria == null)
         {
-            columnDefinitionsAndConfigs = super.createColumnsDefinition();
-            List<IColumnDefinitionUI<ProteinInfo>> columns =
-                new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
-            List<String> abundanceColumnIDs = new ArrayList<String>();
-            for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
-            {
-                String header = definition.getSampleCode();
-                Map<String, String> properties = new HashMap<String, String>();
-                properties.put(ABUNDANCE_PROPERTY_KEY, header);
-                List<Treatment> treatments = definition.getTreatments();
-                if (treatments.isEmpty() == false)
-                {
-                    header = "";
-                    String delim = "";
-                    for (Treatment treatment : treatments)
-                    {
-                        header += delim + treatment;
-                        delim = ", ";
-                        properties.put(treatment.getTypeCode(), treatment.getValue());
-                    }
-                }
-                final long sampleID = definition.getID();
-                IColumnDefinitionUI<ProteinInfo> columnDefinition =
-                    new InternalAbundanceColumnDefinition(header, properties, 100, false, sampleID);
-                abundanceColumnIDs.add(columnDefinition.getIdentifier());
-                columns.add(columnDefinition);
-            }
-            columnDefinitionsAndConfigs.addColumns(columns, viewContext);
-            columnDefinitionsAndConfigs.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
-                    createInternalLinkCellRenderer());
-            RealNumberRenderer renderer =
-                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                        .getRealNumberFormatingParameters());
-            for (String abundanceColumneID : abundanceColumnIDs)
-            {
-                columnDefinitionsAndConfigs.setGridCellRendererFor(abundanceColumneID, renderer);
-            }
-            columnDefinitionsAndConfigs.setGridCellRendererFor(ProteinColDefKind.COVERAGE.id(), renderer);
-            abundanceColumnDefinitionsChanged = false;
+            criteria = toolbar.getCriteria();
         }
-        return columnDefinitionsAndConfigs;
+        criteria.copyPagingConfig(resultSetConfig);
+        specificViewContext.getService().listProteinsByExperiment(criteria, callback);
     }
 
     @Override
-    protected void initializeModelCreation()
-    {
-        Set<String> visibleColumnIds = getIDsOfVisibleColumns();
-        visibleColumnDefinitions = new ArrayList<IColumnDefinition<ProteinInfo>>();
-        Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
-        for (IColumnDefinition<ProteinInfo> columnDefinition : columnDefs)
-        {
-            if (columnDefinition instanceof IColumnDefinitionUI == false
-                    || visibleColumnIds.contains(columnDefinition.getIdentifier()))
-            {
-                visibleColumnDefinitions.add(columnDefinition);
-            }
-        }
-    }
-
-    @Override
-    protected BaseEntityModel<ProteinInfo> createModel(GridRowModel<ProteinInfo> entity)
-    {
-        return new BaseEntityModel<ProteinInfo>(entity, visibleColumnDefinitions, true);
-    }
-
-    @Override
-    protected List<IColumnDefinition<ProteinInfo>> getInitialFilters()
-    {
-        return asColumnFilters(new ProteinColDefKind[]
-            { ProteinColDefKind.DESCRIPTION });
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, ProteinInfo> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ProteinInfo>> callback)
-    {
-        if (criteria != null)
-        {
-            criteria.copyPagingConfig(resultSetConfig);
-            specificViewContext.getService().listProteinsByExperiment(criteria, callback);
-        }
-    }
-
-    @Override
-    protected void prepareExportEntities(TableExportCriteria<ProteinInfo> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<ProteinInfo>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportProteins(exportCriteria, callback);
@@ -304,6 +222,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         toolbar.update();
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

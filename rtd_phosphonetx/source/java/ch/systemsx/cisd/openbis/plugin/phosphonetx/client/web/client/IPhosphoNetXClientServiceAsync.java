@@ -23,7 +23,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -79,10 +78,11 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 
     /** @see IPhosphoNetXClientService#listProteinsByExperiment(ListProteinByExperimentCriteria) */
     public void listProteinsByExperiment(ListProteinByExperimentCriteria criteria,
-            AsyncCallback<ResultSet<ProteinInfo>> callback);
+            AsyncCallback<TypedTableResultSet<ProteinInfo>> callback);
 
     /** @see IPhosphoNetXClientService#prepareExportProteins(TableExportCriteria) */
-    public void prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria,
+    public void prepareExportProteins(
+            TableExportCriteria<TableModelRowWithObject<ProteinInfo>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see IPhosphoNetXClientService#listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria) */

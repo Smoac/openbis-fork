@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 
@@ -319,6 +320,19 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
                     experimentID, treatmentTypeCode, callback);
         }
+    }
+    
+    ListProteinByExperimentCriteria getCriteria()
+    {
+        ListProteinByExperimentCriteria criteria = new ListProteinByExperimentCriteria();
+        criteria.setExperimentID(TechId.create(experiment));
+        criteria.setFalseDiscoveryRate(getSelection(fdrComboBox, 0.0));
+        criteria.setAggregateFunction(getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION));
+        VocabularyTermModel value = treatmentTypeComboBox.getValue();
+        String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
+        criteria.setTreatmentTypeCode(treatmentTypeCode);
+        criteria.setAggregateOriginal(aggregateOriginalCheckBox.getValue());
+        return criteria;
     }
 
     private <T> T getSelection(ComboBox<? extends SimpleModel<T>> comboBox, T defaultValue)

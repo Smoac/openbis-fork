@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -73,10 +72,10 @@ public interface IPhosphoNetXClientService extends IClientService
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             TechId experimentID, String treatmentTypeOrNull) throws UserFailureException;
 
-    public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
+    public TypedTableResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
             throws UserFailureException;
 
-    public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
+    public String prepareExportProteins(TableExportCriteria<TableModelRowWithObject<ProteinInfo>> exportCriteria)
             throws UserFailureException;
 
     public TypedTableResultSet<ProteinSummary> listProteinSummariesByExperiment(

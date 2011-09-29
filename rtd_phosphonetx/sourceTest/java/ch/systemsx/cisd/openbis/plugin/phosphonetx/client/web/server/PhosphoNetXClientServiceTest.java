@@ -38,8 +38,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
@@ -255,11 +255,11 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         criteria.setAggregateFunction(function);
         criteria.setTreatmentTypeCode(treatmentTypeCode);
         criteria.setAggregateOriginal(aggregateOnOriginal);
-        ResultSet<ProteinInfo> rs = clientService.listProteinsByExperiment(criteria);
-        ProteinInfo actualProtein = rs.getList().get(0).getOriginalObject();
+        TypedTableResultSet<ProteinInfo> rs = clientService.listProteinsByExperiment(criteria);
+        ProteinInfo actualProtein = rs.getResultSet().getList().get(0).getOriginalObject().getObjectOrNull();
         assertEquals(protein.getId(), actualProtein.getId());
         assertEquals(protein.getDescription(), actualProtein.getDescription());
-        assertEquals(1, rs.getTotalLength());
+        assertEquals(1, rs.getResultSet().getTotalLength());
     }
 
     private ProteinInfo createProtein(long id)
