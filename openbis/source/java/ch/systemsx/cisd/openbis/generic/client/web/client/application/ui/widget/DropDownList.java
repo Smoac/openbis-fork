@@ -153,7 +153,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                     String v = comboBox.getRawValue();
                     // WORKAROUND: (GXT2.1) only one option in the list when something
                     // selected and trigger field clicked
-                    if (StringUtils.isBlank(v))
+                    if (StringUtils.isBlank(v) || comboBox.isExpanded() == false)
                     {
                         return true;
                     }
@@ -167,7 +167,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                     }
                     return false;
                 }
-
             };
         ListStore<M> newStore = new ListStore<M>()
             {
