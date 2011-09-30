@@ -82,7 +82,7 @@ public class FtpServer implements FileSystemFactory
             sslConfigFactory.setKeystorePassword(config.getKeyStorePassword());
             sslConfigFactory.setKeyPassword(config.getKeyPassword());
             factory.setSslConfiguration(sslConfigFactory.createSslConfiguration());
-            factory.setImplicitSsl(true);
+            factory.setImplicitSsl(config.isImplicitSSL());
         }
 
         DataConnectionConfigurationFactory dccFactory = new DataConnectionConfigurationFactory();

@@ -47,6 +47,8 @@ public class FtpServerConfig
 
     final static String USE_SSL_KEY = PREFIX + "use-ssl";
 
+    final static String IMPLICIT_SSL_KEY = PREFIX + "implicit-ssl";
+
     final static String MAX_THREADS_KEY = PREFIX + "maxThreads";
 
     final static String DATASET_DISPLAY_TEMPLATE_KEY = PREFIX + "dataset.display.template";
@@ -67,6 +69,8 @@ public class FtpServerConfig
 
     private static final boolean DEFAULT_USE_SSL = true;
 
+    private static final boolean DEFAULT_IMPLICIT_SSL = false;
+
     private static final int DEFAULT_MAX_THREADS = 25;
 
     private static final String DEFAULT_DATASET_TEMPLATE = "${dataSetCode}";
@@ -84,6 +88,8 @@ public class FtpServerConfig
     private String passivePortsRange;
 
     private boolean useSSL;
+
+    private boolean implicitSSL;
 
     private File keyStore;
 
@@ -157,6 +163,7 @@ public class FtpServerConfig
         keyPassword =
                 PropertyUtils.getMandatoryProperty(props,
                         ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY);
+        implicitSSL = PropertyUtils.getBoolean(props, IMPLICIT_SSL_KEY, DEFAULT_IMPLICIT_SSL);
     }
 
     public boolean isStartServer()
@@ -172,6 +179,11 @@ public class FtpServerConfig
     public boolean isUseSSL()
     {
         return useSSL;
+    }
+
+    public boolean isImplicitSSL()
+    {
+        return implicitSSL;
     }
 
     public File getKeyStore()
