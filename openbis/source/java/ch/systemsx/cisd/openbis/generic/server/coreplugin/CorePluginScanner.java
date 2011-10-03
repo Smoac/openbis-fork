@@ -100,7 +100,9 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     public List<CorePlugin> scanForPlugins()
     {
         List<CorePlugin> result = new ArrayList<CorePlugin>();
-        for (File pluginDir : FileUtilities.listDirectories(pluginsFolder, false))
+        List<File> pluginDirectories = FileUtilities.listDirectories(pluginsFolder, false);
+        Collections.sort(pluginDirectories);
+        for (File pluginDir : pluginDirectories)
         {
             CorePlugin plugin = tryLoadLatestVersion(pluginDir);
             if (plugin != null)
