@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -26,20 +25,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SortInfo<T> implements ISerializable
+public final class SortInfo implements ISerializable
 {
     private static final long serialVersionUID = 1L;
 
-    private IColumnDefinition<T> sortField;
+    private String sortField;
 
     private SortDir sortDir = SortDir.NONE;
 
-    public final IColumnDefinition<T> getSortField()
+    public final String getSortField()
     {
         return sortField;
     }
 
-    public final void setSortField(final IColumnDefinition<T> sortField)
+    public final void setSortField(final String sortField)
     {
         this.sortField = sortField;
     }

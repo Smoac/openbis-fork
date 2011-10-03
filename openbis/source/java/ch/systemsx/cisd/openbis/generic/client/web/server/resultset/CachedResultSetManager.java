@@ -324,10 +324,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             {
                 ids.addAll(idsOfPresentedColumns);
             }
-            IColumnDefinition<T> sortField = resultConfig.getSortInfo().getSortField();
+            String sortField = resultConfig.getSortInfo().getSortField();
             if (sortField != null)
             {
-                ids.add(sortField.getIdentifier());
+                ids.add(sortField);
             }
             GridFilters<T> filters = resultConfig.getFilters();
             List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
@@ -601,7 +601,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private static <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)
+    private static <T> void sortData(final GridRowModels<T> data, final SortInfo sortInfo,
+            final Set<IColumnDefinition<T>> availableColumns)
     {
         assert data != null : "Unspecified data.";
         assert sortInfo != null : "Unspecified sort information.";
@@ -610,14 +611,26 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return;
         }
         final SortDir sortDir = sortInfo.getSortDir();
-        final IColumnDefinition<T> sortField = sortInfo.getSortField();
+        final String sortField = sortInfo.getSortField();
         if (sortDir == SortDir.NONE || sortField == null)
         {
             return;
+        } else
+        {
+            IColumnDefinition<T> sortFieldDefinition = null;
+            for (IColumnDefinition<T> column : availableColumns)
+            {
+                if (sortField.equals(column.getIdentifier()))
+                {
+                    sortFieldDefinition = column;
+                    Comparator<GridRowModel<T>> comparator =
+                            ColumnSortUtils.createComparator(sortDir, sortFieldDefinition);
+                    Collections.sort(data, comparator);
+                    break;
+                }
+            }
+
         }
-        Comparator<GridRowModel<T>> comparator =
-                ColumnSortUtils.createComparator(sortDir, sortField);
-        Collections.sort(data, comparator);
     }
 
     private static int getLimit(final int size, final int limit, final int offset)
@@ -735,7 +748,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return calculateSortAndFilterResult(sessionToken, tableData,
                 createMatchingConfig(resultConfig, headers), dataKey, partial);
     }
-    
+
     private <T> IResultSetConfig<K, T> createMatchingConfig(IResultSetConfig<K, T> resultSetConfig,
             List<TableModelColumnHeader> headers)
     {
@@ -751,7 +764,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Set<IColumnDefinition<T>> newAvailableColumns = new HashSet<IColumnDefinition<T>>();
         Set<String> idsOfPresentedColumns = resultSetConfig.getIDsOfPresentedColumns();
         Set<String> newIdsOfPresentedColumns = new HashSet<String>();
-        SortInfo<T> sortInfo = resultSetConfig.getSortInfo();
+        SortInfo sortInfo = resultSetConfig.getSortInfo();
         TableMap<String, GridColumnFilterInfo<T>> columnFilterInfos =
                 getColumFilters(resultSetConfig);
         List<GridColumnFilterInfo<T>> newColumnFilterInfos =
@@ -770,10 +783,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
             if (sortInfo != null)
             {
-                IColumnDefinition<T> sortField = sortInfo.getSortField();
-                if (sortField != null && sortField.getIdentifier().equals(id))
+                String sortField = sortInfo.getSortField();
+                if (sortField != null && sortField.equals(id))
                 {
-                    sortInfo.setSortField(definition);
+                    sortInfo.setSortField(id);
                 }
             }
             GridColumnFilterInfo<T> filterInfo = columnFilterInfos.tryGet(id);
@@ -783,7 +796,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 newColumnFilterInfos.add(new GridColumnFilterInfo<T>(definition, pattern));
             }
         }
-        
+
         DefaultResultSetConfig<K, T> newConfig = new DefaultResultSetConfig<K, T>();
         newConfig.setAvailableColumns(newAvailableColumns);
         newConfig.setCacheConfig(resultSetConfig.getCacheConfig());
@@ -811,17 +824,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             filterInfosOrNull = Collections.emptyList();
         }
         TableMap<String, GridColumnFilterInfo<T>> columnFilterInfos =
-            new TableMap<String, GridColumnFilterInfo<T>>(filterInfosOrNull,
-                    new IKeyExtractor<String, GridColumnFilterInfo<T>>()
-                    {
-                public String getKey(GridColumnFilterInfo<T> e)
-                {
-                    return e.getFilteredField().getIdentifier();
-                }
-                    });
+                new TableMap<String, GridColumnFilterInfo<T>>(filterInfosOrNull,
+                        new IKeyExtractor<String, GridColumnFilterInfo<T>>()
+                            {
+                                public String getKey(GridColumnFilterInfo<T> e)
+                                {
+                                    return e.getFilteredField().getIdentifier();
+                                }
+                            });
         return columnFilterInfos;
     }
-    
+
     private <T> boolean hasNoStaleAvailableColumn(IResultSetConfig<K, T> resultSetConfig,
             List<TableModelColumnHeader> headers)
     {
@@ -833,6 +846,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Set<IColumnDefinition<T>> availableColumns = resultSetConfig.getAvailableColumns();
         if (availableColumns != null)
         {
+            if (availableColumns.size() != headers.size())
+            {
+                return false;
+            }
             for (IColumnDefinition<T> definition : availableColumns)
             {
                 if (headerIds.contains(definition.getIdentifier()) == false)
@@ -941,8 +958,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final int size = filteredData.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
-        final SortInfo<T> sortInfo = resultConfig.getSortInfo();
-        sortData(filteredData, sortInfo);
+        final SortInfo sortInfo = resultConfig.getSortInfo();
+        sortData(filteredData, sortInfo, resultConfig.getAvailableColumns());
         final GridRowModels<T> list = subList(filteredData, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size, partial);
     }

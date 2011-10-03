@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IDisplaySettingsGetter<T>
+public interface IDisplaySettingsGetter
 {
     ColumnModel getColumnModel();
 
@@ -35,5 +35,5 @@ public interface IDisplaySettingsGetter<T>
 
     Object getModifier();
 
-    SortInfo<T> getSortState();
+    SortInfo getSortState();
 }

@@ -35,7 +35,7 @@ public class TableExportCriteria<T/* exported entity */> implements IsSerializab
     // a key at which data are stored in the server cache
     private String resultSetKey;
 
-    private SortInfo<T> sortInfo = new SortInfo<T>();
+    private SortInfo sortInfo = new SortInfo();
 
     /** @see IResultSetConfig#getFilters() */
     private GridFilters<T> filters;
@@ -57,7 +57,7 @@ public class TableExportCriteria<T/* exported entity */> implements IsSerializab
     {
     }
 
-    public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo, GridFilters<T> filters,
+    public TableExportCriteria(String resultSetKey, SortInfo sortInfo, GridFilters<T> filters,
             List<IColumnDefinition<T>> columnDefs, Set<IColumnDefinition<T>> availableColumns,
             String gridDisplayId)
     {
@@ -77,7 +77,7 @@ public class TableExportCriteria<T/* exported entity */> implements IsSerializab
         return resultSetKey;
     }
 
-    public SortInfo<T> getSortInfo()
+    public SortInfo getSortInfo()
     {
         return sortInfo;
     }

@@ -54,7 +54,7 @@ public interface IResultSetConfig<K, T>
      * include custom columns only if this information was already fetched.
      */
     public Set<IColumnDefinition<T>> getAvailableColumns();
-    
+
     /**
      * Returns the IDs of those columns which will be shown at the client.
      */
@@ -63,7 +63,7 @@ public interface IResultSetConfig<K, T>
     /**
      * Returns the sort info.
      */
-    public SortInfo<T> getSortInfo();
+    public SortInfo getSortInfo();
 
     /** The filters which should be applied for the result. */
     public GridFilters<T> getFilters();
@@ -73,7 +73,7 @@ public interface IResultSetConfig<K, T>
      *         to compute them.
      */
     public String tryGetGridDisplayId();
-    
+
     /**
      * Should the error message from the server be long or short?
      */

@@ -225,11 +225,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             return this;
         }
 
-        private SortInfo<DataHolder> createSortInfo(String columnDefinitionID,
-                SortDir sortingDirection)
+        private SortInfo createSortInfo(String columnDefinitionID, SortDir sortingDirection)
         {
-            SortInfo<DataHolder> sortInfo = new SortInfo<DataHolder>();
-            sortInfo.setSortField(getDefinition(columnDefinitionID));
+            SortInfo sortInfo = new SortInfo();
+            sortInfo.setSortField(getDefinition(columnDefinitionID).getIdentifier());
             sortInfo.setSortDir(sortingDirection);
             return sortInfo;
         }
@@ -282,16 +281,20 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             return recordedColumnCodes.toString();
         }
     }
-    
-    private static final class MockOriginalDataProvider implements IOriginalDataProvider<DataHolder>
+
+    private static final class MockOriginalDataProvider implements
+            IOriginalDataProvider<DataHolder>
     {
         private final List<DataHolder> data;
+
         private final int maxSizeThresholdForSlowDelivery;
+
         private final long timeToDeliver;
-        
+
         private List<Integer> recordedMaxSizes = new ArrayList<Integer>();
 
-        MockOriginalDataProvider(List<DataHolder> data, int maxSizeThresholdForSlowDelivery, long timeToDeliver)
+        MockOriginalDataProvider(List<DataHolder> data, int maxSizeThresholdForSlowDelivery,
+                long timeToDeliver)
         {
             this.data = data;
             this.maxSizeThresholdForSlowDelivery = maxSizeThresholdForSlowDelivery;
@@ -318,7 +321,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         {
             return Arrays.asList();
         }
-        
+
     }
 
     private IOriginalDataProvider<DataHolder> originalDataProvider;
@@ -385,16 +388,16 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testOffsetAndLimit()
     {
         prepareDataAndCustomColumnDefinitions(20, 10);
         ResultSetConfigBuilder builder =
-            new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
-        
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+
         getAndCheckRows(10, 0, builder.offset(-1).limit(10));
-        
+
         builder.fetchFromCache(KEY);
         getAndCheckRows(10, 9, builder.offset(9).limit(10));
         getAndCheckRows(10, 10, builder.offset(10).limit(10));
@@ -402,7 +405,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         getAndCheckRows(1, 19, builder.offset(19).limit(10));
         getAndCheckRows(1, 19, builder.offset(20).limit(10));
         getAndCheckRows(1, 19, builder.offset(21).limit(10));
-        
+
         context.assertIsSatisfied();
     }
 
@@ -880,7 +883,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWaitingForFuture()
     {
@@ -895,35 +898,34 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     will(returnValue(KEY));
                 }
             });
-        
+
         // First call gets only first page
         IResultSet<Long, DataHolder> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
         assertEquals(true, resultSet.isPartial());
         assertEquals(1, resultSet.getList().size());
         assertEquals(1, resultSet.getTotalLength());
         assertEquals("a", getData(resultSet, 0));
-        
+
         // Second call has to wait
         builder.fetchFromCache(KEY);
-        resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
         assertEquals(false, resultSet.isPartial());
         assertEquals(1, resultSet.getList().size());
         assertEquals(4, resultSet.getTotalLength());
         assertEquals("a", getData(resultSet, 0));
-        
+
         // Third call get sorted value
         builder.sortDesc("col1");
-        resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
+        resultSet = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), dataProvider);
         assertEquals(false, resultSet.isPartial());
         assertEquals(1, resultSet.getList().size());
         assertEquals(4, resultSet.getTotalLength());
         assertEquals("d", getData(resultSet, 0));
-        
-        assertEquals(Arrays.asList(1, Integer.MAX_VALUE).toString(), dataProvider.recordedMaxSizes.toString());
-        
+
+        assertEquals(Arrays.asList(1, Integer.MAX_VALUE).toString(),
+                dataProvider.recordedMaxSizes.toString());
+
         context.assertIsSatisfied();
     }
 
@@ -1027,7 +1029,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     {
         prepareDataAndCustomColumnDefinitions(size, Integer.MAX_VALUE, columns);
     }
-    
+
     private void prepareDataAndCustomColumnDefinitions(final int size, final int maxSize,
             final GridCustomColumn... columns)
     {
@@ -1044,10 +1046,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                         rows[i] = new DataHolder(i + "-a" + i % 2);
                     }
                     will(returnValue(Arrays.asList(rows)));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
-                    
+
                     if (size >= maxSize)
                     {
                         one(originalDataProvider).getOriginalData(Integer.MAX_VALUE);
@@ -1131,7 +1133,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 {
                     return null; // unused
                 }
-                
+
                 public DataTypeCode tryToGetDataType()
                 {
                     return null;

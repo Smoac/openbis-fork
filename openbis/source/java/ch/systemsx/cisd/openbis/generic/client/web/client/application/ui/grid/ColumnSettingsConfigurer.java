@@ -93,7 +93,7 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                             DisplaySettingsManager displaySettingsManager =
                                     viewContext.getDisplaySettingsManager();
                             displaySettingsManager.storeSettings(gridDisplayTypeID,
-                                    new IDisplaySettingsGetter<T>()
+                                    new IDisplaySettingsGetter()
                                         {
                                             public Object getModifier()
                                             {
@@ -110,7 +110,7 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                                                 return newColumnModel;
                                             }
 
-                                            public SortInfo<T> getSortState()
+                                            public SortInfo getSortState()
                                             {
                                                 return browserGrid.getGridSortInfo();
                                             }

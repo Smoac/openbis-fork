@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -84,7 +83,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
     private IDelayedUpdater updater;
 
-    private IDisplaySettingsGetter<T> grid;
+    private IDisplaySettingsGetter grid;
 
     private DisplaySettingsManager manager;
 
@@ -94,7 +93,6 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
     private WebClientConfiguration webClientConfiguration;
 
-    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUp()
     {

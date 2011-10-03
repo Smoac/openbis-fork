@@ -36,12 +36,12 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     private int offset = 0;
 
-    private SortInfo<T> sortInfo = new SortInfo<T>();
+    private SortInfo sortInfo = new SortInfo();
 
     private ResultSetFetchConfig<K> cacheConfig = ResultSetFetchConfig.createComputeAndCache();
 
     private Set<IColumnDefinition<T>> availableColumns;
-    
+
     private Set<String> idsOfPresentedColumns;
 
     private GridFilters<T> filters = GridFilters.createEmptyFilter();
@@ -71,7 +71,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.offset = offset;
     }
 
-    public final void setSortInfo(final SortInfo<T> sortInfo)
+    public final void setSortInfo(final SortInfo sortInfo)
     {
         this.sortInfo = sortInfo;
     }
@@ -95,7 +95,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         return idsOfPresentedColumns;
     }
-    
+
     public void setPresentedColumns(List<IColumnDefinition<T>> presentedColumns)
     {
         Set<String> ids = new HashSet<String>();
@@ -110,7 +110,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         this.idsOfPresentedColumns = idsOfPresentedColumns;
     }
-    
+
     public final void copyPagingConfig(DefaultResultSetConfig<K, T> resultSetConfig)
     {
         setLimit(resultSetConfig.getLimit());
@@ -143,7 +143,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         return availableColumns;
     }
 
-    public final SortInfo<T> getSortInfo()
+    public final SortInfo getSortInfo()
     {
         return sortInfo;
     }

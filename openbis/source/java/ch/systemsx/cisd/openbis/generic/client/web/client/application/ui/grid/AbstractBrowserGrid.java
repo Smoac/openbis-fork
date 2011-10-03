@@ -690,7 +690,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setLimit(limit);
         resultSetConfig.setOffset(offset);
         resultSetConfig.setAvailableColumns(columnDefinitions);
-        SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, columnDefinitions);
+        SortInfo translatedSortInfo = translateSortInfo(sortInfo);
         Set<String> columnIDs = getIDsOfColumnsToBeShown();
         resultSetConfig.setIDsOfPresentedColumns(columnIDs);
         resultSetConfig.setSortInfo(translatedSortInfo);
@@ -725,30 +725,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return columnIDs;
     }
 
-    private static <T> SortInfo<T> translateSortInfo(
-            com.extjs.gxt.ui.client.data.SortInfo sortInfo,
-            Set<IColumnDefinition<T>> availableColumns)
+    private static <T> SortInfo translateSortInfo(com.extjs.gxt.ui.client.data.SortInfo sortInfo)
     {
-        return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir(), availableColumns);
+        return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir());
     }
 
-    private static <T> SortInfo<T> translateSortInfo(String sortFieldId,
-            com.extjs.gxt.ui.client.Style.SortDir sortDir,
-            Set<IColumnDefinition<T>> availableColumns)
+    private static <T> SortInfo translateSortInfo(String sortFieldId,
+            com.extjs.gxt.ui.client.Style.SortDir sortDir)
     {
-        IColumnDefinition<T> sortColumnDefinition = null;
-        if (sortFieldId != null)
-        {
-            Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
-            sortColumnDefinition = availableColumnsMap.get(sortFieldId);
-        }
-
-        SortInfo<T> sortInfo = new SortInfo<T>();
-        if (sortColumnDefinition != null)
-        {
-            sortInfo.setSortField(sortColumnDefinition);
-            sortInfo.setSortDir(translate(sortDir));
-        }
+        SortInfo sortInfo = new SortInfo();
+        sortInfo.setSortField(sortFieldId);
+        sortInfo.setSortDir(translate(sortDir));
 
         return sortInfo;
     }
@@ -885,6 +872,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             saveCacheKey(key);
             GridRowModels<T> rowModels = result.getList();
             boolean partial = result.isPartial();
+            List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
+            customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
+
             if (reloadingPhase)
             {
                 reloadingPhase = false;
@@ -894,13 +884,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 BasePagingLoadConfig loadConfig = new BasePagingLoadConfig();
                 loadConfig.setLimit(resultSetConfig.getLimit());
                 loadConfig.setOffset(resultSetConfig.getOffset());
-                SortInfo<T> sortInfo = resultSetConfig.getSortInfo();
+                SortInfo sortInfo = resultSetConfig.getSortInfo();
                 if (sortInfo != null)
                 {
-                    IColumnDefinition<T> sortField = sortInfo.getSortField();
+                    String sortField = sortInfo.getSortField();
                     if (sortField != null)
                     {
-                        loadConfig.setSortField(sortField.getIdentifier());
+                        loadConfig.setSortField(sortField);
                         loadConfig.setSortDir(translate(sortInfo.getSortDir()));
                     }
                 }
@@ -912,8 +902,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 this.reuse();
                 listEntities(resultSetConfig, this);
             }
-            List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
-            customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
             // convert the result to the model data for the grid control
             final List<M> models = createModels(rowModels);
             final PagingLoadResult<M> loadResult =
@@ -1315,10 +1303,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    protected final void recreateColumnModelAndRefreshColumnsWithFilters()
+    private ColumnDefsAndConfigs<T> createColumnDefsAndConfigs()
     {
-        int logId = log("recreateColumnModelAndRefreshColumnsWithFilters");
-
         ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
         // add custom columns
         List<GridCustomColumnInfo> customColumnsMetadata =
@@ -1340,6 +1326,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             }
         }
+
+        return defsAndConfigs;
+    }
+
+    protected final void recreateColumnModelAndRefreshColumnsWithFilters()
+    {
+        int logId = log("recreateColumnModelAndRefreshColumnsWithFilters");
+
+        ColumnDefsAndConfigs<T> defsAndConfigs = createColumnDefsAndConfigs();
 
         this.columnDefinitions = defsAndConfigs.getColumnDefs();
         ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
@@ -1365,19 +1360,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         ColumnModel newColumnModel = columnModel;
         GridDisplaySettings settings = tryApplyDisplaySettings(newColumnModel);
-        if (settings != null)
+        if (settings != null && settings.getColumnConfigs() != null)
         {
             newColumnModel = createColumnModel(settings.getColumnConfigs());
             rebuildFiltersFromIds(settings.getFilteredColumnIds());
-            if (settings.getSortDir() != null && settings.getSortField() != null)
-            {
-                setGridSortInfo(settings.getSortField(), settings.getSortDir());
-            }
         } else
         {
             filterToolbar.rebuildColumnFilters(getInitialFilters());
         }
-        changeColumnModel(newColumnModel);
+        changeColumnModel(newColumnModel, settings != null ? settings.getSortField() : null,
+                settings != null ? settings.getSortDir() : null);
     }
 
     private void hideLoadingMask()
@@ -1395,14 +1387,37 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 columnModel, extractColumnIds(initialFilters), getGridSortInfo());
     }
 
-    private void changeColumnModel(ColumnModel columnModel)
+    private void reconfigureGrid(ColumnModel columnModelOfVisible)
+    {
+        List<Listener<?>> sortlisteners =
+                new ArrayList<Listener<?>>(grid.getListeners(Events.SortChange));
+        for (Listener<?> listener : sortlisteners)
+        {
+            grid.removeListener(Events.SortChange, listener);
+        }
+
+        grid.reconfigure(grid.getStore(), columnModelOfVisible);
+
+        for (Listener<?> listener : sortlisteners)
+        {
+            grid.addListener(Events.SortChange, listener);
+        }
+    }
+
+    private void changeColumnModel(ColumnModel columnModel, String sortField, SortDir sortDir)
     {
         fullColumnModel = columnModel;
 
         int logId = log("grid reconfigure");
         ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
 
-        grid.reconfigure(grid.getStore(), columnModelOfVisible);
+        if (sortDir != null && sortField != null)
+        {
+            pagingLoader.setSortDir(translate(sortDir));
+            pagingLoader.setSortField(sortField);
+        }
+        reconfigureGrid(columnModelOfVisible);
+
         viewContext.logStop(logId);
         registerGridSettingsChangesListener();
         // add listeners of full column model to trimmed model
@@ -1471,9 +1486,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingLoader.load(0, PAGE_SIZE);
     }
 
-    private IDisplaySettingsGetter<T> createDisplaySettingsUpdater()
+    private IDisplaySettingsGetter createDisplaySettingsUpdater()
     {
-        return new IDisplaySettingsGetter<T>()
+        return new IDisplaySettingsGetter()
             {
                 public ColumnModel getColumnModel()
                 {
@@ -1490,7 +1505,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     return AbstractBrowserGrid.this;
                 }
 
-                public SortInfo<T> getSortState()
+                public SortInfo getSortState()
                 {
                     return AbstractBrowserGrid.this.getGridSortInfo();
                 }
@@ -1635,7 +1650,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // Default visibility so that friend classes can use -- should otherwise be considered private
     void saveColumnDisplaySettings()
     {
-        IDisplaySettingsGetter<T> settingsUpdater = createDisplaySettingsUpdater();
+        IDisplaySettingsGetter settingsUpdater = createDisplaySettingsUpdater();
         viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
                 settingsUpdater, false);
     }
@@ -1662,7 +1677,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final List<IColumnDefinition<T>> columnDefs =
                 allColumns ? new ArrayList<IColumnDefinition<T>>(columnDefinitions)
                         : getVisibleColumns(columnDefinitions);
-        SortInfo<T> sortInfo = getGridSortInfo();
+        SortInfo sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
                 new TableExportCriteria<T>(resultSetKeyOrNull, sortInfo,
                         filterToolbar.getFilters(), columnDefs, columnDefinitions,
@@ -1671,23 +1686,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // returns info about sorting in current grid
-    SortInfo<T> getGridSortInfo()
+    SortInfo getGridSortInfo()
     {
         ListStore<M> store = grid.getStore();
-        return translateSortInfo(store.getSortField(), store.getSortDir(), columnDefinitions);
-    }
-
-    private void setGridSortInfo(String sortField, SortDir sortDir)
-    {
-        com.extjs.gxt.ui.client.data.SortInfo old = grid.getStore().getSortState();
-        grid.getStore().setDefaultSort(sortField, translate(sortDir));
-
-        if (old.getSortDir() != translate(sortDir)
-                || (sortField == null && old.getSortField() != null)
-                || (sortField != null && sortField.equals(old.getSortField()) == false))
-        {
-            grid.getStore().sort(sortField, translate(sortDir));
-        }
+        return translateSortInfo(store.getSortField(), store.getSortDir());
     }
 
     /** @return the number of all objects cached in the browser */

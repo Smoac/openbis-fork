@@ -21,7 +21,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -34,7 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
  * @author Franz-Josef Elmer
@@ -119,8 +123,9 @@ public class FilterSystemTest extends SystemTestCase
     {
         DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>> config =
                 new DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>>();
-        config.setAvailableColumns(Collections
-                .<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>> emptySet());
+        config.setAvailableColumns(createAvailableColumnsDefinition());
+        config.setIDsOfPresentedColumns(new HashSet<String>(Arrays.asList("NAME", "DESCRIPTION",
+                "EXPRESSION", "IS_PUBLIC", "REGISTRATOR", "REGISTRATION_DATE")));
         CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>> customFilterInfo =
                 new CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>>();
         customFilterInfo.setExpression("${threshold} < 42");
@@ -130,6 +135,26 @@ public class FilterSystemTest extends SystemTestCase
         customFilterInfo.setParameters(Collections.singleton(parameterWithValue));
         config.setFilters(GridFilters.createCustomFilter(customFilterInfo));
         return config;
+    }
+
+    private Set<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>> createAvailableColumnsDefinition()
+    {
+        Set<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>> result =
+                new HashSet<IColumnDefinition<TableModelRowWithObject<GridCustomFilter>>>();
+
+        String[] headerIds =
+                    { "NAME", "DESCRIPTION", "EXPRESSION", "IS_PUBLIC", "REGISTRATOR",
+                            "REGISTRATION_DATE" };
+
+        for (int i = 0; i < headerIds.length; i++)
+        {
+            TableModelColumnHeader header =
+                    new TableModelColumnHeader(headerIds[i], headerIds[i], i);
+            IColumnDefinition<TableModelRowWithObject<GridCustomFilter>> definition =
+                    new TypedTableGridColumnDefinition<GridCustomFilter>(header, null, "", null);
+            result.add(definition);
+        }
+        return result;
     }
 
     private NewColumnOrFilter createFilter()
