@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
  * 
  * @author Kaloyan Enimanev
  */
-public class CorePluginScanner implements ICorePluginScanner
+public class CorePluginScanner implements ICorePluginResourceLoader
 {
     /**
      * the type of plugins we are scanning for.

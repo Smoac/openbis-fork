@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -1153,15 +1154,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<CorePlugin> listCorePluginsByName(String sessionToken, String name)
+    public void registerPlugin(String sessionToken, CorePlugin plugin,
+            ICorePluginResourceLoader resourceLoader)
     {
-        logTracking(sessionToken, "listCorePluginsByName", "NAME(%s)", name);
-        return null;
-    }
-
-    public void registerPlugin(String sessionToken, CorePlugin plugin)
-    {
-        logTracking(sessionToken, "registerPlugin", "PLUGIN(%s)", plugin);
+        logTracking(sessionToken, "registerPlugin", "PLUGIN(%s), LOADER(%s)", plugin,
+                resourceLoader);
     }
 
 }

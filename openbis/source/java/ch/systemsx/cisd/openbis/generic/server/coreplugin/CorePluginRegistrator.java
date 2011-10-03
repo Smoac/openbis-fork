@@ -21,7 +21,10 @@ import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Kaloyan Enimanev
@@ -30,7 +33,7 @@ public class CorePluginRegistrator implements InitializingBean
 {
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    private ICorePluginRegistry corePluginRegistry;
+    private ICommonServerForInternalUse commonServer;
 
     private String pluginsFolderName;
 
@@ -46,9 +49,19 @@ public class CorePluginRegistrator implements InitializingBean
                     + "Skipping registration of core plugins... ");
         } else
         {
-            ICorePluginScanner pluginScanner =
+            CorePluginScanner pluginScanner =
                     new CorePluginScanner(pluginsFolderName, ScannerType.AS);
-            corePluginRegistry.registerPlugins(pluginScanner);
+            String sessionToken = getSessionToken();
+            for (CorePlugin plugin : pluginScanner.scanForPlugins())
+            {
+                try
+                {
+                    commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
+                } catch (Exception ex)
+                {
+                    operationLog.error("Failed to install core plugin: " + plugin, ex);
+                }
+            }
         }
     }
 
@@ -57,14 +70,20 @@ public class CorePluginRegistrator implements InitializingBean
         registerPlugins();
     }
 
-    public void setCorePluginRegistry(ICorePluginRegistry corePluginRegistry)
-    {
-        this.corePluginRegistry = corePluginRegistry;
-    }
-
     public void setPluginsFolderName(String pluginsFolderName)
     {
         this.pluginsFolderName = pluginsFolderName;
     }
 
+    public void setCommonServer(ICommonServerForInternalUse commonServer)
+    {
+        this.commonServer = commonServer;
+    }
+
+    private String getSessionToken()
+    {
+        SessionContextDTO sessionDTO = commonServer.tryToAuthenticateAsSystem();
+        final String sessionToken = sessionDTO.getSessionToken();
+        return sessionToken;
+    }
 }

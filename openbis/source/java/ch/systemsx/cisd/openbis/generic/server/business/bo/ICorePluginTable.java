@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
  * @author Kaloyan Enimanev
@@ -26,13 +27,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 public interface ICorePluginTable
 {
     /**
-     * Lists all plugins installed on a specified DSS instance.
+     * Lists all plugins deployed on the openBIS AS.
      */
-    List<CorePluginPE> listCorePluginsByName(String name);
+    List<CorePlugin> listCorePluginsByName(String name);
 
     /**
-     * Registers a list of plugins.
+     * Registers a core plugin. The operation has no effect if the plugin has already been deployed
+     * on the openBIS AS.
      */
-    public void registerPlugins(List<CorePluginPE> plugins);
+    public void registerPlugin(CorePlugin plugin, ICorePluginResourceLoader resourceLoader);
 
 }

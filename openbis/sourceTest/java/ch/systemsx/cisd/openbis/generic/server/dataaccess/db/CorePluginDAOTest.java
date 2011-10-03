@@ -62,6 +62,7 @@ public final class CorePluginDAOTest extends AbstractDAOTest
         CorePluginPE plugin = new CorePluginPE();
         plugin.setName(name);
         plugin.setVersion(version);
+        plugin.setMasterDataRegistrationScript("test script");
         return plugin;
     }
 }

@@ -16,15 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
+import java.io.File;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+
 /**
+ * The {@link ICorePluginResourceLoader} abstracts the physical representation of a
+ * {@link CorePlugin} on the file system.
+ * 
  * @author Kaloyan Enimanev
  */
-public interface ICorePluginRegistry
+public interface ICorePluginResourceLoader
 {
 
     /**
-     * TODO KE: javadoc
+     * Tries to locate a path within a given plugin and returns a corresponding file handle. If the
+     * path does not exist <code>NULL</code> is returned.
      */
-    void registerPlugins(ICorePluginScanner scanner);
+    File tryGetFile(CorePlugin plugin, String path);
 
 }

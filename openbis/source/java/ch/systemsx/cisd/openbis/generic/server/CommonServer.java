@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -175,7 +176,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -224,7 +224,6 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.CorePluginTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
@@ -2535,20 +2534,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .getDescription(), entity.getIdentifier(), exception.getMessage());
     }
 
-    public List<CorePlugin> listCorePluginsByName(String sessionToken, String name)
+    public void registerPlugin(String sessionToken, CorePlugin plugin,
+            ICorePluginResourceLoader resourceLoader)
     {
         Session session = getSession(sessionToken);
-        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session);
-        final List<CorePluginPE> pluginPEs = pluginTable.listCorePluginsByName(name);
-        return CorePluginTranslator.translate(pluginPEs);
+        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session, this);
+        pluginTable.registerPlugin(plugin, resourceLoader);
     }
-
-    public void registerPlugin(String sessionToken, CorePlugin plugin)
-    {
-        Session session = getSession(sessionToken);
-        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session);
-        CorePluginPE pluginPE = CorePluginTranslator.translate(plugin);
-        pluginTable.registerPlugins(Collections.singletonList(pluginPE));
-    }
-
 }

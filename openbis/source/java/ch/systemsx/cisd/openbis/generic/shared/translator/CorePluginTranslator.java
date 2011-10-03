@@ -44,11 +44,12 @@ public final class CorePluginTranslator
         return new CorePlugin(pluginPE.getName(), pluginPE.getVersion());
     }
 
-    public final static CorePluginPE translate(final CorePlugin plugin)
+    public final static CorePluginPE translate(final CorePlugin plugin, String masterDataScript)
     {
         CorePluginPE pluginPE = new CorePluginPE();
         pluginPE.setName(plugin.getName());
         pluginPE.setVersion(plugin.getVersion());
+        pluginPE.setMasterDataRegistrationScript(masterDataScript);
         return pluginPE;
     }
 

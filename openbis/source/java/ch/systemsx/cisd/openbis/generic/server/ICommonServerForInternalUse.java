@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.List;
-
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -33,15 +32,11 @@ public interface ICommonServerForInternalUse extends ICommonServer
     public SessionContextDTO tryToAuthenticateAsSystem();
 
     /**
-     * Lists all plugins installed on a specified DSS instance.
-     */
-    @Transactional(readOnly = true)
-    List<CorePlugin> listCorePluginsByName(String sessionToken, String name);
-
-    /**
-     * Registers a list of plugins.
+     * Registers a core plugin. The operation has no effect if the plugin is already deployed on the
+     * openBIS AS.
      */
     @Transactional(readOnly = false)
-    public void registerPlugin(String sessionToken, CorePlugin plugin);
+    public void registerPlugin(String sessionToken, CorePlugin plugin,
+            ICorePluginResourceLoader pluginLoader);
 
 }

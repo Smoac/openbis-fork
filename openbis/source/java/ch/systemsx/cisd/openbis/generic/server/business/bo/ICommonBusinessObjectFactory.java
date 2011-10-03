@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -76,7 +77,7 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
 
     public IDeletionTable createDeletionTable(Session session);
 
-    public ICorePluginTable createCorePluginTable(Session session);
+    public ICorePluginTable createCorePluginTable(Session session, ICommonServer commonServer);
 
     // Fast listing operations
     public ISampleLister createSampleLister(Session session);

@@ -50,6 +50,8 @@ public final class CorePluginPE implements Comparable<CorePluginPE>
 
     private int version;
 
+    private String masterDataRegistrationScript;
+
     @SequenceGenerator(name = SequenceNames.CORE_PLUGIN_SEQUENCE, sequenceName = SequenceNames.CORE_PLUGIN_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.CORE_PLUGIN_SEQUENCE)
@@ -99,6 +101,17 @@ public final class CorePluginPE implements Comparable<CorePluginPE>
         this.version = version;
     }
 
+    @Column(name = ColumnNames.MASTER_DATA_REGISTRATION_SCRIPT)
+    public String getMasterDataRegistrationScript()
+    {
+        return masterDataRegistrationScript;
+    }
+
+    public void setMasterDataRegistrationScript(String masterDataRegistrationScript)
+    {
+        this.masterDataRegistrationScript = masterDataRegistrationScript;
+    }
+
     public int compareTo(CorePluginPE other)
     {
         if (version != other.version)
@@ -107,5 +120,4 @@ public final class CorePluginPE implements Comparable<CorePluginPE>
         }
         return name.compareTo(other.name);
     }
-
 }

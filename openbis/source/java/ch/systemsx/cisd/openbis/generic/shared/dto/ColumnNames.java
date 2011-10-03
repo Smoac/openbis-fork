@@ -286,6 +286,8 @@ public final class ColumnNames
 
     public static final String IS_SHOWN_EDIT = "is_shown_edit";
 
+    public static final String MASTER_DATA_REGISTRATION_SCRIPT = "master_reg_script";
+
     private ColumnNames()
     {
         // Can not be instantiated.
