@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO.IScriptFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -120,6 +121,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IDeletionDAO deletionDAO;
 
+    protected ICorePluginDAO corePluginDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -152,6 +155,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         filterDAO = context.mock(IGridCustomFilterDAO.class);
         scriptDAO = context.mock(IScriptDAO.class);
         deletionDAO = context.mock(IDeletionDAO.class);
+        corePluginDAO = context.mock(ICorePluginDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -198,6 +202,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(propertyTypeDAO));
                     allowing(daoFactory).getDeletionDAO();
                     will(returnValue(deletionDAO));
+                    allowing(daoFactory).getCorePluginDAO();
+                    will(returnValue(corePluginDAO));
                 }
             });
     }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -32,10 +30,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -53,12 +49,13 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
      */
     public static final String INIT_MASTER_DATA_SCRIPT = "initialize-master-data.py";
 
-    private final ICommonServer commonServer;
+    private final IMasterDataScriptRegistrationRunner masterDataScriptRunner;
 
-    public CorePluginTable(IDAOFactory daoFactory, Session session, ICommonServer commonServer)
+    public CorePluginTable(IDAOFactory daoFactory, Session session,
+            IMasterDataScriptRegistrationRunner masterDataScriptRunner)
     {
         super(daoFactory, session);
-        this.commonServer = commonServer;
+        this.masterDataScriptRunner = masterDataScriptRunner;
     }
 
     public List<CorePlugin> listCorePluginsByName(String name)
@@ -95,13 +92,11 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
 
     private void installNewPluginVersion(CorePlugin plugin, ICorePluginResourceLoader resourceLoader)
     {
-        String masterDataScript = StringUtils.EMPTY;
-        File masterDataScriptFile =
-                resourceLoader.tryGetFile(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
-        if (masterDataScriptFile != null && masterDataScriptFile.isFile())
+        String masterDataScript =
+                resourceLoader.tryLoadToString(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+        if (false == StringUtils.isEmpty(masterDataScript))
         {
-            masterDataScript = FileUtilities.loadToString(masterDataScriptFile);
-            runInitializeMasterDataScript(plugin, masterDataScriptFile);
+            runInitializeMasterDataScript(plugin, masterDataScript);
         } else
         {
             operationLog.info(String.format("No '%s' script found for '%s'. Skipping..",
@@ -113,27 +108,21 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
         operationLog.info(plugin + " installed succesfully.");
     }
 
-    private void runInitializeMasterDataScript(CorePlugin plugin, File initializeMasterDataScript)
+    private void runInitializeMasterDataScript(CorePlugin plugin, String masterDataScript)
     {
-        String sessionToken = session.getSessionToken();
-        operationLog.info("Executing master data initialization script "
-                + initializeMasterDataScript.getAbsolutePath());
-        EncapsulatedCommonServer encapsulated =
-                EncapsulatedCommonServer.create(commonServer, sessionToken);
-        MasterDataRegistrationScriptRunner scriptRunner =
-                new MasterDataRegistrationScriptRunner(encapsulated);
+        operationLog
+                .info("Executing master data initialization script for plugin '%s'..." + plugin);
         try
         {
-            scriptRunner.executeScript(initializeMasterDataScript);
+            masterDataScriptRunner.executeScript(masterDataScript);
         } catch (MasterDataRegistrationException mdre)
         {
             Log4jSimpleLogger errorLogger = new Log4jSimpleLogger(operationLog);
-            errorLogger.log(LogLevel.ERROR, "Failed to commit all transactions for script "
-                    + initializeMasterDataScript.getAbsolutePath());
+            errorLogger.log(LogLevel.ERROR, String.format("Failed to commit all transactions in "
+                    + "the master data registration script for plugin '%s'.", plugin));
             mdre.logErrors(errorLogger);
             throw ConfigurationFailureException.fromTemplate(
-                    "Failed to run iniitalization script '%s' for plugin '%s'",
-                    initializeMasterDataScript.getAbsoluteFile(), plugin);
+                    "Failed to run iniitalization script '%s'", plugin);
         }
     }
 

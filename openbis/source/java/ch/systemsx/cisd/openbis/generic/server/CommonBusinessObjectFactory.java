@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.Materi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -236,9 +236,10 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new DeletionTable(getDaoFactory(), session);
     }
 
-    public ICorePluginTable createCorePluginTable(Session session, ICommonServer commonServer)
+    public ICorePluginTable createCorePluginTable(Session session,
+            IMasterDataScriptRegistrationRunner masterDataScriptRunner)
     {
-        return new CorePluginTable(getDaoFactory(), session, commonServer);
+        return new CorePluginTable(getDaoFactory(), session, masterDataScriptRunner);
     }
 
 }

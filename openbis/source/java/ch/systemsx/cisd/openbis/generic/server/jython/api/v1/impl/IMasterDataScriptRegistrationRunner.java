@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.coreplugin;
+package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
- * The {@link ICorePluginResourceLoader} abstracts the physical representation of a
- * {@link CorePlugin} on the file system.
+ * Implementation of this interface know how to execute a master data registration script.
  * 
  * @author Kaloyan Enimanev
  */
-public interface ICorePluginResourceLoader
+public interface IMasterDataScriptRegistrationRunner
 {
 
     /**
-     * Locate a path within a given plugin and attempts to read its contents as string. If the path
-     * does not exist <code>NULL</code> is returned.
+     * Executes the specified registration script.
+     * 
+     * @throws MasterDataRegistrationException if the script produces an error
      */
-    String tryLoadToString(CorePlugin plugin, String path);
+    void executeScript(String jythonScript) throws MasterDataRegistrationException;
 
 }

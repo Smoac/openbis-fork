@@ -83,6 +83,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
@@ -2538,7 +2540,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             ICorePluginResourceLoader resourceLoader)
     {
         Session session = getSession(sessionToken);
-        ICorePluginTable pluginTable = businessObjectFactory.createCorePluginTable(session, this);
+        EncapsulatedCommonServer encapsulated = EncapsulatedCommonServer.create(this, sessionToken);
+        MasterDataRegistrationScriptRunner scriptRunner =
+                new MasterDataRegistrationScriptRunner(encapsulated);
+
+        ICorePluginTable pluginTable =
+                businessObjectFactory.createCorePluginTable(session, scriptRunner);
         pluginTable.registerPlugin(plugin, resourceLoader);
     }
 }

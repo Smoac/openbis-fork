@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Kaloyan Enimanev
  */
-public class MasterDataRegistrationScriptRunner
+public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegistrationRunner
 {
     private final static String SERVICE_VARIABLE_NAME = "service";
 
@@ -38,26 +38,26 @@ public class MasterDataRegistrationScriptRunner
         this.commonServer = commonServer;
     }
 
-    public void executeScript(File jythonScript) throws MasterDataRegistrationException
+    public void executeScript(File jythonScriptFile) throws MasterDataRegistrationException
     {
-        MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
-        runScript(service, jythonScript);
-        service.commit();
+        checkValidJythonScript(jythonScriptFile);
+        String scriptString = FileUtilities.loadToString(jythonScriptFile);
+
+        executeScript(scriptString);
     }
 
-    private void runScript(MasterDataRegistrationService service, File jythonScript)
+    public void executeScript(String jythonScript) throws MasterDataRegistrationException
     {
-        checkValidJythonScript(jythonScript);
-
-        // Load the script
-        String scriptString = FileUtilities.loadToString(jythonScript);
+        MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
         PythonInterpreter interpreter = new PythonInterpreter();
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Invoke the evaluator
-        interpreter.exec(scriptString);
+        interpreter.exec(jythonScript);
+
+        service.commit();
     }
 
     private void checkValidJythonScript(File jythonScript)

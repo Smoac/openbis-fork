@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.AssertingLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
@@ -94,12 +93,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
 
     private String getMasterDataScript(CorePlugin plugin, CorePluginScanner scanner)
     {
-        File file = scanner.tryGetFile(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
-        if (file != null)
-        {
-            return FileUtilities.loadToString(file);
-        }
-        return null;
+        return scanner.tryLoadToString(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
     }
 
     @Test(expectedExceptions = ConfigurationFailureException.class)

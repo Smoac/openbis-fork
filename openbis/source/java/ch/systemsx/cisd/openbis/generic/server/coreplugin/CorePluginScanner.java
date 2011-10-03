@@ -85,12 +85,12 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         this.log = logger;
     }
 
-    public File tryGetFile(CorePlugin plugin, String path)
+    public String tryLoadToString(CorePlugin plugin, String path)
     {
         File result = new File(getFolderForPlugin(plugin), path);
         if (result.isFile())
         {
-            return result;
+            return FileUtilities.loadToString(result);
         } else
         {
             return null;
