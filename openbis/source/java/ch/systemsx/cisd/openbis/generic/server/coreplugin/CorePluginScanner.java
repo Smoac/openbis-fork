@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
@@ -57,13 +58,22 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         }
     }
 
-    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+    private static final ISimpleLogger DEFAULT_LOGGER = new Log4jSimpleLogger(LogFactory.getLogger(
+            LogCategory.OPERATION, CorePluginScanner.class));
+
+    private final ISimpleLogger log;
 
     private final File pluginsFolder;
 
     private final ScannerType scannerType;
 
     public CorePluginScanner(String pluginsFolderName, ScannerType scannerType)
+    {
+        this(pluginsFolderName, scannerType, DEFAULT_LOGGER);
+    }
+
+    // testing only
+    CorePluginScanner(String pluginsFolderName, ScannerType scannerType, ISimpleLogger logger)
     {
         this.pluginsFolder = new File(pluginsFolderName);
         this.scannerType = scannerType;
@@ -72,6 +82,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
             throw ConfigurationFailureException.fromTemplate("Invalid core-plugins folder '%s'",
                     pluginsFolderName);
         }
+        this.log = logger;
     }
 
     public File tryGetFile(CorePlugin plugin, String path)
@@ -111,7 +122,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
                 allVersionsForPlugin.add(pluginVersion);
             } else
             {
-                operationLog.warn(String.format("Invalid version '%s' for plugin '%s'. "
+                log.log(LogLevel.WARN, String.format("Invalid version '%s' for plugin '%s'. "
                         + "Plugin version must be non-negative integer numbers.",
                         versionDir.getName(), pluginRootDir.getAbsolutePath()));
             }
@@ -119,8 +130,8 @@ public class CorePluginScanner implements ICorePluginResourceLoader
 
         if (allVersionsForPlugin.isEmpty())
         {
-            operationLog.warn(String.format(
-                    "No valid versions have been detected for plugin '%s': ", pluginRootDir));
+            log.log(LogLevel.WARN, String.format(
+                    "No valid versions have been detected for plugin '%s'.", pluginRootDir));
             return null;
         } else
         {
