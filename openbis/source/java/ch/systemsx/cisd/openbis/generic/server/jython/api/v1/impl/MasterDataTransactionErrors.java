@@ -43,7 +43,7 @@ public class MasterDataTransactionErrors
             return exception;
         }
 
-        abstract String getDescription();
+        public abstract String getDescription();
     }
 
     private static class TypeRegistrationError extends TransactionError
@@ -57,7 +57,7 @@ public class MasterDataTransactionErrors
         }
 
         @Override
-        String getDescription()
+        public String getDescription()
         {
             return String.format("Failed to register type '%s': %s", type.getCode(), getException()
                     .getMessage());
@@ -75,7 +75,7 @@ public class MasterDataTransactionErrors
         }
 
         @Override
-        String getDescription()
+        public String getDescription()
         {
             return String.format("Failed to assign property '%s' <-> '%s': %s",
                     propertyAssignment.getEntityTypeCode(),
@@ -94,7 +94,7 @@ public class MasterDataTransactionErrors
         }
 
         @Override
-        String getDescription()
+        public String getDescription()
         {
             return String.format("Failed to register vocabulary '%s': %s", vocabulary.getCode(),
                     getException().getMessage());

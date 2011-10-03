@@ -26,11 +26,12 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.logging.AssertingLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationException;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors.TransactionError;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -59,8 +60,6 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
 
     private MasterDataRegistrationScriptRunner pluginScriptRunner;
 
-    private AssertingLogger errorLogger;
-
     @BeforeMethod
     public void beforeMethod()
     {
@@ -68,10 +67,7 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
         commonServer = context.mock(ICommonServer.class);
         EncapsulatedCommonServer encapsulatedServer =
                 EncapsulatedCommonServer.create(commonServer, SESSION_TOKEN);
-        errorLogger = new AssertingLogger();
-        pluginScriptRunner =
-                new MasterDataRegistrationScriptRunner(encapsulatedServer, errorLogger);
-
+        pluginScriptRunner = new MasterDataRegistrationScriptRunner(encapsulatedServer);
     }
 
     @Test
@@ -116,7 +112,6 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
 
         File scriptFile = getScriptFile("simple-transaction.py");
         pluginScriptRunner.executeScript(scriptFile);
-        errorLogger.assertNumberOfMessage(0);
 
         assertEquals(1, fileFormatMatcher.getRecordedObjects().size());
         FileFormatType fileFormatType = fileFormatMatcher.recordedObject();
@@ -222,11 +217,9 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
             });
 
         File scriptFile = getScriptFile("simple-transaction.py");
-        pluginScriptRunner.executeScript(scriptFile);
 
         List<String> errorLines =
                 Arrays.asList(
-                        "Failed to commit all transactions for script .*",
                         "Failed to register type 'FILE-FORMAT-TYPE': FAILED FILE FORMAT",
                         "Failed to register vocabulary 'ANIMALS': FAILED VOCABULARY",
                         "Failed to register type 'EXPERIMENT-TYPE': FAILED EXPERIMENT TYPE",
@@ -238,11 +231,21 @@ public class MasterDataRegistrationScriptRunnerTest extends AssertJUnit
                         "Failed to assign property 'SAMPLE-TYPE' <-> 'MATERIAL-PROPERTY-TYPE': FAILED ASSIGNMENT",
                         "Failed to assign property 'EXPERIMENT-TYPE' <-> 'VARCHAR-PROPERTY-TYPE': FAILED ASSIGNMENT");
 
-        errorLogger.assertNumberOfMessage(errorLines.size());
-        errorLogger.assertMatches(0, LogLevel.ERROR, errorLines.get(0));
-        for (int i = 1; i < errorLines.size(); i++)
+        try
         {
-            errorLogger.assertEq(i, LogLevel.ERROR, errorLines.get(i));
+            pluginScriptRunner.executeScript(scriptFile);
+            fail("MasterDataRegistrationException expected.");
+        } catch (MasterDataRegistrationException mdre)
+        {
+            int pos = 0;
+            for (MasterDataTransactionErrors mderr : mdre.getTransactionErrors())
+            {
+                for (TransactionError err : mderr.getErrors())
+                {
+                    assertEquals(errorLines.get(pos), err.getDescription());
+                    pos++;
+                }
+            }
         }
     }
 

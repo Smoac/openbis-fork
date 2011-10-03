@@ -24,6 +24,8 @@ import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.cli.ConsoleClientArguments;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * A standalone command line tool allowing the execution of Jython scripts to initialize the master
@@ -82,8 +84,19 @@ public class MasterDataRegistrationScriptRunnerStandalone
                         arguments.getUsername(), arguments.getPassword());
 
         MasterDataRegistrationScriptRunner scriptRunner =
-                new MasterDataRegistrationScriptRunner(commonServer, new ConsoleLogger());
-        scriptRunner.executeScript(new File(arguments.scriptFileName));
+                new MasterDataRegistrationScriptRunner(commonServer);
+
+        final File jythonScript = new File(arguments.scriptFileName);
+        try
+        {
+            scriptRunner.executeScript(jythonScript);
+        } catch (MasterDataRegistrationException mdre)
+        {
+            ISimpleLogger errorLogger = new ConsoleLogger();
+            errorLogger.log(LogLevel.ERROR, "Failed to commit all transactions for script "
+                    + jythonScript.getAbsolutePath());
+            mdre.logErrors(errorLogger);
+        }
     }
 
     public static void main(String[] args)

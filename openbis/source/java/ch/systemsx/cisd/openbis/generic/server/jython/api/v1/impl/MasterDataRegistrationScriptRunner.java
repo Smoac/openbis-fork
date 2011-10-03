@@ -21,9 +21,6 @@ import java.io.File;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors.TransactionError;
 
 /**
  * A class for running python scripts that register master data.
@@ -36,27 +33,16 @@ public class MasterDataRegistrationScriptRunner
 
     private final EncapsulatedCommonServer commonServer;
 
-    private final ISimpleLogger errorLogger;
-
-    public MasterDataRegistrationScriptRunner(EncapsulatedCommonServer commonServer,
-            ISimpleLogger errorLogger)
+    public MasterDataRegistrationScriptRunner(EncapsulatedCommonServer commonServer)
     {
         this.commonServer = commonServer;
-        this.errorLogger = errorLogger;
     }
 
-    public void executeScript(File jythonScript)
+    public void executeScript(File jythonScript) throws MasterDataRegistrationException
     {
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
         runScript(service, jythonScript);
-
-        try
-        {
-            service.commit();
-        } catch (MasterDataRegistrationException mdre)
-        {
-            handleRegistrationException(jythonScript, mdre);
-        }
+        service.commit();
     }
 
     private void runScript(MasterDataRegistrationService service, File jythonScript)
@@ -93,18 +79,4 @@ public class MasterDataRegistrationScriptRunner
                     + jythonScript.getAbsolutePath());
         }
     }
-
-    private void handleRegistrationException(File jythonScript, MasterDataRegistrationException mdre)
-    {
-        errorLogger.log(LogLevel.ERROR, "Failed to commit all transactions for script "
-                + jythonScript.getAbsolutePath());
-        for (MasterDataTransactionErrors errors : mdre.getTransactionErrors())
-        {
-            for (TransactionError error : errors.getErrors())
-            {
-                errorLogger.log(LogLevel.ERROR, error.getDescription());
-            }
-        }
-    }
-
 }

@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataTransactionErrors.TransactionError;
 
 /**
  * @author Kaloyan Enimanev
@@ -40,6 +43,20 @@ public class MasterDataRegistrationException extends HighLevelException
     public List<MasterDataTransactionErrors> getTransactionErrors()
     {
         return transactionErrors;
+    }
+
+    /**
+     * Logs the accumulated errors.
+     */
+    public void logErrors(ISimpleLogger errorLogger)
+    {
+        for (MasterDataTransactionErrors errors : getTransactionErrors())
+        {
+            for (TransactionError error : errors.getErrors())
+            {
+                errorLogger.log(LogLevel.ERROR, error.getDescription());
+            }
+        }
     }
 
 }

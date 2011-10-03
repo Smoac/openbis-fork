@@ -204,6 +204,19 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return null;
     }
 
+    private IVocabularyImmutable findVocabularyForCode(List<IVocabularyImmutable> vocabularies,
+            String code)
+    {
+        for (IVocabularyImmutable vocabulary : vocabularies)
+        {
+            if (vocabulary.getCode().equalsIgnoreCase(code))
+            {
+                return vocabulary;
+            }
+        }
+        return null;
+    }
+
     private PropertyAssignment createAssignment(EntityKind entityKind, IEntityType type,
             IPropertyTypeImmutable propertyType)
     {
@@ -235,6 +248,11 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         Vocabulary vocabulary = new Vocabulary(code);
         createdVocabularies.add(vocabulary);
         return vocabulary;
+    }
+
+    public IVocabularyImmutable getVocabulary(String code)
+    {
+        return findVocabularyForCode(commonServer.listVocabularies(), code);
     }
 
     public List<IVocabularyImmutable> listVocabularies()
