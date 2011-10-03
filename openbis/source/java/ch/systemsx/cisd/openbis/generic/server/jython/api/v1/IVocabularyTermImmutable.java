@@ -17,18 +17,35 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
 /**
+ * Read-only interface to an existing vocabulary term.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IVocabularyTermImmutable
 {
+    /**
+     * Return the term's code.
+     */
     String getCode();
 
+    /**
+     * Return the term's description.
+     */
     String getDescription();
 
+    /**
+     * Return the term's label.
+     */
     String getLabel();
 
+    /**
+     * Return an associated URL specifying additional information for the vocabulary term.
+     */
     String getUrl();
 
+    /**
+     * Return the position of the term in the context of a vocabulary.
+     */
     Long getOrdinal();
 
 }

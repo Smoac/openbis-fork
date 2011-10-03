@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
 /**
+ * Read-only interface to an data set type.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IDataSetTypeImmutable extends IEntityType
 {
 
+    /**
+     * Return <code>true</code> if the data set type is container type.
+     */
     public boolean isContainerType();
 
 }

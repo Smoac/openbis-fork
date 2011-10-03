@@ -22,6 +22,9 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 public interface IDataSetType extends IDataSetTypeImmutable
 {
 
+    /**
+     * Set to <code>true</code> if the type is a container type.
+     */
     public void setContainerType(boolean isContainerType);
 
     /**

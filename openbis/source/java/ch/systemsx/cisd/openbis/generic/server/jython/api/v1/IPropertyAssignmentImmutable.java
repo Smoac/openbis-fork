@@ -17,20 +17,41 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
 /**
+ * Read-only interface to an existing property assignment.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IPropertyAssignmentImmutable
 {
-    EntityKind getEntityKind();
-
+    /**
+     * Return the code of the assigned entity type.
+     */
     String getEntityTypeCode();
 
+    /**
+     * Return the kind of the assigned entity type.
+     */
+    EntityKind getEntityKind();
+
+    /**
+     * Return the code of the assigned property type.
+     */
     String getPropertyTypeCode();
 
+    /**
+     * Return <code>true</code> if the property is mandatory for the assigned entity type.
+     */
     boolean isMandatory();
 
+    /**
+     * Return the name of the form section.
+     */
     String getSection();
 
+    /**
+     * Return the position at which the property will be rendered when editing/registering objects
+     * of the specified entity type.
+     */
     Long getPositionInForms();
 
 }

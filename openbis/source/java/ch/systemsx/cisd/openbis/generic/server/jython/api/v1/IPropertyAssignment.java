@@ -21,8 +21,16 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
  */
 public interface IPropertyAssignment extends IPropertyAssignmentImmutable
 {
+
+    /**
+     * Set to <code>true</code> if the property is mandatory for the assigned entity type.
+     */
     void setMandatory(boolean mandatory);
 
+    /**
+     * Set the name of the form section. It will appear when editing objects of the specified entity
+     * in openBIS. Specifying a section name is optional.
+     */
     void setSection(String section);
 
     /**

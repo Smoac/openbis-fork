@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 import java.util.List;
 
 /**
+ * Read-only interface to a vocabulary.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IVocabularyImmutable
@@ -34,8 +36,14 @@ public interface IVocabularyImmutable
      */
     public String getDescription();
 
+    /**
+     * Return <code>true</code> if the vocabulary is managed internally in openBIS.
+     */
     boolean isManagedInternally();
 
+    /**
+     * Return <code>true</code> if the vocabulary is in the internal openBIS namespace.
+     */
     boolean isInternalNamespace();
 
     boolean isChosenFromList();
@@ -46,6 +54,9 @@ public interface IVocabularyImmutable
      */
     String getUrlTemplate();
 
+    /**
+     * Return a list with all terms within the vocabulary.
+     */
     List<IVocabularyTermImmutable> getTerms();
 
 }

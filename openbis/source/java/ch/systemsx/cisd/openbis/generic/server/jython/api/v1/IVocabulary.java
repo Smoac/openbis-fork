@@ -27,8 +27,14 @@ public interface IVocabulary extends IVocabularyImmutable
      */
     public void setDescription(String description);
 
+    /**
+     * Set to <code>true</code> if the vocabulary is managed internally in openBIS.
+     */
     void setManagedInternally(boolean isManagedInternally);
 
+    /**
+     * Set to <code>true</code> if the vocabulary is in the internal openBIS namespace.
+     */
     void setInternalNamespace(boolean isInternalNamespace);
 
     void setChosenFromList(boolean isChosenFromList);

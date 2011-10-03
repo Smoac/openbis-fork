@@ -21,11 +21,23 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
  */
 public interface IVocabularyTerm extends IVocabularyTermImmutable
 {
+    /**
+     * Set the description of the vocabulary term.
+     */
     void setDescription(String description);
 
+    /**
+     * Set the label of the vocabulary term.
+     */
     void setLabel(String label);
 
+    /**
+     * Set a URL where containing additional information for the term.
+     */
     void setUrl(String url);
 
+    /**
+     * Set position of the term in the context of its vocabulary.
+     */
     void setOrdinal(Long ordinal);
 }

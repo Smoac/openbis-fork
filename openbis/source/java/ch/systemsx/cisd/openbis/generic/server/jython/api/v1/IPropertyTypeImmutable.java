@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
 /**
+ * Read-only interface to an existing property type.
+ * 
  * @author Kaloyan Enimanev
  */
 public interface IPropertyTypeImmutable extends IAbstractType
