@@ -195,6 +195,8 @@
 				<include name="shutdown.sh" />
 				<include name="startup.sh" />
 				<include name="register-master-data.sh" />
+				<include name="export-master-data.sh" />
+				<include name="export-master-data.py" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  etc/{1}">
