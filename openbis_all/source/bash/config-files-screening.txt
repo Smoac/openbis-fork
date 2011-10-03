@@ -1,2 +1,3 @@
-datastore_server/etc/tabular-data-graph.properties
+datastore_server/etc/tabular-data-graph.properties 
+datastore_server/etc/tabular-data-graph-analysis.properties 
 datastore_server/etc/analysis-graph.properties 
