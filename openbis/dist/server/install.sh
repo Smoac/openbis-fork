@@ -108,6 +108,9 @@ cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"
 cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
 cp -p "$installation_folder"/setup-env "$JETTY_BIN_DIR"
 cp -p "$installation_folder"/passwd.sh "$JETTY_BIN_DIR"
+cp -p "$installation_folder"/register-master-data.sh "$JETTY_BIN_DIR"
+cp -p "$installation_folder"/export-master-data.sh "$JETTY_BIN_DIR"
+cp -p "$installation_folder"/export-master-data.py "$JETTY_BIN_DIR"
 chmod u+x $JETTY_BIN_DIR/*.sh
 
 # Create a file called 'jetty.properties'.
