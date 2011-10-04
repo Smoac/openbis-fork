@@ -385,11 +385,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             if (storedDataDirectory == null)
             {
-                // nothing has been stored yet
-                return;
+                storedDataDirectory = rootDirectory;
             }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
-
+            
             final File originalDataFile = tryGetProprietaryData();
             if (originalDataFile == null)
             {
@@ -536,8 +535,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     private static void saveInHdf5(File sourceFolder, String pathInHdf5Container,
-            File hdf5DestinationFile,
-            boolean compressFiles)
+            File hdf5DestinationFile, boolean compressFiles)
     {
         HDF5Container container = new HDF5Container(hdf5DestinationFile);
         container.runWriterClient(compressFiles,
