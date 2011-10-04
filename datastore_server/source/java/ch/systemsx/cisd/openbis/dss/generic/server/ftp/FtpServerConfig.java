@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 
 /**
@@ -64,7 +63,7 @@ public class FtpServerConfig
 
     final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
     
-    final static String SHOW_PARENTS_AND_CHILDREN_KEY = PREFIX + "show-parents-and-children";
+    final static String SHOW_PARENTS_AND_CHILDREN_KEY = PREFIX + "dataset.show-parents-and-children";
 
     private static final int DEFAULT_PORT = 2121;
 
