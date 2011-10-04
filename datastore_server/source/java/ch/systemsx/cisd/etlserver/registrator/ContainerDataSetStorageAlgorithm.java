@@ -85,7 +85,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     }
 
     @Override
-    public void rollbackStorageProcessor(Throwable throwable)
+    public void transitionToRolledbackState(Throwable throwable)
     {
         // Rollback may be called on in the stored state or in the prepared state.
         if (state instanceof PreparedState)
@@ -95,13 +95,12 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         }
 
         StoredState<T> storedState = (StoredState<T>) state;
-        UnstoreDataAction action = storedState.rollbackStorageProcessor(throwable);
 
-        state = new RolledbackState<T>(storedState, action, throwable);
+        state = new RolledbackState<T>(storedState, UnstoreDataAction.LEAVE_UNTOUCHED, throwable);
     }
 
     @Override
-    public void executeUndoStoreAction()
+    public void transitionToUndoneState()
     {
         // Rollback may be called on in the stored state or in the prepared state. In the prepared
         // state, there is nothing to do.
@@ -112,7 +111,6 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         }
 
         RolledbackState<T> rolledbackState = (RolledbackState<T>) state;
-        rolledbackState.executeUndoAction();
 
         state = new UndoneState<T>(rolledbackState);
     }
@@ -198,14 +196,6 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         }
 
         /**
-         * Committed data sets don't use a storage processor -- there is nothing to do.
-         */
-        public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
-        {
-            return UnstoreDataAction.LEAVE_UNTOUCHED;
-        }
-
-        /**
          * Committed data sets don't use a storage process -- there is nothing to do.
          */
         public void commitStorageProcessor()
@@ -232,11 +222,6 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
                 Throwable throwable)
         {
             super(oldState.storageAlgorithm);
-        }
-
-        public void executeUndoAction()
-        {
-
         }
     }
 

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
@@ -33,16 +32,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -157,90 +149,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
     protected String getRegistrationScriptsFolderPath()
     {
         return SCRIPTS_FOLDER;
-    }
-
-    protected SearchCriteria createTestSearchCriteria(String typeString)
-    {
-        SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, typeString));
-        sc.addMatchClause(MatchClause.createPropertyMatch("PROP", "VALUE"));
-        return sc;
-    }
-
-    public static final class MockStorageProcessor extends
-            AbstractJythonDataSetHandlerTest.MockStorageProcessor
-    {
-        private static final long serialVersionUID = 1L;
-
-        public MockStorageProcessor(ExtendedProperties props)
-        {
-            super(props);
-            instance = this;
-        }
-
-        @Override
-        public IStorageProcessorTransaction createTransaction(
-                final StorageProcessorTransactionParameters parameters)
-        {
-            return new AbstractStorageProcessorTransaction(parameters)
-                {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    protected File executeStoreData(ITypeExtractor typeExtractor,
-                            IMailClient mailClient)
-                    {
-                        try
-                        {
-                            if (incomingDataSetDirectory.isDirectory())
-                            {
-                                FileUtils.moveDirectoryToDirectory(incomingDataSetDirectory,
-                                        new File(rootDirectory, "original"), true);
-                            } else
-                            {
-                                FileUtils.moveFileToDirectory(incomingDataSetDirectory, new File(
-                                        rootDirectory, "original"), false);
-                            }
-                            makeFileSystemUnavailable(getStoreRootDirectory());
-                        } catch (IOException ex)
-                        {
-                            throw new IOExceptionUnchecked(ex);
-                        }
-                        return rootDirectory;
-                    }
-
-                    public UnstoreDataAction executeRollback(Throwable exception)
-                    {
-                        rollback(incomingDataSetDirectory, rootDirectory);
-                        return UnstoreDataAction.LEAVE_UNTOUCHED;
-                    }
-
-                    private void rollback(File incomingDataSetFile, File aRootDir)
-                    {
-                        try
-                        {
-                            FileUtils.moveDirectoryToDirectory(new File(aRootDir, "original"),
-                                    incomingDataSetFile, true);
-                        } catch (IOException ex)
-                        {
-                            throw new IOExceptionUnchecked(ex);
-                        }
-                    }
-
-                    @Override
-                    protected void executeCommit()
-                    {
-                        calledCommitCount++;
-                    }
-                };
-        }
     }
 
     /**
