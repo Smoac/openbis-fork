@@ -42,27 +42,26 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+ensureToolOnPath "java" 
+ensureToolOnPath "psql"
+ensureToolOnPath "pg_dump"
+
 install_path=$( grep -e "^INSTALL_PATH=.*$" $BASE/console.properties | sed "s/INSTALL_PATH=//" )
 if [ -z "$install_path" ]; then
     echo "The property INSTALL_PATH must be configured in $BASE/console.properties."
     echo "Please edit the file and run the installation script again."
     exit 1
 fi
-
-dss_root_dir=$( grep -e "^DSS_ROOT_DIR=.*$" $BASE/console.properties | sed "s/DSS_ROOT_DIR=//" )
-if [ -z "$dss_root_dir" ]; then
-    echo "The property DSS_ROOT_DIR must be configured in $BASE/console.properties."
-    echo "Please edit the file and run the installation script again."
-    exit 1
-fi
-
-ensureToolOnPath "java" 
-ensureToolOnPath "psql"
-ensureToolOnPath "pg_dump"
 	
 if [ -d "$install_path" ]; then
   echo "Previous openBIS installation detected. Upgrading..."
 else 
+  dss_root_dir=$( grep -e "^DSS_ROOT_DIR=.*$" $BASE/console.properties | sed "s/DSS_ROOT_DIR=//" )
+  if [ -z "$dss_root_dir" ]; then
+      echo "The property DSS_ROOT_DIR must be configured in $BASE/console.properties."
+      echo "Please edit the file and run the installation script again."
+      exit 1
+  fi
   readAdminPassword
 fi
 
