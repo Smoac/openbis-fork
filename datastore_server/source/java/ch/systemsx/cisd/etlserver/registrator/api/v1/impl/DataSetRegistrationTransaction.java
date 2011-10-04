@@ -97,7 +97,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         File[] rollbackQueue1Files = rollBackStackParentFolder.listFiles(new FilenameFilter()
             {
-
                 public boolean accept(File dir, String name)
                 {
                     return name.endsWith(ROLLBACK_QUEUE1_FILE_NAME_SUFFIX);

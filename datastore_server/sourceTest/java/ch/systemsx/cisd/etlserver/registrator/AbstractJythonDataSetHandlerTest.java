@@ -110,6 +110,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     public void init()
     {
         QueueingPathRemoverService.start();
+        ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackConfigurator
+                .setFileSystemAvailabilityPollingWaitTimeAndWaitCount(10, 1);
     }
 
     @AfterTest
@@ -238,7 +240,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         return threadProperties;
     }
 
-    public static final class MockStorageProcessor implements IStorageProcessorTransactional,
+    public static class MockStorageProcessor implements IStorageProcessorTransactional,
             Serializable
     {
         private static final long serialVersionUID = 1L;

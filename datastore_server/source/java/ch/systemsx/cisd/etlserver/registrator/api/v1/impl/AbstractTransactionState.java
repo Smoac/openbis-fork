@@ -89,11 +89,27 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
     static class LiveTransactionState<T extends DataSetInformation> extends
             AbstractTransactionState<T> implements RollbackStack.IRollbackStackDelegate
     {
-        // Wait for up to 5 minutes for the file system to become available
-        private static final int MAX_DIRECTORY_AVAILABLE_WAIT_COUNT = 6 * 5;
+        // Default to polling every 10 seconds and waiting for up to 5 minutes
+        private static int fileSystemAvailablityWaitCount = 6 * 5;
 
-        // Poll every 10 seconds
-        private static final int STAGING_DIR_AVAILABILITY_POLLING_WAIT_TIME = 10 * 1000;
+        private static int fileSystemAvailablityPollingWaitTimeMs = 10 * 1000;
+
+        /**
+         * These two variables determine together how long the rollback mechanism waits for a file
+         * system that has become unavailable and how often it checks for the file system to become
+         * available.
+         * <p>
+         * The duration the rollback mechanism will wait before giving up equals waitTimeMS *
+         * waitCount;
+         * <p>
+         * Made public for testing.
+         */
+        public static void setFileSystemAvailabilityPollingWaitTimeAndWaitCount(int waitTimeMS,
+                int waitCount)
+        {
+            fileSystemAvailablityWaitCount = waitTimeMS;
+            fileSystemAvailablityPollingWaitTimeMs = waitCount;
+        }
 
         // Keeps track of steps that have been executed and may need to be reverted. Elements are
         // kept in the order they need to be reverted.
@@ -680,12 +696,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             if (null != FileUtilities.checkDirectoryFullyAccessible(stagingDirectory, "staging"))
             {
                 boolean keepPolling = true;
-                for (int waitCount = 0; waitCount < MAX_DIRECTORY_AVAILABLE_WAIT_COUNT
-                        && keepPolling; ++waitCount)
+                for (int waitCount = 0; waitCount < fileSystemAvailablityWaitCount && keepPolling; ++waitCount)
                 {
                     try
                     {
-                        Thread.sleep(STAGING_DIR_AVAILABILITY_POLLING_WAIT_TIME);
+                        Thread.sleep(fileSystemAvailablityPollingWaitTimeMs);
                         // If the directory is not accessible (i.e., return not null), wait again
                         keepPolling =
                                 (null != FileUtilities.checkDirectoryFullyAccessible(
