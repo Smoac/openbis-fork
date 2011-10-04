@@ -99,7 +99,7 @@ public class FtpServerConfig
 
     private String keyStorePassword;
 
-    private String dataSetDisplayTemplate;
+    private String dataSetDisplayTemplate = "";
 
     private int maxThreads;
 
