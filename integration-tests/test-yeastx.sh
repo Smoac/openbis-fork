@@ -5,7 +5,7 @@
 
 # --- include external sources ------------------------ 
 
-source common.bash
+source ./common.bash
 
 # --------------------
 

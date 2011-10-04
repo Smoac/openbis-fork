@@ -5,7 +5,7 @@
 
 # --- include external sources ------------------------ 
 
-source common.bash
+source ./common.bash
 
 ERR_LOG=$WORK/all_err_log.txt
 SVN_WEB_SRC_HCS=http://svncisd.ethz.ch/repos/cisd/screening/trunk
@@ -23,7 +23,7 @@ DSS_DIR_NAME=datastore_server
 DSS_SERVER_HCS=$WORK/$DSS_DIR_NAME
 DSS_INCOMING_PARENT_DIR=$DSS_SERVER_HCS/data
 
-source common-screening.bash
+source ./common-screening.bash
 
 # --- Specific part -----------------
 

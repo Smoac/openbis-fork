@@ -5,7 +5,7 @@
 
 # --- include external sources ------------------------ 
 
-source common.bash
+source ./common.bash
 
 WORK=$TARGETS/playground-screening
 ERR_LOG=$WORK/all_err_log.txt

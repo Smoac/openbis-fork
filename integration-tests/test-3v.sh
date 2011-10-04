@@ -30,7 +30,7 @@ TEST_DATA=testData
 
 # --- include external sources ------------------------ 
 
-source common.bash
+source ./common.bash
 
 # ----------------------- Test data
 
