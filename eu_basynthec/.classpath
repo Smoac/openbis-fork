@@ -20,7 +20,5 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-3.7-20101029.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-isserializable.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-servlet.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
