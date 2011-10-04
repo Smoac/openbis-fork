@@ -236,8 +236,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         new ReentrantLock(), FileOperations.getMonitoredInstanceForCurrentThread(),
                         onErrorDecision);
 
-        DataSetRegistrationTransaction.rollbackDeadTransactions(globalState
-                .getDssInternalTempDir());
+        DataSetRegistrationTransaction
+                .rollbackDeadTransactions(globalState.getDssInternalTempDir());
 
     }
 
@@ -492,7 +492,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             ITopLevelDataSetRegistratorDelegate delegate)
     {
         @SuppressWarnings(
-            { "unchecked", "rawtypes" })
+            { "unchecked" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
