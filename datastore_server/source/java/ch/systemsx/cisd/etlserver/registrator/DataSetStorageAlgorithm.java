@@ -161,9 +161,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     /**
-     * Ask the storage processor to rollback. Used by clients of the algorithm.
+     * Transition to the rolledback state, but don't actually do anything. The rollback logic will
+     * be carried out by the rollback stack.
      */
-    public void rollbackStorageProcessor(Throwable throwable)
+    public void transitionToRolledbackState(Throwable throwable)
     {
         // Rollback may be called on in the stored state or in the prepared state.
         if (state instanceof PreparedState)
@@ -182,12 +183,12 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
 
         StoredState<T> storedState = (StoredState<T>) state;
-        UnstoreDataAction action = storedState.rollbackStorageProcessor(throwable);
+        storedState.cleanUp();
 
-        state = new RolledbackState<T>(storedState, action, throwable);
+        state = new RolledbackState<T>(storedState, UnstoreDataAction.LEAVE_UNTOUCHED, throwable);
     }
 
-    public void executeUndoStoreAction()
+    public void transitionToUndoneState()
     {
         // Rollback may be called on in the stored state or in the prepared state. In the prepared
         // state, there is nothing to do.
@@ -198,10 +199,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
 
         RolledbackState<T> rolledbackState = (RolledbackState<T>) state;
-
-        // Do not undo the individual data sets -- the entire transaction needs to be undone as a
-        // group
-        // rolledbackState.executeUndoAction();
 
         state = new UndoneState<T>(rolledbackState);
     }
@@ -443,16 +440,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             super(oldState.storageAlgorithm);
             this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
-        }
-
-        /**
-         * Ask the storage processor to rollback. Used by clients of the algorithm.
-         */
-        public UnstoreDataAction rollbackStorageProcessor(final Throwable throwable)
-        {
-            UnstoreDataAction action = transaction.rollback(throwable);
-            cleanUp();
-            return action;
         }
 
         /**

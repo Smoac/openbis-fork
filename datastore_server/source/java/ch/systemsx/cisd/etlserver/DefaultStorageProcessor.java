@@ -127,6 +127,11 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         @Override
         protected UnstoreDataAction executeRollback(Throwable ex)
         {
+            // This might happen when the transaction is serialized and de-serialized.
+            if (null == storedDataDirectory)
+            {
+                storedDataDirectory = rootDirectory;
+            }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
             File targetFile =
                     new File(getOriginalDirectory(storedDataDirectory),
@@ -138,9 +143,10 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
                 FileUtils.deleteDirectory(storedDataDirectory);
             } catch (IOException ex1)
             {
-                String message = String.format("Failed to remove stored directory '%s'. " +
-                		"In the future the creation of a data set with the same code will fail. " +
-                		"To fix the problem remove the directory manually.");
+                String message =
+                        String.format("Failed to remove stored directory '%s'. "
+                                + "In the future the creation of a data set with the same code will fail. "
+                                + "To fix the problem remove the directory manually.");
                 operationLog.warn(message);
 
             }

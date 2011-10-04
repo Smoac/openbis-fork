@@ -20,14 +20,14 @@ import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -35,6 +35,8 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.AbstractStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -44,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
@@ -78,7 +79,7 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder("simple-transaction.py");
         properties.setProperty(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
-                MockStorageProcessor.class.getName());
+                DefaultStorageProcessor.class.getName());
 
         createHandler(properties, false, false);
         createData();
@@ -99,7 +100,19 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
                     one(openBisService)
                             .performEntityOperations(
                                     with(new IsAnything<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>()));
-                    will(throwException(new AssertionError("Fail")));
+
+                    CustomAction makeFileSystemUnavailable = new CustomAction("foo")
+                        {
+
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                makeFileSystemUnavailable(workingDirectory);
+                                return null;
+                            }
+                        };
+                    will(doAll(makeFileSystemUnavailable,
+                            throwException(new AssertionError("Fail"))));
                 }
             });
 
@@ -113,8 +126,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
             makeFileSystemAvailable(workingDirectory);
             DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
         }
-        assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
-        assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
         assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         assertEquals(
                 "hello world1",
@@ -124,12 +135,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
                 "hello world2",
                 FileUtilities.loadToString(
                         new File(workingDirectory, "data_set/sub_data_set_2/read2.me")).trim());
-
-        TestingDataSetHandler theHandler = (TestingDataSetHandler) handler;
-        assertFalse(theHandler.didRollbackDataSetRegistrationFunctionRun);
-        assertFalse(theHandler.didRollbackServiceFunctionRun);
-        assertTrue(theHandler.didTransactionRollbackHappen);
-        assertTrue(theHandler.didRollbackTransactionFunctionRunHappen);
 
         context.assertIsSatisfied();
     }
@@ -167,103 +172,72 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
     {
         private static final long serialVersionUID = 1L;
 
-        static MockStorageProcessor instance;
-
-        int calledGetStoreRootDirectoryCount = 0;
-
-        int calledCommitCount = 0;
-
-        File storeRootDirectory;
-
-        String dataSetInfoString;
-
-        protected List<File> incomingDirs = new ArrayList<File>();
-
-        protected List<File> rootDirs = new ArrayList<File>();
-
         public MockStorageProcessor(ExtendedProperties props)
         {
             super(props);
             instance = this;
         }
 
-        public File getStoreRootDirectory()
-        {
-            calledGetStoreRootDirectoryCount++;
-            return storeRootDirectory;
-        }
-
-        public void setStoreRootDirectory(File storeRootDirectory)
-        {
-            this.storeRootDirectory = storeRootDirectory;
-        }
-
-        public StorageFormat getStorageFormat()
-        {
-            return StorageFormat.PROPRIETARY;
-        }
-
-        public UnstoreDataAction getDefaultUnstoreDataAction(Throwable exception)
-        {
-            return UnstoreDataAction.LEAVE_UNTOUCHED;
-        }
-
+        @Override
         public IStorageProcessorTransaction createTransaction(
-                StorageProcessorTransactionParameters parameters)
+                final StorageProcessorTransactionParameters parameters)
         {
-            final File rootDir = parameters.getRootDir();
-            dataSetInfoString = parameters.getDataSetInformation().toString();
-            return new IStorageProcessorTransaction()
+            return new AbstractStorageProcessorTransaction(parameters)
                 {
 
                     private static final long serialVersionUID = 1L;
 
-                    private File storedFolder;
-
-                    public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
-                            File incomingDataSetFile)
+                    @Override
+                    public File tryGetProprietaryData()
                     {
+                        return null;
+                    }
 
-                        incomingDirs.add(incomingDataSetFile);
-                        rootDirs.add(rootDir);
-
+                    @Override
+                    protected File executeStoreData(ITypeExtractor typeExtractor,
+                            IMailClient mailClient)
+                    {
                         try
                         {
-                            if (incomingDataSetFile.isDirectory())
+                            if (incomingDataSetDirectory.isDirectory())
                             {
-                                FileUtils.moveDirectoryToDirectory(incomingDataSetFile, new File(
-                                        rootDir, "original"), true);
+                                FileUtils.moveDirectoryToDirectory(incomingDataSetDirectory,
+                                        new File(rootDirectory, "original"), true);
                             } else
                             {
-                                FileUtils.moveFileToDirectory(incomingDataSetFile, new File(
-                                        rootDir, "original"), false);
+                                FileUtils.moveFileToDirectory(incomingDataSetDirectory, new File(
+                                        rootDirectory, "original"), false);
                             }
                             makeFileSystemUnavailable(getStoreRootDirectory());
                         } catch (IOException ex)
                         {
                             throw new IOExceptionUnchecked(ex);
                         }
-                        storedFolder = rootDir;
+                        return rootDirectory;
                     }
 
-                    public UnstoreDataAction rollback(Throwable exception)
+                    public UnstoreDataAction executeRollback(Throwable exception)
                     {
-                        return null;
+                        rollback(incomingDataSetDirectory, rootDirectory);
+                        return UnstoreDataAction.LEAVE_UNTOUCHED;
                     }
 
-                    public File getStoredDataDirectory()
+                    private void rollback(File incomingDataSetFile, File aRootDir)
                     {
-                        return storedFolder;
+                        try
+                        {
+                            FileUtils.moveDirectoryToDirectory(new File(aRootDir, "original"),
+                                    incomingDataSetFile, true);
+                        } catch (IOException ex)
+                        {
+                            throw new IOExceptionUnchecked(ex);
+                        }
                     }
 
-                    public void commit()
+                    @Override
+                    protected void executeCommit()
                     {
                         calledCommitCount++;
-                    }
-
-                    public File tryGetProprietaryData()
-                    {
-                        return null;
                     }
                 };
         }

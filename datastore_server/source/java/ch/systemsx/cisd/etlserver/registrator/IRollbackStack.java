@@ -29,13 +29,4 @@ public interface IRollbackStack
      * Push the command onto the stack and execute it.
      */
     void pushAndExecuteCommand(ITransactionalCommand cmd);
-
-    /**
-     * Pop the value from the top of the stack *without* rollbacking.
-     * <p>
-     * This method should not be called
-     */
-    @Deprecated
-    ITransactionalCommand pop();
-
 }

@@ -254,7 +254,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void rollbackStorageProcessors(Throwable ex)
     {
         operationLog.error(
@@ -272,10 +271,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         for (int i = dataSetStorageAlgorithms.size() - 1; i >= 0; --i)
         {
             DataSetStorageAlgorithm<T> storageAlgorithm = dataSetStorageAlgorithms.get(i);
-            storageAlgorithm.rollbackStorageProcessor(ex);
-            storageAlgorithm.executeUndoStoreAction();
-            // remove the serialized transaction
-            rollbackStack.pop();
+            storageAlgorithm.transitionToRolledbackState(ex);
+            storageAlgorithm.transitionToUndoneState();
         }
     }
 
