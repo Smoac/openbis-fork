@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,7 +274,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
                 Map<String /* path */, Long /* size */> dataSetFileSizesByPaths,
                 Map<String /* path */, Long /* size */> destinationFileSizesByPaths)
         {
-            StringBuilder inconsistenciesBuilder = new StringBuilder();
+            List<String> inconsistencies = new ArrayList<String>();
             for (Entry<String, Long> sizeByPath : dataSetFileSizesByPaths.entrySet())
             {
                 String path = sizeByPath.getKey();
@@ -282,22 +284,24 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
                     Long destinationSize = destinationFileSizesByPaths.get(path);
                     if (false == size.equals(destinationSize))
                     {
-                        inconsistenciesBuilder.append(createDifferentSizesMsg(path, size,
+                        inconsistencies.add(createDifferentSizesMsg(path, size,
                                 destinationSize));
                     }
                     // at the end we want only remaining destination files
                     destinationFileSizesByPaths.remove(path);
                 } else
                 {
-                    inconsistenciesBuilder.append(createMissingFileMsg(path, STORE, DESTINATION));
+                    inconsistencies.add(createMissingFileMsg(path, STORE, DESTINATION));
                 }
             }
             for (String remainingDestinationPath : destinationFileSizesByPaths.keySet())
             {
-                inconsistenciesBuilder.append(createMissingFileMsg(remainingDestinationPath,
+                inconsistencies.add(createMissingFileMsg(remainingDestinationPath,
                         DESTINATION, STORE));
             }
-            return inconsistenciesBuilder.toString();
+
+            Collections.sort(inconsistencies);
+            return org.apache.commons.lang.StringUtils.join(inconsistencies, null);
         }
     }
 
