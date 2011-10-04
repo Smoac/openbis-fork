@@ -176,7 +176,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         File ds1Root = new File(root, ds1.getCode());
         File ds1Original = new File(ds1Root, "original");
         ds1Original.mkdirs();
-        FileUtilities.writeToFile(new File(ds1Original, "hello.txt"), "hello world");
         FileUtilities.writeToFile(new File(ds1Original, "abc.txt"), "abcdefghijklmnopqrstuvwxyz");
         FileUtilities.writeToFile(new File(ds1Original, "some.properties"), "a = alpha\nb = bets");
         ds2 =
@@ -189,7 +188,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         File dataFolder = new File(ds2Original, "data");
         dataFolder.mkdirs();
         FileUtilities.writeToFile(new File(dataFolder, "a1.tsv"), "t\tlevel\n1.34\t2\n");
-        FileUtilities.writeToFile(new File(dataFolder, "a2.tsv"), "t\tlevel\n2.53\t3\n");
     }
 
     @AfterMethod(alwaysRun = true)
@@ -415,12 +413,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         assertEquals("DS-DS_TYPE1-abc.txt-A", files.get(0).getName());
         assertTrue(files.get(0).isFile());
         assertEquals(26, files.get(0).getSize());
-        assertEquals("DS-DS_TYPE1-hello.txt-A", files.get(1).getName());
-        assertTrue(files.get(1).isFile());
-        assertEquals(11, files.get(1).getSize());
-        assertEquals("DS-DS_TYPE2-original2-B", files.get(2).getName());
-        assertTrue(files.get(2).isDirectory());
-        assertEquals(3, files.size());
+        assertEquals("DS-DS_TYPE2-original2-B", files.get(1).getName());
+        assertTrue(files.get(1).isDirectory());
+        assertEquals(2, files.size());
     }
 
 
@@ -432,28 +427,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     one(service).listDataSetsByExperimentID(SESSION_TOKEN,
                             new TechId(experiment));
                     will(returnValue(dataSets));
-
-//                    for (ExternalData dataSet : dataSets)
-//                    {
-//                        String mockName = getHierarchicalContentMockName(dataSet.getCode());
-//                        IHierarchicalContent content =
-//                                context.mock(IHierarchicalContent.class, mockName);
-//                        one(hierarchicalContentProvider).asContent(dataSet);
-//                        will(returnValue(content));
-//                        one(content).close();
-//
-//                        String rootMockName = getRootNodeMockName(dataSet.getCode());
-//                        IHierarchicalContentNode rootNode =
-//                                context.mock(IHierarchicalContentNode.class, rootMockName);
-//                        allowing(content).getRootNode();
-//                        will(returnValue(rootNode));
-//
-//                        allowing(rootNode).getRelativePath();
-//                        will(returnValue(StringUtils.EMPTY));
-//
-//                        allowing(rootNode).getName();
-//                        will(returnValue(StringUtils.EMPTY));
-//                    }
                 }
             });
     }
