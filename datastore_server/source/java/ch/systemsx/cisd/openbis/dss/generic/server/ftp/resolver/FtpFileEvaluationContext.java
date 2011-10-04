@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
@@ -55,7 +54,14 @@ public class FtpFileEvaluationContext
     private Map<String /* dataset code */, IHierarchicalContent> contents =
             new HashMap<String, IHierarchicalContent>();
 
+    private IHierarchicalContentProvider contentProvider;
+    
     private List<EvaluatedElement> evaluatedPaths = new ArrayList<EvaluatedElement>();
+    
+    FtpFileEvaluationContext(IHierarchicalContentProvider contentProvider)
+    {
+        this.contentProvider = contentProvider;
+    }
 
     /**
      * @return the evaluation result.
@@ -100,8 +106,7 @@ public class FtpFileEvaluationContext
 
     private IHierarchicalContent createHierarchicalContent(ExternalData dataSet)
     {
-        IHierarchicalContentProvider provider = ServiceProvider.getHierarchicalContentProvider();
-        return provider.asContent(dataSet);
+        return contentProvider.asContent(dataSet);
     }
 
 }

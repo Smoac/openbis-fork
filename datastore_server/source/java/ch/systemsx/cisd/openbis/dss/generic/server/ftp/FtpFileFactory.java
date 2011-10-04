@@ -21,6 +21,7 @@ import java.io.File;
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileImpl;
 
@@ -41,11 +42,12 @@ public class FtpFileFactory
      * {@link IHierarchicalContentNode} on their own.
      */
     public static FtpFile createFtpFile(String dataSetCode, String path,
-            IHierarchicalContentNode contentNode, IHierarchicalContentNodeFilter childrenFilter)
+            IHierarchicalContentNode contentNode, IHierarchicalContent content,
+            IHierarchicalContentNodeFilter childrenFilter)
     {
         return new FtpFileImpl(dataSetCode, path, contentNode.getRelativePath(),
-                contentNode.isDirectory(), getSize(contentNode),
-                getLastModified(contentNode), childrenFilter);
+                contentNode.isDirectory(), getSize(contentNode), getLastModified(contentNode),
+                content, childrenFilter);
 
     }
 

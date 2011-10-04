@@ -43,13 +43,20 @@ public class FtpServerConfigBuilder
         props.put(FtpServerConfig.USE_SSL_KEY, String.valueOf(useSSL));
     }
 
-    public FtpServerConfigBuilder withTemplate(String template)
+    public FtpServerConfigBuilder showParentsAndChildren()
     {
-        props.setProperty(FtpServerConfig.DATASET_DISPLAY_TEMPLATE_KEY, template);
+        props.setProperty(FtpServerConfig.SHOW_PARENTS_AND_CHILDREN_KEY, Boolean.TRUE.toString());
         return this;
 
     }
 
+    public FtpServerConfigBuilder withTemplate(String template)
+    {
+        props.setProperty(FtpServerConfig.DATASET_DISPLAY_TEMPLATE_KEY, template);
+        return this;
+        
+    }
+    
     public FtpServerConfigBuilder withFileListFilter(String dataSetType, String filterPattern)
     {
         String key = FtpServerConfig.DATASET_FILELIST_FILTER_KEY + dataSetType;

@@ -24,6 +24,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -104,9 +106,27 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             return factory.createService();
         }
-        return factory.createService(Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE);
+        return factory.createService(normalizeTimeout(timeout));
     }
 
+    /**
+     * Creates a remote version of {@link IGeneralInformationService} for specified URL and
+     * time out (in minutes). 
+     */
+    public static IGeneralInformationService createGeneralInformationService(String openBISURL,
+            String timeout)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        return generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                openBISURL, normalizeTimeout(timeout));
+    }
+
+    private static long normalizeTimeout(String timeout)
+    {
+        return Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE;
+    }
+    
     public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder)
     {
         this(service, sessionHolder, null);

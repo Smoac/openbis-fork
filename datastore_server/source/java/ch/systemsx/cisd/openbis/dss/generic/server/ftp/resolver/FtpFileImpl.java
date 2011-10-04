@@ -53,8 +53,10 @@ public class FtpFileImpl extends AbstractFtpFile
 
     private final IHierarchicalContentNodeFilter childrenFilter;
 
+    private IHierarchicalContent content;
+
     public FtpFileImpl(String dataSetCode, String path, String pathInDataSet, boolean isDirectory,
-            long size, long lastModified, IHierarchicalContentNodeFilter childrenFilter)
+            long size, long lastModified, IHierarchicalContent content, IHierarchicalContentNodeFilter childrenFilter)
     {
         super(path);
         this.dataSetCode = dataSetCode;
@@ -62,15 +64,15 @@ public class FtpFileImpl extends AbstractFtpFile
         this.isDirectory = isDirectory;
         this.size = size;
         this.lastModified = lastModified;
+        this.content = content;
         this.childrenFilter = childrenFilter;
     }
 
     public InputStream createInputStream(long offset) throws IOException
     {
-        IHierarchicalContent content = createHierarchicalContent();
         try
         {
-            IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
+            IHierarchicalContentNode contentNode = getContentNodeForThisFile();
             InputStream result =
                     HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
 
@@ -122,10 +124,9 @@ public class FtpFileImpl extends AbstractFtpFile
             throw new UnsupportedOperationException();
         }
 
-        IHierarchicalContent content = createHierarchicalContent();
         try
         {
-            IHierarchicalContentNode contentNode = getContentNodeForThisFile(content);
+            IHierarchicalContentNode contentNode = getContentNodeForThisFile();
             List<IHierarchicalContentNode> children = contentNode.getChildNodes();
             List<org.apache.ftpserver.ftplet.FtpFile> result =
                     new ArrayList<org.apache.ftpserver.ftplet.FtpFile>();
@@ -137,7 +138,7 @@ public class FtpFileImpl extends AbstractFtpFile
                     String childPath =
                             absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
                     FtpFile childFile =
-                            FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode,
+                            FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode, content,
                                     childrenFilter);
                     result.add(childFile);
                 }
@@ -151,10 +152,14 @@ public class FtpFileImpl extends AbstractFtpFile
 
     private IHierarchicalContent createHierarchicalContent()
     {
-        return ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
+        if (content == null)
+        {
+            content = ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
+        }
+        return content;
     }
 
-    private IHierarchicalContentNode getContentNodeForThisFile(IHierarchicalContent content)
+    private IHierarchicalContentNode getContentNodeForThisFile()
     {
         return content.getNode(pathInDataSet);
     }

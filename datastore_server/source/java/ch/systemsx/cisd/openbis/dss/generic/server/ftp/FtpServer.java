@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * Controls the lifecycle of an FTP server built into DSS.
@@ -54,10 +55,13 @@ public class FtpServer implements FileSystemFactory
 
     private org.apache.ftpserver.FtpServer server;
 
-    public FtpServer(IETLLIMSService openBisService, UserManager userManager, Properties configProps)
-            throws Exception
+    private final IGeneralInformationService generalInfoService;
+
+    public FtpServer(IETLLIMSService openBisService, IGeneralInformationService generalInfoService,
+            UserManager userManager, Properties configProps) throws Exception
     {
         this.openBisService = openBisService;
+        this.generalInfoService = generalInfoService;
         this.userManager = userManager;
         this.config = new FtpServerConfig(configProps);
         this.pathResolverRegistry = new FtpPathResolverRegistry(config);
@@ -128,7 +132,8 @@ public class FtpServer implements FileSystemFactory
         if (user instanceof FtpUser)
         {
             String sessionToken = ((FtpUser) user).getSessionToken();
-            return new DSSFileSystemView(sessionToken, openBisService, pathResolverRegistry);
+            return new DSSFileSystemView(sessionToken, openBisService, generalInfoService,
+                    pathResolverRegistry);
         } else
         {
             throw new FtpException("Unsupported user type.");

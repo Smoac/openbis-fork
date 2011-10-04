@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
@@ -60,7 +59,7 @@ public abstract class AbstractFtpFile implements FtpFile
         } catch (RuntimeException rex)
         {
             operationLog.error("Error while listing files for FTP :" + rex.getMessage(), rex);
-            return Collections.emptyList();
+            throw rex;
         }
     }
 

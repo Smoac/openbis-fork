@@ -33,6 +33,12 @@
       <constructor-arg value="${server-timeout-in-minutes}"/>
   </bean>
   
+  <bean id="general-information-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
+      factory-method="createGeneralInformationService">
+      <constructor-arg value="${server-url}"/>
+      <constructor-arg value="${server-timeout-in-minutes}"/>
+  </bean>
+  
   <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder">
       <property name="dataStoreCode" value="${data-store-server-code}"/>
   </bean>
@@ -168,6 +174,7 @@
     -->
     <bean id="ftp-server" class="ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServer" destroy-method="stop">
         <constructor-arg ref="etl-lims-service"/>
+        <constructor-arg ref="general-information-service"/>
         <constructor-arg ref="adapted-ftp-user-manager"/>
         <constructor-arg ref="configProperties" />
     </bean>

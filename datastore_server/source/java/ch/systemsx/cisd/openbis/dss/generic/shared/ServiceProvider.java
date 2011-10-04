@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * Provider of remote service onto openBIS.
@@ -100,6 +101,11 @@ public class ServiceProvider
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
     }
 
+    public static IGeneralInformationService getGeneralInformationService()
+    {
+        return ((IGeneralInformationService) getApplicationContext().getBean("general-information-service"));
+    }
+    
     public static ISearchService getSearchService()
     {
         return ((ISearchService) getApplicationContext().getBean("search-service"));

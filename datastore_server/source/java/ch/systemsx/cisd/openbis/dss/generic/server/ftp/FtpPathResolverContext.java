@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * An object holding all necessary context information for ftp path resolution.
@@ -30,13 +31,16 @@ public class FtpPathResolverContext
 
     private final IETLLIMSService service;
 
+    private final IGeneralInformationService generalInfoService;
+    
     private final IFtpPathResolverRegistry resolverRegistry;
 
-    public FtpPathResolverContext(String sessionToken, IETLLIMSService service,
+    public FtpPathResolverContext(String sessionToken, IETLLIMSService service, IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry resolverRegistry)
     {
         this.sessionToken = sessionToken;
         this.service = service;
+        this.generalInfoService = generalInfoService;
         this.resolverRegistry = resolverRegistry;
     }
 
@@ -50,6 +54,11 @@ public class FtpPathResolverContext
         return service;
     }
 
+    public IGeneralInformationService getGeneralInfoService()
+    {
+        return generalInfoService;
+    }
+    
     public IFtpPathResolverRegistry getResolverRegistry()
     {
         return resolverRegistry;

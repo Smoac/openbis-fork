@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 
 /**
@@ -62,6 +63,8 @@ public class FtpServerConfig
     final static String ACTIVE_PORT_KEY = PREFIX + "activemode.port";
 
     final static String PASSIVE_MODE_PORT_RANGE_KEY = PREFIX + "passivemode.port.range";
+    
+    final static String SHOW_PARENTS_AND_CHILDREN_KEY = PREFIX + "show-parents-and-children";
 
     private static final int DEFAULT_PORT = 2121;
 
@@ -107,6 +110,8 @@ public class FtpServerConfig
     private Map<String /* dataset type */, String /* filter pattern */> fileListFilters =
             new HashMap<String, String>();
 
+    private boolean showParentsAndChildren;
+
     public FtpServerConfig(Properties props) {
         this.startServer = PropertyUtils.getBoolean(props, ENABLE_KEY, false);
         if (startServer)
@@ -131,7 +136,8 @@ public class FtpServerConfig
         maxThreads = PropertyUtils.getPosInt(props, MAX_THREADS_KEY, DEFAULT_MAX_THREADS);
         dataSetDisplayTemplate =
                 PropertyUtils.getProperty(props, DATASET_DISPLAY_TEMPLATE_KEY, DEFAULT_DATASET_TEMPLATE);
-
+        showParentsAndChildren = PropertyUtils.getBoolean(props, SHOW_PARENTS_AND_CHILDREN_KEY, false);
+        
         ExtendedProperties fileListSubPathProps =
                 ExtendedProperties.getSubset(props, DATASET_FILELIST_SUBPATH_KEY, true);
         for (Object key : fileListSubPathProps.keySet())
@@ -209,6 +215,11 @@ public class FtpServerConfig
     public String getDataSetDisplayTemplate()
     {
         return dataSetDisplayTemplate;
+    }
+
+    public boolean isShowParentsAndChildren()
+    {
+        return showParentsAndChildren;
     }
 
     public Map<String, String> getFileListSubPaths()

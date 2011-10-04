@@ -25,6 +25,7 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * A central class that manages the movement of a user up and down the exposed hierarchical
@@ -41,15 +42,19 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IETLLIMSService service;
 
+    private final IGeneralInformationService generalInfoService;
+    
     private FtpFile workingDirectory;
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
     DSSFileSystemView(String sessionToken, IETLLIMSService service,
+            IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
         this.sessionToken = sessionToken;
         this.service = service;
+        this.generalInfoService = generalInfoService;
         this.pathResolverRegistry = pathResolverRegistry;
         this.workingDirectory = getHomeDirectory();
     }
@@ -82,15 +87,16 @@ public class DSSFileSystemView implements FileSystemView
         try
         {
             FtpPathResolverContext context =
-                    new FtpPathResolverContext(sessionToken, service, pathResolverRegistry);
+                    new FtpPathResolverContext(sessionToken, service, generalInfoService,
+                            pathResolverRegistry);
             return pathResolverRegistry.tryResolve(normalizedPath, context);
         } catch (RuntimeException rex)
         {
             String message =
-                    String.format("Error while resolving FTP path '%s' : '%s", path,
+                    String.format("Error while resolving FTP path '%s' : %s", path,
                             rex.getMessage());
             operationLog.error(message);
-            return null;
+            throw new FtpException(message, rex);
         }
     }
 
