@@ -514,7 +514,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     new DataSetStorageAlgorithmRunner<T>(algorithms, parent, parent, rollbackStack);
             List<DataSetInformation> datasets = runner.prepareAndRunStorageAlgorithms();
 
-            // TODO KE: query.commit() executed even when storage processor transaction fails ?
+            boolean noDataSetsRegistered = datasets.isEmpty();
 
             // The queries are optional parts of the commit; catch any errors and inform the
             // invoker
@@ -524,7 +524,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 try
                 {
-                    query.commit();
+                    if (noDataSetsRegistered)
+                    {
+                        query.rollback();
+                    } else
+                    {
+                        query.commit();
+                    }
                     query.close(false);
                 } catch (Throwable e)
                 {
