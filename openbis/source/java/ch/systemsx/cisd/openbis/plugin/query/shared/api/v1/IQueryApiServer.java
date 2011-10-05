@@ -37,12 +37,14 @@ public interface IQueryApiServer extends IRpcService
      * Name of this service for which it is registered at the RPC name server.
      */
     public static final String SERVICE_NAME = "query";
-    
+
     /**
      * Service part of the URL to access this service remotely.
      */
     public final static String QUERY_PLUGIN_SERVER_URL = "/rmi-" + SERVICE_NAME + "-v1";
-    
+
+    public static final String JSON_SERVICE_URL = QUERY_PLUGIN_SERVER_URL + ".json";
+
     /**
      * Tries to authenticate specified user with specified password. Returns session token if
      * succeeded otherwise <code>null</code> is returned.
