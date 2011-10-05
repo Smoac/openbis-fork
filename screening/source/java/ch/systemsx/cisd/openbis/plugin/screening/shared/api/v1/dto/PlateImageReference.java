@@ -97,8 +97,7 @@ public class PlateImageReference extends DatasetIdentifier
         }
 
         final PlateImageReference other = (PlateImageReference) obj;
-        if ((channelOrNull == null && other.channelOrNull != null)
-                || channelOrNull.equals(other.channelOrNull) == false)
+        if ((channelOrNull == null && other.channelOrNull != null) ||  channelOrNull.equals(other.channelOrNull) == false)
         {
             return false;
         }

@@ -48,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -77,8 +79,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  */
 public class WellContentDialog extends Dialog
 {
-    private static final String UNKNOWN_WELL_LABEL = "No well information available.";
-
     private static final String UNKNOWN_CHANNEL_LABEL = "No images available for this channel.";
 
     private static final String INCORRECT_WELL_CODE_LABEL = "Incorrect well code.";
@@ -96,17 +96,17 @@ public class WellContentDialog extends Dialog
             ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        final WellContentDialog contentDialog = createContentDialog(wellData, viewContext);
-        showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
+        final WellContentDialog contentDialog =
+                createContentDialog(wellData, imageDatasetOrNull, viewContext);
+        showContentDialog(contentDialog, viewContext);
     }
 
     private static void showContentDialog(final WellContentDialog contentDialog,
-            final ImageDatasetEnrichedReference imagesOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        if (imagesOrNull != null)
+        if (contentDialog.tryGetImages() != null)
         {
-            LogicalImageViewer viewer = contentDialog.createImageViewer(imagesOrNull);
+            LogicalImageViewer viewer = contentDialog.createImageViewer();
             contentDialog.add(viewer.getViewerWidget());
             contentDialog.addImageEditorLaunchButton(viewer);
         }
@@ -114,6 +114,7 @@ public class WellContentDialog extends Dialog
     }
 
     private static WellContentDialog createContentDialog(final WellData wellData,
+            ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         WellLocation wellLocation = wellData.getWellLocation();
@@ -126,7 +127,7 @@ public class WellContentDialog extends Dialog
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
         return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
-                getExperiment(wellData), viewContext);
+                getExperiment(wellData), imageDatasetOrNull, viewContext);
     }
 
     /**
@@ -200,12 +201,12 @@ public class WellContentDialog extends Dialog
     {
         WellContentDialog contentDialog =
                 new WellContentDialog(wellImage.getWell(), null, wellImage.tryGetLocation(),
-                        getExperiment(wellImage.getExperiment()), viewContext);
+                        getExperiment(wellImage.getExperiment()), imageDatasetOrNull, viewContext);
 
-        showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
+        showContentDialog(contentDialog, viewContext);
     }
 
-    private LogicalImageViewer createImageViewer(ImageDatasetEnrichedReference imageDatasetOrNull)
+    private LogicalImageViewer createImageViewer()
     {
         final LogicalImageReference imagesOrNull =
                 new LogicalImageReference(imageDatasetOrNull, wellLocationOrNull);
@@ -245,9 +246,12 @@ public class WellContentDialog extends Dialog
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
+    private ImageDatasetEnrichedReference imageDatasetOrNull;
+
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
             final SingleExperimentSearchCriteria experimentCriteria,
+            ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
@@ -258,6 +262,7 @@ public class WellContentDialog extends Dialog
             Collections.sort(wellPropertiesOrNull);
         }
         this.experimentCriteria = experimentCriteria;
+        this.imageDatasetOrNull = imageDatasetOrNull;
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         setHideOnButtonClick(true);
@@ -285,6 +290,11 @@ public class WellContentDialog extends Dialog
                     center();
                 }
             });
+    }
+
+    private ImageDatasetEnrichedReference tryGetImages()
+    {
+        return imageDatasetOrNull;
     }
 
     private void addImageEditorLaunchButton(final LogicalImageViewer viewer)
@@ -327,10 +337,41 @@ public class WellContentDialog extends Dialog
         if (wellOrNull != null)
         {
             container.add(new Text(WELL_LABEL), cellLayout);
-            container.add(createEntityLink(wellOrNull));
+            container.add(createEntityLink(wellOrNull, wellOrNull.getCode()));
         } else
         {
-            container.add(new Text(UNKNOWN_WELL_LABEL));
+            container.add(new Text(WELL_LABEL), cellLayout);
+            final String suffix =
+                    wellLocationOrNull == null ? "" : ":" + wellLocationOrNull.toWellIdString();
+            container.add(createEntityLink(new IEntityInformationHolderWithPermId()
+                {
+                    private static final long serialVersionUID = 1L;
+
+                    public String getPermId()
+                    {
+                        return imageDatasetOrNull.getPermId() + suffix;
+                    }
+
+                    public String getCode()
+                    {
+                        return imageDatasetOrNull.getCode();
+                    }
+
+                    public Long getId()
+                    {
+                        return imageDatasetOrNull.getId();
+                    }
+
+                    public BasicEntityType getEntityType()
+                    {
+                        return imageDatasetOrNull.getEntityType();
+                    }
+
+                    public EntityKind getEntityKind()
+                    {
+                        return imageDatasetOrNull.getEntityKind();
+                    }
+                }, getWellDescription()));
         }
         if (wellPropertiesOrNull != null)
         {
@@ -459,10 +500,10 @@ public class WellContentDialog extends Dialog
         return ExperimentSearchCriteria.createExperiment(experimentCriteria, false);
     }
 
-    private Widget createEntityLink(IEntityInformationHolderWithPermId entity)
+    private Widget createEntityLink(IEntityInformationHolderWithPermId entity, String label)
     {
         final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
-        return LinkRenderer.getLinkWidget(entity.getCode(), listener);
+        return LinkRenderer.getLinkWidget(label, listener);
     }
 
 }

@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * @author Tomasz Pylak
  */
 // NOTE: is supposed to be extended with derived analysis datasets and optionally raw image datasets
-public class ImageDatasetEnrichedReference implements ISerializable
+public class ImageDatasetEnrichedReference implements IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -68,5 +70,30 @@ public class ImageDatasetEnrichedReference implements ISerializable
     public List<DatasetOverlayImagesReference> getOverlayDatasets()
     {
         return overlayDatasets;
+    }
+
+    public BasicEntityType getEntityType()
+    {
+        return imageDataset.getDatasetReference().getEntityType();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return imageDataset.getDatasetReference().getEntityKind();
+    }
+
+    public Long getId()
+    {
+        return imageDataset.getDatasetReference().getId();
+    }
+
+    public String getCode()
+    {
+        return imageDataset.getDatasetReference().getCode();
+    }
+
+    public String getPermId()
+    {
+        return imageDataset.getDatasetReference().getPermId();
     }
 }

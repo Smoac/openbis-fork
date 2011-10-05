@@ -54,9 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MaterialFeaturesFromAllExperimentsViewer;
@@ -67,6 +68,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchByProjectCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -156,7 +158,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
         if (EntityKind.DATA_SET.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new DatasetClientPlugin(viewContext);
+            return (IClientPlugin<T, I>) new createImageDataSetViewer(viewContext);
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -342,14 +344,55 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             };
     }
 
-    private final class DatasetClientPlugin extends DelegatedClientPlugin<DataSetType>
+    private final class createImageDataSetViewer extends DelegatedClientPlugin<DataSetType>
     {
         private final ScreeningViewContext screeningViewContext;
 
-        private DatasetClientPlugin(ScreeningViewContext viewContext)
+        private createImageDataSetViewer(ScreeningViewContext viewContext)
         {
             super(viewContext, EntityKind.DATA_SET);
             this.screeningViewContext = viewContext;
+        }
+
+        private AbstractTabItemFactory createImageDataSetViewer(
+                final IEntityInformationHolderWithPermId entity, final WellLocation wellLocation)
+        {
+            return new AbstractTabItemFactory()
+                {
+                    @Override
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent viewer =
+                                ImageDataSetViewer.create(screeningViewContext, entity,
+                                        wellLocation);
+                        return createViewerTab(viewer, getTabTitle(), screeningViewContext);
+                    }
+
+                    @Override
+                    public String getId()
+                    {
+                        final TechId dataSetId = TechId.create(entity);
+                        return GenericDataSetViewer.createId(dataSetId);
+                    }
+
+                    @Override
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Plate Well Viewer");
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.WELL, entity, screeningViewContext);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return LinkExtractor.tryExtract(entity);
+                    }
+                };
         }
 
         @Override
@@ -357,7 +400,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String datasetTypeCode = entity.getEntityType().getCode();
-            if (datasetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
+            if (entity.getPermId().contains(":"))
+            {
+                return createImageDataSetViewer(entity, new WellLocation(1, 1));
+            } else if (datasetTypeCode
+                    .matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 return createHCSImageDatasetTabItemFactory(entity);
             } else if (datasetTypeCode
@@ -502,7 +549,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return GenericSampleViewer.createId(sampleId);
+                        return GenericDataSetViewer.createId(sampleId);
                     }
 
                     @Override
@@ -548,7 +595,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return GenericSampleViewer.createId(sampleId);
+                        return GenericDataSetViewer.createId(sampleId);
                     }
 
                     @Override

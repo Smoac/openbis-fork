@@ -16,13 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -35,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IDatasetImagesReferenceUpdater;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.LayoutUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
@@ -142,63 +136,4 @@ public class ImageSampleSection extends TabContent
             add(logicalImageLayouter, margins);
         }
     }
-
-    private static class LogicalImageLayouter extends LayoutContainer implements
-            IDatasetImagesReferenceUpdater
-    {
-        private final ScreeningViewContext viewContext;
-
-        private final WellLocation wellLocationOrNull;
-
-        private final Map<ImageDatasetEnrichedReference, LogicalImageInfo> refsMap;
-
-        public LogicalImageLayouter(ScreeningViewContext viewContext,
-                WellLocation wellLocationOrNull, List<LogicalImageInfo> images)
-        {
-            this.viewContext = viewContext;
-            this.wellLocationOrNull = wellLocationOrNull;
-            this.refsMap = createRefsMap(images);
-        }
-
-        public void changeDisplayedImageDataset(ImageDatasetEnrichedReference dataset)
-        {
-            LogicalImageInfo imageInfo = refsMap.get(dataset);
-            assert imageInfo != null : "cannot find logical image for " + dataset;
-
-            removeAll();
-            Widget viewerWidget = createImageViewer(imageInfo);
-            add(viewerWidget);
-            layout();
-        }
-
-        private Widget createImageViewer(LogicalImageInfo imageInfo)
-        {
-            LogicalImageReference logicalImageReference =
-                    new LogicalImageReference(imageInfo.getImageDataset(), wellLocationOrNull);
-            LogicalImageViewer viewer =
-                    new LogicalImageViewer(logicalImageReference, viewContext,
-                            imageInfo.getExperimentIdentifier(), imageInfo.getExperimentPermId(),
-                            true);
-            return viewer.getViewerWidget(imageInfo.getChannelStacks());
-        }
-
-        public List<ImageDatasetEnrichedReference> getDatasetImagesReferences()
-        {
-            return new ArrayList<ImageDatasetEnrichedReference>(refsMap.keySet());
-        }
-
-        private static Map<ImageDatasetEnrichedReference, LogicalImageInfo> createRefsMap(
-                List<LogicalImageInfo> images)
-        {
-            Map<ImageDatasetEnrichedReference, LogicalImageInfo> map =
-                    new HashMap<ImageDatasetEnrichedReference, LogicalImageInfo>();
-            for (LogicalImageInfo imageInfo : images)
-            {
-                ImageDatasetEnrichedReference ref = imageInfo.getImageDataset();
-                map.put(ref, imageInfo);
-            }
-            return map;
-        }
-    }
-
 }

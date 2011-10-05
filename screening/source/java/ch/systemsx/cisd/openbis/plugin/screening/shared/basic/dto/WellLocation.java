@@ -241,6 +241,16 @@ public class WellLocation implements ISerializable
         return "(" + row + "," + column + ")";
     }
 
+    public String toWellIdString()
+    {
+        return getNumberLetter(row) + column;
+    }
+
+    private String getNumberLetter(@SuppressWarnings("hiding") int row)
+    {
+        return Character.toString((char) ((char) row + 'A' - (char) 1));
+    }
+
     @Override
     public int hashCode()
     {

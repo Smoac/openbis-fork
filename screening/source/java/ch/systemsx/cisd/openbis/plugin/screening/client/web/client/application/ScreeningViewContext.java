@@ -10,6 +10,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ExperimentAnalysisSummaryResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.GlobalWellSearchLocatorResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ImagingDataSetLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ImagingMaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMetadataBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.WellSearchLocatorResolver;
@@ -45,6 +46,7 @@ public final class ScreeningViewContext extends
     {
         super.initializeLocatorHandlerRegistry(handlerRegistry);
 
+        handlerRegistry.registerHandler(new ImagingDataSetLocatorResolver(this));
         handlerRegistry.registerHandler(new ImagingMaterialLocatorResolver(this));
         handlerRegistry.registerHandler(new PlateMetadataBrowserLocatorResolver(this));
         handlerRegistry.registerHandler(new WellSearchLocatorResolver(this));

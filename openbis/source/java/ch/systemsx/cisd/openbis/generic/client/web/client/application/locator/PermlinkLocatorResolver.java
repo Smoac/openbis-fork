@@ -43,7 +43,7 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
     /**
      * Open the entity details tab for the specified entity kind and permId.
      */
-    private void openInitialEntityViewer(String entityKindValue, String permIdValue)
+    protected void openInitialEntityViewer(String entityKindValue, String permIdValue)
             throws UserFailureException
     {
         EntityKind entityKind = getEntityKind(entityKindValue);
