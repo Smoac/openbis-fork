@@ -116,10 +116,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public static IGeneralInformationService createGeneralInformationService(String openBISURL,
             String timeout)
     {
-        ServiceFinder generalInformationServiceFinder =
-                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-        return generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                openBISURL, normalizeTimeout(timeout));
+        ServiceFinder finder = new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        if (timeout.startsWith("$"))
+        {
+            return finder.createService(IGeneralInformationService.class, openBISURL);
+        }
+        return finder.createService(IGeneralInformationService.class, openBISURL,
+                normalizeTimeout(timeout));
     }
 
     private static long normalizeTimeout(String timeout)
