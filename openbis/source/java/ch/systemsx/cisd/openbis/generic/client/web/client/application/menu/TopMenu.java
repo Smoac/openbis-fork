@@ -16,13 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Element;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,8 +27,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.exper
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.modules.ModulesMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.BrowseMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.ImportMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.NewMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.LoggedUserMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 
 /**
  * Implements functionality of the top menu.
@@ -114,6 +117,9 @@ public class TopMenu extends LayoutContainer
     {
         toolBar.removeAll();
 
+        toolBar.add(new BrowseMenu(viewContext, componentProvider));
+        toolBar.add(new NewMenu(viewContext, componentProvider));
+        toolBar.add(new ImportMenu(viewContext, componentProvider));
         toolBar.add(new ExperimentMenu(viewContext, componentProvider));
         toolBar.add(new SampleMenu(viewContext, componentProvider));
         toolBar.add(new DataSetMenu(viewContext, componentProvider));

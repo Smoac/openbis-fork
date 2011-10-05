@@ -371,6 +371,13 @@ var common = {
   wizard_page_next_button_label: "Next >",
   wizard_page_finish_button_label: "Finish",
   
+  //
+  // New Menu Titles
+  //
+  
+  menu_browse: "Browse",
+  menu_new: "New",
+  menu_import: "Import",
   
   //
   // Menu Titles
@@ -387,38 +394,38 @@ var common = {
   LOGGING_CONSOLE: "Logging Console",
 
   menu_data_set: "Data Set",
-  DATA_SET_MENU_SEARCH: "Advanced Search",
+  DATA_SET_MENU_SEARCH: "Data Set Search",
   DATA_SET_MENU_TYPES: "Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
-  DATA_SET_MENU_UPLOAD: "Upload",
-  DATA_SET_MENU_UPLOAD_CLIENT: "Batch Upload",
-  DATA_SET_MENU_MASS_UPDATE: "Batch Update",
-  data_set_batch_update: "Batch Update",
+  DATA_SET_MENU_UPLOAD: "Data Sets (via CIFEX)",
+  DATA_SET_MENU_UPLOAD_CLIENT: "Data Sets",
+  DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata",
+  data_set_batch_update: "Data Set Metadata",
   
   menu_experiment: "Experiment",
-  EXPERIMENT_MENU_BROWSE: "Browse",
-  EXPERIMENT_MENU_NEW: "New",
-  EXPERIMENT_MENU_IMPORT: "Batch Import",
-  EXPERIMENT_MENU_MASS_UPDATE: "Batch Update",
+  EXPERIMENT_MENU_BROWSE: "Experiments",
+  EXPERIMENT_MENU_NEW: "Experiment",
+  EXPERIMENT_MENU_IMPORT: "Experiment Metadata",
+  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Metadata Update",
   EXPERIMENT_MENU_TYPES: "Types",
   
   menu_material: "Material",
-  MATERIAL_MENU_BROWSE: "Browse",
-  MATERIAL_MENU_IMPORT: "Batch Import",
-  MATERIAL_MENU_MASS_UPDATE: "Batch Update",
+  MATERIAL_MENU_BROWSE: "Materials",
+  MATERIAL_MENU_IMPORT: "Material Metadata",
+  MATERIAL_MENU_MASS_UPDATE: "Material Metadata Update",
   MATERIAL_MENU_TYPES: "Types",
    
   menu_sample: "Sample",
-  SAMPLE_MENU_SEARCH: "Advanced Search",
-  SAMPLE_MENU_BROWSE: "Browse",
-  SAMPLE_MENU_NEW: "New",
-  SAMPLE_MENU_IMPORT: "Batch Import",
-  SAMPLE_MENU_MASS_UPDATE: "Batch Update",
+  SAMPLE_MENU_SEARCH: "Sample Search",
+  SAMPLE_MENU_BROWSE: "Samples",
+  SAMPLE_MENU_NEW: "Sample",
+  SAMPLE_MENU_IMPORT: "Sample Metadata",
+  SAMPLE_MENU_MASS_UPDATE: "Sample Metadata Update",
   SAMPLE_MENU_TYPES: "Types",
   
   menu_project: "Project",
-  PROJECT_MENU_BROWSE: "Browse",
-  PROJECT_MENU_NEW: "New",
+  PROJECT_MENU_BROWSE: "Projects",
+  PROJECT_MENU_NEW: "Project",
   
   menu_property_types: "Property Type",
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",

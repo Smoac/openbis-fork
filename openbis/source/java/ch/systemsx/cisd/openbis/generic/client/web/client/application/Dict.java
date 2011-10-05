@@ -663,6 +663,16 @@ public abstract class Dict
     public static final String PART_OF_SAMPLE = "part_of_sample";
 
     //
+    // New Menu Structure
+    //
+
+    public static final String MENU_BROWSE = "menu_browse";
+
+    public static final String MENU_NEW = "menu_new";
+
+    public static final String MENU_IMPORT = "menu_import";
+
+    //
     // Menu Titles
     //
 
