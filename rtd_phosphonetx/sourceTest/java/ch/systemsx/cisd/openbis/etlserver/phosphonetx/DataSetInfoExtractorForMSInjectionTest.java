@@ -430,12 +430,16 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         sampleProperties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
         sampleProperties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         sampleProperties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
+        sampleProperties.setProperty(SAMPLE_PROPERTY, "Albert");
         save(sampleProperties, MS_INJECTION_PROPERTIES_FILE);
         Properties dataSetProperties = new Properties();
         dataSetProperties.setProperty(DATA_SET_TYPE_KEY, "MZXML_DATA");
         dataSetProperties.setProperty(PARENT_TYPE_KEY, "RAW_DATA");
         save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
-        prepareGetExperimentAndGetSampleType(true);
+        SampleTypePropertyType pt1 = createPropertyType(SAMPLE_PROPERTY, false);
+        SampleTypePropertyType pt2 = createPropertyType("VOLUME", false);
+        SampleTypePropertyType pt3 = createPropertyType("TEMPERATURE", false);
+        prepareGetExperimentAndGetSampleType(true, pt1, pt2, pt3);
         prepareUpdateSample(null, null);
         prepareGetDataSetType("MZXML_DATA");
         context.checking(new Expectations()
