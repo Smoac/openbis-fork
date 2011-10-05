@@ -31,13 +31,13 @@ executeScriptHooks()
 }
 
 #
-# Copies a file (first parameter) to a destination (second parameter). 
-# Does nothing if file does not exist.
+# Copies a file/folder (first parameter) to a destination (second parameter). 
+# Does nothing if file/folder does not exist.
 #
 copyIfExists() 
 {
-  if [ -f "$1" ]; then
-      cp "$1" "$2"
+  if [ -e "$1" ]; then
+      cp -R "$1" "$2"
   fi
 }
 
