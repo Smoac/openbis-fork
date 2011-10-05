@@ -32,7 +32,7 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class PrepareInstallationBackupAction implements PanelAction
 {
-    private static final String BACK_FOLDER_PATTERN = "yyyy-MM-dd-HHmm";
+    private static final String BACK_FOLDER_PATTERN = "yyMMdd-HHmm";
 
     private static final String BACKUP_ROOT = "backup";
 
@@ -84,5 +84,4 @@ public class PrepareInstallationBackupAction implements PanelAction
         }
         return result;
     }
-
 }
