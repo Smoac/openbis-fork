@@ -27,6 +27,8 @@ public class DatasetRecord extends CodeRecord
 
     public Date registration_timestamp;
 
+    public Date modification_timestamp;
+
     public Long pers_id_registerer;
 
     public boolean is_placeholder;

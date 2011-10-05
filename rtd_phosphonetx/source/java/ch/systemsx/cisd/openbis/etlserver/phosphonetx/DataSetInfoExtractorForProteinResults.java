@@ -100,31 +100,46 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
         String parentDataSetCodesOrNull = getProperty(properties, PARENT_DATA_SET_CODES);
+        String baseExperimentIdentifier = getProperty(properties, EXPERIMENT_IDENTIFIER_KEY);
+        List<String> parentDataSetCodes =
+                getParentDataSetCodes(parentDataSetCodesOrNull, baseExperimentIdentifier, service);
+        info.setParentDataSetCodes(parentDataSetCodes);
+        return info;
+    }
+
+    /**
+     * Returns data set codes either from the first argument or if <code>null</code> from
+     * the data sets of the specified experiment. 
+     */
+    static List<String> getParentDataSetCodes(String parentDataSetCodesOrNull,
+            String baseExperimentIdentifier, IEncapsulatedOpenBISService service)
+    {
+        List<String> parentDataSetCodes = new ArrayList<String>();
         if (parentDataSetCodesOrNull != null)
         {
-            info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull, ", ")));
-        } else 
+            parentDataSetCodes = Arrays.asList(StringUtils.split(parentDataSetCodesOrNull, ", "));
+        } else
         {
-            String baseExperimentIdentifier = getProperty(properties, EXPERIMENT_IDENTIFIER_KEY);
             if (baseExperimentIdentifier != null)
             {
-                ExperimentIdentifier identifier = new ExperimentIdentifierFactory(baseExperimentIdentifier).createIdentifier();
+                ExperimentIdentifier identifier =
+                        new ExperimentIdentifierFactory(baseExperimentIdentifier)
+                                .createIdentifier();
                 Experiment baseExperiment = service.tryToGetExperiment(identifier);
                 if (baseExperiment == null)
                 {
                     throw new UserFailureException("Property " + EXPERIMENT_IDENTIFIER_KEY
                             + " specifies an unknown experiment: " + baseExperimentIdentifier);
                 }
-                List<ExternalData> dataSets = service.listDataSetsByExperimentID(baseExperiment.getId());
-                List<String> parentDataSetCodes = new ArrayList<String>();
+                List<ExternalData> dataSets =
+                        service.listDataSetsByExperimentID(baseExperiment.getId());
                 for (ExternalData dataSet : dataSets)
                 {
                     parentDataSetCodes.add(dataSet.getCode());
                 }
-                info.setParentDataSetCodes(parentDataSetCodes);
             }
         }
-        return info;
+        return parentDataSetCodes;
     }
     
     private String getProperty(Properties properties, String key)

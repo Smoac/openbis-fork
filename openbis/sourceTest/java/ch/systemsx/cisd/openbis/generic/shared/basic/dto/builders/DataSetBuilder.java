@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -90,6 +91,12 @@ public class DataSetBuilder
     public DataSetBuilder shareID(String shareID)
     {
         dataSet.setShareId(shareID);
+        return this;
+    }
+
+    public DataSetBuilder fileFormat(String fileFormatType)
+    {
+        dataSet.setFileFormatType(new FileFormatType(fileFormatType));
         return this;
     }
 
