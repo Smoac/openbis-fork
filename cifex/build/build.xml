@@ -440,7 +440,7 @@
 		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}" />
-		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}" />
+		<copy file="${lib}/gxt2.2.5/gxt.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}" />
 		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}" />
@@ -548,6 +548,13 @@
 			<param name="module-test.path" value="cifex-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
 		</antcall>
+		<antcall target="run-module-test">
+			<param name="module-test.path" value="cifex-test" />
+			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
+		</antcall>
+	</target>
+	
+	<target name="run-module-test-no-compile" description="Compile and run the module test mode">
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="cifex-test" />
 			<param name="module-test.module" value="ch.systemsx.cisd.cifex.Cifex" />
