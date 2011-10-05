@@ -154,7 +154,7 @@ def createRawImagesDataset(incoming, plate, batchName, transaction, factory):
     imageDatasetConfig.setFileFormatType(config.IMAGE_DATASET_FILE_FORMAT)
     imageDatasetConfig.setUseImageMagicToGenerateThumbnails(config.USE_IMAGE_MAGIC_CONVERT_TOOL)
    
-    imageDatasetConfig.setImageLibrary("IJ", "tiff")
+    imageDatasetConfig.setImageLibrary("BioFormats", "TiffDelegateReader")
     
     #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesForChannels(["DAPI"])
     #imageDatasetConfig.setComputeCommonIntensityRangeOfAllImagesIsDefault(False)
