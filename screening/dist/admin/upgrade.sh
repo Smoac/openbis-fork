@@ -51,6 +51,8 @@ OPENBIS_INSTALL_DIR=$BASE/..
 TARBALL=$1
 INSTALLER_DIR=${TARBALL%.tar.gz}
 
+mkdir -p $OPENBIS_INSTALL_DIR/backup
+
 pushd $ROOT_DIR > /dev/null
 
 echo "Extracting installation tarball $TARBALL.."
@@ -64,13 +66,16 @@ sed -i '' "$sed_params" $INSTALLER_DIR/console.properties
 
 # run the installation
 $INSTALLER_DIR/run-console.sh
-
 rm -rf $INSTALLER_DIR
 
-echo "Moving $TARBALL to $OPENBIS_INSTALL_DIR/backup ..."
-mkdir -p $OPENBIS_INSTALL_DIR/backup
-mv $TARBALL $OPENBIS_INSTALL_DIR/backup
+BACKUP_DIR_NAME=`ls -rt $OPENBIS_INSTALL_DIR/backup | tail -1`
+BACKUP_DIR=$OPENBIS_INSTALL_DIR/backup/$BACKUP_DIR_NAME
+
+echo "Moving $TARBALL to $BACKUP_DIR..."
+mv $TARBALL $BACKUP_DIR
+
 }
+
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
