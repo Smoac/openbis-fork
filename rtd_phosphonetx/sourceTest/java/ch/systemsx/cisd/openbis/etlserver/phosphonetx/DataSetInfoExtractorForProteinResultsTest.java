@@ -61,6 +61,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 @Friend(toClasses=DataSetInfoExtractorForProteinResults.class)
 public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSystemTestCase
 {
+    private static final String PARENT_DATA_SET_CODES_KEY =
+            DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES.toUpperCase();
+
     private Mockery context;
     private IEncapsulatedOpenBISService service;
     private File dataSet;
@@ -206,6 +209,61 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
+        assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
+        assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWithParentDataSetsSeparatedBySpaces()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n" + PARENT_DATA_SET_CODES_KEY
+                + " = ds1     ds2");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                }
+            });
+
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+
+        assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
+        assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testWithParentDataSetsSeparatedByComma()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + PARENT_DATA_SET_CODES_KEY + " = ds1,ds2");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                }
+            });
+
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+
         assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
         assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();

@@ -52,8 +52,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     @Private static final String SEPARATOR_KEY = "separator";
     @Private static final String DEFAULT_SEPARATOR = "&";
     @Private static final String DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME = "search.properties";
-    @Private static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
-    @Private static final String EXPERIMENT_IDENTIFIER_KEY = "base-experiment";
+    static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
+    static final String EXPERIMENT_IDENTIFIER_KEY = "base-experiment";
     
     private final String separator;
     private final String experimentPropertiesFileName;
@@ -102,7 +102,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         String parentDataSetCodesOrNull = getProperty(properties, PARENT_DATA_SET_CODES);
         if (parentDataSetCodesOrNull != null)
         {
-            info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull)));
+            info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull, ", ")));
         } else 
         {
             String baseExperimentIdentifier = getProperty(properties, EXPERIMENT_IDENTIFIER_KEY);
