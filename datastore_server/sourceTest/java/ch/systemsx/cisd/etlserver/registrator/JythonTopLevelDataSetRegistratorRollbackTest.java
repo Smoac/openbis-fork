@@ -95,7 +95,6 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
 
                     CustomAction makeFileSystemUnavailable = new CustomAction("foo")
                         {
-                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 makeFileSystemUnavailable(workingDirectory);
