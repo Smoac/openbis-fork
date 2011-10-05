@@ -167,7 +167,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         {
             TechId sampleID = new TechId(sample.getId());
             List<IEntityProperty> propertiesList =
-                    Util.getUpdatedProperties(sample, sampleType, properties);
+                    Util.getProperties(properties, sampleType, new ArrayList<String>());
             Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
             Date version = sample.getModificationDate();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
