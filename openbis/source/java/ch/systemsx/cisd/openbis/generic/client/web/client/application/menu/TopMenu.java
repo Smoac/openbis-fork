@@ -22,11 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration.AdministrationMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.dataset.DataSetMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.experiment.ExperimentMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.modules.ModulesMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.BrowseMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.ImportMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.NewMenu;
@@ -120,10 +116,6 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new BrowseMenu(viewContext, componentProvider));
         toolBar.add(new NewMenu(viewContext, componentProvider));
         toolBar.add(new ImportMenu(viewContext, componentProvider));
-        toolBar.add(new ExperimentMenu(viewContext, componentProvider));
-        toolBar.add(new SampleMenu(viewContext, componentProvider));
-        toolBar.add(new DataSetMenu(viewContext, componentProvider));
-        toolBar.add(new MaterialMenu(viewContext, componentProvider));
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
         toolBar.add(new ModulesMenu(viewContext, viewContext.getClientPluginFactoryProvider()));
         toolBar.add(new FillToolItem());

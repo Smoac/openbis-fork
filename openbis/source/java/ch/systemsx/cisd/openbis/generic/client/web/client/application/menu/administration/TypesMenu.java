@@ -14,40 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.experiment;
-
-import com.extjs.gxt.ui.client.widget.menu.Menu;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+
 /**
- * Experiment top menu.
+ * Types menu for managing entity types.
  * 
- * @author Piotr Buczek
+ * @author Chandrasekhar Ramakrishnan
  */
-public class ExperimentMenu extends TopMenuItem
+public class TypesMenu extends MenuItem
 {
-    public ExperimentMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
+
+    public TypesMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super(messageProvider.getMessage(Dict.MENU_EXPERIMENT));
+        super(messageProvider.getMessage(Dict.MENU_TYPES));
 
         Menu submenu = new Menu();
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,
-                componentProvider.getExperimentBrowser()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_NEW, messageProvider,
-                componentProvider.getExperimentRegistration()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_IMPORT, messageProvider,
-                componentProvider.getExperimentBatchRegistration()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_MASS_UPDATE, messageProvider,
-                componentProvider.getExperimentBatchUpdate()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_TYPES, messageProvider,
                 componentProvider.getExperimentTypeBrowser()));
-        setMenu(submenu);
-    }
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_TYPES, messageProvider,
+                componentProvider.getSampleTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
+                componentProvider.getDataSetTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, messageProvider,
+                componentProvider.getMaterialTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS,
+                messageProvider, componentProvider.getFileFormatTypeBrowser()));
 
+        setSubMenu(submenu);
+    }
 }

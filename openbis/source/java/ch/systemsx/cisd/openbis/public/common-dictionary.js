@@ -378,6 +378,7 @@ var common = {
   menu_browse: "Browse",
   menu_new: "New",
   menu_import: "Import",
+  menu_types: "Types",
   
   //
   // Menu Titles
@@ -393,41 +394,36 @@ var common = {
   TRASH: "Trash",
   LOGGING_CONSOLE: "Logging Console",
 
-  menu_data_set: "Data Set",
   DATA_SET_MENU_SEARCH: "Data Set Search",
-  DATA_SET_MENU_TYPES: "Types",
+  DATA_SET_MENU_TYPES: "Data Set Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
   DATA_SET_MENU_UPLOAD: "Data Sets (via CIFEX)",
   DATA_SET_MENU_UPLOAD_CLIENT: "Data Sets",
-  DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata",
+  DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata Update",
   data_set_batch_update: "Data Set Metadata",
   
-  menu_experiment: "Experiment",
   EXPERIMENT_MENU_BROWSE: "Experiments",
   EXPERIMENT_MENU_NEW: "Experiment",
   EXPERIMENT_MENU_IMPORT: "Experiment Metadata",
-  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Metadata Update",
-  EXPERIMENT_MENU_TYPES: "Types",
+  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Metadata Updates",
+  EXPERIMENT_MENU_TYPES: "Experiment Types",
   
-  menu_material: "Material",
   MATERIAL_MENU_BROWSE: "Materials",
   MATERIAL_MENU_IMPORT: "Material Metadata",
-  MATERIAL_MENU_MASS_UPDATE: "Material Metadata Update",
-  MATERIAL_MENU_TYPES: "Types",
+  MATERIAL_MENU_MASS_UPDATE: "Material Metadata Updates",
+  MATERIAL_MENU_TYPES: "Material Types",
    
-  menu_sample: "Sample",
   SAMPLE_MENU_SEARCH: "Sample Search",
   SAMPLE_MENU_BROWSE: "Samples",
   SAMPLE_MENU_NEW: "Sample",
   SAMPLE_MENU_IMPORT: "Sample Metadata",
-  SAMPLE_MENU_MASS_UPDATE: "Sample Metadata Update",
-  SAMPLE_MENU_TYPES: "Types",
+  SAMPLE_MENU_MASS_UPDATE: "Sample Metadata Updates",
+  SAMPLE_MENU_TYPES: "Sample Types",
   
-  menu_project: "Project",
   PROJECT_MENU_BROWSE: "Projects",
   PROJECT_MENU_NEW: "Project",
   
-  menu_property_types: "Property Type",
+  menu_property_types: "Metadata",
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
   PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS: "Browse Assignments",
   PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Type",
@@ -436,12 +432,9 @@ var common = {
   PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE: "Assign To Material Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE: "Assign To Data Set Type", 
   
-  menu_script: "Script",
-  SCRIPT_MENU_BROWSE: "Browse",
-  SCRIPT_MENU_NEW: "New",
+  SCRIPT_MENU_BROWSE: "Scripts",
 
-  menu_vocabulary: "Vocabulary",
-  VOCABULARY_MENU_BROWSE: "Browse",
+  VOCABULARY_MENU_BROWSE: "Vocabularies",
   VOCABULARY_MENU_NEW: "New",
   
   // menu user
