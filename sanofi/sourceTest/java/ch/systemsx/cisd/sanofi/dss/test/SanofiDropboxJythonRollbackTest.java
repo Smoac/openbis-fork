@@ -176,8 +176,6 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     CustomAction makeFileSystemUnavailable = new CustomAction("foo")
                         {
-
-                            @Override
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 makeFileSystemUnavailable(workingDirectory);
