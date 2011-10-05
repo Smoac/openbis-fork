@@ -138,7 +138,10 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
             });
         Properties properties = new Properties();
         cacheFolder = new File(workingDirectory, "cache");
-        FileUtilities.deleteRecursively(cacheFolder);
+        if (cacheFolder.exists())
+        {
+            assertTrue(FileUtilities.deleteRecursively(cacheFolder));
+        }
         properties.setProperty("technologies", Constants.TECHNOLOGY_NAME);
         properties.setProperty(Constants.TECHNOLOGY_NAME + "." + CacheManager.CACHE_FOLDER_KEY,
                 cacheFolder.getPath());
