@@ -96,7 +96,7 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
         service = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
         dataSetProcessingContext =
-                new DataSetProcessingContext(new MockDataSetDirectoryProvider(workingDirectory,
+                new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(workingDirectory,
                         SHARE_ID), new HashMap<String, String>(), mailClient, USER_EMAIL);
         File testFolder = new File(new File(workingDirectory, SHARE_ID), "test");
         testFolder.mkdirs();

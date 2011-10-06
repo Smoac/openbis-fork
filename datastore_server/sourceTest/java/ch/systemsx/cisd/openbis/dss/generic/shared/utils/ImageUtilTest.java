@@ -19,16 +19,18 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 
@@ -38,33 +40,64 @@ import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 @Friend(toClasses = ImageUtil.class)
 public class ImageUtilTest extends AssertJUnit
 {
-    private static class MockIContent implements IContent
+    private static class MockIHierarchicalContentNode implements IHierarchicalContentNode
     {
         final MockRandomAccessFile is = new MockRandomAccessFile();
-
-        public String tryGetName()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        public long getSize()
-        {
-            throw new UnsupportedOperationException();
-        }
 
         public boolean exists()
         {
             throw new UnsupportedOperationException();
         }
 
-        public IRandomAccessFile getReadOnlyRandomAccessFile()
-        {
-            return is;
-        }
-
         public InputStream getInputStream()
         {
             throw new UnsupportedOperationException();
+        }
+
+        public String getName()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public String getRelativePath()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public String getParentRelativePath()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isDirectory()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public long getLastModified()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public File getFile() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public long getFileLength() throws UnsupportedOperationException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
+                IOExceptionUnchecked
+        {
+            return is;
         }
 
     }
@@ -135,10 +168,10 @@ public class ImageUtilTest extends AssertJUnit
     @Test
     public void testInputStreamAutomaticallyClosed()
     {
-        MockIContent content = new MockIContent();
+        MockIHierarchicalContentNode contentNode = new MockIHierarchicalContentNode();
         try
         {
-            ImageUtil.loadImage(content);
+            ImageUtil.loadImage(contentNode);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -146,7 +179,7 @@ public class ImageUtilTest extends AssertJUnit
                     ex.getMessage());
         }
 
-        assertEquals(true, content.is.closeInvoked);
+        assertEquals(true, contentNode.is.closeInvoked);
     }
 
     private BufferedImage loadImageByFile(String fileName)
@@ -159,7 +192,7 @@ public class ImageUtilTest extends AssertJUnit
     private BufferedImage loadImageByInputStream(String fileName)
     {
         File file = new File(dir, fileName);
-        return ImageUtil.loadImage(new FileBasedContent(file));
+        return ImageUtil.loadImage(new FileBasedContentNode(file));
     }
 
     private void assertImageSize(int expectedWith, int expectedHeight, BufferedImage image)
@@ -170,10 +203,10 @@ public class ImageUtilTest extends AssertJUnit
 
     public static BufferedImage loadImage(File imageFile)
     {
-        return loadImage(new FileBasedContent(imageFile));
+        return loadImage(new FileBasedContentNode(imageFile));
     }
 
-    public static BufferedImage loadImage(IContent content)
+    public static BufferedImage loadImage(IHierarchicalContentNode content)
     {
         return ImageUtil.loadImage(content);
     }

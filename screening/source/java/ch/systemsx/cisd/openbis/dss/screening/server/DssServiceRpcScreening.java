@@ -37,9 +37,8 @@ import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.ContentProviderBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.common.io.IContentProvider;
+import ch.systemsx.cisd.common.io.HierarchicalContentNodeBasedHierarchicalContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
@@ -491,7 +490,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             final boolean convertToPng, final boolean transform,
             final Map<String, IImagingDatasetLoader> imageLoadersMap)
     {
-        final List<IContent> imageContents = new ArrayList<IContent>();
+        final List<IHierarchicalContentNode> imageContents =
+                new ArrayList<IHierarchicalContentNode>();
         for (final PlateImageReference imageReference : imageReferences)
         {
             final IImagingDatasetLoader imageAccessor =
@@ -505,23 +505,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
 
-            imageContents.add(new ContentProviderBasedContent(new IContentProvider()
-                {
-                    public IContent getContent()
-                    {
-                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
-                                channelCode, sizeOrNull,
-                                singleChannelImageTransformationCodeOrNull, convertToPng, transform);
-                    }
-                }));
+            imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
+                    tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode,
+                            sizeOrNull, singleChannelImageTransformationCodeOrNull, convertToPng,
+                            transform)));
         }
+
         return new ConcatenatedContentInputStream(true, imageContents);
     }
 
     private InputStream loadThumbnailImages(List<PlateImageReference> imageReferences,
             final Map<String, IImagingDatasetLoader> imageLoadersMap)
     {
-        final List<IContent> imageContents = new ArrayList<IContent>();
+        final List<IHierarchicalContentNode> imageContents =
+                new ArrayList<IHierarchicalContentNode>();
         for (final PlateImageReference imageReference : imageReferences)
         {
             final IImagingDatasetLoader imageAccessor =
@@ -535,14 +532,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
 
-            imageContents.add(new ContentProviderBasedContent(new IContentProvider()
-                {
-                    public IContent getContent()
-                    {
-                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
-                                channelCode, null, null, false, false);
-                    }
-                }));
+            imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
+                    tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode, null,
+                            null, false, false)));
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
@@ -585,22 +577,18 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 listImageReferences(dataSetIdentifier, channel, imageAccessor);
         final Size sizeOrNull = tryAsSize(thumbnailSizeOrNull);
 
-        final List<IContent> imageContents = new ArrayList<IContent>();
+        final List<IHierarchicalContentNode> imageContents =
+                new ArrayList<IHierarchicalContentNode>();
         for (final MicroscopyImageReference imageReference : imageReferences)
         {
             final ImageChannelStackReference channelStackRef =
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
 
-            imageContents.add(new ContentProviderBasedContent(new IContentProvider()
-                {
-                    public IContent getContent()
-                    {
-                        return tryGetImageContent(ImagingLoaderStrategyFactory
-                                .createImageLoaderStrategy(imageAccessor), channelStackRef,
-                                channelCode, sizeOrNull, null, true, false);
-                    }
-                }));
+            imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
+                    tryGetImageContent(
+                            ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
+                            channelStackRef, channelCode, sizeOrNull, null, true, false)));
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
@@ -612,7 +600,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         assert imageAccessor != null : "imageAccessor not found for: " + dataSetIdentifier;
         final List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channels, imageAccessor);
-        final List<IContent> imageContents = new ArrayList<IContent>();
+        final List<IHierarchicalContentNode> imageContents =
+                new ArrayList<IHierarchicalContentNode>();
         for (final MicroscopyImageReference imageReference : imageReferences)
         {
             final IImagingLoaderStrategy imageLoaderStrategy =
@@ -622,14 +611,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     getImageChannelStackReference(imageAccessor, imageReference);
             final String channelCode = imageReference.getChannel();
 
-            imageContents.add(new ContentProviderBasedContent(new IContentProvider()
-                {
-                    public IContent getContent()
-                    {
-                        return tryGetImageContent(imageLoaderStrategy, channelStackRef,
-                                channelCode, null, null, false, false);
-                    }
-                }));
+            imageContents.add(new HierarchicalContentNodeBasedHierarchicalContentNode(
+                    tryGetImageContent(imageLoaderStrategy, channelStackRef, channelCode, null,
+                            null, false, false)));
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
@@ -1038,7 +1022,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return imageDatasetsMap;
     }
 
-    private IContent tryGetImageContent(IImagingLoaderStrategy imageLoaderStrategy,
+    private IHierarchicalContentNode tryGetImageContent(IImagingLoaderStrategy imageLoaderStrategy,
             final ImageChannelStackReference channelStackReference, String channelCode,
             Size thumbnailSizeOrNull, String singleChannelImageTransformationCodeOrNull,
             boolean convertToPng, boolean transform)
@@ -1117,9 +1101,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return createImageLoader(datasetCode, datasetRoot);
     }
 
-    IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)
+    IImagingDatasetLoader createImageLoader(String dataSetCode, File datasetRoot)
     {
-        return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        return HCSImageDatasetLoaderFactory
+                .create(getHierarchicalContent(dataSetCode), dataSetCode);
     }
 
     private ExternalData tryFindImageDataset(String sessionToken, String datasetCode)

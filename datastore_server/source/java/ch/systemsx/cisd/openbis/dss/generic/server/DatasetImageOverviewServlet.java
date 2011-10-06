@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -26,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
@@ -128,14 +128,14 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private ResponseContentStream createImageResponse(HttpSession session, String datasetCode,
-            String datasetTypeCode, ImageResolutionKind resolution)
+    private ResponseContentStream createImageResponse(HttpSession session, String dataSetCode,
+            String dataSetTypeCode, ImageResolutionKind resolution)
     {
-        @SuppressWarnings("deprecation")
-        File datasetRoot = createDataSetRootDirectory(datasetCode, session);
+        IHierarchicalContent content =
+                applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
         IDatasetImageOverviewPlugin plugin =
-                configuration.getDatasetImageOverviewPlugin(datasetTypeCode);
-        return plugin.createImageOverview(datasetCode, datasetTypeCode, datasetRoot, resolution);
+                configuration.getDatasetImageOverviewPlugin(dataSetTypeCode);
+        return plugin.createImageOverview(dataSetCode, dataSetTypeCode, content, resolution);
     }
 
     // static initialization is used to simplify usage of properties

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -52,7 +53,8 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
         super(dataSets);
     }
 
-    public void execute(final IDataSetDirectoryProvider dataSetDirectoryProvider)
+    public void execute(final IHierarchicalContentProvider contentProvider,
+            final IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
         final IShareIdManager shareIdManager = dataSetDirectoryProvider.getShareIdManager();
         final ISimpleLogger logger = createLogger();

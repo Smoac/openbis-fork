@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -78,6 +79,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final MailClientParameters mailClientParameters;
 
     private final PluginTaskProviders pluginTaskParameters;
+
+    private IHierarchicalContentProvider hierarchicalContentProvider;
 
     private IShareIdManager shareIdManager;
 
@@ -318,8 +321,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         try
         {
             return task.createReport(datasets, new DataSetProcessingContext(
-                    new DataSetDirectoryProvider(storeRoot, manager),
-                    new HashMap<String, String>(), null, null, userSessionToken));
+                    getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
+                            manager), new HashMap<String, String>(), null, null, userSessionToken));
 
         } finally
         {
@@ -455,4 +458,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return shareIdManager;
     }
 
+    private IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (hierarchicalContentProvider == null)
+        {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
+    }
 }

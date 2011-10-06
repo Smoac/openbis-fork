@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
@@ -28,27 +25,10 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
  */
 public class HCSImageDatasetLoaderFactory
 {
-    private static final Map<String, IContentRepositoryFactory> repositoryFactories =
-            createFactories();
-
     /** the loader has to be closed when it is not used any more to free database resources! */
-    public static final IImagingDatasetLoader create(File datasetRootDir, String datasetCode)
+    public static final IImagingDatasetLoader create(IHierarchicalContent content,
+            String datasetCode)
     {
-        IContentRepository repository = createContentRepository(datasetRootDir);
-        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
+        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, content);
     }
-
-    private static Map<String, IContentRepositoryFactory> createFactories()
-    {
-        Map<String, IContentRepositoryFactory> factories =
-                new HashMap<String, IContentRepositoryFactory>();
-        factories.put("h5", new Hdf5BasedContentRepositoryFactory());
-        return factories;
-    }
-
-    public static IContentRepository createContentRepository(File datasetRootDir)
-    {
-        return new ContentRepository(datasetRootDir, repositoryFactories);
-    }
-
 }

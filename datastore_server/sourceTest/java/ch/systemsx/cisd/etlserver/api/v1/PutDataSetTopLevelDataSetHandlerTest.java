@@ -36,9 +36,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -155,7 +155,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 new RecordingMatcher<DataSetInformation>();
         FileInfoDssDTO f1 = new FileInfoDssDTO("hello.txt", "hello", false, 12);
         File file1 = new File(incomingDir, DATA_SET_CODE + "/" + f1.getPathInDataSet());
-        List<IContent> contents =
+        List<IHierarchicalContentNode> contents =
                 prepareRegistrator(file1, Arrays.asList(file1), Arrays.asList("hello world"),
                         dataSetInfoMatcher);
         NewDataSetDTO newDataSet = new NewDataSetDTO(dataSetOwner, null, Arrays.asList(f1));
@@ -206,7 +206,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         FileInfoDssDTO f2 = new FileInfoDssDTO("subdir/hi.txt", "hi", false, 10);
         File file2 = new File(dataSet, f2.getPathInDataSet());
         FileInfoDssDTO d1 = new FileInfoDssDTO("subdir", "subdir", true, 12);
-        List<IContent> contents =
+        List<IHierarchicalContentNode> contents =
                 prepareRegistrator(dataSet, Arrays.asList(file1, file2),
                         Arrays.asList("hello world", "hi universe"), dataSetInfoMatcher);
         NewDataSetDTO newDataSet =
@@ -229,8 +229,8 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         assertEquals("", logRecorder.getLogContent());
     }
 
-    private List<IContent> prepareRegistrator(final File dataSet, final List<File> files,
-            final List<String> contents,
+    private List<IHierarchicalContentNode> prepareRegistrator(final File dataSet,
+            final List<File> files, final List<String> contents,
             final RecordingMatcher<DataSetInformation> dataSetInfoMatcher)
     {
         context.checking(new Expectations()
@@ -264,11 +264,11 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                 }
             });
 
-        List<IContent> result = new ArrayList<IContent>();
+        List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
         for (int i = 0; i < files.size(); i++)
         {
             File file = files.get(i);
-            result.add(new ByteArrayBasedContent(contents.get(i).getBytes(), file.getName()));
+            result.add(new ByteArrayBasedContentNode(contents.get(i).getBytes(), file.getName()));
         }
         return result;
     }

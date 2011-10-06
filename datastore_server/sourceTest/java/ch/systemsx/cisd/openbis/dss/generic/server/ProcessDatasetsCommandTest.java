@@ -123,7 +123,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                     will(returnValue(status));
                 }
             });
-        command.execute(null);
+        command.execute(null, null);
 
         assertEquals("['" + EXAMPLE_TASK_LABEL + "' processing finished]", subjectRecorder
                 .getRecordedObjects().toString());
@@ -147,7 +147,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
             });
         try
         {
-            command.execute(null);
+            command.execute(null, null);
             fail("IllegalStateException expected.");
         } catch (IllegalStateException e)
         {
@@ -172,7 +172,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
                             .process(with(dataSets), with(createDataSetProcessingContext(MESSAGE)));
                 }
             });
-        command.execute(null);
+        command.execute(null, null);
 
         assertEquals("[null]", subjectRecorder.getRecordedObjects().toString());
         assertEquals("[hello]", contentRecorder.getRecordedObjects().toString());
@@ -192,7 +192,7 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
             });
         try
         {
-            command.execute(null);
+            command.execute(null, null);
             fail("RuntimeException expected");
         } catch (RuntimeException e)
         {

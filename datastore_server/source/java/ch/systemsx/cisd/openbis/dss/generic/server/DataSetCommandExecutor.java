@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -55,6 +56,8 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     private final IExtendedBlockingQueue<IDataSetCommand> commandQueue;
 
     private IShareIdManager shareIdManager;
+
+    private IHierarchicalContentProvider hierarchicalContentProvider;
 
     public DataSetCommandExecutor(File store, File queueDir)
     {
@@ -101,7 +104,8 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 {
                                     manager.lock(dataSetCode);
                                 }
-                                command.execute(new DataSetDirectoryProvider(store, manager));
+                                command.execute(getHierarchicalContentProvider(),
+                                        new DataSetDirectoryProvider(store, manager));
                             } catch (RuntimeException e)
                             {
                                 notificationLog.error("Error executing command '" + description
@@ -171,6 +175,15 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             shareIdManager = ServiceProvider.getShareIdManager();
         }
         return shareIdManager;
+    }
+
+    private IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        if (hierarchicalContentProvider == null)
+        {
+            hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return hierarchicalContentProvider;
     }
 
     /**

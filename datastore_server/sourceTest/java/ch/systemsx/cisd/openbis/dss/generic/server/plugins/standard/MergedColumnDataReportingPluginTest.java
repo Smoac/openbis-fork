@@ -44,8 +44,8 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
 {
     private static final String SHARE_ID = "42";
 
-    private final static File dir =
-            new File("targets/unit-test-wd/MergedColumnDataReportingPluginTest");
+    private final static File dir = new File(
+            "targets/unit-test-wd/MergedColumnDataReportingPluginTest");
 
     @Test
     public void testMerge()
@@ -76,7 +76,7 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
         final DatasetDescription dsd3 = createDatasetDescription("c");
         final TableModel model =
                 plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3), new DataSetProcessingContext(
-                        new MockDataSetDirectoryProvider(dir, SHARE_ID), null, null, null));
+                        null, new MockDataSetDirectoryProvider(dir, SHARE_ID), null, null, null));
         assertEquals(4, model.getHeader().size());
         assertEquals("key", model.getHeader().get(0).getTitle());
         assertEquals("val1", model.getHeader().get(1).getTitle());

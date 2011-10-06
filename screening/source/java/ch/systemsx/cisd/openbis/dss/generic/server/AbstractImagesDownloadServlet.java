@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,9 +26,9 @@ import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
 /**
  * ABstract class for servlets which allow to download screening images in a chosen size for a
@@ -45,7 +44,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
      * @throw EnvironmentFailureException if image does not exist
      */
     protected abstract ResponseContentStream createImageResponse(ImageGenerationDescription params,
-            IDatasetDirectoryProvider datasetDirectoryProvider) throws IOException,
+            IHierarchicalContentProvider contentProvider) throws IOException,
             EnvironmentFailureException;
 
     @Override
@@ -88,7 +87,8 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         ResponseContentStream responseStream;
         try
         {
-            responseStream = createImageResponse(params, createDatasetDirectoryProvider(session));
+            responseStream =
+                    createImageResponse(params, applicationContext.getHierarchicalContentProvider());
         } catch (HighLevelException e)
         {
             operationLog.warn(e.getMessage());
@@ -97,17 +97,6 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         }
         logImageDelivery(params, responseStream, (System.currentTimeMillis() - start));
         writeResponseContent(responseStream, response);
-    }
-
-    private IDatasetDirectoryProvider createDatasetDirectoryProvider(final HttpSession session)
-    {
-        return new IDatasetDirectoryProvider()
-            {
-                public File getDatasetRoot(String datasetCode)
-                {
-                    return createDataSetRootDirectory(datasetCode, session);
-                }
-            };
     }
 
     private void ensureDatasetsAccessible(ImageGenerationDescription params, HttpSession session,

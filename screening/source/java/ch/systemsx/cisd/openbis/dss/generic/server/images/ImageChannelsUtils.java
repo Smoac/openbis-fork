@@ -33,8 +33,9 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.image.MixColors;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackR
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -99,7 +101,7 @@ public class ImageChannelsUtils
      * @param datasetDirectoryProvider
      */
     public static ResponseContentStream getImageStream(ImageGenerationDescription params,
-            IDatasetDirectoryProvider datasetDirectoryProvider)
+            IHierarchicalContentProvider contentProvider)
     {
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
 
@@ -110,8 +112,8 @@ public class ImageChannelsUtils
             RequestedImageSize imageSize = new RequestedImageSize(thumbnailSizeOrNull, false);
             image =
                     calculateBufferedImage(imageChannels,
-                            params.tryGetSingleChannelTransformationCode(),
-                            datasetDirectoryProvider, imageSize);
+                            params.tryGetSingleChannelTransformationCode(), contentProvider,
+                            imageSize);
         }
 
         RequestedImageSize overlaySize = calcOverlaySize(image, thumbnailSizeOrNull);
@@ -120,8 +122,7 @@ public class ImageChannelsUtils
             // NOTE: never merges the overlays, draws each channel separately (merging looses
             // transparency and is slower)
             List<ImageWithReference> overlayImages =
-                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize,
-                            datasetDirectoryProvider);
+                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize, contentProvider);
             for (ImageWithReference overlayImage : overlayImages)
             {
                 if (image != null)
@@ -142,10 +143,10 @@ public class ImageChannelsUtils
 
     private static List<ImageWithReference> getSingleImagesSkipNonExisting(
             DatasetAcquiredImagesReference imagesReference, RequestedImageSize imageSize,
-            IDatasetDirectoryProvider datasetDirectoryProvider)
+            IHierarchicalContentProvider contentProvider)
     {
         ImageChannelsUtils utils =
-                createImageChannelsUtils(imagesReference, datasetDirectoryProvider, imageSize);
+                createImageChannelsUtils(imagesReference, contentProvider, imageSize);
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 utils.fetchImageContents(imagesReference, mergeAllChannels, true);
@@ -185,17 +186,17 @@ public class ImageChannelsUtils
     private static ResponseContentStream createResponseContentStream(BufferedImage image,
             String nameOrNull)
     {
-        IContent imageContent = createPngContent(image, nameOrNull);
+        IHierarchicalContentNode imageContent = createPngContent(image, nameOrNull);
         return asResponseContentStream(imageContent);
     }
 
     private static BufferedImage calculateBufferedImage(
             DatasetAcquiredImagesReference imageChannels,
             String singleChannelTransformationCodeOrNull,
-            IDatasetDirectoryProvider datasetDirectoryProvider, RequestedImageSize imageSizeLimit)
+            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
     {
         ImageChannelsUtils imageChannelsUtils =
-                createImageChannelsUtils(imageChannels, datasetDirectoryProvider, imageSizeLimit);
+                createImageChannelsUtils(imageChannels, contentProvider, imageSizeLimit);
 
         boolean useMergedChannelsTransformation =
                 imageChannelsUtils.isMergeAllChannels(imageChannels);
@@ -208,10 +209,9 @@ public class ImageChannelsUtils
 
     private static ImageChannelsUtils createImageChannelsUtils(
             DatasetAcquiredImagesReference imageChannels,
-            IDatasetDirectoryProvider datasetDirectoryProvider, RequestedImageSize imageSizeLimit)
+            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
     {
-        IImagingDatasetLoader imageAccessor =
-                createImageAccessor(imageChannels, datasetDirectoryProvider);
+        IImagingDatasetLoader imageAccessor = createImageAccessor(imageChannels, contentProvider);
         return new ImageChannelsUtils(
                 ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
                 imageSizeLimit);
@@ -276,21 +276,22 @@ public class ImageChannelsUtils
 
     private static IImagingDatasetLoader createImageAccessor(
             DatasetAcquiredImagesReference imagesReference,
-            IDatasetDirectoryProvider datasetDirectoryProvider)
+            IHierarchicalContentProvider contentProvider)
     {
         String datasetCode = imagesReference.getDatasetCode();
-        File datasetRoot = datasetDirectoryProvider.getDatasetRoot(datasetCode);
-        return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        IHierarchicalContent dataSetRoot = contentProvider.asContent(datasetCode);
+        return HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
     }
 
     /**
      * Returns content of the image which is representative for the given dataset.
      */
-    public static ResponseContentStream getRepresentativeImageStream(File datasetRoot,
-            String datasetCode, Location wellLocationOrNull, Size imageSizeLimitOrNull)
+    public static ResponseContentStream getRepresentativeImageStream(
+            IHierarchicalContent dataSetRoot, String datasetCode, Location wellLocationOrNull,
+            Size imageSizeLimitOrNull)
     {
         IImagingDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
+                HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
         List<AbsoluteImageReference> imageReferences =
                 new ImageChannelsUtils(
                         ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
@@ -319,16 +320,18 @@ public class ImageChannelsUtils
         return name;
     }
 
-    private static ResponseContentStream asResponseContentStream(IContent image)
+    private static ResponseContentStream asResponseContentStream(
+            IHierarchicalContentNode imageContent)
     {
-        return ResponseContentStream.create(image.getInputStream(), image.getSize(),
-                ImageChannelsUtils.IMAGES_CONTENT_TYPE, image.tryGetName());
+        return ResponseContentStream.create(imageContent.getInputStream(),
+                imageContent.getFileLength(), ImageChannelsUtils.IMAGES_CONTENT_TYPE,
+                imageContent.getName());
     }
 
     /**
      * @return an image for the specified tile in the specified size and for the requested channel.
      */
-    public static IContent getImage(IImagingLoaderStrategy imageLoaderStrategy,
+    public static IHierarchicalContentNode getImage(IImagingLoaderStrategy imageLoaderStrategy,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size imageSizeLimitOrNull, String singleChannelImageTransformationCodeOrNull,
             boolean convertToPng, boolean transform)
@@ -344,10 +347,10 @@ public class ImageChannelsUtils
         List<AbsoluteImageReference> imageContents =
                 imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
 
-        IContent rawContent = tryGetRawContent(convertToPng, imageContents);
-        if (rawContent != null)
+        IHierarchicalContentNode contentNode = tryGetRawContent(convertToPng, imageContents);
+        if (contentNode != null)
         {
-            return rawContent;
+            return contentNode;
         }
         ImageTransformationParams transformationInfo =
                 new ImageTransformationParams(transform, mergeAllChannels,
@@ -376,7 +379,7 @@ public class ImageChannelsUtils
 
     // optimization: if there is exactly one image reference, maybe its original raw content is the
     // appropriate answer?
-    private static IContent tryGetRawContent(boolean convertToPng,
+    private static IHierarchicalContentNode tryGetRawContent(boolean convertToPng,
             List<AbsoluteImageReference> imageContents)
     {
         if (imageContents.size() == 1 && convertToPng == false)
@@ -448,7 +451,6 @@ public class ImageChannelsUtils
         {
             operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
         }
-
 
         // resized the image if necessary
         RequestedImageSize requestedSize = imageReference.getRequestedSize();
@@ -814,10 +816,10 @@ public class ImageChannelsUtils
         return newImage;
     }
 
-    private static IContent createPngContent(BufferedImage image, String nameOrNull)
+    private static IHierarchicalContentNode createPngContent(BufferedImage image, String nameOrNull)
     {
         final byte[] output = ImageUtil.imageToPngFast(image);
-        return new ByteArrayBasedContent(output, nameOrNull);
+        return new ByteArrayBasedContentNode(output, nameOrNull);
     }
 
 }

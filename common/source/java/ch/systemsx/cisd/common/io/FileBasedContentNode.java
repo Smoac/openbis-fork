@@ -21,24 +21,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * File content. Wraps an instance of {@link File}.
  * 
  * @author Franz-Josef Elmer
  */
-public class FileBasedContent implements IContent
+public class FileBasedContentNode implements IHierarchicalContentNode
 {
     private final File file;
 
     /**
      * Creates an instance based on the specified file.
      */
-    public FileBasedContent(File file)
+    public FileBasedContentNode(File file)
     {
         this.file = file;
     }
@@ -49,14 +52,6 @@ public class FileBasedContent implements IContent
     public String tryGetName()
     {
         return file.getName();
-    }
-
-    /**
-     * Returns the length of the wrapped file.
-     */
-    public long getSize()
-    {
-        return file.length();
     }
 
     /**
@@ -81,7 +76,48 @@ public class FileBasedContent implements IContent
         }
     }
 
-    public IRandomAccessFile getReadOnlyRandomAccessFile()
+    public String getName()
+    {
+        return file.getName();
+    }
+
+    public String getRelativePath()
+    {
+        return file.getPath();
+    }
+
+    public String getParentRelativePath()
+    {
+        return file.getParent();
+    }
+
+    public boolean isDirectory()
+    {
+        return file.isDirectory();
+    }
+
+    public long getLastModified()
+    {
+        return file.lastModified();
+    }
+
+    public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public File getFile() throws UnsupportedOperationException
+    {
+        return file;
+    }
+
+    public long getFileLength() throws UnsupportedOperationException
+    {
+        return file.length();
+    }
+
+    public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
+            IOExceptionUnchecked
     {
         return new RandomAccessFileImpl(file, "r");
     }

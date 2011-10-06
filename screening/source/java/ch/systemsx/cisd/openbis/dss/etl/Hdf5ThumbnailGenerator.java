@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5WriterClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerWriter;
-import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
@@ -103,7 +103,8 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             String imageIdOrNull = imageReference.tryGetImageID();
             byte[] byteArray = generateThumbnail(bufferOutputStream, img, imageIdOrNull);
             String path =
-                    relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + thumbnailPath;
+                    relativeThumbnailFilePath + AbstractImageStorageProcessor.ARCHIVE_DELIMITER
+                            + thumbnailPath;
             plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, null,
                     imageReference.tryGetColorComponent()));
 
@@ -201,7 +202,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private BufferedImage loadUnchangedImage(File imageFile, String imageIdOrNull)
     {
-        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContent(imageFile),
+        return AbsoluteImageReference.loadUnchangedImage(new FileBasedContentNode(imageFile),
                 imageIdOrNull, imageLibraryOrNull);
     }
 

@@ -26,9 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
@@ -55,13 +55,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDatasetLoader
 {
-    private final IContentRepository contentRepository;
+    private final IHierarchicalContent content;
 
     public ImagingDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId,
-            IContentRepository contentRepository)
+            IHierarchicalContent content)
     {
         super(query, datasetPermId);
-        this.contentRepository = contentRepository;
+        this.content = content;
     }
 
     /**
@@ -131,12 +131,12 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             ImgChannelDTO channel, RequestedImageSize imageSize, boolean useNativeImageLibrary)
     {
         String path = imageDTO.getFilePath();
-        IContent content = contentRepository.getContent(path);
+        IHierarchicalContentNode contentNode = content.getNode(path);
         ColorComponent colorComponent = imageDTO.getColorComponent();
         ImageTransfomationFactories imageTransfomationFactories =
                 createImageTransfomationFactories(imageDTO, channel);
         ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
-        return new AbsoluteImageReference(content, path, imageDTO.getImageID(), colorComponent,
+        return new AbsoluteImageReference(contentNode, path, imageDTO.getImageID(), colorComponent,
                 imageSize, getColor(channel), imageTransfomationFactories, imageLibrary);
     }
 

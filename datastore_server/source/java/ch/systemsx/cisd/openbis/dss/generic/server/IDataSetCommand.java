@@ -20,19 +20,21 @@ import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 
 /**
  * Interface of all commands operating on data sets in a data store.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 interface IDataSetCommand extends Serializable
 {
     /**
-     * Executes the command on files in the provided data set directories. 
+     * Executes the command on files in the provided data set directories.
      */
-    void execute(IDataSetDirectoryProvider dataSetDirectoryProvider);
-    
+    void execute(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider dataSetDirectoryProvider);
+
     /**
      * Returns a textual description of this command.
      */

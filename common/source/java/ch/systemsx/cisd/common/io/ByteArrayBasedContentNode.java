@@ -17,45 +17,40 @@
 package ch.systemsx.cisd.common.io;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Date;
+import java.util.List;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Content based on an array of bytes.
  * 
  * @author Franz-Josef Elmer
  */
-public class ByteArrayBasedContent implements IContent
+public class ByteArrayBasedContentNode implements IHierarchicalContentNode
 {
     private final byte[] byteArray;
 
     private final String nameOrNull;
+
+    private long lastModified;
 
     /**
      * Creates an instance for the specified byte array.
      * 
      * @param nameOrNull Name of the content or null
      */
-    public ByteArrayBasedContent(byte[] byteArray, String nameOrNull)
+    public ByteArrayBasedContentNode(byte[] byteArray, String nameOrNull)
     {
         this.byteArray = byteArray;
         this.nameOrNull = nameOrNull;
-    }
-
-    public String tryGetName()
-    {
-        return nameOrNull;
-    }
-
-    /**
-     * Returns the number of bytes in the array.
-     */
-    public long getSize()
-    {
-        return byteArray.length;
+        this.lastModified = new Date().getTime();
     }
 
     /**
@@ -74,7 +69,48 @@ public class ByteArrayBasedContent implements IContent
         return new ByteArrayInputStream(byteArray);
     }
 
-    public IRandomAccessFile getReadOnlyRandomAccessFile()
+    public String getName()
+    {
+        return nameOrNull;
+    }
+
+    public String getRelativePath()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getParentRelativePath()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isDirectory()
+    {
+        return false;
+    }
+
+    public long getLastModified()
+    {
+        return lastModified;
+    }
+
+    public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public File getFile() throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getFileLength() throws UnsupportedOperationException
+    {
+        return byteArray.length;
+    }
+
+    public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
+            IOExceptionUnchecked
     {
         return new ByteBufferRandomAccessFile(ByteBuffer.wrap(byteArray));
     }

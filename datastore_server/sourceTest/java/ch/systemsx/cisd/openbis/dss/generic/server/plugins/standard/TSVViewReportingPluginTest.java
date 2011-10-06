@@ -37,22 +37,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
 {
     private static final String SHARE_ID = "42";
+
     private static final String TEST_FILE = "test.txt";
-    
+
     private File store;
 
     private File dataSetInStore;
 
     private DatasetDescription datasetDescription;
+
     private DataSetProcessingContext processingContext;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -64,8 +64,9 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         datasetDescription.setDataSetCode("ds1");
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
-        processingContext = new DataSetProcessingContext(
-                new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, null);
+        processingContext =
+                new DataSetProcessingContext(null,
+                        new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, null);
     }
 
     @Test
@@ -75,7 +76,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(new Properties(), store);
         TableModel tableModel =
                 plugin.createReport(Arrays.asList(datasetDescription), processingContext);
-        
+
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals("a", headers.get(0).getTitle());
         assertEquals("A", headers.get(0).getId());
@@ -87,7 +88,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         assertEquals("[, 4]", rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
     }
-    
+
     @Test
     public void testCreateReportFailingBecauseOfInvalidNumberOfCells()
     {
@@ -95,7 +96,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY, "true");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(properties, store);
-        
+
         try
         {
             plugin.createReport(Arrays.asList(datasetDescription), processingContext);
@@ -106,24 +107,19 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
                     + "1. data row (3) in Data Set 'ds1' file.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testIgnoringCommentAndTrailingEmptyCells()
     {
-        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), 
-                "a\tb\n" +
-                "#comment\n" +
-                "1\ta\t\t\n" +
-                "2\tb\t\n" +
-                "3\tc\n" +
-        "4\t\n");
+        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\tb\n" + "#comment\n"
+                + "1\ta\t\t\n" + "2\tb\t\n" + "3\tc\n" + "4\t\n");
         Properties properties = new Properties();
         properties.setProperty(IGNORE_COMMENTS_PROPERTY_KEY, "true");
         properties.setProperty(IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY, "true");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(properties, store);
         TableModel tableModel =
                 plugin.createReport(Arrays.asList(datasetDescription), processingContext);
-        
+
         assertEquals("[a, b]", tableModel.getHeader().toString());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals("[1, a]", rows.get(0).getValues().toString());

@@ -38,9 +38,9 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -719,8 +719,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), true);
                     ConcatenatedContentInputStream s1 =
                             new ConcatenatedContentInputStream(true, Arrays
-                                    .<IContent> asList(new ByteArrayBasedContent("hello 1"
-                                            .getBytes(), "h1")));
+                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                                            "hello 1".getBytes(), "h1")));
                     will(returnValue(s1));
 
                     one(outputStreamProvider).getOutputStream(r1);
@@ -729,8 +729,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), true);
                     ConcatenatedContentInputStream s2 =
                             new ConcatenatedContentInputStream(true, Arrays
-                                    .<IContent> asList(new ByteArrayBasedContent("hello 2"
-                                            .getBytes(), "h2")));
+                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                                            "hello 2".getBytes(), "h2")));
                     will(returnValue(s2));
 
                     one(outputStreamProvider).getOutputStream(r2);
@@ -761,15 +761,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), config);
                     ConcatenatedContentInputStream s1 =
                             new ConcatenatedContentInputStream(true, Arrays
-                                    .<IContent> asList(new ByteArrayBasedContent("hello 1"
-                                            .getBytes(), "h1")));
+                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                                            "hello 1".getBytes(), "h1")));
                     will(returnValue(s1));
 
                     one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), config);
                     ConcatenatedContentInputStream s2 =
                             new ConcatenatedContentInputStream(true, Arrays
-                                    .<IContent> asList(new ByteArrayBasedContent("hello 2"
-                                            .getBytes(), "h2")));
+                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                                            "hello 2".getBytes(), "h2")));
                     will(returnValue(s2));
                 }
             });
@@ -846,13 +846,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 {
                     one(dssService1).loadImages(SESSION_TOKEN, ds, wellPositions, channel,
                             thumbnailSize);
-                    ByteArrayBasedContent content1 =
-                            new ByteArrayBasedContent("hello 1".getBytes(), "h1");
-                    ByteArrayBasedContent content2 =
-                            new ByteArrayBasedContent("hello 2".getBytes(), "h2");
+                    ByteArrayBasedContentNode content1 =
+                            new ByteArrayBasedContentNode("hello 1".getBytes(), "h1");
+                    ByteArrayBasedContentNode content2 =
+                            new ByteArrayBasedContentNode("hello 2".getBytes(), "h2");
                     ConcatenatedContentInputStream stream =
-                            new ConcatenatedContentInputStream(true, Arrays.<IContent> asList(
-                                    content1, content2));
+                            new ConcatenatedContentInputStream(true, Arrays
+                                    .<IHierarchicalContentNode> asList(content1, content2));
                     will(returnValue(stream));
                 }
             });
@@ -883,13 +883,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     will(returnValue(references));
 
                     one(dssService1).loadImages(SESSION_TOKEN, references, thumbnailSize);
-                    ByteArrayBasedContent content1 =
-                            new ByteArrayBasedContent("hello 1".getBytes(), "h1");
-                    ByteArrayBasedContent content2 =
-                            new ByteArrayBasedContent("hello 2".getBytes(), "h2");
+                    ByteArrayBasedContentNode content1 =
+                            new ByteArrayBasedContentNode("hello 1".getBytes(), "h1");
+                    ByteArrayBasedContentNode content2 =
+                            new ByteArrayBasedContentNode("hello 2".getBytes(), "h2");
                     ConcatenatedContentInputStream stream =
-                            new ConcatenatedContentInputStream(true, Arrays.<IContent> asList(
-                                    content1, content2));
+                            new ConcatenatedContentInputStream(true, Arrays
+                                    .<IHierarchicalContentNode> asList(content1, content2));
                     will(returnValue(stream));
                 }
             });
@@ -928,10 +928,12 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 }
             });
 
-        try {
+        try
+        {
             facade.loadThumbnailImageWellCaching(imageRef);
             fail("RuntimeException expected");
-        } catch (RuntimeException rex) {
+        } catch (RuntimeException rex)
+        {
             assertEquals("No thumbnail images for data set 'ds1' have been found on the server",
                     rex.getMessage());
         }
@@ -1266,7 +1268,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         assertEquals("[dir, dir/hello.txt, readme]", paths.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetDataSetMetaData()
     {
@@ -1279,10 +1281,10 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                             new DataSet(dataSetInitializer("ds2")))));
                 }
             });
-        
+
         List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> dataSets =
                 facade.getDataSetMetaData(Arrays.asList("ds1", "ds2"));
-        
+
         assertEquals("ds1", dataSets.get(0).getCode());
         assertEquals("ds2", dataSets.get(1).getCode());
         assertEquals(2, dataSets.size());

@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.dynamix.IntensityRangeReductionFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.ColorRangeCalculator.ImagePixelsRange;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -65,7 +65,7 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
 
     @Override
     protected IImageTransformerFactoryProvider getTransformationProvider(
-            List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository)
+            List<ImgImageEnrichedDTO> spotImages, IHierarchicalContent hierarchicalContent)
     {
         if (spotImages.size() < 2)
         {
@@ -75,7 +75,7 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
                 new HashMap<ImgImageEnrichedDTO, ImagePixelsRange>();
         for (ImgImageEnrichedDTO image : spotImages)
         {
-            BufferedImage bufferedImage = loadImage(contentRepository, image);
+            BufferedImage bufferedImage = loadImage(hierarchicalContent, image);
             ImagePixelsRange imageRange =
                     ColorRangeCalculator.calculatePixelsRange(bufferedImage, minRescaledColor,
                             maxRescaledColor);
@@ -86,11 +86,11 @@ public class DynamixWellBrightnessEqualizerProcessingPlugin extends
 
     // --- DynamiX specific part ----------------
 
-    private static BufferedImage loadImage(IContentRepository contentRepository,
+    private static BufferedImage loadImage(IHierarchicalContent hierarchicalContent,
             ImgImageEnrichedDTO image)
     {
-        IContent content = contentRepository.getContent(image.getFilePath());
-        return ImageUtil.loadJavaAdvancedImagingTiff(content.getReadOnlyRandomAccessFile(),
+        IHierarchicalContentNode contentNode = hierarchicalContent.getNode(image.getFilePath());
+        return ImageUtil.loadJavaAdvancedImagingTiff(contentNode.getFileContent(),
                 ImageUtil.parseImageID(image.getImageID()));
     }
 

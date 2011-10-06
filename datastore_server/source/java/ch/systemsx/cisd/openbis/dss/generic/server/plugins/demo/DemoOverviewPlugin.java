@@ -27,6 +27,7 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDatasetImageOverviewPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
@@ -54,7 +55,7 @@ public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
     }
 
     public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
-            File datasetRoot, ImageResolutionKind resolution)
+            IHierarchicalContent datasetRoot, ImageResolutionKind resolution)
     {
         System.out.println(String.format("%s (%s): create image for\n"
                 + "\tdataset code: %s\n\tdataset type: %s\n\tresolution: %s", this.getClass()

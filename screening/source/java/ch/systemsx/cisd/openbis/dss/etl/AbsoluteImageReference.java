@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.awt.image.BufferedImage;
 
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 // TODO 2010-12-23, Tomasz Pylak: rename to ImageContent
 public class AbsoluteImageReference extends AbstractImageReference
 {
-    private final IContent content;
+    private final IHierarchicalContentNode contentNode;
 
     private final String uniqueId;
 
@@ -51,16 +51,17 @@ public class AbsoluteImageReference extends AbstractImageReference
     /**
      * @param content is the original content before choosing the color component and the image ID
      */
-    public AbsoluteImageReference(IContent content, String uniqueId, String imageIdOrNull,
-            ColorComponent colorComponentOrNull, RequestedImageSize imageSize,
-            ChannelColorRGB channelColor, ImageTransfomationFactories imageTransfomationFactories,
+    public AbsoluteImageReference(IHierarchicalContentNode contentNode, String uniqueId,
+            String imageIdOrNull, ColorComponent colorComponentOrNull,
+            RequestedImageSize imageSize, ChannelColorRGB channelColor,
+            ImageTransfomationFactories imageTransfomationFactories,
             ImageLibraryInfo imageLibraryOrNull)
     {
         super(imageIdOrNull, colorComponentOrNull);
         assert imageSize != null : "image size is null";
         assert imageTransfomationFactories != null : "imageTransfomationFactories is null";
 
-        this.content = content;
+        this.contentNode = contentNode;
         this.uniqueId = uniqueId;
         this.imageSize = imageSize;
         this.channelColor = channelColor;
@@ -82,12 +83,12 @@ public class AbsoluteImageReference extends AbstractImageReference
      *         content. This method is provided to allow the fastest possible access to original
      *         images.
      */
-    public IContent tryGetRawContent()
+    public IHierarchicalContentNode tryGetRawContent()
     {
         if (tryGetColorComponent() == null && tryGetImageID() == null
                 && getRequestedSize().isThumbnailRequired() == false)
         {
-            return content;
+            return contentNode;
         } else
         {
             return null;
@@ -98,13 +99,13 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         if (image == null)
         {
-            image = loadUnchangedImage(content, tryGetImageID(), imageLibraryOrNull);
+            image = loadUnchangedImage(contentNode, tryGetImageID(), imageLibraryOrNull);
         }
         return image;
     }
 
-    static BufferedImage loadUnchangedImage(IContent content, String imageIdOrNull,
-            ImageLibraryInfo imageLibraryOrNull)
+    static BufferedImage loadUnchangedImage(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
     {
         String imageLibraryNameOrNull = null;
         String imageLibraryReaderNameOrNull = null;
@@ -113,7 +114,7 @@ public class AbsoluteImageReference extends AbstractImageReference
             imageLibraryNameOrNull = imageLibraryOrNull.getName();
             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
         }
-        return ImageUtil.loadUnchangedImage(content, imageIdOrNull, imageLibraryNameOrNull,
+        return ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
                 imageLibraryReaderNameOrNull, null);
     }
 
@@ -135,7 +136,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
-        return new AbsoluteImageReference(content, uniqueId, tryGetImageID(), colorComponent,
+        return new AbsoluteImageReference(contentNode, uniqueId, tryGetImageID(), colorComponent,
                 imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull);
 
     }

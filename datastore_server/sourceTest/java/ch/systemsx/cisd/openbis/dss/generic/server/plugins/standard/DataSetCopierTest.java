@@ -52,11 +52,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = {DataSetCopier.class, AbstractDropboxProcessingPlugin.class})
+@Friend(toClasses =
+    { DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
     private static final String SHARE_ID = "42";
-    
+
     private static final String USER_EMAIL = "a@bc.de";
 
     private static final String DS1_LOCATION = "ds1";
@@ -148,8 +149,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
         dummyContext =
-                new DataSetProcessingContext(new MockDataSetDirectoryProvider(storeRoot, SHARE_ID),
-                        null, mailClient, USER_EMAIL);
+                new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(storeRoot,
+                        SHARE_ID), null, mailClient, USER_EMAIL);
         context.checking(new Expectations()
             {
                 {
@@ -159,7 +160,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             });
     }
 
-    private DatasetDescription createDataSetDescription(String dataSetCode, String location, boolean withSample)
+    private DatasetDescription createDataSetDescription(String dataSetCode, String location,
+            boolean withSample)
     {
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSetCode);
@@ -246,8 +248,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         prepareCreateAndCheckCopier("host", null, 1, false);
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         try
         {
@@ -267,8 +268,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
         prepareCreateAndCheckCopier("host", "abc", 1, false);
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         try
         {
@@ -300,13 +300,14 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             });
         DataSetCopier dataSetCopier = createCopier();
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds1, ds2);
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyDataSetAndSendDetailedEMails()
     {
@@ -337,12 +338,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Data set ds3 [MY_DATA] successfully processed",
                 subjectRecorder.recordedObject());
-        assertEquals("Successfully processed data set ds3 [MY_DATA].\n\n"
-                + "Processing details:\n"
-                + "Description: Copy to tmp/test\n"
-                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
-                + "Started: 1970-01-01 01:00:00 +0100.\n"
-                + "Finished: 1970-01-01 01:00:00 +0100.",
+        assertEquals("Successfully processed data set ds3 [MY_DATA].\n\n" + "Processing details:\n"
+                + "Description: Copy to tmp/test\n" + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n" + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
@@ -379,12 +377,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals("Processing of data set ds3 [MY_DATA] failed",
                 subjectRecorder.recordedObject());
         assertEquals("Processing of data set ds3 [MY_DATA] failed.\nReason: copying failed\n\n"
-                + "Processing details:\n"
-                + "Description: Copy to tmp/test\n"
-                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
-                + "Started: 1970-01-01 01:00:00 +0100.\n"
-                + "Finished: 1970-01-01 01:00:00 +0100.",
-                contentRecorder.recordedObject());
+                + "Processing details:\n" + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n" + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.", contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
     }
@@ -419,14 +414,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Data set ds1 [MY_DATA] successfully processed",
                 subjectRecorder.recordedObject());
-        assertEquals("Successfully processed data set ds1 [MY_DATA].\n\n"
-                + "Processing details:\n"
-                + "Description: Copy to tmp/test\n"
-                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
-                + "Sample: /g/s [MY_SAMPLE]\n"
-                + "Started: 1970-01-01 01:00:00 +0100.\n"
-                + "Finished: 1970-01-01 01:00:00 +0100.",
-                contentRecorder.recordedObject());
+        assertEquals("Successfully processed data set ds1 [MY_DATA].\n\n" + "Processing details:\n"
+                + "Description: Copy to tmp/test\n" + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Sample: /g/s [MY_SAMPLE]\n" + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.", contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
     }
@@ -439,7 +430,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         prepareCreateAndCheckCopier(null, null, 1, true);
         final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
         final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
-        final RecordingMatcher<EMailAddress[]> recipientsRecorder = new RecordingMatcher<EMailAddress[]>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
         context.checking(new Expectations()
             {
                 {
@@ -461,17 +453,14 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals("Processing of data set ds1 [MY_DATA] failed",
                 subjectRecorder.recordedObject());
         assertEquals("Processing of data set ds1 [MY_DATA] failed.\nReason: copying failed\n\n"
-                + "Processing details:\n"
-                + "Description: Copy to tmp/test\n"
-                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
-                + "Sample: /g/s [MY_SAMPLE]\n"
-                + "Started: 1970-01-01 01:00:00 +0100.\n"
-                + "Finished: 1970-01-01 01:00:00 +0100.",
+                + "Processing details:\n" + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n" + "Sample: /g/s [MY_SAMPLE]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n" + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyLocallyFails()
     {
@@ -493,8 +482,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
@@ -527,8 +515,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
@@ -566,8 +553,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createTrue()));
                 }
             });
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
@@ -600,8 +586,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
@@ -634,10 +619,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier =
-                createCopier();
+        DataSetCopier dataSetCopier = createCopier();
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
 
         // processing first data set fails but second one is processed successfully
         Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
@@ -730,7 +715,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private DataSetCopier createCopier()
     {
         return new DataSetCopier(properties, storeRoot, pathFactory, sshFactory, timeProvider);

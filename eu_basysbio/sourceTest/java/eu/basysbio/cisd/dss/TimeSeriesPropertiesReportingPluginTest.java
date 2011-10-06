@@ -35,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemTestCase
@@ -48,14 +46,14 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
     {
         DatasetDescription ds1 =
                 createDataSet("ds1", "1::2::3::4::5::6::7::8::9::10::11::12\t"
-                                   + "1::2::3::44::5::66::7::8::99::101::11::121");
+                        + "1::2::3::44::5::66::7::8::99::101::11::121");
         DatasetDescription ds2 =
                 createDataSet("ds2", "1::2::3::4::5::6::7::8::9::10::11::12::13::14");
         IReportingPluginTask plugin =
                 new TimeSeriesPropertiesReportingPlugin(new Properties(), workingDirectory);
 
         TableModel table =
-                plugin.createReport(Arrays.asList(ds1, ds2), new DataSetProcessingContext(
+                plugin.createReport(Arrays.asList(ds1, ds2), new DataSetProcessingContext(null,
                         new MockDataSetDirectoryProvider(workingDirectory, SHARE_ID), null, null,
                         null));
         assertEquals("[CODE, TECHNICAL_REPLICATE_CODE_LIST, BIOLOGICAL_REPLICATE_CODE, "

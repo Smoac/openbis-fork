@@ -38,8 +38,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
@@ -256,7 +256,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 new RequestedImageSize(thumbnailSizeOrNull, false));
     }
 
-    public void assertPNG(IContent image)
+    public void assertPNG(IHierarchicalContentNode image)
     {
         InputStream inputStream = image.getInputStream();
         try
@@ -275,12 +275,12 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         }
     }
 
-    private static IContent image(String fileName)
+    private static IHierarchicalContentNode image(String fileName)
     {
-        return new FileBasedContent(new File(TEST_IMAGE_FOLDER, fileName));
+        return new FileBasedContentNode(new File(TEST_IMAGE_FOLDER, fileName));
     }
 
-    private String getImageContentDescription(IContent image)
+    private String getImageContentDescription(IHierarchicalContentNode image)
     {
         BufferedImage bufferedImage = ImageUtilTest.loadImage(image);
         return getImageContentDescription(bufferedImage);

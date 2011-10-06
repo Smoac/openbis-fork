@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 
 /**
@@ -40,7 +40,7 @@ public class ResetImageLevelTransformationProcessingPlugin extends
 
     @Override
     protected IImageTransformerFactoryProvider getTransformationProvider(
-            List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository)
+            List<ImgImageEnrichedDTO> spotImages, IHierarchicalContent hierarchicalContent)
     {
         return NO_TRANSFORMATION_PROVIDER;
     }

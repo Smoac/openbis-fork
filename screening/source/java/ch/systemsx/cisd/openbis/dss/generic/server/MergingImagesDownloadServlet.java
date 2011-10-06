@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
@@ -54,17 +54,17 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet 
      **/
     @Override
     protected final ResponseContentStream createImageResponse(ImageGenerationDescription params,
-            IDatasetDirectoryProvider datasetDirectoryProvider)
-            throws IOException, EnvironmentFailureException
+            IHierarchicalContentProvider contentProvider) throws IOException,
+            EnvironmentFailureException
     {
-        return ImageChannelsUtils.getImageStream(params, datasetDirectoryProvider);
+        return ImageChannelsUtils.getImageStream(params, contentProvider);
     }
 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(200, 120);
 
     /** Provides overview of microscopy datasets. */
     public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
-            File datasetRoot, ImageResolutionKind resolution)
+            IHierarchicalContent datasetRoot, ImageResolutionKind resolution)
     {
         Size thumbnailSize = tryGetThumbnailSize(resolution);
         return ImageChannelsUtils.getRepresentativeImageStream(datasetRoot, datasetCode, null,

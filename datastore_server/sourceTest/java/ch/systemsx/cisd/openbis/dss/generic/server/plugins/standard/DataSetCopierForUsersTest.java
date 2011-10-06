@@ -110,7 +110,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         MockDataSetDirectoryProvider directoryProvider =
                 new MockDataSetDirectoryProvider(storeRoot, DEFAULT_SHARE_ID);
         dataSetProcessingContext =
-                new DataSetProcessingContext(directoryProvider, parameterBindings, null, null);
+                new DataSetProcessingContext(null, directoryProvider, parameterBindings, null, null);
     }
 
     @AfterMethod

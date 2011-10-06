@@ -22,9 +22,8 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -46,7 +45,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         implements IProcessingPluginTask
 {
     protected abstract IImageTransformerFactoryProvider getTransformationProvider(
-            List<ImgImageEnrichedDTO> spotImages, IContentRepository contentRepository);
+            List<ImgImageEnrichedDTO> spotImages, IHierarchicalContent hierarchicalContent);
 
     protected static final IImageTransformerFactoryProvider NO_TRANSFORMATION_PROVIDER =
             new IImageTransformerFactoryProvider()
@@ -72,25 +71,26 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
         this.channelCode = PropertyUtils.getMandatoryProperty(properties, CHANNEL_CODE_PROPERTY);
     }
 
-    public ProcessingStatus process(List<DatasetDescription> datasets,
+    public ProcessingStatus process(List<DatasetDescription> dataSets,
             DataSetProcessingContext context)
     {
         IImagingTransformerDAO transformerDAO = DssScreeningUtils.createImagingTransformerDAO();
         try
         {
             ProcessingStatus processingStatus = new ProcessingStatus();
-            for (DatasetDescription dataset : datasets)
+            for (DatasetDescription dataSet : dataSets)
             {
-                IContentRepository contentRepository = createContentRepository(context, dataset);
-                GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot = fetchImages(dataset);
+                IHierarchicalContent hierarchicalContent =
+                        createHierarchicalContent(context, dataSet);
+                GroupByMap<Long, ImgImageEnrichedDTO> imagesBySpot = fetchImages(dataSet);
                 for (Long spotId : imagesBySpot.getKeys())
                 {
                     List<ImgImageEnrichedDTO> spotImages = imagesBySpot.tryGet(spotId);
-                    calculateAndSetImageTransformation(spotImages, contentRepository,
+                    calculateAndSetImageTransformation(spotImages, hierarchicalContent,
                             transformerDAO);
                 }
                 transformerDAO.commit();
-                processingStatus.addDatasetStatus(dataset, Status.OK);
+                processingStatus.addDatasetStatus(dataSet, Status.OK);
             }
             return processingStatus;
         } finally
@@ -103,7 +103,7 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     {
         IImageTransformerFactory tryGetTransformationFactory(ImgImageEnrichedDTO image);
     }
-    
+
     private static IImagingReadonlyQueryDAO getQuery()
     {
         if (query == null)
@@ -114,11 +114,11 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
     }
 
     private void calculateAndSetImageTransformation(List<ImgImageEnrichedDTO> spotImages,
-            IContentRepository contentRepository, IImagingTransformerDAO transformerDAO)
+            IHierarchicalContent hierarchicalContent, IImagingTransformerDAO transformerDAO)
     {
         long start = System.currentTimeMillis();
         IImageTransformerFactoryProvider transformerFactoryProvider =
-                getTransformationProvider(spotImages, contentRepository);
+                getTransformationProvider(spotImages, hierarchicalContent);
         for (ImgImageEnrichedDTO image : spotImages)
         {
             IImageTransformerFactory transformationFactory =
@@ -130,13 +130,10 @@ abstract public class AbstractSpotImagesTransformerProcessingPlugin extends Abst
                 spotImages.size(), (System.currentTimeMillis() - start)));
     }
 
-    private IContentRepository createContentRepository(DataSetProcessingContext context,
-            DatasetDescription dataset)
+    private IHierarchicalContent createHierarchicalContent(DataSetProcessingContext context,
+            DatasetDescription dataSet)
     {
-        File dataSetDirectory = context.getDirectoryProvider().getDataSetDirectory(dataset);
-        IContentRepository contentRepository =
-                HCSImageDatasetLoaderFactory.createContentRepository(dataSetDirectory);
-        return contentRepository;
+        return context.getHierarchicalContentProvider().asContent(dataSet.getDataSetCode());
     }
 
     private GroupByMap<Long, ImgImageEnrichedDTO> fetchImages(DatasetDescription dataset)

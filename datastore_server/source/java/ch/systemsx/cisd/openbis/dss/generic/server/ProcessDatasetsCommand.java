@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -148,7 +149,8 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     }
 
-    public void execute(IDataSetDirectoryProvider dataSetDirectoryProvider)
+    public void execute(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
         String errorMessageOrNull = null;
         ProcessingStatus processingStatusOrNull = null;
@@ -156,8 +158,8 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         try
         {
             DataSetProcessingContext context =
-                    new DataSetProcessingContext(dataSetDirectoryProvider, parameterBindings,
-                            proxyMailClient, userEmailOrNull, sessionTokenOrNull);
+                    new DataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
+                            parameterBindings, proxyMailClient, userEmailOrNull, sessionTokenOrNull);
             processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {

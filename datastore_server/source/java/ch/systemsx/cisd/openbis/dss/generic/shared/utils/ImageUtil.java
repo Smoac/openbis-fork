@@ -51,9 +51,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.HierarchicalNodeBasedContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -208,8 +206,9 @@ public class ImageUtil
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
      */
-    public static BufferedImage loadUnchangedImage(IContent content, String imageIdOrNull,
-            String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull, IReadParams params)
+    public static BufferedImage loadUnchangedImage(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, String imageLibraryNameOrNull,
+            String imageLibraryReaderNameOrNull, IReadParams params)
     {
         assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
                 + "is specified then library name should be specified as well";
@@ -221,7 +220,7 @@ public class ImageUtil
                             imageLibraryReaderNameOrNull);
             if (reader != null)
             {
-                IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
+                IRandomAccessFile handle = contentNode.getFileContent();
                 try
                 {
                     return reader.readImage(handle, imageID, params);
@@ -231,7 +230,7 @@ public class ImageUtil
                 }
             }
         }
-        return loadImageGuessingLibrary(content, imageID);
+        return loadImageGuessingLibrary(contentNode, imageID);
     }
 
     /**
@@ -391,9 +390,10 @@ public class ImageUtil
         return imageIdOrNull == null ? ImageID.NULL : ImageID.parse(imageIdOrNull);
     }
 
-    private static BufferedImage loadImageGuessingLibrary(IContent content, ImageID imageID)
+    private static BufferedImage loadImageGuessingLibrary(IHierarchicalContentNode contentNode,
+            ImageID imageID)
     {
-        IRandomAccessFile handle = content.getReadOnlyRandomAccessFile();
+        IRandomAccessFile handle = contentNode.getFileContent();
         String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(handle);
         return loadImageGuessingLibrary(handle, fileType, imageID);
     }
@@ -439,16 +439,16 @@ public class ImageUtil
         {
             throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
         }
-        return loadImage(new FileBasedContent(file));
+        return loadImage(new FileBasedContentNode(file));
     }
 
     /**
      * Only for tests.
      */
     @Private
-    static BufferedImage loadImage(IContent content)
+    static BufferedImage loadImage(IHierarchicalContentNode contentNode)
     {
-        return loadUnchangedImage(content, null, null, null, null);
+        return loadUnchangedImage(contentNode, null, null, null, null);
     }
 
     /**
@@ -456,13 +456,14 @@ public class ImageUtil
      * 
      * @throws IllegalArgumentException if the file isn't a valid image file.
      */
-    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode fileNode)
+    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode contentNode)
     {
-        if (fileNode.exists() == false)
+        if (contentNode.exists() == false)
         {
-            throw new IllegalArgumentException("File does not exist: " + fileNode.getRelativePath());
+            throw new IllegalArgumentException("File does not exist: "
+                    + contentNode.getRelativePath());
         }
-        BufferedImage result = loadImage(new HierarchicalNodeBasedContent(fileNode));
+        BufferedImage result = loadImage(contentNode);
         result = convertForDisplayIfNecessary(result);
         return result;
     }

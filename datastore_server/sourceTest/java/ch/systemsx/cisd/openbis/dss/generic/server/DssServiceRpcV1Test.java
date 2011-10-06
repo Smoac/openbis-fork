@@ -42,10 +42,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -588,13 +588,15 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
     }
 
-    private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
+    private List<IHierarchicalContentNode> getContentForFileInfos(String filePath,
+            List<FileInfoDssDTO> fileInfos)
     {
-        List<IContent> files = new ArrayList<IContent>();
+        List<IHierarchicalContentNode> files = new ArrayList<IHierarchicalContentNode>();
         File parent = new File(filePath);
         if (false == parent.isDirectory())
         {
-            return Collections.<IContent> singletonList(new FileBasedContent(parent));
+            return Collections
+                    .<IHierarchicalContentNode> singletonList(new FileBasedContentNode(parent));
         }
 
         for (FileInfoDssDTO fileInfo : fileInfos)
@@ -607,7 +609,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
             // Skip directories
             if (false == file.isDirectory())
             {
-                files.add(new FileBasedContent(file));
+                files.add(new FileBasedContentNode(file));
             }
         }
 

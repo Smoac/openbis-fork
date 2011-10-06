@@ -84,7 +84,7 @@ public class UploadingCommandTest extends AssertJUnit
     private static final File STORE = new File(TEST_FOLDER, "store");
 
     private static final String SHARE_ID = "share-id";
-    
+
     private static final String LOCATION_PREFIX = "ds";
 
     private static final IHierarchicalContentProvider HIERARCHICAL_CONTENT_PROVIDER =
@@ -242,7 +242,8 @@ public class UploadingCommandTest extends AssertJUnit
         commandAdminSessionNotAuthenticated =
                 new UploadingCommand(factory, mailClientParameters, dataSets,
                         uploadContextNoPasswordNotAuthenticated, "admin", "admpwd");
-        commandAdminSessionNotAuthenticated.hierarchicalContentProvider = HIERARCHICAL_CONTENT_PROVIDER;
+        commandAdminSessionNotAuthenticated.hierarchicalContentProvider =
+                HIERARCHICAL_CONTENT_PROVIDER;
         command.deleteAfterUploading = false;
         commandAdminSession.deleteAfterUploading = false;
         commandAdminSessionNotAuthenticated.deleteAfterUploading = false;
@@ -382,7 +383,7 @@ public class UploadingCommandTest extends AssertJUnit
             });
 
         logRecorder.resetLogContent();
-        command.execute(directoryProvider);
+        command.execute(null, directoryProvider);
 
         assertEquals("no emails expected", false, EMAILS.exists());
         assertEquals(1, TMP.listFiles().length);
@@ -438,7 +439,7 @@ public class UploadingCommandTest extends AssertJUnit
             });
 
         logRecorder.resetLogContent();
-        commandAdminSession.execute(directoryProvider);
+        commandAdminSession.execute(null, directoryProvider);
 
         assertEquals("no emails expected", false, EMAILS.exists());
         assertEquals(1, TMP.listFiles().length);
@@ -468,7 +469,7 @@ public class UploadingCommandTest extends AssertJUnit
                 });
 
             logRecorder.resetLogContent();
-            commandAdminSessionNotAuthenticated.execute(directoryProvider);
+            commandAdminSessionNotAuthenticated.execute(null, directoryProvider);
         } finally
         {
             context.assertIsSatisfied();
@@ -480,7 +481,7 @@ public class UploadingCommandTest extends AssertJUnit
     {
         uploadContext.setPassword("pwd");
         FileUtilities.deleteRecursively(ds2);
-        command.execute(directoryProvider);
+        command.execute(null, directoryProvider);
 
         checkEmail("Couldn't create zip file");
         assertEquals("ERROR NOTIFY.UploadingCommand - Data set 2 does not exist."
@@ -533,7 +534,7 @@ public class UploadingCommandTest extends AssertJUnit
                 }
             });
 
-        command.execute(directoryProvider);
+        command.execute(null, directoryProvider);
 
         checkEmail("Uploading of zip file");
         assertEquals(INFO_UPLOAD_PREFIX

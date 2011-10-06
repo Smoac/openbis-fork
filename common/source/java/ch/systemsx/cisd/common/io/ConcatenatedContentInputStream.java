@@ -26,35 +26,37 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+
 /**
  * Special <code>InputStream</code> that will concatenate the contents of an array of
- * {@link IContent} instances into one stream. Each content will be preceded by one long which tells
- * what is the size of the content in bytes.
+ * {@link IHierarchicalContentNode} instances into one stream. Each content will be preceded by one
+ * long which tells what is the size of the content in bytes.
  * 
  * @author Tomasz Pylak
  */
 public class ConcatenatedContentInputStream extends InputStream
 {
     private static final int EOF = -1;
-    
+
     /**
-     * Wraps specified {@link File} objects into {@link FileBasedContent} objects.
+     * Wraps specified {@link File} objects into {@link FileBasedContentNode} objects.
      */
-    public static IContent[] wrap(List<File> files)
+    public static IHierarchicalContentNode[] wrap(List<File> files)
     {
-        List<IContent> list = new ArrayList<IContent>();
+        List<IHierarchicalContentNode> list = new ArrayList<IHierarchicalContentNode>();
         for (File file : files)
         {
-            list.add(new FileBasedContent(file));
+            list.add(new FileBasedContentNode(file));
         }
-        return list.toArray(new IContent[files.size()]);
+        return list.toArray(new IHierarchicalContentNode[files.size()]);
     }
 
     private int currentIndex = -1;
 
     private boolean eof = false;
 
-    private IContent[] contents;
+    private IHierarchicalContentNode[] contents;
 
     // If true then currentStream is not the content, but a short stream
     // which encodes one long number which describes content size.
@@ -71,7 +73,8 @@ public class ConcatenatedContentInputStream extends InputStream
      *            exception is thrown for a non-existing content.
      * @param contents InputStreams provided by these contents will be concatenated into one stream.
      */
-    ConcatenatedContentInputStream(boolean ignoreNonExistingContents, IContent... contents)
+    ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
+            IHierarchicalContentNode... contents)
     {
         this.ignoreNonExistingContents = ignoreNonExistingContents;
         this.contents = contents;
@@ -84,11 +87,13 @@ public class ConcatenatedContentInputStream extends InputStream
      *            exception is thrown for a non-existing content.
      * @param contents InputStreams provided by these contents will be concatenated into one stream.
      */
-    public ConcatenatedContentInputStream(boolean ignoreNonExistingContents, List<IContent> contents)
+    public ConcatenatedContentInputStream(boolean ignoreNonExistingContents,
+            List<IHierarchicalContentNode> contents)
     {
-        this(ignoreNonExistingContents, contents.toArray(new IContent[contents.size()]));
+        this(ignoreNonExistingContents, contents.toArray(new IHierarchicalContentNode[contents
+                .size()]));
     }
-    
+
     @Override
     public void close() throws IOException
     {
@@ -106,7 +111,8 @@ public class ConcatenatedContentInputStream extends InputStream
             closeCurrentStream();
             if (readingContentSize)
             {
-                currentStream = createContentStream(ignoreNonExistingContents, tryGetCurrentContent());
+                currentStream =
+                        createContentStream(ignoreNonExistingContents, tryGetCurrentContent());
                 readingContentSize = false;
             } else
             {
@@ -126,7 +132,7 @@ public class ConcatenatedContentInputStream extends InputStream
 
     // null means that the current content has not been specified. This case will be treated in the
     // same way as an empty content if ignoreNonExistingContents is true
-    private IContent tryGetCurrentContent()
+    private IHierarchicalContentNode tryGetCurrentContent()
     {
         if (hasCurrentContent() == false)
         {
@@ -155,7 +161,7 @@ public class ConcatenatedContentInputStream extends InputStream
     // -------------- static helper ---------------
 
     private static InputStream createContentStream(boolean ignoreNonExistingContents,
-            IContent currentContentOrNull)
+            IHierarchicalContentNode currentContentOrNull)
     {
         InputStream stream;
         if (ignoreNonExistingContents
@@ -175,9 +181,10 @@ public class ConcatenatedContentInputStream extends InputStream
         return new ByteArrayInputStream(new byte[0]);
     }
 
-    private static InputStream createSizeStream(IContent contentOrNull) throws IOException
+    private static InputStream createSizeStream(IHierarchicalContentNode contentOrNull)
+            throws IOException
     {
-        long size = (contentOrNull == null) ? 0 : contentOrNull.getSize();
+        long size = (contentOrNull == null) ? 0 : contentOrNull.getFileLength();
         byte[] data = longToBytes(size);
         return new ByteArrayInputStream(data);
     }

@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.PixelHistogram;
-import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -474,7 +474,7 @@ public class SimpleImageDataSetRegistrator
             ImageIdentifier imageIdentifier, String libraryName, String readerName)
     {
         String imageStringIdentifier = imageIdentifier.getUniqueStringIdentifier();
-        return ImageUtil.loadUnchangedImage(new FileBasedContent(imageFile), imageStringIdentifier,
+        return ImageUtil.loadUnchangedImage(new FileBasedContentNode(imageFile), imageStringIdentifier,
                 libraryName, readerName, null);
     }
 

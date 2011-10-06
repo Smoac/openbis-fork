@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Tests for {@link ConcatenatedContentInputStream}
@@ -39,7 +40,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testNoFiles() throws IOException
     {
         ConcatenatedContentInputStream stream =
-                new ConcatenatedContentInputStream(false, new IContent[0]);
+                new ConcatenatedContentInputStream(false, new IHierarchicalContentNode[0]);
         AssertJUnit.assertEquals(-1, stream.read());
     }
 
@@ -47,7 +48,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testOneFile() throws IOException
     {
         String content = createLongString("1");
-        IContent file = createContent(content, "f1.txt");
+        IHierarchicalContentNode file = createContent(content, "f1.txt");
         ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, file);
         List<String> streamContent = readStrings(stream);
         assertEquals(1, streamContent.size());
@@ -58,13 +59,13 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testManyFiles() throws IOException
     {
         String content1 = createLongString("1");
-        IContent file1 = createContent(content1, "f1.txt");
+        IHierarchicalContentNode file1 = createContent(content1, "f1.txt");
 
         String content2 = ""; // empty content
-        IContent file2 = createContent(content2, "f2.txt");
+        IHierarchicalContentNode file2 = createContent(content2, "f2.txt");
 
         String content3 = createLongString("3");
-        IContent file3 = createContent(content3, "f3.txt");
+        IHierarchicalContentNode file3 = createContent(content3, "f3.txt");
 
         ConcatenatedContentInputStream stream =
                 new ConcatenatedContentInputStream(false, file1, file2, file3);
@@ -79,15 +80,15 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testExistingAndNonExistingFiles() throws IOException
     {
         String content1 = createLongString("1");
-        IContent file1 = createContent(content1, "f1.txt");
+        IHierarchicalContentNode file1 = createContent(content1, "f1.txt");
 
-        IContent unexistingFile =
-                new FileBasedContent(new File(workingDirectory, "unexisting.txt"));
+        IHierarchicalContentNode unexistingFile =
+                new FileBasedContentNode(new File(workingDirectory, "unexisting.txt"));
 
         String content3 = createLongString("3");
-        IContent file3 = createContent(content3, "f3.txt");
+        IHierarchicalContentNode file3 = createContent(content3, "f3.txt");
 
-        IContent fileNull = null;
+        IHierarchicalContentNode fileNull = null;
 
         ConcatenatedContentInputStream stream =
                 new ConcatenatedContentInputStream(true, fileNull, file1, fileNull, unexistingFile,
@@ -107,7 +108,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testNonExistingFile() throws Exception
     {
         File file = new File(workingDirectory, "f.txt");
-        IContent content = new FileBasedContent(file);
+        IHierarchicalContentNode content = new FileBasedContentNode(file);
 
         ConcatenatedContentInputStream stream = new ConcatenatedContentInputStream(false, content);
         try
@@ -124,7 +125,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
     public void testNullFile() throws IOException
     {
         ConcatenatedContentInputStream stream =
-                new ConcatenatedContentInputStream(false, new IContent[]
+                new ConcatenatedContentInputStream(false, new IHierarchicalContentNode[]
                     { null });
         try
         {
@@ -155,9 +156,9 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
         return result;
     }
 
-    private IContent createContent(String content, String name)
+    private IHierarchicalContentNode createContent(String content, String name)
     {
-        return new ByteArrayBasedContent(content.getBytes(), name);
+        return new ByteArrayBasedContentNode(content.getBytes(), name);
     }
 
     private static String createLongString(String text)

@@ -44,10 +44,10 @@ import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
@@ -384,7 +384,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         imagesWriter.writeNextBlock(outputStream);
-        return ImageUtilTest.loadImage(new ByteArrayBasedContent(outputStream.toByteArray(),
+        return ImageUtilTest.loadImage(new ByteArrayBasedContentNode(outputStream.toByteArray(),
                 "UNKNOWN"));
     }
 
@@ -606,9 +606,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private IContent image(String fileName)
+    private IHierarchicalContentNode image(String fileName)
     {
-        return new FileBasedContent(new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
+        return new FileBasedContentNode(new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
     }
 
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,

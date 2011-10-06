@@ -39,8 +39,8 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
-import ch.systemsx.cisd.common.io.FileBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.FileInfoDssDownloader;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -410,13 +410,15 @@ class AuthenticatedState extends AbstractDssComponentState
         return dssService;
     }
 
-    private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)
+    private List<IHierarchicalContentNode> getContentForFileInfos(String filePath,
+            List<FileInfoDssDTO> fileInfos)
     {
-        List<IContent> files = new ArrayList<IContent>();
+        List<IHierarchicalContentNode> files = new ArrayList<IHierarchicalContentNode>();
         File parent = new File(filePath);
         if (false == parent.isDirectory())
         {
-            return Collections.<IContent> singletonList(new FileBasedContent(parent));
+            return Collections
+                    .<IHierarchicalContentNode> singletonList(new FileBasedContentNode(parent));
         }
 
         for (FileInfoDssDTO fileInfo : fileInfos)
@@ -429,7 +431,7 @@ class AuthenticatedState extends AbstractDssComponentState
             // Skip directories
             if (false == file.isDirectory())
             {
-                files.add(new FileBasedContent(file));
+                files.add(new FileBasedContentNode(file));
             }
         }
 

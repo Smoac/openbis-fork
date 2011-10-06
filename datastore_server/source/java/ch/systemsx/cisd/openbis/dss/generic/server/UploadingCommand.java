@@ -285,7 +285,8 @@ class UploadingCommand implements IDataSetCommand
     @Private
     boolean deleteAfterUploading = true;
 
-    @Private transient IHierarchicalContentProvider hierarchicalContentProvider;
+    @Private
+    transient IHierarchicalContentProvider hierarchicalContentProvider;
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
@@ -316,7 +317,8 @@ class UploadingCommand implements IDataSetCommand
         return result;
     }
 
-    public void execute(IDataSetDirectoryProvider dataSetDirectoryProvider)
+    public void execute(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider dataSetDirectoryProvider)
     {
         File root = dataSetDirectoryProvider.getStoreRoot();
         File tempFolder = new File(root, "tmp");
@@ -433,7 +435,8 @@ class UploadingCommand implements IDataSetCommand
                     root = getHierarchicalContentProvider().asContent(externalData.getCode());
                 } catch (Exception ex)
                 {
-                    notificationLog.error("Data set " + externalData.getCode() + " does not exist.", ex);
+                    notificationLog.error(
+                            "Data set " + externalData.getCode() + " does not exist.", ex);
                     return false;
                 }
                 try
@@ -471,7 +474,7 @@ class UploadingCommand implements IDataSetCommand
             }
         }
     }
-    
+
     private IHierarchicalContentProvider getHierarchicalContentProvider()
     {
         if (hierarchicalContentProvider == null)
@@ -480,7 +483,7 @@ class UploadingCommand implements IDataSetCommand
         }
         return hierarchicalContentProvider;
     }
-    
+
     private void addTo(ZipOutputStream zipOutputStream, String newRootPath,
             IHierarchicalContentNode node) throws IOException
     {

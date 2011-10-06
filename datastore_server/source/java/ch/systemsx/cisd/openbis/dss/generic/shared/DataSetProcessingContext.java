@@ -36,26 +36,31 @@ public class DataSetProcessingContext
 
     private final IDataSetDirectoryProvider directoryProvider;
 
+    private final IHierarchicalContentProvider hierarchicalContentProvider;
+
     private final String sessionTokenOrNull;
 
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
      * optional user e-mail address and sessionToken.
      */
-    public DataSetProcessingContext(IDataSetDirectoryProvider directoryProvider,
-            Map<String, String> parameterBindings, IMailClient mailClient, String userEmailOrNull)
+    public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
+            IMailClient mailClient, String userEmailOrNull)
     {
-        this(directoryProvider, parameterBindings, mailClient, userEmailOrNull, null);
+        this(contentProvider, directoryProvider, parameterBindings, mailClient, userEmailOrNull,
+                null);
     }
 
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
      * optional user e-mail address and sessionToken.
      */
-    public DataSetProcessingContext(IDataSetDirectoryProvider directoryProvider,
-            Map<String, String> parameterBindings, IMailClient mailClient, String userEmailOrNull,
-            String sessionTokenOrNull)
+    public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
+            IMailClient mailClient, String userEmailOrNull, String sessionTokenOrNull)
     {
+        this.hierarchicalContentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
         this.mailClient = mailClient;
@@ -86,5 +91,10 @@ public class DataSetProcessingContext
     public String trySessionToken()
     {
         return sessionTokenOrNull;
+    }
+
+    public IHierarchicalContentProvider getHierarchicalContentProvider()
+    {
+        return hierarchicalContentProvider;
     }
 }

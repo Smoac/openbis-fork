@@ -16,19 +16,23 @@
 
 package ch.systemsx.cisd.common.io.hierarchical_content;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
-import ch.systemsx.cisd.common.io.HDF5DataSetBasedContent;
-import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
+import ch.systemsx.cisd.hdf5.IHDF5Reader;
+import ch.systemsx.cisd.hdf5.io.HDF5DataSetRandomAccessFile;
+import ch.systemsx.cisd.hdf5.io.HDF5IOAdapterFactory;
 
 /**
  * {@link IHierarchicalContent} implementation for HDF5 container.
@@ -243,7 +247,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
         private final String fileName;
 
-        private IContent contentOrNull;
+        private HDF5DataSetBasedContent contentOrNull;
 
         private final HDF5ContainerBasedHierarchicalContentNode containerNode;
 
@@ -304,7 +308,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             return getContent().getInputStream();
         }
 
-        private IContent getContent()
+        private HDF5DataSetBasedContent getContent()
         {
             if (contentOrNull == null)
             {
@@ -322,8 +326,78 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
     }
 
-    private static IContent extractFileContent(File hdf5File, String dataSetPath)
+    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, String dataSetPath)
     {
         return new HDF5DataSetBasedContent(hdf5File, dataSetPath);
+    }
+
+    public static class HDF5DataSetBasedContent implements Closeable
+    {
+        private final File hdf5File;
+
+        private final String dataSetPath;
+
+        private final String name;
+
+        private final boolean exists;
+
+        private final long size;
+
+        private final List<HDF5DataSetRandomAccessFile> randomAccessFiles;
+
+        public HDF5DataSetBasedContent(File hdf5File, String dataSetPath)
+        {
+            this.hdf5File = hdf5File;
+            this.dataSetPath = dataSetPath;
+            this.name = FileUtilities.getFileNameFromRelativePath(dataSetPath);
+            final IHDF5Reader reader = HDF5FactoryProvider.get().openForReading(hdf5File);
+            if (reader.exists(dataSetPath) && reader.isDataSet(dataSetPath))
+            {
+                this.exists = true;
+                this.size = reader.getSize(dataSetPath);
+            } else
+            {
+                this.exists = false;
+                this.size = 0L;
+            }
+            reader.close();
+            this.randomAccessFiles = new ArrayList<HDF5DataSetRandomAccessFile>();
+        }
+
+        public String tryGetName()
+        {
+            return name;
+        }
+
+        public long getSize()
+        {
+            return size;
+        }
+
+        public boolean exists()
+        {
+            return exists;
+        }
+
+        public IRandomAccessFile getReadOnlyRandomAccessFile()
+        {
+            final HDF5DataSetRandomAccessFile randomAccessFile =
+                    HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, dataSetPath);
+            randomAccessFiles.add(randomAccessFile);
+            return randomAccessFile;
+        }
+
+        public InputStream getInputStream()
+        {
+            return new AdapterIInputStreamToInputStream(getReadOnlyRandomAccessFile());
+        }
+
+        public void close()
+        {
+            for (HDF5DataSetRandomAccessFile raFile : randomAccessFiles)
+            {
+                raFile.close();
+            }
+        }
     }
 }

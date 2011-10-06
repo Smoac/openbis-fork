@@ -106,7 +106,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         MockDataSetDirectoryProvider directoryProvider =
                 new MockDataSetDirectoryProvider(workingDirectory, Constants.DEFAULT_SHARE_ID);
         processingContext =
-                new DataSetProcessingContext(directoryProvider,
+                new DataSetProcessingContext(null, directoryProvider,
                         Collections.<String, String> emptyMap(), mailClient, "a@bc.de");
     }
 

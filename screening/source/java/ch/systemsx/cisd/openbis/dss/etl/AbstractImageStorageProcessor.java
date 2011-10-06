@@ -115,6 +115,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor implements
         IDispatchableStorageProcessor
 {
+    public static final String ARCHIVE_DELIMITER = ":";
+
     /**
      * Stores the references to the extracted images in the imaging database.
      * 
@@ -520,8 +522,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             String pathInHdf5Container = "/" + imagesInStoreFolder.getName() + "/";
             saveInHdf5(imagesInStoreFolder, pathInHdf5Container, hdf5OriginalContainer,
                     isDataCompressed);
-            String hdf5ArchivePathPrefix =
-                    hdf5OriginalContainer.getName() + ContentRepository.ARCHIVE_DELIMITER;
+            String hdf5ArchivePathPrefix = hdf5OriginalContainer.getName() + ARCHIVE_DELIMITER;
             return hdf5ArchivePathPrefix + pathInHdf5Container;
         } else
         {
