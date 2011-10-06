@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import jline.ConsoleReader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
@@ -127,7 +129,30 @@ public class QueryApiServerJsonTest
         QueryTableModel result =
                 queryApiService.executeQuery(sessionToken, queryToRun.getId(),
                         new HashMap<String, String>());
-        System.out.println("Result: " + result);
+        List<QueryTableColumn> columns = result.getColumns();
+        for (int i = 0; i < columns.size(); ++i)
+        {
+            QueryTableColumn column = columns.get(i);
+            System.out.print(column.getTitle());
+            if (i < columns.size() - 1)
+            {
+                System.out.print("\t");
+            }
+        }
+        System.out.print("\n");
+
+        for (Serializable[] row : result.getRows())
+        {
+            for (int i = 0; i < row.length; ++i)
+            {
+                System.out.print(row[i]);
+                if (i < row.length - 1)
+                {
+                    System.out.print("\t");
+                }
+            }
+            System.out.print("\n");
+        }
 
         queryApiService.logout(sessionToken);
     }

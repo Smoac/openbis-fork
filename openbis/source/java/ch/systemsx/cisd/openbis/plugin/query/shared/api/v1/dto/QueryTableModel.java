@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Model of query data.
  * 
@@ -74,6 +77,7 @@ public class QueryTableModel implements Serializable
     /**
      * Gets all rows.
      */
+    @JsonIgnore
     public List<Serializable[]> getRows()
     {
         return rows;
@@ -91,8 +95,57 @@ public class QueryTableModel implements Serializable
         this.columns = columns;
     }
 
-    private void setRows(List<Serializable[]> rows)
+    /**
+     * Jackson cannot deserialize things typed as Serializable because it has no idea what the
+     * correct type might be.
+     * <p>
+     * Thus we convert the values to strings and add type information.
+     */
+    @JsonProperty(value = "rows")
+    private List<TypedStringValue[]> getTypedRows()
     {
-        this.rows = rows;
+        ArrayList<TypedStringValue[]> typedRows = new ArrayList<TypedStringValue[]>(rows.size());
+        for (Serializable[] row : rows)
+        {
+            TypedStringValue[] typedRow = new TypedStringValue[row.length];
+            typedRows.add(typedRow);
+            for (int i = 0; i < row.length; ++i)
+            {
+                Serializable value = row[i];
+                if (value instanceof Long)
+                {
+                    typedRow[i] =
+                            new TypedStringValue(QueryTableColumnDataType.LONG, value.toString());
+                } else if (value instanceof Double)
+                {
+                    typedRow[i] =
+                            new TypedStringValue(QueryTableColumnDataType.DOUBLE, value.toString());
+                } else if (value instanceof String)
+                {
+                    typedRow[i] =
+                            new TypedStringValue(QueryTableColumnDataType.STRING, value.toString());
+                } else
+                {
+                    throw new IllegalArgumentException("Cannot convert " + value
+                            + " to a long, double, or String.");
+                }
+            }
+        }
+        return typedRows;
+    }
+
+    @JsonProperty(value = "rows")
+    private void setTypedRows(List<TypedStringValue[]> typedRows)
+    {
+        rows = new ArrayList<Serializable[]>(typedRows.size());
+        for (TypedStringValue[] typedRow : typedRows)
+        {
+            Serializable[] row = new Serializable[typedRow.length];
+            rows.add(row);
+            for (int i = 0; i < row.length; ++i)
+            {
+                row[i] = typedRow[i].toSerializable();
+            }
+        }
     }
 }
