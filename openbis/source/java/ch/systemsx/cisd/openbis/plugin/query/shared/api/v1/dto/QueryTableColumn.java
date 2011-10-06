@@ -20,16 +20,18 @@ import java.io.Serializable;
 
 /**
  * Column of query data. Defines title and data type.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public class QueryTableColumn implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String title;
-    private final QueryTableColumnDataType dataType;
-    
+    private String title;
+
+    private QueryTableColumnDataType dataType;
+
     /**
      * Creates an instance for specified title and data type.
      */
@@ -54,5 +56,20 @@ public class QueryTableColumn implements Serializable
     {
         return dataType;
     }
-    
+
+    // JSON-RPC serialization
+    private QueryTableColumn()
+    {
+
+    }
+
+    private void setDataType(QueryTableColumnDataType dataType)
+    {
+        this.dataType = dataType;
+    }
+
+    private void setTitle(String title)
+    {
+        this.title = title;
+    }
 }

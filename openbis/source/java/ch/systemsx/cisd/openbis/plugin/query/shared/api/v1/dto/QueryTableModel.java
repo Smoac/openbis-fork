@@ -22,15 +22,18 @@ import java.util.List;
 
 /**
  * Model of query data.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 public class QueryTableModel implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    private final List<QueryTableColumn> columns;
-    private final List<Serializable[]> rows;
-    
+
+    private List<QueryTableColumn> columns;
+
+    private List<Serializable[]> rows;
+
     /**
      * Creates an instance for the specified columns.
      */
@@ -62,7 +65,8 @@ public class QueryTableModel implements Serializable
         }
         if (values.length != columns.size())
         {
-            throw new IllegalArgumentException("Row has " + values.length + " instead of " + columns.size() + ".");
+            throw new IllegalArgumentException("Row has " + values.length + " instead of "
+                    + columns.size() + ".");
         }
         rows.add(values);
     }
@@ -74,5 +78,21 @@ public class QueryTableModel implements Serializable
     {
         return rows;
     }
-    
+
+    // JSON-RPC Serialization
+    private QueryTableModel()
+    {
+        columns = new ArrayList<QueryTableColumn>();
+        rows = new ArrayList<Serializable[]>();
+    }
+
+    private void setColumns(List<QueryTableColumn> columns)
+    {
+        this.columns = columns;
+    }
+
+    private void setRows(List<Serializable[]> rows)
+    {
+        this.rows = rows;
+    }
 }

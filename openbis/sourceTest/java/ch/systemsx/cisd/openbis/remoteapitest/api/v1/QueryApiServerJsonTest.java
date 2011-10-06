@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 import org.testng.annotations.AfterMethod;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
@@ -81,6 +83,31 @@ public class QueryApiServerJsonTest extends RemoteApiTestCase
     public void testListQueries()
     {
         List<QueryDescription> queries = queryApiService.listQueries(sessionToken);
-        assertTrue(queries.isEmpty());
+        assertNotNull(queries);
+    }
+
+    @Test
+    public void testExecuteQuery()
+    {
+        List<QueryDescription> queries = queryApiService.listQueries(sessionToken);
+        assertNotNull(queries);
+        QueryDescription queryToRun = null;
+        for (QueryDescription query : queries)
+        {
+            if (query.getParameters().isEmpty())
+            {
+                queryToRun = query;
+                break;
+            }
+        }
+        if (null == queryToRun)
+        {
+            return;
+        }
+
+        QueryTableModel result =
+                queryApiService.executeQuery(sessionToken, queryToRun.getId(),
+                        new HashMap<String, String>());
+        assertNotNull(result);
     }
 }
