@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,8 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.logging.AssertingLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.logging.MockLogger;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
@@ -43,7 +41,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
     @Test
     public void testWithRealFolder() throws IOException
     {
-        AssertingLogger logger = new AssertingLogger();
+        MockLogger logger = new MockLogger();
         File pluginsDir = preparePluginsDirectory(CORE_PLUGINS_DIR);
         CorePluginScanner scanner =
                 new CorePluginScanner(pluginsDir.getAbsolutePath(), ScannerType.AS, logger);
@@ -63,19 +61,12 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
         assertEquals(3, plugin.getVersion());
         assertEquals(null, getMasterDataScript(plugin, scanner));
 
-        List<String> logMessages =
-                Arrays.asList(
-                        "No valid versions have been detected for plugin '"
-                                + pluginsDir.getAbsolutePath() + "/invalid-folder'.",
-                        "Invalid version 'NaN-version' for plugin '"
-                                + pluginsDir.getAbsolutePath()
-                                + "/plugin-X'. Plugin version must be non-negative integer numbers.");
-        logger.assertNumberOfMessage(logMessages.size());
-        for (int i = 0; i < logMessages.size(); i++)
-        {
-            String logMessage = logMessages.get(i);
-            logger.assertEq(i, LogLevel.WARN, logMessage);
-        }
+        String output =
+                String.format(
+                        "WARN: No valid versions have been detected for plugin '%s/invalid-folder'.\n"
+                                + "WARN: Invalid version 'NaN-version' for plugin '%s/plugin-X'. Plugin version must be non-negative integer numbers.\n",
+                        pluginsDir.getAbsolutePath(), pluginsDir.getAbsolutePath());
+        assertEquals(output, logger.toString());
     }
 
     private File preparePluginsDirectory(String originalPath) throws IOException
