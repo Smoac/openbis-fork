@@ -885,11 +885,11 @@ public class OpenBISScreeningML
             return result;
         } catch (Exception ex)
         {
-            throw new RuntimeException("Loading data sets for plate '" + augmentedPlateCode
-                    + "' failed: " + ex, ex);
+            throw createException("Loading data sets for plate '" + augmentedPlateCode
+                    + "' failed.", ex);
         }
     }
-
+    
     /**
      * Loads file/folder of specified data set and specified file/folder path inside the data set.
      * If it is possible the path points directly into the data set store. No data is copied.
@@ -1060,7 +1060,7 @@ public class OpenBISScreeningML
             return dataSet.getCode();
         } catch (Exception ex)
         {
-            throw new RuntimeException("Couldn't upload data set for plate '" + augmentedPlateCode
+            throw createException("Couldn't upload data set for plate '" + augmentedPlateCode
                     + "'.", ex);
         }
     }
@@ -1107,7 +1107,7 @@ public class OpenBISScreeningML
             return dataSet.getCode();
         } catch (Exception ex)
         {
-            throw new RuntimeException("Couldn't upload data set for plate '" + augmentedPlateCode
+            throw createException("Couldn't upload data set for plate '" + augmentedPlateCode
                     + "'.", ex);
         }
     }
@@ -1156,7 +1156,7 @@ public class OpenBISScreeningML
             return dataSet.getCode();
         } catch (Exception ex)
         {
-            throw new RuntimeException("Couldn't upload data set for experiment '"
+            throw createException("Couldn't upload data set for experiment '"
                     + augmentedExperimentCode + "' and parents '"
                     + Arrays.toString(parentDataSetCodeObjects) + "'.", ex);
         }
@@ -1591,7 +1591,7 @@ public class OpenBISScreeningML
             loadImages(imageReferencesAndFiles);
         } catch (IOException ex)
         {
-            throw new RuntimeException(ex);
+            throw createException("Image loading error.", ex);
         }
         return result;
     }
@@ -2003,7 +2003,7 @@ public class OpenBISScreeningML
 
             } catch (Exception ex)
             {
-                throw new RuntimeException(featureIndex + "." + wellIndex + "." + dataSetIndex, ex);
+                throw createException(featureIndex + "." + wellIndex + "." + dataSetIndex, ex);
             }
         }
     }
@@ -2126,6 +2126,16 @@ public class OpenBISScreeningML
     // Helper methods
     //
 
+    private static RuntimeException createException(String message, Throwable cause)
+    {
+        Throwable originalCause = cause;
+        while (originalCause.getCause() != null)
+        {
+            originalCause = originalCause.getCause();
+        }
+        return new RuntimeException(message + " Reason: " + originalCause, cause);
+    }
+
     private static List<PlateIdentifier> toPlates(String[] augmentedPlateCodes)
     {
         final List<PlateIdentifier> result =
@@ -2231,7 +2241,7 @@ public class OpenBISScreeningML
                 {
                     if (openbis == null)
                     {
-                        throw new RuntimeException("Login failed.", ex);
+                        throw createException("Login failed.", ex);
                     }
                 } finally
                 {
