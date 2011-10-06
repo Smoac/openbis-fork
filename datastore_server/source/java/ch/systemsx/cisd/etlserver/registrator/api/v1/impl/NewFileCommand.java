@@ -26,13 +26,13 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class NewFileCommand extends AbstractTransactionalCommand
+public class NewFileCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
 
     private final String fileAbsolutePath;
 
-    NewFileCommand(String directoryAbsoutePath)
+    public NewFileCommand(String directoryAbsoutePath)
     {
         this.fileAbsolutePath = directoryAbsoutePath;
 

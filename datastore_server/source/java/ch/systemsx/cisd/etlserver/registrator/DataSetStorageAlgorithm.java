@@ -38,6 +38,9 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcesso
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MkdirsCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MoveFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.NewFileCommand;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -91,6 +94,9 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     // Used by the storage processor
     private final IMailClient mailClient;
 
+    // Used to create a staging directory for the storage processor
+    private final File stagingDirectory;
+
     // State that changes during execution
     private DataSetStorageAlgorithmState<T> state;
 
@@ -112,11 +118,26 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return baseDirectory;
     }
 
+    public static File createBaseDirectory(final IDataStoreStrategy strategy, final File baseDir,
+            IFileOperations fileOperations, final DataSetInformation dataSetInfo,
+            DataSetType dataSetType, File incomingDataSetFile, IRollbackStack rollbackStack)
+    {
+        final File baseDirectory = strategy.getBaseDirectory(baseDir, dataSetInfo, dataSetType);
+        rollbackStack.pushAndExecuteCommand(new MkdirsCommand(baseDirectory.getAbsolutePath()));
+        if (fileOperations.isDirectory(baseDirectory) == false)
+        {
+            throw EnvironmentFailureException.fromTemplate(
+                    "Creating data set base directory '%s' for data set '%s' failed.",
+                    baseDirectory.getAbsolutePath(), incomingDataSetFile);
+        }
+        return baseDirectory;
+    }
+
     public DataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
-            IFileOperations fileOperations, IMailClient mailClient)
+            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)
     {
         this.incomingDataSetFile = incomingDataSetFile;
         this.registrationDetails = registrationDetails;
@@ -126,6 +147,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         this.dataStoreCode = dataStoreCode;
         this.fileOperations = fileOperations;
         this.mailClient = mailClient;
+        this.stagingDirectory = stagingDirectory;
 
         this.storeRoot = storageProcessor.getStoreRootDirectory();
         this.dataSetType = registrationDetails.getDataSetType();
@@ -139,11 +161,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     /**
      * Prepare registration of a data set.
+     * 
+     * @param rollbackStack
      */
-    public IStorageProcessorTransaction prepare()
+    public IStorageProcessorTransaction prepare(IRollbackStack rollbackStack)
     {
         InitializedState<T> initializedState = (InitializedState<T>) state;
-        initializedState.prepare();
+        initializedState.prepare(rollbackStack);
 
         state = new PreparedState<T>(initializedState);
         return ((PreparedState<T>) state).transaction;
@@ -283,6 +307,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return registrationDetails;
     }
 
+    public File getStagingDirectory()
+    {
+        return stagingDirectory;
+    }
+
     private static abstract class DataSetStorageAlgorithmState<T extends DataSetInformation>
     {
         protected final DataSetStorageAlgorithm<T> storageAlgorithm;
@@ -304,23 +333,18 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         {
             return storageAlgorithm.fileOperations;
         }
-
-        protected final File createBaseDirectory(final IDataStoreStrategy strategy,
-                final File baseDir, final DataSetInformation dataSetInfo)
-        {
-
-            return DataSetStorageAlgorithm.createBaseDirectory(strategy, baseDir,
-                    getFileOperations(), dataSetInfo, storageAlgorithm.getDataSetType(),
-                    incomingDataSetFile);
-        }
     }
 
     private static class InitializedState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected BaseDirectoryHolder baseDirectoryHolder;
+        protected BaseDirectoryHolder stagingBaseDirectoryHolder;
+
+        protected BaseDirectoryHolder storeBaseDirectoryHolder;
 
         protected IStorageProcessorTransaction transaction;
+
+        protected IRollbackStack rollbackStack;
 
         public InitializedState(DataSetStorageAlgorithm<T> storageAlgorithm)
         {
@@ -329,20 +353,37 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         /**
          * Prepare registration of a data set.
+         * 
+         * @param rollbackStack
          */
-        public void prepare()
+        public void prepare(IRollbackStack aStack)
         {
+            this.rollbackStack = aStack;
             IDataStoreStrategy dataStoreStrategy = storageAlgorithm.getDataStoreStrategy();
-            final File baseDirectory =
-                    createBaseDirectory(dataStoreStrategy, storageAlgorithm.getStoreRoot(),
-                            storageAlgorithm.getDataSetInformation());
-            baseDirectoryHolder =
-                    new BaseDirectoryHolder(dataStoreStrategy, baseDirectory, incomingDataSetFile);
+
+            // Create the staging base directory
+            File stagingBaseDirectory =
+                    new File(storageAlgorithm.getStagingDirectory(), storageAlgorithm
+                            .getDataSetInformation().getDataSetCode() + "-storage");
+            this.rollbackStack.pushAndExecuteCommand(new MkdirsCommand(stagingBaseDirectory
+                    .getAbsolutePath()));
+            stagingBaseDirectoryHolder =
+                    new BaseDirectoryHolder(dataStoreStrategy, stagingBaseDirectory,
+                            incomingDataSetFile);
+
+            File baseDirectory =
+                    DataSetStorageAlgorithm.createBaseDirectory(dataStoreStrategy,
+                            storageAlgorithm.getStoreRoot(), getFileOperations(),
+                            storageAlgorithm.getDataSetInformation(),
+                            storageAlgorithm.getDataSetType(), incomingDataSetFile, rollbackStack);
+
+            storeBaseDirectoryHolder =
+                    new BaseDirectoryHolder(dataStoreStrategy, baseDirectory, stagingBaseDirectory);
 
             StorageProcessorTransactionParameters transactionParameters =
                     new StorageProcessorTransactionParameters(
                             storageAlgorithm.getDataSetInformation(), incomingDataSetFile,
-                            baseDirectoryHolder.getBaseDirectory());
+                            stagingBaseDirectoryHolder.getBaseDirectory());
             transaction =
                     storageAlgorithm.getStorageProcessor().createTransaction(transactionParameters);
 
@@ -352,20 +393,28 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     private static class PreparedState<T extends DataSetInformation> extends
             DataSetStorageAlgorithmState<T>
     {
-        protected final BaseDirectoryHolder baseDirectoryHolder;
+        protected final BaseDirectoryHolder stagingBaseDirectoryHolder;
+
+        protected final BaseDirectoryHolder storeBaseDirectoryHolder;
 
         protected final DataSetInformation dataSetInformation;
 
-        protected File markerFile;
+        protected final IRollbackStack rollbackStack;
 
-        protected IStorageProcessorTransaction transaction;
+        protected final IStorageProcessorTransaction transaction;
+
+        protected File storedDirectory;
+
+        protected File markerFile;
 
         public PreparedState(InitializedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
-            this.baseDirectoryHolder = oldState.baseDirectoryHolder;
+            this.stagingBaseDirectoryHolder = oldState.stagingBaseDirectoryHolder;
+            this.storeBaseDirectoryHolder = oldState.storeBaseDirectoryHolder;
             this.dataSetInformation = storageAlgorithm.getDataSetInformation();
             this.transaction = oldState.transaction;
+            this.rollbackStack = oldState.rollbackStack;
         }
 
         public void storeData()
@@ -386,7 +435,25 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
                 getOperationLog().info(
                         "Finished storing data set for " + entityDescription + ", took " + watch);
             }
-            assert transaction.getStoredDataDirectory() != null : "The folder that contains the stored data should not be null.";
+
+            File stagedStoredDataDirectory = transaction.getStoredDataDirectory();
+            assert stagedStoredDataDirectory != null : "The folder that contains the stored data should not be null.";
+
+            storedDirectory = storeBaseDirectoryHolder.getBaseDirectory();
+
+            File[] stagedFiles = stagedStoredDataDirectory.listFiles();
+            if (null == stagedFiles)
+            {
+                return;
+            }
+
+            for (File stagedFile : stagedFiles)
+            {
+                rollbackStack.pushAndExecuteCommand(new MoveFileCommand(stagedStoredDataDirectory
+                        .getAbsolutePath(), stagedFile.getName(),
+                        storedDirectory.getAbsolutePath(), stagedFile.getName()));
+            }
+
         }
 
         private IMailClient getMailClient()
@@ -396,14 +463,15 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         private final File createProcessingMarkerFile()
         {
-            final File baseDirectory = baseDirectoryHolder.getBaseDirectory();
+            final File baseDirectory = stagingBaseDirectoryHolder.getBaseDirectory();
             final File baseParentDirectory = baseDirectory.getParentFile();
             final String processingDirName = baseDirectory.getName();
             markerFile =
                     new File(baseParentDirectory, Constants.PROCESSING_PREFIX + processingDirName);
             try
             {
-                getFileOperations().createNewFile(markerFile);
+                rollbackStack
+                        .pushAndExecuteCommand(new NewFileCommand(markerFile.getAbsolutePath()));
             } catch (final IOExceptionUnchecked ex)
             {
                 throw EnvironmentFailureException.fromTemplate(ex,
@@ -435,11 +503,17 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         protected final File markerFile;
 
+        protected final File stagingDirectory;
+
+        protected final File storedDirectory;
+
         public StoredState(PreparedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
             this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
+            this.stagingDirectory = oldState.stagingBaseDirectoryHolder.getBaseDirectory();
+            this.storedDirectory = oldState.storedDirectory;
         }
 
         /**
@@ -456,7 +530,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public File getStoredDirectory()
         {
-            return transaction.getStoredDataDirectory();
+            return storedDirectory;
         }
 
         /**
@@ -465,6 +539,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         private void cleanUp()
         {
             getFileOperations().delete(markerFile);
+            getFileOperations().delete(stagingDirectory);
         }
     }
 

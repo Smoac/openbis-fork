@@ -26,13 +26,13 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class MkdirsCommand extends AbstractTransactionalCommand
+public class MkdirsCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
 
     private final String directoryAbsoutePath;
 
-    MkdirsCommand(String directoryAbsoutePath)
+    public MkdirsCommand(String directoryAbsoutePath)
     {
         this.directoryAbsoutePath = directoryAbsoutePath;
 

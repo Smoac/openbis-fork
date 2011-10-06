@@ -144,8 +144,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation), dataSet.getLocation());
+        assertEquals(new File(stagingDirectory, DATA_SET_CODE + "-storage"),
+                MockStorageProcessor.instance.rootDirs.get(0));
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
                 incomingDir);
@@ -319,7 +320,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation1), dataSet1.getLocation());
-        assertEquals(datasetLocation1, MockStorageProcessor.instance.rootDirs.get(0));
+        assertEquals(new File(stagingDirectory, DATA_SET_CODE + 1 + "-storage"),
+                MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 1), "sub_data_set_1"),
                 incomingDir1);
@@ -336,7 +338,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                 datasetLocation2), dataSet2.getLocation());
-        assertEquals(datasetLocation2, MockStorageProcessor.instance.rootDirs.get(1));
+        assertEquals(new File(stagingDirectory, DATA_SET_CODE + 2 + "-storage"),
+                MockStorageProcessor.instance.rootDirs.get(1));
         File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 2), "sub_data_set_2"),
                 incomingDir2);
@@ -391,11 +394,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         DATABASE_INSTANCE_UUID);
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation),
-
-        dataSet.getLocation());
+                datasetLocation), dataSet.getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
                 incomingDir);
@@ -463,11 +463,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         DATABASE_INSTANCE_UUID);
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation),
-
-        dataSet.getLocation());
+                datasetLocation), dataSet.getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         File incomingDir = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE), "sub_data_set_1"),
                 incomingDir);
@@ -604,11 +601,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         DATABASE_INSTANCE_UUID);
         assertEquals(FileUtilities.getRelativeFilePath(new File(workingDirectory,
                 ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                datasetLocation),
-
-        dataSet.getLocation());
+                datasetLocation), dataSet.getLocation());
         assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
-        assertEquals(datasetLocation, MockStorageProcessor.instance.rootDirs.get(0));
         context.assertIsSatisfied();
     }
 

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class MoveFileCommand extends AbstractTransactionalCommand
+public class MoveFileCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ class MoveFileCommand extends AbstractTransactionalCommand
 
     private final String dstFileName;
 
-    MoveFileCommand(String srcParentDirAbsolutePath, String srcFileName,
+    public MoveFileCommand(String srcParentDirAbsolutePath, String srcFileName,
             String dstParentDirAbsolutePath, String dstFileName)
     {
         this.srcParentDirAbsolutePath = srcParentDirAbsolutePath;

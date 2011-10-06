@@ -271,7 +271,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                     new ContainerDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
                             registratorContext.getStorageProcessor(),
                             globalContext.getDataSetValidator(), globalContext.getDssCode(),
-                            registratorContext.getFileOperations(), globalContext.getMailClient());
+                            registratorContext.getFileOperations(), globalContext.getMailClient(),
+                            stagingDirectory);
         } else
         {
 
@@ -279,7 +280,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                     new DataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
                             registratorContext.getStorageProcessor(),
                             globalContext.getDataSetValidator(), globalContext.getDssCode(),
-                            registratorContext.getFileOperations(), globalContext.getMailClient());
+                            registratorContext.getFileOperations(), globalContext.getMailClient(),
+                            stagingDirectory);
         }
         return algorithm;
     }

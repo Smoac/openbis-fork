@@ -52,21 +52,22 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
      * @param dataStoreCode
      * @param fileOperations
      * @param mailClient
+     * @param stagingDirectory
      */
     public ContainerDataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
-            IFileOperations fileOperations, IMailClient mailClient)
+            IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)
     {
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
-                dataSetValidator, dataStoreCode, fileOperations, mailClient);
+                dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory);
 
         state = new InitializedState<T>(this);
     }
 
     @Override
-    public IStorageProcessorTransaction prepare()
+    public IStorageProcessorTransaction prepare(IRollbackStack rollbackStack)
     {
         InitializedState<T> initializedState = (InitializedState<T>) state;
         initializedState.prepare();

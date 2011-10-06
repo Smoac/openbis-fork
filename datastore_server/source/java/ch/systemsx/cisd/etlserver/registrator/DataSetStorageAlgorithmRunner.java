@@ -107,7 +107,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         for (DataSetStorageAlgorithm<T> storageAlgorithm : dataSetStorageAlgorithms)
         {
-            IStorageProcessorTransaction transaction = storageAlgorithm.prepare();
+            IStorageProcessorTransaction transaction = storageAlgorithm.prepare(rollbackStack);
             ITransactionalCommand command = new StorageProcessorTransactionCommand(transaction);
             rollbackStack.pushAndExecuteCommand(command);
         }
