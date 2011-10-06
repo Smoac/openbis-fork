@@ -137,7 +137,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
     }
 
     private ProteinByExperimentBrowserGrid(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, final Experiment experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
@@ -161,7 +161,7 @@ class ProteinByExperimentBrowserGrid extends TypedTableGrid<ProteinInfo>
                         public String tryGetLink(ProteinInfo entity,
                                 ISerializableComparable comparableValue)
                         {
-                            return null;
+                            return ProteinViewLocatorResolver.createLink(experiment, entity);
                         }
                     });
     }

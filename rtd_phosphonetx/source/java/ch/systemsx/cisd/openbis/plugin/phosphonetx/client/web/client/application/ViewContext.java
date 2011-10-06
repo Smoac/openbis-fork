@@ -21,6 +21,7 @@ import com.google.gwt.core.client.GWT;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.Constants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -47,6 +48,13 @@ public class ViewContext extends AbstractPluginViewContext<IPhosphoNetXClientSer
     protected IPhosphoNetXClientServiceAsync createClientServiceAsync()
     {
         return GWT.create(IPhosphoNetXClientService.class);
+    }
+
+    @Override
+    protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry)
+    {
+        super.initializeLocatorHandlerRegistry(handlerRegistry);
+        handlerRegistry.registerHandler(new ProteinViewLocatorResolver(this));
     }
 
 }

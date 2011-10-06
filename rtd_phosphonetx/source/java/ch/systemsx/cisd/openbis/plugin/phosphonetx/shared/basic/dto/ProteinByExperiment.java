@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteinByExperiment extends AccessionNumberProvider
+public class ProteinByExperiment extends AccessionNumberProvider implements IBasicProteinInfo
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    private TechId id;
     
     private String description;
 
@@ -48,5 +51,16 @@ public class ProteinByExperiment extends AccessionNumberProvider
     {
         this.details = details;
     }
+
+    public final TechId getId()
+    {
+        return id;
+    }
+
+    public final void setId(TechId id)
+    {
+        this.id = id;
+    }
+
 
 }

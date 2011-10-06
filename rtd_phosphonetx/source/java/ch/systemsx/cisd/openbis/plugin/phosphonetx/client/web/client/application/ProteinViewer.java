@@ -61,11 +61,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IBasicProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IndistinguishableProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinDetails;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 
 /**
  * @author Franz-Josef Elmer
@@ -81,7 +81,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
 
     static AbstractTabItemFactory createTabItemFactory(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final Experiment experiment, final ProteinInfo proteinInfo)
+            final Experiment experiment, final IBasicProteinInfo proteinInfo)
     {
         return new AbstractTabItemFactory()
             {
@@ -123,7 +123,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             };
     }
 
-    private static String getAbbreviatedDescription(final ProteinInfo proteinInfo)
+    private static String getAbbreviatedDescription(final IBasicProteinInfo proteinInfo)
     {
         String info = proteinInfo.getDescription();
         if (info == null)
@@ -141,14 +141,14 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
 
     private final Experiment experimentOrNull;
 
-    private final ProteinInfo proteinInfo;
+    private final IBasicProteinInfo proteinInfo;
 
     private final TechId proteinReferenceID;
 
     private ProteinSamplesSection proteinSamplesSection;
 
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experiment, ProteinInfo proteinInfo)
+            Experiment experiment, IBasicProteinInfo proteinInfo)
     {
         super(viewContext, "", createWidgetID(experiment, proteinInfo.getId()), false);
         this.experimentOrNull = experiment;

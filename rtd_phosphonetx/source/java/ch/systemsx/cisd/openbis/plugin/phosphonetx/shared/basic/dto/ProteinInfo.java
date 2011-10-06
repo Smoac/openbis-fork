@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteinInfo implements ISerializable
+public class ProteinInfo implements ISerializable, IBasicProteinInfo
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

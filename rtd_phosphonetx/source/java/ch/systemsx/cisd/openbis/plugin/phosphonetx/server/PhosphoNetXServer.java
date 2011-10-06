@@ -177,6 +177,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         {
             throw new UserFailureException("No protein reference found for ID: " + proteinReferenceID);
         }
+        proteinByExperiment.setId(proteinReferenceID);
         AccessionNumberBuilder builder =
                 new AccessionNumberBuilder(proteinReference.getAccessionNumber());
         proteinByExperiment.setAccessionNumber(builder.getAccessionNumber());
