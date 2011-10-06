@@ -6,7 +6,7 @@
 #
 # Example : 
 #
-# ./register-master-data.sh -s https://localhost:8443/openbis/openbis
+# ./export-master-data.sh -s https://localhost:8443/openbis/openbis
 #
 # -----------------------------------------------------------
 
@@ -15,4 +15,4 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-./register-master-data.sh -f "$BASE/export-master-data.py" "$@"
+"$BASE/register-master-data.sh" -f "$BASE/export-master-data.py" "$@"
