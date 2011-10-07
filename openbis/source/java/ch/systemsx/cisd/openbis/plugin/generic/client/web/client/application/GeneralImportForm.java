@@ -92,7 +92,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
     protected final void onRender(final Element target, final int index)
     {
         super.onRender(target, index);
-        addFormFields(false);
+        addFormFields();
     }
 
     private CheckBox createCheckBox()
@@ -107,8 +107,12 @@ public class GeneralImportForm extends AbstractRegistrationForm
                 {
                     if (checkBox.getValue())
                     {
-                        formPanel.removeAll();
-                        addFormFields(true);
+                        formPanel.remove(asynchronous);
+                        for (FileUploadField attachmentField : fileFieldsManager.getFields())
+                        {
+                            formPanel.remove(wrapUnaware((Field<?>) attachmentField).get());
+                        }
+                        addOnlyFormFields(true);
                     } else
                     {
                         formPanel.remove(emailField);
@@ -151,7 +155,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
         }
     }
 
-    private final void addFormFields(boolean forceAddEmailField)
+    private final void addOnlyFormFields(boolean forceAddEmailField)
     {
         formPanel.add(asynchronous);
         if (forceAddEmailField || asynchronous.getValue())
@@ -162,6 +166,11 @@ public class GeneralImportForm extends AbstractRegistrationForm
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
         }
+    }
+
+    private final void addFormFields()
+    {
+        addOnlyFormFields(false);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
