@@ -326,7 +326,7 @@ assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE.setSection(None)
 assignment_DATA_SET_HCS_IMAGE_SEGMENTATION_ANALYSIS_PROCEDURE.setPositionInForms(1)
 
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY = tr.assignPropertyType(samp_type_PLATE, prop_type_PLATE_GEOMETRY)
-assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setMandatory(False)
+assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setMandatory(True)
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setSection(None)
 assignment_SAMPLE_PLATE_PLATE_GEOMETRY.setPositionInForms(1)
 
