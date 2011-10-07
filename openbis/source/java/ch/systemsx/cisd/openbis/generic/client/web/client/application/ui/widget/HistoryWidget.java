@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -181,15 +182,18 @@ public class HistoryWidget extends ContentPanel
                         EntityVisit visit = evm.getVisit();
                         final String displayText = visit.getIdentifier();
                         final EntityKind entityKind = EntityKind.valueOf(visit.getEntityKind());
-                        final String permID = visit.getPermID();
+                        final String permID;
                         final String href;
+
                         if (entityKind == EntityKind.MATERIAL)
                         {
+                            permID = StringEscapeUtils.unescapeHtml(visit.getPermID());
                             href =
                                     LinkExtractor.tryExtract(MaterialIdentifier
                                             .tryParseIdentifier(permID));
                         } else
                         {
+                            permID = visit.getPermID();
                             href = LinkExtractor.createPermlink(entityKind, permID);
                         }
                         final ClickHandler listener = new ClickHandler()

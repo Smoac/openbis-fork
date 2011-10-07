@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.csvreader.CsvReader;
 
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.server.library_tools.QiagenScreeningLibraryColumnExtractor.GeneDetails;
 
 /**
@@ -135,7 +136,8 @@ public class ImageAnalysisGeneMerger
         }
         String[] headers = libraryReader.getValues();
         QiagenScreeningLibraryColumnExtractor extractor =
-                new QiagenScreeningLibraryColumnExtractor(headers);
+                new QiagenScreeningLibraryColumnExtractor(headers,
+                        MaterialConfigurationProvider.getInstance());
         while (libraryReader.readRecord())
         {
             String[] row = libraryReader.getValues();

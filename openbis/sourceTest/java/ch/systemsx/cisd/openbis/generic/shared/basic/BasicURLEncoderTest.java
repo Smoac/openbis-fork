@@ -73,6 +73,7 @@ public class BasicURLEncoderTest extends AssertJUnit
     {
         assertEquals("a+%2Bb%3Ac%5Cd%22e%22f", BasicURLEncoder.encode("a +b:c\\d\"e\"f"));
         assertEquals("a %2Bb:c%5Cd%22e%22f", BasicURLEncoder.encode("a +b:c\\d\"e\"f", " :"));
+        assertEquals("A-a_5.B%28c%3AC%29%2FD%25d", BasicURLEncoder.encode("A-a_5.B(c:C)/D%d"));
     }
 
 }

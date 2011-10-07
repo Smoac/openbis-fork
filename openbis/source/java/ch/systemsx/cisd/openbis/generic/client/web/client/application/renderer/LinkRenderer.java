@@ -207,7 +207,7 @@ public class LinkRenderer
             final boolean openInNewWindow, final boolean invalidate)
     {
         final Element anchor = DOM.createAnchor();
-        DOM.setInnerText(anchor, text);
+        DOM.setInnerHTML(anchor, text);
 
         DOM.setElementProperty(anchor, "href", href);
         if (openInNewWindow)
@@ -269,7 +269,7 @@ public class LinkRenderer
             final String historyHref, final boolean invalidate)
     {
         Anchor link = new Anchor();
-        link.setText(text);
+        link.setHTML(text);
         link.setStyleName(LINK_STYLE);
         setHrefOrListener(listener, historyHref, link);
         if (invalidate)

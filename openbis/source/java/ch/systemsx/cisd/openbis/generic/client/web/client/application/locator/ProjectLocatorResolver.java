@@ -54,9 +54,6 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
         return new BasicProjectIdentifier(spaceValueOrNull, codeValueOrNull);
     }
 
-    /**
-     * Open the material details tab for the specified identifier.
-     */
     protected void openInitialProjectViewer(BasicProjectIdentifier identifier)
             throws UserFailureException
     {

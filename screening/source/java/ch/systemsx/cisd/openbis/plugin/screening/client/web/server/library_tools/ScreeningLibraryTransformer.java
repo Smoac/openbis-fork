@@ -27,6 +27,7 @@ import com.csvreader.CsvReader;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
  * Transforms a screening library file and produces files which can be uploaded to openBIS: genes,
@@ -91,7 +92,8 @@ public class ScreeningLibraryTransformer
             }
             String[] headers = csvReader.getValues();
             QiagenScreeningLibraryColumnExtractor extractor =
-                    new QiagenScreeningLibraryColumnExtractor(headers);
+                    new QiagenScreeningLibraryColumnExtractor(headers,
+                            MaterialConfigurationProvider.getInstance());
             LibraryEntityRegistrator registrator =
                     new LibraryEntityRegistrator(extractor, experimentIdentifier, plateGeometry,
                             groupCode, genesFile, oligosFile, platesFile);

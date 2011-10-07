@@ -242,6 +242,19 @@
     </bean>
     
     <!--
+       Material-specific configuration 
+     -->
+   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+     <property name="targetClass"><value>ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider</value></property>
+     <property name="targetMethod"><value>initialize</value></property>
+     <property name="arguments">
+       <list>
+         <value>${material-relax-code-constraints}</value>
+       </list>
+     </property>     
+   </bean>     
+    
+    <!--
         // Plugins
     -->
 

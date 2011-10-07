@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialCodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -54,8 +55,9 @@ public class WellSearchLocatorResolver extends AbstractViewLocatorResolver
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_PARAMETER_KEY,
                         ScreeningLinkExtractor.WELL_SEARCH_SHOW_COMBINED_RESULTS_DEFAULT);
 
+        String[] materialCodes = MaterialCodeUtils.decodeList(materialCodesOrProperties);
         MaterialSearchCodesCriteria materialCodesCriteria =
-                new MaterialSearchCodesCriteria(decodeList(materialCodesOrProperties),
+                new MaterialSearchCodesCriteria(materialCodes,
                         decodeList(materialTypeCodes), exactMatchOnly);
 
         MaterialSearchCriteria materialSearchCriteria =

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 /**
@@ -69,13 +70,24 @@ public class MaterialHelper
 
     private final IPropertiesBatchManager propertiesBatchManager;
 
+    private final MaterialConfigurationProvider materialConfig;
+
     public MaterialHelper(Session session, IAbstractBussinessObjectFactory businessObjectFactory,
             IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager)
+    {
+        this(session, businessObjectFactory, daoFactory, propertiesBatchManager,
+                MaterialConfigurationProvider.getInstance());
+    }
+
+    MaterialHelper(Session session, IAbstractBussinessObjectFactory businessObjectFactory,
+            IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+            MaterialConfigurationProvider materialConfig)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
         this.propertiesBatchManager = propertiesBatchManager;
+        this.materialConfig = materialConfig;
     }
 
     public List<Material> registerMaterials(String materialTypeCode,
@@ -153,9 +165,10 @@ public class MaterialHelper
                     List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
                     for (NewMaterial material : entities)
                     {
-                        Material existingMaterial =
-                                existingMaterials.get(CodeConverter.tryToDatabase(material
-                                        .getCode()));
+                        final String materialDBCode =
+                                MaterialCodeConverter.tryMaterialCodeToDatabase(material.getCode(),
+                                        materialConfig);
+                        Material existingMaterial = existingMaterials.get(materialDBCode);
                         if (existingMaterial != null)
                         {
                             materialUpdates.add(createMaterialUpdate(existingMaterial, material));
@@ -196,8 +209,10 @@ public class MaterialHelper
         List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
         for (NewMaterial material : materials)
         {
-            Material existingMaterial =
-                    existingMaterials.get(CodeConverter.tryToDatabase(material.getCode()));
+            String materialDBCode =
+                    MaterialCodeConverter.tryMaterialCodeToDatabase(material.getCode(),
+                            materialConfig);
+            Material existingMaterial = existingMaterials.get(materialDBCode);
             if (existingMaterial != null)
             {
                 materialUpdates.add(createMaterialUpdate(existingMaterial, material));

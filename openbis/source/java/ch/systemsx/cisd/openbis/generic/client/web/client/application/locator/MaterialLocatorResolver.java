@@ -51,7 +51,8 @@ public class MaterialLocatorResolver extends AbstractViewLocatorResolver
         checkRequiredParameter(codeValueOrNull, CODE_PARAMETER_KEY);
         checkRequiredParameter(materialTypeValueOrNull, TYPE_PARAMETER_KEY);
 
-        return new MaterialIdentifier(codeValueOrNull, materialTypeValueOrNull);
+        String decodedMaterialCode = MaterialCodeUtils.decode(codeValueOrNull);
+        return new MaterialIdentifier(decodedMaterialCode, materialTypeValueOrNull);
     }
 
     /**

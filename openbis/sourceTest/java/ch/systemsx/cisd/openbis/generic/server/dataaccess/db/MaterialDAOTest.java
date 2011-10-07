@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
  * Test cases for corresponding {@link MaterialDAO} class.
@@ -65,6 +66,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
     public void setUp()
     {
         super.setUp();
+        MaterialConfigurationProvider.initializeForTesting(false);
         materialDAO = daoFactory.getMaterialDAO();
     }
 
@@ -181,6 +183,36 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
         allBacterias.removeAll(preExistingBacterias);
         materialDAO.delete(TechId.createList(allBacterias), getSystemPerson(), "test reason");
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testCreateMaterialsStrictCodeConstraints() throws Exception
+    {
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, ":()ABC.12/D"));
+        materialDAO.createOrUpdateMaterials(newMaterials);
+    }
+
+    @Test
+    public void testCreateMaterialsRelaxedCodeConstraints() throws Exception
+    {
+        MaterialConfigurationProvider.initializeForTesting(true);
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, ":()ABC.12/D"));
+        newMaterials.add(createMaterial(type, "id/14(head:tail)%division"));
+        materialDAO.createOrUpdateMaterials(newMaterials);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testCreateMaterialsRelaxedCodeConstraintsAndWhiteSpace() throws Exception
+    {
+        MaterialConfigurationProvider.initializeForTesting(true);
+        MaterialTypePE type = getMaterialType();
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, "A B"));
+        materialDAO.createOrUpdateMaterials(newMaterials);
     }
 
     private MaterialTypePE getMaterialType()

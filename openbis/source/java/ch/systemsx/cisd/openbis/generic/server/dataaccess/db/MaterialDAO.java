@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static ch.systemsx.cisd.openbis.generic.shared.dto.ValidationMessages.CODE_PATTERN_MESSAGE;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -28,6 +33,7 @@ import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -36,8 +42,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -46,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
  * Data access object for {@link MaterialPE}.
@@ -60,6 +69,12 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             MaterialDAO.class);
+
+    private static final Pattern STRICT_CODE_PATTERN = Pattern.compile(
+            AbstractIdAndCodeHolder.CODE_PATTERN, Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern RELAXED_CODE_PATTERN = Pattern.compile("^[^\\s]+$",
+            Pattern.CASE_INSENSITIVE);
 
     protected MaterialDAO(final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance)
@@ -114,12 +129,41 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     {
         assert material.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(material);
-        material.setCode(CodeConverter.tryToDatabase(material.getCode()));
+        validateMaterialCode(material);
         hibernateTemplate.saveOrUpdate(material);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("ADD: material '%s'.", material));
         }
+    }
+
+    private void validateMaterialCode(MaterialPE material)
+    {
+        Pattern codePattern = null;
+        if (isStrictCodeConstraints())
+        {
+            material.setCode(CodeConverter.tryToDatabase(material.getCode()));
+            codePattern = STRICT_CODE_PATTERN;
+        } else
+        {
+            codePattern = RELAXED_CODE_PATTERN;
+        }
+
+        if (false == isValidCode(material.getCode(), codePattern))
+        {
+            throw new DataIntegrityViolationException(String.format(CODE_PATTERN_MESSAGE,
+                    material.getCode()));
+        }
+    }
+
+    private boolean isStrictCodeConstraints()
+    {
+        return getMaterialConfig().isStrictCodeConstraints();
+    }
+
+    private MaterialConfigurationProvider getMaterialConfig()
+    {
+        return MaterialConfigurationProvider.getInstance();
     }
 
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
@@ -131,7 +175,9 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     {
         assert identifier != null : "identifier not given";
 
-        String code = CodeConverter.tryToDatabase(identifier.getCode());
+        String code =
+                MaterialCodeConverter.tryMaterialCodeToDatabase(identifier.getCode(),
+                        getMaterialConfig());
         String typeCode = CodeConverter.tryToDatabase(identifier.getTypeCode());
 
         final Criteria criteria = session.createCriteria(ENTITY_CLASS);
@@ -244,6 +290,16 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     Logger getLogger()
     {
         return operationLog;
+    }
+
+    private final boolean isValidCode(String code, Pattern pattern)
+    {
+        if (StringUtils.isEmpty(code))
+        {
+            return false;
+        }
+        Matcher m = pattern.matcher(code);
+        return m.matches();
     }
 
 }

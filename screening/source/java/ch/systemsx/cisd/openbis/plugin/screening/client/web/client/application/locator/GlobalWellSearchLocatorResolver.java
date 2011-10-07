@@ -8,6 +8,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialCodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -48,6 +49,10 @@ public class GlobalWellSearchLocatorResolver extends AbstractViewLocatorResolver
                     String materialsList =
                             getOptionalParameter(locator,
                                     ScreeningLinkExtractor.WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY);
+                    if (materialsList != null)
+                    {
+                        materialsList = MaterialCodeUtils.decode(materialsList);
+                    }
                     Boolean exactMatchOnly =
                             getOptionalBooleanParameter(locator,
                                     ScreeningLinkExtractor.WELL_SEARCH_IS_EXACT_PARAMETER_KEY);

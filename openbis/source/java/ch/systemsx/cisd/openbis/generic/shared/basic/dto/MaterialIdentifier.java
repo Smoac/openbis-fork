@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
@@ -92,7 +93,7 @@ public final class MaterialIdentifier implements ISerializable
      */
     public static MaterialIdentifier tryParseIdentifier(String value)
     {
-        if (value == null || value.length() == 0)
+        if (StringUtils.isBlank(value))
         {
             return null;
         }
