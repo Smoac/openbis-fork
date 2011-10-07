@@ -26,6 +26,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -112,16 +113,47 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
 
         final List<PersonPE> persons =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.userId = ? "
+                        String.format("from %s p where lower(p.userId) = ? "
                                 + "and p.databaseInstance = ?", TABLE_NAME),
-                        toArray(userId, getDatabaseInstance())));
-        final PersonPE person = tryFindEntity(persons, "persons", userId);
+                        toArray(userId.toLowerCase(), getDatabaseInstance())));
+        final PersonPE person = tryFindPerson(persons, userId);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
                     .getName(), userId, person));
         }
         return person;
+    }
+
+    /**
+     * Checks given <var>persons</var> and throws a {@link IncorrectResultSizeDataAccessException}
+     * if it contains more than one item and no person is found that exactly matches the
+     * <var>userId</var>.
+     * 
+     * @return <code>null</code> or the entity found at index <code>0</code>.
+     */
+    private final static PersonPE tryFindPerson(final List<PersonPE> persons, final String userId)
+            throws IncorrectResultSizeDataAccessException
+    {
+        final int size = persons.size();
+        switch (size)
+        {
+            case 0:
+                return null;
+            case 1:
+                return persons.get(0);
+            default:
+                for (PersonPE p : persons)
+                {
+                    if (p.getUserId().equals(userId))
+                    {
+                        return p;
+                    }
+                }
+                throw new IncorrectResultSizeDataAccessException(String.format(
+                        "%d persons found for user id '%s'. Expected: 1 or 0.", size, userId), 1,
+                        size);
+        }
     }
 
     public final PersonPE tryFindPersonByEmail(final String emailAddress)
@@ -176,4 +208,5 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         criteria.add(Restrictions.in("userId", userIds));
         return cast(criteria.list());
     }
+
 }

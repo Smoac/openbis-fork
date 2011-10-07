@@ -31,10 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public interface IPersonDAO extends IGenericDAO<PersonPE>
 {
     /**
-     * Finds the technical id of the person with the specified user id.
+     * Finds the technical id of the person with the specified user id, where the case of the
+     * <var>userId</var> is ignored.
      * 
      * @param userId user id. Can not be blank.
-     * @return <code>null</code>, if no person with that id exists.
+     * @return <code>null</code>, if no person with that id exists. If multiple persons with the
+     *         given user id exist, then the userId is checked with case sensitivity and only an
+     *         exact match is accepted.
      */
     public PersonPE tryFindPersonByUserId(String userId) throws DataAccessException;
 

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -53,12 +54,17 @@ public final class PersonDAOTest extends AbstractDAOTest
 
     public final static PersonPE createPerson()
     {
+        return createPerson(2L, getTestUserId());
+    }
+
+    public final static PersonPE createPerson(long id, String userId)
+    {
         final PersonPE person = new PersonPE();
-        person.setId(2L);
+        person.setId(id);
         person.setFirstName("Christian");
         person.setLastName("Ribeaud");
         person.setEmail("christian.ribeaud@systemsx.ch");
-        person.setUserId(getTestUserId());
+        person.setUserId(userId);
         return person;
     }
 
@@ -81,7 +87,9 @@ public final class PersonDAOTest extends AbstractDAOTest
     public final void testCreatePerson()
     {
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
-        final PersonPE testPerson = createPerson();
+        final PersonPE testPerson = createPerson(2L, getTestUserId().toUpperCase());
+        final PersonPE testPerson2 = createPerson(3L, getTestUserId().toLowerCase());
+        final PersonPE testPerson3 = createPerson(4L, getTestUserId() + "X");
         try
         {
             // Try with <code>null</code>
@@ -92,10 +100,14 @@ public final class PersonDAOTest extends AbstractDAOTest
             assertEquals("Given person can not be null.", e.getMessage());
         }
         personDAO.createPerson(testPerson);
+        personDAO.createPerson(testPerson2);
+        personDAO.createPerson(testPerson3);
         final List<PersonPE> persons = personDAO.listPersons();
-        assertEquals(5, persons.size());
+        assertEquals(7, persons.size());
         final PersonPE testPersonFromDB = personDAO.getPerson(testPerson.getId());
         assertEquals(testPerson, testPersonFromDB);
+        final PersonPE testPersonFromDB2 = personDAO.getPerson(testPerson2.getId());
+        assertEquals(testPerson2, testPersonFromDB2);
     }
 
     @Test
@@ -129,7 +141,8 @@ public final class PersonDAOTest extends AbstractDAOTest
     @Test(dependsOnMethods = "testCreatePerson")
     public final void testTryFindPersonIdByUserID()
     {
-        final PersonPE testPerson = createPerson();
+        final PersonPE testPerson = createPerson(2L, getTestUserId());
+        final PersonPE testPerson2 = createPerson(4L, getTestUserId() + "X");
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
         boolean fail = true;
         try
@@ -141,8 +154,16 @@ public final class PersonDAOTest extends AbstractDAOTest
         }
         assertEquals(false, fail);
         // Get a person given its user Id.
-        final Long id = personDAO.tryFindPersonByUserId(testPerson.getUserId()).getId();
-        assertNotNull(id);
+        // This user exists only once regardless of capitalization:
+        final String mangledUserId = StringUtils.capitalize(testPerson2.getUserId().toLowerCase());
+        final PersonPE person = personDAO.tryFindPersonByUserId(mangledUserId);
+        assertNotNull(person.getId());
+        assertFalse(mangledUserId.equals(person.getUserId()));
+        assertTrue(mangledUserId.toLowerCase().equals(person.getUserId().toLowerCase()));
+        // This user exists twice with different capitalization, but we choose a user id that exists
+        // exactly
+        final PersonPE person2 = personDAO.tryFindPersonByUserId(testPerson.getUserId());
+        assertNotNull(person2.getId());
         // Change database instance id.
         changeDatabaseInstanceId(personDAO);
         assertNull(personDAO.tryFindPersonByUserId(testPerson.getUserId()));
