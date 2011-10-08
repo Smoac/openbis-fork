@@ -54,8 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
- * Archiving maintenance task which archives all data sets of experiments starting with
- * the oldest experiment if free disk space is below a threshold.
+ * Archiving maintenance task which archives all data sets of experiments starting with the oldest
+ * experiment if free disk space is below a threshold.
  * 
  * @author Franz-Josef Elmer
  */
@@ -66,18 +66,16 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             ExperimentBasedArchivingTask.class);
-    
+
     static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
 
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     static final String MONITORED_SHARE_KEY = "monitored-share";
-    
-    static final String EXCLUDED_DATA_SET_TYPES_KEY = "excluded-data-set-types";
-    
-    static final String MAX_NUMBER_OF_EXPERIMENTS_KEY = "max-number-of-experiments";
 
-    static final String REMOVE_DATASETS_FROM_STORE = "remove-datasets-from-store";
+    static final String EXCLUDED_DATA_SET_TYPES_KEY = "excluded-data-set-types";
+
+    static final String MONITORED_DIR = "monitored-dir";
 
     private static final EnumSet<DataSetArchivingStatus> ARCHIVE_STATES = EnumSet.of(
             DataSetArchivingStatus.ARCHIVE_PENDING, DataSetArchivingStatus.ARCHIVED);
@@ -88,19 +86,15 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private File storeRoot;
 
-    private File share;
+    private File monitoredDirectory;
 
     private long minimumFreeSpace;
 
-    private String shareID;
+    private String shareIDOrNull;
 
     private final IShareIdManager shareIdManager;
 
     private Set<String> excludedDataSetTypes;
-
-    private int maxNumberOfExperiments;
-
-    private boolean removeFromDataStore;
 
     public ExperimentBasedArchivingTask()
     {
@@ -131,12 +125,27 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             throw new ConfigurationFailureException(
                     "Store root doesn't exists or isn't a directory: " + storeRoot);
         }
-        shareID = PropertyUtils.getMandatoryProperty(properties, MONITORED_SHARE_KEY);
-        share = new File(storeRoot, shareID);
-        if (share.isDirectory() == false)
+        final String monitoredDirPath = PropertyUtils.getProperty(properties, MONITORED_DIR);
+        if (monitoredDirPath == null)
         {
-            throw new ConfigurationFailureException("Share " + shareID
-                    + " doesn't exists or isn't a directory.");
+            shareIDOrNull = PropertyUtils.getMandatoryProperty(properties, MONITORED_SHARE_KEY);
+            monitoredDirectory = new File(storeRoot, shareIDOrNull);
+        } else
+        {
+            shareIDOrNull = null;
+            monitoredDirectory = new File(monitoredDirPath);
+        }
+        if (monitoredDirectory.isDirectory() == false)
+        {
+            if (monitorDataStoreShare())
+            {
+                throw new ConfigurationFailureException("Share " + shareIDOrNull
+                        + " doesn't exists or isn't a directory.");
+            } else
+            {
+                throw new ConfigurationFailureException("Directory '" + monitoredDirPath
+                        + "' doesn't exists or isn't a directory.");
+            }
         }
         minimumFreeSpace =
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
@@ -144,10 +153,6 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                 new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                         properties.getProperty(EXCLUDED_DATA_SET_TYPES_KEY, ""),
                         EXCLUDED_DATA_SET_TYPES_KEY)));
-        maxNumberOfExperiments = PropertyUtils.getInt(properties, MAX_NUMBER_OF_EXPERIMENTS_KEY, 0);
-
-        removeFromDataStore =
-                PropertyUtils.getBoolean(properties, REMOVE_DATASETS_FROM_STORE, false);
     }
 
     public void execute()
@@ -177,13 +182,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
         Collections.sort(infos, new ExperimentDataSetsInfoComparator());
         StringBuilder archivingMessages = new StringBuilder();
-        if (maxNumberOfExperiments > 0)
-        {
-            for (int i = 0; i < Math.min(maxNumberOfExperiments, infos.size()); i++)
-            {
-                archive(infos.get(i), archivingMessages);
-            }
-        } else
+        if (monitorDataStoreShare())
         {
             for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
             {
@@ -191,49 +190,63 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                 freeSpace += info.calculateSize();
                 archive(info, archivingMessages);
             }
+        } else
+        {
+            for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
+            {
+                if (archive(infos.get(i), archivingMessages))
+                {
+                    freeSpace = getFreeSpace();
+                }
+            }
         }
         if (archivingMessages.length() > 0)
         {
             notificationLog.info("Archiving summary:" + archivingMessages);
         }
     }
-    
+
+    private boolean monitorDataStoreShare()
+    {
+        return shareIDOrNull != null;
+    }
+
     private long getFreeSpace()
     {
         try
         {
-            return 1024L * freeSpaceProvider.freeSpaceKb(new HostAwareFile(share));
+            return 1024L * freeSpaceProvider.freeSpaceKb(new HostAwareFile(monitoredDirectory));
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private void archive(ExperimentDataSetsInfo info, StringBuilder archivingMessages)
+    private boolean archive(ExperimentDataSetsInfo info, StringBuilder archivingMessages)
     {
         List<DataSet> dataSets = info.getDataSetsToBeArchived();
         if (dataSets.isEmpty())
         {
-            return;
+            return false;
         }
         List<String> dataSetCodes = new ArrayList<String>();
         for (DataSet dataSet : dataSets)
         {
             dataSetCodes.add(dataSet.getCode());
         }
-        String message =
-                "Starting archiving " + dataSetCodes.size()
-                        + " data sets (if not already archived) of experiment "
+        final String message =
+                "Starting archiving " + dataSetCodes.size() + " data sets of experiment "
                         + info.getExperimentIdentifier() + ": " + dataSetCodes;
         operationLog.info(message);
         archivingMessages.append('\n').append(message);
-        service.archiveDataSets(dataSetCodes, removeFromDataStore);
+        service.archiveDataSets(dataSetCodes, true);
+        return true;
     }
-    
+
     private final class ExperimentDataSetsInfo
     {
         private Date lastModificationDate;
-        
+
         private List<DataSet> dataSetsToBeArchived = new ArrayList<DataSet>();
 
         private final String experimentIdentifier;
@@ -241,7 +254,6 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         ExperimentDataSetsInfo(String experimentIdentifier, List<ExternalData> dataSets)
         {
             this.experimentIdentifier = experimentIdentifier;
-            boolean hasLockedDataSet = false;
             for (ExternalData dataSet : dataSets)
             {
                 if (dataSet instanceof DataSet == false)
@@ -249,7 +261,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                     continue;
                 }
                 DataSet realDataSet = (DataSet) dataSet;
-                if (shareID.equals(realDataSet.getShareId()) == false)
+                if (shareIDOrNull != null
+                        && realDataSet.getShareId().equals(shareIDOrNull) == false)
                 {
                     continue;
                 }
@@ -260,7 +273,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                 DataSetArchivingStatus status = realDataSet.getStatus();
                 if (DataSetArchivingStatus.LOCKED.equals(status))
                 {
-                    hasLockedDataSet = true;
+                    continue;
                 }
                 if (ARCHIVE_STATES.contains(status))
                 {
@@ -276,10 +289,6 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                 {
                     lastModificationDate = modificationDate;
                 }
-            }
-            if (hasLockedDataSet)
-            {
-                dataSetsToBeArchived.clear();
             }
         }
 
@@ -325,7 +334,8 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
     }
 
-    private final class ExperimentDataSetsInfoComparator implements Comparator<ExperimentDataSetsInfo>
+    private final class ExperimentDataSetsInfoComparator implements
+            Comparator<ExperimentDataSetsInfo>
     {
         public int compare(ExperimentDataSetsInfo i1, ExperimentDataSetsInfo i2)
         {
