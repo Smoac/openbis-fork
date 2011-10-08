@@ -167,4 +167,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "list-projects");
         return null;
     }
+
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
+            String sessionToken)
+    {
+        logAccess(sessionToken, "list-vocabularies");
+        return null;
+    }
 }

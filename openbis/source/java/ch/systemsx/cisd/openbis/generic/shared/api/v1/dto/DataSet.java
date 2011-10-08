@@ -192,10 +192,11 @@ public final class DataSet implements Serializable
      */
     public DataSet(DataSetInitializer initializer)
     {
-        checkValidString(initializer.getCode(), "Unspecified code.");
+        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        checkValidString(initializer.getExperimentIdentifier(), "Unspecified experiment.");
+        InitializingChecks.checkValidString(initializer.getExperimentIdentifier(),
+                "Unspecified experiment.");
         this.experimentIdentifier = initializer.getExperimentIdentifier();
 
         this.sampleIdentifierOrNull = initializer.getSampleIdentifierOrNull();
@@ -203,7 +204,8 @@ public final class DataSet implements Serializable
         // Either the sample identifier or experiment identifier should be non-null
         assert sampleIdentifierOrNull != null || experimentIdentifier != null;
 
-        checkValidString(initializer.getDataSetTypeCode(), "Unspecified data set type code.");
+        InitializingChecks.checkValidString(initializer.getDataSetTypeCode(),
+                "Unspecified data set type code.");
         this.dataSetTypeCode = initializer.getDataSetTypeCode();
 
         this.properties = initializer.getProperties();
@@ -212,27 +214,10 @@ public final class DataSet implements Serializable
         this.parentCodes = initializer.getParentCodes();
         this.childrenCodes = initializer.getChildrenCodes();
 
-        checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+        InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
 
-    }
-
-    private void checkValidString(String string, String message) throws IllegalArgumentException
-    {
-        if (string == null || string.length() == 0)
-        {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    private void checkValidRegistrationDetails(EntityRegistrationDetails details, String message)
-            throws IllegalArgumentException
-    {
-        if (details == null)
-        {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     /**

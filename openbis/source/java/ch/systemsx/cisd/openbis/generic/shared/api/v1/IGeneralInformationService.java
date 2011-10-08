@@ -191,11 +191,23 @@ public interface IGeneralInformationService extends IRpcService
      * (de)serialize a {@link Vocabulary} object to/from String. Any working implementation will
      * make the life of non-java clients (e.g. Javascript) unnecessarily complicated.
      * 
+     * @deprecated Please use {@link #listVocabularies(String)} instead.
      * @since 1.6
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @Deprecated
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
+            String sessionToken);
+
+    /**
+     * Returns all available vocabularies together with the contained terms.
+     * 
+     * @since 1.13
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
             String sessionToken);
 
     /**

@@ -80,18 +80,10 @@ public final class DataSetType implements Serializable
      */
     public DataSetType(DataSetTypeInitializer initializer)
     {
-        checkValidString(initializer.getCode(), "Unspecified code.");
+        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
         this.propertyTypeGroups = initializer.getPropertyTypeGroups();
-    }
-
-    private void checkValidString(String string, String message) throws IllegalArgumentException
-    {
-        if (string == null || string.length() == 0)
-        {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     /**

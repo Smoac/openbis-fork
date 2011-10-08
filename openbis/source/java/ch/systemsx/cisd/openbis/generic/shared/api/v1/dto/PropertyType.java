@@ -131,22 +131,14 @@ public class PropertyType implements Serializable
         }
         this.dataType = initializer.getDataType();
 
-        checkValidString(initializer.getCode(), "Unspecified code.");
+        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        checkValidString(initializer.getLabel(), "Unspecified label.");
+        InitializingChecks.checkValidString(initializer.getLabel(), "Unspecified label.");
         this.label = initializer.getLabel();
 
         this.description = initializer.getDescription();
         this.mandatory = initializer.isMandatory();
-    }
-
-    private void checkValidString(String string, String message) throws IllegalArgumentException
-    {
-        if (string == null || string.length() == 0)
-        {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     public DataTypeCode getDataType()

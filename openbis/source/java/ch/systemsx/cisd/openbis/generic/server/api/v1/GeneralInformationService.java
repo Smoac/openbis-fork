@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -164,7 +165,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 12;
+        return 13;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -370,15 +371,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
                 new HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>>();
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary> privateVocabularies =
-                commonServer.listVocabularies(sessionToken, false, false);
+                commonServer.listVocabularies(sessionToken, true, false);
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary privateVocabulary : privateVocabularies)
         {
-            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms =
-                    commonServer.listVocabularyTerms(sessionToken, privateVocabulary);
-
-            vocabTerms.put(privateVocabulary, Translator.translate(privateTerms));
+            vocabTerms.put(privateVocabulary, Translator.translatePropertyTypeTerms(privateVocabulary.getTerms()));
         }
         return vocabTerms;
+    }
+
+    public List<Vocabulary> listVocabularies(String sessionToken)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary> privateVocabularies =
+                commonServer.listVocabularies(sessionToken, true, false);
+        List<Vocabulary> result = new ArrayList<Vocabulary>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary privateVocabulary : privateVocabularies)
+        {
+            result.add(Translator.translate(privateVocabulary));
+        }
+        return result;
     }
 
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
@@ -452,4 +462,5 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         return Translator.translateProjects(commonServer.listProjects(sessionToken));
     }
+
 }

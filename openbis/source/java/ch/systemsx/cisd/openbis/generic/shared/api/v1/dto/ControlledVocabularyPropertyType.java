@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -35,93 +31,15 @@ public class ControlledVocabularyPropertyType extends PropertyType
 {
     private static final long serialVersionUID = 1L;
 
-    public static class VocabularyTerm implements Serializable
+    public static class VocabularyTerm extends
+            ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm
     {
         private static final long serialVersionUID = 1L;
-
-        private String code;
-
-        private String label;
-
-        private Long ordinal;
-
-        private Boolean isOfficial;
-
-        private EntityRegistrationDetails registrationDetails;
 
         public VocabularyTerm(String code, String label, Long ordinal, Boolean isOfficial,
                 EntityRegistrationDetails registrationDetails)
         {
-            this.code = code;
-            this.label = label;
-            this.ordinal = ordinal;
-            this.isOfficial = isOfficial == null ? Boolean.TRUE : isOfficial;
-            this.registrationDetails = registrationDetails;
-        }
-
-        public String getCode()
-        {
-            return code;
-        }
-
-        public String getLabel()
-        {
-            return label;
-        }
-
-        public Long getOrdinal()
-        {
-            return ordinal;
-        }
-
-        public Boolean isOfficial()
-        {
-            return isOfficial;
-        }
-
-        /**
-         * Return the vocabulary term registration details.
-         * 
-         * @since 1.11
-         */
-        public EntityRegistrationDetails getRegistrationDetails()
-        {
-            return registrationDetails;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == this)
-            {
-                return true;
-            }
-            if (obj instanceof VocabularyTerm == false)
-            {
-                return false;
-            }
-
-            EqualsBuilder builder = new EqualsBuilder();
-            VocabularyTerm other = (VocabularyTerm) obj;
-            builder.append(getCode(), other.getCode());
-            return builder.isEquals();
-        }
-
-        @Override
-        public int hashCode()
-        {
-            HashCodeBuilder builder = new HashCodeBuilder();
-            builder.append(getCode());
-            return builder.toHashCode();
-        }
-
-        @Override
-        public String toString()
-        {
-            ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-            builder.append(getCode());
-            builder.append(getLabel());
-            return builder.toString();
+            super(code, label, ordinal, isOfficial, registrationDetails);
         }
 
         //
@@ -131,30 +49,6 @@ public class ControlledVocabularyPropertyType extends PropertyType
         {
         }
 
-        private void setOfficial(Boolean isOfficial)
-        {
-            this.isOfficial = isOfficial;
-        }
-
-        private void setCode(String code)
-        {
-            this.code = code;
-        }
-
-        private void setLabel(String label)
-        {
-            this.label = label;
-        }
-
-        private void setOrdinal(Long ordinal)
-        {
-            this.ordinal = ordinal;
-        }
-
-        private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
-        {
-            this.registrationDetails = registrationDetails;
-        }
     }
 
     public static class ControlledVocabularyPropertyTypeInitializer extends PropertyTypeInitializer

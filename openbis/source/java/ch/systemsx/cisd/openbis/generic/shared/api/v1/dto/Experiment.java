@@ -153,51 +153,27 @@ public final class Experiment implements Serializable
      */
     public Experiment(ExperimentInitializer initializer)
     {
-        checkValidLong(initializer.getId(), "Unspecified id.");
+        InitializingChecks.checkValidLong(initializer.getId(), "Unspecified id.");
         this.id = initializer.getId();
 
-        checkValidString(initializer.getPermId(), "Unspecified permanent id.");
+        InitializingChecks.checkValidString(initializer.getPermId(), "Unspecified permanent id.");
         this.permId = initializer.getPermId();
 
-        checkValidString(initializer.getCode(), "Unspecified code.");
+        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
+        InitializingChecks.checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
         this.identifier = initializer.getIdentifier();
 
-        checkValidString(initializer.getExperimentTypeCode(), "Unspecified experiment type code.");
+        InitializingChecks.checkValidString(initializer.getExperimentTypeCode(),
+                "Unspecified experiment type code.");
         this.experimentTypeCode = initializer.getExperimentTypeCode();
 
-        checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+        InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
 
         this.properties = initializer.getProperties();
-    }
-
-    private void checkValidString(String string, String message) throws IllegalArgumentException
-    {
-        if (string == null || string.length() == 0)
-        {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    private void checkValidLong(Long longValue, String message) throws IllegalArgumentException
-    {
-        if (longValue == null || longValue == 0)
-        {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    private void checkValidRegistrationDetails(EntityRegistrationDetails details, String message)
-            throws IllegalArgumentException
-    {
-        if (details == null)
-        {
-            throw new IllegalArgumentException(message);
-        }
     }
 
     /**

@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
@@ -45,13 +44,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup.Prop
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * @author Franz-Josef Elmer
@@ -229,8 +230,40 @@ public class Translator
         return new DataSetType(initializer);
     }
 
-    public static List<ControlledVocabularyPropertyType.VocabularyTerm> translate(
-            Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms)
+    public static List<ControlledVocabularyPropertyType.VocabularyTerm> translatePropertyTypeTerms(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms)
+    {
+        ArrayList<ControlledVocabularyPropertyType.VocabularyTerm> terms =
+                new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortPrivateVocabularyTerms(privateTerms))
+        {
+            EntityRegistrationDetails registrationDetails =
+                    translateRegistrationDetails(privateTerm);
+            terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
+                    privateTerm.getCodeOrLabel(), privateTerm.getOrdinal(), privateTerm
+                            .isOfficial(), registrationDetails));
+        }
+
+        return terms;
+    }
+
+    public static List<VocabularyTerm> translate(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms)
+    {
+        ArrayList<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortPrivateVocabularyTerms(privateTerms))
+        {
+            EntityRegistrationDetails registrationDetails =
+                    translateRegistrationDetails(privateTerm);
+            terms.add(new VocabularyTerm(privateTerm.getCode(), privateTerm.getCodeOrLabel(),
+                    privateTerm.getOrdinal(), privateTerm.isOfficial(), registrationDetails));
+        }
+
+        return terms;
+    }
+
+    private static ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> sortPrivateVocabularyTerms(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> privateTerms)
     {
         ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> sortedTerms =
                 new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>(
@@ -238,7 +271,9 @@ public class Translator
         Collections.sort(sortedTerms,
                 new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>()
                     {
-                        public int compare(VocabularyTerm o1, VocabularyTerm o2)
+                        public int compare(
+                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm o1,
+                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm o2)
                         {
                             if (o1.isOfficial() != o2.isOfficial())
                             {
@@ -249,18 +284,7 @@ public class Translator
                             }
                         }
                     });
-        ArrayList<ControlledVocabularyPropertyType.VocabularyTerm> terms =
-                new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm privateTerm : sortedTerms)
-        {
-            EntityRegistrationDetails registrationDetails =
-                    translateRegistrationDetails(privateTerm);
-            terms.add(new ControlledVocabularyPropertyType.VocabularyTerm(privateTerm.getCode(),
-                    privateTerm.getCodeOrLabel(), privateTerm.getOrdinal(), privateTerm
-                            .isOfficial(), registrationDetails));
-        }
-
-        return terms;
+        return sortedTerms;
     }
 
     /**
@@ -353,5 +377,20 @@ public class Translator
 
     private Translator()
     {
+    }
+
+    public static Vocabulary translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary privateVocabulary)
+    {
+        VocabularyInitializer initializer = new VocabularyInitializer();
+        initializer.setId(privateVocabulary.getId());
+        initializer.setCode(privateVocabulary.getCode());
+        initializer.setDescription(privateVocabulary.getDescription());
+        initializer.setChosenFromList(privateVocabulary.isChosenFromList());
+        initializer.setInternalNamespace(privateVocabulary.isInternalNamespace());
+        initializer.setManagedInternally(privateVocabulary.isManagedInternally());
+        initializer.setUrlTemplate(privateVocabulary.getURLTemplate());
+        initializer.setTerms(translate(privateVocabulary.getTerms()));
+        return new Vocabulary(initializer);
     }
 }

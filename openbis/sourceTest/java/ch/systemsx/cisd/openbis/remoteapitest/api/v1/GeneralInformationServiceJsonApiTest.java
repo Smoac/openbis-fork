@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 /**
@@ -596,4 +598,24 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 result.toString());
     }
 
+    @Test
+    public void testListVocabularyTerms()
+    {
+        List<Vocabulary> result = generalInformationService.listVocabularies(sessionToken);
+        List<Vocabulary> nonInternals =
+                CollectionUtils.filter(result, new CollectionUtils.ICollectionFilter<Vocabulary>()
+                    {
+                        public boolean isPresent(Vocabulary vocabulary)
+                        {
+                            return false == vocabulary.isInternalNamespace();
+                        }
+                    });
+        assertEquals(3, nonInternals.size());
+
+        assertEquals(
+                "[Vocabulary[GENDER,[VocabularyTerm[MALE,MALE], VocabularyTerm[FEMALE,FEMALE]]],"
+                        + " Vocabulary[HUMAN,[VocabularyTerm[MAN,MAN], VocabularyTerm[WOMAN,WOMAN], VocabularyTerm[CHILD,CHILD]]],"
+                        + " Vocabulary[ORGANISM,[VocabularyTerm[RAT,RAT], VocabularyTerm[DOG,DOG], VocabularyTerm[HUMAN,HUMAN], VocabularyTerm[GORILLA,GORILLA], VocabularyTerm[FLY,FLY]]]]",
+                nonInternals.toString());
+    }
 }
