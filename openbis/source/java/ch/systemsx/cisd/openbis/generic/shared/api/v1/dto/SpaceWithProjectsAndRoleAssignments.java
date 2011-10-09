@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -102,6 +103,7 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
     /**
      * Returns the set of all users that have a role in this space.
      */
+    @JsonIgnore
     public Set<String> getUsers()
     {
         return rolesPerUser.keySet();
