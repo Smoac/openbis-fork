@@ -99,6 +99,14 @@ public class SpaceWithProjectsAndRoleAssignments implements Serializable
         return set == null ? Collections.<Role> emptySet() : set;
     }
 
+    /**
+     * Returns the set of all users that have a role in this space.
+     */
+    public Set<String> getUsers()
+    {
+        return rolesPerUser.keySet();
+    }
+
     //
     // JSON-RPC
     //
