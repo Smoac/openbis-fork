@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -291,7 +292,6 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(nameServiceExporter,
                 nameServerPath)), nameServerPath);
 
-
         // Inform the name server about the services I export
         // N.b. In the future, this could be done using spring instead of programmatically
         RpcServiceNameServer rpcNameServer =
@@ -375,18 +375,18 @@ public class DataStoreServer
     {
         if (configParams.isUseSSL())
         {
+            final SslContextFactory sslContextFactory = new SslContextFactory();
+            sslContextFactory.setKeyStore(configParams.getKeystorePath());
+            sslContextFactory.setKeyStorePassword(configParams.getKeystorePassword());
+            sslContextFactory.setKeyManagerPassword(configParams.getKeystoreKeyPassword());
             final SslConnector socketConnector =
-                    configParams.isUseNIO() ? new SslSelectChannelConnector()
-                            : new SslSocketConnector();
-            socketConnector.setKeystore(configParams.getKeystorePath());
-            socketConnector.setPassword(configParams.getKeystorePassword());
-            socketConnector.setKeyPassword(configParams.getKeystoreKeyPassword());
+                    configParams.isUseNIO() ? new SslSelectChannelConnector(sslContextFactory)
+                            : new SslSocketConnector(sslContextFactory);
             return socketConnector;
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");
-            return configParams.isUseNIO() ? new SelectChannelConnector()
-                    : new SocketConnector();
+            return configParams.isUseNIO() ? new SelectChannelConnector() : new SocketConnector();
         }
     }
 

@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
  * Configuration parameters for Servlets.
- * 
  *
  * @author Franz-Josef Elmer
  */
@@ -30,13 +32,17 @@ public final class PluginServletConfig
 
     private final String servletPath;
 
-    private final Properties servletProperties;
+    private final Map<String, String> servletProperties;
 
     public PluginServletConfig(String servletClass, String servletPath, Properties servletProperties)
     {
         this.servletClass = servletClass;
         this.servletPath = servletPath;
-        this.servletProperties = servletProperties;
+        this.servletProperties = new HashMap<String, String>();
+        for (Entry<Object,Object> e : servletProperties.entrySet())
+        {
+            this.servletProperties.put(e.getKey().toString(), e.getValue().toString());
+        }
     }
 
     public String getServletClass()
@@ -51,7 +57,7 @@ public final class PluginServletConfig
     }
 
     /** Any additional properties specified in the properties file */
-    public Properties getServletProperties()
+    public Map<String, String> getServletProperties()
     {
         return servletProperties;
     }

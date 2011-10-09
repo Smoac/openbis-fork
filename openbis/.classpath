@@ -59,8 +59,8 @@
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-mapper-asl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty-all-server-7.1.4.v20100610-sources.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty-all-server-7.1.4.v20100610-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
