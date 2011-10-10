@@ -95,13 +95,10 @@ echo "Make the configuration checksum file available : " $checksum_file
 test -f "$checksum_file" && cp -p "$checksum_file" "$jetty_folder"
 
 # Move config files to etc and create symlinks.
+mv "$war_classes/etc/log.xml" "$jetty_folder/etc"
 mv "$war_classes/service.properties" "$jetty_folder/etc"
 cd "$war_classes"
 ln -s ../../../../etc/service.properties .
-cd -
-mv "$war_classes/etc/log.xml" "$jetty_folder/etc"
-cd "$war_classes/etc"
-ln -s ../../../../../etc/log.xml .
 cd -
 mv "$jetty_folder/bin/jetty.properties" "$jetty_folder/etc"
 cd "$jetty_folder/bin"
