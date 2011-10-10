@@ -183,9 +183,11 @@ public abstract class AbstractServerLogger implements IServer
         final String elapsedTimeMessage = getElapsedTimeMessage();
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
-        logger.log(level, tryToCreatePrefixSecondTime(sessionToken)
-                + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName, message,
-                        invocationStatusMessage));
+        logger.log(
+                level,
+                tryToCreatePrefixSecondTime(sessionToken)
+                        + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName,
+                                message, invocationStatusMessage));
     }
 
     private String getInvocationStatusMessage()
@@ -240,11 +242,12 @@ public abstract class AbstractServerLogger implements IServer
 
     public boolean isArchivingConfigured(String sessionToken)
     {
-        logAccess(sessionToken, "isArchivingConfigured");
+        // Do not log that
         return false;
     }
 
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings, int maxEntityVisits)
+    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
+            int maxEntityVisits)
     {
         logTracking(sessionToken, "save_display_settings", "");
     }
