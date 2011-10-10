@@ -18,6 +18,8 @@ package ch.systemsx.cisd.imagereaders.ij;
 
 import ij.ImagePlus;
 import ij.io.Opener;
+import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -69,6 +71,12 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
 
     private BufferedImage createBufferedImageOfSameType(ImagePlus imagePlus)
     {
+        ImageProcessor processor = imagePlus.getProcessor();
+        if (processor instanceof ShortProcessor)
+        {
+            BufferedImage bufferedImage = ((ShortProcessor) processor).get16BitBufferedImage();
+            return bufferedImage;
+        }
         int bufferedImageType = findBufferedImageType(imagePlus);
         BufferedImage bufferedImage =
                 new BufferedImage(imagePlus.getWidth(), imagePlus.getHeight(), bufferedImageType);
