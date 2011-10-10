@@ -446,6 +446,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                 description, previousTermOrdinal);
     }
 
+    @SuppressWarnings("deprecation")
     public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap()
     {
         return service.getVocabularyTermsMap(sessionToken);
