@@ -560,7 +560,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
                 FileInputStream fileInputStream)
         {
-            super(openBISService, shareIdManager, null);
+            super(openBISService, null, shareIdManager, null);
             this.fileInfos = fileInfos;
             this.fileInputStream = fileInputStream;
         }
@@ -571,10 +571,22 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return fileInputStream;
         }
 
+        public String getDownloadUrlForFileForDataSet(String sessionToken,
+                DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException
+        {
+            return null;
+        }
+
         public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
                 throws IOExceptionUnchecked, IllegalArgumentException
         {
             return fileInputStream;
+        }
+
+        public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
+                String path) throws IOExceptionUnchecked, IllegalArgumentException
+        {
+            return null;
         }
 
         public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)

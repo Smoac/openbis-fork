@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
+import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -154,6 +155,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IHierarchicalContentProvider contentProvider;
 
+
+    private IStreamRepository streamRepository;
     @BeforeMethod
     public void beforeMethod()
     {
@@ -162,6 +165,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         ServiceProviderTestWrapper.setApplicationContext(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        streamRepository = context.mock(IStreamRepository.class);
         applicationContext.addBean("openBIS-service", service);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         transformerDAO = context.mock(IImagingTransformerDAO.class);
@@ -190,8 +194,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
         testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
         DssServiceRpcScreening rawScreeningService =
-                new DssServiceRpcScreening("targets", dao, transformerDAO, service, shareIdManager,
-                        contentProvider, false)
+                new DssServiceRpcScreening("targets", dao, transformerDAO, service,
+                        streamRepository, shareIdManager, contentProvider, false)
                     {
                         @Override
                         IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)

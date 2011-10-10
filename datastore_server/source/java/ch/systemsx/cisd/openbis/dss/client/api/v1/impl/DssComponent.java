@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import org.python.core.PyException;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
@@ -455,7 +457,16 @@ class AuthenticatedState extends AbstractDssComponentState
      */
     InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
     {
-        return dataSet.getService().getFileForDataSet(getSessionToken(), dataSet.getCode(), path);
+        String url =
+                dataSet.getService().getDownloadUrlForFileForDataSet(getSessionToken(),
+                        dataSet.getCode(), path);
+        try
+        {
+            return new URL(url).openStream();
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     /**

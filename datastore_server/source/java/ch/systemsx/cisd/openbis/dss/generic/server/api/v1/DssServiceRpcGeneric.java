@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -46,7 +47,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         implements IDssServiceRpcGenericInternal
 {
     private final PutDataSetService putService;
-
+    
     /**
      * The designated constructor.
      */
@@ -59,22 +60,22 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, shareIdManager, contentProvider, new PutDataSetService(openBISService,
+        this(openBISService, null, shareIdManager, contentProvider, new PutDataSetService(openBISService,
                 operationLog));
     }
 
     /**
      * A constructor for testing.
      */
-    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IStreamRepository streamRepository,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
             PutDataSetService service)
     {
-        super(openBISService, shareIdManager, contentProvider);
+        super(openBISService, streamRepository, shareIdManager, contentProvider);
         putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
-
+    
     public IDssServiceRpcGenericInternal createLogger(IInvocationLoggerContext context)
     {
         return new DssServiceRpcGenericLogger(context);
@@ -137,6 +138,13 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         }
     }
 
+    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode, String path)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
+        return addToRepositoryAndReturnDownloadUrl(stream);
+    }
+
     private IHierarchicalContentNode getContentNode(IHierarchicalContent content, String startPath)
     {
         // handle both relative and absolute paths for backward compatibility
@@ -156,7 +164,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     public int getMinorVersion()
     {
-        return 3;
+        return 4;
     }
 
     /**
@@ -184,6 +192,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     {
         return this.getFileForDataSet(sessionToken, fileOrFolder.getDataSetCode(),
                 fileOrFolder.getPath());
+    }
+
+    public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        return addToRepositoryAndReturnDownloadUrl(getFileForDataSet(sessionToken, fileOrFolder));
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)

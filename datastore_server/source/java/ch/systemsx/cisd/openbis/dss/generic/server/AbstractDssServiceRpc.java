@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -50,6 +52,11 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     private final IEncapsulatedOpenBISService openBISService;
 
+    @Autowired
+    private final IStreamRepository streamRepository;
+    
+    private String downloadUrl;
+
     private IHierarchicalContentProvider contentProvider;
 
     private IShareIdManager shareIdManager;
@@ -57,6 +64,11 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     private File storeDirectory;
 
     private DatabaseInstance homeDatabaseInstance;
+
+    public final void setDownloadUrl(String downloadUrl)
+    {
+        this.downloadUrl = downloadUrl;
+    }
 
     /**
      * Configuration method to set the path to the DSS store. Should only be called by the object
@@ -81,10 +93,11 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * 
      * @param openBISService
      */
-    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService,
+    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService, IStreamRepository streamRepository,
             IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
         this.openBISService = openBISService;
+        this.streamRepository = streamRepository;
         this.shareIdManager = shareIdManager;
         this.contentProvider = contentProvider;
     }
@@ -192,4 +205,12 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     {
         return openBISService.tryGetDataSet(sessionToken, dataSetCode);
     }
+    
+    protected String addToRepositoryAndReturnDownloadUrl(InputStream stream)
+    {
+        return downloadUrl + "/" + IdentifiedStreamHandlingServlet.SERVLET_NAME + "?"
+                + IdentifiedStreamHandlingServlet.STREAM_ID_PARAMETER_KEY + "="
+                + streamRepository.addStream(stream);
+    }
+
 }

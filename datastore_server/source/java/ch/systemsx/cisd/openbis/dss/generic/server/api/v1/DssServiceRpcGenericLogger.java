@@ -62,6 +62,13 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s)", fileOrFolder);
+        return null;
+    }
+
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException
     {
@@ -74,6 +81,14 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_file_for_data_set", "DATA_SET(%s) PATH(%s)", dataSetCode, path);
+        return null;
+    }
+    
+
+    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode, String path)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s) PATH(%s)", dataSetCode, path);
         return null;
     }
 

@@ -56,13 +56,31 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @param fileOrFolder The file or folder to retrieve
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     * @deprecated use {@link #getDownloadUrlForFileForDataSet(String, DataSetFileDTO)}.
      */
     @DataSetAccessGuard
+    @Deprecated
     public InputStream getFileForDataSet(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
+    /**
+     * Returns an URL from which the requested file.
+     * The URL is valid only for a short time.
+     * 
+     * @param sessionToken The session token
+     * @param fileOrFolder The file or folder to retrieve
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     * @since 1.4
+     */
+    @DataSetAccessGuard
+    public String getDownloadUrlForFileForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
+                    throws IOExceptionUnchecked, IllegalArgumentException;
+    
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
      * 
@@ -86,12 +104,30 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @param path The path within the data set to retrieve file information about
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     * @deprecated use {@link #getDownloadUrlForFileForDataSet(String, String, String)}.
      */
     @DataSetAccessGuard
+    @Deprecated
     public InputStream getFileForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
+    /**
+     * Returns an URL from which the requested file of the specified data set can be downloaded.
+     * The URL is valid only for a short time.
+     * 
+     * @param sessionToken The session token
+     * @param dataSetCode The data set to retrieve file from
+     * @param path The path within the data set to retrieve file information about
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     * @since 1.4
+     */
+    @DataSetAccessGuard
+    public String getDownloadUrlForFileForDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String path) throws IOExceptionUnchecked, IllegalArgumentException;
+    
     /**
      * Upload a new data set to the DSS.
      * 

@@ -124,6 +124,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IHierarchicalContentProvider contentProvider;
 
+    private IStreamRepository streamRepository;
+
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -134,6 +136,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.setApplicationContext(applicationContext);
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
+        streamRepository = context.mock(IStreamRepository.class);
         shareIdManager = context.mock(IShareIdManager.class);
         applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
@@ -162,7 +165,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
                         mailClient, "TEST", validator);
         rpcService =
-                new DssServiceRpcGeneric(openBisService, shareIdManager, contentProvider,
+                new DssServiceRpcGeneric(openBisService, streamRepository, shareIdManager, contentProvider,
                         putService);
         rpcService.setStoreDirectory(storeDir);
         rpcService.setIncomingDirectory(incomingDir);

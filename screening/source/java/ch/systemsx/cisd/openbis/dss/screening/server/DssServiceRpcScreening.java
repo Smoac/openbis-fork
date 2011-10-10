@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
@@ -115,15 +116,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public DssServiceRpcScreening(String storeRootDir)
     {
         this(storeRootDir, null, DssScreeningUtils.createImagingTransformerDAO(), ServiceProvider
-                .getOpenBISService(), null, null, true);
+                .getOpenBISService(), null, null, null, true);
     }
 
     DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
             IImagingTransformerDAO transformerDAO, IEncapsulatedOpenBISService service,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
-            boolean registerAtNameService)
+            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider, boolean registerAtNameService)
     {
-        super(service, shareIdManager, contentProvider);
+        super(service, streamRepository, shareIdManager, contentProvider);
         this.dao = dao;
         this.transformerDAO = transformerDAO;
         setStoreDirectory(new File(storeRootDir));

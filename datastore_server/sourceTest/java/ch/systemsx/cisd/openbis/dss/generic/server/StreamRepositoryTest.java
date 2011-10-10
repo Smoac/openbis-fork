@@ -1,0 +1,124 @@
+/*
+ * Copyright 2011 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.generic.server;
+
+import java.io.ByteArrayInputStream;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.StreamRepository.IUniqueIdGenerator;
+
+/**
+ * @author Franz-Josef Elmer
+ */
+public class StreamRepositoryTest extends AssertJUnit
+{
+    private IUniqueIdGenerator idGenerator;
+
+    private ITimeProvider timeProvider;
+
+    @BeforeMethod
+    public void setUp()
+    {
+        idGenerator = new IUniqueIdGenerator()
+            {
+                private int id;
+
+                public String createUniqueID()
+                {
+                    return Integer.toString(id++);
+                }
+            };
+        timeProvider = new ITimeProvider()
+            {
+                private long time;
+
+                public long getTimeInMilliseconds()
+                {
+                    long result = time;
+                    time += 500;
+                    return result;
+                }
+            };
+    }
+
+    @Test
+    public void testAddingAndRetrievingTwoStreams()
+    {
+        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
+        String id1 = repository.addStream(stream1);
+        ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
+        String id2 = repository.addStream(stream2);
+
+        assertEquals("0", id1);
+        assertEquals("1", id2);
+
+        assertSame(stream1, repository.getStream("0"));
+        assertSame(stream2, repository.getStream("1"));
+    }
+
+    @Test
+    public void testThatAStreamCanBeRetrievedOnlyOnce()
+    {
+        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
+        String id1 = repository.addStream(stream1);
+        
+        assertEquals("0", id1);
+        
+        assertSame(stream1, repository.getStream("0"));
+        try
+        {
+            repository.getStream("0");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Stream 0 is no longer available.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testAddingAndRetrievingTwoStreamsButSecondStreamNoLongerExists()
+    {
+        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
+        String id1 = repository.addStream(stream1);
+        ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
+        String id2 = repository.addStream(stream2);
+
+        assertEquals("0", id1);
+        assertEquals("1", id2);
+
+        assertSame(stream1, repository.getStream("0"));
+        timeProvider.getTimeInMilliseconds(); // wait until stream2 will be removed
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        try
+        {
+            repository.getStream("1");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Stream 1 is no longer available.", ex.getMessage());
+        }
+    }
+
+}

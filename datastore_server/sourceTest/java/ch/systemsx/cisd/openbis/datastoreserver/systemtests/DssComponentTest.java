@@ -133,7 +133,7 @@ public class DssComponentTest extends SystemTestCase
         assertEquals(fileInfoString("original/my-data/data/1.data", 5), files[5].toString());
         assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
     }
-
+    
     private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,

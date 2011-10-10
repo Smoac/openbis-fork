@@ -234,6 +234,7 @@ public class DataStoreServer
         initializeRpcServices(servletContextHandler, applicationContext, configParams);
         registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
         registerImageOverviewServlet(servletContextHandler, configParams);
+        registerStreamHandlingServlet(servletContextHandler);
     }
 
     /**
@@ -349,6 +350,12 @@ public class DataStoreServer
         DatasetImageOverviewServlet.initConfiguration(configParams.getProperties());
         context.addServlet(DatasetImageOverviewServlet.class, "/"
                 + DatasetImageOverviewUtilities.SERVLET_NAME + "/*");
+    }
+    
+    private static void registerStreamHandlingServlet(ServletContextHandler context)
+    {
+        context.addServlet(IdentifiedStreamHandlingServlet.class, "/"
+                + IdentifiedStreamHandlingServlet.SERVLET_NAME + "/*");
     }
 
     private static void registerDssUploadClientHandler(Server thisServer,

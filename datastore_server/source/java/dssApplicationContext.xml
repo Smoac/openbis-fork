@@ -2,11 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:plugins="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
-			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+			http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-2.5.xsd">
       
+    <plugins:annotation-config />
+    
     <!--
         // Replaces ${...} with corresponding values found in 'location' property. A value
         // can be overridden by setting a corresponding system property.
@@ -97,6 +102,16 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />
     </bean>
     
+    <bean id="stream-repository" class="ch.systemsx.cisd.openbis.dss.generic.server.StreamRepository"> 
+        <constructor-arg value="20"/>
+    </bean>
+    
+    <bean id="dss-service-rpc-generic" 
+          class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
+        <constructor-arg ref="openBIS-service" />
+        <property name="downloadUrl" value="${download-url}"/>
+    </bean>
+    
      <bean id="data-store-rpc-service-generic"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
@@ -111,11 +126,7 @@
                         <value>rpc-authorization-advisor</value>
                     </list>
                 </property>
-                <property name="target"> 
-                    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
-                        <constructor-arg ref="openBIS-service" />
-                    </bean>
-                </property>
+                <property name="target" ref="dss-service-rpc-generic"/> 
             </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric" />
