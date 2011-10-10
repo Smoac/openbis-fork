@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
@@ -463,6 +465,9 @@ class AuthenticatedState extends AbstractDssComponentState
         try
         {
             return new URL(url).openStream();
+        } catch (MalformedURLException ex)
+        {
+            throw new ConfigurationFailureException("Malformed URL: " + url);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
