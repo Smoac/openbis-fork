@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.imagereaders;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -53,18 +52,45 @@ public class ImageReaderFactory
         {
             operationLog.warn("Image reader plugins not available (JRE < 1.6), "
                     + "fallback to built-in readers.", ex);
-            Class<?> clazz;
-            try
+            IImageReaderLibrary reader;
+
+            List<IImageReaderLibrary> readers = new ArrayList<IImageReaderLibrary>();
+            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
+            if (reader != null)
             {
-                clazz = Class.forName("ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
-                librariesIterator =
-                    Arrays.asList(ClassUtils.create(IImageReaderLibrary.class, clazz)).iterator();
-            } catch (ClassNotFoundException ex1)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex1);
+                readers.add(reader);
             }
+            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.ij.ImageJReaderLibrary");
+            if (reader != null)
+            {
+                readers.add(reader);
+            }
+            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.jai.JAIReaderLibrary");
+            if (reader != null)
+            {
+                readers.add(reader);
+            }
+            reader =
+                    tryCreateReader("ch.systemsx.cisd.imagereaders.bioformats.BioFormatsReaderLibrary");
+            if (reader != null)
+            {
+                readers.add(reader);
+            }
+            librariesIterator = readers.iterator();
         }
         libraries = CollectionUtils.asList(librariesIterator);
+    }
+
+    private static IImageReaderLibrary tryCreateReader(String className)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName(className);
+            return ClassUtils.create(IImageReaderLibrary.class, clazz);
+        } catch (ClassNotFoundException ex1)
+        {
+            return null;
+        }
     }
 
     /**
@@ -84,7 +110,6 @@ public class ImageReaderFactory
         IImageReaderLibrary library = findLibrary(libraryName);
         return (library == null) ? null : library.tryGetReader(readerName);
     }
-
 
     /**
      * Tries to find a suitable reader in a library for a specified <var>fileName</var>. May return
@@ -110,7 +135,6 @@ public class ImageReaderFactory
      * The behavior of this method may vary across libraries. For example, some image libraries can
      * use the suffix of <var>fileName</var> to find the right reader, while others might attempt to
      * open the file and apply heuristics on its content to determine the appropriate reader.
-     * 
      */
     public static IImageReader tryGetReaderForFile(String fileName)
     {
@@ -145,5 +169,5 @@ public class ImageReaderFactory
     {
         libraries = newLibraries;
     }
-    
+
 }
