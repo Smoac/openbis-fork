@@ -133,15 +133,33 @@
         success: 
             function(data) {
                 $(data.result).each(function() { 
-                    description = this.isDirectory ? '(directory)' : '(size=' + this.fileSize + ')';
-                    divId = '#' + dataSetCode 
-                    $(divId).append(this.pathInDataSet)
-                            .append(description)
-                            .append('<br>')
+                    if (this.isDirectory) {
+                        divId = '#' + dataSetCode 
+                        $(divId).append(this.pathInDataSet).append('<br>')
+                    } else {
+                        divId = '#' + dataSetCode 
+                        $(divId).append('<a href="javascript:downLoadFile(\'' 
+                                        + dataSetCode + '\',\'' + this.pathInDataSet + '\')">' 
+                                        + this.pathInDataSet + '</a>')
+                                .append(' (size=' + this.fileSize + ')<br>')
+                    }
                 })
             },
      });
  }
+ 
+function downLoadFile(dataSetCode, filePath) {
+    ajaxRequest({
+        url: openbis.dssUrl,
+        data: { "method" : "getDownloadUrlForFileForDataSet",
+                "params" : [ openbis.sessionToken, dataSetCode, filePath ]
+               },
+        success: 
+            function(data) {
+                document.location.href = data.result;
+            },
+    });
+}
  
 function renderEntities(type, entities, rowRenderer) {
   if (!entities)
