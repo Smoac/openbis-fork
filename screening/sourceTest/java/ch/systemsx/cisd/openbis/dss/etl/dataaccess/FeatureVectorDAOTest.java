@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -48,7 +48,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
 {
     private IImagingQueryDAO dao;
 
-    private ImgDatasetDTO dataset;
+    private ImgAnalysisDatasetDTO dataset;
 
     private static final String EXP_PERM_ID = "expFvId";
 
@@ -64,7 +64,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         dao = QueryTool.getQuery(datasource, IImagingQueryDAO.class);
     }
 
-    private ImgDatasetDTO createDataSet()
+    private ImgAnalysisDatasetDTO createAnalysisDataSet()
     {
         IImagingQueryDAO imagingDao = dao;
 
@@ -78,8 +78,8 @@ public class FeatureVectorDAOTest extends AbstractDBTest
                 new ImgContainerDTO(CONTAINER_PERM_ID, spotHeight, spotWidth, experimentId);
         final Long containerId = imagingDao.addContainer(container);
 
-        final ImgDatasetDTO ds = new ImgDatasetDTO(DS_PERM_ID, containerId);
-        final long datasetId = imagingDao.addDataset(ds);
+        final ImgAnalysisDatasetDTO ds = new ImgAnalysisDatasetDTO(DS_PERM_ID, containerId);
+        final long datasetId = imagingDao.addAnalysisDataset(ds);
 
         ds.setId(datasetId);
         return ds;
@@ -97,7 +97,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     public void testCreateFeatureValues()
     {
         // Initialize the data set
-        dataset = createDataSet();
+        dataset = createAnalysisDataSet();
 
         createFeatureDef(dataset);
         List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetIds(dataset.getId());
@@ -174,7 +174,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(featureDef.getId(), noTerm.getFeatureDefId());
     }
 
-    private long createFeatureDef(ImgDatasetDTO dataSet)
+    private long createFeatureDef(ImgAnalysisDatasetDTO dataSet)
     {
         // Attach a feature def to it
         ImgFeatureDefDTO featureDef =

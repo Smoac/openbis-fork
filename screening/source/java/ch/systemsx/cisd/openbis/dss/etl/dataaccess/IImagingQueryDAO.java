@@ -25,14 +25,15 @@ import net.lemnik.eodsql.Update;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ByteArrayMapper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
@@ -80,13 +81,17 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
     public long addContainer(ImgContainerDTO container);
 
-    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, "
+    @Select("insert into IMAGE_DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, "
             + "CONT_ID, IS_MULTIDIMENSIONAL,                              "
             + "IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME)                     "
             + "values(?{1.permId}, ?{1.fieldNumberOfColumns}, ?{1.fieldNumberOfRows}, "
             + "?{1.containerId}, ?{1.isMultidimensional}, "
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
-    public long addDataset(ImgDatasetDTO dataset);
+    public long addImageDataset(ImgImageDatasetDTO dataset);
+
+    @Select("insert into ANALYSIS_DATA_SETS (PERM_ID, CONT_ID)                     "
+            + "values(?{1.permId}, ?{1.containerId}) returning ID")
+    public long addAnalysisDataset(ImgAnalysisDatasetDTO dataset);
 
     @Update(sql = "insert into IMAGE_TRANSFORMATIONS(CODE, LABEL, DESCRIPTION, IS_DEFAULT, IMAGE_TRANSFORMER_FACTORY, IS_EDITABLE, CHANNEL_ID) values "
             + "(?{1.code}, ?{1.label}, ?{1.description}, ?{1.isDefault}, ?{1.serializedImageTransformerFactory}, ?{1.isEditable}, ?{1.channelId})", batchUpdate = true)

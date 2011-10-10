@@ -82,12 +82,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractImgIdentifiable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
@@ -693,7 +695,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         for (IDatasetIdentifier datasetIdentifier : dataSetIdentifiers)
         {
-            ImgDatasetDTO dataset = getImagingDataset(datasetIdentifier);
+            ImgImageDatasetDTO dataset = getImagingImageDataset(datasetIdentifier);
             if (dataset == null)
             {
                 throw new UserFailureException("Unkown data set " + datasetIdentifier);
@@ -782,7 +784,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 operationLog.info("save image transformer factory " + transformerFactory
                         + " for dataset " + datasetId);
             }
-            transformerDAO.saveTransformerFactoryForDataset(datasetId, transformerFactory);
+            transformerDAO.saveTransformerFactoryForImageDataset(datasetId, transformerFactory);
         } else
         {
             if (operationLog.isInfoEnabled())
@@ -841,7 +843,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private IImageTransformerFactory tryGetImageTransformerFactoryForDataset(
             IDatasetIdentifier datasetIdentifier, String channel)
     {
-        ImgDatasetDTO dataset = getImagingDataset(datasetIdentifier);
+        ImgImageDatasetDTO dataset = getImagingImageDataset(datasetIdentifier);
         if (isMergedChannel(channel))
         {
             return dataset.tryGetImageTransformerFactory();
@@ -880,14 +882,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
     }
 
-    private List<ImgDatasetDTO> getDatasets(List<? extends IDatasetIdentifier> datasetIdents)
+    private List<ImgAnalysisDatasetDTO> getAnalysisDatasets(
+            List<? extends IDatasetIdentifier> datasetIdents)
     {
         String[] permIds = extractPermIds(datasetIdents);
-        List<ImgDatasetDTO> datasets = getDAO().listDatasetsByPermId(permIds);
+        List<ImgAnalysisDatasetDTO> datasets = getDAO().listAnalysisDatasetsByPermId(permIds);
         if (datasets.size() != datasetIdents.size())
         {
             Set<String> missing = new HashSet<String>(Arrays.asList(permIds));
-            for (ImgDatasetDTO dataset : datasets)
+            for (ImgAnalysisDatasetDTO dataset : datasets)
             {
                 missing.remove(dataset.getPermId());
             }
@@ -896,7 +899,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return datasets;
     }
 
-    private long[] extractIds(List<ImgDatasetDTO> dataSets)
+    private static <T extends AbstractImgIdentifiable> long[] extractIds(List<T> dataSets)
     {
         long[] ids = new long[dataSets.size()];
         for (int i = 0; i < ids.length; i++)
@@ -916,9 +919,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return permIds;
     }
 
-    private ImgDatasetDTO getImagingDataset(IDatasetIdentifier datasetIdentifier)
+    private ImgImageDatasetDTO getImagingImageDataset(IDatasetIdentifier datasetIdentifier)
     {
-        ImgDatasetDTO dataset = getDAO().tryGetDatasetByPermId(datasetIdentifier.getDatasetCode());
+        ImgImageDatasetDTO dataset =
+                getDAO().tryGetImageDatasetByPermId(datasetIdentifier.getDatasetCode());
         if (dataset == null)
         {
             throw new UserFailureException("Unknown data set: "
@@ -1153,7 +1157,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private List<ImgFeatureDefDTO> getFeatureDefinitions(
             List<? extends IDatasetIdentifier> featureDatasets)
     {
-        List<ImgDatasetDTO> dataSets = getDatasets(featureDatasets);
+        List<ImgAnalysisDatasetDTO> dataSets = getAnalysisDatasets(featureDatasets);
         return getDAO().listFeatureDefsByDataSetIds(extractIds(dataSets));
     }
 

@@ -54,8 +54,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
-import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
+import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
@@ -89,13 +89,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
@@ -155,8 +156,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IHierarchicalContentProvider contentProvider;
 
-
     private IStreamRepository streamRepository;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -268,7 +269,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 { "f1", "f2" },
                 { "f2", "f3" } };
-        prepareListDatasets(dataSetIDs);
+        prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
         List<String> names =
@@ -322,7 +323,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private void prepareLoadFeatures(long[] dataSetIDs, String[][] featureCodesPerDataset)
     {
-        prepareListDatasets(dataSetIDs);
+        prepareListAnalysisDatasets(dataSetIDs);
         prepareListContainers(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
         prepareGetFeatureVocabularyTerms(dataSetIDs);
@@ -502,13 +503,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(service).checkSpacePowerUserAuthorization(SESSION_TOKEN);
 
                     long datasetId = 123;
-                    ImgDatasetDTO dataset = createDataset(datasetId);
+                    ImgImageDatasetDTO dataset = createImageDataset(datasetId);
                     dataset.setPermId(DATASET_CODE);
 
-                    one(dao).tryGetDatasetByPermId(DATASET_CODE);
+                    one(dao).tryGetImageDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
 
-                    one(dao).tryGetDatasetByPermId("ds2");
+                    one(dao).tryGetImageDatasetByPermId("ds2");
                     will(returnValue(dataset));
 
                     allowing(dao).hasDatasetChannels(DATASET_CODE);
@@ -538,9 +539,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private ImgDatasetDTO createDataset(long datasetId)
+    private ImgImageDatasetDTO createImageDataset(long datasetId)
     {
-        ImgDatasetDTO dataset = new ImgDatasetDTO(null, null);
+        ImgImageDatasetDTO dataset =
+                new ImgImageDatasetDTO(null, null, null, null, false, null, null);
         dataset.setId(datasetId);
         return dataset;
     }
@@ -559,7 +561,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     Long containerId = 312L;
 
                     long datasetId = 123;
-                    ImgDatasetDTO dataset = createDataset(datasetId);
+                    ImgImageDatasetDTO dataset = createImageDataset(datasetId);
                     dataset.setContainerId(containerId);
                     dataset.setPermId(DATASET_CODE);
 
@@ -567,7 +569,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgContainerDTO container = new ImgContainerDTO(null, null, null, experimentId);
                     container.setId(containerId);
 
-                    one(dao).tryGetDatasetByPermId(DATASET_CODE);
+                    one(dao).tryGetImageDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
 
                     allowing(dao).hasDatasetChannels(DATASET_CODE);
@@ -612,7 +614,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IHierarchicalContentNode image(String fileName)
     {
-        return new FileBasedContentNode(new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
+        return new FileBasedContentNode(
+                new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
     }
 
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
@@ -703,25 +706,26 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareListDatasets(final long[] dataSetIDs)
+    private void prepareListAnalysisDatasets(final long[] dataSetIDs)
     {
         context.checking(new Expectations()
             {
                 {
                     String[] permIDs = new String[dataSetIDs.length];
-                    List<ImgDatasetDTO> dataSets = new ArrayList<ImgDatasetDTO>();
+                    List<ImgAnalysisDatasetDTO> dataSets = new ArrayList<ImgAnalysisDatasetDTO>();
 
                     for (int i = 0; i < dataSetIDs.length; i++)
                     {
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ImgDatasetDTO dataSet = new ImgDatasetDTO(permIDs[i], getContainerId(id));
+                        ImgAnalysisDatasetDTO dataSet =
+                                new ImgAnalysisDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
                     }
 
-                    one(dao).listDatasetsByPermId(permIDs);
+                    one(dao).listAnalysisDatasetsByPermId(permIDs);
                     will(returnValue(dataSets));
                 }
             });

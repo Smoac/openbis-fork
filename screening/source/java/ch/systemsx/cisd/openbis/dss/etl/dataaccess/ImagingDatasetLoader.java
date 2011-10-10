@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
@@ -405,7 +405,8 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                 RequestedImageSize.createOriginal(), true);
     }
 
-    private static ImageLibraryInfo tryGetImageLibrary(ImgDatasetDTO dataset, boolean isThumbnail)
+    private static ImageLibraryInfo tryGetImageLibrary(ImgImageDatasetDTO dataset,
+            boolean isThumbnail)
     {
         if (isThumbnail)
         {

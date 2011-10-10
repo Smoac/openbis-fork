@@ -1,0 +1,87 @@
+-- Migration from 015 to 016
+
+CREATE TABLE ANALYSIS_DATA_SETS (
+  ID BIGSERIAL NOT NULL,
+  PERM_ID CODE NOT NULL,
+
+  CONT_ID TECH_ID,
+  
+  PRIMARY KEY (ID),
+  UNIQUE (PERM_ID),
+  CONSTRAINT FK_ANALYSIS_DATA_SET_1 FOREIGN KEY (CONT_ID) REFERENCES CONTAINERS (ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX ANALYSIS_DATA_SETS_CONT_IDX ON ANALYSIS_DATA_SETS(CONT_ID);
+
+
+CREATE TABLE IMAGE_DATA_SETS (
+  ID BIGSERIAL NOT NULL,
+  PERM_ID CODE NOT NULL,
+
+  ---- image dataset specific fields (should be refactored) 
+	FIELDS_WIDTH INTEGER,
+	FIELDS_HEIGHT INTEGER,	
+  -- transformation for merged channels on the dataset level, overrides experiment level transformation
+  IMAGE_TRANSFORMER_FACTORY BYTEA,
+  -- a redundant information if there are timepoint or depth stack data for any spots in this dataset
+  IS_MULTIDIMENSIONAL BOOLEAN_CHAR NOT NULL,
+
+  -- Which image library should be used to read the image? 
+  -- If not specified, some heuristics are used, but it is slower and does not try with all the available libraries. 
+  IMAGE_LIBRARY_NAME NAME,
+  -- Which reader in the library should be used? Valid only if the library name is specified.
+  -- Should be specified when library name is specified.
+  IMAGE_LIBRARY_READER_NAME NAME,
+  ---- END image dataset specific fields
+  
+  CONT_ID TECH_ID,
+  
+  PRIMARY KEY (ID),
+  UNIQUE (PERM_ID),
+  CONSTRAINT FK_IMAGE_DATA_SET_1 FOREIGN KEY (CONT_ID) REFERENCES CONTAINERS (ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX IMAGE_DATA_SETS_CONT_IDX ON IMAGE_DATA_SETS(CONT_ID);
+
+INSERT INTO ANALYSIS_DATA_SETS(ID, PERM_ID, CONT_ID) SELECT ID, PERM_ID, CONT_ID FROM DATA_SETS WHERE FIELDS_WIDTH = 0 OR FIELDS_WIDTH IS NULL;
+SELECT setval('ANALYSIS_DATA_SETS_ID_SEQ', (SELECT max(id) FROM ANALYSIS_DATA_SETS));
+
+INSERT INTO IMAGE_DATA_SETS (ID, PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, IMAGE_TRANSFORMER_FACTORY, IS_MULTIDIMENSIONAL, IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME, CONT_ID)
+	SELECT ID, PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, IMAGE_TRANSFORMER_FACTORY, IS_MULTIDIMENSIONAL, IMAGE_LIBRARY_NAME, IMAGE_LIBRARY_READER_NAME, CONT_ID FROM DATA_SETS
+		WHERE FIELDS_WIDTH <> 0 AND FIELDS_WIDTH IS NOT NULL;
+SELECT setval('IMAGE_DATA_SETS_ID_SEQ', (SELECT max(id) FROM IMAGE_DATA_SETS));
+		
+ALTER TABLE CHANNELS DROP CONSTRAINT FK_CHANNELS_1;
+ALTER TABLE CHANNEL_STACKS DROP CONSTRAINT FK_CHANNEL_STACKS_2;
+ALTER TABLE FEATURE_DEFS DROP CONSTRAINT FK_FEATURE_DEFS_1;
+
+ALTER TABLE CHANNELS ADD CONSTRAINT FK_CHANNELS_1 FOREIGN KEY (DS_ID) REFERENCES IMAGE_DATA_SETS (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE CHANNEL_STACKS ADD CONSTRAINT FK_CHANNEL_STACKS_2 FOREIGN KEY (DS_ID) REFERENCES IMAGE_DATA_SETS (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE FEATURE_DEFS ADD CONSTRAINT FK_FEATURE_DEFS_1 FOREIGN KEY (DS_ID) REFERENCES ANALYSIS_DATA_SETS (ID) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE OR REPLACE FUNCTION CHANNEL_STACKS_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_cont_id  CODE;
+BEGIN
+
+   select cont_id into v_cont_id from image_data_sets where id = NEW.ds_id;
+
+   -- Check that if there is no spot than there is no dataset container as well
+   if v_cont_id IS NULL then
+      if NEW.spot_id IS NOT NULL then
+         RAISE EXCEPTION 'Insert/Update of CHANNEL_STACKS failed, as the dataset container is not set, but spot is (spot id = %).',NEW.spot_id;
+      end if;
+	 else
+      if NEW.spot_id IS NULL then
+         RAISE EXCEPTION 'Insert/Update of CHANNEL_STACKS failed, as the dataset container is set (id = %), but spot is not set.',v_cont_id;
+      end if; 
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+DROP TABLE DATA_SETS;
+    
+
+
+

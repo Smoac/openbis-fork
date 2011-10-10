@@ -50,8 +50,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractImgIdentifiable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -72,7 +72,7 @@ public class FeatureVectorLoader
     // stores all feature vectors of one dataset
     private static final class DatasetFeaturesBundle
     {
-        private ImgDatasetDTO dataSet;
+        private ImgAnalysisDatasetDTO dataSet;
 
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
 
@@ -132,7 +132,7 @@ public class FeatureVectorLoader
     public static List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode,
             IImagingReadonlyQueryDAO dao)
     {
-        final ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
+        final ImgAnalysisDatasetDTO dataSet = dao.tryGetAnalysisDatasetByPermId(dataSetCode);
         if (dataSet == null)
         {
             throw new UserFailureException("Unkown data set " + dataSetCode);
@@ -256,7 +256,7 @@ public class FeatureVectorLoader
 
     private void addFeatureVectorsOfDataSetsIfPossible(Collection<String> datasetCodes)
     {
-        final List<ImgDatasetDTO> dataSets = listDatasetsByPermId(datasetCodes);
+        final List<ImgAnalysisDatasetDTO> dataSets = listAnalysisDatasetsByPermId(datasetCodes);
         if (dataSets.size() != datasetCodes.size())
         {
             operationLog.warn(createUnknownDatasetMessage(datasetCodes, dataSets));
@@ -265,7 +265,7 @@ public class FeatureVectorLoader
     }
 
     private String createUnknownDatasetMessage(Collection<String> requestedDatasetCodes,
-            final List<ImgDatasetDTO> existingDataSets)
+            final List<ImgAnalysisDatasetDTO> existingDataSets)
     {
         return String.format(
                 "Some of the datasets are unknown! Requested datasets: %s. Found datasets: %s.",
@@ -319,7 +319,7 @@ public class FeatureVectorLoader
      */
     void addFeatureVectorsOfDataSetsOrDie(Collection<String> datasetCodes)
     {
-        final List<ImgDatasetDTO> dataSets = listDatasetsByPermId(datasetCodes);
+        final List<ImgAnalysisDatasetDTO> dataSets = listAnalysisDatasetsByPermId(datasetCodes);
         if (dataSets.size() != datasetCodes.size())
         {
             throw new UserFailureException(createUnknownDatasetMessage(datasetCodes, dataSets));
@@ -327,20 +327,20 @@ public class FeatureVectorLoader
         addFeatureVectorsOfDataSets(dataSets);
     }
 
-    private List<ImgDatasetDTO> listDatasetsByPermId(Collection<String> datasetCodes)
+    private List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(Collection<String> datasetCodes)
     {
-        return dao.listDatasetsByPermId(datasetCodes.toArray(new String[0]));
+        return dao.listAnalysisDatasetsByPermId(datasetCodes.toArray(new String[0]));
     }
 
     /**
      * Adds feature vectors for specified feature vector data sets codes.
      */
-    void addFeatureVectorsOfDataSets(List<ImgDatasetDTO> datasets)
+    void addFeatureVectorsOfDataSets(List<ImgAnalysisDatasetDTO> datasets)
     {
         DatasetFeatureDefinitionCachedLister lister =
                 new DatasetFeatureDefinitionCachedLister(datasets, featureCodes, useAllFeatures,
                         dao);
-        for (ImgDatasetDTO dataset : datasets)
+        for (ImgAnalysisDatasetDTO dataset : datasets)
         {
             Map<String, ImgFeatureDefDTO> featureCodeToDefMap =
                     lister.getFeatureCodeToDefMap(dataset);
@@ -400,7 +400,7 @@ public class FeatureVectorLoader
          * @param useAllFeatures if true the featureCodes param is ignored and values are fetched
          *            for all features
          */
-        public DatasetFeatureDefinitionCachedLister(List<ImgDatasetDTO> datasets,
+        public DatasetFeatureDefinitionCachedLister(List<ImgAnalysisDatasetDTO> datasets,
                 Set<String> featureCodes, boolean useAllFeatures, IImagingReadonlyQueryDAO dao)
         {
             this.containersByIdMap = createContainerByIdMap(datasets, dao);
@@ -445,7 +445,7 @@ public class FeatureVectorLoader
         }
 
         private static TableMap<Long, ImgContainerDTO> createContainerByIdMap(
-                List<ImgDatasetDTO> datasets, IImagingReadonlyQueryDAO dao)
+                List<ImgAnalysisDatasetDTO> datasets, IImagingReadonlyQueryDAO dao)
         {
             List<ImgContainerDTO> containers =
                     dao.listContainersByIds(extractContainerIds(datasets));
@@ -470,24 +470,25 @@ public class FeatureVectorLoader
             return requestedFeatureDefinitions;
         }
 
-        public ImgContainerDTO getContainer(ImgDatasetDTO dataset)
+        public ImgContainerDTO getContainer(ImgAnalysisDatasetDTO dataset)
         {
             return containersByIdMap.getOrDie(dataset.getContainerId());
         }
 
-        public Map<String, ImgFeatureDefDTO> getFeatureCodeToDefMap(ImgDatasetDTO dataset)
+        public Map<String, ImgFeatureDefDTO> getFeatureCodeToDefMap(ImgAnalysisDatasetDTO dataset)
         {
             List<ImgFeatureDefDTO> featureDefinitions = getRequestedFeatureDefinitions(dataset);
             return createCodeToDefMap(featureDefinitions);
         }
 
-        private List<ImgFeatureDefDTO> getRequestedFeatureDefinitions(ImgDatasetDTO dataset)
+        private List<ImgFeatureDefDTO> getRequestedFeatureDefinitions(ImgAnalysisDatasetDTO dataset)
         {
             List<ImgFeatureDefDTO> def = requestedFeatureDefinitionsMap.tryGet(dataset.getId());
             return def == null ? Collections.<ImgFeatureDefDTO> emptyList() : def;
         }
 
-        public List<ImgFeatureVocabularyTermDTO> getFeatureVocabularyTerms(ImgDatasetDTO dataSet)
+        public List<ImgFeatureVocabularyTermDTO> getFeatureVocabularyTerms(
+                ImgAnalysisDatasetDTO dataSet)
         {
             List<ImgFeatureVocabularyTermDTO> terms =
                     featureVocabularyTermsMap.tryGet(dataSet.getId());
@@ -499,7 +500,7 @@ public class FeatureVectorLoader
         }
 
         public Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> getFeatureValues(
-                ImgDatasetDTO dataset)
+                ImgAnalysisDatasetDTO dataset)
         {
             List<ImgFeatureDefDTO> datasetFeatureDefinitions =
                     getRequestedFeatureDefinitions(dataset);
@@ -540,11 +541,11 @@ public class FeatureVectorLoader
             return result;
         }
 
-        private static long[] extractContainerIds(List<ImgDatasetDTO> datasets)
+        private static long[] extractContainerIds(List<ImgAnalysisDatasetDTO> datasets)
         {
             long[] ids = new long[datasets.size()];
             int i = 0;
-            for (ImgDatasetDTO dataset : datasets)
+            for (ImgAnalysisDatasetDTO dataset : datasets)
             {
                 ids[i++] = dataset.getContainerId();
             }
@@ -576,7 +577,7 @@ public class FeatureVectorLoader
     }
 
     private static FeatureVocabularyTermsMap createFeatureIdToVocabularyTermsMap(
-            ImgDatasetDTO dataSet, Set<ImgFeatureDefDTO> datasetFeatureDefs,
+            ImgAnalysisDatasetDTO dataSet, Set<ImgFeatureDefDTO> datasetFeatureDefs,
             DatasetFeatureDefinitionCachedLister lister)
     {
         List<ImgFeatureVocabularyTermDTO> allTerms = lister.getFeatureVocabularyTerms(dataSet);

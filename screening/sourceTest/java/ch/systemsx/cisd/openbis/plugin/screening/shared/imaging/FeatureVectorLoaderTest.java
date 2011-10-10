@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -240,19 +240,20 @@ public class FeatureVectorLoaderTest extends AssertJUnit
             {
                 {
                     String[] permIDs = new String[dataSetIDs.length];
-                    List<ImgDatasetDTO> dataSets = new ArrayList<ImgDatasetDTO>();
+                    List<ImgAnalysisDatasetDTO> dataSets = new ArrayList<ImgAnalysisDatasetDTO>();
 
                     for (int i = 0; i < dataSetIDs.length; i++)
                     {
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ImgDatasetDTO dataSet = new ImgDatasetDTO(permIDs[i], getContainerId(id));
+                        ImgAnalysisDatasetDTO dataSet =
+                                new ImgAnalysisDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
                     }
 
-                    one(dao).listDatasetsByPermId(permIDs);
+                    one(dao).listAnalysisDatasetsByPermId(permIDs);
                     will(returnValue(dataSets));
                 }
             });

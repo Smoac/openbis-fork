@@ -177,6 +177,6 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
 
     private long createDataset(long containerId, HCSImageDatasetInfo info)
     {
-        return createDataset(info.getDatasetPermId(), info.getImageDatasetInfo(), containerId);
+        return createImageDataset(info.getDatasetPermId(), info.getImageDatasetInfo(), containerId);
     }
 }

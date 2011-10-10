@@ -21,7 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -56,8 +56,8 @@ public class FeatureVectorUploader
 
     private long createFeatureVectorDataset(long contId)
     {
-        ImgDatasetDTO dataset = new ImgDatasetDTO(info.getDatasetPermId(), contId);
-        return dao.addDataset(dataset);
+        ImgAnalysisDatasetDTO dataset = new ImgAnalysisDatasetDTO(info.getDatasetPermId(), contId);
+        return dao.addAnalysisDataset(dataset);
     }
 
     /** Uploads feature vectors for a given dataset id. Commit on the dao is NOT performed. */

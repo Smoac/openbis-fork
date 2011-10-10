@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 
 /**
  * Abstract superclass for uploaders of image datasets into the imaging database.
@@ -267,15 +267,15 @@ abstract class AbstractImageDatasetUploader
         return dto;
     }
 
-    protected final long createDataset(String datasetPermId, ImageDatasetInfo imageDatasetInfo,
-            Long containerIdOrNull)
+    protected final long createImageDataset(String datasetPermId,
+            ImageDatasetInfo imageDatasetInfo, Long containerIdOrNull)
     {
-        ImgDatasetDTO dataset =
-                createDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
-        return dao.addDataset(dataset);
+        ImgImageDatasetDTO dataset =
+                createImageDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
+        return dao.addImageDataset(dataset);
     }
 
-    private static ImgDatasetDTO createDatasetDTO(String datasetPermId,
+    private static ImgImageDatasetDTO createImageDatasetDTO(String datasetPermId,
             ImageDatasetInfo imageDatasetInfo, Long containerIdOrNull)
     {
         ImageLibraryInfo imageLibrary = imageDatasetInfo.tryGetImageLibrary();
@@ -286,7 +286,7 @@ abstract class AbstractImageDatasetUploader
             imageLibraryName = imageLibrary.getName();
             imageReaderName = imageLibrary.getReaderName();
         }
-        return new ImgDatasetDTO(datasetPermId, imageDatasetInfo.getTileRows(),
+        return new ImgImageDatasetDTO(datasetPermId, imageDatasetInfo.getTileRows(),
                 imageDatasetInfo.getTileColumns(), containerIdOrNull,
                 imageDatasetInfo.hasImageSeries(), imageLibraryName, imageReaderName);
     }

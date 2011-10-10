@@ -40,8 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -112,7 +112,8 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDatasetsByPermId(ds1.getDataSetCode(), ds2.getDataSetCode());
+                    one(dao).listAnalysisDatasetsByPermId(ds1.getDataSetCode(),
+                            ds2.getDataSetCode());
                     will(returnValue(Arrays.asList(createDataSet(1), createDataSet(2))));
 
                     one(dao).listFeatureDefsByDataSetIds(1, 2);
@@ -159,9 +160,9 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private ImgDatasetDTO createDataSet(long id)
+    private ImgAnalysisDatasetDTO createDataSet(long id)
     {
-        ImgDatasetDTO datasetDTO = new ImgDatasetDTO("ds" + id, 100 + id);
+        ImgAnalysisDatasetDTO datasetDTO = new ImgAnalysisDatasetDTO("ds" + id, 100 + id);
         datasetDTO.setId(id);
         return datasetDTO;
     }

@@ -62,6 +62,6 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
 
     private long createMicroscopyDataset(MicroscopyImageDatasetInfo dataset)
     {
-        return createDataset(dataset.getDatasetPermId(), dataset.getImageDatasetInfo(), null);
+        return createImageDataset(dataset.getDatasetPermId(), dataset.getImageDatasetInfo(), null);
     }
 }

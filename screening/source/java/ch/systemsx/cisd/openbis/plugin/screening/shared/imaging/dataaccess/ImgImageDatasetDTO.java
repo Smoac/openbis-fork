@@ -21,7 +21,7 @@ import net.lemnik.eodsql.ResultColumn;
 /**
  * @author Tomasz Pylak
  */
-public class ImgDatasetDTO extends AbstractImageTransformerFactoryHolder
+public class ImgImageDatasetDTO extends AbstractImageTransformerFactoryHolder
 {
     @ResultColumn("PERM_ID")
     private String permId;
@@ -47,18 +47,12 @@ public class ImgDatasetDTO extends AbstractImageTransformerFactoryHolder
     private String imageLibraryReaderNameOrNull;
 
     @SuppressWarnings("unused")
-    private ImgDatasetDTO()
+    private ImgImageDatasetDTO()
     {
         // All Data-Object classes must have a default constructor.
     }
 
-    // feature vector dataset
-    public ImgDatasetDTO(String permId, Long containerId)
-    {
-        this(permId, 0, 0, containerId, false, null, null);
-    }
-
-    public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
+    public ImgImageDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
             Integer fieldNumberOfColumnsOrNull, Long containerId, boolean isMultidimensional,
             String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
     {

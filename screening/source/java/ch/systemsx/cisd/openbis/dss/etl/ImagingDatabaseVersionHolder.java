@@ -28,7 +28,7 @@ public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
 
     public String getDatabaseVersion()
     {
-        return "015"; // changed in S116
+        return "016"; // changed in S117
     }
 
 }

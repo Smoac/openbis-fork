@@ -129,7 +129,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
      */
     @Select("select i.*, ai.image_transformer_factory as image_transformer_factory, "
             + "s.id as spot_id, ai.id as acquired_image_id              "
-            + " from data_sets d                                       "
+            + " from image_data_sets d                                       "
             + " join channel_stacks cs on cs.ds_id = d.id              "
             + " join spots s on cs.spot_id = s.id                      "
             + " join acquired_images ai on ai.channel_stack_id = cs.id "
@@ -204,12 +204,19 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     // simple getters
 
-    @Select("select * from DATA_SETS where PERM_ID = ?{1}")
-    public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
+    @Select("select * from IMAGE_DATA_SETS where PERM_ID = ?{1}")
+    public ImgImageDatasetDTO tryGetImageDatasetByPermId(String datasetPermId);
 
-    @Select(sql = "select * from DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
+    @Select("select * from ANALYSIS_DATA_SETS where PERM_ID = ?{1}")
+    public ImgAnalysisDatasetDTO tryGetAnalysisDatasetByPermId(String datasetPermId);
+
+    @Select(sql = "select * from IMAGE_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public List<ImgDatasetDTO> listDatasetsByPermId(String... datasetPermIds);
+    public List<ImgImageDatasetDTO> listImageDatasetsByPermId(String... datasetPermIds);
+
+    @Select(sql = "select * from ANALYSIS_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(String... datasetPermIds);
 
     // ------------ dataset and experiment channels
 
@@ -232,7 +239,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public long getExperimentChannelId(long experimentId, String channelCode);
 
     @Select("select count(*) > 0 from CHANNELS ch "
-            + "join DATA_SETS d on ch.ds_id = d.id where d.PERM_ID = ?{1}")
+            + "join IMAGE_DATA_SETS d on ch.ds_id = d.id where d.PERM_ID = ?{1}")
     public boolean hasDatasetChannels(String datasetPermId);
 
     @Select("select * from channels where code = ?{2} and "

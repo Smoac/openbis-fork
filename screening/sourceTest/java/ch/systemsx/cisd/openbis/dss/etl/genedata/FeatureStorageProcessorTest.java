@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
@@ -95,13 +95,14 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                     one(dao).tryGetContainerIdPermId(CONTAINER_PERM_ID);
                     will(returnValue((long) 1));
 
-                    ImgDatasetDTO dataSetDTO = new ImgDatasetDTO(DATA_SET_PERM_ID, 1L);
+                    ImgAnalysisDatasetDTO dataSetDTO =
+                            new ImgAnalysisDatasetDTO(DATA_SET_PERM_ID, 1L);
                     dataSetDTO.setId(1);
-                    one(dao).tryGetDatasetByPermId(DATA_SET_PERM_ID);
+                    one(dao).tryGetAnalysisDatasetByPermId(DATA_SET_PERM_ID);
                     will(returnValue(dataSetDTO));
 
                     long datasetId = 1;
-                    one(dao).addDataset(with(any(ImgDatasetDTO.class)));
+                    one(dao).addAnalysisDataset(with(any(ImgAnalysisDatasetDTO.class)));
                     will(returnValue(datasetId));
 
                     ImgFeatureDefDTO featureDTO =

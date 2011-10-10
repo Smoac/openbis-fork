@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 
 /**
@@ -48,7 +48,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
 {
     protected final IImagingReadonlyQueryDAO query;
 
-    protected final ImgDatasetDTO dataset;
+    protected final ImgImageDatasetDTO dataset;
 
     protected ImgContainerDTO containerOrNull;
 
@@ -66,7 +66,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
     {
         this.query = query;
 
-        this.dataset = query.tryGetDatasetByPermId(datasetPermId);
+        this.dataset = query.tryGetImageDatasetByPermId(datasetPermId);
         if (dataset == null)
         {
             throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
@@ -133,7 +133,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         return containerOrNull;
     }
 
-    protected final ImgDatasetDTO getDataset()
+    protected final ImgImageDatasetDTO getDataset()
     {
         return dataset;
     }

@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAc
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
@@ -397,12 +397,12 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final Integer fieldsHeight = 2;
         String libraryName = "BIOFORMATS";
         String libraryReader = "TIFF-READER";
-        final ImgDatasetDTO dataset =
-                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerIdOrNull, false,
+        final ImgImageDatasetDTO dataset =
+                new ImgImageDatasetDTO(permId, fieldsHeight, fieldsWidth, containerIdOrNull, false,
                         libraryName, libraryReader);
-        final long datasetId = dao.addDataset(dataset);
+        final long datasetId = dao.addImageDataset(dataset);
 
-        final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId(permId);
+        final ImgImageDatasetDTO loadedDataset = dao.tryGetImageDatasetByPermId(permId);
         assertNotNull(loadedDataset);
         assertEquals(permId, loadedDataset.getPermId());
         assertEquals(fieldsWidth, loadedDataset.getFieldNumberOfColumns());
@@ -412,7 +412,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(libraryReader, loadedDataset.getImageReaderName());
 
         // test listDatasetsByPermId
-        final List<ImgDatasetDTO> datasets = dao.listDatasetsByPermId(new String[]
+        final List<ImgImageDatasetDTO> datasets = dao.listImageDatasetsByPermId(new String[]
             { permId, "not existing" });
         assertEquals(1, datasets.size());
         assertEquals(loadedDataset, datasets.get(0));
