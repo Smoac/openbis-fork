@@ -64,15 +64,19 @@ public class StreamRepositoryTest extends AssertJUnit
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1);
+        String id1 = repository.addStream(stream1, "f1.txt");
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
-        String id2 = repository.addStream(stream2);
+        String id2 = repository.addStream(stream2, "f2.txt");
 
         assertEquals("0", id1);
         assertEquals("1", id2);
 
-        assertSame(stream1, repository.getStream("0"));
-        assertSame(stream2, repository.getStream("1"));
+        InputStreamWithPath actualStream1 = repository.getStream("0");
+        assertSame(stream1, actualStream1.getInputStream());
+        assertSame("f1.txt", actualStream1.getPath());
+        InputStreamWithPath actualStream2 = repository.getStream("1");
+        assertSame(stream2, actualStream2.getInputStream());
+        assertSame("f2.txt", actualStream2.getPath());
     }
 
     @Test
@@ -80,11 +84,11 @@ public class StreamRepositoryTest extends AssertJUnit
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1);
+        String id1 = repository.addStream(stream1, "f1.txt");
         
         assertEquals("0", id1);
         
-        assertSame(stream1, repository.getStream("0"));
+        assertSame(stream1, repository.getStream("0").getInputStream());
         try
         {
             repository.getStream("0");
@@ -100,14 +104,14 @@ public class StreamRepositoryTest extends AssertJUnit
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1);
+        String id1 = repository.addStream(stream1, "f1.txt");
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
-        String id2 = repository.addStream(stream2);
+        String id2 = repository.addStream(stream2, "f2.txt");
 
         assertEquals("0", id1);
         assertEquals("1", id2);
 
-        assertSame(stream1, repository.getStream("0"));
+        assertSame(stream1, repository.getStream("0").getInputStream());
         timeProvider.getTimeInMilliseconds(); // wait until stream2 will be removed
         timeProvider.getTimeInMilliseconds();
         timeProvider.getTimeInMilliseconds();

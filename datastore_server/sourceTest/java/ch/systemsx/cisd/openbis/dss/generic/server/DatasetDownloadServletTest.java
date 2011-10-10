@@ -190,12 +190,12 @@ public class DatasetDownloadServletTest
     @Test
     public void testGetMimetype()
     {
-        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType("image.tiff", false));
-        assertEquals("binary", DatasetDownloadServlet.getMimeType("image.tiff", true));
-        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType("image.TIF", false));
-        assertEquals("binary", DatasetDownloadServlet.getMimeType("image.TIF", true));
-        assertEquals("application/pdf", DatasetDownloadServlet.getMimeType("doc.pdf", false));
-        assertEquals("text/plain", DatasetDownloadServlet.getMimeType("filewithoutext", false));
+        assertEquals("image/tiff", Utils.getMimeType("image.tiff", false));
+        assertEquals("binary", Utils.getMimeType("image.tiff", true));
+        assertEquals("image/tiff", Utils.getMimeType("image.TIF", false));
+        assertEquals("binary", Utils.getMimeType("image.TIF", true));
+        assertEquals("application/pdf", Utils.getMimeType("doc.pdf", false));
+        assertEquals("text/plain", Utils.getMimeType("filewithoutext", false));
     }
 
     @Test

@@ -19,23 +19,29 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.InputStream;
 
 /**
- * Repositories for {@link InputStream} objects.
+ * Bean which holds an {@link InputStream} and a path.
  *
  * @author Franz-Josef Elmer
  */
-public interface IStreamRepository
+public class InputStreamWithPath
 {
-    /**
-     * Adds specified stream and returns a unique id.
-     */
-    public String addStream(InputStream inputStream, String path);
-    
-    /**
-     * Retrieves stream by specified id. A stream can be retrieved only once.
-     * 
-     * @IllegalArgumentException if a stream is retrieved a second time or the stream become stale
-     *                           because the time between adding and retrieving was to long.
-     */
-    public InputStreamWithPath getStream(String inputStreamID);
-    
+    private final InputStream inputStream;
+    private final String path;
+
+    InputStreamWithPath(InputStream inputStream, String path)
+    {
+        this.inputStream = inputStream;
+        this.path = path;
+    }
+
+    public InputStream getInputStream()
+    {
+        return inputStream;
+    }
+
+    public String getPath()
+    {
+        return path;
+    }
+        
 }

@@ -518,7 +518,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     private static ResponseContentStream createResponseContentStream(
             IHierarchicalContentNode contentNode, String displayMode) throws FileNotFoundException
     {
-        String contentType = getMimeType(contentNode, displayMode.equals(TEXT_MODE_DISPLAY));
+        String contentType = Utils.getMimeType(contentNode, displayMode.equals(TEXT_MODE_DISPLAY));
 
         return ResponseContentStream.create(contentNode.getInputStream(),
                 contentNode.getFileLength(), contentType, contentNode.getName());

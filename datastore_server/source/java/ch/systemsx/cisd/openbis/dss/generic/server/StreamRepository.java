@@ -37,11 +37,11 @@ public class StreamRepository implements IStreamRepository
 {
     private static final class InputStreamWithTimeStamp
     {
-        final InputStream inputStream;
         final Date timestamp;
-        InputStreamWithTimeStamp(InputStream inputStream, Date timestamp)
+        final InputStreamWithPath inputStreamWithPath;
+        InputStreamWithTimeStamp(InputStreamWithPath inputStreamWithPath, Date timestamp)
         {
-            this.inputStream = inputStream;
+            this.inputStreamWithPath = inputStreamWithPath;
             this.timestamp = timestamp;
         }
     }
@@ -85,16 +85,16 @@ public class StreamRepository implements IStreamRepository
         this.timeProvider = timeProvider;
     }
 
-    public synchronized String addStream(InputStream inputStream)
+    public synchronized String addStream(InputStream inputStream, String path)
     {
         removeStaleInputStreams();
         String id = inputStreamIDGenerator.createUniqueID();
         Date timestamp = new Date(timeProvider.getTimeInMilliseconds());
-        streams.put(id, new InputStreamWithTimeStamp(inputStream, timestamp));
+        streams.put(id, new InputStreamWithTimeStamp(new InputStreamWithPath(inputStream, path), timestamp));
         return id;
     }
 
-    public synchronized InputStream getStream(String inputStreamID)
+    public synchronized InputStreamWithPath getStream(String inputStreamID)
     {
         removeStaleInputStreams();
         InputStreamWithTimeStamp inputStreamWithTimeStamp = streams.remove(inputStreamID);
@@ -102,7 +102,7 @@ public class StreamRepository implements IStreamRepository
         {
             throw new IllegalArgumentException("Stream " + inputStreamID + " is no longer available.");
         }
-        return inputStreamWithTimeStamp.inputStream;
+        return inputStreamWithTimeStamp.inputStreamWithPath;
     }
     
     private void removeStaleInputStreams()

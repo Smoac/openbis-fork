@@ -16,6 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import javax.activation.MimetypesFileTypeMap;
+
+import org.apache.commons.io.FilenameUtils;
+
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+
 /**
  * 
  *
@@ -26,10 +32,50 @@ public class Utils
 
     public static final String SESSION_ID_PARAM = "sessionID";
     
+    static final String BINARY_CONTENT_TYPE = "binary";
+
+    static final String PLAIN_TEXT_CONTENT_TYPE = "text/plain";
+
+    static final MimetypesFileTypeMap MIMETYPES = new MimetypesFileTypeMap();
+
+    static final String CONTENT_TYPE_PNG = "image/png";
+
+    static
+    {
+        MIMETYPES.addMimeTypes("application/pdf pdf");
+        MIMETYPES.addMimeTypes("image/svg+xml svg");
+    }
+    
     static String createUrlParameterForSessionId(String prefix, String sessionIdOrNull)
     {
         return sessionIdOrNull == null ? "" : prefix + Utils.SESSION_ID_PARAM + "="
                 + sessionIdOrNull;
+    }
+
+    static String getMimeType(IHierarchicalContentNode fileNode, boolean plainTextMode)
+    {
+        return getMimeType(fileNode.getName(), plainTextMode);
+    }
+    
+    static String getMimeType(String fileName, boolean plainTextMode)
+    {
+        if (plainTextMode)
+        {
+            return BINARY_CONTENT_TYPE;
+        } else
+        {
+            String extension = FilenameUtils.getExtension(fileName);
+            if (extension.length() == 0)
+            {
+                return PLAIN_TEXT_CONTENT_TYPE;
+            } else if (extension.equalsIgnoreCase("png"))
+            {
+                return CONTENT_TYPE_PNG;
+            } else
+            {
+                return MIMETYPES.getContentType(fileName.toLowerCase());
+            }
+        }
     }
 
 }

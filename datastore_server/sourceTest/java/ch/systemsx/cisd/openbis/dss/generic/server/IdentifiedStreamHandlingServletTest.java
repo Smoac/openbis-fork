@@ -118,7 +118,10 @@ public class IdentifiedStreamHandlingServletTest extends AssertJUnit
                     will(returnValue("id"));
 
                     one(streamRepository).getStream("id");
-                    will(returnValue(mockStream));
+                    will(returnValue(new InputStreamWithPath(mockStream, "a/b/c/file.txt")));
+                    
+                    one(servletResponse).setHeader("Content-Disposition", "inline; filename=file.txt");
+                    one(servletResponse).setContentType("binary");
 
                     one(servletResponse).getOutputStream();
                     will(returnValue(new ServletOutputStream()

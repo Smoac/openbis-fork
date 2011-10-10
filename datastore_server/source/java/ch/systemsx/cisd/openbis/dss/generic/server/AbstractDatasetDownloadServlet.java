@@ -25,7 +25,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -35,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -68,8 +66,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     private static final long serialVersionUID = 1L;
 
-    protected static final String CONTENT_TYPE_PNG = "image/png";
-
     private static final long IMAGE_CACHE_AGE_IN_SECONDS = 60 * 60 * 2;
 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
@@ -78,12 +74,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     static final String DISPLAY_MODE_PARAM = "mode";
 
-    static final String BINARY_CONTENT_TYPE = "binary";
-
-    static final String PLAIN_TEXT_CONTENT_TYPE = "text/plain";
-
-    private static final MimetypesFileTypeMap MIMETYPES = new MimetypesFileTypeMap();
-
     static final String DATABASE_INSTANCE_SESSION_KEY = "database-instance";
 
     static final String DATA_SET_ACCESS_SESSION_KEY = "data-set-access";
@@ -91,12 +81,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     static final String DATA_SET_SESSION_KEY = "data-set";
 
     protected ApplicationContext applicationContext;
-
-    static
-    {
-        MIMETYPES.addMimeTypes("application/pdf pdf");
-        MIMETYPES.addMimeTypes("image/svg+xml svg");
-    }
 
     public AbstractDatasetDownloadServlet()
     {
@@ -244,7 +228,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             response.addHeader("Content-Length", Long.toString(responseStream.getSize()));
         }
 
-        if (CONTENT_TYPE_PNG.equals(responseStream.getContentType()))
+        if (Utils.CONTENT_TYPE_PNG.equals(responseStream.getContentType()))
         {
             response.addHeader("Cache-Control", "max-age=" + IMAGE_CACHE_AGE_IN_SECONDS);
         }
@@ -261,34 +245,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         {
             IOUtils.closeQuietly(content);
             IOUtils.closeQuietly(outputStream);
-        }
-    }
-
-    // @Protected
-    static String getMimeType(IHierarchicalContentNode fileNode, boolean plainTextMode)
-    {
-        return getMimeType(fileNode.getName(), plainTextMode);
-    }
-
-    // @Protected
-    static String getMimeType(String fileName, boolean plainTextMode)
-    {
-        if (plainTextMode)
-        {
-            return BINARY_CONTENT_TYPE;
-        } else
-        {
-            String extension = FilenameUtils.getExtension(fileName);
-            if (extension.length() == 0)
-            {
-                return PLAIN_TEXT_CONTENT_TYPE;
-            } else if (extension.equalsIgnoreCase("png"))
-            {
-                return CONTENT_TYPE_PNG;
-            } else
-            {
-                return MIMETYPES.getContentType(fileName.toLowerCase());
-            }
         }
     }
 

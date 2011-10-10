@@ -22,6 +22,7 @@ import java.io.InputStream;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -71,13 +72,26 @@ public class IdentifiedStreamHandlingServlet extends HttpServlet
             IOException
     {
         String streamID = req.getParameter(STREAM_ID_PARAMETER_KEY);
-        InputStream stream = streamRepository.getStream(streamID);
+        InputStreamWithPath streamWithPath = streamRepository.getStream(streamID);
+        String path = streamWithPath.getPath();
+        String fileName = path;
+        int indexOfLastSeparator = path.lastIndexOf('/');
+        if (indexOfLastSeparator >= 0)
+        {
+            fileName = path.substring(indexOfLastSeparator + 1);
+        }
+        resp.setHeader("Content-Disposition", "inline; filename=" + fileName);
+
+        resp.setContentType(Utils.getMimeType(fileName, true));
+        InputStream stream = streamWithPath.getInputStream();
+        ServletOutputStream outputStream = resp.getOutputStream();
         try
         {
-            IOUtils.copyLarge(stream, resp.getOutputStream());
+            IOUtils.copyLarge(stream, outputStream);
         } finally
         {
             IOUtils.closeQuietly(stream);
+            IOUtils.closeQuietly(outputStream);
         }
     }
     

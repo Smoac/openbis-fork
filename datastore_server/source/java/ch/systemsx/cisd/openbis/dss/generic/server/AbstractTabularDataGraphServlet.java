@@ -182,7 +182,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             ITabularDataGraph generator =
                     configuration.getGraph(params.graphName, fileLines, response.getOutputStream());
 
-            response.setContentType(CONTENT_TYPE_PNG);
+            response.setContentType(Utils.CONTENT_TYPE_PNG);
             String headerContentDisposition = "inline; filename=plot_" + (new Date().getTime());
             response.setHeader("Content-Disposition", headerContentDisposition);
 

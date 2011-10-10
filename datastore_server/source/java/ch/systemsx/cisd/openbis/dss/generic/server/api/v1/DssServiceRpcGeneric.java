@@ -142,7 +142,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
-        return addToRepositoryAndReturnDownloadUrl(stream);
+        return addToRepositoryAndReturnDownloadUrl(stream, path);
     }
 
     private IHierarchicalContentNode getContentNode(IHierarchicalContent content, String startPath)
@@ -197,7 +197,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        return addToRepositoryAndReturnDownloadUrl(getFileForDataSet(sessionToken, fileOrFolder));
+        InputStream stream = getFileForDataSet(sessionToken, fileOrFolder);
+        return addToRepositoryAndReturnDownloadUrl(stream, fileOrFolder.getPath());
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
