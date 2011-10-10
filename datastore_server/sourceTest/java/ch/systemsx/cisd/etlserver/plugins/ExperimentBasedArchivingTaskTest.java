@@ -404,7 +404,8 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         if (archivingEntries.length > 0)
         {
             operationLogBuilder.append("\n").append(NOTIFY_LOG_ENTRY_PREFIX);
-            operationLogBuilder.append("Archiving summary:").append(notifyMessageBuilder);
+            operationLogBuilder.append("Archiving summary:").append(
+                    notifyMessageBuilder.toString().replaceAll("Starting archiving ", "Archived "));
         }
         assertEquals(operationLogBuilder.toString(), logRecorder.getLogContent());
     }
@@ -412,8 +413,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     private String logEntry(Experiment experiment, DataSet... dataSets)
     {
         List<String> dataSetCodes = getDataSetCodes(dataSets);
-        return "Starting archiving " + dataSetCodes.size()
-                + " data sets of experiment "
+        return "Starting archiving #" + dataSetCodes.size() + " data sets of experiment "
                 + experiment.getIdentifier() + ": " + dataSetCodes;
     }
 

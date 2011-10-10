@@ -158,6 +158,12 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     public void execute()
     {
         long freeSpace = getFreeSpace();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Free space: %d MB, minimal free space required: %d MB", freeSpace,
+                    minimumFreeSpace));
+        }
         if (freeSpace >= minimumFreeSpace)
         {
             return;
@@ -182,27 +188,32 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
         Collections.sort(infos, new ExperimentDataSetsInfoComparator());
         StringBuilder archivingMessages = new StringBuilder();
-        if (monitorDataStoreShare())
+        try
         {
-            for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
+            if (monitorDataStoreShare())
             {
-                ExperimentDataSetsInfo info = infos.get(i);
-                freeSpace += info.calculateSize();
-                archive(info, archivingMessages);
-            }
-        } else
-        {
-            for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
-            {
-                if (archive(infos.get(i), archivingMessages))
+                for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
                 {
-                    freeSpace = getFreeSpace();
+                    ExperimentDataSetsInfo info = infos.get(i);
+                    freeSpace += info.calculateSize();
+                    archive(info, archivingMessages);
+                }
+            } else
+            {
+                for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
+                {
+                    if (archive(infos.get(i), archivingMessages))
+                    {
+                        freeSpace = getFreeSpace();
+                    }
                 }
             }
-        }
-        if (archivingMessages.length() > 0)
+        } finally
         {
-            notificationLog.info("Archiving summary:" + archivingMessages);
+            if (archivingMessages.length() > 0)
+            {
+                notificationLog.info("Archiving summary:" + archivingMessages);
+            }
         }
     }
 
@@ -235,11 +246,11 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             dataSetCodes.add(dataSet.getCode());
         }
         final String message =
-                "Starting archiving " + dataSetCodes.size() + " data sets of experiment "
+                "#" + dataSetCodes.size() + " data sets of experiment "
                         + info.getExperimentIdentifier() + ": " + dataSetCodes;
-        operationLog.info(message);
-        archivingMessages.append('\n').append(message);
+        operationLog.info("Starting archiving " + message);
         service.archiveDataSets(dataSetCodes, true);
+        archivingMessages.append('\n').append("Archived " + message);
         return true;
     }
 
