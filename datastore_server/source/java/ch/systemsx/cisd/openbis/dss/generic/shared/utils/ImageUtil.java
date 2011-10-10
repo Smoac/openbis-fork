@@ -113,8 +113,16 @@ public class ImageUtil
         private BufferedImage loadWithImageJ(IRandomAccessFile handle)
         {
             operationLog.debug("Load tiff image using ImageJ");
+            String readerName = "tiff";
             IImageReader imageReader =
-                    ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
+                    ImageReaderFactory
+                            .tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, readerName);
+            if (imageReader == null)
+            {
+                throw new IllegalStateException(String.format(
+                        "There is no reader '%s' in image library '%s'.", readerName,
+                        ImageReaderConstants.IMAGEJ_LIBRARY));
+            }
             return imageReader.readImage(handle, ImageID.NULL, null);
 
         }
