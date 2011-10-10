@@ -112,6 +112,7 @@ public class ImageUtil
 
         private BufferedImage loadWithImageJ(IRandomAccessFile handle)
         {
+            operationLog.debug("Load tiff image using ImageJ");
             IImageReader imageReader =
                     ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
             return imageReader.readImage(handle, ImageID.NULL, null);
@@ -125,6 +126,7 @@ public class ImageUtil
     public static BufferedImage loadJavaAdvancedImagingTiff(IRandomAccessFile handle,
             ImageID imageID) throws EnvironmentFailureException
     {
+        operationLog.debug("Load tiff image using JAI");
         IImageReader imageReader =
                 ImageReaderFactory.tryGetReader(ImageReaderConstants.JAI_LIBRARY, "tiff");
         if (imageReader == null)
@@ -494,14 +496,17 @@ public class ImageUtil
      */
     public static BufferedImage convertForDisplayIfNecessary(BufferedImage image)
     {
+        return convertForDisplayIfNecessary(image, DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
+    }
+
+    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, float threshold)
+    {
         if (isGrayscale(image))
         {
             if (image.getColorModel().getPixelSize() > 8)
             {
                 GrayscalePixels pixels = new GrayscalePixels(image);
-                Levels intensityRange =
-                        IntensityRescaling.computeLevels(pixels,
-                                DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
+                Levels intensityRange = IntensityRescaling.computeLevels(pixels, threshold);
                 BufferedImage result =
                         IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange);
                 return result;
@@ -524,11 +529,11 @@ public class ImageUtil
      * @param maxHeight Maximum height of the result image.
      * @param enlargeIfNecessary if false and the image has smaller width and height than the
      *            specified limit, then the image is not changed.
-     * @param highQuality if true thumbnails will be of higher quality, but rescaling will take
-     *            longer (BICUBIC rescaling will be used instead of BILINEAR).
+     * @param highQuality8Bit if true thumbnails will be of higher quality, but rescaling will take
+     *            longer and the image will be converted to 8 bit.
      */
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
-            boolean enlargeIfNecessary, boolean highQuality)
+            boolean enlargeIfNecessary, boolean highQuality8Bit)
     {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -549,20 +554,40 @@ public class ImageUtil
         int thumbnailWidth = (int) (scale * width + 0.5);
         int thumbnailHeight = (int) (scale * height + 0.5);
 
+        BufferedImage thumbnail =
+                createNewEmptyImage(image, highQuality8Bit, thumbnailWidth, thumbnailHeight);
+
+        Graphics2D graphics2D = thumbnail.createGraphics();
+        BufferedImage imageToRescale = image;
+        if (highQuality8Bit)
+        {
+            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
+            // We have to rescale colors to 8 bit here, otherwise the result will contain only few
+            // colors.
+            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0);
+        }
+        graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
+        graphics2D.dispose();
+        return thumbnail;
+    }
+
+    private static BufferedImage createNewEmptyImage(BufferedImage image, boolean highQuality8Bit,
+            int thumbnailWidth, int thumbnailHeight)
+    {
         boolean isTransparent = image.getColorModel().hasAlpha();
         int imageType = image.getType();
-        if (imageType == BufferedImage.TYPE_CUSTOM)
+        if (highQuality8Bit)
+        {
+            imageType =
+                    imageType == BufferedImage.TYPE_USHORT_GRAY ? BufferedImage.TYPE_BYTE_GRAY
+                            : BufferedImage.TYPE_INT_RGB;
+        } else if (imageType == BufferedImage.TYPE_CUSTOM)
         {
             imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
-        Graphics2D graphics2D = thumbnail.createGraphics();
-        Object renderingHint =
-                highQuality ? RenderingHints.VALUE_INTERPOLATION_BICUBIC
-                        : RenderingHints.VALUE_INTERPOLATION_BILINEAR;
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, renderingHint);
-        graphics2D.drawImage(image, 0, 0, thumbnailWidth, thumbnailHeight, null);
-        graphics2D.dispose();
         return thumbnail;
     }
 
