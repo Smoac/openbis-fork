@@ -158,7 +158,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
         if (EntityKind.DATA_SET.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new createImageDataSetViewer(viewContext);
+            return (IClientPlugin<T, I>) new ImageDataSetViewerPlugin(viewContext);
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -344,11 +344,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             };
     }
 
-    private final class createImageDataSetViewer extends DelegatedClientPlugin<DataSetType>
+    private final class ImageDataSetViewerPlugin extends DelegatedClientPlugin<DataSetType>
     {
         private final ScreeningViewContext screeningViewContext;
 
-        private createImageDataSetViewer(ScreeningViewContext viewContext)
+        private ImageDataSetViewerPlugin(ScreeningViewContext viewContext)
         {
             super(viewContext, EntityKind.DATA_SET);
             this.screeningViewContext = viewContext;
