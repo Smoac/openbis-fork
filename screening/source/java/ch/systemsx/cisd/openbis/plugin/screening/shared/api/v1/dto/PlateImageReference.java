@@ -19,6 +19,7 @@ public class PlateImageReference extends DatasetIdentifier
      * @param dataset if image dataset is specified, image will be fetched from it. If a feature
      *            vector dataset is specified, a connected image dataset will be found and image
      *            will be fetched from it.
+     * @param channelOrNull if null then merged channels will be delivered
      */
     public PlateImageReference(int tile, String channelOrNull, WellPosition wellPosition,
             IDatasetIdentifier dataset)
