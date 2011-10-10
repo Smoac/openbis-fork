@@ -188,7 +188,7 @@ public class GetSampleProperties
                         {
                           propertiesPerSample.put(sampleProperties.ORGANISM_PROPERTY1,bowtieIndexName);
                         }
-                        if (bowtieIndexName.equals(PHIX_NAME)) {
+                        if (PHIX_NAME.equals(bowtieIndexName)) {
                           propertiesPerSample.put(sampleProperties.ISPHIX,"Y");
                         }
                         else {

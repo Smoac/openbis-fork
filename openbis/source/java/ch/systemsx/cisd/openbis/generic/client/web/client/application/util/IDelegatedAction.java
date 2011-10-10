@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
-import com.google.gwt.user.client.Command;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 
 /**
  * Use this interface to delegate any kind of action to a different part of code without adding an
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.Command;
  * 
  * @author Tomasz Pylak
  */
-public interface IDelegatedAction extends Command
+public interface IDelegatedAction extends ScheduledCommand
 {
     public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
         {

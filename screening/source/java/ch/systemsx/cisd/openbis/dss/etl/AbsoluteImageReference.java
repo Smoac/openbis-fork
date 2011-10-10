@@ -49,7 +49,8 @@ public class AbsoluteImageReference extends AbstractImageReference
     private ChannelColorRGB channelColor;
 
     /**
-     * @param content is the original content before choosing the color component and the image ID
+     * @param contentNode is the original content before choosing the color component and the image
+     *            ID
      */
     public AbsoluteImageReference(IHierarchicalContentNode contentNode, String uniqueId,
             String imageIdOrNull, ColorComponent colorComponentOrNull,

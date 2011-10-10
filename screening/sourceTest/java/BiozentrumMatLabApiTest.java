@@ -87,7 +87,7 @@ public class BiozentrumMatLabApiTest
         // { "/TEST/PLATE1", "/TEST/PLATE2", "/TEST/PLATE1.96WELLS", "/TEST/PLATE1.SUFFIX", });
         try
         {
-            Thread.currentThread().sleep(1000000);
+            Thread.sleep(1000000);
         } catch (InterruptedException ex)
         {
             // TODO Auto-generated catch block

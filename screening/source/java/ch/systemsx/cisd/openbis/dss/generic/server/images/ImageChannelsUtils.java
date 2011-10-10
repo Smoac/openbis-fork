@@ -98,7 +98,8 @@ public class ImageChannelsUtils
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
      * 
-     * @param datasetDirectoryProvider
+     * @param params
+     * @param contentProvider
      */
     public static ResponseContentStream getImageStream(ImageGenerationDescription params,
             IHierarchicalContentProvider contentProvider)

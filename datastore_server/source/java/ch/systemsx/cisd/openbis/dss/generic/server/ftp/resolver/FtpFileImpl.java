@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentN
 import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpFileFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * An {@link FtpFile} implementation which lazily creates and uses {@link IHierarchicalContent} when
@@ -56,7 +55,8 @@ public class FtpFileImpl extends AbstractFtpFile
     private IHierarchicalContent content;
 
     public FtpFileImpl(String dataSetCode, String path, String pathInDataSet, boolean isDirectory,
-            long size, long lastModified, IHierarchicalContent content, IHierarchicalContentNodeFilter childrenFilter)
+            long size, long lastModified, IHierarchicalContent content,
+            IHierarchicalContentNodeFilter childrenFilter)
     {
         super(path);
         this.dataSetCode = dataSetCode;
@@ -138,8 +138,8 @@ public class FtpFileImpl extends AbstractFtpFile
                     String childPath =
                             absolutePath + FtpConstants.FILE_SEPARATOR + childNode.getName();
                     FtpFile childFile =
-                            FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode, content,
-                                    childrenFilter);
+                            FtpFileFactory.createFtpFile(dataSetCode, childPath, childNode,
+                                    content, childrenFilter);
                     result.add(childFile);
                 }
             }
@@ -148,15 +148,6 @@ public class FtpFileImpl extends AbstractFtpFile
         {
             content.close();
         }
-    }
-
-    private IHierarchicalContent createHierarchicalContent()
-    {
-        if (content == null)
-        {
-            content = ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
-        }
-        return content;
     }
 
     private IHierarchicalContentNode getContentNodeForThisFile()

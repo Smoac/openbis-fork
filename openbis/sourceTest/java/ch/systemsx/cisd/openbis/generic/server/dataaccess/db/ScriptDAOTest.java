@@ -115,7 +115,6 @@ public final class ScriptDAOTest extends AbstractDAOTest
         assertEquals(script.getEntityKind(), retrievedScript.getEntityKind());
     }
 
-    @SuppressWarnings("null")
     @Test(dataProvider = "scriptTypes")
     public void testListScripts(ScriptType scriptType)
     {

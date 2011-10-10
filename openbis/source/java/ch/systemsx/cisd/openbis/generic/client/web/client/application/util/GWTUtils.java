@@ -38,7 +38,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
@@ -165,7 +165,7 @@ public final class GWTUtils
         // will perform new commands before the deferred action starts.
         if (isTesting() == false)
         {
-            DeferredCommand.addCommand(delegatedAction);
+            Scheduler.get().scheduleDeferred(delegatedAction);
         } else
         {
             delegatedAction.execute();

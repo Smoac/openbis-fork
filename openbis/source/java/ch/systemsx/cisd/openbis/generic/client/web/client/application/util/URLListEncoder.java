@@ -108,11 +108,11 @@ public class URLListEncoder
 
     private static String encode(String text)
     {
-        return URL.encodeComponent(text, true);
+        return URL.encodeQueryString(text);
     }
 
     private static String decode(String text)
     {
-        return URL.decodeComponent(text, true);
+        return URL.decodeQueryString(text);
     }
 }

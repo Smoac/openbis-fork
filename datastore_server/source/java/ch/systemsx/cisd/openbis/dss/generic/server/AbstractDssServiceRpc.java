@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger<T>
 {
-    @SuppressWarnings("hiding")
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDssServiceRpc.class);
 
@@ -54,7 +53,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     @Autowired
     private final IStreamRepository streamRepository;
-    
+
     private String downloadUrl;
 
     private IHierarchicalContentProvider contentProvider;
@@ -93,8 +92,9 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * 
      * @param openBISService
      */
-    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService, IStreamRepository streamRepository,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
+    protected AbstractDssServiceRpc(IEncapsulatedOpenBISService openBISService,
+            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider)
     {
         this.openBISService = openBISService;
         this.streamRepository = streamRepository;
@@ -205,7 +205,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     {
         return openBISService.tryGetDataSet(sessionToken, dataSetCode);
     }
-    
+
     protected String addToRepositoryAndReturnDownloadUrl(InputStream stream, String path)
     {
         return downloadUrl + "/" + IdentifiedStreamHandlingServlet.SERVLET_NAME + "?"

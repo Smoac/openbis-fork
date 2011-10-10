@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 @Test(groups = "system test")
 public class GeneralInformationChangingServiceTest extends SystemTestCase
 {
-    @SuppressWarnings("hiding")
     @Autowired
     private ICommonServer commonServer;
 

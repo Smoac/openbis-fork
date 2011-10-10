@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -182,7 +183,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                 public String getId()
                 {
                     final String reportDate =
-                            DateTimeFormat.getMediumTimeFormat().format(new Date());
+                            DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(
+                                    new Date());
                     return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-" + reportDate;
                 }
 
@@ -571,8 +573,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private AnalysisProcedureChooser createAnalysisProcedureChooser()
     {
         AnalysisProcedureChooser analysisProcedureChooser =
-                AnalysisProcedureChooser.createVertical(getViewContext(),
-                        experimentCriteriaHolder,
+                AnalysisProcedureChooser.createVertical(getViewContext(), experimentCriteriaHolder,
                         AnalysisProcedureCriteria.createAllProcedures(), this, true);
         return analysisProcedureChooser;
     }

@@ -24,14 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import jline.ConsoleReader;
+
+import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
+import com.googlecode.jsonrpc4j.ProxyUtil;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
-
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
-import com.googlecode.jsonrpc4j.ProxyUtil;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -126,6 +127,7 @@ public class QueryApiServerJsonTest
         }
 
         System.out.println("\nRunning query " + queryToRun);
+        @SuppressWarnings("null")
         QueryTableModel result =
                 queryApiService.executeQuery(sessionToken, queryToRun.getId(),
                         new HashMap<String, String>());

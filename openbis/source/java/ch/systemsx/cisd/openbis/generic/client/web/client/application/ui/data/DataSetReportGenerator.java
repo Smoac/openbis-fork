@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -79,7 +80,8 @@ public class DataSetReportGenerator
                 public void execute(final IDisposableComponent reportComponent)
                 {
                     final String reportDate =
-                            DateTimeFormat.getMediumTimeFormat().format(new Date());
+                            DateTimeFormat.getFormat(PredefinedFormat.TIME_MEDIUM).format(
+                                    new Date());
                     final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
                         {
                             @Override

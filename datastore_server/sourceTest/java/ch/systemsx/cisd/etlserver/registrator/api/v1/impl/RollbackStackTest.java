@@ -241,7 +241,6 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
 
         private boolean rolledbackBeforePredecessor = false;
 
-        @SuppressWarnings("unused")
         private int rollbackCount = 0;
 
         protected TrackingCommand()

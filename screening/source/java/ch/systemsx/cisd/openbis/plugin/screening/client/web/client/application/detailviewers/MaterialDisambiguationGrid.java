@@ -23,6 +23,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -158,8 +159,8 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
     {
         return new AbstractTabItemFactory()
             {
-                private final String reportDate = DateTimeFormat.getMediumTimeFormat().format(
-                        new Date());
+                private final String reportDate = DateTimeFormat.getFormat(
+                        PredefinedFormat.TIME_MEDIUM).format(new Date());
 
                 @Override
                 public ITabItem create()
@@ -171,7 +172,6 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                 @Override
                 public String getId()
                 {
-
                     return GenericConstants.ID_PREFIX + "-MaterialDisambiguationGrid-" + reportDate;
                 }
 
@@ -233,7 +233,7 @@ public class MaterialDisambiguationGrid extends TypedTableGrid<Material>
                             openMaterialDetailViewer(material);
                         }
                     };
-                    
+
         registerListenerAndLinkGenerator(MaterialGridColumnIDs.CODE, listenerLinkGenerator);
         String detailsLinkPropertyTypeName =
                 screeningViewContext

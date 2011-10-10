@@ -25,11 +25,12 @@ import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * Content based on a {@link IContentProvider}.
+ * Content based on a {@link IHierarchicalContentNode}.
  * 
  * @author Franz-Josef Elmer
  */
-public class HierarchicalContentNodeBasedHierarchicalContentNode implements IHierarchicalContentNode
+public class HierarchicalContentNodeBasedHierarchicalContentNode implements
+        IHierarchicalContentNode
 {
     private IHierarchicalContentNode content;
 
