@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -464,11 +466,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         dssServiceV1_0 =
                 getAdvisedDssService(new MockDssServiceRpcV1_0(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile)));
+                        randomDataFile));
 
         dssServiceV1_2 =
                 getAdvisedDssService(new MockDssServiceRpcV1_2(null, shareIdManager, fileInfos,
-                        new FileInputStream(randomDataFile)));
+                        randomDataFile));
 
         context.checking(new Expectations()
             {
@@ -553,16 +555,25 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         private final FileInputStream fileInputStream;
 
+        private URL url;
+
         /**
          * @param openBISService
          */
         public MockDssServiceRpcV1_0(IEncapsulatedOpenBISService openBISService,
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                FileInputStream fileInputStream)
+                File file)
         {
             super(openBISService, null, shareIdManager, null);
             this.fileInfos = fileInfos;
-            this.fileInputStream = fileInputStream;
+            try
+            {
+                this.fileInputStream = new FileInputStream(file);
+                url = file.toURL();
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
 
         public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
@@ -574,7 +585,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         public String getDownloadUrlForFileForDataSet(String sessionToken,
                 DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException
         {
-            return null;
+            return url.toString();
         }
 
         public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
@@ -586,7 +597,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
                 String path) throws IOExceptionUnchecked, IllegalArgumentException
         {
-            return null;
+            return url.toString();
         }
 
         public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
@@ -643,13 +654,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         /**
          * @param openBISService
          * @param fileInfos
-         * @param fileInputStream
          */
         public MockDssServiceRpcV1_1(IEncapsulatedOpenBISService openBISService,
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                FileInputStream fileInputStream)
+                File file)
         {
-            super(openBISService, shareIdManager, fileInfos, fileInputStream);
+            super(openBISService, shareIdManager, fileInfos, file);
         }
 
         @Override
@@ -675,13 +685,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param openBISService
          * @param shareIdManager
          * @param fileInfos
-         * @param fileInputStream
          */
         public MockDssServiceRpcV1_2(IEncapsulatedOpenBISService openBISService,
                 IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                FileInputStream fileInputStream)
+                File file)
         {
-            super(openBISService, shareIdManager, fileInfos, fileInputStream);
+            super(openBISService, shareIdManager, fileInfos, file);
         }
 
         @Override
