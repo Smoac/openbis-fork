@@ -61,6 +61,44 @@ public class ParallelizedExecutorTest extends AssertJUnit
         assertAllExecuted(executed);
     }
 
+    private static class MyExecutor implements ITaskExecutor<Integer>
+    {
+        private ThreadLocal<Integer> executionCounter = new ThreadLocal<Integer>();
+
+        public boolean executedToManyTimes = false; // this is shared among treads
+
+        public Status execute(Integer item)
+        {
+            Integer counter = executionCounter.get();
+            if (counter == null)
+            {
+                counter = 0;
+            }
+            executionCounter.set(counter + 1);
+            System.out.println("executed " + executionCounter);
+            if (executionCounter.get() > 3)
+            {
+                executedToManyTimes = true;
+            }
+            return Status.createRetriableError();
+        }
+
+    }
+
+    @Test
+    public void testStopOnFailure()
+    {
+        List<Integer> items = createTaskItems(100);
+        final int retriesNumberWhenExecutionFails = 3;
+        MyExecutor taskExecutor = new MyExecutor();
+
+        ParallelizedExecutor.process(items, taskExecutor, 1, 3, "test",
+                retriesNumberWhenExecutionFails, true);
+        assertFalse("Each thread should be called at most 3 times "
+                + "(we are stopping on the first item which cannot be processed after retries)",
+                taskExecutor.executedToManyTimes);
+    }
+
     @Test
     public void testFailuresReported()
     {
@@ -113,7 +151,8 @@ public class ParallelizedExecutorTest extends AssertJUnit
         // there is one item to process and maxThreads is 1, so the operation should be performed in
         // the same thread
         Collection<FailureRecord<Integer>> errors =
-                ParallelizedExecutor.process(items, taskExecutor, 1, 1, "test", numberOfTries);
+                ParallelizedExecutor.process(items, taskExecutor, 1, 1, "test", numberOfTries,
+                        false);
         assertEquals(0, errors.size());
     }
 
@@ -139,7 +178,7 @@ public class ParallelizedExecutorTest extends AssertJUnit
     private Collection<FailureRecord<Integer>> process(List<Integer> items,
             ITaskExecutor<Integer> taskExecutor)
     {
-        return ParallelizedExecutor.process(items, taskExecutor, 10, 10, "test", 1);
+        return ParallelizedExecutor.process(items, taskExecutor, 10, 10, "test", 1, false);
     }
 
     private static void assertAllExecuted(final boolean[] executed)

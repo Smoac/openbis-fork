@@ -73,14 +73,15 @@ public class ParallelizedExecutor
 
     private static <T> void startUpWorkerThreads(AtomicInteger workersCounter,
             Queue<T> workerQueue, Collection<FailureRecord<T>> failed,
-            ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails)
+            ITaskExecutor<T> taskExecutor, int retriesNumberWhenExecutionFails,
+            boolean stopOnFirstFailure)
     {
         int counter = workersCounter.get();
         for (int i = 0; i < counter; ++i)
         {
             ParallelizedWorker<T> worker =
                     new ParallelizedWorker<T>(workerQueue, failed, taskExecutor, workersCounter,
-                            retriesNumberWhenExecutionFails);
+                            retriesNumberWhenExecutionFails, stopOnFirstFailure);
             new Thread(worker, "Worker " + i).start();
         }
         if (operationLog.isInfoEnabled())
@@ -94,11 +95,15 @@ public class ParallelizedExecutor
      * <p>
      * Uses #cores * <var>machineLoad</var> threads for the processing, but not more than
      * <var>maxThreads</var>.
+     * 
+     * @param stopOnFirstFailure if true and processing of any item fails (after the specified
+     *            number of retries), then next items are not processed at all.
      */
     public static <T> Collection<FailureRecord<T>> process(List<T> itemsToProcessOrNull,
             ITaskExecutor<T> taskExecutor, double machineLoad, int maxThreads,
-            String processDescription, int retriesNumberWhenExecutionFails)
-            throws InterruptedExceptionUnchecked, EnvironmentFailureException
+            String processDescription, int retriesNumberWhenExecutionFails,
+            boolean stopOnFirstFailure) throws InterruptedExceptionUnchecked,
+            EnvironmentFailureException
     {
         long start = System.currentTimeMillis();
         final Queue<T> workerQueue = tryFillWorkerQueue(itemsToProcessOrNull);
@@ -117,7 +122,7 @@ public class ParallelizedExecutor
         } else
         {
             processinParallel(taskExecutor, retriesNumberWhenExecutionFails, workerQueue, failed,
-                    numberOfWorkers);
+                    numberOfWorkers, stopOnFirstFailure);
         }
         logFinished(failed, processDescription, start);
         return failed;
@@ -140,11 +145,12 @@ public class ParallelizedExecutor
 
     private static <T> void processinParallel(ITaskExecutor<T> taskExecutor,
             int retriesNumberWhenExecutionFails, final Queue<T> workerQueue,
-            final Collection<FailureRecord<T>> failed, int numberOfWorkers)
+            final Collection<FailureRecord<T>> failed, int numberOfWorkers,
+            boolean stopOnFirstFailure)
     {
         final AtomicInteger workersCounter = new AtomicInteger(numberOfWorkers);
         startUpWorkerThreads(workersCounter, workerQueue, failed, taskExecutor,
-                retriesNumberWhenExecutionFails);
+                retriesNumberWhenExecutionFails, stopOnFirstFailure);
         synchronized (failed)
         {
             while (workersCounter.get() > 0)

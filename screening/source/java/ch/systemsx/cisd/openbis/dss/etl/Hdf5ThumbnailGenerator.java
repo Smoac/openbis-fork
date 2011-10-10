@@ -244,7 +244,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         Collection<FailureRecord<AcquiredSingleImage>> errors =
                 ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
-                        "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION);
+                        "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION, true);
         if (errors.size() > 0)
         {
             throw new IllegalStateException(

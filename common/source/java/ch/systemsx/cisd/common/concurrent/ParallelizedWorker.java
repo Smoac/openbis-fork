@@ -56,6 +56,8 @@ class ParallelizedWorker<T> implements Runnable
 
     private final int retriesNumberWhenExecutionFails;
 
+    private final boolean stopOnFirstFailure;
+
     private final Queue<T> workerQueue;
 
     private final Collection<FailureRecord<T>> failures;
@@ -66,7 +68,7 @@ class ParallelizedWorker<T> implements Runnable
 
     ParallelizedWorker(final Queue<T> incommingQueue, final Collection<FailureRecord<T>> failures,
             final ITaskExecutor<T> taskExecutor, final AtomicInteger activeWorkers,
-            int retriesNumberWhenExecutionFails)
+            int retriesNumberWhenExecutionFails, boolean stopOnFirstFailure)
     {
         assert incommingQueue != null;
         assert failures != null;
@@ -79,6 +81,7 @@ class ParallelizedWorker<T> implements Runnable
         this.taskExecutor = taskExecutor;
         this.activeWorkers = activeWorkers;
         this.retriesNumberWhenExecutionFails = retriesNumberWhenExecutionFails;
+        this.stopOnFirstFailure = stopOnFirstFailure;
     }
 
     public void run()
@@ -133,6 +136,10 @@ class ParallelizedWorker<T> implements Runnable
                 {
                     logErrors(status);
                     failures.add(new FailureRecord<T>(taskOrNull, status));
+                    if (stopOnFirstFailure)
+                    {
+                        return; // finish the thread
+                    }
                 }
             } while (true);
         } finally
