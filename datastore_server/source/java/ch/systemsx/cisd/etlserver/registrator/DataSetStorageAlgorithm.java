@@ -353,8 +353,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         /**
          * Prepare registration of a data set.
-         * 
-         * @param rollbackStack
          */
         public void prepare(IRollbackStack aStack)
         {
