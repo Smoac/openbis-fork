@@ -203,7 +203,15 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             System.out.println("Found " + commandQueue.size() + " items in command queue:");
             for (final IDataSetCommand cmd : commandQueue)
             {
-                System.out.println(cmd.getDescription());
+                try
+                {
+                    System.out.println(cmd.getDescription());
+                } catch (RuntimeException ex)
+                {
+                    System.err.printf("Error showing description of command '%s':\n", cmd
+                            .getClass().getSimpleName());
+                    ex.printStackTrace();
+                }
             }
         }
     }

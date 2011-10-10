@@ -65,6 +65,8 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     static final String AUTH_CACHE_EXPIRATION_TIME = "authorization-cache-expiration-time";
 
+    static final String COMMAND_QUEUE_DIR = "commandqueue-dir";
+
     static final int DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS = 5;
 
     static final String AUTH_CACHE_CLEANUP_TIMER_PERIOD =
@@ -130,6 +132,8 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     private final String webstartJarPath;
 
+    private final File commandQueueDir;
+
     /**
      * Creates an instance based on the specified properties.
      * 
@@ -138,7 +142,9 @@ public final class ConfigParameters implements IServletPropertiesManager
     ConfigParameters(final Properties properties)
     {
         this.properties = properties;
-        storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
+        final String storeRootDir =
+                PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
+        storePath = new File(storeRootDir);
         dssInternalTempDir = getInternalTempDirectory(properties);
         rpcIncomingDirectory = getRpcIncomingDirectory(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
@@ -146,6 +152,8 @@ public final class ConfigParameters implements IServletPropertiesManager
         downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
         useSSL = PropertyUtils.getBoolean(properties, USE_SSL, true);
+        commandQueueDir =
+                new File(PropertyUtils.getProperty(properties, COMMAND_QUEUE_DIR, storeRootDir));
         if (useSSL == true)
         {
             keystorePath = PropertyUtils.getMandatoryProperty(properties, KEYSTORE_PATH_KEY);
@@ -235,6 +243,11 @@ public final class ConfigParameters implements IServletPropertiesManager
     public final File getStorePath()
     {
         return storePath;
+    }
+
+    public File getCommandQueueDir()
+    {
+        return commandQueueDir;
     }
 
     public final File getRpcIncomingDirectory()
