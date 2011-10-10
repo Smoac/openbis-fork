@@ -208,7 +208,7 @@ abstract public class SimpleImageDataConfig
 
     private List<String> thumbnailsGenerationImageMagicParams = Collections.emptyList();
 
-    private boolean generateThumbnailsInHighQuality = false;
+    private boolean generateThumbnailsIn8BitHighQuality = false;
 
     private double allowedMachineLoadDuringThumbnailsGeneration = 1.0;
 
@@ -253,7 +253,7 @@ abstract public class SimpleImageDataConfig
             thumbnailsStorageFormat.setMaxHeight(getMaxThumbnailWidthAndHeight());
             thumbnailsStorageFormat.setGenerateWithImageMagic(generateThumbnailsWithImageMagic);
             thumbnailsStorageFormat.setImageMagicParams(thumbnailsGenerationImageMagicParams);
-            thumbnailsStorageFormat.setHighQuality(generateThumbnailsInHighQuality);
+            thumbnailsStorageFormat.setHighQuality(generateThumbnailsIn8BitHighQuality);
             imageStorageConfiguraton.setThumbnailsStorageFormat(thumbnailsStorageFormat);
         }
         if (false == StringUtils.isBlank(convertTransformationCliArgumentsOrNull))
@@ -406,12 +406,27 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * if true and thumbnails generation is switched on, thumbnails will be generated with high
+     * If true and thumbnails generation is switched on, thumbnails will be generated with high
      * quality.
+     * <p>
+     * Be careful: high quality means that the generation will take longer and the image will be
+     * converted to 8 bit color depth. This option is useful for segmentation images, images with 8
+     * bit color depth or when no 16 bit transformation has to be applied to the images.
      */
+    public void setGenerateHighQuality8BitThumbnails(boolean highQualityThumbnails)
+    {
+        this.generateThumbnailsIn8BitHighQuality = highQualityThumbnails;
+    }
+
+    /**
+     * See {@link #setGenerateHighQuality8BitThumbnails}.
+     * 
+     * @deprecated use {@link #setGenerateHighQuality8BitThumbnails} instead.
+     */
+    @Deprecated
     public void setGenerateHighQualityThumbnails(boolean highQualityThumbnails)
     {
-        this.generateThumbnailsInHighQuality = highQualityThumbnails;
+        this.generateThumbnailsIn8BitHighQuality = highQualityThumbnails;
     }
 
     /**

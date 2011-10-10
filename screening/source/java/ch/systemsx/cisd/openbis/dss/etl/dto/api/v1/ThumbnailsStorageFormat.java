@@ -44,7 +44,7 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     private double allowedMachineLoadDuringGeneration = 1;
 
-    private boolean highQuality = false;
+    private boolean highQuality8Bit = false;
 
     private boolean generateWithImageMagic = false;
 
@@ -80,7 +80,7 @@ public class ThumbnailsStorageFormat extends AbstractHashable
 
     public boolean isHighQuality()
     {
-        return highQuality;
+        return highQuality8Bit;
     }
 
     public boolean isGenerateWithImageMagic()
@@ -128,7 +128,7 @@ public class ThumbnailsStorageFormat extends AbstractHashable
      */
     public void setHighQuality(boolean highQuality)
     {
-        this.highQuality = highQuality;
+        this.highQuality8Bit = highQuality;
     }
 
     /**
