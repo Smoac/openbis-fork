@@ -153,7 +153,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         Size size = new Size(4, 2);
         AbsoluteImageReference absoluteImageReference =
                 createAbsoluteImageReference("img1.jpg", new RequestedImageSize(size, false));
-        performTest(absoluteImageReference, "cde cde\ncde cde\n", size);
+        performTest(absoluteImageReference, "9bc def\ndef cde\n", size);
         context.assertIsSatisfied();
     }
 
