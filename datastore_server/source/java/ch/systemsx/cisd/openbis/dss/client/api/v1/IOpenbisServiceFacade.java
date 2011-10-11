@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -71,12 +72,26 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      * @param description Free text describing new vocabulary term.
      * @param previousTermOrdinal new vocabulary term will be placed right after vocabulary term
      *            with given ordinal number.
+     * @deprecated Please use the {@link #addAdHocVocabularyTerm(Long, NewVocabularyTerm)} method
+     *             instead.
      */
+    @Deprecated
     public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal);
 
     /**
-     * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     * Adds new ad-hoc terms to a vocabulary starting from specified ordinal + 1.
+     * 
+     * @param vocabularyId The id of vocabulary which should be extended.
+     * @param term the vocabulary term to be added.
      */
+    public void addAdHocVocabularyTerm(Long vocabularyId, NewVocabularyTerm term);
+
+    /**
+     * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     * 
+     * @deprecated Please use the {@link #listVocabularies()} method instead.
+     */
+    @Deprecated
     public HashMap<Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap();
 }

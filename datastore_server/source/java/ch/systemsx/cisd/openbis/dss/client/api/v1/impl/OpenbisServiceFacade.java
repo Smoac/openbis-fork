@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -439,6 +440,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return convertedDataSets;
     }
 
+    @SuppressWarnings("deprecation")
     public void addAdHocVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal)
     {
@@ -446,9 +448,20 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                 description, previousTermOrdinal);
     }
 
+    public void addAdHocVocabularyTerm(Long vocabularyId, NewVocabularyTerm term)
+    {
+        changingService.addUnofficialVocabularyTerm(sessionToken, vocabularyId, term);
+    }
+
     @SuppressWarnings("deprecation")
     public HashMap<Vocabulary, List<VocabularyTerm>> getVocabularyTermsMap()
     {
         return service.getVocabularyTermsMap(sessionToken);
     }
+
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies()
+    {
+        return service.listVocabularies(sessionToken);
+    }
+
 }

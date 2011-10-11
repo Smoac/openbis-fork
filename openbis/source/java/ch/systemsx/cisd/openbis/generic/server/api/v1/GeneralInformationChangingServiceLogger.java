@@ -22,6 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -47,9 +48,17 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
     {
-        logTracking(sessionToken, "add_unofficial_vocabulary_terms",
+        logTracking(sessionToken, "add_unofficial_vocabulary_term",
                 "ID(%s) CODE(%s), LABEL(%s), DESCRIPTION(%s), PREVIOUS_ORDINAL(%s)", vocabularyId,
                 code, label, description, Long.toString(previousTermOrdinal));
+    }
+
+    public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
+            NewVocabularyTerm term)
+    {
+        logTracking(sessionToken, "add-unofficial-vocabulary-term", "VOCABULARY_ID(%s) TERM(%s)",
+                vocabularyId, term);
+
     }
 
     public int getMajorVersion()

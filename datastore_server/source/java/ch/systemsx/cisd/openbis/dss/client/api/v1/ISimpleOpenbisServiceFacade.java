@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 
 /**
  * Provides a simplified view of an openBIS backend by allowing the following operations :
@@ -113,6 +114,11 @@ public interface ISimpleOpenbisServiceFacade
      * Returns all data set types available in openBIS.
      */
     List<DataSetType> listDataSetTypes();
+
+    /**
+     * Return all vocabularies available in openBIS together with the contained vocabulary terms.
+     */
+    List<Vocabulary> listVocabularies();
 
     /**
      * Upload a new data set to the DSS.

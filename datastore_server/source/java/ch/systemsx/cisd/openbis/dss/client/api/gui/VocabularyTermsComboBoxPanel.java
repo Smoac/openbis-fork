@@ -37,8 +37,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.Observer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 
 /**
  * The class creates a ComboBox together with button which makes it possible to add new Vocabulary
@@ -131,8 +131,8 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
 
         this.comboBox = new JComboBox();
         this.add(comboBox, BorderLayout.CENTER);
-        this.vocabulary = propertyType.getVocabulary();
-        fillComboBoxWithTerms(propertyType.getTerms(), null);
+        this.vocabulary = clientModel.getVocabulary(propertyType.getVocabulary().getCode());
+        fillComboBoxWithTerms(vocabulary.getTerms(), null);
         comboBox.setRenderer(new VocabularyTermsRenderer());
 
         button.addActionListener(new ActionListener()
@@ -201,6 +201,6 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
         String selectedCode =
                 vocabulary.getId() != this.vocabulary.getId() ? ((VocabularyTermAdaptor) comboBox
                         .getSelectedItem()).term.getCode() : code;
-        fillComboBoxWithTerms(clientModel.getVocabularyTerms(vocabulary), selectedCode);
+        fillComboBoxWithTerms(vocabulary.getTerms(), selectedCode);
     }
 }

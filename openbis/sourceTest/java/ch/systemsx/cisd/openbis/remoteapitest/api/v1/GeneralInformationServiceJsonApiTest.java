@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,10 +34,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
-import com.googlecode.jsonrpc4j.ProxyUtil;
-
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.utilities.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -67,25 +63,13 @@ import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
     { "remote api" })
 public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 {
-    private static final String SERVICE_URL = "http://localhost:8888/openbis/"
-            + IGeneralInformationService.JSON_SERVICE_URL;
-
     protected IGeneralInformationService generalInformationService;
 
     protected String sessionToken;
 
     protected IGeneralInformationService createService()
     {
-        try
-        {
-            JsonRpcHttpClient client = new JsonRpcHttpClient(new URL(SERVICE_URL));
-            return ProxyUtil.createProxy(getClass().getClassLoader(),
-                    IGeneralInformationService.class, client);
-        } catch (MalformedURLException ex)
-        {
-            throw new RuntimeException("Failed to initialize json-rpc client: " + ex.getMessage(),
-                    ex);
-        }
+        return TestJsonServiceFactory.createGeneralInfoService();
     }
 
     @BeforeMethod
@@ -601,21 +585,32 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     @Test
     public void testListVocabularyTerms()
     {
-        List<Vocabulary> result = generalInformationService.listVocabularies(sessionToken);
-        List<Vocabulary> nonInternals =
-                CollectionUtils.filter(result, new CollectionUtils.ICollectionFilter<Vocabulary>()
-                    {
-                        public boolean isPresent(Vocabulary vocabulary)
-                        {
-                            return false == vocabulary.isInternalNamespace();
-                        }
-                    });
-        assertEquals(3, nonInternals.size());
+        List<Vocabulary> vocabularies = generalInformationService.listVocabularies(sessionToken);
 
+        final Vocabulary gender = findVocabulary(vocabularies, "GENDER");
         assertEquals(
-                "[Vocabulary[GENDER,[VocabularyTerm[MALE,MALE], VocabularyTerm[FEMALE,FEMALE]]],"
-                        + " Vocabulary[HUMAN,[VocabularyTerm[MAN,MAN], VocabularyTerm[WOMAN,WOMAN], VocabularyTerm[CHILD,CHILD]]],"
-                        + " Vocabulary[ORGANISM,[VocabularyTerm[RAT,RAT], VocabularyTerm[DOG,DOG], VocabularyTerm[HUMAN,HUMAN], VocabularyTerm[GORILLA,GORILLA], VocabularyTerm[FLY,FLY]]]]",
-                nonInternals.toString());
+                "Vocabulary[GENDER,[VocabularyTerm[MALE,MALE], VocabularyTerm[FEMALE,FEMALE]]]",
+                gender.toString());
+        final Vocabulary human = findVocabulary(vocabularies, "HUMAN");
+        assertEquals(
+                "Vocabulary[HUMAN,[VocabularyTerm[MAN,MAN], VocabularyTerm[WOMAN,WOMAN], VocabularyTerm[CHILD,CHILD]]]",
+                human.toString());
+
+        Vocabulary organism = findVocabulary(vocabularies, "ORGANISM");
+        assertNotNull(organism);
+        assertEquals("VocabularyTerm[RAT,RAT]", organism.getTerms().get(0).toString());
     }
+
+    private Vocabulary findVocabulary(List<Vocabulary> vocabularies, String vocabularyCode)
+    {
+        for (Vocabulary vocabulary : vocabularies)
+        {
+            if (vocabulary.getCode().equals(vocabularyCode))
+            {
+                return vocabulary;
+            }
+        }
+        return null;
+    }
+
 }

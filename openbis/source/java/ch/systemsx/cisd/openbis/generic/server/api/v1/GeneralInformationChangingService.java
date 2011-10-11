@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -77,6 +78,14 @@ public class GeneralInformationChangingService extends
                 previousTermOrdinal);
     }
 
+    public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
+            NewVocabularyTerm term)
+    {
+        TechId vocabularyTechId = new TechId(vocabularyId);
+        server.addUnofficialVocabularyTerm(sessionToken, vocabularyTechId, term.getCode(),
+                term.getLabel(), term.getDescription(), term.getPreviousTermOrdinal());
+    }
+
     public int getMajorVersion()
     {
         return 1;
@@ -84,6 +93,7 @@ public class GeneralInformationChangingService extends
 
     public int getMinorVersion()
     {
-        return 0;
+        return 1;
     }
+
 }

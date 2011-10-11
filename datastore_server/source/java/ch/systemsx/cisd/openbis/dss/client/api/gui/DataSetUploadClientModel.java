@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,15 +37,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 
@@ -85,7 +83,7 @@ public class DataSetUploadClientModel
 
     private final List<Observer> observers = new LinkedList<DataSetUploadClientModel.Observer>();
 
-    private HashMap<Vocabulary, List<VocabularyTerm>> vocabularyTerms;
+    private List<Vocabulary> vocabularies;
 
     private List<Project> projects;
 
@@ -96,7 +94,7 @@ public class DataSetUploadClientModel
         this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
         dataSetTypes = openBISService.listDataSetTypes();
-        vocabularyTerms = openBISService.getVocabularyTermsMap();
+        vocabularies = openBISService.listVocabularies();
         projects = openBISService.listProjects();
 
         List<String> projectIds = new ArrayList<String>();
@@ -529,12 +527,27 @@ public class DataSetUploadClientModel
     public void addUnofficialVocabularyTerm(Vocabulary vocabulary, String code, String label,
             String description, Long previousTermOrdinal)
     {
-        openBISService.addAdHocVocabularyTerm(TechId.create(vocabulary), code, label, description,
-                previousTermOrdinal);
+        NewVocabularyTerm term =
+                createNewVocabularyTerm(code, label, description, previousTermOrdinal);
+        openBISService.addAdHocVocabularyTerm(vocabulary.getId(), term);
         dataSetTypes = openBISService.listDataSetTypes();
-        vocabularyTerms = openBISService.getVocabularyTermsMap();
+        vocabularies = openBISService.listVocabularies();
 
-        notifyObservers(vocabulary, code);
+        // get the vocabulary with the new term.
+        Vocabulary updatedVocabulary = getVocabulary(vocabulary.getCode());
+        notifyObservers(updatedVocabulary, code);
+    }
+
+    private NewVocabularyTerm createNewVocabularyTerm(String code, String label,
+            String description,
+            Long previousTermOrdinal)
+    {
+        NewVocabularyTerm term = new NewVocabularyTerm();
+        term.setCode(code);
+        term.setLabel(label);
+        term.setDescription(description);
+        term.setPreviousTermOrdinal(previousTermOrdinal);
+        return term;
     }
 
     public void registerObserver(Observer observer)
@@ -550,13 +563,20 @@ public class DataSetUploadClientModel
         }
     }
 
-    public List<VocabularyTerm> getVocabularyTerms(Vocabulary vocabulary)
-    {
-        return vocabularyTerms.get(vocabulary);
-    }
-
     public List<Experiment> getExperiments()
     {
         return experiments;
+    }
+
+    public Vocabulary getVocabulary(String code)
+    {
+        for (Vocabulary vocabulary : vocabularies)
+        {
+            if (vocabulary.getCode().equals(code))
+            {
+                return vocabulary;
+            }
+        }
+        return null;
     }
 }
