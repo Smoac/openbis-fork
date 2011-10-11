@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shows daily usage statistics of openBIS users, excluding some users.
+# Shows daily usage statistics of openBIS users, excluding some users
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
