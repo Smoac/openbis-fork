@@ -65,6 +65,10 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     public String tryToAuthenticateAtQueryServer(String userID, String userPassword)
     {
         SessionContextDTO session = tryToAuthenticate(userID, userPassword);
+        if (session != null)
+        {
+            queryServer.initDatabases(session.getSessionToken());
+        }
         return session == null ? null : session.getSessionToken();
     }
 
