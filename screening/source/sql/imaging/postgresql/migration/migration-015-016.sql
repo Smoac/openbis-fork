@@ -82,6 +82,6 @@ $$ LANGUAGE 'plpgsql';
 
 DROP TABLE DATA_SETS;
     
-UPDATE IMAGES SET PATH = regexp_replace(PATH, '\\.h5:', '.h5/') WHERE PATH LIKE '%.h5:%';
+UPDATE IMAGES SET PATH = regexp_replace(PATH, 'h5:', 'h5/') WHERE PATH LIKE '%.h5:%';
 
 
