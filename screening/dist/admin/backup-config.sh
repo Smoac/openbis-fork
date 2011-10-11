@@ -22,7 +22,8 @@ cp $BASE/env $CONF/
 # -- AS
 cp $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
 cp $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
-cp $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
+copyIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
+copyIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
 cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/
 cp $ROOT/openBIS-server/jetty/etc/jetty.properties $CONF/
 cp $ROOT/openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $CONF/

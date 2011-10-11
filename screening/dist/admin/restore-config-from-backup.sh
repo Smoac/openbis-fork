@@ -29,7 +29,7 @@ fi
 # -- AS
 cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
 cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
-cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/bin/
+cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
 cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
 cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
 cp $CONF/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/ 
