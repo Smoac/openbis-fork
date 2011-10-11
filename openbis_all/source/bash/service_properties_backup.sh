@@ -14,7 +14,7 @@ export DSS_SP=datastore_server-service.properties
 
 
 export CONFIG_DIR=~openbis/config
-export PRODUCTIVE=~openbis/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
+export PRODUCTIVE=~openbis/sprint/openBIS-server/jetty/etc/service.properties
 export DSS_PRODUCTIVE=~openbis/sprint/datastore_server/etc/service.properties
 
 export MAIL_LIST="manuel.kohler@bsse.ethz.ch"
