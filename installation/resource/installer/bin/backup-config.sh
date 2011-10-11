@@ -20,12 +20,14 @@ ROOT=$BASE/../servers
 cp $BASE/env $CONF/
 
 # -- AS
-cp $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
-cp $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
-copyIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
-copyIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
 cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/
-cp $ROOT/openBIS-server/jetty/etc/jetty.properties $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/etc/jetty.properties $CONF/
 cp $ROOT/openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $CONF/
 # not always present
 copyIfExists $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
