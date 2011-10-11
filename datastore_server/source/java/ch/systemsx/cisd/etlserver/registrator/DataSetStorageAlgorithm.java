@@ -519,6 +519,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         public void commitStorageProcessor()
         {
+            transaction.setStoredDataDirectory(storedDirectory);
             transaction.commit();
             cleanUp();
         }

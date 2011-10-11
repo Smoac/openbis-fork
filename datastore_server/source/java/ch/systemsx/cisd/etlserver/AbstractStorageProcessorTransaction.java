@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * @author Chandrasekhar Ramakrishnan
  * @author Kaloyan Enimanev
  */
-public abstract class AbstractStorageProcessorTransaction implements
-        IStorageProcessorTransaction
+public abstract class AbstractStorageProcessorTransaction implements IStorageProcessorTransaction
 {
 
     private static final long serialVersionUID = 1L;
@@ -102,6 +101,11 @@ public abstract class AbstractStorageProcessorTransaction implements
     public final File getStoredDataDirectory()
     {
         return storedDataDirectory;
+    }
+
+    public final void setStoredDataDirectory(File dir)
+    {
+        storedDataDirectory = dir;
     }
 
     private void ensureState(String operation, TransactionState... allowedStates)

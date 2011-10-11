@@ -608,6 +608,11 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         return storedFile;
                     }
 
+                    public void setStoredDataDirectory(File folder)
+                    {
+                        storedFile = folder;
+                    }
+
                     public void commit()
                     {
                         calledCommitCount++;

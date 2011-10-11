@@ -329,6 +329,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         return storedFolder;
                     }
 
+                    public void setStoredDataDirectory(File folder)
+                    {
+                        storedFolder = folder;
+                    }
+
                     public void commit()
                     {
                         calledCommitCount++;

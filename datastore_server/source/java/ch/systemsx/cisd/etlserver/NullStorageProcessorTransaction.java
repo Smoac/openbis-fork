@@ -51,6 +51,10 @@ public class NullStorageProcessorTransaction implements IStorageProcessorTransac
         return null;
     }
 
+    public void setStoredDataDirectory(File folder)
+    {
+    }
+
     public File tryGetProprietaryData()
     {
         return null;

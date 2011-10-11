@@ -72,8 +72,9 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
                 final File incomingDataSetDirectory);
 
         /**
-         * Commits the changes done by the recent {@link #storeData(ITypeExtractor, IMailClient, File)}
-         * call if the dataset has been also successfully registered openBIS.
+         * Commits the changes done by the recent
+         * {@link #storeData(ITypeExtractor, IMailClient, File)} call if the dataset has been also
+         * successfully registered openBIS.
          * <p>
          * This operation is useful when the storage processor adds the data to an additional
          * database. If all the storage processor operations are done on the file system, the
@@ -83,8 +84,8 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
         public void commit();
 
         /**
-         * Performs a rollback of {@link #storeData(ITypeExtractor, IMailClient, File)} The data created
-         * in <code>directory</code> will also be removed.
+         * Performs a rollback of {@link #storeData(ITypeExtractor, IMailClient, File)} The data
+         * created in <code>directory</code> will also be removed.
          * <p>
          * Call to this method is safe as implementations should try/catch exceptions that could
          * occur here.
@@ -100,6 +101,12 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
          * Returns the directory where the data set is stored.
          */
         public File getStoredDataDirectory();
+
+        /**
+         * Set the stored data directory. Done if a client of the transaction has moved the stored
+         * data.
+         */
+        public void setStoredDataDirectory(File dir);
 
         /**
          * Returns the data set in the original proprietary format (before being processed) if
@@ -153,7 +160,6 @@ public interface IStorageProcessorTransactional extends IStoreRootDirectoryHolde
 
     /**
      * Create a new {@link IStorageProcessorTransaction} object.
-     * 
      */
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters transactionParameters);
