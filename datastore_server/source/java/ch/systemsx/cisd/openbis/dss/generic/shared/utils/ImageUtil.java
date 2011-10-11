@@ -594,6 +594,9 @@ public class ImageUtil
         } else if (imageType == BufferedImage.TYPE_CUSTOM)
         {
             imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+        } else if (imageType == BufferedImage.TYPE_BYTE_INDEXED)
+        {
+            imageType = BufferedImage.TYPE_INT_RGB;
         }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         return thumbnail;
