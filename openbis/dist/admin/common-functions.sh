@@ -31,6 +31,17 @@ executeScriptHooks()
 }
 
 #
+# Copies a file (first parameter) to a destination (second parameter). 
+# Does nothing if file does not exist. Will follow symbolic links.
+#
+copyFileIfExists() 
+{
+  if [ -e "$1" ]; then
+      cp -p "$1" "$2"
+  fi
+}
+
+#
 # Copies a file/folder (first parameter) to a destination (second parameter). 
 # Does nothing if file/folder does not exist.
 #
