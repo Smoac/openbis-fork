@@ -79,6 +79,8 @@ test -f "$installation_folder/jetty.xml" && cp -p "$installation_folder/jetty.xm
 test -f "$installation_folder/web-client.properties" && cp -p "$installation_folder/web-client.properties" "$jetty_folder/etc"
 test -f "$jetty_folder/etc/keystore" && rm "$jetty_folder/etc/keystore"
 cp -p "$installation_folder/openBIS.keystore" "$jetty_folder/etc"
+cp -p $startup_properties_file "$jetty_folder/etc"
+
 
 echo installing web archive...
 openbis_webapp="$jetty_folder/webapps/openbis"
@@ -100,10 +102,6 @@ mv "$war_classes/service.properties" "$jetty_folder/etc"
 cd "$war_classes"
 ln -s ../../../../etc/service.properties .
 cd -
-mv "$jetty_folder/bin/jetty.properties" "$jetty_folder/etc"
-cd "$jetty_folder/bin"
-ln -s ../etc/jetty.properties .
-cd -
 
 JETTY_BIN_DIR="$jetty_folder/bin"
 cp -p "$installation_folder/startup.sh" "$JETTY_BIN_DIR"
@@ -116,8 +114,7 @@ cp -p "$installation_folder/export-master-data.py" "$JETTY_BIN_DIR"
 chmod u+x $JETTY_BIN_DIR/*.sh
 
 # Create a file called 'jetty.properties'.
-JETTY_PROPERTIES="$JETTY_BIN_DIR/jetty.properties"
-cp $startup_properties_file "$JETTY_BIN_DIR"
+JETTY_PROPERTIES="$jetty_folder/etc/jetty.properties"
 echo "JETTY_STOP_PORT=8079" > "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 

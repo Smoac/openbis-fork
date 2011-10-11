@@ -6,8 +6,8 @@ if [ ${JETTY_BIN_DIR#/} == ${JETTY_BIN_DIR} ]; then
     JETTY_BIN_DIR="`pwd`/${JETTY_BIN_DIR}"
 fi
 
-source "$JETTY_BIN_DIR"/jetty.properties
-source "$JETTY_BIN_DIR"/openbis.conf
+source "$JETTY_BIN_DIR/../etc/jetty.properties"
+source "$JETTY_BIN_DIR/../etc/openbis.conf"
 cd "$JETTY_BIN_DIR"/..
 
 if [ -n "$JAVA_HOME" ]; then
