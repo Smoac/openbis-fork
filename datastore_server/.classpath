@@ -67,7 +67,7 @@
 	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/xmlbeans-2.3.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/ftpserver/ftpserver-core.jar" sourcepath="/libraries/ftpserver/ftpserver-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/mina/mina-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/pngj/pngj.jar" sourcepath="/libraries/pngj/pngj_src.zip"/>
