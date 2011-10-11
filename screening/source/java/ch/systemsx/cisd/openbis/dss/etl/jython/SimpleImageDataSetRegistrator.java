@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -164,10 +165,42 @@ public class SimpleImageDataSetRegistrator
     /**
      * Finds all images in the directory.
      */
-    private List<File> listImageFiles(final File incomingDirectory)
+    private List<File> listImageFiles(final File incoming)
     {
-        return FileOperations.getInstance().listFiles(incomingDirectory,
-                simpleImageConfig.getRecognizedImageExtensions(), true);
+        String[] extensions = simpleImageConfig.getRecognizedImageExtensions();
+        if (incoming.isFile())
+        {
+            List<File> list = new ArrayList<File>();
+            if (extensionMatches(incoming, extensions))
+            {
+                list.add(incoming);
+            }
+            return list;
+        } else
+        {
+            return FileOperations.getInstance().listFiles(incoming, extensions, true);
+        }
+    }
+
+    private boolean extensionMatches(final File incoming, String[] extensions)
+    {
+        if (extensions == null || extensions.length == 0)
+        {
+            return true;
+        }
+        String fileExt = FilenameUtils.getExtension(incoming.getName());
+        if (fileExt == null)
+        {
+            fileExt = "";
+        }
+        for (String ext : extensions)
+        {
+            if (ext.equalsIgnoreCase(fileExt))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -203,14 +236,14 @@ public class SimpleImageDataSetRegistrator
         return imageTokensList;
     }
 
-    private List<File> extractImageFiles(File incomingDirectory)
+    private List<File> extractImageFiles(File incoming)
     {
-        List<File> imageFiles = listImageFiles(incomingDirectory);
+        List<File> imageFiles = listImageFiles(incoming);
         if (imageFiles.isEmpty())
         {
             throw UserFailureException.fromTemplate(
-                    "Incoming directory '%s' contains no images with extensions %s!",
-                    incomingDirectory.getPath(), CollectionUtils.abbreviate(
+                    "Incoming directory '%s' contains no images with extensions %s!", incoming
+                            .getPath(), CollectionUtils.abbreviate(
                             simpleImageConfig.getRecognizedImageExtensions(), -1));
         }
         return imageFiles;
@@ -474,8 +507,8 @@ public class SimpleImageDataSetRegistrator
             ImageIdentifier imageIdentifier, String libraryName, String readerName)
     {
         String imageStringIdentifier = imageIdentifier.getUniqueStringIdentifier();
-        return ImageUtil.loadUnchangedImage(new FileBasedContentNode(imageFile), imageStringIdentifier,
-                libraryName, readerName, null);
+        return ImageUtil.loadUnchangedImage(new FileBasedContentNode(imageFile),
+                imageStringIdentifier, libraryName, readerName, null);
     }
 
     // -------------------

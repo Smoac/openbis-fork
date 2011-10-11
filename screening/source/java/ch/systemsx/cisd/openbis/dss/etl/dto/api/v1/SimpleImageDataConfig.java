@@ -383,10 +383,8 @@ abstract public class SimpleImageDataConfig
     /**
      * Decides if ImageMagic 'convert' utility will be used to generate thumbnails. True by default.
      * <p>
-     * The tool should be installed and accessible, otherwise set this option to false and set
-     * {@link #setAllowedMachineLoadDuringThumbnailsGeneration(double)} to
-     * 1/numberOfYourProcessorCores. Internal library will be used to generate thumbnails, but it is
-     * not able to generate thumbnails in parallel.
+     * One should set this option to false and use the internal library if 'convert' tool is not
+     * installed or if many images are stored in one image container file.
      */
     public void setUseImageMagicToGenerateThumbnails(boolean generateWithImageMagic)
     {

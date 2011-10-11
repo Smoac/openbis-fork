@@ -129,4 +129,31 @@ public class ImageMetadata
             throw new IllegalStateException("Well is not specified");
         }
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("ImageMetadata [channelCode=" + channelCode + ", tileNumber=" + tileNumber
+                + ", well=" + well);
+        if (timepointOrNull != null)
+        {
+            sb.append(", timepointOrNull =" + timepointOrNull);
+        }
+        if (depthOrNull != null)
+        {
+            sb.append(", depthOrNull=" + depthOrNull);
+        }
+        if (seriesNumberOrNull != null)
+        {
+            sb.append(", seriesNumberOrNull=" + seriesNumberOrNull);
+        }
+        if (imageIdentifierOrNull != null)
+        {
+            sb.append(", imageIdentifierOrNull=" + imageIdentifierOrNull);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
 }
