@@ -288,6 +288,7 @@
     <copy file="${original.openbis.server.dist}/register-master-data.sh" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/export-master-data.sh" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/export-master-data.py" todir="${server.dist}" />
+  	<delete dir="${dist}/gwt-unitCache"/>
     <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
     <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
       <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
