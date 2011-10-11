@@ -115,7 +115,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor implements
         IDispatchableStorageProcessor
 {
-    public static final String ARCHIVE_DELIMITER = ":";
+    public static final String ARCHIVE_DELIMITER = "/";
 
     /**
      * Stores the references to the extracted images in the imaging database.
