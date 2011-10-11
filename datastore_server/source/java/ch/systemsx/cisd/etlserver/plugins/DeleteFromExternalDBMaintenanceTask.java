@@ -47,7 +47,7 @@ public class DeleteFromExternalDBMaintenanceTask extends
 
     private static final String DATA_SET_TABLE_NAME_KEY = "data-set-table-name";
 
-    private static final String DEFAULT_DATA_SET_TABLE_NAME = "data_sets";
+    private static final String DEFAULT_DATA_SET_TABLE_NAME = "image_data_sets, analysis_data_sets";
 
     private static final String LAST_SEEN_EVENT_ID_COLUMN_KEY = "last-seen-event-id-column";
 
@@ -63,10 +63,10 @@ public class DeleteFromExternalDBMaintenanceTask extends
 
     private String lastSeenEventID;
 
-    private String dataSetTableName;
+    private String[] dataSetTableNames;
 
     private String permIDColumn;
-    
+
     private Connection connection;
 
     @Override
@@ -77,8 +77,9 @@ public class DeleteFromExternalDBMaintenanceTask extends
                 properties.getProperty(SYNCHRONIZATION_TABLE_KEY, DEFAULT_SYNCHRONIZATION_TABLE);
         lastSeenEventID =
                 properties.getProperty(LAST_SEEN_EVENT_ID_COLUMN_KEY, DEFAULT_LAST_SEEN_EVENT_ID);
-        dataSetTableName =
-                properties.getProperty(DATA_SET_TABLE_NAME_KEY, DEFAULT_DATA_SET_TABLE_NAME);
+        dataSetTableNames =
+                properties.getProperty(DATA_SET_TABLE_NAME_KEY, DEFAULT_DATA_SET_TABLE_NAME).split(
+                        ",");
         permIDColumn = properties.getProperty(DATA_SET_PERM_ID_KEY, DEFAULT_DATA_SET_PERM_ID);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         checkDatabaseConnection();
@@ -200,18 +201,20 @@ public class DeleteFromExternalDBMaintenanceTask extends
         return dataSource.getConnection();
     }
 
-    private void deleteDatasets(List<DeletedDataSet> deletedDataSets)
-            throws SQLException
+    private void deleteDatasets(List<DeletedDataSet> deletedDataSets) throws SQLException
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String
-                    .format("Synchronizing deletions of %d datasets with the database.",
-                            deletedDataSets.size()));
+            operationLog.info(String.format(
+                    "Synchronizing deletions of %d datasets with the database.",
+                    deletedDataSets.size()));
         }
-        connection.createStatement().execute(
-                String.format("DELETE FROM " + dataSetTableName + " WHERE " + permIDColumn
-                        + " IN (%s)", joinIds(deletedDataSets)));
+        for (String dataSetTableName : dataSetTableNames)
+        {
+            connection.createStatement().execute(
+                    String.format("DELETE FROM " + dataSetTableName.trim() + " WHERE "
+                            + permIDColumn + " IN (%s)", joinIds(deletedDataSets)));
+        }
     }
 
     private void executeSql(String sql) throws SQLException
