@@ -116,14 +116,11 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
 
     private final Vocabulary vocabulary;
 
-    private final DataSetUploadClientModel clientModel;
-
     public VocabularyTermsComboBoxPanel(final ControlledVocabularyPropertyType propertyType,
             final DataSetUploadClientModel clientModel)
     {
         super(new BorderLayout());
 
-        this.clientModel = clientModel;
         this.button = new JButton("+");
         button.setMargin(new Insets(button.getMargin().top, 2, button.getMargin().bottom, 2));
         button.setFocusable(false);
