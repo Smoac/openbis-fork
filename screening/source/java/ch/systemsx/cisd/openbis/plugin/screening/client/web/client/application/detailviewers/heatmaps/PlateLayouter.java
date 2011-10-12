@@ -408,7 +408,8 @@ public class PlateLayouter
                     ImageDatasetEnrichedReference dataset = model.tryGetImageDataset();
                     if (dataset == null)
                     {
-                        WellContentDialog.showContentDialog(wellData, null, screeningViewContext);
+                        WellContentDialog.showContentDialog(wellData, model.getPlateSample(), null,
+                                screeningViewContext);
                     } else
                     {
                         // Reload meta data because they might be out dated especially when
@@ -427,6 +428,7 @@ public class PlateLayouter
                                         {
                                             model.setImageDataset(refreshedDataset);
                                             WellContentDialog.showContentDialog(wellData,
+                                                    layouter.model.getPlateSample(),
                                                     refreshedDataset, screeningViewContext);
                                         }
                                     });

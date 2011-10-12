@@ -58,12 +58,15 @@ public class ImageSampleSection extends TabContent
 
     private final WellLocation wellLocationOrNull;
 
+    private final boolean isWell;
+
     public ImageSampleSection(final ScreeningViewContext viewContext, final TechId sampleId,
-            WellLocation wellLocationOrNull)
+            WellLocation wellLocationOrNull, boolean isWell)
     {
         super(WELL_IMAGE_SECTION_TITLE, viewContext, sampleId);
         this.sampleId = sampleId;
         this.wellLocationOrNull = wellLocationOrNull;
+        this.isWell = isWell;
         setIds(DisplayTypeIDGenerator.LOGICAL_IMAGE_WELL_SECTION);
     }
 
@@ -77,8 +80,8 @@ public class ImageSampleSection extends TabContent
     {
         final ScreeningViewContext context = getViewContext();
         add(new Text(context.getMessage(Dict.LOAD_IN_PROGRESS)));
-        context.getService().getImageDatasetInfosForSample(sampleId, wellLocationOrNull,
-                createDisplayImagesCallback(context));
+        context.getService().getImageDatasetInfosForSample(sampleId,
+                isWell ? wellLocationOrNull : null, createDisplayImagesCallback(context));
     }
 
     private AsyncCallback<ImageSampleContent> createDisplayImagesCallback(

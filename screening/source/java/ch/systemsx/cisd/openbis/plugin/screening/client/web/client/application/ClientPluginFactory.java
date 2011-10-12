@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentAnalysisSummaryViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageDataSetViewer;
@@ -517,7 +518,15 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             String sampleTypeCode = entity.getEntityType().getCode();
             if (sampleTypeCode.matches(ScreeningConstants.HCS_PLATE_SAMPLE_TYPE_PATTERN))
             {
-                return createPlateViewer(entity);
+                if (entity.getPermId().contains(":"))
+                {
+                    String permId = entity.getPermId();
+                    return createImageSampleViewer(entity, WellLocation.parseLocationStr(permId
+                            .substring(permId.indexOf(':') + 1)), false);
+                } else
+                {
+                    return createPlateViewer(entity);
+                }
             } else if (sampleTypeCode.equals(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE))
             {
                 throw new UserFailureException("Cannot browse objects of the "
@@ -525,16 +534,17 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             } else if (sampleTypeCode
                     .matches(ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN))
             {
-                return createImageSampleViewer(entity, false);
+                return createImageSampleViewer(entity, null, false);
             } else
             // well sample
             {
-                return createImageSampleViewer(entity, true);
+                return createImageSampleViewer(entity, null, true);
             }
         }
 
         private AbstractTabItemFactory createImageSampleViewer(
-                final IEntityInformationHolderWithPermId entity, final boolean isWellSample)
+                final IEntityInformationHolderWithPermId entity,
+                final WellLocation wellLocationOrNull, final boolean isWellSample)
         {
             return new AbstractTabItemFactory()
                 {
@@ -542,8 +552,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                ImageSampleViewer
-                                        .create(screeningViewContext, entity, isWellSample);
+                                ImageSampleViewer.create(screeningViewContext, entity,
+                                        wellLocationOrNull, isWellSample);
                         return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
@@ -551,7 +561,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return GenericDataSetViewer.createId(sampleId);
+                        return GenericSampleViewer.createId(sampleId)
+                                + (wellLocationOrNull == null ? "" : ":"
+                                        + wellLocationOrNull.toWellIdString());
                     }
 
                     @Override
@@ -563,9 +575,24 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        if (isWellSample)
+                        if (isWellSample || wellLocationOrNull != null)
                         {
-                            return getViewerTitle(Dict.WELL, entity, screeningViewContext);
+                            ICodeHolder codeHolder = new ICodeHolder()
+                                {
+                                    public String getCode()
+                                    {
+                                        if (wellLocationOrNull != null)
+                                        {
+                                            return entity.getCode() + ":"
+                                                    + wellLocationOrNull.toWellIdString();
+                                        } else
+                                        {
+                                            return entity.getCode();
+                                        }
+                                    }
+                                };
+
+                            return getViewerTitle(Dict.WELL, codeHolder, screeningViewContext);
                         } else
                         {
                             return getViewerTitle(Dict.SAMPLE, entity, screeningViewContext);

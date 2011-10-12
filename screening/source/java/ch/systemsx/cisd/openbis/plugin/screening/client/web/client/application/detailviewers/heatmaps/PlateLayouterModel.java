@@ -26,6 +26,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -49,6 +50,8 @@ class PlateLayouterModel
 
     private final List<WellData> wellList; // the same wells as in the matrix
 
+    private final Sample plateSample;
+
     // --- internal dynamix state
 
     private ImageDatasetEnrichedReference imageDatasetOrNull;
@@ -66,6 +69,7 @@ class PlateLayouterModel
 
     public PlateLayouterModel(PlateMetadata plateMetadata)
     {
+        this.plateSample = plateMetadata.getPlate();
         this.wellMatrix = createWellMatrix(plateMetadata);
         this.wellList = asList(wellMatrix);
     }
@@ -278,6 +282,11 @@ class PlateLayouterModel
             }
         }
         return result;
+    }
+
+    public Sample getPlateSample()
+    {
+        return plateSample;
     }
 
 }

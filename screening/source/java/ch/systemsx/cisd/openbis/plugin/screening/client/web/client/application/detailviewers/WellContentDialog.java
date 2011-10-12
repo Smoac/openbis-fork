@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -92,12 +94,12 @@ public class WellContentDialog extends Dialog
     /**
      * A dialog which shows the content of the well (static or a timepoints movie).
      */
-    public static void showContentDialog(final WellData wellData,
+    public static void showContentDialog(final WellData wellData, final Sample plateSample,
             ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final WellContentDialog contentDialog =
-                createContentDialog(wellData, imageDatasetOrNull, viewContext);
+                createContentDialog(wellData, plateSample, imageDatasetOrNull, viewContext);
         showContentDialog(contentDialog, viewContext);
     }
 
@@ -114,7 +116,7 @@ public class WellContentDialog extends Dialog
     }
 
     private static WellContentDialog createContentDialog(final WellData wellData,
-            ImageDatasetEnrichedReference imageDatasetOrNull,
+            Sample plateSample, ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         WellLocation wellLocation = wellData.getWellLocation();
@@ -127,7 +129,7 @@ public class WellContentDialog extends Dialog
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
         return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
-                getExperiment(wellData), imageDatasetOrNull, viewContext);
+                getExperiment(wellData), plateSample, imageDatasetOrNull, viewContext);
     }
 
     /**
@@ -138,7 +140,7 @@ public class WellContentDialog extends Dialog
      */
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final WellImage wellImage, int imageSizePx, List<String> channels,
+            final WellContent wellImage, int imageSizePx, List<String> channels,
             String imageTransformationCodeOrNull)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
@@ -177,7 +179,8 @@ public class WellContentDialog extends Dialog
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        showContentDialog(viewContext, wellImage, imageDataset);
+                        showContentDialog(viewContext, wellImage, wellImage.getPlate(),
+                                imageDataset);
                     }
                 });
         }
@@ -197,11 +200,13 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellImage wellImage, ImageDatasetEnrichedReference imageDatasetOrNull)
+            WellImage wellImage, IEntityInformationHolderWithPermId plate,
+            ImageDatasetEnrichedReference imageDatasetOrNull)
     {
         WellContentDialog contentDialog =
                 new WellContentDialog(wellImage.getWell(), null, wellImage.tryGetLocation(),
-                        getExperiment(wellImage.getExperiment()), imageDatasetOrNull, viewContext);
+                        getExperiment(wellImage.getExperiment()), plate, imageDatasetOrNull,
+                        viewContext);
 
         showContentDialog(contentDialog, viewContext);
     }
@@ -244,6 +249,8 @@ public class WellContentDialog extends Dialog
 
     private final SingleExperimentSearchCriteria experimentCriteria;
 
+    private final IEntityInformationHolderWithPermId plate;
+
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private ImageDatasetEnrichedReference imageDatasetOrNull;
@@ -251,10 +258,12 @@ public class WellContentDialog extends Dialog
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
             final SingleExperimentSearchCriteria experimentCriteria,
+            IEntityInformationHolderWithPermId plate,
             ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
+        this.plate = plate;
         this.wellLocationOrNull = wellLocationOrNull;
         this.wellPropertiesOrNull = wellPropertiesOrNull;
         if (wellPropertiesOrNull != null)
@@ -349,27 +358,27 @@ public class WellContentDialog extends Dialog
 
                     public String getPermId()
                     {
-                        return imageDatasetOrNull.getPermId() + suffix;
+                        return plate.getPermId() + suffix;
                     }
 
                     public String getCode()
                     {
-                        return imageDatasetOrNull.getCode();
+                        return plate.getCode();
                     }
 
                     public Long getId()
                     {
-                        return imageDatasetOrNull.getId();
+                        return plate.getId();
                     }
 
                     public BasicEntityType getEntityType()
                     {
-                        return imageDatasetOrNull.getEntityType();
+                        return plate.getEntityType();
                     }
 
                     public EntityKind getEntityKind()
                     {
-                        return imageDatasetOrNull.getEntityKind();
+                        return plate.getEntityKind();
                     }
                 }, getWellDescription()));
         }

@@ -49,8 +49,9 @@ public class ImagingDataSetLocatorResolver extends PermlinkLocatorResolver
                 locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
 
         return super.canHandleLocator(locator)
-                && EntityKind.DATA_SET.name().equals(entityKindValueOrNull)
-                && permIdValueOrNull != null && permIdValueOrNull.contains(":");
+                && (EntityKind.DATA_SET.name().equals(entityKindValueOrNull) || EntityKind.SAMPLE
+                        .name().equals(entityKindValueOrNull)) && permIdValueOrNull != null
+                && permIdValueOrNull.contains(":");
     }
 
     /**

@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.PropertiesUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -233,7 +233,7 @@ public class MaterialReplicaSummaryComponent
             {
                 if (i < sortedTechnicalReplicates.size())
                 {
-                    WellImage wellImage = sortedTechnicalReplicates.get(i).getWellImage();
+                    WellContent wellImage = sortedTechnicalReplicates.get(i).getWellImage();
                     Widget imageViewer =
                             createImageViewer(wellImage, channelChooser,
                                     getOneImageSizeFactorPx(maxReplicaNumber));
@@ -337,7 +337,7 @@ public class MaterialReplicaSummaryComponent
         }
     }
 
-    private Widget createImageViewer(final WellImage image, ChannelChooserPanel channelChooser,
+    private Widget createImageViewer(final WellContent image, ChannelChooserPanel channelChooser,
             final int oneImageSizeFactorPx)
     {
         assert image.tryGetImageDataset() != null;

@@ -119,7 +119,7 @@ public class LinkExtractor
         assert entityKind != EntityKind.MATERIAL;
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, permId);
+        url.addParameterWithoutEncoding(PermlinkUtilities.PERM_ID_PARAMETER_KEY, permId);
         return tryPrint(url);
     }
 

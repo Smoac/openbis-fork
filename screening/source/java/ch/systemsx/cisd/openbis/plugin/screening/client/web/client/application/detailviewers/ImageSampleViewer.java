@@ -39,9 +39,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 public final class ImageSampleViewer extends GenericSampleViewer
 {
     public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
-            final IIdAndCodeHolder identifiable, boolean isWellSample)
+            final IIdAndCodeHolder identifiable, WellLocation wellLocationOrNull,
+            boolean isWellSample)
     {
-        ImageSampleViewer viewer = new ImageSampleViewer(viewContext, identifiable, isWellSample);
+        ImageSampleViewer viewer =
+                new ImageSampleViewer(viewContext, identifiable, wellLocationOrNull, isWellSample);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
@@ -50,13 +52,25 @@ public final class ImageSampleViewer extends GenericSampleViewer
 
     private final WellLocation wellLocationOrNull;
 
+    private final boolean isWell;
+
     private ImageSampleViewer(final ScreeningViewContext viewContext,
-            final IIdAndCodeHolder identifiable, boolean isWellSample)
+            final IIdAndCodeHolder identifiable, WellLocation wellLocationOrNull,
+            boolean isWellSample)
     {
         super(viewContext, identifiable);
         this.screeningViewContext = viewContext;
-        this.wellLocationOrNull =
-                isWellSample ? WellLocation.tryParseLocationStr(getWellCode(identifiable)) : null;
+        this.isWell = isWellSample;
+
+        if (isWellSample)
+        {
+            this.wellLocationOrNull =
+                    isWellSample ? WellLocation.tryParseLocationStr(getWellCode(identifiable))
+                            : null;
+        } else
+        {
+            this.wellLocationOrNull = wellLocationOrNull;
+        }
     }
 
     private static String getWellCode(final IIdAndCodeHolder identifiable)
@@ -84,7 +98,8 @@ public final class ImageSampleViewer extends GenericSampleViewer
     {
         List<TabContent> sections = new ArrayList<TabContent>();
 
-        sections.add(new ImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull));
+        sections.add(new ImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull,
+                isWell));
         return sections;
     }
 
