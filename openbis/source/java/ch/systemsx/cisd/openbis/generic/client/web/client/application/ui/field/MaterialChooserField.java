@@ -69,8 +69,8 @@ public class MaterialChooserField extends ChosenEntitySetter<Material>
     // ------------------
 
     // the pattern used to validate material identifier expression
-    private final static String CODE_AND_TYPE_PATTERN = CodeField.CODE_CHARS + " " + "\\("
-            + CodeField.CODE_CHARS + "\\)";
+    private final static String CODE_AND_TYPE_PATTERN = "^[^\\s]+ \\(" + CodeField.CODE_CHARS
+            + "\\)$";
 
     @Override
     public String renderEntity(Material materialOrNull)
