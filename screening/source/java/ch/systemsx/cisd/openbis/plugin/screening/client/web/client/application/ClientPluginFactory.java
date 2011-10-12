@@ -402,7 +402,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             String datasetTypeCode = entity.getEntityType().getCode();
             if (entity.getPermId().contains(":"))
             {
-                return createImageDataSetViewer(entity, new WellLocation(1, 1));
+                String permId = entity.getPermId();
+                return createImageDataSetViewer(entity,
+                        WellLocation.parseLocationStr(permId.substring(permId.indexOf(':'))));
             } else if (datasetTypeCode
                     .matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
