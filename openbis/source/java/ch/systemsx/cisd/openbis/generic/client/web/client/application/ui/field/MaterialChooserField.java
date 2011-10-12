@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -75,16 +75,8 @@ public class MaterialChooserField extends ChosenEntitySetter<Material>
     @Override
     public String renderEntity(Material materialOrNull)
     {
-        MaterialIdentifier chosenMaterial = createIdentifier(materialOrNull);
-        return chosenMaterial.print();
-    }
-
-    private static MaterialIdentifier createIdentifier(Material material)
-    {
-        MaterialIdentifier ident = new MaterialIdentifier();
-        ident.setCode(material.getCode());
-        ident.setTypeCode(material.getMaterialType().getCode());
-        return ident;
+        String identifier = materialOrNull.getIdentifier();
+        return StringEscapeUtils.unescapeHtml(identifier);
     }
 
     private MaterialChooserField(boolean mandatory, MaterialType materialTypeOrNull,
