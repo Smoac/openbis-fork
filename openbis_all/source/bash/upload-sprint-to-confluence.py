@@ -73,18 +73,19 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki()
   printWiki("h5. openBIS Generic Framework")
   printWiki()
-  processFile("Application Server (AS)", "openBIS-server", version)
-  processFile("Data Store Server (DSS)", "datastore_server", version)
+  processFile("Installation Wizard (AS+DSS)", "openBIS-installation", version)
+  printWiki("* Command Line Installation")
+  processFile("Application Server (AS)", "openBIS-server", version, 2)
+  processFile("Data Store Server (DSS)", "datastore_server", version, 2)
   processFile("DSS Client", "dss_client", version)
   printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
   printWiki()
   printWiki('h5. openBIS for High Content Screening')
   printWiki()
+  processFile("Installation Wizard (AS+DSS)", "openBIS-installation-screening", version)
   printWiki("* Command Line Installation")
   processFile("Application Server (AS)", "openBIS-server-screening", version, 2)
   processFile("Data Store Server (DSS)", "datastore_server-screening", version, 2)
-
-  processFile("Installation Wizard (AS+DSS)", "openBIS-installation-screening", version)
 
   processFile("API", "screening-api", version)
 
@@ -133,6 +134,7 @@ Example command: {0} S104
     uploadToConfluenceAndPrintPageText(version)
     print "===================================================================="
     print " Paste the following text on the Sprint Releases page in confluence "
+    print " Link: https://wiki-bsse.ethz.ch/display/bis/Sprint+Releases        "
     print "===================================================================="
     print wikiText
     
@@ -141,5 +143,6 @@ Example command: {0} S104
     uploadToConfluenceMetabolomicsAndPrintPageText(version)
     print "========================================================================="
     print " Paste the following text on the openBIS Metabolomics page in confluence "
+    print " Link: https://wiki-bsse.ethz.ch/display/bis/openBIS+Metabolomics        "
     print "========================================================================="
     print wikiText
