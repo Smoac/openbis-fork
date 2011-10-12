@@ -107,36 +107,6 @@ CREATE TABLE IMAGE_DATA_SETS (
 
 CREATE INDEX IMAGE_DATA_SETS_CONT_IDX ON IMAGE_DATA_SETS(CONT_ID);
 
-
-CREATE TABLE DATA_SETS (
-  ID BIGSERIAL NOT NULL,
-  PERM_ID CODE NOT NULL,
-
-  ---- image dataset specific fields (should be refactored) 
-	FIELDS_WIDTH INTEGER,
-	FIELDS_HEIGHT INTEGER,	
-  -- transformation for merged channels on the dataset level, overrides experiment level transformation
-  IMAGE_TRANSFORMER_FACTORY BYTEA,
-  -- a redundant information if there are timepoint or depth stack data for any spots in this dataset
-  IS_MULTIDIMENSIONAL BOOLEAN_CHAR NOT NULL,
-
-  -- Which image library should be used to read the image? 
-  -- If not specified, some heuristics are used, but it is slower and does not try with all the available libraries. 
-  IMAGE_LIBRARY_NAME NAME,
-  -- Which reader in the library should be used? Valid only if the library name is specified.
-  -- Should be specified when library name is specified.
-  IMAGE_LIBRARY_READER_NAME NAME,
-  ---- END image dataset specific fields
-  
-  CONT_ID TECH_ID,
-  
-  PRIMARY KEY (ID),
-  UNIQUE (PERM_ID),
-  CONSTRAINT FK_DATA_SET_1 FOREIGN KEY (CONT_ID) REFERENCES CONTAINERS (ID) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE INDEX DATA_SETS_CONT_IDX ON DATA_SETS(CONT_ID);
-
 CREATE TABLE CHANNELS (
     ID BIGSERIAL  NOT NULL,
     
