@@ -26,12 +26,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.jar.JarFile;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,8 +47,6 @@ import javax.swing.table.TableColumn;
 
 import org.python.core.Py;
 import org.python.core.PySystemState;
-import org.python.core.SyspathArchive;
-import org.python.core.SyspathArchiveHack;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -98,82 +91,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         // initialize Jython
         PySystemState.initialize();
 
-        // Look up module and add its containing jar file to sys.path
-        String moduleName = "Lib/string.py";
-        JarFile jarFile = findJarContaining(moduleName);
-        if (jarFile == null)
-        {
-            // Shouldn't happen
-            // but in case it happened, shouldn't we log something?
-        } else
-        {
-            // The jar file names don't necessarily end with '.jar' in webstart environment. So
-            // adding the jar file path to sys.path won't work. Adding a SyspathArchive forces the
-            // runtime to recognize the file as a jar But the SyspathArchive itself wants a .jar so
-            // we use SyspathArchiveHack.
-            try
-            {
-                SyspathArchive archive =
-                        new SyspathArchiveHack(jarFile, getName(jarFile.getName()));
-                Py.getSystemState().path.append(archive);
-            } catch (IOException e)
-            {
-                // Again it shouldn't happen
-                // but in case it happened, shouldn't we log something?
-                // for now we just ignore it
-            }
-        }
-    }
-
-    /**
-     * If missing .zip or .jar extension, appends .jar to the pathname. It is necessary to have it
-     * working in Web Start.
-     */
-    private static String getName(String name)
-    {
-        if (name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip"))
-        {
-            return name;
-        } else
-        {
-            return name + ".jar";
-        }
-    }
-
-    /**
-     * Find the jar file containing a .py file and return its path. This has to work when running
-     * from Java Web Start. So use the class loader to find a URL to the jar file and munge that to
-     * get the path.
-     */
-    private static JarFile findJarContaining(String item)
-    {
-        String trailer = item;
-
-        URL url = DataSetUploadClient.class.getClassLoader().getResource(item);
-
-        // We should get something like
-        // "jar:file:/C:/Documents and Settings/kejohnson/.javaws/cache/http/Dlocalhost/P80/DMdemo/DMlib/RMmyjython.jar!/__run__.py"
-        if (url == null)
-        {
-            return null;
-        }
-
-        String path = url.toString();
-        URL jarUrl;
-        try
-        {
-            jarUrl = new URL(path.substring(0, path.length() - trailer.length()));
-            JarURLConnection jarConnection = (JarURLConnection) jarUrl.openConnection();
-            return jarConnection.getJarFile();
-        } catch (MalformedURLException ex)
-        {
-            // ignore
-        } catch (IOException ex)
-        {
-            // ignore
-        }
-
-        return null;
+        Py.getSystemState().path.append(Py.newString("__pyclasspath__/Lib"));
     }
 
     private static final String TITLE = "Data Set Uploader";
@@ -197,8 +115,12 @@ public class DataSetUploadClient extends AbstractSwingGUI
         {
             final JFrame frame = new JFrame(TITLE);
             frame.setVisible(true);
-            JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            String message = ex.getMessage();
+            if (null == message || message.isEmpty())
+            {
+                message = ex.toString();
+            }
+            JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
     }
