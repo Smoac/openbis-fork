@@ -59,7 +59,6 @@
 		  <javadoc 
 		      destdir="${result.dir}/javadoc" 
 		  	  author="true" 
-		  	  use="true" 
 		  	  useexternalfile="true"
 		  	  source="1.6"
 		  	  maxmemory="128M" verbose="true">
