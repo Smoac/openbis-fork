@@ -92,6 +92,7 @@ public class GeneralInformationServiceHttpInvokerApiTest extends
         assertNotNull(dataSets.get(0).getRegistrationDetails().getRegistrationDate());
 
         // vocabularies
+        @SuppressWarnings("deprecation")
         Map<Vocabulary, List<VocabularyTerm>> termMap =
                 generalInformationService.getVocabularyTermsMap(sessionToken);
         ArrayList<Vocabulary> vocabs = new ArrayList<Vocabulary>(termMap.keySet().size());
