@@ -15,7 +15,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
-public class LogicalImageLayouter extends LayoutContainer implements IDatasetImagesReferenceUpdater
+/**
+ * @author Tomasz Pylak
+ */
+class LogicalImageLayouter extends LayoutContainer implements IDatasetImagesReferenceUpdater
 {
     private final ScreeningViewContext viewContext;
 
