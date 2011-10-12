@@ -404,20 +404,20 @@ var common = {
   
   EXPERIMENT_MENU_BROWSE: "Experiments",
   EXPERIMENT_MENU_NEW: "Experiment",
-  EXPERIMENT_MENU_IMPORT: "Experiment Metadata",
-  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Metadata Updates",
+  EXPERIMENT_MENU_IMPORT: "Experiments",
+  EXPERIMENT_MENU_MASS_UPDATE: "Experiment Updates",
   EXPERIMENT_MENU_TYPES: "Experiment Types",
   
   MATERIAL_MENU_BROWSE: "Materials",
-  MATERIAL_MENU_IMPORT: "Material Metadata",
-  MATERIAL_MENU_MASS_UPDATE: "Material Metadata Updates",
+  MATERIAL_MENU_IMPORT: "Materials",
+  MATERIAL_MENU_MASS_UPDATE: "Material Updates",
   MATERIAL_MENU_TYPES: "Material Types",
    
   SAMPLE_MENU_SEARCH: "Sample Search",
   SAMPLE_MENU_BROWSE: "Samples",
   SAMPLE_MENU_NEW: "Sample",
-  SAMPLE_MENU_IMPORT: "Sample Metadata",
-  SAMPLE_MENU_MASS_UPDATE: "Sample Metadata Updates",
+  SAMPLE_MENU_IMPORT: "Samples",
+  SAMPLE_MENU_MASS_UPDATE: "Sample Updates",
   SAMPLE_MENU_TYPES: "Sample Types",
   
   PROJECT_MENU_BROWSE: "Projects",
