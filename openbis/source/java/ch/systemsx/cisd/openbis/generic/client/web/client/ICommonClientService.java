@@ -282,7 +282,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set search hits.
      */
-    public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
+    public String prepareExportDataSetSearchHits(
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria)
             throws UserFailureException;
 
     /**
@@ -474,22 +475,24 @@ public interface ICommonClientService extends IClientService
     /**
      * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria,
+    public TypedTableResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
             final boolean showOnlyDirectlyConnected) throws UserFailureException;
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+    public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            throws UserFailureException;
 
     /**
      * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding
      * list of {@link ExternalData}.
      */
-    public ResultSetWithEntityTypes<ExternalData> listDataSetRelationships(TechId datasetId,
-            DataSetRelationshipRole role, DefaultResultSetConfig<String, ExternalData> criteria)
+    public TypedTableResultSet<ExternalData> listDataSetRelationships(TechId datasetId,
+            DataSetRelationshipRole role,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
             throws UserFailureException;
 
     /**
@@ -596,17 +599,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link ExternalData} fulfilling given {@link DetailedSearchCriteria}.
      */
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
-            DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig)
+    public TypedTableResultSet<ExternalData> searchForDataSets(DetailedSearchCriteria criteria,
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
      */
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+    public TypedTableResultSet<ExternalData> searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
             throws UserFailureException;
 
     /**

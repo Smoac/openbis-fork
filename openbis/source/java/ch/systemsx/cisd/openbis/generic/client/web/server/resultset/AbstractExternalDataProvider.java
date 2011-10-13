@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ARCHIVING_STATUS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CONTAINER_DATA_SET;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CONTAINER_DATASET;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_PRODUCER_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_SET_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_STORE_CODE;
@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
@@ -61,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 public abstract class AbstractExternalDataProvider extends
         AbstractCommonTableModelProvider<ExternalData>
 {
-    AbstractExternalDataProvider(ICommonServer commonServer, String sessionToken)
+    public AbstractExternalDataProvider(ICommonServer commonServer, String sessionToken)
     {
         super(commonServer, sessionToken);
     }
@@ -73,7 +74,7 @@ public abstract class AbstractExternalDataProvider extends
         TypedTableModelBuilder<ExternalData> builder = new TypedTableModelBuilder<ExternalData>();
         builder.addColumn(CODE).withDefaultWidth(150);
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
-        builder.addColumn(CONTAINER_DATA_SET).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(CONTAINER_DATASET).withDefaultWidth(150).hideByDefault();
         builder.addColumn(ORDER_IN_CONTAINER).withDefaultWidth(100).hideByDefault();
         builder.addColumn(SAMPLE).withDefaultWidth(100).hideByDefault();
         builder.addColumn(EXTERNAL_DATA_SAMPLE_IDENTIFIER).withDefaultWidth(200);
@@ -99,24 +100,30 @@ public abstract class AbstractExternalDataProvider extends
         for (ExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
-            builder.column(CODE).addString(dataSet.getCode());
+            builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
             builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
             ContainerDataSet container = dataSet.tryGetContainer();
-            builder.column(CONTAINER_DATA_SET).addString(
-                    container == null ? "" : container.getCode());
+            if (container != null)
+            {
+                builder.column(CONTAINER_DATASET).addEntityLink(container, container.getCode());
+            }
             Integer orderInContainer = dataSet.getOrderInContainer();
             builder.column(ORDER_IN_CONTAINER).addString(
                     orderInContainer == null ? "" : orderInContainer.toString());
-            builder.column(SAMPLE).addString(dataSet.getSampleCode());
-            builder.column(EXTERNAL_DATA_SAMPLE_IDENTIFIER)
-                    .addString(dataSet.getSampleIdentifier());
-            SampleType sampleType = dataSet.getSampleType();
-            builder.column(SAMPLE_TYPE).addString(sampleType == null ? "" : sampleType.getCode());
+            Sample sample = dataSet.getSample();
+            if (sample != null)
+            {
+                builder.column(SAMPLE).addEntityLink(sample, sample.getCode());
+                builder.column(EXTERNAL_DATA_SAMPLE_IDENTIFIER).addEntityLink(sample,
+                        sample.getIdentifier());
+                SampleType sampleType = dataSet.getSampleType();
+                builder.column(SAMPLE_TYPE).addString(sampleType.getCode());
+            }
             Experiment experiment = dataSet.getExperiment();
             if (experiment != null)
             {
-                builder.column(EXPERIMENT).addString(experiment.getCode());
-                builder.column(EXTERNAL_DATA_EXPERIMENT_IDENTIFIER).addString(
+                builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
+                builder.column(EXTERNAL_DATA_EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
                         experiment.getIdentifier());
                 builder.column(EXPERIMENT_TYPE).addString(experiment.getEntityType().getCode());
                 builder.column(PROJECT).addString(experiment.getProject().getCode());

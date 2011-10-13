@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
 /**
@@ -85,8 +87,6 @@ public class SampleDetailsTest extends GenericSystemTestCase
             .format(PERMLINK_TEMPLATE, CELL_PLATE_EXAMPLE_PERM_ID));
 
     private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159222-2";
-
-    private static final String DEFAULT_DATA_SET_TYPE = "HCS_IMAGE";
 
     @Test
     public void testGetMasterPlateDetails()
@@ -186,14 +186,12 @@ public class SampleDetailsTest extends GenericSystemTestCase
         // directly connected
         boolean showOnlyDirectlyConnected = true;
 
-        final ResultSetWithEntityTypes<ExternalData> directlyConnectedResults =
+        final TypedTableResultSet<ExternalData> directlyConnectedResults =
                 commonClientService.listSampleDataSets(TechId.create(sample),
-                        DefaultResultSetConfig.<String, ExternalData> createFetchAll(),
+                        DefaultResultSetConfig
+                                .<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
                         showOnlyDirectlyConnected);
 
-        assertEquals(1, directlyConnectedResults.getAvailableEntityTypes().size());
-        assertEquals(DEFAULT_DATA_SET_TYPE, directlyConnectedResults.getAvailableEntityTypes()
-                .iterator().next().getCode());
         assertEquals(1, directlyConnectedResults.getResultSet().getTotalLength());
         final DataSet directlyConnectedDataSet =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
@@ -206,14 +204,12 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         // indirectly connected
         showOnlyDirectlyConnected = false;
-        ResultSetWithEntityTypes<ExternalData> indirectlyConnectedResults =
+        TypedTableResultSet<ExternalData> indirectlyConnectedResults =
                 commonClientService.listSampleDataSets(TechId.create(sample),
-                        DefaultResultSetConfig.<String, ExternalData> createFetchAll(),
+                        DefaultResultSetConfig
+                                .<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
                         showOnlyDirectlyConnected);
 
-        assertEquals(1, indirectlyConnectedResults.getAvailableEntityTypes().size());
-        assertEquals(DEFAULT_DATA_SET_TYPE, indirectlyConnectedResults.getAvailableEntityTypes()
-                .iterator().next().getCode());
         assertEquals(6, indirectlyConnectedResults.getResultSet().getTotalLength());
 
         // the directly connected data set should still be retrieved
@@ -371,11 +367,12 @@ public class SampleDetailsTest extends GenericSystemTestCase
         return null; // satisfy compiler
     }
 
-    private static ExternalData getDataSet(GridRowModels<ExternalData> list, String identifier)
+    private static ExternalData getDataSet(
+            GridRowModels<TableModelRowWithObject<ExternalData>> list, String identifier)
     {
-        for (GridRowModel<ExternalData> gridRowModel : list)
+        for (GridRowModel<TableModelRowWithObject<ExternalData>> gridRowModel : list)
         {
-            ExternalData externalData = gridRowModel.getOriginalObject();
+            ExternalData externalData = gridRowModel.getOriginalObject().getObjectOrNull();
             if (DEBUG)
             {
                 System.out.println(externalData.getIdentifier());

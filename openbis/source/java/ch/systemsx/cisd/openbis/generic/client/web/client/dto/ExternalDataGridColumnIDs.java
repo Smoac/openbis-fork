@@ -25,7 +25,7 @@ public class ExternalDataGridColumnIDs
 
     public static final String DATA_SET_TYPE = "DATA_SET_TYPE";
 
-    public static final String CONTAINER_DATA_SET = "CONTAINER_DATA_SET";
+    public static final String CONTAINER_DATASET = "CONTAINER_DATASET";
 
     public static final String ORDER_IN_CONTAINER = "ORDER_IN_CONTAINER";
 

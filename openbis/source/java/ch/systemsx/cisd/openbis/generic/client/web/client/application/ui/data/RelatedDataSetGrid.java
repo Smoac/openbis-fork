@@ -17,22 +17,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid with data sets related with specified entities.
@@ -65,8 +61,9 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     }
 
     @Override
-    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
     {
         viewContext.getService().searchForDataSets(relatedCriteria, resultSetConfig, callback);
     }
@@ -79,20 +76,6 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
             return;
         }
         super.refresh();
-    }
-
-    @Override
-    protected DataSetSearchHitModel createModel(GridRowModel<ExternalData> entity)
-    {
-        return new DataSetSearchHitModel(entity);
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
-    {
-        List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes, viewContext
-                .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
 }

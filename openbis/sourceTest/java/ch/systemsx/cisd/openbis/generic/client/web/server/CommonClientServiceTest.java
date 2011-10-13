@@ -526,13 +526,14 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        DefaultResultSetConfig<String, ExternalData> resultSetConfig =
+        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig =
                 DefaultResultSetConfig.createFetchAll();
-        ResultSetWithEntityTypes<ExternalData> resultSet =
+        TypedTableResultSet<ExternalData> resultSet =
                 commonClientService.listExperimentDataSets(experimentId, resultSetConfig);
-        List<ExternalData> list = resultSet.getResultSet().getList().extractOriginalObjects();
+        List<TableModelRowWithObject<ExternalData>> list =
+                resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
-        DataSet data = list.get(0).tryGetAsDataSet();
+        DataSet data = list.get(0).getObjectOrNull().tryGetAsDataSet();
         // assertEquals(code, data.getCode());
         assertEquals(DATA_STORE_BASE_URL, data.getDataStore().getHostUrl());
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data

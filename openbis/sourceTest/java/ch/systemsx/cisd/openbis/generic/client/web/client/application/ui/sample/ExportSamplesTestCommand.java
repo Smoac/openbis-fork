@@ -22,9 +22,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommand;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * System tests for the server side of sample export.<BR>
@@ -51,8 +53,8 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        SampleBrowserGrid sampleBrowserGrid =
-                (SampleBrowserGrid) GWTTestUtil.getWidgetWithID(SampleBrowserGrid.MAIN_BROWSER_ID);
+        AbstractEntityGrid<Sample> sampleBrowserGrid =
+                (AbstractEntityGrid<Sample>) GWTTestUtil.getWidgetWithID(SampleBrowserGrid.MAIN_BROWSER_ID);
         // we do not create view context earlier (e.g. in the class constructor), because we have to
         // wait until client is loaded and viewContext is available.
         IViewContext<ICommonClientServiceAsync> viewContext = getViewContext();

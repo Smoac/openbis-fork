@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -35,107 +35,74 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractExternalDataGrid
-        extends
-        AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
+public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<ExternalData>
 {
-    /** lists datasets and collects statistics about all datasets types */
-    abstract protected void listDatasets(
-            DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
-
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
-
-    // Set of entity types which are currently shown in this grid.
-    // Used to decide which property columns should be shown.
-    // Note: content depends on the current grid content.
-    private Set<BasicEntityType> shownEntityTypesOrNull;
 
     private final ICriteriaProvider<PropertyTypesCriteria> criteriaProvider;
 
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId, DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, false, displayTypeIDGenerator);
+        super(viewContext, browserId, true, displayTypeIDGenerator);
         this.criteriaProvider = createCriteriaProvider();
         setId(browserId);
-        updateCriteriaProviderAndRefresh();
 
         extendBottomToolbar();
+        linkProject();
+    }
 
-        ICellListener<ExternalData> containerClickListener =
-                new OpenEntityDetailsTabCellClickListener()
+    private void linkProject()
+    {
+        registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT,
+                new ICellListenerAndLinkGenerator<ExternalData>()
                     {
-                        @Override
-                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
+                        public void handle(TableModelRowWithObject<ExternalData> rowItem,
+                                boolean specialKeyPressed)
                         {
-                            return rowItem.tryGetContainer();
+                            final Project project =
+                                    rowItem.getObjectOrNull().getExperiment().getProject();
+                            final String href = LinkExtractor.tryExtract(project);
+                            OpenEntityDetailsTabHelper.open(viewContext, project,
+                                    specialKeyPressed, href);
                         }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.CONTAINER.id(),
-                containerClickListener);
 
-        ICellListener<ExternalData> experimentClickListener =
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
+                        public String tryGetLink(ExternalData entity,
+                                ISerializableComparable comparableValue)
                         {
-                            return rowItem.getExperiment();
+                            final Experiment exp = entity.getExperiment();
+                            return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
                         }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
-                experimentClickListener);
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
-                experimentClickListener);
-
-        ICellListener<ExternalData> sampleClickListener =
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
-                        {
-                            return rowItem.getSample();
-                        }
-                    };
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
-                sampleClickListener);
+                    });
     }
 
     // adds show, show-details and invalidate buttons
@@ -157,7 +124,8 @@ public abstract class AbstractExternalDataGrid
                         {
 
                             @Override
-                            protected Dialog createDialog(List<ExternalData> dataSets,
+                            protected Dialog createDialog(
+                                    List<TableModelRowWithObject<ExternalData>> dataSets,
                                     IBrowserGridActionInvoker invoker)
                             {
                                 return new DataSetListDeletionConfirmationDialog(viewContext,
@@ -174,7 +142,8 @@ public abstract class AbstractExternalDataGrid
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<ExternalData> dataSets,
+                                protected Dialog createDialog(
+                                        List<TableModelRowWithObject<ExternalData>> dataSets,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DataSetUploadConfirmationDialog(dataSets,
@@ -197,7 +166,6 @@ public abstract class AbstractExternalDataGrid
         allowMultipleSelection();
     }
 
-    @Override
     protected ICriteriaProvider<PropertyTypesCriteria> getCriteriaProvider()
     {
         return criteriaProvider;
@@ -217,47 +185,15 @@ public abstract class AbstractExternalDataGrid
                 public PropertyTypesCriteria tryGetCriteria()
                 {
                     PropertyTypesCriteria propertyTypesCriteria = super.tryGetCriteria();
-                    return PropertyTypesFilterUtil.filterPropertyTypesForEntityTypes(
-                            propertyTypesCriteria, entityKind, shownEntityTypesOrNull);
+                    return propertyTypesCriteria;
                 }
             };
     }
 
     @Override
-    protected final void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            final AbstractAsyncCallback<ResultSet<ExternalData>> callback)
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> extendedCallback =
-                new AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>(viewContext)
-                    {
-                        @Override
-                        protected void process(ResultSetWithEntityTypes<ExternalData> result)
-                        {
-                            shownEntityTypesOrNull = result.getAvailableEntityTypes();
-                            callback.onSuccess(result.getResultSet());
-                            refreshColumnsSettingsIfNecessary();
-                        }
-
-                        @Override
-                        public void finishOnFailure(Throwable caught)
-                        {
-                            callback.finishOnFailure(caught);
-                        }
-                    };
-        listDatasets(resultSetConfig, extendedCallback);
-    }
-
-    private abstract class OpenEntityDetailsTabCellClickListener implements
-            ICellListener<ExternalData>
-    {
-        protected abstract IEntityInformationHolderWithPermId getEntity(ExternalData rowItem);
-
-        public final void handle(ExternalData rowItem, boolean keyPressed)
-        {
-            final IEntityInformationHolderWithPermId entity = getEntity(rowItem);
-            new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
-        }
-
+        return columnID.toLowerCase();
     }
 
     private final TextToolItem createArchivingMenu()
@@ -269,22 +205,23 @@ public abstract class AbstractExternalDataGrid
     public final static class SelectedAndDisplayedItems
     {
         // describes all items which are displayed in the grid (including all grid pages)
-        private final TableExportCriteria<ExternalData> displayedItemsConfig;
+        private final TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsConfig;
 
         // currently selected items
-        private final List<ExternalData> selectedItems;
+        private final List<TableModelRowWithObject<ExternalData>> selectedItems;
 
         private final int displayedItemsCount;
 
-        public SelectedAndDisplayedItems(List<ExternalData> selectedItems,
-                TableExportCriteria<ExternalData> displayedItemsConfig, int displayedItemsCount)
+        public SelectedAndDisplayedItems(List<TableModelRowWithObject<ExternalData>> selectedItems,
+                TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsConfig,
+                int displayedItemsCount)
         {
             this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
             this.displayedItemsCount = displayedItemsCount;
         }
 
-        public TableExportCriteria<ExternalData> getDisplayedItemsConfig()
+        public TableExportCriteria<TableModelRowWithObject<ExternalData>> getDisplayedItemsConfig()
         {
             return displayedItemsConfig;
         }
@@ -294,17 +231,31 @@ public abstract class AbstractExternalDataGrid
             return displayedItemsCount;
         }
 
-        public List<ExternalData> getSelectedItems()
+        public List<TableModelRowWithObject<ExternalData>> getSelectedItems()
         {
             return selectedItems;
+        }
+
+        public List<ExternalData> getSelectedDataSets()
+        {
+            List<ExternalData> dataSets = new ArrayList<ExternalData>();
+            for (TableModelRowWithObject<ExternalData> item : selectedItems)
+            {
+                dataSets.add(item.getObjectOrNull());
+            }
+            return dataSets;
         }
 
         public DisplayedOrSelectedDatasetCriteria createCriteria(boolean selected)
         {
             if (selected)
             {
-                List<ExternalData> items = getSelectedItems();
-                List<String> datasetCodes = Code.extractCodes(items);
+                List<TableModelRowWithObject<ExternalData>> items = getSelectedItems();
+                List<String> datasetCodes = new ArrayList<String>();
+                for (TableModelRowWithObject<ExternalData> row : items)
+                {
+                    datasetCodes.add(row.getObjectOrNull().getCode());
+                }
                 return DisplayedOrSelectedDatasetCriteria.createSelectedItems(datasetCodes);
             } else
             {
@@ -327,34 +278,15 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected BaseEntityModel<ExternalData> createModel(GridRowModel<ExternalData> entity)
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<ExternalData>> createColumnsDefinition()
     {
-        return getColumnsFactory().createModel(entity,
-                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
-    }
-
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
-    {
-        return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes(),
-                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<ExternalData> schema = createColumnsSchema();
-        GridCellRenderer<BaseEntityModel<?>> linkRenderer = createInternalLinkCellRenderer();
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.CONTAINER.id(), linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE.id(), linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
-                linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT.id(), linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
-                linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.PROJECT.id(), linkRenderer);
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id(),
+        ColumnDefsAndConfigs<TableModelRowWithObject<ExternalData>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(ExternalDataGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
+        schema.setGridCellRendererFor(ExternalDataGridColumnIDs.SHOW_DETAILS_LINK,
                 createShowDetailsLinkCellRenderer());
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.OVERVIEW.id(),
+        schema.setGridCellRendererFor(ExternalDataGridColumnIDs.OVERVIEW,
                 createOverviewCellRenderer());
         return schema;
     }
@@ -405,74 +337,37 @@ public abstract class AbstractExternalDataGrid
         return false;
     }
 
-    private EntityGridModelFactory<ExternalData> getColumnsFactory()
+    @Override
+    protected List<String> getColumnIdsOfFilters()
     {
-        return new EntityGridModelFactory<ExternalData>(viewContext, getStaticColumnsDefinition());
+        return Arrays.asList(ExternalDataGridColumnIDs.CODE,
+                ExternalDataGridColumnIDs.FILE_FORMAT_TYPE);
     }
 
     @Override
-    protected IColumnDefinitionKind<ExternalData>[] getStaticColumnsDefinition()
-    {
-        return CommonExternalDataColDefKind.values();
-    }
-
-    @Override
-    protected List<IColumnDefinition<ExternalData>> getInitialFilters()
-    {
-        return asColumnFilters(new CommonExternalDataColDefKind[]
-            { CommonExternalDataColDefKind.CODE, CommonExternalDataColDefKind.FILE_FORMAT_TYPE });
-    }
-
-    @Override
-    protected void prepareExportEntities(TableExportCriteria<ExternalData> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
     @Override
-    public Set<DatabaseModificationKind> getGridRelevantModifications()
+    public DatabaseModificationKind[] getRelevantModifications()
     {
-        final Set<DatabaseModificationKind> relevantMods =
-                getGridRelevantModifications(ObjectKind.DATA_SET);
-        relevantMods.add(edit(ObjectKind.EXPERIMENT));
-        relevantMods.add(edit(ObjectKind.SAMPLE));
-        DatabaseModificationKind.addAny(relevantMods, ObjectKind.VOCABULARY_TERM);
-        return relevantMods;
+        return GridUtils.getRelevantModifications(ObjectKind.DATA_SET, getCriteriaProvider());
     }
 
     @Override
-    protected boolean hasColumnsDefinitionChanged(PropertyTypesCriteria newCriteria)
+    protected void showEntityViewer(TableModelRowWithObject<ExternalData> dataSet,
+            boolean editMode, boolean inBackground)
     {
-        List<PropertyType> newPropertyTypes = newCriteria.tryGetPropertyTypes();
-        List<PropertyType> prevPropertyTypes =
-                (criteria == null ? null : criteria.tryGetPropertyTypes());
-        if (newPropertyTypes == null)
-        {
-            return false; // nothing chosen
-        }
-        if (prevPropertyTypes == null)
-        {
-            return true; // first selection
-        }
-        return newPropertyTypes.equals(prevPropertyTypes) == false;
-    }
-
-    @Override
-    protected void showEntityViewer(ExternalData dataSet, boolean editMode, boolean inBackground)
-    {
-        showEntityInformationHolderViewer(dataSet, editMode, inBackground);
+        showEntityInformationHolderViewer(dataSet.getObjectOrNull(), editMode, inBackground);
     }
 
     @Override
     protected EntityKind getEntityKind()
     {
         return EntityKind.DATA_SET;
-    }
-
-    @Override
-    protected EntityType tryToGetEntityType()
-    {
-        return null;
     }
 }

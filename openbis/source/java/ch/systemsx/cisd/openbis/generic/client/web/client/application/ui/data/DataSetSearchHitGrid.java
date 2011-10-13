@@ -34,8 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowResultSetCutInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedDataSetSearchToolbar;
@@ -43,12 +44,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid with detailed data set search results.
@@ -68,21 +70,21 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return create(viewContext, null);
+        return create(viewContext, null, false);
     }
 
-    public static DisposableEntityChooser<ExternalData> createWithInitialSearchCriteria(
+    public static DisposableEntityChooser<TableModelRowWithObject<ExternalData>> createWithInitialSearchCriteria(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            DetailedSearchCriteria searchCriteria)
+            DetailedSearchCriteria searchCriteria, boolean forChooser)
     {
-        return create(viewContext, searchCriteria);
+        return create(viewContext, searchCriteria, forChooser);
     }
 
-    private static DisposableEntityChooser<ExternalData> create(
+    private static DisposableEntityChooser<TableModelRowWithObject<ExternalData>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            DetailedSearchCriteria searchCriteriaOrNull)
+            DetailedSearchCriteria searchCriteriaOrNull, boolean forChooser)
     {
-        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
+        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext, forChooser);
         final DetailedSearchWindow searchWindow =
                 new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
 
@@ -157,16 +159,50 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
 
     private DetailedSearchCriteria chosenSearchCriteria;
 
-    private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private final boolean forChooser;
+
+    private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            boolean forChooser)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
+        this.forChooser = forChooser;
     }
 
     @Override
-    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
+    protected ICellListenerAndLinkGenerator<ExternalData> tryGetCellListenerAndLinkGenerator(
+            String columnId)
     {
-        callback.addOnSuccessAction(new ShowResultSetCutInfo<ResultSetWithEntityTypes<ExternalData>>(
+        if (forChooser)
+        {
+            return null;
+        }
+        return super.tryGetCellListenerAndLinkGenerator(columnId);
+    }
+
+    @Override
+    protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<ExternalData>> model,
+            String columnID)
+    {
+        return forChooser ? false : super.isEditable(model, columnID);
+    }
+
+    @Override
+    protected void showNonEditableTableCellMessage(
+            BaseEntityModel<TableModelRowWithObject<ExternalData>> model, String columnID)
+    {
+        if (forChooser)
+        {
+            return;
+        }
+        super.showNonEditableTableCellMessage(model, columnID);
+    }
+
+    @Override
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+    {
+        callback.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<ExternalData>>(
                 viewContext));
         viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
@@ -174,10 +210,6 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         chosenSearchCriteria = newCriteria;
-        if (criteria != null)
-        {
-            criteria.setPropertyTypes(propertyTypes);
-        }
         refresh();
     }
 
@@ -191,16 +223,8 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         super.refresh();
     }
 
-    @Override
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
-    {
-        List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes, viewContext
-                .getDisplaySettingsManager().getRealNumberFormatingParameters());
-    }
-
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    private DisposableEntityChooser<ExternalData> asDisposableWithToolbar(
+    private DisposableEntityChooser<TableModelRowWithObject<ExternalData>> asDisposableWithToolbar(
             final LayoutContainerWithDisposableComponent containerHolder,
             final IDisposableComponent toolbar)
     {

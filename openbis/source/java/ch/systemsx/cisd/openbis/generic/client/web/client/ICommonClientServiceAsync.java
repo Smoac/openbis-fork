@@ -250,7 +250,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#prepareExportDataSetSearchHits(TableExportCriteria)
      */
-    public void prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria,
+    public void prepareExportDataSetSearchHits(
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypes(boolean) */
@@ -397,24 +398,24 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listSampleDataSets(TechId, DefaultResultSetConfig, boolean)
      */
     public void listSampleDataSets(TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
             boolean showOnlyDirectlyConnected,
-            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> asyncCallback);
+            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig)
      */
     public void listExperimentDataSets(TechId experimentId,
-            DefaultResultSetConfig<String, ExternalData> criteria,
-            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> asyncCallback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
      *      DefaultResultSetConfig)
      */
     public void listDataSetRelationships(TechId datasetId, DataSetRelationshipRole role,
-            DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#listSearchableEntities()
@@ -497,16 +498,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#searchForDataSets(DetailedSearchCriteria, IResultSetConfig)
      */
     public void searchForDataSets(DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig,
-            final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            final AsyncCallback<TypedTableResultSet<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
     public void searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig,
-            final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            final AsyncCallback<TypedTableResultSet<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#listMaterialTypes()
@@ -707,7 +708,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolderWithPermId> openEntityDetailsTabCallback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean, BatchOperationKind)
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean,
+     *      BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind,

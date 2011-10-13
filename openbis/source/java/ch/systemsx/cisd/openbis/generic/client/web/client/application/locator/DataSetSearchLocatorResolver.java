@@ -86,7 +86,7 @@ public class DataSetSearchLocatorResolver
         {
             IDisposableComponent browser =
                     DataSetSearchHitGrid.createWithInitialSearchCriteria(viewContext,
-                            searchCriteria);
+                            searchCriteria, false);
             return createTab(Dict.DATA_SET_SEARCH, browser);
         }
 

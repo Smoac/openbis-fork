@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -151,7 +153,12 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    final List<ExternalData> dataSets = Arrays.asList(originalData);
+                    TableModelRowWithObject<ExternalData> row =
+                            new TableModelRowWithObject<ExternalData>(originalData, Arrays
+                                    .<ISerializableComparable> asList());
+                    @SuppressWarnings("unchecked")
+                    final List<TableModelRowWithObject<ExternalData>> dataSets =
+                            Arrays.<TableModelRowWithObject<ExternalData>> asList(row);
                     IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
                             new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
                                 {
@@ -175,8 +182,11 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
+                    TableModelRowWithObject<ExternalData> row =
+                            new TableModelRowWithObject<ExternalData>(getOriginalData(),
+                                    Arrays.<ISerializableComparable> asList());
                     new DataSetListDeletionConfirmationDialog(getViewContext()
-                            .getCommonViewContext(), callback, getOriginalData()).show();
+                            .getCommonViewContext(), callback, row).show();
                 }
 
             }));

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A field for selecting a data set from a list.
@@ -69,10 +70,19 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
                                 .getAttributeFieldKind(EntityKind.DATA_SET, "CODE")), "*");
         criterionList.add(searchCriterion);
         searchCriteria.setCriteria(criterionList);
-        DisposableEntityChooser<ExternalData> browser =
-                DataSetSearchHitGrid.createWithInitialSearchCriteria(viewContext, searchCriteria);
-        new EntityChooserDialog<ExternalData>(browser, field, "Choose data set", viewContext)
-                .show();
+        DisposableEntityChooser<TableModelRowWithObject<ExternalData>> browser =
+                DataSetSearchHitGrid.createWithInitialSearchCriteria(viewContext, searchCriteria,
+                        true);
+        new EntityChooserDialog<TableModelRowWithObject<ExternalData>>(browser,
+                new IChosenEntitySetter<TableModelRowWithObject<ExternalData>>()
+                    {
+
+                        public void setChosenEntity(
+                                TableModelRowWithObject<ExternalData> entityOrNull)
+                        {
+                            field.setChosenEntity(entityOrNull.getObjectOrNull());
+                        }
+                    }, "Choose data set", viewContext).show();
     }
 
     @Override

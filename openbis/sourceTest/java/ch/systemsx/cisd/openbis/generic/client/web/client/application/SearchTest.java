@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.RelatedDataSetGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
@@ -186,7 +186,7 @@ public class SearchTest extends AbstractGWTTestCase
 
     private static Row createRelatedDatasetRowWithLocation(String location)
     {
-        return new Row().withCell(CommonExternalDataColDefKind.LOCATION.id(), location);
+        return new Row().withCell(ExternalDataGridColumnIDs.LOCATION, location);
     }
 
     private AbstractDefaultTestCommand showDatasetsRelatedToAllDisplayedEntities()

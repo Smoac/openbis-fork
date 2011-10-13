@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -299,7 +300,7 @@ public final class GenericDataSetEditForm extends
     {
         // not best performance but the same solution that is done for experiments
         // only codes are needed but we extract 'full' object
-        DefaultResultSetConfig<String, ExternalData> config =
+        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> config =
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                 DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
@@ -329,6 +330,16 @@ public final class GenericDataSetEditForm extends
 
     }
 
+    private List<ExternalData> extractDataSets(List<TableModelRowWithObject<ExternalData>> rows)
+    {
+        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        for (TableModelRowWithObject<ExternalData> row : rows)
+        {
+            dataSets.add(row.getObjectOrNull());
+        }
+        return dataSets;
+    }
+
     private final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
     {
 
@@ -346,7 +357,7 @@ public final class GenericDataSetEditForm extends
     }
 
     private class ListParentsCallback extends
-            AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
+            AbstractAsyncCallback<TypedTableResultSet<ExternalData>>
     {
 
         public ListParentsCallback(IViewContext<?> viewContext)
@@ -355,9 +366,12 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        protected void process(ResultSetWithEntityTypes<ExternalData> result)
+        protected void process(TypedTableResultSet<ExternalData> result)
         {
-            parentsArea.setDataSets(result.getResultSet().getList().extractOriginalObjects());
+            List<TableModelRowWithObject<ExternalData>> rows =
+                    result.getResultSet().getList().extractOriginalObjects();
+            List<ExternalData> dataSets = extractDataSets(rows);
+            parentsArea.setDataSets(dataSets);
             if (parentsArea.isVisible())
             {
                 parentsArea.setEnabled(true);
@@ -489,7 +503,7 @@ public final class GenericDataSetEditForm extends
         {
             // not best performance but the same solution that is done for experiments
             // only codes are needed but we extract 'full' object
-            DefaultResultSetConfig<String, ExternalData> config =
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> config =
                     DefaultResultSetConfig.createFetchAll();
             viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                     DataSetRelationshipRole.CONTAINER, config,
@@ -497,7 +511,7 @@ public final class GenericDataSetEditForm extends
         }
 
         private class ListContainedDataSetsCallback extends
-                AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
+                AbstractAsyncCallback<TypedTableResultSet<ExternalData>>
         {
 
             public ListContainedDataSetsCallback(IViewContext<?> viewContext)
@@ -506,9 +520,11 @@ public final class GenericDataSetEditForm extends
             }
 
             @Override
-            protected void process(ResultSetWithEntityTypes<ExternalData> result)
+            protected void process(TypedTableResultSet<ExternalData> result)
             {
-                containedArea.setDataSets(result.getResultSet().getList().extractOriginalObjects());
+                List<TableModelRowWithObject<ExternalData>> rows =
+                        result.getResultSet().getList().extractOriginalObjects();
+                containedArea.setDataSets(extractDataSets(rows));
                 if (containedArea.isVisible())
                 {
                     containedArea.setEnabled(true);

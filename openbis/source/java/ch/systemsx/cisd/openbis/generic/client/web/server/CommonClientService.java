@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractExternalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AttachmentVersionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
@@ -490,23 +491,35 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, criteria);
     }
 
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
-            DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig)
+    public TypedTableResultSet<ExternalData> searchForDataSets(
+            final DetailedSearchCriteria criteria,
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
     {
         final String sessionToken = getSessionToken();
-        return listEntitiesWithTypes(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
-                commonServer, sessionToken, criteria));
+        return listEntities(new AbstractExternalDataProvider(commonServer, sessionToken)
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.searchForDataSets(sessionToken, criteria);
+                }
+            }, resultSetConfig);
     }
 
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+    public TypedTableResultSet<ExternalData> searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, ExternalData> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
     {
         final String sessionToken = getSessionToken();
-        DataSetRelatedEntities entities = extractRelatedEntities(criteria);
-        return listEntitiesWithTypes(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
-                commonServer, sessionToken, entities));
+        final DataSetRelatedEntities entities = extractRelatedEntities(criteria);
+        return listEntities(new AbstractExternalDataProvider(commonServer, sessionToken)
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.listRelatedDataSets(sessionToken, entities);
+                }
+            }, resultSetConfig);
     }
 
     private <E extends IEntityInformationHolder> DataSetRelatedEntities extractRelatedEntities(
@@ -558,7 +571,8 @@ public final class CommonClientService extends AbstractClientService implements
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
     {
-        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken()), criteria);
+        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken()),
+                criteria);
     }
 
     public TypedTableResultSet<Space> listGroups(
@@ -696,65 +710,49 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, criteria);
     }
 
-    public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria,
+    public TypedTableResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
             final boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-                    {
-                        @Override
-                        public List<ExternalData> getFullOriginalData() throws UserFailureException
-                        {
-                            final String sessionToken = getSessionToken();
-                            final List<ExternalData> externalData =
-                                    commonServer.listSampleExternalData(sessionToken, sampleId,
-                                            showOnlyDirectlyConnected);
-                            return externalData;
-                        }
-                    });
+        return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.listSampleExternalData(sessionToken, sampleId,
+                            showOnlyDirectlyConnected);
+                }
+            }, criteria);
     }
 
-    public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, ExternalData> criteria)
+    public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-                    {
-
-                        @Override
-                        public List<ExternalData> getFullOriginalData() throws UserFailureException
-                        {
-                            final String sessionToken = getSessionToken();
-                            final List<ExternalData> externalData =
-                                    commonServer.listExperimentExternalData(sessionToken,
-                                            experimentId);
-                            return externalData;
-                        }
-
-                    });
+        return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.listExperimentExternalData(sessionToken, experimentId);
+                }
+            }, criteria);
     }
 
-    public ResultSetWithEntityTypes<ExternalData> listDataSetRelationships(final TechId datasetId,
+    public TypedTableResultSet<ExternalData> listDataSetRelationships(final TechId datasetId,
             final DataSetRelationshipRole role,
-            final DefaultResultSetConfig<String, ExternalData> criteria)
+            final DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-                    {
-                        @Override
-                        public List<ExternalData> getFullOriginalData() throws UserFailureException
-                        {
-                            final String sessionToken = getSessionToken();
-                            final List<ExternalData> externalData =
-                                    commonServer.listDataSetRelationships(sessionToken, datasetId,
-                                            role);
-                            return externalData;
-                        }
-                    });
+        return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.listDataSetRelationships(sessionToken, datasetId, role);
+                }
+            }, criteria);
     }
 
     // ---------------- end list using cache ----------
@@ -1143,7 +1141,8 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
+    public String prepareExportDataSetSearchHits(
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
@@ -1761,37 +1760,45 @@ public final class CommonClientService extends AbstractClientService implements
             return displayedOrSelectedDatasetCriteria.tryGetSelectedItems();
         } else
         {
-            TableExportCriteria<ExternalData> displayedItemsCriteria =
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsCriteria =
                     displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            List<ExternalData> datasets =
+            List<TableModelRowWithObject<ExternalData>> datasets =
                     fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
             if (serviceDescriptionOrNull != null)
             {
                 datasets = filterDatasets(datasets, serviceDescriptionOrNull);
             }
-            return Code.extractCodes(datasets);
+            List<String> codes = new ArrayList<String>();
+            for (TableModelRowWithObject<ExternalData> row : datasets)
+            {
+                codes.add(row.getObjectOrNull().getCode());
+            }
+            return codes;
         }
     }
 
     // returns datasets which have type code belonging to the specified set and belong to the same
     // dataset store as the plugin
-    private static List<ExternalData> filterDatasets(List<ExternalData> datasets,
+    private static List<TableModelRowWithObject<ExternalData>> filterDatasets(
+            List<TableModelRowWithObject<ExternalData>> datasets,
             DatastoreServiceDescription serviceDescription)
     {
         String[] datasetTypeCodes = serviceDescription.getDatasetTypeCodes();
         Set<String> datasetTypeCodesMap = new HashSet<String>(Arrays.asList(datasetTypeCodes));
-        List<ExternalData> result = new ArrayList<ExternalData>();
+        List<TableModelRowWithObject<ExternalData>> result =
+                new ArrayList<TableModelRowWithObject<ExternalData>>();
         String serviceDatastoreCode = serviceDescription.getDatastoreCode();
-        for (ExternalData dataset : datasets)
+        for (TableModelRowWithObject<ExternalData> row : datasets)
         {
+            ExternalData dataset = row.getObjectOrNull();
             String datasetTypeCode = dataset.getDataSetType().getCode();
             if (datasetTypeCodesMap.contains(datasetTypeCode))
             {
                 String datasetDatastoreCode = dataset.getDataStore().getCode();
                 if (datasetDatastoreCode.equals(serviceDatastoreCode))
                 {
-                    result.add(dataset);
+                    result.add(row);
                 }
             }
         }

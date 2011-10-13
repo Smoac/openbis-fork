@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 class ComputationData implements ISelectedDataSetsProvider
 {
@@ -53,6 +55,13 @@ class ComputationData implements ISelectedDataSetsProvider
 
     public List<ExternalData> getSelectedDataSets()
     {
-        return selectedAndDisplayedItems.getSelectedItems();
+        List<TableModelRowWithObject<ExternalData>> selectedItems =
+                selectedAndDisplayedItems.getSelectedItems();
+        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        for (TableModelRowWithObject<ExternalData> item : selectedItems)
+        {
+            dataSets.add(item.getObjectOrNull());
+        }
+        return dataSets;
     }
 }

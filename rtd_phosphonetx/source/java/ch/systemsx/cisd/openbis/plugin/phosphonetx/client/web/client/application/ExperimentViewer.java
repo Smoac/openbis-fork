@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -109,11 +110,11 @@ public class ExperimentViewer extends GenericExperimentViewer
         final ContentPanel contentPanel = new ContentPanel(new RowLayout());
         contentPanel.setHeading(viewContext.getMessage(Dict.DATA_SET_PROCESSING_SECTION_TITLE));
         viewContext.getCommonService().listExperimentDataSets(new TechId(experimentId),
-                DefaultResultSetConfig.<String, ExternalData> createFetchAll(),
-                new AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>(viewContext)
+                DefaultResultSetConfig.<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
+                new AbstractAsyncCallback<TypedTableResultSet<ExternalData>>(viewContext)
                     {
                         @Override
-                        protected void process(ResultSetWithEntityTypes<ExternalData> result)
+                        protected void process(TypedTableResultSet<ExternalData> result)
                         {
                             AsyncCallback<List<DatastoreServiceDescription>> callBack =
                                     createCallback(contentPanel, result);
@@ -126,12 +127,12 @@ public class ExperimentViewer extends GenericExperimentViewer
     }
 
     private AsyncCallback<List<DatastoreServiceDescription>> createCallback(
-            final ContentPanel contentPanel, ResultSetWithEntityTypes<ExternalData> result)
+            final ContentPanel contentPanel, TypedTableResultSet<ExternalData> result)
     {
         final List<String> dataSetCodes = new ArrayList<String>();
-        for (GridRowModel<ExternalData> gridRowModel : result.getResultSet().getList())
+        for (GridRowModel<TableModelRowWithObject<ExternalData>> gridRowModel : result.getResultSet().getList())
         {
-            dataSetCodes.add(gridRowModel.getOriginalObject().getCode());
+            dataSetCodes.add(gridRowModel.getOriginalObject().getObjectOrNull().getCode());
         }
         final DisplayedOrSelectedDatasetCriteria criteria =
                 DisplayedOrSelectedDatasetCriteria.createSelectedItems(dataSetCodes);

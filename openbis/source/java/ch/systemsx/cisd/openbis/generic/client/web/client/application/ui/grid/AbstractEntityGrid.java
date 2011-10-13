@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.Arrays;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
@@ -97,6 +101,12 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
             boolean inBackground)
     {
         showEntityInformationHolderViewer(row.getObjectOrNull(), editMode, inBackground);
+    }
+
+    protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
+    {
+        return LinkRenderer.createExternalLinkRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Defines a set of datasets by either enumerating their codes or providing the grid configuration
@@ -31,12 +32,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
 {
 
-    private TableExportCriteria<ExternalData> displayedItemsOrNull;
+    private TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsOrNull;
 
     private List<String> selectedDatasetCodesOrNull;
 
     public static DisplayedOrSelectedDatasetCriteria createDisplayedItems(
-            TableExportCriteria<ExternalData> displayedItems)
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItems)
     {
         return new DisplayedOrSelectedDatasetCriteria(displayedItems, null);
     }
@@ -47,7 +48,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
     }
 
     private DisplayedOrSelectedDatasetCriteria(
-            TableExportCriteria<ExternalData> displayedItemsOrNull,
+            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsOrNull,
             List<String> selectedDatasetCodesOrNull)
     {
         assert (displayedItemsOrNull == null) != (selectedDatasetCodesOrNull == null) : "Exactly one arg must be null and one non-null";
@@ -55,7 +56,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
         this.selectedDatasetCodesOrNull = selectedDatasetCodesOrNull;
     }
 
-    public TableExportCriteria<ExternalData> tryGetDisplayedItems()
+    public TableExportCriteria<TableModelRowWithObject<ExternalData>> tryGetDisplayedItems()
     {
         return displayedItemsOrNull;
     }

@@ -32,14 +32,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 // TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class DataSetListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<ExternalData>
+        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<ExternalData>>
 {
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
-    private final ExternalData singleData;
+    private final TableModelRowWithObject<ExternalData> singleData;
 
     protected CheckBox force;
 
@@ -55,7 +56,7 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AsyncCallback<Void> deletionCallback, ExternalData data)
+            AsyncCallback<Void> deletionCallback, TableModelRowWithObject<ExternalData> data)
     {
         super(viewContext, Collections.singletonList(data), deletionCallback);
         this.singleData = data;
@@ -80,9 +81,9 @@ public final class DataSetListDeletionConfirmationDialog extends
                     deletionType, isTrashEnabled() ? false : force.getValue(), deletionCallback);
         } else
         {
-            getViewContext().getCommonService().deleteDataSet(singleData.getCode(),
-                    reason.getValue(), deletionType, isTrashEnabled() ? false : force.getValue(),
-                    deletionCallback);
+            getViewContext().getCommonService().deleteDataSet(
+                    singleData.getObjectOrNull().getCode(), reason.getValue(), deletionType,
+                    isTrashEnabled() ? false : force.getValue(), deletionCallback);
         }
     }
 

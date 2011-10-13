@@ -25,10 +25,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
@@ -91,8 +92,9 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
     }
 
     @Override
-    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
     {
         boolean onlyDirectlyConnected = connectionTypeProvider.getShowOnlyDirectlyConnected();
         viewContext.getService().listSampleDataSets(sampleId, resultSetConfig,

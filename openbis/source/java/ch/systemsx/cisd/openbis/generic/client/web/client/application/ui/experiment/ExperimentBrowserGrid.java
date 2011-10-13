@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
@@ -334,8 +333,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.SHOW_DETAILS_LINK,
-                LinkRenderer.createExternalLinkRenderer(viewContext
-                        .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE)));
+                createShowDetailsLinkCellRenderer());
         return schema;
     }
 

@@ -20,10 +20,10 @@ import com.google.gwt.junit.DoNotRunWith;
 import com.google.gwt.junit.Platform;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetSearchRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
@@ -50,7 +50,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(10);
         DataSetSearchRow row = new DataSetSearchRow();
-        row.withCell(CommonExternalDataColDefKind.LOCATION.id(), "a/1");
+        row.withCell(ExternalDataGridColumnIDs.LOCATION, "a/1");
         row.withPropertyCell("comment", "no comment");
         checkResultTableCmd.expectedRow(row);
         checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
@@ -69,10 +69,9 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
         checkResultTableCmd.expectedSize(2);
-        Row row1 =
-                createTiffRow().withCell(CommonExternalDataColDefKind.LOCATION.id(), "xxx/yyy/zzz");
+        Row row1 = createTiffRow().withCell(ExternalDataGridColumnIDs.LOCATION, "xxx/yyy/zzz");
         checkResultTableCmd.expectedRow(row1);
-        Row row2 = createTiffRow().withCell(CommonExternalDataColDefKind.LOCATION.id(), "a/1");
+        Row row2 = createTiffRow().withCell(ExternalDataGridColumnIDs.LOCATION, "a/1");
         checkResultTableCmd.expectedRow(row2);
 
         remoteConsole.prepare(checkResultTableCmd);
@@ -82,8 +81,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private Row createTiffRow()
     {
-        return new DataSetSearchRow().withCell(CommonExternalDataColDefKind.FILE_FORMAT_TYPE.id(),
-                "TIFF");
+        return new DataSetSearchRow().withCell(ExternalDataGridColumnIDs.FILE_FORMAT_TYPE, "TIFF");
     }
 
     private static CheckTableCommand createCheckSearchGridCmd()

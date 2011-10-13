@@ -170,7 +170,8 @@ public class DataSetArchivingMenu extends TextToolItem
 
         public List<ExternalData> getSelectedDataSets()
         {
-            return selectedAndDisplayedItems.getSelectedItems();
+            List<ExternalData> selectedDataSets = selectedAndDisplayedItems.getSelectedDataSets();
+            return selectedDataSets;
         }
     }
 

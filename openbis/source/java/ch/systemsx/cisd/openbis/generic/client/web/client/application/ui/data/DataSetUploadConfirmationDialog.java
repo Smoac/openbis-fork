@@ -38,12 +38,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  */
 public final class DataSetUploadConfirmationDialog extends
-        AbstractDataConfirmationDialog<List<ExternalData>>
+        AbstractDataConfirmationDialog<List<TableModelRowWithObject<ExternalData>>>
 {
     private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
 
@@ -67,7 +68,7 @@ public final class DataSetUploadConfirmationDialog extends
 
     private Radio uploadSelectedRadio;
 
-    public DataSetUploadConfirmationDialog(List<ExternalData> dataSets,
+    public DataSetUploadConfirmationDialog(List<TableModelRowWithObject<ExternalData>> dataSets,
             IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedAndDisplayedItemsAction,
             int displayedItemsCount, IViewContext<?> viewContext)
     {
