@@ -116,7 +116,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
             final JFrame frame = new JFrame(TITLE);
             frame.setVisible(true);
             String message = ex.getMessage();
-            if (null == message || message.isEmpty())
+            if (null == message || message.length() == 0)
             {
                 message = ex.toString();
             }
