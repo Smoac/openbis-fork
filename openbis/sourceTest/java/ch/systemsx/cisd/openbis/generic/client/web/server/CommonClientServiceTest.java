@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -72,14 +72,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
 /**
@@ -91,8 +91,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
     private static final String DATA_STORE_BASE_URL = "baseURL";
-
-    private static final String BASE_INDEX_URL = "indexURL";
 
     private static final String CIFEX_URL = "cifexURL";
 
@@ -491,20 +489,21 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public void testListExternalDataForExperiment()
     {
         final TechId experimentId = CommonTestUtils.TECH_ID;
-        final ExternalDataPE externalDataPE = new ExternalDataPE();
         final DataStorePE dataStorePE = new DataStorePE();
         dataStorePE.setCode("DS");
         dataStorePE.setDownloadUrl(DATA_STORE_BASE_URL);
-        externalDataPE.setDataStore(dataStorePE);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode("my-type");
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("PNG");
         fileFormatTypePE.setDescription("Portable Network Graphics");
-        externalDataPE.setFileFormatType(fileFormatTypePE);
         LocatorTypePE locatorTypePE = new LocatorTypePE();
         locatorTypePE.setCode("LOCATOR");
-        externalDataPE.setLocatorType(locatorTypePE);
-        final ExternalData externalData =
-                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, false);
+        DataStore dataStore = new DataStore();
+        dataStore.setCode("S");
+        final DataSet ds =
+                new DataSetBuilder().code("DS").type("MT").fileFormat("PNG")
+                        .status(DataSetArchivingStatus.AVAILABLE).store(dataStore).getDataSet();
         context.checking(new Expectations()
             {
                 {
@@ -522,7 +521,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                                 })));
 
                     one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId);
-                    will(returnValue(Collections.singletonList(externalData)));
+                    will(returnValue(Collections.singletonList(ds)));
                 }
             });
 
@@ -534,12 +533,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
         DataSet data = list.get(0).getObjectOrNull().tryGetAsDataSet();
-        // assertEquals(code, data.getCode());
-        assertEquals(DATA_STORE_BASE_URL, data.getDataStore().getHostUrl());
-        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data
-                .getDataStore().getDownloadUrl());
         assertEquals("PNG", data.getFileFormatType().getCode());
-        assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 
         context.assertIsSatisfied();
     }
