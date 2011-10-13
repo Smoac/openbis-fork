@@ -44,8 +44,8 @@ import ch.systemsx.cisd.common.utilities.IStopSignaler;
 public final class FaultyPathDirectoryScanningHandler implements IDirectoryScanningHandler
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FaultyPathDirectoryScanningHandler.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FaultyPathDirectoryScanningHandler.class);
 
     private final Set<StoreItem> faultyPaths;
 
@@ -62,7 +62,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         this.faultyPathsFile = new File(faultyPathDirectory, Constants.FAULTY_PATH_FILENAME);
         this.stopSignaler = stopSignaler;
     }
-    
+
     private Set<String> faultyPathsAsStrings(IScannedStore scannedStore)
     {
         final Set<String> faultyPathStrings = new HashSet<String>(faultyPaths.size());
@@ -72,7 +72,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         }
         return faultyPathStrings;
     }
-    
+
     private void setFaultyPathsFromStrings(IScannedStore scannedStore, Set<String> faultyPathStrings)
     {
         faultyPaths.clear();
@@ -89,23 +89,33 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
             // Handles manual manipulation.
             if (faultyPathsFile.lastModified() > faultyPathsLastChanged)
             {
-                faultyPaths.clear();
                 final Set<String> faultyPathStrings = new HashSet<String>();
                 CollectionIO.readCollection(faultyPathsFile, faultyPathStrings);
+                final Set<StoreItem> faultyPathsCopy =
+                        operationLog.isInfoEnabled() ? new HashSet<StoreItem>(faultyPaths) : null;
                 setFaultyPathsFromStrings(scannedStore, faultyPathStrings);
                 faultyPathsLastChanged = faultyPathsFile.lastModified();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(String.format(
-                            "Reread faulty paths file '%s'. New entries are '%s'.",
-                            getLocationDescription(faultyPathsFile), CollectionUtils.abbreviate(
-                                    faultyPaths, 10)));
+                    if (faultyPaths.equals(faultyPathsCopy) == false)
+                    {
+                        operationLog.info(String.format(
+                                "Reread faulty paths file '%s'. New entries are '%s'.",
+                                getLocationDescription(faultyPathsFile),
+                                CollectionUtils.abbreviate(faultyPaths, 10)));
+                    }
                 }
             }
         } else
         {
             // Handles manual removal.
             faultyPaths.clear();
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format(
+                        "Faulty paths file '%s' has been removed manually.",
+                        getLocationDescription(faultyPathsFile)));
+            }
         }
     }
 
@@ -127,9 +137,8 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         if (operationLog.isDebugEnabled())
         {
             final String path = scannedStore.getLocationDescription(item);
-            operationLog.debug(String.format(
-                    "Path '%s' has been added to faulty paths file '%s'", path,
-                    faultyPathsFile.getAbsolutePath()));
+            operationLog.debug(String.format("Path '%s' has been added to faulty paths file '%s'",
+                    path, faultyPathsFile.getAbsolutePath()));
         }
         faultyPaths.add(item);
         refreshFaultyPathsFile(scannedStore);
