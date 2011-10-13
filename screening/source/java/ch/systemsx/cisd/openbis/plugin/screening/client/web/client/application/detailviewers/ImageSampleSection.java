@@ -50,7 +50,9 @@ public class ImageSampleSection extends TabContent
 
     private static final String NO_IMAGES_DATASET_LABEL = "No images data has been acquired.";
 
-    private static final String WELL_IMAGE_SECTION_TITLE = "Images";
+    private static final String WELL_IMAGE_SECTION_TITLE_SUFFIX = "Images";
+
+    private static final String WELL_IMAGE_SECTION_TITLE_PREFIX = "Well";
 
     // ----
 
@@ -60,10 +62,20 @@ public class ImageSampleSection extends TabContent
 
     private final boolean isWell;
 
+    private static String getTabName(boolean isWell, WellLocation wellLocationOrNull)
+    {
+        if (false == isWell && wellLocationOrNull != null)
+        {
+            return WELL_IMAGE_SECTION_TITLE_PREFIX + " " + wellLocationOrNull.toWellIdString()
+                    + " " + WELL_IMAGE_SECTION_TITLE_SUFFIX;
+        }
+        return WELL_IMAGE_SECTION_TITLE_SUFFIX;
+    }
+
     public ImageSampleSection(final ScreeningViewContext viewContext, final TechId sampleId,
             WellLocation wellLocationOrNull, boolean isWell)
     {
-        super(WELL_IMAGE_SECTION_TITLE, viewContext, sampleId);
+        super(getTabName(isWell, wellLocationOrNull), viewContext, sampleId);
         this.sampleId = sampleId;
         this.wellLocationOrNull = wellLocationOrNull;
         this.isWell = isWell;
