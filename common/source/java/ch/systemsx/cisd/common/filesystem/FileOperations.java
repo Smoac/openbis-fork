@@ -405,6 +405,10 @@ public class FileOperations implements IFileOperations, Serializable
 
     public void move(File source, File destination) throws IOExceptionUnchecked
     {
+        if (destination.getParentFile() != null)
+        {
+            mkdirs(destination.getParentFile());
+        }
         if (destination.isDirectory())
         {
             moveToDirectory(source, destination);

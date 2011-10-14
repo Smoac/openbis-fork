@@ -201,4 +201,21 @@ public class FileOperationsTest extends AbstractFileSystemTestCase
         srcFile.delete();
         newDestFile.delete();
     }
+
+    @Test
+    public final void testCopyToNonexistingParentFolder() throws IOException
+    {
+        File srcDir = new File(workingDirectory, "srcDir");
+        srcDir.mkdirs();
+        AssertJUnit.assertTrue(srcDir.isDirectory());
+
+        File destDir = new File(new File(workingDirectory, "non-existing"), srcDir.getName());
+
+        FileOperations.getInstance().move(srcDir, destDir);
+        AssertJUnit.assertFalse(srcDir.isDirectory());
+        AssertJUnit.assertTrue(destDir.isDirectory());
+
+        // clean up
+        destDir.delete();
+    }
 }
