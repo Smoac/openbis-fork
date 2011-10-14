@@ -501,8 +501,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         protected final File markerFile;
 
-        protected final File stagingDirectory;
-
         protected final File storedDirectory;
 
         public StoredState(PreparedState<T> oldState)
@@ -510,7 +508,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             super(oldState.storageAlgorithm);
             this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
-            this.stagingDirectory = oldState.stagingBaseDirectoryHolder.getBaseDirectory();
             this.storedDirectory = oldState.storedDirectory;
         }
 
@@ -538,7 +535,6 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         private void cleanUp()
         {
             getFileOperations().delete(markerFile);
-            getFileOperations().delete(stagingDirectory);
         }
     }
 
