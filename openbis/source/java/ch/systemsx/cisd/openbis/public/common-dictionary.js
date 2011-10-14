@@ -384,7 +384,7 @@ var common = {
   // Menu Titles
   //
   
-  menu_administration: "Administration",
+  menu_administration: "Admin",
   ADMINISTRATION_MENU_MANAGE_GROUPS: "Spaces",
   
   menu_authorization: "Authorization",

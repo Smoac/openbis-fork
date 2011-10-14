@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -28,13 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.I
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top.NewMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.LoggedUserMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Element;
 
 /**
  * Implements functionality of the top menu.
@@ -116,7 +116,6 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new BrowseMenu(viewContext, componentProvider));
         toolBar.add(new NewMenu(viewContext, componentProvider));
         toolBar.add(new ImportMenu(viewContext, componentProvider));
-        toolBar.add(new AdministrationMenu(viewContext, componentProvider));
         toolBar.add(new ModulesMenu(viewContext, viewContext.getClientPluginFactoryProvider()));
         toolBar.add(new FillToolItem());
         toolBar.add(new SearchWidget(viewContext));
@@ -127,6 +126,7 @@ public class TopMenu extends LayoutContainer
         {
             toolBar.add(new TrashButton(viewContext, componentProvider));
         }
+        toolBar.add(new AdministrationMenu(viewContext, componentProvider));
         toolBar.add(new LoggedUserMenu(viewContext, componentProvider));
     }
 
