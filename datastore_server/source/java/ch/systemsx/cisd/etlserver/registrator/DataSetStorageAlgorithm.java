@@ -207,7 +207,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         }
 
         StoredState<T> storedState = (StoredState<T>) state;
-        storedState.cleanUp();
+        storedState.cleanUpMarkerFile();
 
         state = new RolledbackState<T>(storedState, UnstoreDataAction.LEAVE_UNTOUCHED, throwable);
     }
@@ -501,12 +501,15 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
         protected final File markerFile;
 
+        protected final BaseDirectoryHolder stagingBaseDirectoryHolder;
+
         protected final File storedDirectory;
 
         public StoredState(PreparedState<T> oldState)
         {
             super(oldState.storageAlgorithm);
             this.transaction = oldState.transaction;
+            this.stagingBaseDirectoryHolder = oldState.stagingBaseDirectoryHolder;
             this.markerFile = oldState.markerFile;
             this.storedDirectory = oldState.storedDirectory;
         }
@@ -518,7 +521,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         {
             transaction.setStoredDataDirectory(storedDirectory);
             transaction.commit();
-            cleanUp();
+            cleanUpMarkerFile();
         }
 
         /**
@@ -532,7 +535,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         /**
          * Cleanup from the processing -- done after a commit or rollback
          */
-        private void cleanUp()
+        private void cleanUpMarkerFile()
         {
             getFileOperations().delete(markerFile);
         }
@@ -542,9 +545,18 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             DataSetStorageAlgorithmState<T>
     {
 
+        protected final File stagingDirectory;
+
         CommittedState(StoredState<T> oldState)
         {
             super(oldState.storageAlgorithm);
+            this.stagingDirectory = oldState.stagingBaseDirectoryHolder.getBaseDirectory();
+            cleanUpStagingDirectory();
+        }
+
+        private void cleanUpStagingDirectory()
+        {
+            getFileOperations().delete(stagingDirectory);
         }
 
     }

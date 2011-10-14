@@ -137,7 +137,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         public void rollback()
         {
-            // execute rollback after server restart
             transaction.rollback(null);
         }
 

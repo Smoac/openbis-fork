@@ -39,6 +39,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -289,13 +290,16 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 StorageProcessorTransactionParameters parameters)
         {
             final File rootDir = parameters.getRootDir();
+            final File incomingDir = parameters.getIncomingDataSetDirectory();
             dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
                 {
 
                     private static final long serialVersionUID = 1L;
 
-                    private File storedFolder;
+                    private File incoming = incomingDir;
+
+                    private File storedFolder = rootDir;
 
                     public void storeData(ITypeExtractor typeExtractor, IMailClient mailClient,
                             File incomingDataSetFile)
@@ -321,6 +325,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
                     public UnstoreDataAction rollback(Throwable exception)
                     {
+                        if (storedFolder != null && storedFolder.exists())
+                        {
+                            FileOperations.getInstance().move(storedFolder, incoming);
+                        }
                         return null;
                     }
 
