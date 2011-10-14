@@ -24,7 +24,7 @@ popd > /dev/null
 # set INSTALL_PATH in the console.properties
 sed_params='s#^INSTALL_PATH=.*$#INSTALL_PATH='$OPENBIS_INSTALL_DIR'#'
 sed "$sed_params" $INSTALLER_DIR/console.properties > $INSTALLER_DIR/console.properties.modified
-mv $INSTALLER_DIR/console.properties.modified > $INSTALLER_DIR/console.properties 
+mv $INSTALLER_DIR/console.properties.modified $INSTALLER_DIR/console.properties 
 
 # run the installation
 $INSTALLER_DIR/run-console.sh
