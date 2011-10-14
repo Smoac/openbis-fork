@@ -44,6 +44,11 @@ public class ImageReaderFactory
 
     static
     {
+        libraries = getAvailableReaders();
+    }
+
+    private static List<IImageReaderLibrary> getAvailableReaders()
+    {
         Iterator<IImageReaderLibrary> librariesIterator;
         try
         {
@@ -52,33 +57,37 @@ public class ImageReaderFactory
         {
             operationLog.warn("Image reader plugins not available (JRE < 1.6), "
                     + "fallback to built-in readers.", ex);
-            IImageReaderLibrary reader;
-
-            List<IImageReaderLibrary> readers = new ArrayList<IImageReaderLibrary>();
-            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
-            if (reader != null)
-            {
-                readers.add(reader);
-            }
-            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.ij.ImageJReaderLibrary");
-            if (reader != null)
-            {
-                readers.add(reader);
-            }
-            reader = tryCreateReader("ch.systemsx.cisd.imagereaders.jai.JAIReaderLibrary");
-            if (reader != null)
-            {
-                readers.add(reader);
-            }
-            reader =
-                    tryCreateReader("ch.systemsx.cisd.imagereaders.bioformats.BioFormatsReaderLibrary");
-            if (reader != null)
-            {
-                readers.add(reader);
-            }
-            librariesIterator = readers.iterator();
+            librariesIterator = getBuiltInReaders();
         }
-        libraries = CollectionUtils.asList(librariesIterator);
+        return CollectionUtils.asList(librariesIterator);
+    }
+
+    private static Iterator<IImageReaderLibrary> getBuiltInReaders()
+    {
+        IImageReaderLibrary reader;
+        List<IImageReaderLibrary> readers = new ArrayList<IImageReaderLibrary>();
+        reader = tryCreateReader("ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary");
+        if (reader != null)
+        {
+            readers.add(reader);
+        }
+        reader = tryCreateReader("ch.systemsx.cisd.imagereaders.ij.ImageJReaderLibrary");
+        if (reader != null)
+        {
+            readers.add(reader);
+        }
+        reader = tryCreateReader("ch.systemsx.cisd.imagereaders.jai.JAIReaderLibrary");
+        if (reader != null)
+        {
+            readers.add(reader);
+        }
+        reader =
+                tryCreateReader("ch.systemsx.cisd.imagereaders.bioformats.BioFormatsReaderLibrary");
+        if (reader != null)
+        {
+            readers.add(reader);
+        }
+        return readers.iterator();
     }
 
     private static IImageReaderLibrary tryCreateReader(String className)
