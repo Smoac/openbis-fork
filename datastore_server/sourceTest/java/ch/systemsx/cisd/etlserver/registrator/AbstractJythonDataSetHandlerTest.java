@@ -290,14 +290,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 StorageProcessorTransactionParameters parameters)
         {
             final File rootDir = parameters.getRootDir();
-            final File incomingDir = parameters.getIncomingDataSetDirectory();
             dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
                 {
 
                     private static final long serialVersionUID = 1L;
-
-                    private File incoming = incomingDir;
 
                     private File storedFolder = rootDir;
 
@@ -325,10 +322,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
                     public UnstoreDataAction rollback(Throwable exception)
                     {
-                        if (storedFolder != null && storedFolder.exists())
-                        {
-                            FileOperations.getInstance().move(storedFolder, incoming);
-                        }
+                        FileOperations.getInstance().deleteRecursively(storedFolder);
                         return null;
                     }
 
