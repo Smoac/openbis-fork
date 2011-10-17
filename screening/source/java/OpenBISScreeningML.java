@@ -889,7 +889,7 @@ public class OpenBISScreeningML
                     + "' failed.", ex);
         }
     }
-    
+
     /**
      * Loads file/folder of specified data set and specified file/folder path inside the data set.
      * If it is possible the path points directly into the data set store. No data is copied.
@@ -973,10 +973,11 @@ public class OpenBISScreeningML
         }
         return result;
     }
-    
+
     /**
-     * Lists meta data of specified data sets. This includes data set type, properties and codes of connected parent and children data sets.
-     * The result is returned in the same order as the data set code array argument.
+     * Lists meta data of specified data sets. This includes data set type, properties and codes of
+     * connected parent and children data sets. The result is returned in the same order as the data
+     * set code array argument.
      * <p>
      * Matlab example:
      * 
@@ -996,25 +997,28 @@ public class OpenBISScreeningML
      * </pre>
      * 
      * @param dataSetCodes Codes of data sets from whom meta data are queried.
-     * @return For each data set: <code>{{data set code, data set type}, { {key1, value1}, {key2, value2} ...}, parents, children }</code>
+     * @return For each data set:
+     *         <code>{{data set code, data set type}, { {key1, value1}, {key2, value2} ...}, parents, children }</code>
      */
     public static Object[][][] getDataSetMetaData(String[] dataSetCodes)
     {
         checkLoggedIn();
         List<DataSet> dataSets = openbis.getDataSetMetaData(Arrays.asList(dataSetCodes));
-        TableMap<String, DataSet> dataSetMap = new TableMap<String, DataSet>(dataSets, new IKeyExtractor<String, DataSet>()
-            {
-                public String getKey(DataSet e)
-                {
-                    return e.getCode();
-                }
-            });
+        TableMap<String, DataSet> dataSetMap =
+                new TableMap<String, DataSet>(dataSets, new IKeyExtractor<String, DataSet>()
+                    {
+                        public String getKey(DataSet e)
+                        {
+                            return e.getCode();
+                        }
+                    });
         Object[][][] result = new Object[dataSetCodes.length][][];
         for (int i = 0; i < dataSetCodes.length; i++)
         {
             DataSet dataSet = dataSetMap.tryGet(dataSetCodes[i]);
             result[i] = new Object[4][];
-            result[i][0] = new Object[] { dataSet.getCode(), dataSet.getDataSetTypeCode() };
+            result[i][0] = new Object[]
+                { dataSet.getCode(), dataSet.getDataSetTypeCode() };
             result[i][1] = listProperties(dataSet.getProperties());
             result[i][2] = dataSet.getParentCodes().toArray();
             result[i][3] = dataSet.getChildrenCodes().toArray();
@@ -1156,9 +1160,10 @@ public class OpenBISScreeningML
             return dataSet.getCode();
         } catch (Exception ex)
         {
-            throw createException("Couldn't upload data set for experiment '"
-                    + augmentedExperimentCode + "' and parents '"
-                    + Arrays.toString(parentDataSetCodeObjects) + "'.", ex);
+            throw createException(
+                    "Couldn't upload data set for experiment '" + augmentedExperimentCode
+                            + "' and parents '" + Arrays.toString(parentDataSetCodeObjects) + "'.",
+                    ex);
         }
     }
 
@@ -2108,8 +2113,17 @@ public class OpenBISScreeningML
      * Experimental method that returns an array of {@link PlateMetadata} Java objects for a given
      * list of plate codes.
      * <p>
-     * The method can be removed from the API in the future if the MATLAB users are unable to cope
-     * with return values.
+     * 
+     * <pre>
+     * chosenPlates= { '/MY-SPACE/MY-PLATE1', '/MY-SPACE/MY-PLATE2' };
+     * metadata = OpenBISScreeningML.getPlateMetadataList(chosenPlates);
+     * % List all methods available on the result:
+     * methods(metadata(1),'-full');
+     * % Lists all wells of the first plate
+     * javaMethod('getWells',metadata(1))
+     * % Shows plate geometry of the first plate
+     * javaMethod('getPlateGeometry',metadata(1))
+     * </pre>
      */
     public static PlateMetadata[] getPlateMetadataList(String[] platesCodes)
     {
