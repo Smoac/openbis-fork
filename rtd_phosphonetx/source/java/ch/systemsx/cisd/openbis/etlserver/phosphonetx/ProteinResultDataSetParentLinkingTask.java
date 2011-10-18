@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -54,8 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
 {
-    private static final Pattern DATA_SET_CODE_PATTERN = Pattern.compile("\\d{17}-\\d+");
-
     private static final String PARENT_DATA_SET_CODES_KEY =
             DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES.toUpperCase();
 
@@ -99,8 +96,9 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                 String parentDataSetCodes =
                         tryGetProperty(propertiesMap, PARENT_DATA_SET_CODES_KEY);
                 List<String> codes =
-                        filter(DataSetInfoExtractorForProteinResults.getParentDataSetCodes(
-                                parentDataSetCodes, baseExperimentIdentifier, service));
+                        DataSetInfoExtractorForProteinResults.getParentDataSetCodes(
+                                parentDataSetCodes, baseExperimentIdentifier, service)
+                                .getDataSetCodes();
                 if (codes.isEmpty())
                 {
                     continue;
@@ -160,16 +158,4 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
         return property == null ? null : property.tryGetAsString();
     }
 
-    private List<String> filter(List<String> codes)
-    {
-        List<String> result = new ArrayList<String>();
-        for (String code : codes)
-        {
-            if (DATA_SET_CODE_PATTERN.matcher(code).matches())
-            {
-                result.add(code);
-            }
-        }
-        return result;
-    }
 }

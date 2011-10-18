@@ -96,6 +96,10 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         String experimentType = "MY_EXPERIMENT";
         properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
         properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepareGetDataSet("1");
+        prepareGetDataSet("2");
+        prepareGetDataSet("3");
+        prepareGetDataSet("4");
         prepare(experimentType);
         context.checking(new Expectations()
             {
@@ -120,6 +124,10 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                 DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME),
                 "answer=42\nblabla=blub\n" + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
         prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
+        prepareGetDataSet("1");
+        prepareGetDataSet("2");
+        prepareGetDataSet("3");
+        prepareGetDataSet("4");
 
         context.checking(new Expectations()
             {
@@ -215,6 +223,70 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     }
     
     @Test
+    public void testWithUnkownBaseExperiment()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToGetExperiment(
+                            new ExperimentIdentifier(new ProjectIdentifier("TEST", "PROJECT"),
+                                    "EXP1"));
+                    will(returnValue(null));
+
+                }
+            });
+        
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+        
+        try
+        {
+            extractor.getDataSetInformation(dataSet, service);
+            fail("UserFailureException expected.");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Unkown experiment /TEST/PROJECT/EXP1", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWithUnkownParentDataSets()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n" + PARENT_DATA_SET_CODES_KEY
+                + " = ds1 ds2, ds3");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        prepareGetDataSet("ds1");
+        prepareGetDataSet("ds2", null);
+        prepareGetDataSet("ds3", null);
+
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+
+        try
+        {
+            extractor.getDataSetInformation(dataSet, service);
+            fail("UserFailureException expected.");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Unknown data sets: ds2, ds3", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testWithParentDataSetsSeparatedBySpaces()
     {
         String propertiesFile = "my.properties";
@@ -226,6 +298,8 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
         properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
         prepare(experimentType);
+        prepareGetDataSet("ds1");
+        prepareGetDataSet("ds2");
         context.checking(new Expectations()
             {
                 {
@@ -253,6 +327,8 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
         properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
         prepare(experimentType);
+        prepareGetDataSet("ds1");
+        prepareGetDataSet("ds2");
         context.checking(new Expectations()
             {
                 {
@@ -286,6 +362,22 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     etpt.setMandatory(true);
                     type.setExperimentTypePropertyTypes(Arrays.asList(etpt));
                     will(returnValue(type));
+                }
+            });
+    }
+    
+    private void prepareGetDataSet(final String dataSetCode)
+    {
+        prepareGetDataSet(dataSetCode, new DataSetBuilder().code(dataSetCode).getDataSet());
+    }
+    
+    private void prepareGetDataSet(final String dataSetCode, final ExternalData data)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet(dataSetCode);
+                    will(returnValue(data));
                 }
             });
     }

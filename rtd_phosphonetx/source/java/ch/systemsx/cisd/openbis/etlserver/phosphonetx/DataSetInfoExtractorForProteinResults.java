@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ParentDataSetCodes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -96,14 +96,20 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         Properties properties =
                 loadSearchProperties(new File(incomingDataSetPath, experimentPropertiesFileName));
         experiment.setProperties(Util.getAndCheckProperties(properties, experimentType));
-        service.registerExperiment(experiment);
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
         String parentDataSetCodesOrNull = getProperty(properties, PARENT_DATA_SET_CODES);
         String baseExperimentIdentifier = getProperty(properties, EXPERIMENT_IDENTIFIER_KEY);
-        List<String> parentDataSetCodes =
+        ParentDataSetCodes parentDataSetCodes =
                 getParentDataSetCodes(parentDataSetCodesOrNull, baseExperimentIdentifier, service);
-        info.setParentDataSetCodes(parentDataSetCodes);
+        if (parentDataSetCodes.getErrorMessage() == null)
+        {
+            info.setParentDataSetCodes(parentDataSetCodes.getDataSetCodes());
+        } else
+        {
+            throw new UserFailureException(parentDataSetCodes.getErrorMessage());
+        }
+        service.registerExperiment(experiment);
         return info;
     }
 
@@ -111,35 +117,45 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
      * Returns data set codes either from the first argument or if <code>null</code> from
      * the data sets of the specified experiment. 
      */
-    static List<String> getParentDataSetCodes(String parentDataSetCodesOrNull,
+    static ParentDataSetCodes getParentDataSetCodes(String parentDataSetCodesOrNull,
             String baseExperimentIdentifier, IEncapsulatedOpenBISService service)
     {
-        List<String> parentDataSetCodes = new ArrayList<String>();
+        List<ExternalData> parentDataSets = new ArrayList<ExternalData>();
+        StringBuilder builder = new StringBuilder();
         if (parentDataSetCodesOrNull != null)
         {
-            parentDataSetCodes = Arrays.asList(StringUtils.split(parentDataSetCodesOrNull, ", "));
-        } else
-        {
-            if (baseExperimentIdentifier != null)
+            for (String code : StringUtils.split(parentDataSetCodesOrNull, ", "))
             {
-                ExperimentIdentifier identifier =
-                        new ExperimentIdentifierFactory(baseExperimentIdentifier)
-                                .createIdentifier();
-                Experiment baseExperiment = service.tryToGetExperiment(identifier);
-                if (baseExperiment == null)
+                ExternalData dataSet = service.tryGetDataSet(code);
+                if (dataSet != null)
                 {
-                    throw new UserFailureException("Property " + EXPERIMENT_IDENTIFIER_KEY
-                            + " specifies an unknown experiment: " + baseExperimentIdentifier);
-                }
-                List<ExternalData> dataSets =
-                        service.listDataSetsByExperimentID(baseExperiment.getId());
-                for (ExternalData dataSet : dataSets)
+                    parentDataSets.add(dataSet);
+                } else
                 {
-                    parentDataSetCodes.add(dataSet.getCode());
+                    builder.append(builder.length() == 0 ? "Unknown data sets: " : ", ");
+                    builder.append(code);
                 }
             }
+        } else if (baseExperimentIdentifier != null)
+        {
+            ExperimentIdentifier identifier =
+                    new ExperimentIdentifierFactory(baseExperimentIdentifier).createIdentifier();
+            Experiment baseExperiment = service.tryToGetExperiment(identifier);
+            if (baseExperiment != null)
+            {
+                parentDataSets.addAll(service.listDataSetsByExperimentID(baseExperiment.getId()));
+            } else
+            {
+                builder.append("Unkown experiment ").append(baseExperimentIdentifier);
+            }
         }
-        return parentDataSetCodes;
+        List<String> parentDataSetCodes = new ArrayList<String>();
+        for (ExternalData dataSet : parentDataSets)
+        {
+            parentDataSetCodes.add(dataSet.getCode());
+        }
+        String errorMessage = builder.length() > 0 ? builder.toString() : null;
+        return new ParentDataSetCodes(parentDataSetCodes, errorMessage);
     }
     
     private String getProperty(Properties properties, String key)

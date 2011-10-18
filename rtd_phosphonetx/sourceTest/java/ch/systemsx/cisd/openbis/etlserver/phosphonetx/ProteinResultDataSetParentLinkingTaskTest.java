@@ -85,25 +85,21 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                         .getExperiment();
         final Experiment e2 =
                 new ExperimentBuilder().id(2).identifier("/A/P2/E2")
-                        .property(PARENT_DATA_SET_CODES_KEY, "non-sense").getExperiment();
+                        .property(PARENT_DATA_SET_CODES_KEY, "non-sense2").getExperiment();
         final Experiment e3 =
-                new ExperimentBuilder()
-                        .id(3)
-                        .identifier("/A/P2/E3")
-                        .property(PARENT_DATA_SET_CODES_KEY,
-                                "20100930111833087-297733, 20100511163311581-25265")
-                        .getExperiment();
+                new ExperimentBuilder().id(3).identifier("/A/P2/E3")
+                        .property(PARENT_DATA_SET_CODES_KEY, "ds1, ds3").getExperiment();
         final Experiment e4 =
                 new ExperimentBuilder().id(4).identifier("/S/P1/E4")
                         .property(BASE_EXPERIMENT_KEY, "/S/P1/E1").getExperiment();
         final DataSet ds1 =
-                new DataSetBuilder(1).code("20100930111811581-25265").fileFormat("A")
+                new DataSetBuilder(1).code("ds1").fileFormat("A")
                         .experiment(e1).modificationDate(new Date(11)).getDataSet();
         final DataSet ds2 =
-                new DataSetBuilder(2).code("20100930111811087-29765").fileFormat("B")
+                new DataSetBuilder(2).code("ds2").fileFormat("B")
                         .experiment(e4).modificationDate(new Date(22)).getDataSet();
         final DataSet ds3 =
-                new DataSetBuilder(3).code("20100530111833087-297733").fileFormat("C")
+                new DataSetBuilder(3).code("ds3").fileFormat("C")
                         .experiment(e3).modificationDate(new Date(33)).property("ALPHA", "3.1")
                         .getDataSet();
         final RecordingMatcher<AtomicEntityOperationDetails> operationRecorder =
@@ -122,7 +118,16 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
 
                     one(service).tryToGetExperiment(ExperimentIdentifierFactory.parse("/S/P1/E1"));
                     will(returnValue(e1));
-
+                    
+                    one(service).tryGetDataSet("non-sense2");
+                    will(returnValue(null));
+                    
+                    one(service).tryGetDataSet("ds1");
+                    will(returnValue(ds1));
+                    
+                    one(service).tryGetDataSet("ds3");
+                    will(returnValue(ds3));
+                    
                     one(service).listDataSetsByExperimentID(e1.getId());
                     will(returnValue(Arrays.asList(ds1)));
 
@@ -139,10 +144,10 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
         task.execute();
 
         assertEquals("INFO  OPERATION.ProteinResultDataSetParentLinkingTask - "
-                + "Parent data set links of data set 20100930111811087-29765 "
+                + "Parent data set links of data set ds2 "
                 + "from experiment /S/P1/E4 will be updated.\n"
                 + "INFO  OPERATION.ProteinResultDataSetParentLinkingTask - "
-                + "Parent data set links of data set 20100530111833087-297733 "
+                + "Parent data set links of data set ds3 "
                 + "from experiment /A/P2/E3 will be updated.\n"
                 + "INFO  OPERATION.ProteinResultDataSetParentLinkingTask - "
                 + "Parent data set links for 2 data sets have been updated.",
@@ -155,7 +160,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
         assertEquals("[]", dataSetUpdates.get(0).getProperties().toString());
         assertEquals(e4.getIdentifier(), dataSetUpdates.get(0).getExperimentIdentifierOrNull()
                 .toString());
-        assertEquals("[20100930111811581-25265]",
+        assertEquals("[ds1]",
                 Arrays.asList(dataSetUpdates.get(0).getModifiedParentDatasetCodesOrNull())
                         .toString());
         assertEquals(3L, dataSetUpdates.get(1).getDatasetId().getId().longValue());
@@ -164,7 +169,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
         assertEquals("[ALPHA: 3.1]", dataSetUpdates.get(1).getProperties().toString());
         assertEquals(e3.getIdentifier(), dataSetUpdates.get(1).getExperimentIdentifierOrNull()
                 .toString());
-        assertEquals("[20100930111833087-297733, 20100511163311581-25265]",
+        assertEquals("[ds1, ds3]",
                 Arrays.asList(dataSetUpdates.get(1).getModifiedParentDatasetCodesOrNull())
                         .toString());
         assertEquals(2, dataSetUpdates.size());
