@@ -51,8 +51,6 @@ import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 public final class PassphraseDialog
 {
 
-    private static final long serialVersionUID = 1L;
-
     private static final int PASSPHRASE_FIELD_LENGTH = 40;
 
     public static final class PassphraseAndFileDeletion
