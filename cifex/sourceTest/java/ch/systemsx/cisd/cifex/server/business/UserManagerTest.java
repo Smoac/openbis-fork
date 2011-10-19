@@ -45,6 +45,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * Test cases for corresponding {@link UserManager} class.
@@ -84,7 +85,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         newUserAlice = FileManagerTest.createSampleUserDTO(null, "alice@users.com");
         daoFactory = context.mock(IDAOFactory.class);
         userDAO = context.mock(IUserDAO.class);
-        boFactory = new BusinessObjectFactory(daoFactory, businessContext);
+        boFactory =
+                new BusinessObjectFactory(daoFactory, businessContext,
+                        SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         businessContext = context.mock(IBusinessContext.class);
         userSessionInvalidator = context.mock(IUserSessionInvalidator.class);
         externalAuthService = context.mock(IAuthenticationService.class);
@@ -258,10 +261,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).updateUser(userToUpdate);
                 }
             });
-        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
-                .getRegistrator(), null);
-        assertEquals(oldUserToUpdate.isExternallyAuthenticated(), userToUpdate
-                .isExternallyAuthenticated());
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null,
+                oldUserToUpdate.getRegistrator(), null);
+        assertEquals(oldUserToUpdate.isExternallyAuthenticated(),
+                userToUpdate.isExternallyAuthenticated());
         context.assertIsSatisfied();
     }
 
@@ -282,10 +285,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).updateUser(userToUpdate);
                 }
             });
-        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
-                .getRegistrator(), null);
-        assertEquals(oldUserToUpdate.isExternallyAuthenticated() == false, userToUpdate
-                .isExternallyAuthenticated());
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null,
+                oldUserToUpdate.getRegistrator(), null);
+        assertEquals(oldUserToUpdate.isExternallyAuthenticated() == false,
+                userToUpdate.isExternallyAuthenticated());
         context.assertIsSatisfied();
     }
 

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
  * Contains the logic of creating and updating users.
@@ -44,9 +45,12 @@ class UserBO extends AbstractBusinessObject implements IUserBO
 
     private boolean createUser;
 
-    UserBO(IDAOFactory daoFactory, IBusinessContext businessContext)
+    private ITimeProvider timeProvider;
+
+    UserBO(IDAOFactory daoFactory, IBusinessContext businessContext, ITimeProvider timeProvider)
     {
         super(daoFactory, businessContext);
+        this.timeProvider = timeProvider;
     }
 
     public void defineForCreate(UserDTO user, UserDTO requestUserOrNull, boolean forceTemporaryUser)
@@ -159,7 +163,8 @@ class UserBO extends AbstractBusinessObject implements IUserBO
             final Date registrationDate = getRegistrationDate(oldUserOrNull);
             final Integer maxRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUserOrNull);
             final Date expirationDate =
-                    fixExpiration(userToUpdate.getExpirationDate(), registrationDate,
+                    fixExpiration(new Date(timeProvider.getTimeInMilliseconds()),
+                            userToUpdate.getExpirationDate(), registrationDate,
                             maxRetentionDaysOrNull, businessContext.getUserRetention());
             userToUpdate.setExpirationDate(expirationDate);
         }

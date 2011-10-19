@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
  * Abstract super class of all Managers.
@@ -32,13 +33,16 @@ abstract class AbstractManager
 
     protected final IBusinessContext businessContext;
 
+    protected final ITimeProvider timeProvider;
+
     AbstractManager(final IDAOFactory daoFactory, IBusinessObjectFactory boFactory,
-            IBusinessContext businessContext)
+            IBusinessContext businessContext, ITimeProvider timeProvider)
     {
         this.boFactory = boFactory;
         this.businessContext = businessContext;
         assert daoFactory != null : "Undefined DAO Factory.";
         this.daoFactory = daoFactory;
+        this.timeProvider = timeProvider;
     }
 
 }

@@ -44,7 +44,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * The (only) <code>IUserManager</code> implementation.
@@ -64,10 +66,17 @@ class UserManager extends AbstractManager implements IUserManager
     private final IAuthenticationService authenticationService;
 
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext,
-            IAuthenticationService authenticationService)
+            final IBusinessContext businessContext, IAuthenticationService authenticationService)
     {
-        super(daoFactory, boFactory, businessContext);
+        this(daoFactory, boFactory, businessContext, authenticationService,
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+
+    public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
+            final IBusinessContext businessContext,
+            final IAuthenticationService authenticationService, final ITimeProvider timeProvider)
+    {
+        super(daoFactory, boFactory, businessContext, timeProvider);
         assert authenticationService != null;
         this.authenticationService = authenticationService;
     }
@@ -142,7 +151,9 @@ class UserManager extends AbstractManager implements IUserManager
             final String msg;
             if (rootCauseOrNull != null && ex.getMessage().contains("value too long"))
             {
-                msg = "Cannot create user '" + user.getUserCode() + "': length constraint exceeded.";
+                msg =
+                        "Cannot create user '" + user.getUserCode()
+                                + "': length constraint exceeded.";
             } else
             {
                 msg = "Cannot create user '" + user.getUserCode() + "': user exists.";
@@ -516,16 +527,14 @@ class UserManager extends AbstractManager implements IUserManager
             final Collection<UserDTO> users, final List<String> emailAddresses,
             final IUserActionLog logOrNull)
     {
-        if (emailAddresses.isEmpty()
-                || authenticationService.supportsListingByEmail() == false)
+        if (emailAddresses.isEmpty() || authenticationService.supportsListingByEmail() == false)
         {
             return;
         }
         for (String emailAddress : emailAddresses)
         {
             Principal principalOrNull =
-                    authenticationService
-                            .tryGetAndAuthenticateUserByEmail(emailAddress, null);
+                    authenticationService.tryGetAndAuthenticateUserByEmail(emailAddress, null);
             if (principalOrNull != null)
             {
                 UserDTO userDTO =

@@ -45,17 +45,17 @@ public class ExpirationUtilitiesTest
         final Date rd = df.parse("2009-12-09 11:23:15");
         Date d = df.parse("2009-12-12 14:39:55");
         assertEquals("2009-12-12 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(d, null, null, 0)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), d, null, null, 0)));
 
         d = df.parse("2009-12-12 14:39:55");
         assertEquals("2009-12-12 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(d, rd, 10, 0)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), d, rd, 10, 0)));
         assertEquals("2009-12-12 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(d, rd, 3, 0)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), d, rd, 3, 0)));
         assertEquals("2009-12-11 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(d, rd, 2, 0)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), d, rd, 2, 0)));
         assertEquals("2009-12-10 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(d, rd, 1, 0)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), d, rd, 1, 0)));
     }
 
     @Test
@@ -65,13 +65,15 @@ public class ExpirationUtilitiesTest
 
         final Date rd = df.parse("2009-12-09 11:23:15");
         assertEquals("2009-12-10 23:59:59",
-                df.format(ExpirationUtilities.fixExpiration(null, rd, null, 1)));
+                df.format(ExpirationUtilities.fixExpiration(new Date(), null, rd, null, 1)));
     }
 
     @Test
     public void testTryExtendExpirationForPermanentUser()
     {
-        assertNull(ExpirationUtilities.tryExtendExpiration(null, new Date(0L), 10, 7));
+        final Date fileRetentionDate = DateUtils.addDays(new Date(), 7);
+        assertNull(ExpirationUtilities.tryExtendExpiration(new Date(), null, new Date(0L), fileRetentionDate,
+                10));
     }
 
     @Test
@@ -82,12 +84,11 @@ public class ExpirationUtilitiesTest
         final Date currentExpirationDate =
                 DateTimeUtils.extendUntilEndOfDay(DateUtils.addDays(now, 2));
         final int maxNumberOfDaysUserRetention = 20;
-        final int numberOfDaysFileRetention = 7;
-        final Date expectedNewExpirationDate =
-                DateTimeUtils.extendUntilEndOfDay(DateUtils.addDays(now, 7));
-        assertEquals(expectedNewExpirationDate, ExpirationUtilities.tryExtendExpiration(
-                currentExpirationDate, registrationDate, maxNumberOfDaysUserRetention,
-                numberOfDaysFileRetention));
+        final Date fileRetentionDate = DateUtils.addDays(now, 7);
+        final Date expectedNewExpirationDate = DateTimeUtils.extendUntilEndOfDay(fileRetentionDate);
+        assertEquals(expectedNewExpirationDate, ExpirationUtilities.tryExtendExpiration(now,
+                currentExpirationDate, registrationDate, fileRetentionDate,
+                maxNumberOfDaysUserRetention));
     }
 
     @Test
@@ -98,10 +99,9 @@ public class ExpirationUtilitiesTest
         final Date currentExpirationDate =
                 DateTimeUtils.extendUntilEndOfDay(DateUtils.addDays(now, 2));
         final int maxNumberOfDaysUserRetention = 12;
-        final int numberOfDaysFileRetention = 7;
-        assertNull(ExpirationUtilities.tryExtendExpiration(
-                currentExpirationDate, registrationDate, maxNumberOfDaysUserRetention,
-                numberOfDaysFileRetention));
+        final Date fileRetentionDate = DateUtils.addDays(now, 7);
+        assertNull(ExpirationUtilities.tryExtendExpiration(now, currentExpirationDate,
+                registrationDate, fileRetentionDate, maxNumberOfDaysUserRetention));
     }
 
     @Test
@@ -112,10 +112,9 @@ public class ExpirationUtilitiesTest
         final Date currentExpirationDate =
                 DateTimeUtils.extendUntilEndOfDay(DateUtils.addDays(now, 10));
         final int maxNumberOfDaysUserRetention = 20;
-        final int numberOfDaysFileRetention = 7;
-        assertNull(ExpirationUtilities.tryExtendExpiration(
-                currentExpirationDate, registrationDate, maxNumberOfDaysUserRetention,
-                numberOfDaysFileRetention));
+        final Date fileRetentionDate = DateUtils.addDays(now, 7);
+        assertNull(ExpirationUtilities.tryExtendExpiration(now, currentExpirationDate,
+                registrationDate, fileRetentionDate, maxNumberOfDaysUserRetention));
     }
 
 }

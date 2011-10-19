@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.server.business.bo;
 
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -28,19 +30,24 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
 
     private final IBusinessContext businessContext;
 
-    /**
-     *
-     *
-     */
+    private final ITimeProvider timeProvider;
+
     public BusinessObjectFactory(IDAOFactory daoFactory, IBusinessContext businessContext)
+    {
+        this(daoFactory, businessContext, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+    
+    public BusinessObjectFactory(IDAOFactory daoFactory, IBusinessContext businessContext,
+            ITimeProvider timeProvider)
     {
         this.daoFactory = daoFactory;
         this.businessContext = businessContext;
+        this.timeProvider = timeProvider;
     }
 
     public IUserBO createUserBO()
     {
-        return new UserBO(daoFactory, businessContext);
+        return new UserBO(daoFactory, businessContext, timeProvider);
     }
 
 }

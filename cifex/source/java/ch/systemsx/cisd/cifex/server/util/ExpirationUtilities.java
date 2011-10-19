@@ -34,6 +34,7 @@ public class ExpirationUtilities
      * Checks that the new expiration date is in the valid range, otherwise sets it to the limit of
      * what is allowed ('fixes it').
      * 
+     * @param now The current time.
      * @param proposedExpirationDateOrNull The expiration date the user would like to set, or
      *            <code>null</code>, if the default should be used.
      * @param registrationDateOrNull The date when the entity to compute the expiration date for was
@@ -44,14 +45,14 @@ public class ExpirationUtilities
      * @param defaultRetentionDays The default number of days of retention.
      * @return The new expiration date of the entity
      */
-    public static Date fixExpiration(final Date proposedExpirationDateOrNull,
+    public static Date fixExpiration(final Date now, final Date proposedExpirationDateOrNull,
             final Date registrationDateOrNull, final Integer maxRetentionDaysOrNull,
             final int defaultRetentionDays)
     {
         assert defaultRetentionDays >= 0;
 
         final Date registrationDate =
-                (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
+                (registrationDateOrNull == null) ? now : registrationDateOrNull;
         final Date proposedExpirationDate =
                 (proposedExpirationDateOrNull == null) ? DateUtils.addDays(registrationDate,
                         defaultRetentionDays) : proposedExpirationDateOrNull;
@@ -79,14 +80,15 @@ public class ExpirationUtilities
      * Returns a new expiration date for a temporary user with
      * <var>currentExpirationDateOrNull</var> when a file is shared for the user now.
      * 
+     * @param now The current time.
      * @param currentExpirationDateOrNull The current expiration date of the user.
      * @param registrationDateOrNull The registration date of the user.
+     * @param fileRetentionDate The date until when the uploaded files are retained.
      * @param maxRetentionDaysOrNull The maximum number of days a temporary user may be retained.
-     * @param fileRetentionDays The number of days an uploaded file is retained.
      */
-    public static Date tryExtendExpiration(final Date currentExpirationDateOrNull,
-            final Date registrationDateOrNull, final Integer maxRetentionDaysOrNull,
-            final int fileRetentionDays)
+    public static Date tryExtendExpiration(final Date now, final Date currentExpirationDateOrNull,
+            final Date registrationDateOrNull, final Date fileRetentionDate,
+            final Integer maxRetentionDaysOrNull)
     {
         if (currentExpirationDateOrNull == null)
         {
@@ -94,14 +96,10 @@ public class ExpirationUtilities
             return null;
         }
         final Date registrationDate =
-                (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
+                (registrationDateOrNull == null) ? now : registrationDateOrNull;
         final Date maxExpirationDate = DateUtils.addDays(registrationDate, maxRetentionDaysOrNull);
-        final Date minRetentionTimeForDownload =
-                DateUtils.addDays(new Date(), fileRetentionDays);
-        final Date minRetentionTimeForDownloadConsideringMaxExpirationDate =
-                min(minRetentionTimeForDownload, maxExpirationDate);
-        if (currentExpirationDateOrNull.getTime() < minRetentionTimeForDownloadConsideringMaxExpirationDate
-                .getTime())
+        final Date minRetentionTimeForDownload = min(fileRetentionDate, maxExpirationDate);
+        if (currentExpirationDateOrNull.getTime() < minRetentionTimeForDownload.getTime())
         {
             return extendUntilEndOfDay(minRetentionTimeForDownload);
         } else

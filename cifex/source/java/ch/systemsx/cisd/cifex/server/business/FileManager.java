@@ -63,6 +63,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.cifex.server.util.ExpirationUtilities;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -96,13 +97,11 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 2 * 1000; // 2 seconds
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FileManager.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
-
-    private final ITimeProvider timeProvider;
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            FileManager.class);
 
     private final ITriggerManager triggerManager;
 
@@ -120,9 +119,8 @@ final class FileManager extends AbstractManager implements IFileManager
             final IUserManager userManager, final IBusinessContext businessContext,
             ITriggerManager triggerManager, ITimeProvider timeProvider)
     {
-        super(daoFactory, boFactory, businessContext);
+        super(daoFactory, boFactory, businessContext, timeProvider);
         this.userManager = userManager;
-        this.timeProvider = timeProvider;
         this.triggerManager = triggerManager;
     }
 
@@ -283,10 +281,9 @@ final class FileManager extends AbstractManager implements IFileManager
                             + businessContext.getFileStore().getAbsolutePath() + ")");
                     return new FileInformation(
                             fileId,
-                            String
-                                    .format(
-                                            "Unexpected: File '%s' [id=%d] can not be read (CIFEX file store unreadable).",
-                                            realFile.getPath(), fileId));
+                            String.format(
+                                    "Unexpected: File '%s' [id=%d] can not be read (CIFEX file store unreadable).",
+                                    realFile.getPath(), fileId));
                 } else
                 {
                     return new FileInformation(fileId, String.format(
@@ -702,7 +699,8 @@ final class FileManager extends AbstractManager implements IFileManager
             final List<String> emailAddresses = new ArrayList<String>();
             extractUserCodesAndEmailAddresses(userIdentifiers, userCodes, emailAddresses,
                     invalidIdentifiers);
-            // This call creates unknown users which the external authentication service knows about.
+            // This call creates unknown users which the external authentication service knows
+            // about.
             final Collection<UserDTO> relevantUsers =
                     userManager.getUsers(userCodes, emailAddresses, logOrNull);
             final TableMapNonUniqueKey<String, UserDTO> existingUsers =
@@ -778,8 +776,8 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         final String lowerCaseIdentifier = emailAddress.toLowerCase();
         final Set<UserDTO> existingUsersOrNull =
-                removeUnsuitableUsersForSharing(requestUser, existingUsers
-                        .tryGet(lowerCaseIdentifier));
+                removeUnsuitableUsersForSharing(requestUser,
+                        existingUsers.tryGet(lowerCaseIdentifier));
         if (existingUsersOrNull == null)
         {
             final String password =
@@ -842,10 +840,28 @@ final class FileManager extends AbstractManager implements IFileManager
         return usersByEmailOrNull.isEmpty() ? null : usersByEmailOrNull;
     }
 
+    private Date getMaxExpirationTime(Collection<FileDTO> files)
+    {
+        Date maxExpirationTime = new Date(timeProvider.getTimeInMilliseconds());
+        for (FileDTO file : files)
+        {
+            if (file.getExpirationDate() == null)
+            {
+                continue;
+            }
+            if (maxExpirationTime.compareTo(file.getExpirationDate()) < 0)
+            {
+                maxExpirationTime = file.getExpirationDate();
+            }
+        }
+        return maxExpirationTime;
+    }
+
     private RuntimeException createLinksAndCallTriggersAndSendEmails(Set<UserDTO> users,
             final Collection<FileDTO> files, final String url, final String comment,
             final UserDTO requestUser)
     {
+        final Date maxFileExirationTime = getMaxExpirationTime(files);
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final IMailClient mailClient = businessContext.getMailClient();
         // Implementation note: we do the sharing link creation and the email sending in
@@ -857,6 +873,18 @@ final class FileManager extends AbstractManager implements IFileManager
             if (triggerManager.isTriggerUser(user) == false)
             {
                 emailToUserMap.put(user.getEmail(), user);
+            }
+            // Check whether we need to update the expiration time of the userso that he has
+            // enough time to download the file.
+            final Date newUserExpirationDateOrNull =
+                    ExpirationUtilities.tryExtendExpiration(
+                            new Date(timeProvider.getTimeInMilliseconds()),
+                            user.getExpirationDate(), user.getRegistrationDate(),
+                            maxFileExirationTime, businessContext.getMaxUserRetention());
+            if (newUserExpirationDateOrNull != null)
+            {
+                user.setExpirationDate(newUserExpirationDateOrNull);
+                userManager.updateUser(user, user, null, requestUser, null);
             }
             for (final FileDTO file : files)
             {
@@ -1078,8 +1106,9 @@ final class FileManager extends AbstractManager implements IFileManager
         final Date registrationDateOrNull =
                 (maxRetentionDaysOrNull == null) ? null : daoFactory.getFileDAO()
                         .getFileRegistrationDate(fileId);
-        return fixExpiration(proposedExpirationDate, registrationDateOrNull,
-                maxRetentionDaysOrNull, businessContext.getFileRetention());
+        return fixExpiration(new Date(timeProvider.getTimeInMilliseconds()),
+                proposedExpirationDate, registrationDateOrNull, maxRetentionDaysOrNull,
+                businessContext.getFileRetention());
     }
 
     private Integer tryGetMaxFileRetentionDays(final UserDTO requestUserOrNull)

@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
@@ -65,6 +66,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
 {
 
     private static final int DEFAULT_FILE_RETENTION = 5;
+    
+    private static final int MAX_USER_RETENTION = 15;
 
     private static final long DEFAULT_FILE_ID = 1L;
 
@@ -113,6 +116,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         businessContext.setFileRetention(DEFAULT_FILE_RETENTION);
         businessContext.setMaxFileRetention(DEFAULT_FILE_RETENTION);
         businessContext.setFileStore(fileStore);
+        businessContext.setMaxUserRetention(MAX_USER_RETENTION);
         businessContext.setPasswordGenerator(new PasswordGenerator()
             {
 
@@ -378,6 +382,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Collections.<String> emptyList(),
                             Arrays.asList(emailOfUserToShareWith), null);
                     will(returnValue(Arrays.asList(receivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
                         {
@@ -397,10 +403,78 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
-                        null);
+                fileManager.shareFilesWith(url, requestUser,
+                        Collections.singleton(emailOfUserToShareWith), Collections.singleton(file),
+                        comment, null);
         assertEquals(0, invalidUsers.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testShareFileWithExistingTemporaryUser()
+    {
+        final String url = "https://server/instance";
+        final long requestUserId = 42;
+        final String requestUserCode = "requestuser";
+        final long receivingUserId = 43;
+        final String receivingUserCode = "receivinguser";
+        final String emailOfRequestUser = "request.user@organization.edu";
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setUserCode(requestUserCode);
+        requestUser.setEmail(emailOfRequestUser);
+        final String emailOfUserToShareWith = "receiving.user@organization.edu";
+        final UserDTO receivingUser = new UserDTO();
+        receivingUser.setID(receivingUserId);
+        receivingUser.setUserCode(receivingUserCode);
+        receivingUser.setEmail(emailOfUserToShareWith);
+        receivingUser.setRegistrator(requestUser);
+        final String comment = "some comment";
+        final long fileId = 17;
+        final FileDTO file = new FileDTO(requestUserId);
+        final long now = System.currentTimeMillis();
+        final long expirationPeriod = 24 * 3600 * 1000L;
+        final Date expirationDate = new Date(now + expirationPeriod);
+        file.setID(fileId);
+        file.setExpirationDate(expirationDate);
+        receivingUser.setExpirationDate(DateUtils.addDays(expirationDate, -2));
+        context.checking(new Expectations()
+            {
+                {
+                    one(userManager).getUsers(Collections.<String> emptyList(),
+                            Arrays.asList(emailOfUserToShareWith), null);
+                    will(returnValue(Arrays.asList(receivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
+                    one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    one(userManager).updateUser(receivingUser, receivingUser, null, requestUser,
+                            null);
+                    context.checking(new Expectations()
+                        {
+                            {
+                                allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
+                                will(returnValue(false));
+                            }
+                        });
+                    String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
+                    one(mailClient).sendEmailMessage(
+                            with(Matchers.containsString(requestUserCode)),
+                            with(Matchers.containsString(url
+                                    + String.format("/?fileId=%d&user=%s", fileId,
+                                            receivingUserCode))), with(containsEmail(replyTo)),
+                            with(matchesEmail(replyTo)), with(matchesEmail(new String[]
+                                { emailOfUserToShareWith })));
+                }
+            });
+        final List<String> invalidUsers =
+                fileManager.shareFilesWith(url, requestUser,
+                        Collections.singleton(emailOfUserToShareWith), Collections.singleton(file),
+                        comment, null);
+        assertEquals(0, invalidUsers.size());
+        // The expiration date of the temporary receiving user should have been updated to match the
+        // expiration date of the file.
+        assertEquals(DateTimeUtils.extendUntilEndOfDay(expirationDate),
+                receivingUser.getExpirationDate());
         context.assertIsSatisfied();
     }
 
@@ -436,6 +510,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Arrays.asList(receivingUserCode),
                             Collections.<String> emptyList(), null);
                     will(returnValue(Arrays.asList(receivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     context.checking(new Expectations()
                         {
@@ -455,9 +531,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(Constants.USER_ID_PREFIX + receivingUserCode), Collections
-                        .singleton(file), comment, null);
+                fileManager.shareFilesWith(url, requestUser,
+                        Collections.singleton(Constants.USER_ID_PREFIX + receivingUserCode),
+                        Collections.singleton(file), comment, null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -629,6 +705,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Arrays.asList(firstReceivingUserCode),
                             Arrays.asList(emailOfSecondUserToShareWith), null);
                     will(returnValue(Arrays.asList(firstReceivingUser, secondReceivingUser)));
+                    exactly(3).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -699,6 +777,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Arrays.<String> asList(firstReceivingUserCode),
                             Arrays.<String> asList(emailOfFirstUserToShareWith), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -763,6 +843,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                     Arrays.asList(emailOfFirstUserToShareWith,
                                             emailOfFirstUserToShareWith), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -825,6 +907,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             Arrays.asList(firstReceivingUserCode, firstReceivingUserCode),
                             Collections.<String> emptyList(), null);
                     will(returnValue(Arrays.asList(firstReceivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
                     final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -888,6 +972,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Collections.<String> emptyList(),
                             Arrays.asList(emailOfReceivingUserLowerCase), null);
                     will(returnValue(Arrays.asList(receivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     context.checking(new Expectations()
@@ -907,9 +993,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
-                        null);
+                fileManager.shareFilesWith(url, requestUser,
+                        Collections.singleton(emailOfUserToShareWith), Collections.singleton(file),
+                        comment, null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
@@ -929,6 +1015,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Collections.<String> emptyList(),
                             Collections.<String> emptyList(), null);
                     will(returnValue(Collections.emptyList()));
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                 }
             });
 
@@ -1046,8 +1134,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     }
                 });
             final FileDTO createdFileDTO =
-                    fileManager.saveFile(user, imageFile.getName(), comment, imageFile
-                            .getContentType(), inputStream);
+                    fileManager.saveFile(user, imageFile.getName(), comment,
+                            imageFile.getContentType(), inputStream);
             final File createdFile = new File(fileStore, createdFileDTO.getPath());
             assertTrue(createdFile.exists());
             assertEquals(expectedFilePath.getPath(), createdFile.getPath());
@@ -1099,6 +1187,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             context.checking(new Expectations()
                 {
                     {
+                        one(timeProvider).getTimeInMilliseconds();
+                        will(returnValue(System.currentTimeMillis()));
                         one(fileDAO).getFileRegistrationDate(DEFAULT_FILE_ID);
                         will(returnValue(registrationDate));
 
@@ -1152,6 +1242,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(userManager).getUsers(Collections.<String> emptyList(),
                             Arrays.asList(emailOfUserToShareWith), null);
                     will(returnValue(Arrays.asList(receivingUser)));
+                    exactly(2).of(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(System.currentTimeMillis()));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
                     allowing(triggerManager).isTriggerUser(with(any(UserDTO.class)));
                     will(returnValue(true));
@@ -1160,9 +1252,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 }
             });
         final List<String> invalidUsers =
-                fileManager.shareFilesWith(url, requestUser, Collections
-                        .singleton(emailOfUserToShareWith), Collections.singleton(file), comment,
-                        null);
+                fileManager.shareFilesWith(url, requestUser,
+                        Collections.singleton(emailOfUserToShareWith), Collections.singleton(file),
+                        comment, null);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
     }
