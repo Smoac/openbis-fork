@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListPermanentDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
@@ -72,7 +73,8 @@ public final class AttachmentListDeletionConfirmationDialog
         List<String> fileNames = new ArrayList<String>();
         for (TableModelRowWithObject<AttachmentVersions> attachmentVersion : attachmentVersions)
         {
-            fileNames.add(attachmentVersion.getObjectOrNull().getCurrent().getFileName());
+            fileNames.add(StringEscapeUtils.unescapeHtml(attachmentVersion.getObjectOrNull()
+                    .getCurrent().getFileName()));
         }
         return fileNames;
     }
