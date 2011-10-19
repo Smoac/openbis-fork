@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
  */
 public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
-    private final AlternativesStringFilter filter;
+    private final AlternativesStringFilter alternativesFilter;
 
     private final GridCellRenderer<ModelData> rendererOrNull;
 
@@ -48,20 +48,20 @@ public class ColumnFilterField<M extends ModelData> extends AbstractFilterField<
         {
             this.rendererOrNull = rendererOrNull;
         }
-        this.filter = new AlternativesStringFilter();
+        this.alternativesFilter = new AlternativesStringFilter();
     }
 
     @Override
     protected void onFilter()
     {
-        filter.setFilterValue(getRawValue());
+        alternativesFilter.setFilterValue(getRawValue());
         super.onFilter();
     }
 
     @Override
     public boolean isMatching(M record)
     {
-        return filter.passes(getValue(record));
+        return alternativesFilter.passes(getValue(record));
     }
 
     private String getValue(ModelData record)
