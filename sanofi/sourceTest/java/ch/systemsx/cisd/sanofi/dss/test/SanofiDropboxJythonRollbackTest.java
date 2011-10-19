@@ -213,13 +213,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         Arrays.sort(dataSetList);
 
         assertEquals("The data set should equal the original after rollback",
-                dataDirectoryList.length, dataSetList.length);
-
-        for (int i = 0; i < dataDirectoryList.length; ++i)
-        {
-            assertEquals("The data set should equal the original after rollback",
-                    dataDirectoryList[i], dataSetList[i]);
-        }
+                Arrays.asList(dataDirectoryList).toString(), Arrays.asList(dataSetList).toString());
 
         context.assertIsSatisfied();
     }
