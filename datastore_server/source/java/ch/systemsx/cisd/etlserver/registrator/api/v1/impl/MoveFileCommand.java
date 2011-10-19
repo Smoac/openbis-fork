@@ -20,8 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.etlserver.FileRenamer;
 
 /**
  * Does a move if the destination is an existing directory, a rename otherwise.
@@ -60,8 +59,7 @@ public class MoveFileCommand extends AbstractTransactionalCommand
             throw new IOExceptionUnchecked(checkedException);
         }
 
-        IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        fileOperations.move(src, dst);
+        FileRenamer.renameAndLog(src, dst);
     }
 
     public void rollback()
@@ -83,8 +81,7 @@ public class MoveFileCommand extends AbstractTransactionalCommand
             return;
         }
 
-        IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        fileOperations.move(dst, src);
+        FileRenamer.renameAndLog(dst, src);
     }
 
     @Override
