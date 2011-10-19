@@ -106,7 +106,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
                     }
                 }
             }
-        } else
+        } else if (false == faultyPaths.isEmpty())
         {
             // Handles manual removal.
             faultyPaths.clear();
