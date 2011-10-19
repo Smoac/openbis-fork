@@ -354,7 +354,7 @@ public class DataStoreServer
     
     private static void registerStreamHandlingServlet(ServletContextHandler context)
     {
-        context.addServlet(IdentifiedStreamHandlingServlet.class, "/"
+        context.addServlet(IdentifiedStreamHandlingServlet.class, "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
                 + IdentifiedStreamHandlingServlet.SERVLET_NAME + "/*");
     }
 

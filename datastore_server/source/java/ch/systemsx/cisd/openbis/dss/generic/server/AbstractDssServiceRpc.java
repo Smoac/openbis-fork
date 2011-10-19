@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -66,7 +67,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
     public final void setDownloadUrl(String downloadUrl)
     {
-        this.downloadUrl = downloadUrl;
+        this.downloadUrl = DataStoreApiUrlUtilities.getDataStoreUrlFromDownloadUrl(downloadUrl);
     }
 
     /**
