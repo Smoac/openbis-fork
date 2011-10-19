@@ -49,7 +49,7 @@ public class ExpirationUtilities
             final int defaultRetentionDays)
     {
         assert defaultRetentionDays >= 0;
-        
+
         final Date registrationDate =
                 (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
         final Date proposedExpirationDate =
@@ -67,6 +67,46 @@ public class ExpirationUtilities
         } else
         {
             return extendUntilEndOfDay(proposedExpirationDate);
+        }
+    }
+
+    private static Date min(Date date1, Date date2)
+    {
+        return date1.compareTo(date2) < 0 ? date1 : date2;
+    }
+
+    /**
+     * Returns a new expiration date for a temporary user with
+     * <var>currentExpirationDateOrNull</var> when a file is shared for the user now.
+     * 
+     * @param currentExpirationDateOrNull The current expiration date of the user.
+     * @param registrationDateOrNull The registration date of the user.
+     * @param maxRetentionDaysOrNull The maximum number of days a temporary user may be retained.
+     * @param fileRetentionDays The number of days an uploaded file is retained.
+     */
+    public static Date tryExtendExpiration(final Date currentExpirationDateOrNull,
+            final Date registrationDateOrNull, final Integer maxRetentionDaysOrNull,
+            final int fileRetentionDays)
+    {
+        if (currentExpirationDateOrNull == null)
+        {
+            // Not a temporary user.
+            return null;
+        }
+        final Date registrationDate =
+                (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
+        final Date maxExpirationDate = DateUtils.addDays(registrationDate, maxRetentionDaysOrNull);
+        final Date minRetentionTimeForDownload =
+                DateUtils.addDays(new Date(), fileRetentionDays);
+        final Date minRetentionTimeForDownloadConsideringMaxExpirationDate =
+                min(minRetentionTimeForDownload, maxExpirationDate);
+        if (currentExpirationDateOrNull.getTime() < minRetentionTimeForDownloadConsideringMaxExpirationDate
+                .getTime())
+        {
+            return extendUntilEndOfDay(minRetentionTimeForDownload);
+        } else
+        {
+            return null;
         }
     }
 
