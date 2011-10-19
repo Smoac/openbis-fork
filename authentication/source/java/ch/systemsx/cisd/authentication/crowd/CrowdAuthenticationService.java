@@ -26,10 +26,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,6 +60,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
+    private static final int CONNECTION_TIMEOUT = (int) (5 * DateUtils.MILLIS_PER_MINUTE);
+
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
 
     private static final String EMAIL_PROPERTY_KEY = "mail";
@@ -144,6 +148,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     try
                     {
                         final HttpClient client = new HttpClient();
+                        HttpConnectionManager connectionManager = client.getHttpConnectionManager();
+                        connectionManager.getParams().setConnectionTimeout(CONNECTION_TIMEOUT);
                         final PostMethod post = new PostMethod(serviceUrl);
                         final StringRequestEntity entity =
                                 new StringRequestEntity(message, "application/soap+xml", "utf-8");
