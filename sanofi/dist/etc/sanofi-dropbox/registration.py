@@ -196,16 +196,19 @@ def registerSegmentationImages(overlaysDir, plate, imageDataSetCode, analysisPro
     transaction.moveFile(overlaysDir.getPath(), overlayDataset, "overlays")
 
 def registerAnalysisData(analysisXmlFile, plate, parentDatasetCode, transaction, factory):
-    analysisCSVFile = File(analysisXmlFile.getPath() + ".csv")
+    analysisTempCSVFile = File.createTempFile("analysis", "tmp.csv")
     geXmlParser = GEExplorerImageAnalysisResultParser(analysisXmlFile.getPath())
-    geXmlParser.writeCSV(analysisCSVFile)
+    geXmlParser.writeCSV(analysisTempCSVFile)
     
     featureProps = Properties()
     featureProps.setProperty("separator", ",")
     featureProps.setProperty("well-name-row", "Well")
     featureProps.setProperty("well-name-col", "Well")
     
-    analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisCSVFile.getPath(), featureProps)
+    analysisDataSetDetails = factory.createFeatureVectorRegistrationDetails(analysisTempCSVFile.getPath(), featureProps)
+    # delete temporary CSV file
+    analysisTempCSVFile.delete()
+    
     analysisProcedureCode = geXmlParser.getAnalysisProcedureName()
     analysisDataSetDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedureCode)
     analysisDataSet = transaction.createNewDataSet(analysisDataSetDetails)
@@ -214,8 +217,11 @@ def registerAnalysisData(analysisXmlFile, plate, parentDatasetCode, transaction,
     analysisDataSet.setFileFormatType(config.ANALYSIS_FILE_FORMAT)
     parentDirName = "analysis"
     transaction.createNewDirectory(analysisDataSet, parentDirName)
-    transaction.moveFile(analysisCSVFile.getPath(), analysisDataSet, parentDirName)
     transaction.moveFile(analysisXmlFile.getPath(), analysisDataSet, parentDirName)
+    
+    # create CSV file so that its creation can be rolled back 
+    analysisCSVFileName = transaction.createNewFile(analysisDataSet, parentDirName, analysisXmlFile.getName() + ".csv")
+    geXmlParser.writeCSV(File(analysisCSVFileName))
     return analysisProcedureCode
         
         
