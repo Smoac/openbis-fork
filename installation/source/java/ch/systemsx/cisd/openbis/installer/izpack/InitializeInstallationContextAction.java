@@ -28,14 +28,30 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class InitializeInstallationContextAction implements PanelAction
 {
+    private static final String ROOT_USERNAME = "root";
 
     public void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
+
+        abortIfRunningAsRoot();
+
         GlobalInstallationContext.initialize(data);
 
         if (GlobalInstallationContext.isUpdateInstallation)
         {
             new PrepareInstallationBackupAction().executeAction(data, arg1);
+        }
+    }
+
+    private void abortIfRunningAsRoot()
+    {
+        String userName = System.getProperty("user.name");
+
+        if (ROOT_USERNAME.equalsIgnoreCase(userName))
+        {
+            System.err.println("The openBIS installation cannot be executed as 'root'. "
+                    + "Please switch to a user with lower privilidges.");
+            System.exit(1);
         }
     }
 

@@ -12,7 +12,7 @@ function remove64BitInstructionFromConfigFile()
 
 function remove64BitInstructionFromConfig() 
 {
-   remove64BitInstructionFromConfigFile $BASE/../../servers/openBIS-server/jetty/bin/openbis.conf
+   remove64BitInstructionFromConfigFile $BASE/../../servers/openBIS-server/jetty/etc/openbis.conf
    remove64BitInstructionFromConfigFile $BASE/../../servers/datastore_server/etc/datastore_server.conf
 }
 
