@@ -30,22 +30,22 @@ public enum UniprotColumn
     CITATION("citation", "PubMed ID"), COMMENTS("comments", "Comments"), DATABASE("database",
             "Database"), DISEASE("comment(disease)", "Comment (disease)", "DISEASE: "), DOMAINS(
             "domains", "Domains"), DOMAIN("domain", "Domain"), EC("ec", "EC numbers"), ID("id",
-            "Accession"), ENTRY_NAME("entry%20name", "Entry name"), EXISTENCE("existence",
-            "Protein existence"), FAMILIES("families", "Protein family"), FEATURES("features",
-            "Features"), FUNCTION("comment(function)", "Comment (function)", "FUNCTION: "), GENES(
-            "genes", "Gene names"), GO("go", "Gene Ontology"), GO_ID("go-id", "Gene Ontology ID"),
-    INTERPRO("interpro", "InterPro"), INTERACTOR("interactor", "Interacts with"), KEYWORDS(
-            "keywords", "Keywords"), LAST_MODIFIED("last-modified", "Date of modification"),
-    LENGTH("length", "Length"), ORGANISM("organism", "Organism"), ORGANISM_ID("organism-id",
-            "Organism ID"), PATHWAY("pathway", "Pathway"), PROTEIN_NAMES("protein%20names",
-            "Protein names"), SCORE("score", "Score"), SEQUENCE("sequence", "Sequence"),
-    SEQUENCE_SIMILARITIES("comment(similarity)", "Comment (similarity)", "SIMILARITY: "), STATUS(
-            "reviewed", "Status"), SUBCELLULAR_LOCATIONS("subcellular%20locations",
-            "Subcellular locations"), SUBUNIT_STRUCTURE("comment(subunit)", "Comment (subunit)",
-            "SUBUNIT: "), TISSUE_SPECIFITY("comment(tissue_specificity)",
-            "Comment (tissue_specificity)", "TISSUE SPECIFICITY: "), TAXON("taxon", "Taxon"),
-    THREED("3d", "3D"), VERSION("version", "Version"),
-    VIRUS_HOSTS("virus%20hosts", "Virus hosts\n");
+            "Entry"), ENTRY_NAME("entry%20name", "Entry name"),
+    EXISTENCE("existence", "Protein existence"), FAMILIES("families", "Protein family"), FEATURES(
+            "features", "Features"), FUNCTION("comment(function)", "Comment (function)",
+            "FUNCTION: "), GENES("genes", "Gene names"), GO("go", "Gene Ontology"), GO_ID("go-id",
+            "Gene Ontology ID"), INTERPRO("interpro", "InterPro"), INTERACTOR("interactor",
+            "Interacts with"), KEYWORDS("keywords", "Keywords"), LAST_MODIFIED("last-modified",
+            "Date of last modification"), LENGTH("length", "Length"), ORGANISM("organism",
+            "Organism"), ORGANISM_ID("organism-id", "Organism ID"), PATHWAY("pathway", "Pathway"),
+    PROTEIN_NAMES("protein%20names", "Protein names"), SCORE("score", "Score"), SEQUENCE(
+            "sequence", "Sequence"), SEQUENCE_SIMILARITIES("comment(similarity)",
+            "Comment (similarity)", "SIMILARITY: "), STATUS("reviewed", "Status"),
+    SUBCELLULAR_LOCATIONS("subcellular%20locations", "Subcellular locations"), SUBUNIT_STRUCTURE(
+            "comment(subunit)", "Comment (subunit)", "SUBUNIT: "), TISSUE_SPECIFITY(
+            "comment(tissue_specificity)", "Comment (tissue_specificity)", "TISSUE SPECIFICITY: "),
+    TAXON("taxon", "Taxon"), THREED("3d", "3D"), VERSION("version", "Version"), VIRUS_HOSTS(
+            "virus%20hosts", "Virus hosts\n");
 
     /**
      * The map from the column header in the Uniprot result set (in lower case characters) and the
