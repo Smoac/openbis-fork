@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -56,5 +57,17 @@ class QueryApiFacade implements IQueryApiFacade
     public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings)
     {
         return service.executeQuery(sessionToken, queryID, parameterBindings);
+    }
+
+    public List<ReportDescription> listTableReportDescriptions()
+    {
+        return service.listTableReportDescriptions(sessionToken);
+    }
+
+    public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
+            List<String> dataSetCodes)
+    {
+        return service.createReportFromDataSets(sessionToken, reportDescription.getDataStoreCode(),
+                reportDescription.getKey(), dataSetCodes);
     }
 }

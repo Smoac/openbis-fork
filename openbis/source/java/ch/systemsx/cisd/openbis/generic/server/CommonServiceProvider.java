@@ -34,7 +34,6 @@ public class CommonServiceProvider
     {
         applicationContext = context;
     }
-    
 
     public static ICommonServerForInternalUse getCommonServer()
     {
@@ -49,7 +48,7 @@ public class CommonServiceProvider
     public static ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return (ICommonBusinessObjectFactory) applicationContext
-                .getBean("common-business-object-factory");
+                .getBean(ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY);
     }
 
     private CommonServiceProvider()

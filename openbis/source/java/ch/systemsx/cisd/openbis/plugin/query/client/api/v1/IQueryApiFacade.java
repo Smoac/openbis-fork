@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * Facade for openBIS query service.
@@ -43,6 +44,18 @@ public interface IQueryApiFacade
      * Executes specified query by using specified parameter bindings.
      */
     public QueryTableModel executeQuery(long queryID, Map<String, String> parameterBindings);
+
+    /**
+     * Returns meta data for all reporting plugins which deliver a table.
+     */
+    public List<ReportDescription> listTableReportDescriptions();
+
+    /**
+     * Creates for the specified data sets and specified report description a report. Available
+     * report descriptions can be obtained by {@link #listTableReportDescriptions()}.
+     */
+    public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
+            List<String> dataSetCodes);
 
     /**
      * Logs current user out.

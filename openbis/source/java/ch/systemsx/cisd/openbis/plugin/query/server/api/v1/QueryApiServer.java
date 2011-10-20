@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -28,16 +29,25 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
@@ -45,6 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
@@ -56,6 +67,9 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 {
     @Resource(name = ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames.QUERY_PLUGIN_SERVER)
     private IQueryServer queryServer;
+
+    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
+    private ICommonBusinessObjectFactory boFactory;
 
     public IQueryApiServer createLogger(IInvocationLoggerContext context)
     {
@@ -98,7 +112,65 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         {
             bindings.addBinding(entry.getKey(), entry.getValue());
         }
-        TableModel result = queryServer.queryDatabase(sessionToken, new TechId(queryID), bindings);
+        return translate(queryServer.queryDatabase(sessionToken, new TechId(queryID), bindings));
+    }
+
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        List<ReportDescription> services = new ArrayList<ReportDescription>();
+        List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : dataStores)
+        {
+            for (DataStoreServicePE service : dataStore.getServices())
+            {
+                boolean reportingService = service.getKind() == DataStoreServiceKind.QUERIES;
+                ReportingPluginType reportingPluginType = service.getReportingPluginTypeOrNull();
+                boolean tableReport =
+                        reportingPluginType != null
+                                && reportingPluginType == ReportingPluginType.TABLE_MODEL;
+                if (reportingService && tableReport)
+                {
+                    ReportDescription info = new ReportDescription();
+                    info.setKey(service.getKey());
+                    info.setLabel(service.getLabel());
+                    info.setDataStoreCode(dataStore.getCode());
+                    Set<DataSetTypePE> datasetTypes = service.getDatasetTypes();
+                    List<String> dataSetTypeCodes = new ArrayList<String>();
+                    for (DataSetTypePE dataSetType : datasetTypes)
+                    {
+                        dataSetTypeCodes.add(dataSetType.getCode());
+                    }
+                    info.setDataSetTypes(dataSetTypeCodes);
+                    services.add(info);
+                }
+            }
+        }
+        return services;
+    }
+
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey, List<String> dataSetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
+        return translate(dataSetTable.createReportFromDatasets(serviceKey, dataStoreCode,
+                dataSetCodes));
+    }
+
+    public int getMajorVersion()
+    {
+        return 1;
+    }
+
+    public int getMinorVersion()
+    {
+        return 1;
+    }
+
+    private QueryTableModel translate(TableModel result)
+    {
         List<TableModelColumnHeader> headers = result.getHeader();
         ArrayList<QueryTableColumn> translatedHeaders = new ArrayList<QueryTableColumn>();
         for (TableModelColumnHeader header : headers)
@@ -133,15 +205,4 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         }
         return tableModel;
     }
-
-    public int getMajorVersion()
-    {
-        return 1;
-    }
-
-    public int getMinorVersion()
-    {
-        return 0;
-    }
-
 }

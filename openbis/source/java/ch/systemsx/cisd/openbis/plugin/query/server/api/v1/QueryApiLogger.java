@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -54,6 +55,20 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
     {
         logAccess(sessionToken, "execute_query", "QUERY(%s) PARAMETERS(%s)", queryID,
                 parameterBindings.size());
+        return null;
+    }
+
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken)
+    {
+        logAccess(sessionToken, "list_table_report_descriptions");
+        return null;
+    }
+
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey, List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "create_report_from_data_sets",
+                "DATA_STORE(%s) SERVICE(%s) DATA_SETS(%s)", dataStoreCode, serviceKey, dataSetCodes);
         return null;
     }
 

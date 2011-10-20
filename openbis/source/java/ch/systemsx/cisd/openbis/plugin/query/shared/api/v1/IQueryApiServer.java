@@ -22,8 +22,13 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * Public API interface to query server (version 1).
@@ -71,5 +76,25 @@ public interface IQueryApiServer extends IRpcService
     @Transactional(readOnly = true)
     public QueryTableModel executeQuery(String sessionToken, long queryID,
             Map<String, String> parameterBindings);
+
+    /**
+     * Returns meta data for all reporting plugins which deliver a table.
+     */
+    @Transactional(readOnly = true)
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken);
+
+    /**
+     * Creates for the specified data sets a report. Available reports can be obtained by
+     * {@link #listTableReportDescriptions(String)}.
+     * 
+     * @param dataStoreCode Code of the data store.
+     * @param serviceKey Key of the data store service.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> dataSetCodes);
 
 }
