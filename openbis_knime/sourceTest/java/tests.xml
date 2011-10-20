@@ -5,9 +5,9 @@
         <exclude name="broken" />
       </run>
     </groups>
-    <!-- packages>
+    <packages>
       <package name="ch.systemsx.cisd.openbis.knime.*">
       </package>
-    </packages-->
+    </packages>
   </test>
 </suite>
