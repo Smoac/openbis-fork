@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -103,16 +104,42 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         Properties properties =
                 registratorContext.getGlobalState().getThreadParameters().getThreadProperties();
+
         String stagingDirString = PropertyUtils.getProperty(properties, STAGING_DIR);
+
         if (null == stagingDirString)
         {
-            stagingDirectory = registratorContext.getGlobalState().getStoreRootDir();
+            stagingDirectory = getDefaultStagingDirectory(registratorContext.getGlobalState());
         } else
         {
             stagingDirectory = new File(stagingDirString);
         }
 
         transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
+    }
+
+    /**
+     * Tries to create and return a staging directory in the corresponding incoming share. The
+     * default result is "[store-root]/[shareId]/staging". Returns "[store-root]", if no existing
+     * incoming directory can be detected.
+     */
+    private File getDefaultStagingDirectory(TopLevelDataSetRegistratorGlobalState globalState)
+    {
+        File storeRoot = globalState.getStoreRootDir();
+        if (false == StringUtils.isBlank(globalState.getShareId()))
+        {
+            File shareRoot = new File(storeRoot, globalState.getShareId());
+            if (shareRoot.isDirectory())
+            {
+                File stagingDir = new File(shareRoot, "staging");
+                stagingDir.mkdir();
+                if (stagingDir.isDirectory())
+                {
+                    return stagingDir;
+                }
+            }
+        }
+        return storeRoot;
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
