@@ -117,7 +117,7 @@ SUCCESS_MSG="Data Store Server ready and waiting for data"
 LIB_FOLDER=lib
 # contains custom libraries e.g. JDBC drivers for external databases
 EXT_LIB_FOLDER=ext-lib
-MAX_LOOPS=10
+MAX_LOOPS=20
 
 #
 # change to installation directory
