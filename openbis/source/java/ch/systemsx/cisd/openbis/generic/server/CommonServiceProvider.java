@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * Provider of common openBIS server services.
@@ -37,7 +38,8 @@ public class CommonServiceProvider
 
     public static ICommonServerForInternalUse getCommonServer()
     {
-        return (ICommonServerForInternalUse) applicationContext.getBean("common-server");
+        return (ICommonServerForInternalUse) applicationContext
+                .getBean(ResourceNames.COMMON_SERVER);
     }
 
     public static IDAOFactory getDAOFactory()

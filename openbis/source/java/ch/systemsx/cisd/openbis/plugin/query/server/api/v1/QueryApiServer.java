@@ -29,12 +29,11 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -47,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
@@ -68,8 +66,8 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     @Resource(name = ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames.QUERY_PLUGIN_SERVER)
     private IQueryServer queryServer;
 
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    private ICommonBusinessObjectFactory boFactory;
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer commonServer;
 
     public IQueryApiServer createLogger(IInvocationLoggerContext context)
     {
@@ -153,10 +151,9 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
-        Session session = getSession(sessionToken);
-        IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
-        return translate(dataSetTable.createReportFromDatasets(serviceKey, dataStoreCode,
-                dataSetCodes));
+        return translate(commonServer.createReportFromDatasets(sessionToken,
+                DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
+                        null), dataSetCodes));
     }
 
     public int getMajorVersion()

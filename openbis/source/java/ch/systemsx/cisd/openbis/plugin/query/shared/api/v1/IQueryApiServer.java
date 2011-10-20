@@ -22,10 +22,6 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -91,10 +87,7 @@ public interface IQueryApiServer extends IRpcService
      * @param serviceKey Key of the data store service.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
-            String serviceKey,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes);
+            String serviceKey, List<String> dataSetCodes);
 
 }
