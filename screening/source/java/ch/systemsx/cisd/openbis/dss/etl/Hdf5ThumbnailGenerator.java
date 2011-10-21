@@ -127,7 +127,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return Status.OK;
     }
 
-    public String createThumbnailPath(RelativeImageReference imageReference)
+    private String createThumbnailPath(RelativeImageReference imageReference)
     {
         String imagePath = imageReference.getRelativeImagePath();
         String newImagePath = imagePath;
