@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -418,6 +419,10 @@ public class WellContentDialog extends Dialog
             {
                 container.add(createPlateLocationsMaterialViewerLink(material));
             }
+        } else if (property.getPropertyType().getDataType().getCode() == DataTypeCode.HYPERLINK)
+        {
+            String link = LinkRenderer.renderAsLinkWithAnchor(propertyValue, propertyValue, true);
+            container.add(new Html(link));
         } else
         {
             container.add(new Text(propertyValue), cellLayout);
