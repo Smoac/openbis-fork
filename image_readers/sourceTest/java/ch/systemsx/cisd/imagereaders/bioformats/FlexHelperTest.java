@@ -82,7 +82,7 @@ public class FlexHelperTest extends ImageReaderTestCase
 
     private File getFlexFile(String fileName)
     {
-        String library = new BioFormatsReaderLibrary().getName();
-        return getImageFileForLibrary(library, fileName);
+        File flexImagesDir = new File(IMAGES_DIR, "flex-helper");
+        return new File(flexImagesDir, fileName);
     }
 }
