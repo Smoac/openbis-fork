@@ -13,6 +13,7 @@
 
     <Call name="addConnector">
         <Arg>
+          <!-- Use this connector to use SSL and run openBIS on 8443 port -->
           <New class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
 	             <Set name="Port">8443</Set>
 	                 <Set name="maxIdleTime">30000</Set>
@@ -24,7 +25,8 @@
                   <Set name="Password">changeit</Set>
                   <Set name="KeyPassword">changeit</Set>
           </New>
-          <!-- Use this connector and remove the one above to switch off SSL
+          <!-- Use this connector and remove the one above to switch off SSL and run openBIS on 8080 port -->
+          <!-- 
           <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
              <Set name="Port">8080</Set>
              <Set name="maxIdleTime">30000</Set>
