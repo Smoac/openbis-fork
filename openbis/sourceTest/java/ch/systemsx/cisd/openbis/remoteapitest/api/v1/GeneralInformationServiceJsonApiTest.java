@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -283,18 +284,31 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 generalInformationService.listDataSets(sessionToken, samples,
                         EnumSet.of(Connections.PARENTS));
         assertEquals(true, result.size() > 0);
-        // See if some sample has parents
-        boolean parentCodesFound = false;
         for (DataSet dataSet : result)
         {
-            if (false == dataSet.getParentCodes().isEmpty())
-            {
-                parentCodesFound = true;
-                break;
-            }
+            assertEquals(
+                    "No parent codes should have been found for data set " + dataSet.getCode(),
+                    "[]", dataSet.getParentCodes().toString());
+        }
+    }
+
+    @Test
+    public void testListDataSetsWithParentsForAllExperiments()
+    {
+        List<String> experimentIdentifiers = Arrays.asList("/CISD/DEFAULT/EXP-REUSE");
+        List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken, experimentIdentifiers);
+        List<DataSet> result =
+                generalInformationService.listDataSetsForExperiments(sessionToken, experiments,
+                        EnumSet.of(Connections.PARENTS));
+        assertEquals(true, result.size() > 0);
+        for (DataSet dataSet : result)
+        {
+            assertEquals(
+                    "No parent codes should have been found for data set " + dataSet.getCode(),
+                    "[]", dataSet.getParentCodes().toString());
         }
 
-        assertTrue("No parent codes should have been found", (false == parentCodesFound));
     }
 
     @Test

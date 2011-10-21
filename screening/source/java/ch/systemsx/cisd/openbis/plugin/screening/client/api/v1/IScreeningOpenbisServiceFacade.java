@@ -282,6 +282,19 @@ public interface IScreeningOpenbisServiceFacade
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
     /**
+     * A list of data sets owned by specified experiment and passing specified filter. The data set
+     * objects provide metadata (e.g. code, properties etc. from the openBIS AS) as well as data
+     * (e.g. files from openBIS DSS).
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
+            ExperimentIdentifier experimentIdentifier, IDataSetFilter dataSetFilter)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
      * Returns meta data for all specified data set codes. This contains data set type, properties,
      * and codes of linked parent and children data sets.
      * 
@@ -764,5 +777,6 @@ public interface IScreeningOpenbisServiceFacade
      * specified experiment.
      */
     public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier);
+
 
 }

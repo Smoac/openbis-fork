@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangin
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -581,6 +583,43 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         final List<DataSet> dataSets =
                 generalInformationService.listDataSets(sessionToken, Arrays.asList(sample),
+                        EnumSet.of(Connections.PARENTS));
+        final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
+                new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();
+        for (DataSet dataSet : dataSets)
+        {
+            if (filter.pass(dataSet))
+            {
+                ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet fullDataset =
+                        new ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet(
+                                openbisServiceFacade, dssComponent, dataSet, null);
+
+                result.add(fullDataset);
+            }
+        }
+        return result;
+    }
+
+    public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
+            ExperimentIdentifier experimentIdentifier, IDataSetFilter dataSetFilter)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken,
+                        Collections.singletonList(experimentIdentifier.getAugmentedCode()));
+        if (experiments.isEmpty())
+        {
+            throw UserFailureException.fromTemplate("Experiment '%s' does not exist.",
+                    experimentIdentifier);
+        }
+        return getFullDataSets(experiments, dataSetFilter);
+    }
+
+    private List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
+            final List<Experiment> experiments, IDataSetFilter filter)
+    {
+        final List<DataSet> dataSets =
+                generalInformationService.listDataSetsForExperiments(sessionToken, experiments,
                         EnumSet.of(Connections.PARENTS));
         final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
                 new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();

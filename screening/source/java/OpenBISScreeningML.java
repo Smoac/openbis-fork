@@ -858,36 +858,103 @@ public class OpenBISScreeningML
                 openbis.getFullDataSets(plateIdentifier, new AndDataSetFilter(
                         new TypeBasedDataSetFilter(dataSetTypeCodePattern),
                         new PropertiesBasedDataSetFilter(createMap(properties))));
-        Object[][] result = new Object[dataSets.size()][];
         try
         {
-            for (int i = 0; i < dataSets.size(); i++)
-            {
-                DataSet dataSet = dataSets.get(i);
-                String code = dataSet.getCode();
-                File file = new File(dataSetsDir, code);
-                if (file.exists() == false)
-                {
-                    file =
-                            dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
-                                    dataSetsDir);
-                }
-                List<String> parents = dataSet.getParentCodes();
-                Object[] parentCodes = new Object[parents.size()];
-                for (int j = 0; j < parentCodes.length; j++)
-                {
-                    parentCodes[j] = parents.get(j);
-                }
-                Object[][] dataSetProperties = listProperties(dataSet.getProperties());
-                result[i] = new Object[]
-                    { code, file.getPath(), dataSetProperties, parentCodes };
-            }
-            return result;
+            return translateDataSets(overrideStoreRootPathOrNull, dataSets);
         } catch (Exception ex)
         {
             throw createException("Loading data sets for plate '" + augmentedPlateCode
                     + "' failed.", ex);
         }
+    }
+
+    /**
+     * Loads data sets for specified experiment code. For each data set the path to the root of the
+     * data set is returned. If it is possible the path points directly into the data set store. No
+     * data is copied. Otherwise the data is retrieved from the data store server.<br>
+     * If the same dataset is loaded for the second time in one session it will be immediately
+     * returned from the local cache.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Load all data sets of plate P005 in space SPACE
+     * properties = {'ANALYSIS_PROCEDURE' 'AX87'}
+     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/PROJECT/EXPERIMENT', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', properties, '/mount/openbis-store')
+     * % Get the data set codes
+     * dsinfo(:,1)
+     * % Get root path of first data set (assuming there is at least one)
+     * dsinfo(1,2)
+     * % Get the properties for the first data set
+     * props = dsinfo(1,3)
+     * % Get property key of first property
+     * props(1,1)
+     * % Get property value of first property
+     * props(1,2)
+     * % Get all parents of first data set (assuming there is at least one)
+     * dsInfo(1,4)
+     * </pre>
+     * 
+     * @param augmentedExperimentCode The augmented experiment code.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
+     *            will be returned. To fetch all data sets specify ".*".
+     * @param properties Only data set with specified property values will be returned. This is a
+     *            two dimensional array where the first column contains the property codes and the
+     *            second column the corresponding property values.
+     * @return Each row contains information about one data set:
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
+     *            <p>
+     *            <code>{ data set code, data set root path, { {key1, value1}, {key2, value2} ...}, parents }</code>
+     */
+    public static Object[][] loadDataSetsForExperiment(String augmentedExperimentCode,
+            final String dataSetTypeCodePattern, final Object[][] properties,
+            String overrideStoreRootPathOrNull)
+    {
+        checkLoggedIn();
+        ExperimentIdentifier experimentIdentifier =
+                getExperimentIdentifierOrFail(augmentedExperimentCode);
+        List<DataSet> dataSets =
+                openbis.getFullDataSets(experimentIdentifier, new AndDataSetFilter(
+                        new TypeBasedDataSetFilter(dataSetTypeCodePattern),
+                        new PropertiesBasedDataSetFilter(createMap(properties))));
+        try
+        {
+            return translateDataSets(overrideStoreRootPathOrNull, dataSets);
+        } catch (Exception ex)
+        {
+            throw createException("Loading data sets for experiment '" + augmentedExperimentCode
+                    + "' failed.", ex);
+        }
+    }
+
+    private static Object[][] translateDataSets(String overrideStoreRootPathOrNull,
+            List<DataSet> dataSets)
+    {
+        Object[][] result = new Object[dataSets.size()][];
+        for (int i = 0; i < dataSets.size(); i++)
+        {
+            DataSet dataSet = dataSets.get(i);
+            String code = dataSet.getCode();
+            File file = new File(dataSetsDir, code);
+            if (file.exists() == false)
+            {
+                file =
+                        dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
+                                dataSetsDir);
+            }
+            List<String> parents = dataSet.getParentCodes();
+            Object[] parentCodes = new Object[parents.size()];
+            for (int j = 0; j < parentCodes.length; j++)
+            {
+                parentCodes[j] = parents.get(j);
+            }
+            Object[][] dataSetProperties = listProperties(dataSet.getProperties());
+            result[i] = new Object[]
+                { code, file.getPath(), dataSetProperties, parentCodes };
+        }
+        return result;
     }
 
     /**

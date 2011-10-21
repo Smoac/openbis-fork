@@ -174,4 +174,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "list-vocabularies");
         return null;
     }
+
+    public List<DataSet> listDataSetsForExperiments(String sessionToken,
+            List<Experiment> experiments, EnumSet<Connections> connectionsToGet)
+    {
+        logAccess(sessionToken, "list-data-sets-for-experiments",
+                "EXPERIMENTS(%s) CONNECTIONS(%s)", experiments, connectionsToGet);
+        return null;
+    }
 }

@@ -727,6 +727,51 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testLoadDataSetsForExperiment()
+    {
+        final File dataSetFolder =
+                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+        final File ds1Folder = new File(dataSetFolder, "ds-1");
+        File ds2Folder = new File(dataSetFolder, "ds-2");
+        ds2Folder.mkdirs();
+        final String datasetTypePattern = "blablaCode";
+        final String mountPoint = "/mount/openbis/store";
+        final RecordingMatcher<IDataSetFilter> filterMatcher =
+                new RecordingMatcher<IDataSetFilter>();
+
+        List<String> codes = new ArrayList<String>();
+        final DataSet dataSet1 = createDataSet("ds-1", ds1, codes, codes);
+        final DataSet dataSet2 = createDataSet("ds-2", ds2, codes, codes);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbis).getFullDataSets(with(eId1), with(filterMatcher));
+                    will(returnValue(Arrays.asList(dataSet1, dataSet2)));
+
+                    one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
+                    will(returnValue(ds1Folder));
+
+                }
+            });
+
+        Object[][] result =
+                OpenBISScreeningML.loadDataSetsForExperiment("/S/P/E1", datasetTypePattern,
+                        new Object[0][],
+                        mountPoint);
+
+        assertEquals("Type:blablaCode AND Properties:[]", filterMatcher.recordedObject().toString());
+        assertEquals("ds-1", result[0][0]);
+        assertEquals(ds1Folder.getPath(), result[0][1]);
+        assertEqualProperties(dataSet1.getProperties(), (Object[][]) result[0][2]);
+        assertEquals("ds-2", result[1][0]);
+        assertEquals(ds2Folder.getPath(), result[1][1]);
+        assertEqualProperties(dataSet2.getProperties(), (Object[][]) result[1][2]);
+        assertEquals(2, result.length);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testUpdateDataSet()
     {
         final File dataSetFolder =

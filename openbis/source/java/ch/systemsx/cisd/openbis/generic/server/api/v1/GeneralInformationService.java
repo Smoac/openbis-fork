@@ -165,7 +165,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 13;
+        return 14;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -374,7 +374,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.listVocabularies(sessionToken, true, false);
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary privateVocabulary : privateVocabularies)
         {
-            vocabTerms.put(privateVocabulary, Translator.translatePropertyTypeTerms(privateVocabulary.getTerms()));
+            vocabTerms.put(privateVocabulary,
+                    Translator.translatePropertyTypeTerms(privateVocabulary.getTerms()));
         }
         return vocabTerms;
     }
@@ -402,6 +403,22 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.listSampleTypes(sessionToken);
         SampleToDataSetRelatedEntitiesTranslator translator =
                 new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
+        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
+        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
+        return Translator.translate(dataSets, connectionsToGet);
+    }
+
+    public List<DataSet> listDataSetsForExperiments(String sessionToken,
+            List<Experiment> experiments, EnumSet<Connections> connections)
+    {
+        checkSession(sessionToken);
+        EnumSet<Connections> connectionsToGet =
+                (connections != null) ? connections : EnumSet.noneOf(Connections.class);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType> experimentTypes =
+                commonServer.listExperimentTypes(sessionToken);
+        ExperimentToDataSetRelatedEntitiesTranslator translator =
+                new ExperimentToDataSetRelatedEntitiesTranslator(experimentTypes, experiments);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
         List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre);
         return Translator.translate(dataSets, connectionsToGet);

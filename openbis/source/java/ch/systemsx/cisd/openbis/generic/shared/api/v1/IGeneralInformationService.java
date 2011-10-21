@@ -223,6 +223,18 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
+     * Return all data sets attached to the given experiments with connections. Available since
+     * minor version 14.
+     * 
+     * @param experiments The experiments for which we return attached data sets.
+     * @since 1.14
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> listDataSetsForExperiments(String sessionToken,
+            List<Experiment> experiments, EnumSet<Connections> connectionsToGet);
+
+    /**
      * Returns meta data for all specified data sets. This contains data set type, properties, and
      * codes of linked parent and children data sets. Available since minor version 12.
      * 
