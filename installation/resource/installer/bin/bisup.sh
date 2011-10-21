@@ -10,7 +10,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-JETTY_HOME=$BASE/../servers/openBIS-server/jetty/
+JETTY_HOME=$BASE/../servers/openBIS-server/jetty
 OPENBIS_LOG=$JETTY_HOME/logs/openbis_log.txt
 JETTY_LOG=$JETTY_HOME/logs/jetty.out
 
