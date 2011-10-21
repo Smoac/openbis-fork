@@ -17,17 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.geometry.SpatialPoint;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
+import ch.systemsx.cisd.openbis.dss.etl.TileGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 
 /**
@@ -49,72 +48,22 @@ public class ImageMetadataExtractor
         return imageReader.readMetaData(imageFile, ImageID.NULL, null);
     }
 
+
     /**
-     * NOTE : the speed of this algorithm can be immensely improved by
-     * 
-     * <pre>
-     * 1) Avoiding auto-boxing (we have multiple collections storing primitive types) 
-     * 2) Avoid parsing all numbers twice 
-     * 3) Use a sorted collection (tree?) + binary search when looking if a value is already present.
-     * </pre>
-     * 
      * @param tileToMetadataMap mapping from tile number to image metadata
      */
     public static Map<Integer/* tile number */, Location> tryGetTileMapping(
             Map<Integer/* tile number */, Map<String/* name */, Object/* value */>> tileToMetadataMap,
             double epsilon)
     {
-        List<Double> xCoords = new ArrayList<Double>();
-        List<Double> yCoords = new ArrayList<Double>();
-
-        for (Map<String, Object> metadata : tileToMetadataMap.values())
+        Map<Integer, SpatialPoint> tileToSpatialPointMap = new HashMap<Integer, SpatialPoint>();
+        for (Integer tile : tileToMetadataMap.keySet())
         {
-            addIfNotPresent(xCoords, extractXCoord(metadata), epsilon);
-            addIfNotPresent(yCoords, extractYCoord(metadata), epsilon);
+            Map<String, Object> metadata = tileToMetadataMap.get(tile);
+            SpatialPoint point = new SpatialPoint(extractXCoord(metadata), extractYCoord(metadata));
+            tileToSpatialPointMap.put(tile, point);
         }
-
-        Map<Integer, Location> result = new HashMap<Integer, Location>();
-        for (Entry<Integer, Map<String, Object>> entry : tileToMetadataMap.entrySet())
-        {
-            Integer tileNumber = entry.getKey();
-            Location location = extractLocation(entry.getValue(), xCoords, yCoords, epsilon);
-            result.put(tileNumber, location);
-        }
-        return result;
-    }
-
-    private static void addIfNotPresent(List<Double> values, Double value, double epsilon)
-    {
-        int idx = findIdxByEpsilon(values, value, epsilon);
-        if (idx < 0)
-        {
-            values.add(value);
-        }
-    }
-
-    private static int findIdxByEpsilon(List<Double> values, double toFind, double epsilon)
-    {
-        for (int idx = 0; idx < values.size(); idx++)
-        {
-            if (Math.abs(values.get(idx) - toFind) < epsilon)
-            {
-                return idx;
-            }
-        }
-        return -1;
-    }
-
-    private static Location extractLocation(Map<String, Object> metadata, List<Double> xCoords,
-            List<Double> yCoords, double epsilon)
-    {
-        double x = extractXCoord(metadata);
-        double y = extractYCoord(metadata);
-
-        int locationX = findIdxByEpsilon(xCoords, x, epsilon);
-        int locationY = findIdxByEpsilon(yCoords, y, epsilon);
-
-        Location location = new Location(locationY, locationX);
-        return location;
+        return TileGeometryOracle.tryFigureLocations(tileToSpatialPointMap, epsilon);
     }
 
     private static Double extractXCoord(Map<String, Object> metadata)

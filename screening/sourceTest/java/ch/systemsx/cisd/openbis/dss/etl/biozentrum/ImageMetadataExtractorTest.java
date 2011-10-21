@@ -40,7 +40,7 @@ public class ImageMetadataExtractorTest extends AssertJUnit
             "./sourceTest/java/ch/systemsx/cisd/openbis/dss/etl/biozentrum/metadata.csv";
 
     /**
-     * the test data works for epsilon values from 0.7 up to approx. 890
+     * the data from TEST_FILE works for epsilon values from 0.7 up to approx. 890
      */
     private final double EPSILON = 1.0;
 
@@ -85,7 +85,7 @@ public class ImageMetadataExtractorTest extends AssertJUnit
             }
         }
 
-        assertLocationDimensions(48, 48, locations.values());
+        assertLocationDimensions(49, 49, locations.values());
     }
 
     private void assertEquals(Map<Integer, Location> locations, ImageFile expected, ImageFile actual)
