@@ -3,6 +3,12 @@
 # Control script for CISD Datamover on Unix / Linux systems
 # -------------------------------------------------------------------------
 
+# Do nut run as user root 
+if [ `id -u` == 0 ]; then
+  echo "Do not run as user root!"
+  exit 1;
+fi
+
 awkBin()
 {
   # We need a awk that accepts variable assignments with '-v'
