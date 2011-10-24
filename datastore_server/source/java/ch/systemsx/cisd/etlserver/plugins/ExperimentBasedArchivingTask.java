@@ -40,6 +40,8 @@ import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -77,12 +79,14 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     static final String MONITORED_DIR = "monitored-dir";
 
+    static final String FREE_SPACE_PROVIDER_PREFIX = "free-space-provider.";
+
     private static final EnumSet<DataSetArchivingStatus> ARCHIVE_STATES = EnumSet.of(
             DataSetArchivingStatus.ARCHIVE_PENDING, DataSetArchivingStatus.ARCHIVED);
 
     private final IEncapsulatedOpenBISService service;
 
-    private final IFreeSpaceProvider freeSpaceProvider;
+    private IFreeSpaceProvider freeSpaceProvider;
 
     private File storeRoot;
 
@@ -98,15 +102,12 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     public ExperimentBasedArchivingTask()
     {
-        this(ServiceProvider.getOpenBISService(), new SimpleFreeSpaceProvider(), ServiceProvider
-                .getShareIdManager());
+        this(ServiceProvider.getOpenBISService(), ServiceProvider.getShareIdManager());
     }
 
-    ExperimentBasedArchivingTask(IEncapsulatedOpenBISService service,
-            IFreeSpaceProvider freeSpaceProvider, IShareIdManager shareIdManager)
+    ExperimentBasedArchivingTask(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
     {
         this.service = service;
-        this.freeSpaceProvider = freeSpaceProvider;
         this.shareIdManager = shareIdManager;
     }
 
@@ -117,14 +118,32 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     public void setUp(String pluginName, Properties properties)
     {
+        storeRoot = setUpStoreRoot(properties);
+        freeSpaceProvider = setUpFreeSpaceProvider(properties);
+        setUpMonitoredShareOrPath(properties);
+        minimumFreeSpace =
+                FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
+        excludedDataSetTypes =
+                new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
+                        properties.getProperty(EXCLUDED_DATA_SET_TYPES_KEY, ""),
+                        EXCLUDED_DATA_SET_TYPES_KEY)));
+    }
+
+    private File setUpStoreRoot(Properties properties)
+    {
         String storeRootFileName =
                 PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
-        storeRoot = new File(storeRootFileName);
-        if (storeRoot.isDirectory() == false)
+        File resultStoreRoot = new File(storeRootFileName);
+        if (resultStoreRoot.isDirectory() == false)
         {
             throw new ConfigurationFailureException(
                     "Store root doesn't exists or isn't a directory: " + storeRoot);
         }
+        return resultStoreRoot;
+    }
+
+    private void setUpMonitoredShareOrPath(Properties properties)
+    {
         final String monitoredDirPath = PropertyUtils.getProperty(properties, MONITORED_DIR);
         if (monitoredDirPath == null)
         {
@@ -147,12 +166,35 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                         + "' doesn't exists or isn't a directory.");
             }
         }
-        minimumFreeSpace =
-                FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
-        excludedDataSetTypes =
-                new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
-                        properties.getProperty(EXCLUDED_DATA_SET_TYPES_KEY, ""),
-                        EXCLUDED_DATA_SET_TYPES_KEY)));
+    }
+
+    private IFreeSpaceProvider setUpFreeSpaceProvider(Properties properties)
+    {
+        Properties providerProps =  ExtendedProperties.getSubset(properties, FREE_SPACE_PROVIDER_PREFIX, true);
+        String freeSpaceProviderClassName =
+                PropertyUtils.getProperty(providerProps, "class",
+                        SimpleFreeSpaceProvider.class.getName());
+        
+        Class<?> clazz = null;
+        try
+        {
+            clazz = Class.forName(freeSpaceProviderClassName);
+        } catch (ClassNotFoundException cnfe)
+        {
+            throw ConfigurationFailureException.fromTemplate(
+                    "Cannot find configured free space provider class '%s'",
+                    freeSpaceProviderClassName);
+        }
+        
+        if (ClassUtils.hasConstructor(clazz, properties))
+        {
+            return ClassUtils.create(IFreeSpaceProvider.class, clazz, properties);
+
+        } else
+        {
+            return ClassUtils.create(IFreeSpaceProvider.class, clazz);
+        }
+        
     }
 
     public void execute()

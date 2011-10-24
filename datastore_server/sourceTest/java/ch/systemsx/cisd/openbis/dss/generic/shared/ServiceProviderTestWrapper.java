@@ -43,6 +43,7 @@ public class ServiceProviderTestWrapper
         classNameToBeanName.put(IEncapsulatedOpenBISService.class, "openBIS-service");
         classNameToBeanName.put(IShareIdManager.class, "share-id-manager");
         classNameToBeanName.put(IConfigProvider.class, "config-provider");
+        classNameToBeanName.put(IDataSourceProvider.class, "data-source-provider");
         classNameToBeanName
                 .put(IHierarchicalContentProvider.class, "hierarchical-content-provider");
     }

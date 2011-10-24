@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 
@@ -40,7 +40,7 @@ public class DataSourceQueryService implements IDataSourceQueryService
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSourceQueryService.class);
 
-    private DataSourceProvider getDataSourceProvider()
+    private IDataSourceProvider getDataSourceProvider()
     {
         return ServiceProvider.getDataSourceProvider();
     }

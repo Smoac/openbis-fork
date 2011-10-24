@@ -150,9 +150,9 @@ public class ServiceProvider
                 "data-store-rpc-service-generic"));
     }
 
-    public static DataSourceProvider getDataSourceProvider()
+    public static IDataSourceProvider getDataSourceProvider()
     {
-        return ((DataSourceProvider) getApplicationContext().getBean("data-source-provider"));
+        return ((IDataSourceProvider) getApplicationContext().getBean("data-source-provider"));
     }
 
     public static IConfigProvider getConfigProvider()

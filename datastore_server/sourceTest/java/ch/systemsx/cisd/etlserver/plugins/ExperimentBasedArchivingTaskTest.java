@@ -54,6 +54,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 {
+    public static class MockFreeSpaceProvider implements IFreeSpaceProvider
+    {
+
+        static IFreeSpaceProvider mock;
+
+        public long freeSpaceKb(HostAwareFile path) throws IOException
+        {
+            return mock.freeSpaceKb(path);
+        }
+    }
+
     private static final String LOG_ENTRY_PREFIX_TEMPLATE =
             "INFO  %s.ExperimentBasedArchivingTask - ";
 
@@ -121,7 +132,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         service = context.mock(IEncapsulatedOpenBISService.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         shareIdManager = context.mock(IShareIdManager.class);
-        task = new ExperimentBasedArchivingTask(service, freeSpaceProvider, shareIdManager);
+        MockFreeSpaceProvider.mock = freeSpaceProvider;
+
+        task = new ExperimentBasedArchivingTask(service, shareIdManager);
         assertEquals(true, task.requiresDataStoreLock());
 
         e1 = new ExperimentBuilder().id(41).identifier("/S/P/E1").getExperiment();
@@ -149,6 +162,8 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         properties.setProperty(ExperimentBasedArchivingTask.MONITORED_SHARE_KEY, SHARE_ID);
         properties.setProperty(ExperimentBasedArchivingTask.MINIMUM_FREE_SPACE_KEY, "100");
         properties.setProperty(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY, "ABC, B");
+        properties.setProperty(ExperimentBasedArchivingTask.FREE_SPACE_PROVIDER_PREFIX + "class",
+                MockFreeSpaceProvider.class.getName());
     }
 
     private DataSetBuilder dataSet(String code)
