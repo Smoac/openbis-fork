@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -379,6 +380,16 @@ public interface IScreeningOpenbisServiceFacade
      * available, provides the union of the feature names of all data sets.
      */
     public List<String> listAvailableFeatureCodes(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+
+    /**
+     * For a given set of feature vector data sets provide the list of all available features. This
+     * contains the code, label and description of the feature. If for different data sets different
+     * sets of features are available, provide the union of the features of all data sets.
+     * 
+     * Only available when all data store services have minor version 9 or newer.
+     */
+    public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**

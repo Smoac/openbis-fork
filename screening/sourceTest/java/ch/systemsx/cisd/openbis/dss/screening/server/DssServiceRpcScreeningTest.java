@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -277,6 +278,43 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
 
         assertEquals("[F1, F2, F3]", names.toString());
+        assertTrue(testMethodInterceptor.methodInvoked);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListAvailableFeatures()
+    {
+        prepareAssetDataSetsAreAccessible();
+        prepareLockDataSet("ds1", "ds2");
+
+        long[] dataSetIDs = new long[]
+            { 1, 2 };
+        FeatureInformation[][] featureCodesPerDataset =
+                new FeatureInformation[][]
+                    {
+                                {
+                                        new FeatureInformation("f1", "Feature 1",
+                                                "The first feature."),
+                                        new FeatureInformation("f2", "Feature 2",
+                                                "The second feature.") },
+                                {
+                                        new FeatureInformation("f2", "Feature 2",
+                                                "The second feature."),
+                                        new FeatureInformation("f3", "Feature 3",
+                                                "The third feature.") } };
+        prepareListAnalysisDatasets(dataSetIDs);
+        prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
+
+        List<FeatureInformation> features =
+                screeningService.listAvailableFeatures(SESSION_TOKEN, Arrays.asList(
+                        featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
+
+        assertEquals(
+                "[FeatureDescription [code=F1, label=Feature 1, description=The first feature.], "
+                        + "FeatureDescription [code=F2, label=Feature 2, description=The second feature.], "
+                        + "FeatureDescription [code=F3, label=Feature 3, description=The third feature.]]",
+                features.toString());
         assertTrue(testMethodInterceptor.methodInvoked);
         context.assertIsSatisfied();
     }
@@ -747,6 +785,35 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImgFeatureDefDTO def = new ImgFeatureDefDTO(code, code, "", 0);
                             def.setDataSetId(dataSetID);
                             def.setId(getFeatureDefId(code));
+                            defs.add(def);
+                        }
+                        datasetIx++;
+                    }
+
+                    one(dao).listFeatureDefsByDataSetIds(dataSetIDs);
+                    will(returnValue(defs));
+                }
+            });
+    }
+
+    private void prepareGetFeatureDefinitions(final long[] dataSetIDs,
+            final FeatureInformation[]... featursPerDataset)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
+                    int datasetIx = 0;
+                    for (FeatureInformation[] featureCodes : featursPerDataset)
+                    {
+                        long dataSetID = dataSetIDs[datasetIx];
+                        for (FeatureInformation desc : featureCodes)
+                        {
+                            ImgFeatureDefDTO def =
+                                    new ImgFeatureDefDTO(desc.getLabel(), desc.getCode(), desc
+                                            .getDescription(), 0);
+                            def.setDataSetId(dataSetID);
+                            def.setId(getFeatureDefId(desc.getCode()));
                             defs.add(def);
                         }
                         datasetIx++;

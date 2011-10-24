@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -105,7 +106,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 8;
+    public static final int MINOR_VERSION = 9;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -173,6 +174,26 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             if (result.contains(featureCode) == false)
             {
                 result.add(featureCode);
+            }
+        }
+        return result;
+    }
+
+    public List<FeatureInformation> listAvailableFeatures(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(featureDatasets);
+
+        // add only new feature names
+        List<FeatureInformation> result = new ArrayList<FeatureInformation>(); // keep the order
+        for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
+        {
+            FeatureInformation description =
+                    new FeatureInformation(featureDefinition.getCode(),
+                            featureDefinition.getLabel(), featureDefinition.getDescription());
+            if (result.contains(description) == false)
+            {
+                result.add(description);
             }
         }
         return result;

@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.We
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -640,7 +641,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getDataSetMetaData(
             List<String> dataSetCodes)
     {
-        List<DataSet> dataSets = generalInformationService.getDataSetMetaData(sessionToken, dataSetCodes);
+        List<DataSet> dataSets =
+                generalInformationService.getDataSetMetaData(sessionToken, dataSetCodes);
         final List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> result =
                 new ArrayList<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet>();
         for (DataSet dataSet : dataSets)
@@ -782,6 +784,45 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     });
         return new ArrayList<String>(result);
+    }
+
+    /**
+     * For a given set of feature vector data sets provide the list of all available features. This
+     * contains the code, label and description of the feature. If for different data sets different
+     * sets of features are available, provide the union of the features of all data sets. Only
+     * available when all data store services have minor version 9 or newer.
+     */
+    public List<FeatureInformation> listAvailableFeatures(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        final Set<FeatureInformation> result = new HashSet<FeatureInformation>();
+        featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
+                new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
+                    {
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<IFeatureVectorDatasetIdentifier> references)
+                        {
+                            if (hasDSSMethod(dssService, "listAvailableFeatures", List.class))
+                            {
+                                result.addAll(dssService.getService().listAvailableFeatures(
+                                        sessionToken, references));
+                            } else
+                            {
+                                checkDSSMinimalMinorVersion(dssService,
+                                        "listAvailableFeatureNames", List.class);
+                                // Use old method in order to allow accessing older servers.
+                                @SuppressWarnings("deprecation")
+                                final List<String> codes =
+                                        dssService.getService().listAvailableFeatureNames(
+                                                sessionToken, references);
+                                for (String code : codes)
+                                {
+                                    result.add(new FeatureInformation(code, code, ""));
+                                }
+                            }
+                        }
+                    });
+        return new ArrayList<FeatureInformation>(result);
     }
 
     /**
@@ -1164,8 +1205,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     public void loadImages(final List<PlateImageReference> imageReferences,
-            final boolean convertToPNG,
-            final IPlateImageHandler plateImageHandler) throws IOException
+            final boolean convertToPNG, final IPlateImageHandler plateImageHandler)
+            throws IOException
     {
         try
         {
@@ -1192,7 +1233,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                                     references);
                                 }
 
-                                processImagesStreamUnchecked(plateImageHandler, imageReferences, stream);
+                                processImagesStreamUnchecked(plateImageHandler, imageReferences,
+                                        stream);
                             }
                         });
         } catch (WrappedIOException ex)
@@ -1304,7 +1346,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             final InputStream stream =
                                     dssService.getService().loadImages(sessionToken, references,
                                             sizeOrNull);
-                            
+
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
                         }
                     });
@@ -1714,6 +1756,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     });
     }
+
     private void processImagesStreamUnchecked(final IPlateImageHandler plateImageHandler,
             List<PlateImageReference> references, final InputStream stream)
     {

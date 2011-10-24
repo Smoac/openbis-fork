@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -71,6 +72,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         logAccess(sessionToken, "load_available_feature_names", "DATASET_REFERENCES(%s)",
+                featureDatasets);
+        return null;
+    }
+
+    public List<FeatureInformation> listAvailableFeatures(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        logAccess(sessionToken, "load_available_features", "DATASET_REFERENCES(%s)",
                 featureDatasets);
         return null;
     }

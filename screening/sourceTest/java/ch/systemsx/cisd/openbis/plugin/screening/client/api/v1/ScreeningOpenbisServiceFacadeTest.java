@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -239,6 +240,34 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         Collections.sort(names);
 
         assertEquals("[f1, f2, f3]", names.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAvailableFeatures()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).listAvailableFeatures(SESSION_TOKEN, Arrays.asList(f1id));
+                    will(returnValue(Arrays.asList(new FeatureInformation("f1", "Feature 1",
+                            "The first feature."), new FeatureInformation("f2", "Feature 2",
+                            "The second feature."))));
+
+                    one(dssService2).listAvailableFeatures(SESSION_TOKEN, Arrays.asList(f2id));
+                    will(returnValue(Arrays.asList(new FeatureInformation("f2", "Feature 2",
+                            "The second feature."), new FeatureInformation("f3", "Feature 3",
+                            "The third feature."))));
+                }
+            });
+        List<FeatureInformation> features = facade.listAvailableFeatures(Arrays.asList(f1id, f2id));
+        Collections.sort(features);
+
+        assertEquals(
+                "[FeatureDescription [code=f1, label=Feature 1, description=The first feature.], "
+                        + "FeatureDescription [code=f2, label=Feature 2, description=The second feature.], "
+                        + "FeatureDescription [code=f3, label=Feature 3, description=The third feature.]]",
+                features.toString());
         context.assertIsSatisfied();
     }
 
@@ -718,8 +747,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 {
                     one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), true);
                     ConcatenatedContentInputStream s1 =
-                            new ConcatenatedContentInputStream(true, Arrays
-                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                            new ConcatenatedContentInputStream(
+                                    true,
+                                    Arrays.<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
                                             "hello 1".getBytes(), "h1")));
                     will(returnValue(s1));
 
@@ -728,8 +758,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), true);
                     ConcatenatedContentInputStream s2 =
-                            new ConcatenatedContentInputStream(true, Arrays
-                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                            new ConcatenatedContentInputStream(
+                                    true,
+                                    Arrays.<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
                                             "hello 2".getBytes(), "h2")));
                     will(returnValue(s2));
 
@@ -760,15 +791,17 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                 {
                     one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), config);
                     ConcatenatedContentInputStream s1 =
-                            new ConcatenatedContentInputStream(true, Arrays
-                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                            new ConcatenatedContentInputStream(
+                                    true,
+                                    Arrays.<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
                                             "hello 1".getBytes(), "h1")));
                     will(returnValue(s1));
 
                     one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), config);
                     ConcatenatedContentInputStream s2 =
-                            new ConcatenatedContentInputStream(true, Arrays
-                                    .<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
+                            new ConcatenatedContentInputStream(
+                                    true,
+                                    Arrays.<IHierarchicalContentNode> asList(new ByteArrayBasedContentNode(
                                             "hello 2".getBytes(), "h2")));
                     will(returnValue(s2));
                 }
