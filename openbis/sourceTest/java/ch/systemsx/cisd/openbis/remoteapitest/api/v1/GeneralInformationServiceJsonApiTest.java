@@ -283,7 +283,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<DataSet> result =
                 generalInformationService.listDataSets(sessionToken, samples,
                         EnumSet.of(Connections.PARENTS));
-        assertEquals(true, result.size() > 0);
+        assertTrue(result.size() > 0);
         for (DataSet dataSet : result)
         {
             assertEquals(
@@ -293,15 +293,15 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     }
 
     @Test
-    public void testListDataSetsWithParentsForAllExperiments()
+    public void testListDataSetsWithParentsForExperiment()
     {
-        List<String> experimentIdentifiers = Arrays.asList("/CISD/DEFAULT/EXP-REUSE");
+        List<String> experimentIdentifiers = Arrays.asList("/CISD/NEMO/EXP1");
         List<Experiment> experiments =
                 generalInformationService.listExperiments(sessionToken, experimentIdentifiers);
         List<DataSet> result =
                 generalInformationService.listDataSetsForExperiments(sessionToken, experiments,
                         EnumSet.of(Connections.PARENTS));
-        assertEquals(true, result.size() > 0);
+        assertTrue(result.size() > 0);
         for (DataSet dataSet : result)
         {
             assertEquals(
