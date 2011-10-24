@@ -76,4 +76,12 @@ public class ReportDescription implements Serializable
         this.dataSetTypes = dataSetTypes;
     }
 
+    /**
+     * Returns the label.
+     */
+    @Override
+    public String toString()
+    {
+        return label;
+    }
 }
