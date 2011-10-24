@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -262,6 +263,10 @@ public class SimpleImageDataSetRegistrator
             {
                 // NOTE: ugly side effect which is used later on
                 imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+            } else
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Cannot find any reader for '%s' library.", imageLibraryInfoOrNull);
             }
         }
         return readerOrNull;
