@@ -94,38 +94,38 @@ public class ImageUtil
             handle.mark(MAX_READ_AHEAD);
             try
             {
-                return loadJavaAdvancedImagingTiff(handle, imageID);
-            } catch (RuntimeException ex)
+                return loadWithBioFormats(handle, imageID);
+            } catch (RuntimeException ex1)
             {
-                if (imageID.equals(ImageID.NULL))
+                try
                 {
-                    handle.reset();
-                    // There are some TIFF files which cannot be opened by JAI, try ImageJ
-                    // instead...
-                    return loadWithImageJ(handle);
-                } else
+                    return loadJavaAdvancedImagingTiff(handle, imageID);
+                } catch (RuntimeException ex2)
                 {
-                    throw ex;
+                    if (imageID.equals(ImageID.NULL))
+                    {
+                        handle.reset();
+                        // There are some TIFF files which cannot be opened by JAI, try ImageJ
+                        // instead...
+                        return loadWithImageJ(handle);
+                    } else
+                    {
+                        throw ex2;
+                    }
                 }
             }
         }
+    }
 
-        private BufferedImage loadWithImageJ(IRandomAccessFile handle)
-        {
-            operationLog.debug("Load tiff image using ImageJ");
-            String readerName = "tiff";
-            IImageReader imageReader =
-                    ImageReaderFactory
-                            .tryGetReader(ImageReaderConstants.IMAGEJ_LIBRARY, readerName);
-            if (imageReader == null)
-            {
-                throw new IllegalStateException(String.format(
-                        "There is no reader '%s' in image library '%s'.", readerName,
-                        ImageReaderConstants.IMAGEJ_LIBRARY));
-            }
-            return imageReader.readImage(handle, ImageID.NULL, null);
+    private static BufferedImage loadWithImageJ(IRandomAccessFile handle)
+    {
+        return loadWithLibrary(handle, ImageID.NULL, ImageReaderConstants.IMAGEJ_LIBRARY, "tiff");
+    }
 
-        }
+    private static BufferedImage loadWithBioFormats(IRandomAccessFile handle, ImageID imageID)
+    {
+        return loadWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
+                "TiffDelegateReader");
     }
 
     /**
@@ -134,18 +134,22 @@ public class ImageUtil
     public static BufferedImage loadJavaAdvancedImagingTiff(IRandomAccessFile handle,
             ImageID imageID) throws EnvironmentFailureException
     {
-        operationLog.debug("Load tiff image using JAI");
-        IImageReader imageReader =
-                ImageReaderFactory.tryGetReader(ImageReaderConstants.JAI_LIBRARY, "tiff");
+        return loadWithLibrary(handle, imageID, ImageReaderConstants.JAI_LIBRARY, "tiff");
+    }
+
+    private static BufferedImage loadWithLibrary(IRandomAccessFile handle, ImageID imageIDOrNull,
+            String libraryName, String readerName)
+    {
+        operationLog.debug("Load tiff image using " + libraryName);
+        IImageReader imageReader = ImageReaderFactory.tryGetReader(libraryName, readerName);
         if (imageReader == null)
         {
-            throw EnvironmentFailureException
-                    .fromTemplate("Cannot find JAI image decoder for TIFF files.");
+            throw new IllegalStateException(String.format(
+                    "There is no reader '%s' in image library '%s'.", readerName, libraryName));
         }
-
         try
         {
-            return imageReader.readImage(handle, imageID, null);
+            return imageReader.readImage(handle, imageIDOrNull, null);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
