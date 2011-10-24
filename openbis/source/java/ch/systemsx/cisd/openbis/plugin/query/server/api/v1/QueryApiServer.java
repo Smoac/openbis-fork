@@ -151,9 +151,13 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
-        return translate(commonServer.createReportFromDatasets(sessionToken,
+        checkSession(sessionToken);
+
+        DatastoreServiceDescription description =
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
-                        null), dataSetCodes));
+                        null);
+        return translate(commonServer.createReportFromDatasets(sessionToken, description,
+                dataSetCodes));
     }
 
     public int getMajorVersion()

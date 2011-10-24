@@ -20,19 +20,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class Util
 {
-    static QueryTableColumnDataType translate(DataTypeCode dataTypeCode)
+    static QueryTableColumnDataType translate(DataTypeCode dataTypeCodeOrNull)
     {
-        switch (dataTypeCode)
+        if (dataTypeCodeOrNull == null)
         {
-            case INTEGER: return QueryTableColumnDataType.LONG;
-            case REAL: return QueryTableColumnDataType.DOUBLE;
-            default: return QueryTableColumnDataType.STRING;
+            return QueryTableColumnDataType.STRING;
+        }
+        switch (dataTypeCodeOrNull)
+        {
+            case INTEGER:
+                return QueryTableColumnDataType.LONG;
+            case REAL:
+                return QueryTableColumnDataType.DOUBLE;
+            default:
+                return QueryTableColumnDataType.STRING;
         }
     }
 }
