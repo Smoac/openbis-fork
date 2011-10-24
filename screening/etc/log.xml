@@ -16,4 +16,8 @@
      <appender-ref ref="STDOUT" />
   </root>
 
+  <logger name="loci.formats.in">
+    <!-- Print only messages of level warn or above from the BioFormats library -->
+    <level value="warn"/> 
+  </logger>
 </log4j:configuration>
