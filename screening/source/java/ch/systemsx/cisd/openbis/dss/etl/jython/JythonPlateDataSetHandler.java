@@ -96,6 +96,12 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return new DataSetInformation();
         }
 
+        /**
+         * @return empty template of image registration details, which has to be filled.
+         * @deprecated use {@link #createImageRegistrationDetails(SimpleImageDataConfig, File)}
+         *             instead.
+         */
+        @Deprecated
         public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails()
         {
             DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
