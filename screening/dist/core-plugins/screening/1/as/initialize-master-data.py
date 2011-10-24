@@ -178,6 +178,10 @@ data_set_type_HCS_IMAGE_SEGMENTATION = tr.createNewDataSetType('HCS_IMAGE_SEGMEN
 data_set_type_HCS_IMAGE_SEGMENTATION.setDescription('HCS Segmentation Images (overlays).')
 data_set_type_HCS_IMAGE_SEGMENTATION.setContainerType(False)
 
+data_set_type_HCS_IMAGE_CONTAINER = tr.createNewDataSetType('HCS_IMAGE_CONTAINER')
+data_set_type_HCS_IMAGE_CONTAINER.setDescription('Container for HCS images of different resolutions (raw, overviews, thumbnails).')
+data_set_type_HCS_IMAGE_CONTAINER.setContainerType(True)
+
 # Exists in the database by default
 #data_set_type_UNKNOWN = tr.createNewDataSetType('UNKNOWN')
 #data_set_type_UNKNOWN.setDescription('Unknown')
