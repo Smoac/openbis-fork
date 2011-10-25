@@ -70,14 +70,12 @@ public class QueryNodeDialog extends AbstractDescriptionBasedNodeDialog<QueryDes
     @Override
     protected void defineQueryForm(JPanel queryPanel, JComboBox queryComboBox)
     {
-        log.info("Query panel:"+queryPanel);
         queryComboBox.addItemListener(new ItemListener()
             {
                 public void itemStateChanged(ItemEvent e)
                 {
                     QueryDescription queryDescription = (QueryDescription) e.getItem();
                     updateParametersPanel(queryDescription);
-                    log.info(queryDescription);
                 }
             });
         JPanel querySelectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
