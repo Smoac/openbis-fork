@@ -76,14 +76,21 @@ public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvid
 
     private final DataSource dataSource;
 
-    private final IFreeSpaceProvider fileSystemFreeSpaceProvider = new SimpleFreeSpaceProvider();
+    private final IFreeSpaceProvider fileSystemFreeSpaceProvider;
 
     public PostgresPlusFileSystemFreeSpaceProvider(Properties properties)
     {
-        executeVacuum = PropertyUtils.getBoolean(properties, EXECUTE_VACUUM_KEY, false);
-        
+        this(properties, new SimpleFreeSpaceProvider());
+    }
+
+    PostgresPlusFileSystemFreeSpaceProvider(Properties properties,
+            IFreeSpaceProvider fileSystemFreeSpaceProvider)
+    {
+        this.executeVacuum = PropertyUtils.getBoolean(properties, EXECUTE_VACUUM_KEY, false);
+
         String dataSourceName = PropertyUtils.getMandatoryProperty(properties, DATA_SOURCE_KEY);
-        dataSource = ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);
+        this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(dataSourceName);
+        this.fileSystemFreeSpaceProvider = fileSystemFreeSpaceProvider;
     }
 
     public long freeSpaceKb(HostAwareFile path) throws IOException

@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.io.FileSystemUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
@@ -36,6 +35,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 
@@ -50,6 +50,8 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
     private PostgresPlusFileSystemFreeSpaceProvider provider;
 
     private Mockery context;
+
+    private IFreeSpaceProvider fsFreeSpaceProvider;
     private Connection connection;
 
     private BeanFactory mockApplicationContext;
@@ -97,18 +99,24 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         return props;
     }
 
+    private PostgresPlusFileSystemFreeSpaceProvider createProvider(boolean executeVacuum)
+    {
+        Properties props = createProperties(executeVacuum);
+        fsFreeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        return new PostgresPlusFileSystemFreeSpaceProvider(props, fsFreeSpaceProvider);
+    }
+
     @Test
     public void testNoVacuum() throws Exception
     {
-        Properties props = createProperties(false);
-        provider = new PostgresPlusFileSystemFreeSpaceProvider(props);
+        provider = createProvider(false);
 
         final long postgresFreeSpace = 1000L;
-        prepareFreeSpaceExpectations(postgresFreeSpace);
+        final long fsFreeSpace = 5001L;
+        prepareFreeSpaceExpectations(postgresFreeSpace, fsFreeSpace);
         
         File workDir = new File(".");
         HostAwareFile file = new HostAwareFile(workDir);
-        long fsFreeSpace = FileSystemUtils.freeSpaceKb(workDir.getAbsolutePath());
         long totalFreeSpace = provider.freeSpaceKb(file);
         
         assertEquals(fsFreeSpace + postgresFreeSpace, totalFreeSpace);
@@ -117,16 +125,15 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
     @Test
     public void testWithVacuum() throws Exception
     {
-        Properties props = createProperties(true);
-        provider = new PostgresPlusFileSystemFreeSpaceProvider(props);
+        provider = createProvider(true);
 
         final long postgresFreeSpace = 1000L;
+        final long fsFreeSpace = 5001L;
         prepareVacuumExpectations();
-        prepareFreeSpaceExpectations(postgresFreeSpace);
+        prepareFreeSpaceExpectations(postgresFreeSpace, fsFreeSpace);
 
         File workDir = new File(".");
         HostAwareFile file = new HostAwareFile(workDir);
-        long fsFreeSpace = FileSystemUtils.freeSpaceKb(workDir.getAbsolutePath());
         long totalFreeSpace = provider.freeSpaceKb(file);
 
         assertEquals(fsFreeSpace + postgresFreeSpace, totalFreeSpace);
@@ -146,7 +153,8 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
             });
     }
 
-    private void prepareFreeSpaceExpectations(final long freeSpace) throws Exception
+    private void prepareFreeSpaceExpectations(final long freeSpace, final long fsFreeSpace)
+            throws Exception
     {
         context.checking(new Expectations()
             {
@@ -162,6 +170,9 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
 
                     one(rs).getLong(1);
                     will(returnValue(freeSpace));
+
+                    one(fsFreeSpaceProvider).freeSpaceKb(with(any(HostAwareFile.class)));
+                    will(returnValue(fsFreeSpace));
                 }
             });
     }
