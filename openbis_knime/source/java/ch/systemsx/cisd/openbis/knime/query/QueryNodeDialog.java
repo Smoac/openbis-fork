@@ -48,13 +48,13 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 
 /**
+ * Node dialog for an openBIS SQL query.
+ * 
  * @author Franz-Josef Elmer
  */
-public class QueryNodeDialog extends AbstractOpenBisNodeDialog
+public class QueryNodeDialog extends AbstractDescriptionBasedNodeDialog<QueryDescription>
 {
     private static final NodeLogger log = NodeLogger.getLogger(QueryNodeDialog.class);
-
-    private JComboBox queryComboBox;
 
     private JPanel parametersPanel;
 
@@ -68,9 +68,9 @@ public class QueryNodeDialog extends AbstractOpenBisNodeDialog
     }
 
     @Override
-    protected void defineQueryForm(JPanel queryPanel)
+    protected void defineQueryForm(JPanel queryPanel, JComboBox queryComboBox)
     {
-        queryComboBox = new JComboBox();
+        log.info("Query panel:"+queryPanel);
         queryComboBox.addItemListener(new ItemListener()
             {
                 public void itemStateChanged(ItemEvent e)
@@ -92,24 +92,15 @@ public class QueryNodeDialog extends AbstractOpenBisNodeDialog
     }
 
     @Override
-    protected void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
+    protected void loadMoreSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
     {
-        byte[] bytes = settings.getByteArray(QUERY_DESCRIPTION_KEY, null);
-        QueryDescription queryDescriptionOrNull = Util.deserializeQueryDescription(bytes);
         parameterBindings.loadValidatedSettingsFrom(settings);
-        if (queryDescriptionOrNull != null && queryComboBox.getItemCount() == 0)
-        {
-            queryComboBox.addItem(queryDescriptionOrNull);
-            queryComboBox.setSelectedIndex(0);
-        }
     }
 
     @Override
-    protected void saveAdditionalSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException
+    protected void saveMoreSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException
     {
-        byte[] bytes = Util.serializeQueryDescription(getSelectedQueryDescriptionOrNull());
-        settings.addByteArray(QUERY_DESCRIPTION_KEY, bytes);
         parameterBindings.removeAllBindings();
         Set<Entry<String, JTextField>> entrySet = parameterFields.entrySet();
         for (Entry<String, JTextField> entry : entrySet)
@@ -119,14 +110,8 @@ public class QueryNodeDialog extends AbstractOpenBisNodeDialog
         parameterBindings.saveSettingsTo(settings);
     }
 
-    private QueryDescription getSelectedQueryDescriptionOrNull()
-    {
-        Object selectedItem = queryComboBox.getSelectedItem();
-        return selectedItem == null ? null : (QueryDescription) selectedItem;
-    }
-
     @Override
-    protected void updateQueryForm(IQueryApiFacade facade)
+    protected List<QueryDescription> getSortedDescriptions(IQueryApiFacade facade)
     {
         List<QueryDescription> queries = facade.listQueries();
         Collections.sort(queries, new Comparator<QueryDescription>()
@@ -136,16 +121,13 @@ public class QueryNodeDialog extends AbstractOpenBisNodeDialog
                     return d1.getName().compareTo(d2.getName());
                 }
             });
-        QueryDescription selectedQueryDescription = getSelectedQueryDescriptionOrNull();
-        queryComboBox.removeAllItems();
-        for (QueryDescription queryDescription : queries)
-        {
-            queryComboBox.addItem(queryDescription);
-            if (queryDescription.equals(selectedQueryDescription))
-            {
-                queryComboBox.setSelectedItem(queryDescription);
-            }
-        }
+        return queries;
+    }
+
+    @Override
+    protected String getDescriptionKey()
+    {
+        return QUERY_DESCRIPTION_KEY;
     }
 
     private void updateParametersPanel(QueryDescription queryDescription)

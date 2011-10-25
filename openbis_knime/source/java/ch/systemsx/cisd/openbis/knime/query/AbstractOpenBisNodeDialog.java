@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.knime.query;
 
-import static ch.systemsx.cisd.openbis.knime.query.QueryNodeModel.PASSWORD_KEY;
-import static ch.systemsx.cisd.openbis.knime.query.QueryNodeModel.URL_KEY;
-import static ch.systemsx.cisd.openbis.knime.query.QueryNodeModel.USER_KEY;
+import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.PASSWORD_KEY;
+import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.URL_KEY;
+import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.USER_KEY;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -84,6 +84,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         connectionPanel.add(button, createLast());
         panel.add(connectionPanel, BorderLayout.NORTH);
         JPanel queryPanel = new JPanel(new BorderLayout());
+        defineQueryForm(queryPanel);
         panel.add(queryPanel, BorderLayout.CENTER);
 
         JScrollPane scrollPane = new JScrollPane(panel);
@@ -114,9 +115,6 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected abstract void defineQueryForm(JPanel queryPanel);
     
-    /**
-     * Creates the 
-     */
     protected abstract void updateQueryForm(IQueryApiFacade facade);
     
     protected abstract void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
@@ -124,6 +122,15 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     
     protected abstract void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException;
+    
+    protected IQueryApiFacade createFacade()
+    {
+        String url = urlField.getText();
+        String userID = userField.getText();
+        String password = new String(passwordField.getPassword());
+        IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
+        return facade;
+    }
     
     protected <T extends JComponent> T addField(JPanel panel, String label, T field)
     {
@@ -148,14 +155,5 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         return constraints;
     }
     
-    private IQueryApiFacade createFacade()
-    {
-        String url = urlField.getText();
-        String userID = userField.getText();
-        String password = new String(passwordField.getPassword());
-        IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
-        return facade;
-    }
-
 
 }

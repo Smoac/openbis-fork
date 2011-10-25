@@ -36,8 +36,8 @@ public class UtilTest extends AssertJUnit
         QueryDescription queryDescription = new QueryDescription();
         queryDescription.setDescription("description");
         
-        byte[] serializedQueryDescription = Util.serializeQueryDescription(queryDescription);
-        QueryDescription deserializedQueryDescription = Util.deserializeQueryDescription(serializedQueryDescription);
+        byte[] serializedQueryDescription = Util.serializeDescription(queryDescription);
+        QueryDescription deserializedQueryDescription = Util.deserializeDescription(serializedQueryDescription);
         
         assertEquals(queryDescription.getDescription(), deserializedQueryDescription.getDescription());
     }

@@ -16,38 +16,38 @@
 
 package ch.systemsx.cisd.openbis.knime.query;
 
-import static ch.systemsx.cisd.openbis.knime.query.QueryNodeModel.PASSWORD_KEY;
+import static ch.systemsx.cisd.openbis.knime.query.AbstractOpenBisNodeModel.PASSWORD_KEY;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.util.KnimeEncryption;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 
 /**
- * 
+ * Utility methods.
  *
  * @author Franz-Josef Elmer
  */
 class Util
 {
-    static byte[] serializeQueryDescription(QueryDescription queryDescriptionOrNull)
+    static <D extends Serializable> byte[] serializeDescription(D descriptionOrNull)
     {
-        if (queryDescriptionOrNull == null)
+        if (descriptionOrNull == null)
         {
             return null;
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try
         {
-            new ObjectOutputStream(baos).writeObject(queryDescriptionOrNull);
+            new ObjectOutputStream(baos).writeObject(descriptionOrNull);
             return baos.toByteArray();
         } catch (IOException ex)
         {
@@ -55,16 +55,17 @@ class Util
         }
     }
     
-    static QueryDescription deserializeQueryDescription(byte[] serializeQueryDescriptionOrNull)
+    @SuppressWarnings("unchecked")
+    static <D extends Serializable> D deserializeDescription(byte[] serializeDescriptionOrNull)
     {
-        if (serializeQueryDescriptionOrNull == null)
+        if (serializeDescriptionOrNull == null)
         {
             return null;
         }
-        ByteArrayInputStream bais = new ByteArrayInputStream(serializeQueryDescriptionOrNull);
+        ByteArrayInputStream bais = new ByteArrayInputStream(serializeDescriptionOrNull);
         try
         {
-            return (QueryDescription) new ObjectInputStream(bais).readObject();
+            return (D) new ObjectInputStream(bais).readObject();
         } catch (Exception ex)
         {
             return null;

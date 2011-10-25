@@ -5,11 +5,14 @@
    <extension point="org.knime.workbench.repository.nodes">
       <node category-path="/openbis/query" factory-class="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory" 
             id="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory"/>
+      <node category-path="/openbis/report" factory-class="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory" 
+            id="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory"/>
    </extension>
    
    <extension point="org.knime.workbench.repository.categories">
       <category icon="icons/openbis.png" level-id="openbis" name="openBIS" path="/"/>
       <category icon="icons/openbis.png" level-id="query" name="Query" path="/openbis"/>
+      <category icon="icons/openbis.png" level-id="report" name="Report" path="/openbis"/>
    </extension>
    
 </plugin>
