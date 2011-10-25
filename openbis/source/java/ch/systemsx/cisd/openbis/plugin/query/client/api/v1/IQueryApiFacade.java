@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -56,6 +57,11 @@ public interface IQueryApiFacade
      */
     public QueryTableModel createReportFromDataSets(ReportDescription reportDescription,
             List<String> dataSetCodes);
+
+    /**
+     * Returns a remote access to the {@link IGeneralInformationService}.
+     */
+    public IGeneralInformationService getGeneralInformationService();
 
     /**
      * Logs current user out.

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -31,11 +32,15 @@ class QueryApiFacade implements IQueryApiFacade
 {
     private final IQueryApiServer service;
 
+    private final IGeneralInformationService generalInformationService;
+
     private final String sessionToken;
 
-    QueryApiFacade(IQueryApiServer service, String sessionToken)
+    QueryApiFacade(IQueryApiServer service, IGeneralInformationService generalInformationService,
+            String sessionToken)
     {
         this.service = service;
+        this.generalInformationService = generalInformationService;
         this.sessionToken = sessionToken;
     }
 
@@ -47,6 +52,11 @@ class QueryApiFacade implements IQueryApiFacade
     public void logout()
     {
         service.logout(sessionToken);
+    }
+
+    public IGeneralInformationService getGeneralInformationService()
+    {
+        return generalInformationService;
     }
 
     public List<QueryDescription> listQueries()

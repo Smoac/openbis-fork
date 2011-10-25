@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.api.v1;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -26,21 +27,25 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  */
 public class FacadeFactory
 {
-    private static final ServiceFinder SERVICE_FINDER =
-            new ServiceFinder("openbis", IQueryApiServer.QUERY_PLUGIN_SERVER_URL);
+    private static final ServiceFinder QUERY_SERVICE_FINDER = new ServiceFinder("openbis",
+            IQueryApiServer.QUERY_PLUGIN_SERVER_URL);
+
+    private static final ServiceFinder GENERAL_INFORMATION_SERVICE_FINDER = new ServiceFinder(
+            "openbis", IGeneralInformationService.SERVICE_URL);
 
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
     public static IQueryApiFacade create(String serverURL, String userID, String password)
     {
-        IQueryApiServer service = createService(serverURL);
+        IQueryApiServer service = createQueryService(serverURL);
         String sessionToken = service.tryToAuthenticateAtQueryServer(userID, password);
         if (sessionToken == null)
         {
             throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
         }
-        return new QueryApiFacade(service, sessionToken);
+        // Login at one service is enough
+        return new QueryApiFacade(service, createGeneralInfoService(serverURL), sessionToken);
     }
 
     /**
@@ -48,11 +53,18 @@ public class FacadeFactory
      */
     public static IQueryApiFacade create(String serverURL, String sessionToken)
     {
-        return new QueryApiFacade(createService(serverURL), sessionToken);
+        return new QueryApiFacade(createQueryService(serverURL),
+                createGeneralInfoService(serverURL), sessionToken);
     }
-    
-    private static IQueryApiServer createService(String serverURL)
+
+    private static IQueryApiServer createQueryService(String serverURL)
     {
-        return SERVICE_FINDER.createService(IQueryApiServer.class, serverURL);
+        return QUERY_SERVICE_FINDER.createService(IQueryApiServer.class, serverURL);
+    }
+
+    private static IGeneralInformationService createGeneralInfoService(String serverURL)
+    {
+        return GENERAL_INFORMATION_SERVICE_FINDER.createService(IGeneralInformationService.class,
+                serverURL);
     }
 }
