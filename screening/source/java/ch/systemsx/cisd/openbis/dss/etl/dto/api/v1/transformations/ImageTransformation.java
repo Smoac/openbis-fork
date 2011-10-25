@@ -118,4 +118,17 @@ public class ImageTransformation
     {
         this.isDefault = isDefault;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("ImageTransformation [code=" + code + ", label=" + label);
+        if (description != null)
+        {
+            sb.append(", description=" + description);
+        }
+        sb.append(", isDefault=" + isDefault + "]");
+        return sb.toString();
+    }
 }
