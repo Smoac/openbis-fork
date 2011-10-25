@@ -218,7 +218,7 @@ check layeringOf plugin.${pq}.web.client-server
 
 [api-shared] = ${plugin}.*.shared.api.*
 [api-client] = ${plugin}.*.client.api.*
-[java] = java* *.annotation.* *.annotate.* ch.systemsx.cisd.common.api.IRpcService
+[java] = java* *.annotation.* *.annotate.* ch.systemsx.cisd.common.api.IRpcService ${generic}.shared.api.*
 [java-and-api-shared] = [java] [api-shared] ch.systemsx.cisd.common.api.client.*
 
 check sets [api-shared] [api-client]
