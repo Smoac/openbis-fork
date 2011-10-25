@@ -135,8 +135,8 @@ public interface IGeneralInformationService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
-            String experimentType);
+            @AuthorizationGuard(guardClass = ProjectPredicate.class)
+            List<Project> projects, String experimentType);
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
@@ -253,7 +253,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.8
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
     /**
