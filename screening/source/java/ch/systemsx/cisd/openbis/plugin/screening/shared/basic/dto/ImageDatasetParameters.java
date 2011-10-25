@@ -21,8 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 
 /**
  * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
@@ -120,32 +118,6 @@ public class ImageDatasetParameters implements ISerializable
             channelLabels.add(channel.getLabel());
         }
         return channelLabels;
-    }
-
-    public List<ImageChannel> getPublicChannels()
-    {
-        final List<ImageChannel> publicChannels = new ArrayList<ImageChannel>(channels.size());
-        for (InternalImageChannel channel : channels)
-        {
-            publicChannels.add(new ImageChannel(channel.getCode(), channel.getLabel(), channel
-                    .tryGetDescription(), channel.tryGetWavelength(),
-                    getPublicImageTransformationInfos(channel.getAvailableImageTransformations())));
-        }
-        return publicChannels;
-
-    }
-
-    private List<ImageTransformationInfo> getPublicImageTransformationInfos(
-            List<InternalImageTransformationInfo> internalTrafos)
-    {
-        final List<ImageTransformationInfo> publicTrafos =
-                new ArrayList<ImageTransformationInfo>(internalTrafos.size());
-        for (InternalImageTransformationInfo info : internalTrafos)
-        {
-            publicTrafos.add(new ImageTransformationInfo(info.getCode(), info.getLabel(), info
-                    .getDescription(), info.isDefault()));
-        }
-        return publicTrafos;
     }
 
     public int getChannelsNumber()

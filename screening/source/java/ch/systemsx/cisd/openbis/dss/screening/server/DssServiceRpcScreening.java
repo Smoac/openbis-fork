@@ -70,13 +70,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MicroscopyImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
@@ -238,9 +242,36 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         final Size imageSize = getOriginalImageSize(dataset, imageAccessor);
         final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
-        return new ImageDatasetMetadata(dataset, params.getPublicChannels(),
+        return new ImageDatasetMetadata(dataset, toPublicChannels(params.getInternalChannels()),
                 params.getTileRowsNum(), params.getTileColsNum(), imageSize.getWidth(),
                 imageSize.getHeight(), thumbnailSize.getWidth(), thumbnailSize.getHeight());
+    }
+
+    private List<ImageChannel> toPublicChannels(List<InternalImageChannel> internalChannels)
+    {
+        final List<ImageChannel> publicChannels =
+                new ArrayList<ImageChannel>(internalChannels.size());
+        for (InternalImageChannel channel : internalChannels)
+        {
+            publicChannels.add(new ImageChannel(channel.getCode(), channel.getLabel(), channel
+                    .tryGetDescription(), channel.tryGetWavelength(),
+                    toPublicImageTransformationInfos(channel.getAvailableImageTransformations())));
+        }
+        return publicChannels;
+
+    }
+
+    private List<ImageTransformationInfo> toPublicImageTransformationInfos(
+            List<InternalImageTransformationInfo> internalTrafos)
+    {
+        final List<ImageTransformationInfo> publicTrafos =
+                new ArrayList<ImageTransformationInfo>(internalTrafos.size());
+        for (InternalImageTransformationInfo info : internalTrafos)
+        {
+            publicTrafos.add(new ImageTransformationInfo(info.getCode(), info.getLabel(), info
+                    .getDescription(), info.isDefault()));
+        }
+        return publicTrafos;
     }
 
     private static Size getOriginalImageSize(IImageDatasetIdentifier dataset,
