@@ -8,6 +8,7 @@ from java.io import File
 from ch.systemsx.cisd.imagereaders import ImageReaderFactory, ImageID
 from ch.systemsx.cisd.imagereaders.bioformats import FlexHelper
 from ch.systemsx.cisd.openbis.dss.etl import TileGeometryOracle
+from ch.systemsx.cisd.openbis.plugin.screening.shared.basic import PlateUtils
 
 class OperaFlexImageDataSet(SimpleImageDataConfig):
 
@@ -23,9 +24,8 @@ class OperaFlexImageDataSet(SimpleImageDataConfig):
             basename = os.path.basename(imagePath)
             fileName = os.path.splitext(basename)[0]
             row = int(fileName[0:3])
-            rowLetter = chr(ord('A') - 1 + row)
             col = int(fileName[3:6])
-            token.well = rowLetter + str(col)
+            token.well = PlateUtils.translateRowNumberIntoLetterCode(row) + str(col)
                         
             token.tileNumber = self.flexHelper.getTileNumber(ix)
             token.channelCode = self.flexHelper.getChannelCode(ix)
