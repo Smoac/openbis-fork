@@ -206,16 +206,6 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         serviceFacade.putDataSet(newDataset, exampleDataSet);
     }
 
-    @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = AuthorizationFailureException.class)
-    public void testObserverHasNoReadPermissions() throws Exception
-    {
-        serviceFacade = createServiceFacade("observer");
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
-        DataSet dataSet = serviceFacade.getDataSet(code);
-        dataSet.listFiles("/", true);
-    }
-
     private IOpenbisServiceFacade createServiceFacade(String userName)
     {
         return OpenbisServiceFacadeFactory.tryCreate(userName, "a", OPENBIS_URL,
