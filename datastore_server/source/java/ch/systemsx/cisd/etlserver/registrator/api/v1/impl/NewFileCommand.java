@@ -18,8 +18,12 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Creates a directory and all necessary intermediate dirctories.
@@ -29,6 +33,9 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 public class NewFileCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            NewFileCommand.class);
 
     private final String fileAbsolutePath;
 
@@ -58,6 +65,11 @@ public class NewFileCommand extends AbstractTransactionalCommand
 
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.delete(src);
+        if (src.exists())
+        {
+            operationLog.error("Could not delete file '" + src + "'.");
+        }
+
     }
 
     @Override

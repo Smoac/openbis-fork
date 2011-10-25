@@ -538,6 +538,10 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         private void cleanUpMarkerFile()
         {
             getFileOperations().delete(markerFile);
+            if (markerFile.exists())
+            {
+                operationLog.error("Marker file '" + markerFile + "' could not be deleted.");
+            }
         }
     }
 
@@ -557,6 +561,11 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         private void cleanUpStagingDirectory()
         {
             getFileOperations().delete(stagingDirectory);
+            if (stagingDirectory.exists())
+            {
+                operationLog.error("Staging directory '" + stagingDirectory
+                        + "' could not be deleted.");
+            }
         }
 
     }
