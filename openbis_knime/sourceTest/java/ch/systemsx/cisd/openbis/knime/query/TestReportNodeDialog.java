@@ -42,12 +42,12 @@ public class TestReportNodeDialog
 {
     private static final class Dialog extends ReportNodeDialog
     {
-        private final IQueryApiFacade facade;
+        private final IQueryApiFacade queryApiFacade;
 
         Dialog()
         {
             Mockery context = new Mockery();
-            facade = context.mock(IQueryApiFacade.class);
+            final IQueryApiFacade facade = context.mock(IQueryApiFacade.class);
             final IGeneralInformationService service =
                     context.mock(IGeneralInformationService.class);
             context.checking(new Expectations()
@@ -86,12 +86,13 @@ public class TestReportNodeDialog
                         return new DataSet(initializer);
                     }
                 });
+            queryApiFacade = facade;
         }
 
         @Override
         protected IQueryApiFacade createFacade()
         {
-            return facade;
+            return queryApiFacade;
         }
         
     }
