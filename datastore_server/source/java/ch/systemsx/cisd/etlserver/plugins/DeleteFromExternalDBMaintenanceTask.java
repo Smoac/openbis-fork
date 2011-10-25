@@ -63,11 +63,11 @@ public class DeleteFromExternalDBMaintenanceTask extends
 
     private String lastSeenEventID;
 
-    private String[] dataSetTableNames;
+    protected String[] dataSetTableNames;
 
-    private String permIDColumn;
+    protected String permIDColumn;
 
-    private Connection connection;
+    protected Connection connection;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -139,7 +139,6 @@ public class DeleteFromExternalDBMaintenanceTask extends
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(sqlEx);
         }
-
     }
 
     @Override
@@ -162,7 +161,6 @@ public class DeleteFromExternalDBMaintenanceTask extends
         {
             operationLog.error(sqlEx);
         }
-
     }
 
     private void checkDatabaseConnection()
@@ -201,7 +199,7 @@ public class DeleteFromExternalDBMaintenanceTask extends
         return dataSource.getConnection();
     }
 
-    private void deleteDatasets(List<DeletedDataSet> deletedDataSets) throws SQLException
+    protected void deleteDatasets(List<DeletedDataSet> deletedDataSets) throws SQLException
     {
         if (operationLog.isInfoEnabled())
         {
@@ -223,7 +221,7 @@ public class DeleteFromExternalDBMaintenanceTask extends
         statement.executeUpdate();
     }
 
-    private String joinIds(List<DeletedDataSet> deletedDatasetCodes)
+    protected static String joinIds(List<DeletedDataSet> deletedDatasetCodes)
     {
         StringBuilder sb = new StringBuilder();
         for (DeletedDataSet dds : deletedDatasetCodes)
