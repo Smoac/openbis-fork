@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
- * Public API interface to query server (version 1).
+ * Public API interface to query server (version 1.2).
  * 
  * @author Franz-Josef Elmer
  */
@@ -75,6 +75,8 @@ public interface IQueryApiServer extends IRpcService
 
     /**
      * Returns meta data for all reporting plugins which deliver a table.
+     * 
+     * @since 1.2
      */
     @Transactional(readOnly = true)
     public List<ReportDescription> listTableReportDescriptions(String sessionToken);
@@ -85,6 +87,7 @@ public interface IQueryApiServer extends IRpcService
      * 
      * @param dataStoreCode Code of the data store.
      * @param serviceKey Key of the data store service.
+     * @since 1.2
      */
     @Transactional(readOnly = true)
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,

@@ -167,7 +167,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 
     public int getMinorVersion()
     {
-        return 1;
+        return 2;
     }
 
     private QueryTableModel translate(TableModel result)
