@@ -24,8 +24,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -37,6 +39,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
@@ -45,7 +49,6 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -68,18 +71,20 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             ExperimentBasedArchivingTask.class);
+    
+    private static final long ONE_KB_IN_BYTES = 1024L;
 
     static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
-
-    static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
-    static final String MONITORED_SHARE_KEY = "monitored-share";
 
     static final String EXCLUDED_DATA_SET_TYPES_KEY = "excluded-data-set-types";
 
     static final String MONITORED_DIR = "monitored-dir";
 
     static final String FREE_SPACE_PROVIDER_PREFIX = "free-space-provider.";
+
+    static final String DATA_SET_SIZE_PREFIX = "data-set-size.";
+
+    static final String DEFAULT_DATA_SET_TYPE = "DEFAULT";
 
     private static final EnumSet<DataSetArchivingStatus> ARCHIVE_STATES = EnumSet.of(
             DataSetArchivingStatus.ARCHIVE_PENDING, DataSetArchivingStatus.ARCHIVED);
@@ -88,27 +93,22 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private IFreeSpaceProvider freeSpaceProvider;
 
-    private File storeRoot;
-
     private File monitoredDirectory;
 
     private long minimumFreeSpace;
 
-    private String shareIDOrNull;
-
-    private final IShareIdManager shareIdManager;
-
     private Set<String> excludedDataSetTypes;
+
+    private Map<String, Long> estimatedDataSetSizes;
 
     public ExperimentBasedArchivingTask()
     {
-        this(ServiceProvider.getOpenBISService(), ServiceProvider.getShareIdManager());
+        this(ServiceProvider.getOpenBISService());
     }
 
-    ExperimentBasedArchivingTask(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager)
+    ExperimentBasedArchivingTask(IEncapsulatedOpenBISService service)
     {
         this.service = service;
-        this.shareIdManager = shareIdManager;
     }
 
     public boolean requiresDataStoreLock()
@@ -118,54 +118,27 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     public void setUp(String pluginName, Properties properties)
     {
-        storeRoot = setUpStoreRoot(properties);
         freeSpaceProvider = setUpFreeSpaceProvider(properties);
-        setUpMonitoredShareOrPath(properties);
+        monitoredDirectory = setUpMonitoredDirectory(properties);
         minimumFreeSpace =
                 FileUtils.ONE_MB * PropertyUtils.getLong(properties, MINIMUM_FREE_SPACE_KEY, 1024);
         excludedDataSetTypes =
                 new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                         properties.getProperty(EXCLUDED_DATA_SET_TYPES_KEY, ""),
                         EXCLUDED_DATA_SET_TYPES_KEY)));
+        estimatedDataSetSizes = setUpEstimatedDataSetSizes(properties);
     }
 
-    private File setUpStoreRoot(Properties properties)
-    {
-        String storeRootFileName =
-                PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
-        File resultStoreRoot = new File(storeRootFileName);
-        if (resultStoreRoot.isDirectory() == false)
-        {
-            throw new ConfigurationFailureException(
-                    "Store root doesn't exists or isn't a directory: " + storeRoot);
-        }
-        return resultStoreRoot;
-    }
-
-    private void setUpMonitoredShareOrPath(Properties properties)
+    private File setUpMonitoredDirectory(Properties properties)
     {
         final String monitoredDirPath = PropertyUtils.getProperty(properties, MONITORED_DIR);
-        if (monitoredDirPath == null)
+        File monitoredDir = new File(monitoredDirPath);
+        if (monitoredDir.isDirectory() == false)
         {
-            shareIDOrNull = PropertyUtils.getMandatoryProperty(properties, MONITORED_SHARE_KEY);
-            monitoredDirectory = new File(storeRoot, shareIDOrNull);
-        } else
-        {
-            shareIDOrNull = null;
-            monitoredDirectory = new File(monitoredDirPath);
+            throw new ConfigurationFailureException("Directory '" + monitoredDirPath
+                    + "' doesn't exists or isn't a directory.");
         }
-        if (monitoredDirectory.isDirectory() == false)
-        {
-            if (monitorDataStoreShare())
-            {
-                throw new ConfigurationFailureException("Share " + shareIDOrNull
-                        + " doesn't exists or isn't a directory.");
-            } else
-            {
-                throw new ConfigurationFailureException("Directory '" + monitoredDirPath
-                        + "' doesn't exists or isn't a directory.");
-            }
-        }
+        return monitoredDir;
     }
 
     private IFreeSpaceProvider setUpFreeSpaceProvider(Properties properties)
@@ -195,6 +168,27 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             return ClassUtils.create(IFreeSpaceProvider.class, clazz);
         }
         
+    }
+
+    private Map<String, Long> setUpEstimatedDataSetSizes(Properties properties)
+    {
+        ISimpleLogger log = new Log4jSimpleLogger(operationLog);
+        Properties dataSetSizeProps =
+                ExtendedProperties.getSubset(properties, DATA_SET_SIZE_PREFIX, true);
+        Map<String, Long> result = new HashMap<String, Long>();
+        for (Object key : dataSetSizeProps.keySet())
+        {
+            String dataSetType = ((String) key).toUpperCase();
+            long estimatedSizeInBytes =
+                    ONE_KB_IN_BYTES
+                            * PropertyUtils.getPosLong(dataSetSizeProps, dataSetType, 0L, log);
+            if (estimatedSizeInBytes > 0)
+            {
+                result.put(dataSetType, estimatedSizeInBytes);
+            }
+
+        }
+        return result;
     }
 
     public void execute()
@@ -232,22 +226,13 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         StringBuilder archivingMessages = new StringBuilder();
         try
         {
-            if (monitorDataStoreShare())
+            for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
             {
-                for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
+                ExperimentDataSetsInfo info = infos.get(i);
+                long estimatedSpaceFreed = info.estimateSize();
+                if (archive(info, archivingMessages))
                 {
-                    ExperimentDataSetsInfo info = infos.get(i);
-                    freeSpace += info.calculateSize();
-                    archive(info, archivingMessages);
-                }
-            } else
-            {
-                for (int i = 0; i < infos.size() && freeSpace < minimumFreeSpace; i++)
-                {
-                    if (archive(infos.get(i), archivingMessages))
-                    {
-                        freeSpace = getFreeSpace();
-                    }
+                    freeSpace += estimatedSpaceFreed;
                 }
             }
         } finally
@@ -259,16 +244,12 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
     }
 
-    private boolean monitorDataStoreShare()
-    {
-        return shareIDOrNull != null;
-    }
-
     private long getFreeSpace()
     {
         try
         {
-            return 1024L * freeSpaceProvider.freeSpaceKb(new HostAwareFile(monitoredDirectory));
+            return ONE_KB_IN_BYTES
+                    * freeSpaceProvider.freeSpaceKb(new HostAwareFile(monitoredDirectory));
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -314,11 +295,6 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                     continue;
                 }
                 DataSet realDataSet = (DataSet) dataSet;
-                if (shareIDOrNull != null
-                        && realDataSet.getShareId().equals(shareIDOrNull) == false)
-                {
-                    continue;
-                }
                 if (excludedDataSetTypes.contains(realDataSet.getDataSetType().getCode()))
                 {
                     continue;
@@ -345,30 +321,35 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             }
         }
 
-        long calculateSize()
+        public long estimateSize()
         {
-            long sum = 0;
-            for (DataSet dataSet : dataSetsToBeArchived)
+            long sum = 0L;
+            for (DataSet dataSetToBeArchived : getDataSetsToBeArchived())
             {
-                Long size = dataSet.getSize();
-                if (size == null)
-                {
-                    String dataSetCode = dataSet.getCode();
-                    shareIdManager.lock(dataSetCode);
-                    try
-                    {
-                        File shareRoot =
-                                new File(storeRoot, shareIdManager.getShareId(dataSetCode));
-                        String location = dataSet.getLocation();
-                        size = FileUtils.sizeOfDirectory(new File(shareRoot, location));
-                    } finally
-                    {
-                        shareIdManager.releaseLock(dataSetCode);
-                    }
-                }
-                sum += size;
+                sum += estimateSize(dataSetToBeArchived);
             }
             return sum;
+        }
+
+        private long estimateSize(DataSet dataSet)
+        {
+            String dataSetType = dataSet.getDataSetType().getCode().toUpperCase();
+            Long estimatedDataSetSize = estimatedDataSetSizes.get(dataSetType);
+            if (estimatedDataSetSize == null)
+            {
+                estimatedDataSetSize = estimatedDataSetSizes.get(DEFAULT_DATA_SET_TYPE);
+            }
+            if (estimatedDataSetSize == null)
+            {
+                throw ConfigurationFailureException
+                        .fromTemplate(
+                                "Failed to estimate the average size for data set type '%s'. "
+                                        + "Please, configure the maintenance task with a '%s' or a '%s' property. ",
+                                dataSetType, DATA_SET_SIZE_PREFIX + dataSetType,
+                                DATA_SET_SIZE_PREFIX + DEFAULT_DATA_SET_TYPE);
+
+            }
+            return estimatedDataSetSize.longValue();
         }
 
         public String getExperimentIdentifier()
@@ -409,5 +390,4 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             return 0;
         }
     }
-
 }

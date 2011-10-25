@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -39,7 +38,6 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -82,8 +80,6 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private static final String LOCATION_PREFIX = "abc/";
 
-    private static final String SHARE_ID = "3";
-
     private BufferedAppender logRecorder;
 
     private Mockery context;
@@ -92,13 +88,11 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private IFreeSpaceProvider freeSpaceProvider;
 
-    private IShareIdManager shareIdManager;
-
     private ExperimentBasedArchivingTask task;
 
-    private File share;
-
     private Properties properties;
+
+    private File monitoredDir;
 
     private Experiment e1;
 
@@ -109,8 +103,6 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     private DataSet lockedDataSet;
 
     private ExternalData notARealDataSet;
-
-    private DataSet dataSetInAShareToBeIgnored;
 
     private DataSet dataSetOfIgnoredType;
 
@@ -131,10 +123,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
-        shareIdManager = context.mock(IShareIdManager.class);
         MockFreeSpaceProvider.mock = freeSpaceProvider;
 
-        task = new ExperimentBasedArchivingTask(service, shareIdManager);
+        task = new ExperimentBasedArchivingTask(service);
         assertEquals(true, task.requiresDataStoreLock());
 
         e1 = new ExperimentBuilder().id(41).identifier("/S/P/E1").getExperiment();
@@ -144,9 +135,6 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         lockedDataSet =
                 dataSet("lockedDataSet").modificationDate(new Date(100))
                         .status(DataSetArchivingStatus.LOCKED).getDataSet();
-        dataSetInAShareToBeIgnored =
-                dataSet("dataSetInAShareToBeIgnored").modificationDate(new Date(120)).shareID("42")
-                        .getDataSet();
         dataSetOfIgnoredType = dataSet("dataSetOfIgnoredType").type("ABC").getDataSet();
         dataSetWithNoModificationDate = dataSet("dataSetWithNoModificationDate").getDataSet();
         oldDataSet = dataSet("oldDataSet").modificationDate(new Date(300)).getDataSet();
@@ -155,42 +143,22 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         veryYoungDataSet =
                 dataSet("veryYoungDataSet").modificationDate(new Date(2000)).getDataSet();
 
-        share = new File(workingDirectory, "store/" + SHARE_ID);
-        share.mkdirs();
         properties = new Properties();
-        properties.setProperty(ExperimentBasedArchivingTask.STOREROOT_DIR_KEY, share.getParent());
-        properties.setProperty(ExperimentBasedArchivingTask.MONITORED_SHARE_KEY, SHARE_ID);
         properties.setProperty(ExperimentBasedArchivingTask.MINIMUM_FREE_SPACE_KEY, "100");
         properties.setProperty(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY, "ABC, B");
+        monitoredDir = new File(workingDirectory, "/some/dir");
+        monitoredDir.mkdirs();
+        properties.setProperty(ExperimentBasedArchivingTask.MONITORED_DIR,
+                monitoredDir.getAbsolutePath());
         properties.setProperty(ExperimentBasedArchivingTask.FREE_SPACE_PROVIDER_PREFIX + "class",
                 MockFreeSpaceProvider.class.getName());
     }
 
     private DataSetBuilder dataSet(String code)
     {
-        return new DataSetBuilder().code(code).shareID(SHARE_ID).type("A")
+        return new DataSetBuilder().code(code).type("A")
                 .location(LOCATION_PREFIX + code).status(DataSetArchivingStatus.AVAILABLE)
                 .registrationDate(new Date(100));
-    }
-
-    private void writeSomeDataTo(DataSet dataSet, int numberOfBytes)
-    {
-        File dataSetFolder =
-                new File(new File(share.getParentFile(), dataSet.getShareId()),
-                        dataSet.getLocation());
-        dataSetFolder.mkdirs();
-        byte[] data = new byte[numberOfBytes];
-        for (int i = 0; i < numberOfBytes; i++)
-        {
-            data[i] = (byte) i;
-        }
-        try
-        {
-            FileUtils.writeByteArrayToFile(new File(dataSetFolder, "data"), data);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
     }
 
     @AfterMethod
@@ -211,6 +179,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         lockedDataSet.setSize(100L);
         oldDataSet.setSize(20L);
         youngDataSet.setSize(10L);
+        prepareSizesAndTypes(lockedDataSet, oldDataSet, youngDataSet);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
 
         task.setUp("", properties);
@@ -250,30 +219,15 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testArchiveExperimentContainingDataSetsFromDifferentShare()
-    {
-        prepareFreeSpaceProvider(99L);
-        prepareListExperiments(e1);
-        prepareListDataSetsOf(e1, dataSetInAShareToBeIgnored, youngDataSet);
-        youngDataSet.setSize(10L);
-        prepareArchivingDataSets(youngDataSet);
-
-        task.setUp("", properties);
-        task.execute();
-
-        checkLog(logEntry(e1, youngDataSet));
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testArchiveExperimentContainingDataSetsOfAnyType()
     {
         properties.remove(ExperimentBasedArchivingTask.EXCLUDED_DATA_SET_TYPES_KEY);
         prepareFreeSpaceProvider(99L);
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
-        dataSetOfIgnoredType.setSize(20L);
+        prepareDefaultDataSetSize(20L);
         youngDataSet.setSize(10L);
+        prepareSizesAndTypes(youngDataSet);
         prepareArchivingDataSets(dataSetOfIgnoredType, youngDataSet);
 
         task.setUp("", properties);
@@ -290,6 +244,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         prepareListExperiments(e1);
         prepareListDataSetsOf(e1, dataSetOfIgnoredType, youngDataSet);
         youngDataSet.setSize(10L);
+        prepareSizesAndTypes(youngDataSet);
         prepareArchivingDataSets(youngDataSet);
 
         task.setUp("", properties);
@@ -312,28 +267,12 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         middleOldDataSet.setSize(10L);
         prepareArchivingDataSets(oldDataSet);
         prepareArchivingDataSets(middleOldDataSet);
+        prepareSizesAndTypes(oldDataSet, middleOldDataSet);
 
         task.setUp("", properties);
         task.execute();
 
         checkLog(logEntry(e1, oldDataSet), logEntry(e2, middleOldDataSet));
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCalculatingDataSetSize()
-    {
-        prepareFreeSpaceProvider(99L);
-        prepareListExperiments(e1);
-        prepareListDataSetsOf(e1, youngDataSet);
-        writeSomeDataTo(youngDataSet, 700 * 1024);
-        prepareRetrievingShareIdFor(youngDataSet);
-        prepareArchivingDataSets(youngDataSet);
-
-        task.setUp("", properties);
-        task.execute();
-
-        checkLog(logEntry(e1, youngDataSet));
         context.assertIsSatisfied();
     }
 
@@ -344,8 +283,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         prepareListExperiments(e1, e2);
         prepareListDataSetsOf(e1, veryYoungDataSet);
         prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
-        oldDataSet.setSize(500 * 1024L);
-        youngDataSet.setSize(700 * 1024L);
+        oldDataSet.setSize(500L);
+        youngDataSet.setSize(700L);
+        prepareSizesAndTypes(oldDataSet, youngDataSet);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
 
         task.setUp("", properties);
@@ -356,29 +296,29 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testArchiveExperimentsWithMonitoredDirectoryUntilThereIsEnoughFreeSpace()
+    public void testArchiveAllExperiments()
     {
-        final File monitored = new File(workingDirectory, "/some/dir");
-        monitored.mkdirs();
-        prepareFreeSpaceProvider(monitored, 90L, 95L, 101L);
+        prepareFreeSpaceProvider(90L);
         prepareListExperiments(e3, e1, e2);
-        prepareListDataSetsOf(e3, lockedDataSet, dataSetInAShareToBeIgnored);
+        prepareListDataSetsOf(e3, lockedDataSet, dataSetWithNoModificationDate);
         prepareListDataSetsOf(e1, veryYoungDataSet);
         prepareListDataSetsOf(e2, oldDataSet, youngDataSet);
-        lockedDataSet.setSize(1000 * 1024L);
-        dataSetInAShareToBeIgnored.setSize(100 * 1024L);
-        oldDataSet.setSize(500 * 1024L);
-        youngDataSet.setSize(700 * 1024L);
-        prepareArchivingDataSets(dataSetInAShareToBeIgnored);
+        lockedDataSet.setSize(1000L);
+        dataSetWithNoModificationDate.setSize(100L);
+        oldDataSet.setSize(500L);
+        youngDataSet.setSize(700L);
+        prepareArchivingDataSets(dataSetWithNoModificationDate);
         prepareArchivingDataSets(oldDataSet, youngDataSet);
-        properties.remove(ExperimentBasedArchivingTask.MONITORED_SHARE_KEY);
-        properties.put(ExperimentBasedArchivingTask.MONITORED_DIR, monitored.getPath());
+        prepareArchivingDataSets(veryYoungDataSet);
+        prepareDefaultDataSetSize(5000L);
+        prepareSizesAndTypes(dataSetWithNoModificationDate, oldDataSet, youngDataSet);
+
 
         task.setUp("", properties);
         task.execute();
 
-        checkLog(true, logEntry(e3, dataSetInAShareToBeIgnored),
-                logEntry(e2, oldDataSet, youngDataSet));
+        checkLog(true, logEntry(e3, dataSetWithNoModificationDate),
+                logEntry(e2, oldDataSet, youngDataSet), logEntry(e1, veryYoungDataSet));
         context.assertIsSatisfied();
     }
 
@@ -391,8 +331,10 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         prepareListDataSetsOf(e2, dataSetWithNoModificationDate);
         prepareArchivingDataSets(youngDataSet);
         prepareArchivingDataSets(dataSetWithNoModificationDate);
-        youngDataSet.setSize(700 * 1024L);
-        dataSetWithNoModificationDate.setSize(500 * 1024L);
+        youngDataSet.setSize(700L);
+        dataSetWithNoModificationDate.setSize(500L);
+
+        prepareSizesAndTypes(youngDataSet, dataSetWithNoModificationDate);
 
         task.setUp("", properties);
         task.execute();
@@ -434,21 +376,19 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private void prepareFreeSpaceProvider(final long freeSpace)
     {
-        prepareFreeSpaceProvider(share, freeSpace);
+        prepareFreeSpaceProvider(monitoredDir, freeSpace);
     }
 
-    private void prepareFreeSpaceProvider(final File dir, final long... freeSpace)
+    private void prepareFreeSpaceProvider(final File dir, final long freeSpace)
     {
         context.checking(new Expectations()
             {
                 {
                     try
                     {
-                        for (long fs : freeSpace)
-                        {
-                            one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(dir));
-                            will(returnValue(1024L * fs));
-                        }
+                        File absoluteFile = new File(dir.getAbsolutePath());
+                        one(freeSpaceProvider).freeSpaceKb(new HostAwareFile(absoluteFile));
+                        will(returnValue(1024L * freeSpace));
                     } catch (IOException ex)
                     {
                         throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -485,6 +425,24 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             });
     }
 
+    private void prepareDefaultDataSetSize(long defaultSize)
+    {
+        properties.put(ExperimentBasedArchivingTask.DATA_SET_SIZE_PREFIX
+                + ExperimentBasedArchivingTask.DEFAULT_DATA_SET_TYPE, "" + defaultSize);
+    }
+
+    private void prepareSizesAndTypes(DataSet... dataSets)
+    {
+        for (DataSet dataSet : dataSets)
+        {
+            String dataSetSize = String.valueOf(dataSet.getSize());
+            String dataSetType = "DS_TYPE_" + dataSetSize;
+            dataSet.getDataSetType().setCode(dataSetType);
+            properties.put(ExperimentBasedArchivingTask.DATA_SET_SIZE_PREFIX + dataSetType,
+                    dataSetSize);
+        }
+    }
+
     private void prepareArchivingDataSets(ExternalData... dataSets)
     {
         final List<String> dataSetCodes = getDataSetCodes(dataSets);
@@ -492,19 +450,6 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).archiveDataSets(dataSetCodes, true);
-                }
-            });
-    }
-
-    private void prepareRetrievingShareIdFor(final DataSet dataSet)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(shareIdManager).lock(dataSet.getCode());
-                    one(shareIdManager).getShareId(dataSet.getCode());
-                    will(returnValue(dataSet.getShareId()));
-                    one(shareIdManager).releaseLock(dataSet.getCode());
                 }
             });
     }
