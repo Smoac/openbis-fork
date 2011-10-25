@@ -15,6 +15,7 @@
 		<antcall target="_dist"><param name="project" value="plasmid"/></antcall>
 		<antcall target="_dist"><param name="project" value="eu_basynthec"/></antcall>
 		<antcall target="_dist"><param name="project" value="installation"/></antcall>
+		<antcall target="_dist"><param name="project" value="openbis_knime"/></antcall>
 		<antcall target="javadoc"/>
 	</target>
 
@@ -43,6 +44,8 @@
 		<antcall target="_clean"><param name="project" value="rtd_cina"/></antcall>
 		<antcall target="_clean"><param name="project" value="plasmid"/></antcall>
 		<antcall target="_clean"><param name="project" value="eu_basynthec"/></antcall>
+		<antcall target="_clean"><param name="project" value="installation"/></antcall>
+		<antcall target="_clean"><param name="project" value="openbis_knime"/></antcall>
 	</target>
 
 	<target name="_clean">

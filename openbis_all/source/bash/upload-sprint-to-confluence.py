@@ -78,6 +78,7 @@ def uploadToConfluenceAndPrintPageText(version):
   processFile("Application Server (AS)", "openBIS-server", version, 2)
   processFile("Data Store Server (DSS)", "datastore_server", version, 2)
   processFile("DSS Client", "dss_client", version)
+  processFile("KNIME Nodes", "knime", "")
   printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
   printWiki()
   printWiki('h5. openBIS for High Content Screening')
