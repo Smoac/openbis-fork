@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 
 /**
  * Describes position of the well on the plate.
@@ -243,12 +244,7 @@ public class WellLocation implements ISerializable
 
     public String toWellIdString()
     {
-        return getNumberLetter(row) + column;
-    }
-
-    private String getNumberLetter(@SuppressWarnings("hiding") int row)
-    {
-        return Character.toString((char) ((char) row + 'A' - (char) 1));
+        return PlateUtils.translateRowNumberIntoLetterCode(row) + column;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class WellLocationTest
 {
 
     @DataProvider(name = "valid spreadsheet locations")
-    public Object[][] provideCorrectData()
+    Object[][] provideCorrectData()
     {
         return new Object[][]
             {
@@ -54,6 +54,25 @@ public class WellLocationTest
         assertEquals(new WellLocation(row, col), WellLocation.parseLocationStr(location));
         assertEquals(new WellLocation(row, col), WellLocation.parseLocationStr(Integer
                 .toString(row), Integer.toString(col)));
+    }
+
+    @DataProvider(name = "valid well ids")
+    Object[][] provideWellIdStrings()
+    {
+        return new Object[][]
+            {
+                { "A1", 1, 1 },
+                { "A123", 1, 123 },
+                { "B9", 2, 9 },
+                { "C23", 3, 23 },
+                { "AA1", 27, 1 },
+                { "ZZ1000", 26 * 26 + 26, 1000 } };
+    }
+
+    @Test(dataProvider = "valid well ids")
+    public void testGetWellIdString(String location, int row, int col)
+    {
+        assertEquals(location, new WellLocation(row, col).toWellIdString());
     }
 
     @Test
