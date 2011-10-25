@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -73,8 +73,8 @@ public class ChannelChooserPanel extends LayoutContainer
 
     public static final String DEFAULT_TRANSFORMATION_CODE = "$DEFAULT$";
 
-    private static final LabeledItem<ImageTransformationInfo> DEFAULT_TRANSFORMATION =
-            convertToLabeledItem(new ImageTransformationInfo(
+    private static final LabeledItem<InternalImageTransformationInfo> DEFAULT_TRANSFORMATION =
+            convertToLabeledItem(new InternalImageTransformationInfo(
                     DEFAULT_TRANSFORMATION_CODE,
                     "Optimal (image)",
                     "Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image. Otherwise no filter is applied.",
@@ -88,12 +88,12 @@ public class ChannelChooserPanel extends LayoutContainer
 
     private SimpleModelComboBox<String> channelsComboBox;
 
-    private SimpleModelComboBox<ImageTransformationInfo> transformationsComboBox;
+    private SimpleModelComboBox<InternalImageTransformationInfo> transformationsComboBox;
 
     private LabelField adjustLabel = new LabelField("Filter:");
 
-    private Map<String, Set<ImageTransformationInfo>> transformationsForChannels =
-            new HashMap<String, Set<ImageTransformationInfo>>();
+    private Map<String, Set<InternalImageTransformationInfo>> transformationsForChannels =
+            new HashMap<String, Set<InternalImageTransformationInfo>>();
 
     private List<ChannelSelectionListener> channelSelectionListeners =
             new ArrayList<ChannelSelectionListener>();
@@ -137,8 +137,8 @@ public class ChannelChooserPanel extends LayoutContainer
         channelsComboBox = createChannelsComboBox();
 
         transformationsComboBox =
-                new SimpleModelComboBox<ImageTransformationInfo>(this.messageProvider,
-                        new ArrayList<LabeledItem<ImageTransformationInfo>>(), null);
+                new SimpleModelComboBox<InternalImageTransformationInfo>(this.messageProvider,
+                        new ArrayList<LabeledItem<InternalImageTransformationInfo>>(), null);
         transformationsComboBox.addListener(Events.SelectionChange, transformationSelection);
 
         ComboBoxGroup group = new ComboBoxGroup();
@@ -250,11 +250,11 @@ public class ChannelChooserPanel extends LayoutContainer
         {
             boolean codeAdded = addChannelToComboBox(channel);
             String code = channel.getItem();
-            Set<ImageTransformationInfo> transformationsForChannel =
+            Set<InternalImageTransformationInfo> transformationsForChannel =
                     transformationsForChannels.get(code);
             if (transformationsForChannel == null)
             {
-                transformationsForChannel = new LinkedHashSet<ImageTransformationInfo>();
+                transformationsForChannel = new LinkedHashSet<InternalImageTransformationInfo>();
                 transformationsForChannels.put(code, transformationsForChannel);
             }
             transformationsForChannel.addAll(imageParameters
@@ -469,9 +469,9 @@ public class ChannelChooserPanel extends LayoutContainer
         transformationsComboBox.removeAll();
         transformationsComboBox.clearState();
 
-        List<LabeledItem<ImageTransformationInfo>> model =
-                new ArrayList<LabeledItem<ImageTransformationInfo>>();
-        Set<ImageTransformationInfo> infos = null;
+        List<LabeledItem<InternalImageTransformationInfo>> model =
+                new ArrayList<LabeledItem<InternalImageTransformationInfo>>();
+        Set<InternalImageTransformationInfo> infos = null;
         if (selectedValues.size() == 1
                 && (infos = transformationsForChannels.get(selectedValues.get(0))) != null
                 && infos.size() > 0)
@@ -480,7 +480,7 @@ public class ChannelChooserPanel extends LayoutContainer
             {
                 model.add(DEFAULT_TRANSFORMATION);
             }
-            for (ImageTransformationInfo imageTransformationInfo : infos)
+            for (InternalImageTransformationInfo imageTransformationInfo : infos)
             {
                 model.add(convertToLabeledItem(imageTransformationInfo));
             }
@@ -500,9 +500,9 @@ public class ChannelChooserPanel extends LayoutContainer
         }
     }
 
-    private static boolean isDefaultTransformationDefined(Set<ImageTransformationInfo> infos)
+    private static boolean isDefaultTransformationDefined(Set<InternalImageTransformationInfo> infos)
     {
-        for (ImageTransformationInfo imageTransformationInfo : infos)
+        for (InternalImageTransformationInfo imageTransformationInfo : infos)
         {
             if (imageTransformationInfo.isDefault())
             {
@@ -523,11 +523,11 @@ public class ChannelChooserPanel extends LayoutContainer
         boolean selected = false;
         String code = defaultChannelState.tryGetDefaultTransformation(channelCode);
 
-        SimpleModelComboBox<ImageTransformationInfo> combobox = transformationsComboBox;
+        SimpleModelComboBox<InternalImageTransformationInfo> combobox = transformationsComboBox;
         selected = setSelectedValue(code, combobox);
         if (false == selected)
         {
-            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : transformationsComboBox
+            for (SimpleComboValue<LabeledItem<InternalImageTransformationInfo>> info : transformationsComboBox
                     .getStore().getModels())
             {
                 if (info.getValue().getItem().isDefault())
@@ -547,11 +547,11 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     private boolean setSelectedValue(String code,
-            SimpleModelComboBox<ImageTransformationInfo> combobox)
+            SimpleModelComboBox<InternalImageTransformationInfo> combobox)
     {
         if (code != null)
         {
-            for (SimpleComboValue<LabeledItem<ImageTransformationInfo>> info : combobox.getStore()
+            for (SimpleComboValue<LabeledItem<InternalImageTransformationInfo>> info : combobox.getStore()
                     .getModels())
             {
                 if (info.getValue().getItem().getCode().equals(code))
@@ -564,10 +564,10 @@ public class ChannelChooserPanel extends LayoutContainer
         return false;
     }
 
-    private static LabeledItem<ImageTransformationInfo> convertToLabeledItem(
-            ImageTransformationInfo imageTransformationInfo)
+    private static LabeledItem<InternalImageTransformationInfo> convertToLabeledItem(
+            InternalImageTransformationInfo imageTransformationInfo)
     {
-        return new LabeledItem<ImageTransformationInfo>(imageTransformationInfo,
+        return new LabeledItem<InternalImageTransformationInfo>(imageTransformationInfo,
                 imageTransformationInfo.getLabel(), imageTransformationInfo.getDescription());
     }
 }

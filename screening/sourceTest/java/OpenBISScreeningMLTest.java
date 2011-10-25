@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
@@ -757,8 +758,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
         Object[][] result =
                 OpenBISScreeningML.loadDataSetsForExperiment("/S/P/E1", datasetTypePattern,
-                        new Object[0][],
-                        mountPoint);
+                        new Object[0][], mountPoint);
 
         assertEquals("Type:blablaCode AND Properties:[]", filterMatcher.recordedObject().toString());
         assertEquals("ds-1", result[0][0]);
@@ -925,10 +925,11 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     will(returnValue(imageRefs));
 
                     exactly(2).of(openbis).listImageMetadata(imageRefs);
-                    List<String> channelCodes = Arrays.asList("R", "G");
-                    List<String> channelLabels = Arrays.asList("red", "green");
+                    List<ImageChannel> channels =
+                            Arrays.asList(new ImageChannel("R", "red"), new ImageChannel("G",
+                                    "green"));
                     ImageDatasetMetadata metaData1 =
-                            new ImageDatasetMetadata(ds1Ref, channelCodes, channelLabels, 1, 2,
+                            new ImageDatasetMetadata(ds1Ref, channels, 1, 2,
                                     100, 60, 10, 6);
                     will(returnValue(Arrays.asList(metaData1)));
 
@@ -1105,7 +1106,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 Arrays.toString(returnedAnalysisProcedures));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetDataSetMetaData()
     {
@@ -1114,14 +1115,16 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 {
                     one(openbis).getDataSetMetaData(Arrays.asList("ds1", "ds2"));
                     List<String> noCodes = Arrays.asList();
-                    will(returnValue(Arrays.asList(createDataSet("ds1", ds1, Arrays.asList("ds3", "ds4"), noCodes), 
-                            createDataSet("ds2", ds2, Arrays.asList("ds1"), Arrays.asList("ds3", "ds5")))));
+                    will(returnValue(Arrays.asList(
+                            createDataSet("ds1", ds1, Arrays.asList("ds3", "ds4"), noCodes),
+                            createDataSet("ds2", ds2, Arrays.asList("ds1"),
+                                    Arrays.asList("ds3", "ds5")))));
                 }
             });
-        
-        Object[][][] dataSets = OpenBISScreeningML.getDataSetMetaData(new String[] {"ds1", "ds2"});
-        
-        
+
+        Object[][][] dataSets = OpenBISScreeningML.getDataSetMetaData(new String[]
+            { "ds1", "ds2" });
+
         assertEquals("ds1", dataSets[0][0][0]);
         assertEquals("ds-type", dataSets[0][0][1]);
         assertEquals("ds1-key1", ((Object[]) dataSets[0][1][0])[0]);
@@ -1130,7 +1133,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         assertEquals("ds1-value2", ((Object[]) dataSets[0][1][1])[1]);
         assertEquals("[ds3, ds4]", Arrays.asList(dataSets[0][2]).toString());
         assertEquals("[]", Arrays.asList(dataSets[0][3]).toString());
-        
+
         assertEquals("ds2", dataSets[1][0][0]);
         assertEquals("ds-type", dataSets[1][0][1]);
         assertEquals("ds2-key1", ((Object[]) dataSets[1][1][0])[0]);
@@ -1171,7 +1174,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
     }
 
-    private DataSet createDataSet(String code, IDataSetDss dataSetDss, List<String> parentCodes, List<String> childrenCodes)
+    private DataSet createDataSet(String code, IDataSetDss dataSetDss, List<String> parentCodes,
+            List<String> childrenCodes)
     {
         EntityRegistrationDetailsInitializer entityRegInitializer =
                 new EntityRegistrationDetailsInitializer();
@@ -1184,7 +1188,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         dsInitializer.setDataSetTypeCode("ds-type");
         dsInitializer.setParentCodes(parentCodes);
         dsInitializer.setChildrenCodes(childrenCodes);
-        dsInitializer.setRetrievedConnections(EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
+        dsInitializer
+                .setRetrievedConnections(EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
 
         Map<String, String> properties = createProperties(code);
         for (String propKey : properties.keySet())

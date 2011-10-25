@@ -83,9 +83,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -183,10 +183,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         imageParameters.setTileRowsNum(1);
         imageParameters.setTileColsNum(2);
         imageParameters.setDatasetCode(DATASET_CODE);
-        ImageChannel imageChannel =
-                new ImageChannel(CHANNEL_CODE, CHANNEL_CODE, null, null,
-                        new ArrayList<ImageTransformationInfo>());
-        imageParameters.setChannels(Arrays.asList(imageChannel));
+        InternalImageChannel imageChannel =
+                new InternalImageChannel(CHANNEL_CODE, CHANNEL_CODE, null, null,
+                        new ArrayList<InternalImageTransformationInfo>());
+        imageParameters.setInternalChannels(Arrays.asList(imageChannel));
         context.checking(new Expectations()
             {
                 {

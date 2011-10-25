@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -839,14 +840,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
     @Test
     public void testListImageMetaData()
     {
-        List<String> channelCodes = Arrays.asList("channel1");
-        List<String> channelLabels = Arrays.asList("Channel 1");
+        List<ImageChannel> channels = Arrays.asList(new ImageChannel("channel1", "Channel 1"));
         final ImageDatasetMetadata m1 =
-                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
+                new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
         final ImageDatasetMetadata m2 =
-                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
+                new ImageDatasetMetadata(i1id, channels, 1, 1, 1, 1, 0, 0);
         final ImageDatasetMetadata m3 =
-                new ImageDatasetMetadata(i2id, channelCodes, channelLabels, 1, 1, 1, 1, 0, 0);
+                new ImageDatasetMetadata(i2id, channels, 1, 1, 1, 1, 0, 0);
         context.checking(new Expectations()
             {
                 {
@@ -954,8 +954,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     ImageDatasetMetadata imgMetaData =
                             new ImageDatasetMetadata(imageDataSetId, Collections
-                                    .<String> emptyList(), Collections.<String> emptyList(), 3, 3,
-                                    1024, 768, 0, 0);
+                                    .<ImageChannel> emptyList(), 3, 3, 1024, 768, 0, 0);
 
                     will(returnValue(Arrays.asList(imgMetaData)));
                 }

@@ -238,10 +238,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         final Size imageSize = getOriginalImageSize(dataset, imageAccessor);
         final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
-        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(),
-                params.getChannelsLabels(), params.getTileRowsNum(), params.getTileColsNum(),
-                imageSize.getWidth(), imageSize.getHeight(), thumbnailSize.getWidth(),
-                thumbnailSize.getHeight());
+        return new ImageDatasetMetadata(dataset, params.getPublicChannels(),
+                params.getTileRowsNum(), params.getTileColsNum(), imageSize.getWidth(),
+                imageSize.getHeight(), thumbnailSize.getWidth(), thumbnailSize.getHeight());
     }
 
     private static Size getOriginalImageSize(IImageDatasetIdentifier dataset,

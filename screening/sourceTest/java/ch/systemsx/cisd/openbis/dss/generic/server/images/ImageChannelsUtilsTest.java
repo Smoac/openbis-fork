@@ -53,9 +53,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformatio
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 
 /**
  * @author Franz-Josef Elmer
@@ -179,8 +179,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     allowing(loader).getImageParameters();
                     ImageDatasetParameters imgParams = new ImageDatasetParameters();
-                    imgParams.setChannels(Arrays.asList(new ImageChannel(CHANNEL, CHANNEL, null,
-                            null, new ArrayList<ImageTransformationInfo>())));
+                    imgParams.setInternalChannels(Arrays.asList(new InternalImageChannel(CHANNEL, CHANNEL, null,
+                            null, new ArrayList<InternalImageTransformationInfo>())));
                     will(returnValue(imgParams));
 
                     RequestedImageSize requestedSize =

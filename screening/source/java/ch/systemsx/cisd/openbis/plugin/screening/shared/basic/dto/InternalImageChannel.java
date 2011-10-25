@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class ImageChannel implements ISerializable
+public class InternalImageChannel implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -40,16 +40,16 @@ public class ImageChannel implements ISerializable
 
     private Integer wavelength;
 
-    private List<ImageTransformationInfo> availableImageTransformations;
+    private List<InternalImageTransformationInfo> availableImageTransformations;
 
     // GWT only
     @SuppressWarnings("unused")
-    private ImageChannel()
+    private InternalImageChannel()
     {
     }
 
-    public ImageChannel(String code, String label, String description, Integer wavelength,
-            List<ImageTransformationInfo> availableImageTransformations)
+    public InternalImageChannel(String code, String label, String description, Integer wavelength,
+            List<InternalImageTransformationInfo> availableImageTransformations)
     {
         assert code != null;
         // assert availableImageTransformations != null;
@@ -81,7 +81,7 @@ public class ImageChannel implements ISerializable
         return label;
     }
 
-    public List<ImageTransformationInfo> getAvailableImageTransformations()
+    public List<InternalImageTransformationInfo> getAvailableImageTransformations()
     {
         return availableImageTransformations;
     }

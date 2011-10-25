@@ -21,6 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageTransformationInfo;
 
 /**
  * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
@@ -43,7 +45,7 @@ public class ImageDatasetParameters implements ISerializable
 
     private int tileColsNum;
 
-    private List<ImageChannel> channels;
+    private List<InternalImageChannel> channels;
 
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
@@ -102,8 +104,8 @@ public class ImageDatasetParameters implements ISerializable
 
     public List<String> getChannelsCodes()
     {
-        List<String> channelCodes = new ArrayList<String>();
-        for (ImageChannel channel : channels)
+        final List<String> channelCodes = new ArrayList<String>();
+        for (InternalImageChannel channel : channels)
         {
             channelCodes.add(channel.getCode());
         }
@@ -112,12 +114,38 @@ public class ImageDatasetParameters implements ISerializable
 
     public List<String> getChannelsLabels()
     {
-        List<String> channelLabels = new ArrayList<String>();
-        for (ImageChannel channel : channels)
+        final List<String> channelLabels = new ArrayList<String>();
+        for (InternalImageChannel channel : channels)
         {
             channelLabels.add(channel.getLabel());
         }
         return channelLabels;
+    }
+
+    public List<ImageChannel> getPublicChannels()
+    {
+        final List<ImageChannel> publicChannels = new ArrayList<ImageChannel>(channels.size());
+        for (InternalImageChannel channel : channels)
+        {
+            publicChannels.add(new ImageChannel(channel.getCode(), channel.getLabel(), channel
+                    .tryGetDescription(), channel.tryGetWavelength(),
+                    getPublicImageTransformationInfos(channel.getAvailableImageTransformations())));
+        }
+        return publicChannels;
+
+    }
+
+    private List<ImageTransformationInfo> getPublicImageTransformationInfos(
+            List<InternalImageTransformationInfo> internalTrafos)
+    {
+        final List<ImageTransformationInfo> publicTrafos =
+                new ArrayList<ImageTransformationInfo>(internalTrafos.size());
+        for (InternalImageTransformationInfo info : internalTrafos)
+        {
+            publicTrafos.add(new ImageTransformationInfo(info.getCode(), info.getLabel(), info
+                    .getDescription(), info.isDefault()));
+        }
+        return publicTrafos;
     }
 
     public int getChannelsNumber()
@@ -126,16 +154,17 @@ public class ImageDatasetParameters implements ISerializable
     }
 
     /** never null, can be empty if channel does not exist or no transformations are available */
-    public List<ImageTransformationInfo> getAvailableImageTransformationsFor(String channelCode)
+    public List<InternalImageTransformationInfo> getAvailableImageTransformationsFor(
+            String channelCode)
     {
-        for (ImageChannel channel : channels)
+        for (InternalImageChannel channel : channels)
         {
             if (channel.getCode().equalsIgnoreCase(channelCode))
             {
                 return channel.getAvailableImageTransformations();
             }
         }
-        return new ArrayList<ImageTransformationInfo>();
+        return new ArrayList<InternalImageTransformationInfo>();
     }
 
     public boolean isMultidimensional()
@@ -148,12 +177,12 @@ public class ImageDatasetParameters implements ISerializable
         this.isMultidimensional = isMultidimensional;
     }
 
-    public void setChannels(List<ImageChannel> channels)
+    public void setInternalChannels(List<InternalImageChannel> channels)
     {
         this.channels = channels;
     }
 
-    public List<ImageChannel> getChannels()
+    public List<InternalImageChannel> getInternalChannels()
     {
         return channels;
     }
@@ -169,9 +198,9 @@ public class ImageDatasetParameters implements ISerializable
         {
             return mergedChannelTransformerFactorySignatureOrNull;
         }
-        List<ImageTransformationInfo> transformations =
+        List<InternalImageTransformationInfo> transformations =
                 getAvailableImageTransformationsFor(channelCodeOrNull);
-        for (ImageTransformationInfo transformation : transformations)
+        for (InternalImageTransformationInfo transformation : transformations)
         {
             if (transformation.getCode().equalsIgnoreCase(transformationCode))
             {

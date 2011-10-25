@@ -24,10 +24,10 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
@@ -187,44 +187,44 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setTileColsNum(getDataset().getFieldNumberOfColumns());
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.setMergedChannelTransformerFactorySignature(mergedChannelTransformerFactorySignatureOrNull);
-        params.setChannels(convertChannels());
+        params.setInternalChannels(convertChannels());
         return params;
     }
 
-    private List<ImageChannel> convertChannels()
+    private List<InternalImageChannel> convertChannels()
     {
-        List<ImageChannel> convertedChannels = new ArrayList<ImageChannel>();
+        List<InternalImageChannel> convertedChannels = new ArrayList<InternalImageChannel>();
         for (ImgChannelDTO channelDTO : channels)
         {
-            ImageChannel channel = convert(channelDTO);
+            InternalImageChannel channel = convert(channelDTO);
             convertedChannels.add(channel);
         }
         return convertedChannels;
     }
 
-    private ImageChannel convert(ImgChannelDTO channelDTO)
+    private InternalImageChannel convert(ImgChannelDTO channelDTO)
     {
-        List<ImageTransformationInfo> availableImageTransformations =
+        List<InternalImageTransformationInfo> availableImageTransformations =
                 convertTransformations(availableImageTransformationsMap.get(channelDTO.getId()));
-        return new ImageChannel(channelDTO.getCode(), channelDTO.getLabel(),
+        return new InternalImageChannel(channelDTO.getCode(), channelDTO.getLabel(),
                 channelDTO.getDescription(), channelDTO.getWavelength(),
                 availableImageTransformations);
     }
 
-    private static List<ImageTransformationInfo> convertTransformations(
+    private static List<InternalImageTransformationInfo> convertTransformations(
             List<ImgImageTransformationDTO> transformationsOrNull)
     {
         if (transformationsOrNull == null)
         {
-            return new ArrayList<ImageTransformationInfo>();
+            return new ArrayList<InternalImageTransformationInfo>();
         } else
         {
-            List<ImageTransformationInfo> transformations =
+            List<InternalImageTransformationInfo> transformations =
                     CollectionUtils
                             .map(transformationsOrNull,
-                                    new CollectionUtils.ICollectionMappingFunction<ImageTransformationInfo, ImgImageTransformationDTO>()
+                                    new CollectionUtils.ICollectionMappingFunction<InternalImageTransformationInfo, ImgImageTransformationDTO>()
                                         {
-                                            public ImageTransformationInfo map(
+                                            public InternalImageTransformationInfo map(
                                                     ImgImageTransformationDTO transformation)
                                             {
                                                 return convert(transformation);
@@ -234,11 +234,11 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         }
     }
 
-    private static ImageTransformationInfo convert(ImgImageTransformationDTO transformation)
+    private static InternalImageTransformationInfo convert(ImgImageTransformationDTO transformation)
     {
         String transformationSignature =
                 tryGetSignature(transformation.getSerializedImageTransformerFactory());
-        return new ImageTransformationInfo(transformation.getCode(), transformation.getLabel(),
+        return new InternalImageTransformationInfo(transformation.getCode(), transformation.getLabel(),
                 transformation.getDescription(), transformationSignature,
                 transformation.getIsDefault());
     }

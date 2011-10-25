@@ -40,9 +40,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
@@ -249,7 +249,7 @@ class ChannelChooser
             ImageDatasetParameters imageParams = overlayDataset.getImageParameters();
             for (int i = 0; i < imageParams.getChannelsNumber(); i++)
             {
-                ImageChannel channel = imageParams.getChannels().get(i);
+                InternalImageChannel channel = imageParams.getInternalChannels().get(i);
                 String channelCode = channel.getCode();
                 String channelLabel = channel.getLabel();
                 LabeledItem<ImageDatasetChannel> item =
@@ -321,9 +321,9 @@ class ChannelChooser
             }
 
             String defaultSelection = null;
-            List<ImageTransformationInfo> transformations =
+            List<InternalImageTransformationInfo> transformations =
                     imageParameters.getAvailableImageTransformationsFor(channel);
-            for (ImageTransformationInfo transformation : transformations)
+            for (InternalImageTransformationInfo transformation : transformations)
             {
                 if (transformation.getCode().equals(initialTransformation))
                 {

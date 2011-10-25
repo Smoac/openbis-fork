@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class ImageTransformationInfo implements ISerializable
+public class InternalImageTransformationInfo implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -41,11 +41,11 @@ public class ImageTransformationInfo implements ISerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private ImageTransformationInfo()
+    private InternalImageTransformationInfo()
     {
     }
 
-    public ImageTransformationInfo(String code, String label, String description,
+    public InternalImageTransformationInfo(String code, String label, String description,
             String transformationSignature, boolean isDefault)
     {
         assert code != null : "code is null";
@@ -97,9 +97,9 @@ public class ImageTransformationInfo implements ISerializable
     @Override
     public boolean equals(Object o)
     {
-        if (o instanceof ImageTransformationInfo)
+        if (o instanceof InternalImageTransformationInfo)
         {
-            ImageTransformationInfo other = (ImageTransformationInfo) o;
+            InternalImageTransformationInfo other = (InternalImageTransformationInfo) o;
             return other.code.equals(other.code);
         }
 
