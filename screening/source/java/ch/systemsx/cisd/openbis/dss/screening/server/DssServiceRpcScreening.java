@@ -237,40 +237,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
             File datasetRoot)
     {
-        long start = System.currentTimeMillis();
         final IImagingDatasetLoader imageAccessor =
                 createImageLoader(dataset.getDatasetCode(), datasetRoot);
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "extractImageMetadata(): createImageLoader() took %.2f s",
-                    (System.currentTimeMillis() - start) / 1000.0));
-        }
-        start = System.currentTimeMillis();
         final Size imageSize = getOriginalImageSize(dataset, imageAccessor);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "extractImageMetadata(): getOriginalImageSize() took %.2f s",
-                    (System.currentTimeMillis() - start) / 1000.0));
-        }
-        start = System.currentTimeMillis();
         final Size thumbnailSize = getThumbnailImageSize(dataset, imageAccessor);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "extractImageMetadata(): getThumbnailImageSize() took %.2f s",
-                    (System.currentTimeMillis() - start) / 1000.0));
-        }
-        start = System.currentTimeMillis();
         final ImageDatasetParameters params = imageAccessor.getImageParameters();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "extractImageMetadata(): getImageParameters() took %.2f s",
-                    (System.currentTimeMillis() - start) / 1000.0));
-        }
         return new ImageDatasetMetadata(dataset, toPublicChannels(params.getInternalChannels()),
                 params.getTileRowsNum(), params.getTileColsNum(), imageSize.getWidth(),
                 imageSize.getHeight(), thumbnailSize.getWidth(), thumbnailSize.getHeight());
