@@ -27,8 +27,11 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
@@ -68,6 +72,19 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
+
+    public QueryApiServer()
+    {
+    }
+
+    public QueryApiServer(IQueryServer queryServer, ICommonServer commonServer,
+            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager)
+    {
+        super(sessionManager, daoFactory, propertiesBatchManager);
+        this.queryServer = queryServer;
+        this.commonServer = commonServer;
+    }
 
     public IQueryApiServer createLogger(IInvocationLoggerContext context)
     {
@@ -96,7 +113,15 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
             queryDescription.setId(queryExpression.getId());
             queryDescription.setName(queryExpression.getName());
             queryDescription.setDescription(queryExpression.getDescription());
-            queryDescription.setParameters(queryExpression.getParameters());
+            List<String> parameters = queryExpression.getParameters();
+            List<String> parameterNames = new ArrayList<String>();
+            for (String parameter : parameters)
+            {
+                int indexOfDelim = parameter.indexOf("::");
+                parameterNames.add(indexOfDelim < 0 ? parameter : parameter.substring(0,
+                        indexOfDelim));
+            }
+            queryDescription.setParameters(parameterNames);
             result.add(queryDescription);
         }
         return result;
@@ -151,8 +176,6 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
-        checkSession(sessionToken);
-
         DatastoreServiceDescription description =
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
                         null);
