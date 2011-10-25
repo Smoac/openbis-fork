@@ -18,12 +18,8 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Creates a directory and all necessary intermediate dirctories.
@@ -33,9 +29,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class MkdirsCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
-
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            MkdirsCommand.class);
 
     private final String directoryAbsoutePath;
 
@@ -67,7 +60,7 @@ public class MkdirsCommand extends AbstractTransactionalCommand
         fileOperations.delete(src);
         if (src.exists())
         {
-            operationLog.error("Could not delete directory '" + src + "'.");
+            getOperationLog().error("Could not delete directory '" + src + "'.");
         }
     }
 
