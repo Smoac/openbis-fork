@@ -115,8 +115,7 @@ public class CrowdAuthenticationServiceTest
         final boolean result =
                 authenticationService.authenticateUser(USER, USER_PASSWORD);
         assertEquals(true, result);
-        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
-                + "' successfully authenticated.")
+        assertEquals(createAuthenticatedSuccessfullyLog()
                 + OSUtilities.LINE_SEPARATOR
                 + createInfoLogEntry("CROWD: authentication of user '" + USER + "', application '"
                         + APPLICATION + "': SUCCESS."), logRecorder.getLogContent());
@@ -150,8 +149,7 @@ public class CrowdAuthenticationServiceTest
         final boolean result =
                 authenticationService.authenticateUser(USER, USER_PASSWORD);
         assertEquals(false, result);
-        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
-                + "' successfully authenticated.")
+        assertEquals(createAuthenticatedSuccessfullyLog()
                 + OSUtilities.LINE_SEPARATOR
                 + createDebugLogEntry("Element '" + CrowdSoapElements.OUT
                         + "' could not be found in 'error'.")
@@ -205,8 +203,7 @@ public class CrowdAuthenticationServiceTest
         assertEquals("false", result.getProperty("requiresPasswordChange"));
         assertEquals("1169440408520", result.getProperty("lastAuthenticated"));
         assertEquals("1168995491407", result.getProperty("passwordLastChanged"));
-        assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
-                + "' successfully authenticated."), logRecorder.getLogContent());
+        assertEquals(createAuthenticatedSuccessfullyLog(), logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
@@ -241,13 +238,23 @@ public class CrowdAuthenticationServiceTest
         }
 
         assertEquals(
-                createDebugLogEntry("CROWD: application '" + APPLICATION
-                        + "' successfully authenticated.")
+                createAuthenticatedSuccessfullyLog()
                         + OSUtilities.LINE_SEPARATOR
                         + createDebugLogEntry("No SOAPAttribute element could be found in the SOAP XML response."),
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();
+    }
+
+    private String createAuthenticatedSuccessfullyLog()
+    {
+        final String authenticateLogs =
+                createInfoLogEntry("CROWD: Attempting to authenticate as application "
+                        + APPLICATION + "...")
+                        + OSUtilities.LINE_SEPARATOR
+                        + createInfoLogEntry("CROWD: application '" + APPLICATION
+                                + "' successfully authenticated.");
+        return authenticateLogs;
     }
 
     private String createDebugLogEntry(final String message)
