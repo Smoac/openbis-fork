@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
@@ -132,12 +133,6 @@ public class TrackingClient
     private static EnvironmentFailureException createAuthentificationException(Parameters params,
             Exception exOrNull)
     {
-        List<EMailAddress> adminEmails = new ArrayList<EMailAddress>();
-        for (String adminEmail : params.getAdminEmail().split(","))
-        {
-            adminEmails.add(new EMailAddress(adminEmail.trim()));
-        }
-
         String exceptionMsg =
                 (exOrNull == null) ? "" : " Unexpected exception has occured: "
                         + exOrNull.getMessage();
@@ -146,10 +141,21 @@ public class TrackingClient
                 LogUtils.environmentError(
                         "Cannot authentificate in openBIS as a user '%s'. Check that the password is correct and that openBIS service URL is correct.%s",
                         params.getOpenbisUser(), exceptionMsg);
-        IMailClient emailClient = params.getMailClient();
-        emailClient.sendEmailMessage("[] DSU Tracking client NOT working",
-                ret.getLocalizedMessage(), null, new EMailAddress(params.getNotificationEmail()),
-                (EMailAddress[]) adminEmails.toArray());
+
+        if (false == StringUtils.isBlank(params.getAdminEmail()))
+        {
+            List<EMailAddress> adminEmails = new ArrayList<EMailAddress>();
+            for (String adminEmail : params.getAdminEmail().split(","))
+            {
+                adminEmails.add(new EMailAddress(adminEmail.trim()));
+            }
+
+            IMailClient emailClient = params.getMailClient();
+            emailClient.sendEmailMessage("[DSU Tracker] DSU Tracking client NOT working",
+                    ret.getLocalizedMessage(), null,
+                    new EMailAddress(params.getNotificationEmail()),
+                    adminEmails.toArray(new EMailAddress[0]));
+        }
         return ret;
     }
 }
