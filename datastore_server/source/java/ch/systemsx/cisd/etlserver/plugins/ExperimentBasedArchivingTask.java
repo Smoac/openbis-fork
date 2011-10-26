@@ -82,7 +82,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     static final String FREE_SPACE_PROVIDER_PREFIX = "free-space-provider.";
 
-    static final String DATA_SET_SIZE_PREFIX = "data-set-size-in-KB.";
+    static final String DATA_SET_SIZE_PREFIX = "estimated-data-set-size-in-KB.";
 
     static final String DEFAULT_DATA_SET_TYPE = "DEFAULT";
 
