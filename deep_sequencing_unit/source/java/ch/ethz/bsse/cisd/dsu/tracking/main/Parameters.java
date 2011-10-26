@@ -37,6 +37,10 @@ public class Parameters
 
     private static final String PERMLINK_URL = "permlink-url";
 
+    private static final String TRACKING_ADMIN_EMAIL = "tracking-admin-email";
+
+    private static final String NOTIFICATION_EMAIL_FROM = "notification-email-from";
+
     private final String openbisUser;
 
     private final String openbisPassword;
@@ -47,6 +51,10 @@ public class Parameters
 
     private final IMailClient mailClient;
 
+    private final String adminEmail;
+
+    private final String notificationEmail;
+
     public Parameters(Properties props)
     {
         this.openbisUser = getMandatoryProperty(props, OPENBIS_USER);
@@ -54,6 +62,8 @@ public class Parameters
         this.openbisServerURL = getMandatoryProperty(props, OPENBIS_SERVER_URL);
         this.permlinkURL = PropertyUtils.getProperty(props, PERMLINK_URL, openbisServerURL);
         this.mailClient = new MailClient(props);
+        this.adminEmail = PropertyUtils.getProperty(props, TRACKING_ADMIN_EMAIL);
+        this.notificationEmail = PropertyUtils.getProperty(props, NOTIFICATION_EMAIL_FROM);
     }
 
     public String getOpenbisUser()
@@ -80,4 +90,15 @@ public class Parameters
     {
         return permlinkURL;
     }
+
+    public String getAdminEmail()
+    {
+        return adminEmail;
+    }
+
+    public String getNotificationEmail()
+    {
+        return notificationEmail;
+    }
+
 }

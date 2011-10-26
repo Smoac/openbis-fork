@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -30,6 +32,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -129,13 +132,24 @@ public class TrackingClient
     private static EnvironmentFailureException createAuthentificationException(Parameters params,
             Exception exOrNull)
     {
+        List<EMailAddress> adminEmails = new ArrayList<EMailAddress>();
+        for (String adminEmail : params.getAdminEmail().split(","))
+        {
+            adminEmails.add(new EMailAddress(adminEmail.trim()));
+        }
+
         String exceptionMsg =
                 (exOrNull == null) ? "" : " Unexpected exception has occured: "
                         + exOrNull.getMessage();
-        return LogUtils
-                .environmentError(
+
+        EnvironmentFailureException ret =
+                LogUtils.environmentError(
                         "Cannot authentificate in openBIS as a user '%s'. Check that the password is correct and that openBIS service URL is correct.%s",
                         params.getOpenbisUser(), exceptionMsg);
+        IMailClient emailClient = params.getMailClient();
+        emailClient.sendEmailMessage("[] DSU Tracking client NOT working",
+                ret.getLocalizedMessage(), null, new EMailAddress(params.getNotificationEmail()),
+                (EMailAddress[]) adminEmails.toArray());
+        return ret;
     }
-
 }
