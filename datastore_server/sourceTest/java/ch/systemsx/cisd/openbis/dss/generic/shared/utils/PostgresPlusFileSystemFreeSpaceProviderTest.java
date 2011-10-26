@@ -111,7 +111,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
     {
         provider = createProvider(false);
 
-        final long postgresFreeSpace = 1000L;
+        final long postgresFreeSpace = 4098L;
         final long fsFreeSpace = 5001L;
         prepareFreeSpaceExpectations(postgresFreeSpace, fsFreeSpace);
         
@@ -119,7 +119,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         HostAwareFile file = new HostAwareFile(workDir);
         long totalFreeSpace = provider.freeSpaceKb(file);
         
-        assertEquals(fsFreeSpace + postgresFreeSpace, totalFreeSpace);
+        assertEquals(5005, totalFreeSpace);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
     {
         provider = createProvider(true);
 
-        final long postgresFreeSpace = 1000L;
+        final long postgresFreeSpace = 4098L;
         final long fsFreeSpace = 5001L;
         prepareVacuumExpectations();
         prepareFreeSpaceExpectations(postgresFreeSpace, fsFreeSpace);
@@ -136,7 +136,7 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         HostAwareFile file = new HostAwareFile(workDir);
         long totalFreeSpace = provider.freeSpaceKb(file);
 
-        assertEquals(fsFreeSpace + postgresFreeSpace, totalFreeSpace);
+        assertEquals(5005, totalFreeSpace);
     }
 
     private void prepareVacuumExpectations() throws Exception
@@ -159,7 +159,14 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    Statement statement = context.mock(Statement.class, "freeSpaceStatement");
+                    one(connection).setAutoCommit(false);
+
+                    Statement statement = context.mock(Statement.class, "tempTableStatement");
+                    one(connection).createStatement();
+                    will(returnValue(statement));
+                    one(statement).execute(with(any(String.class)));
+
+                    statement = context.mock(Statement.class, "freeSpaceStatement");
                     one(connection).createStatement();
                     will(returnValue(statement));
 
@@ -168,8 +175,11 @@ public class PostgresPlusFileSystemFreeSpaceProviderTest extends AssertJUnit
                     ResultSet rs = context.mock(ResultSet.class);
                     will(returnValue(rs));
 
+                    one(rs).next();
                     one(rs).getLong(1);
                     will(returnValue(freeSpace));
+
+                    one(connection).setAutoCommit(true);
 
                     one(fsFreeSpaceProvider).freeSpaceKb(with(any(HostAwareFile.class)));
                     will(returnValue(fsFreeSpace));

@@ -82,7 +82,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     static final String FREE_SPACE_PROVIDER_PREFIX = "free-space-provider.";
 
-    static final String DATA_SET_SIZE_PREFIX = "data-set-size.";
+    static final String DATA_SET_SIZE_PREFIX = "data-set-size-in-KB.";
 
     static final String DEFAULT_DATA_SET_TYPE = "DEFAULT";
 
@@ -161,7 +161,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         
         if (ClassUtils.hasConstructor(clazz, properties))
         {
-            return ClassUtils.create(IFreeSpaceProvider.class, clazz, properties);
+            return ClassUtils.create(IFreeSpaceProvider.class, clazz, providerProps);
 
         } else
         {

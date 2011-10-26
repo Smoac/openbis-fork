@@ -66,8 +66,7 @@ public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvid
                     + "   (SELECT relname, (SELECT free_space FROM pgstattuple(relid)) "
                     + "       AS free_space FROM pg_catalog.pg_statio_user_tables);";
 
-    private static final String SELECT_FREE_SPACE_QUERY = CREATE_TMP_FREE_SPACE_TABLE
-            + " SELECT sum(free_space) FROM freespace;";
+    private static final String SELECT_FREE_SPACE_QUERY = "SELECT sum(free_space) FROM freespace;";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PostgresPlusFileSystemFreeSpaceProvider.class);
@@ -95,7 +94,7 @@ public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvid
 
     public long freeSpaceKb(HostAwareFile path) throws IOException
     {
-        long dataSourceFreeSpace = calculateDataSourceFreeSpace();
+        long dataSourceFreeSpace = calculateDataSourceFreeSpace() / 1024L;
         long fsFreeSpace = fileSystemFreeSpaceProvider.freeSpaceKb(path);
         return dataSourceFreeSpace + fsFreeSpace;
     }
@@ -129,8 +128,17 @@ public class PostgresPlusFileSystemFreeSpaceProvider implements IFreeSpaceProvid
 
     private long calculateFreeSpace(Connection connection) throws SQLException
     {
-        ResultSet result = connection.createStatement().executeQuery(SELECT_FREE_SPACE_QUERY);
-        return result.getLong(1);
+        connection.setAutoCommit(false);
+        try
+        {
+            connection.createStatement().execute(CREATE_TMP_FREE_SPACE_TABLE);
+            ResultSet result = connection.createStatement().executeQuery(SELECT_FREE_SPACE_QUERY);
+            result.next();
+            return result.getLong(1);
+        } finally
+        {
+            connection.setAutoCommit(true);
+        }
     }
 
     private Connection createConnection() throws SQLException
