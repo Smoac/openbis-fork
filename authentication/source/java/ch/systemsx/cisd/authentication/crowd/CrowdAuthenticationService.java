@@ -26,7 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -148,9 +147,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     try
                     {
                         final HttpClient client = new HttpClient();
-                        HttpConnectionManager connectionManager = client.getHttpConnectionManager();
-                        connectionManager.getParams().setConnectionTimeout(CONNECTION_TIMEOUT);
                         final PostMethod post = new PostMethod(serviceUrl);
+                        post.getParams().setSoTimeout(CONNECTION_TIMEOUT);
                         final StringRequestEntity entity =
                                 new StringRequestEntity(message, "application/soap+xml", "utf-8");
                         post.setRequestEntity(entity);
@@ -238,7 +236,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
     {
         try
         {
-            final String xmlResponse = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            final String xmlResponse = executeAuthenticateApplication();
             final String applicationToken =
                     StringEscapeUtils.unescapeXml(pickElementContent(xmlResponse,
                             CrowdSoapElements.TOKEN));
@@ -324,12 +322,19 @@ public class CrowdAuthenticationService implements IAuthenticationService
         }
     }
 
+    private String executeAuthenticateApplication()
+    {
+        operationLog
+                .info("CROWD: Attempting to authenticate as application " + application + "...");
+        return execute(AUTHENTICATE_APPL, application, applicationPassword);
+    }
+
     private String getApplicationToken(boolean forceNewToken)
     {
         String applicationToken = applicationTokenHolder.get();
         if (applicationToken == null || forceNewToken)
         {
-            final String xmlResponse = execute(AUTHENTICATE_APPL, application, applicationPassword);
+            final String xmlResponse = executeAuthenticateApplication();
             applicationToken =
                     StringEscapeUtils.unescapeXml(pickElementContent(xmlResponse,
                             CrowdSoapElements.TOKEN));
@@ -339,11 +344,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
                         + "' failed to authenticate.");
             } else
             {
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("CROWD: application '" + application
-                            + "' successfully authenticated.");
-                }
+                operationLog.info("CROWD: application '" + application
+                        + "' successfully authenticated.");
             }
             applicationTokenHolder.set(applicationToken);
         }
