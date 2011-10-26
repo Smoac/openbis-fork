@@ -224,7 +224,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
     private static <E> void load(RandomAccessFile randomAccessFile, Collection<E> collection,
             int firstRecord, int lastRecord, int recordSize)
     {
-        int pos = HEADER_LENGTH + recordSize * firstRecord;
+        long pos = HEADER_LENGTH + ((long) recordSize) * firstRecord;
         for (int i = firstRecord; i < lastRecord; ++i)
         {
             try
@@ -301,7 +301,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             firstRecord = 0;
             lastRecord = queue.size();
             writeFullHeader(newRandomAccessFile, firstRecord, lastRecord, newRecordSize);
-            int pos = HEADER_LENGTH;
+            long pos = HEADER_LENGTH;
             for (E elem : queue)
             {
                 newRandomAccessFile.seek(pos);
@@ -332,7 +332,8 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         {
             try
             {
-                randomAccessFile.seek(HEADER_LENGTH + lastRecord * recordSize);
+                long pos = HEADER_LENGTH + ((long) lastRecord) * recordSize;
+                randomAccessFile.seek(pos);
                 final byte[] data = toByteArray(elem);
                 final int elementSize = data.length + RECORD_HEADER_LENGTH;
                 if (elementSize > recordSize)
