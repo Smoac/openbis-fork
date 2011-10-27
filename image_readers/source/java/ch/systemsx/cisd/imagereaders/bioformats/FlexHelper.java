@@ -28,9 +28,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import loci.common.RandomAccessInputStream;
 import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffParser;
 
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -63,15 +65,15 @@ public class FlexHelper
 
     private static final String SELECT_TILE_YCOORDS = "//Sublayouts/Sublayout/Field/OffsetY/text()";
 
-    private final String fileName;
+    private final String file;
 
     private final String metadataXML;
 
     private final Document metadata;
 
-    public FlexHelper(String fileName)
+    public FlexHelper(String file)
     {
-        this.fileName = fileName;
+        this.file = file;
         try
         {
             this.metadataXML = readMetadata();
@@ -157,15 +159,22 @@ public class FlexHelper
 
     private String readMetadata() throws Exception
     {
-        TiffParser tiffParser = new TiffParser(fileName);
-        final IFDList ifds = tiffParser.getIFDs();
-        if (ifds != null && ifds.get(0) != null)
+        RandomAccessInputStream in = new RandomAccessInputStream(file);
+        try
         {
-            return ifds.get(0).getIFDStringValue(FLEX);
-        } else
+            TiffParser tiffParser = new TiffParser(in);
+            final IFDList ifds = tiffParser.getIFDs();
+            if (ifds != null && ifds.get(0) != null)
+            {
+                return ifds.get(0).getIFDStringValue(FLEX);
+            } else
+            {
+                throw new IllegalArgumentException("Cannot parse Flex XML metadata from file "
+                        + file);
+            }
+        } finally
         {
-            throw new IllegalArgumentException("Cannot parse Flex XML metadata from file "
-                    + fileName);
+            IOUtils.closeQuietly(in);
         }
     }
 
