@@ -352,7 +352,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             // This is a slow implementation. Could be sped up by using a hashmap in the future.
             for (Sample sample : samplesToBeUpdated)
             {
-                if (sample.getSampleIdentifier().equals(sampleIdentifierString))
+                if (sample.getSampleIdentifier().equalsIgnoreCase(sampleIdentifierString))
                 {
                     return sample;
                 }
