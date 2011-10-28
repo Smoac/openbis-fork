@@ -11,13 +11,14 @@
 
   <appender name="NULL" class="org.apache.log4j.varia.NullAppender" />
 
+  <logger name="loci.formats.in">
+    <!-- Print only messages of level warn or above from the BioFormats library -->
+    <level value="warn"/> 
+  </logger>
+  
   <root>
      <priority value ="info" />
      <appender-ref ref="STDOUT" />
   </root>
 
-  <logger name="loci.formats.in">
-    <!-- Print only messages of level warn or above from the BioFormats library -->
-    <level value="warn"/> 
-  </logger>
 </log4j:configuration>
