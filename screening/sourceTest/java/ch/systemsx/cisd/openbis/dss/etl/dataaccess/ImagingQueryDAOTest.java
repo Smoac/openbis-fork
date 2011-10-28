@@ -247,7 +247,30 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         addAcquiredImage(imageId2, channelStackId, experimentChannelId2);
 
         testGetHCSImage(datasetId, channelStackId, datasetChannelId1, experimentChannelId2, spotId);
+        testGetAnyHCSImage(datasetId);
         testListChannelStacksAndSpots(datasetId, channelStackId, spotId);
+    }
+
+    private void testGetAnyHCSImage(long datasetId)
+    {
+        List<ImgSpotDTO> anyImgSpots = dao.listWellsWithAnyImages(datasetId);
+        assertEquals(1, anyImgSpots.size());
+        ImgSpotDTO spot = anyImgSpots.get(0);
+        assertDefaultSpot(spot);
+
+        List<ImgSpotDTO> thumbnailImgSpots = dao.listWellsWithAnyThumbnails(datasetId);
+        assertEquals(1, thumbnailImgSpots.size());
+        assertEquals(spot, thumbnailImgSpots.get(0));
+
+        List<ImgSpotDTO> originalImgSpots = dao.listWellsWithAnyOriginalImages(datasetId);
+        assertEquals(1, originalImgSpots.size());
+        assertEquals(spot, originalImgSpots.get(0));
+    }
+
+    private void assertDefaultSpot(ImgSpotDTO spot)
+    {
+        assertEquals(X_WELL_COLUMN, 0L + spot.getColumn());
+        assertEquals(Y_WELL_ROW, 0L + spot.getRow());
     }
 
     private void testListChannelStacksAndSpots(long datasetId, long channelStackId, long spotId)

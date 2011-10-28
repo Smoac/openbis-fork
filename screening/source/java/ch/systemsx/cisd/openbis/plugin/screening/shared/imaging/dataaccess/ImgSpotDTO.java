@@ -40,9 +40,8 @@ public class ImgSpotDTO extends AbstractImgIdentifiable
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgSpotDTO(/* String permId, */Integer row, Integer column, long containerId)
+    public ImgSpotDTO(Integer row, Integer column, long containerId)
     {
-        /* this.permId = permId; */
         this.column = column;
         this.row = row;
         this.containerId = containerId;

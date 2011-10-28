@@ -87,6 +87,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // " and CHANNEL_STACKS.T_in_SEC IS NULL                        "
     // + " and CHANNEL_STACKS.Z_in_M IS NULL                ";
 
+    public static final String SQL_HCS_WELLS_WITH_IMAGES =
+            "select distinct s.*                              "
+                    + "from CHANNEL_STACKS ch, SPOTS s, ACQUIRED_IMAGES ai "
+                    + "where ch.is_representative = 'T' and ch.DS_ID = ?{1} and "
+                    + "      ai.CHANNEL_STACK_ID = ch.ID and ch.SPOT_ID = s.ID";
+
     // ---------------- HCS ---------------------------------
 
     /**
@@ -137,6 +143,21 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + " join images i on i.id = ai.img_id                      "
             + " where d.perm_id = ?{1} and ch.code = upper(?{2}) and s.id is NOT NULL")
     public List<ImgImageEnrichedDTO> listHCSImages(String datasetPermId, String channelCode);
+
+    /**
+     * @return list of wells for which there are any thumbnail or original images (any tile, any
+     *         channel).
+     */
+    @Select(SQL_HCS_WELLS_WITH_IMAGES)
+    public List<ImgSpotDTO> listWellsWithAnyImages(long datasetId);
+
+    /** @return list of wells for which there are any thumbnail images (any tile, any channel). */
+    @Select(SQL_HCS_WELLS_WITH_IMAGES + " and ai.thumbnail_id is not null")
+    public List<ImgSpotDTO> listWellsWithAnyThumbnails(long datasetId);
+
+    /** @return list of wells for which there are any original images (any tile, any channel). */
+    @Select(SQL_HCS_WELLS_WITH_IMAGES + " and ai.img_id is not null")
+    public List<ImgSpotDTO> listWellsWithAnyOriginalImages(long datasetId);
 
     // ---------------- Microscopy ---------------------------------
 
