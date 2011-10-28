@@ -22,8 +22,8 @@ import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImagingDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
@@ -56,7 +56,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 userProvidedDataSetInformationOrNull);
     }
 
-    public static class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation>
+    private static class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation>
+            implements IImagingDatasetFactory
     {
         private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
@@ -94,22 +95,6 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         protected DataSetInformation createDataSetInformation()
         {
             return new DataSetInformation();
-        }
-
-        /**
-         * @return empty template of image registration details, which has to be filled.
-         * @deprecated use {@link #createImageRegistrationDetails(SimpleImageDataConfig, File)}
-         *             instead.
-         */
-        @Deprecated
-        public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails()
-        {
-            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails =
-                    new DataSetRegistrationDetails<ImageDataSetInformation>();
-            ImageDataSetInformation dataSetInfo = new ImageDataSetInformation();
-            setDatabaseInstance(dataSetInfo);
-            registrationDetails.setDataSetInformation(dataSetInfo);
-            return registrationDetails;
         }
 
         public DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
@@ -186,8 +171,23 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return new FeaturesBuilder();
         }
 
+        /**
+         * This method exists just for backward compatibility. It used to have the second parameter,
+         * which is now ignored.
+         * 
+         * @deprecated use {@link #createFeatureVectorRegistrationDetails(IFeaturesBuilder)}
+         *             instead.
+         */
+        @SuppressWarnings("unused")
+        @Deprecated
         public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
-                IFeaturesBuilder featureBuilder, File incomingDatasetFolder)
+                IFeaturesBuilder featureBuilder, Object incomingDatasetFolder)
+        {
+            return createFeatureVectorRegistrationDetails(featureBuilder);
+        }
+
+        public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+                IFeaturesBuilder featureBuilder)
         {
             FeaturesBuilder myFeatureBuilder = (FeaturesBuilder) featureBuilder;
             List<FeatureDefinition> featureDefinitions =
@@ -213,10 +213,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
          * @throws IOException if file cannot be parsed
          */
         public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
-                String dataSetPath, Properties properties) throws IOException
+                String csvFilePath, Properties properties) throws IOException
         {
             List<FeatureDefinition> featureDefinitions =
-                    CsvFeatureVectorParser.parse(new File(dataSetPath), properties);
+                    CsvFeatureVectorParser.parse(new File(csvFilePath), properties);
             return createFeatureVectorRegistrationDetails(featureDefinitions);
         }
 
@@ -234,20 +234,5 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return registrationDetails;
         }
 
-        /**
-         * Factory method that creates a new registration details object for non-image datasets.
-         * 
-         * @deprecated used only in Matt's dropbox to register analysis datasets. Will be removed.
-         */
-        @Deprecated
-        public DataSetRegistrationDetails<BasicDataSetInformation> createBasicRegistrationDetails()
-        {
-            DataSetRegistrationDetails<BasicDataSetInformation> registrationDetails =
-                    new DataSetRegistrationDetails<BasicDataSetInformation>();
-            BasicDataSetInformation dataSetInfo = new BasicDataSetInformation();
-            setDatabaseInstance(dataSetInfo);
-            registrationDetails.setDataSetInformation(dataSetInfo);
-            return registrationDetails;
-        }
     }
 }
