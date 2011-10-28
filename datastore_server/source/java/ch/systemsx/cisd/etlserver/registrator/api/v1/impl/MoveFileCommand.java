@@ -93,6 +93,12 @@ public class MoveFileCommand extends AbstractTransactionalCommand
                         to.getAbsolutePath()));
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         fileOperations.move(from, to);
+        if (from.exists())
+        {
+            getOperationLog().error(
+                    String.format("Failed to move %s '%s' to '%s'", entity, from.getAbsolutePath(),
+                            to.getAbsolutePath()));
+        }
     }
 
     @Override
