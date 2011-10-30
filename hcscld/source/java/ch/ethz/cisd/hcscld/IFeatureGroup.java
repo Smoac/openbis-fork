@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * @author Bernd Rinn
  */
-public interface IFeatureGroup extends Iterable<WellFieldId>
+public interface IFeatureGroup extends Iterable<ImageId>
 {
     /**
      * Returns the name of this feature group.

@@ -23,13 +23,13 @@ package ch.ethz.cisd.hcscld;
  */
 public class CellLevelFeatures
 {
-    private final WellFieldId id;
+    private final ImageId id;
 
     private final IFeatureGroup featureGroup;
 
     private final Object[][] data;
 
-    CellLevelFeatures(IFeatureGroup featureGroup, WellFieldId id, Object[][] data)
+    CellLevelFeatures(IFeatureGroup featureGroup, ImageId id, Object[][] data)
     {
         this.featureGroup = featureGroup;
         this.id = id;
@@ -59,7 +59,7 @@ public class CellLevelFeatures
     /**
      * Returns the well-field id of this block.
      */
-    public WellFieldId getWellFieldId()
+    public ImageId getWellFieldId()
     {
         return id;
     }

@@ -40,7 +40,7 @@ public class SegmentationDatasetRoundtripTest
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelSegmentationWritableDataset wds =
-                writer.addSegmentationDataset("789", "cell", new WellFieldGeometry(2, 3, 4),
+                writer.addSegmentationDataset("789", "cell", new ImageQuantityStructure(2, 3, 4),
                         new ImageGeometry(1024, 1024), true);
         List<SegmentedObject> cells =
                 Arrays.asList(
@@ -48,15 +48,15 @@ public class SegmentationDatasetRoundtripTest
                         new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
         cells.get(0).setMaskPoint(70, 80);
         cells.get(1).setMaskPoint(220, 240);
-        wds.writeImageSegmentation(new WellFieldId(1, 2, 3), cells);
+        wds.writeImageSegmentation(new ImageId(1, 2, 3), cells);
         writer.close();
 
         ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         ICellLevelSegmentationDataset rds = reader.getDataSet("789").toSegmentationDataset();
         assertEquals("789", rds.getDatasetCode());
-        assertEquals(new WellFieldGeometry(2, 3, 4), rds.getGeometry());
+        assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
-        SegmentedObject[] objects = rds.getObjects(new WellFieldId(1, 2, 3), true);
+        SegmentedObject[] objects = rds.getObjects(new ImageId(1, 2, 3), true);
         assertEquals(2, objects.length);
         assertEquals(50, objects[0].getLeftUpperX());
         assertEquals(60, objects[0].getLeftUpperY());
@@ -85,9 +85,9 @@ public class SegmentationDatasetRoundtripTest
         try
         {
             ICellLevelSegmentationWritableDataset wds =
-                    writer.addSegmentationDataset("789", "cell", new WellFieldGeometry(2, 3, 4),
+                    writer.addSegmentationDataset("789", "cell", new ImageQuantityStructure(2, 3, 4),
                             new ImageGeometry(1024, 1024), true);
-            wds.writeImageSegmentation(new WellFieldId(1, 2, 3),
+            wds.writeImageSegmentation(new ImageId(1, 2, 3),
                     Arrays.asList(new SegmentedObject()));
         } finally
         {

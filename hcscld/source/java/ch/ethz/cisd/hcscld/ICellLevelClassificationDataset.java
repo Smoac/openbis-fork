@@ -26,34 +26,34 @@ public interface ICellLevelClassificationDataset extends ICellLevelDataset
     /**
      * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
      */
-    public String getClassification(final WellFieldId id, int cellId);
+    public String getClassification(final ImageId id, int cellId);
 
     /**
      * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
      */
-    public <T extends Enum<T>> T getClassification(final WellFieldId id, Class<T> enumClass,
+    public <T extends Enum<T>> T getClassification(final ImageId id, Class<T> enumClass,
             int cellId);
 
     /**
      * Returns the ordinal of the classification of the given <var>cellId</var> of field
      * <var>id</var>.
      */
-    public int getClassificationOrdinal(final WellFieldId id, int cellId);
+    public int getClassificationOrdinal(final ImageId id, int cellId);
 
     /**
      * Returns the classifications of all cells of field <var>id</var>.
      */
-    public String[] getClassifications(final WellFieldId id);
+    public String[] getClassifications(final ImageId id);
 
     /**
      * Returns the classification of the given <var>cellId</var> of field <var>id</var>.
      */
-    public <T extends Enum<T>> T[] getClassifications(final WellFieldId id, Class<T> enumClass);
+    public <T extends Enum<T>> T[] getClassifications(final ImageId id, Class<T> enumClass);
 
     /**
      * Returns the classification ordinals of all cells of field <var>id</var>.
      */
-    public int[] getClassificationsOrdinal(final WellFieldId id);
+    public int[] getClassificationsOrdinal(final ImageId id);
 
     /**
      * Returns the classifications for all cells in all wells.

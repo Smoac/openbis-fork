@@ -10,8 +10,8 @@ import ch.ethz.cisd.hcscld.ICellLevelClassificationDataset;
 import ch.ethz.cisd.hcscld.ICellLevelClassificationWritableDataset;
 import ch.ethz.cisd.hcscld.ICellLevelDataReader;
 import ch.ethz.cisd.hcscld.ICellLevelDataWriter;
-import ch.ethz.cisd.hcscld.WellFieldGeometry;
-import ch.ethz.cisd.hcscld.WellFieldId;
+import ch.ethz.cisd.hcscld.ImageQuantityStructure;
+import ch.ethz.cisd.hcscld.ImageId;
 
 /**
  * A demo program for writing and reading cell-level classification data. 
@@ -28,16 +28,16 @@ public class CellLevelClassificationDemo
 
     public static void main(String[] args)
     {
-        File f = new File("classification.h5");
+        File f = new File("classification.cld");
         f.delete();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelClassificationWritableDataset wds =
-                writer.addClassificationDataset("456", new WellFieldGeometry(16, 24, 9),
+                writer.addClassificationDataset("456", new ImageQuantityStructure(16, 24, 9),
                         CellState.class);
         Random rng = new Random();
         long start = System.currentTimeMillis();
         CellState[] state = new CellState[160];
-        for (WellFieldId id : wds.getGeometry())
+        for (ImageId id : wds.getImageQuantityStructure())
         {
             for (int i = 0; i < state.length; ++i)
             {
@@ -54,7 +54,7 @@ public class CellLevelClassificationDemo
         {
             System.out.println(cls.getId() + ":" + Arrays.toString(cls.getData()));
         }
-        System.out.println(ds.getClassification(new WellFieldId(1, 0, 0), 2));
+        System.out.println(ds.getClassification(new ImageId(1, 0, 0), 2));
         reader.close();
     }
 }

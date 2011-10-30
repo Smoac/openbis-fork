@@ -48,28 +48,28 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     }
 
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
-            WellFieldGeometry geometry)
+            ImageQuantityStructure geometry)
     {
         return new CellLevelFeatureWritableDataset(writer, datasetCode, geometry, getHints(),
                 getHdf5DatasetTypeEnum());
     }
 
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            WellFieldGeometry geometry, Class<? extends Enum<?>> enumType)
+            ImageQuantityStructure geometry, Class<? extends Enum<?>> enumType)
     {
         return new CellLevelClassificationWritableDataset(writer, datasetCode, geometry,
                 getHdf5DatasetTypeEnum(), enumType);
     }
 
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            WellFieldGeometry geometry, List<String> options)
+            ImageQuantityStructure geometry, List<String> options)
     {
         return new CellLevelClassificationWritableDataset(writer, datasetCode, geometry,
                 getHdf5DatasetTypeEnum(), options);
     }
 
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            String segmentedObjectTypeName, WellFieldGeometry geometry, ImageGeometry imageGeometry,
+            String segmentedObjectTypeName, ImageQuantityStructure geometry, ImageGeometry imageGeometry,
             boolean storeEdgeMasks)
     {
         return new CellLevelSegmentationWritableDataset(writer, datasetCode, segmentedObjectTypeName,

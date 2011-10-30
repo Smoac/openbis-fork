@@ -38,12 +38,12 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      */
-    public Object[] getValues(WellFieldId id, int cellId);
+    public Object[] getValues(ImageId id, int cellId);
 
     /**
      * Returns all feature values for all cells of field <var>id</var>.
      */
-    public Object[][] getValues(WellFieldId id);
+    public Object[][] getValues(ImageId id);
 
     /**
      * Returns all feature values for all cells in all wells.
@@ -54,7 +54,7 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      * Returns the feature values for the given <var>cellId</var> of field <var>id</var> in the
      * given <var>featureGroup</var>.
      */
-    public Object[] getValues(WellFieldId id, IFeatureGroup featureGroup, int cellId);
+    public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId);
 
     /**
      * Returns the feature values for all cells of field <var>id</var> in the given
@@ -63,7 +63,7 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      * @return The feature values; the first index is the cell id, the second index is the feature
      *         index.
      */
-    public Object[][] getValues(WellFieldId id, IFeatureGroup featureGroup);
+    public Object[][] getValues(ImageId id, IFeatureGroup featureGroup);
 
     /**
      * Returns the feature values for all cells in all wells in the given <var>featureGroup<var>.

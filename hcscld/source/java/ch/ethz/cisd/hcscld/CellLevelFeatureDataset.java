@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import ch.ethz.cisd.hcscld.WellFieldRunner.IExistChecker;
+import ch.ethz.cisd.hcscld.ImageRunner.IExistChecker;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
@@ -89,7 +89,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return name;
         }
 
-        String getObjectPath(WellFieldId id)
+        String getObjectPath(ImageId id)
         {
             return CellLevelFeatureDataset.this.getObjectPath(id) + "/" + name;
         }
@@ -114,24 +114,24 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return featureNames.size();
         }
 
-        public Iterator<WellFieldId> iterator()
+        public Iterator<ImageId> iterator()
         {
-            return WellFieldRunner.iterator(geometry, new IExistChecker()
+            return ImageRunner.iterator(quantityStructure, new IExistChecker()
                 {
-                    public boolean exists(WellFieldId id)
+                    public boolean exists(ImageId id)
                     {
                         return hasWellFieldValues(id);
                     }
                 });
         }
 
-        boolean hasWellFieldValues(WellFieldId id)
+        boolean hasWellFieldValues(ImageId id)
         {
             final String path = getObjectPath(id);
             return reader.exists(path) && reader.getSize(path) > 0;
         }
 
-        boolean existsIn(WellFieldId id)
+        boolean existsIn(ImageId id)
         {
             return reader.exists(getObjectPath(id));
         }
@@ -143,7 +143,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     final HDF5CompoundMappingHints hintsOrNull;
 
-    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode, WellFieldGeometry geometry,
+    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode, ImageQuantityStructure geometry,
             HDF5CompoundMappingHints hintsOrNull)
     {
         super(reader, datasetCode, geometry);
@@ -173,7 +173,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         for (String name : featureGroupNames)
         {
             final HDF5CompoundType<Object[]> type =
-                    reader.getNamedCompoundType(getNameInDataset(name), Object[].class, hintsOrNull);
+                    reader.getNamedCompoundType(getDataTypeName(name), Object[].class, hintsOrNull);
             result.add(new FeatureGroup(name, type));
         }
         return result;
@@ -201,14 +201,14 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return this;
     }
 
-    public Object[] getValues(WellFieldId id, IFeatureGroup featureGroup, int cellId)
+    public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
         return reader.readCompoundArrayBlockWithOffset(
                 ((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
     }
 
-    public Object[][] getValues(WellFieldId id, IFeatureGroup featureGroup)
+    public Object[][] getValues(ImageId id, IFeatureGroup featureGroup)
     {
         return reader.readCompoundArray(((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType());
@@ -222,7 +222,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 {
                     return new Iterator<CellLevelFeatures>()
                         {
-                            final Iterator<WellFieldId> idIterator = featureGroup.iterator();
+                            final Iterator<ImageId> idIterator = featureGroup.iterator();
 
                             CellLevelFeatures next = null;
 
@@ -234,7 +234,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                     {
                                         return false;
                                     }
-                                    final WellFieldId id = idIterator.next();
+                                    final ImageId id = idIterator.next();
                                     final Object[][] data =
                                             reader.readCompoundArray(
                                                     ((FeatureGroup) featureGroup).getObjectPath(id),
@@ -268,7 +268,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             };
     }
 
-    public Object[] getValues(WellFieldId id, int cellId)
+    public Object[] getValues(ImageId id, int cellId)
     {
         final Object[] result = new Object[totalNumberOfFeatures];
         int offset = 0;
@@ -282,7 +282,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return result;
     }
 
-    public Object[][] getValues(WellFieldId id)
+    public Object[][] getValues(ImageId id)
     {
         Object[][] result = null;
         int offset = 0;
@@ -323,7 +323,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 {
                     return new Iterator<CellLevelFeatures>()
                         {
-                            final Iterator<WellFieldId> idIterator = geometry.iterator();
+                            final Iterator<ImageId> idIterator = quantityStructure.iterator();
 
                             CellLevelFeatures next = null;
 
@@ -335,7 +335,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                     {
                                         return false;
                                     }
-                                    final WellFieldId id = idIterator.next();
+                                    final ImageId id = idIterator.next();
                                     final Object[][] data = getValues(id);
                                     next = new CellLevelFeatures(all, id, data);
                                 }
@@ -381,7 +381,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     public IFeatureGroup getFeatureGroup(String name)
     {
         final HDF5CompoundType<Object[]> type =
-                reader.getNamedCompoundType(getNameInDataset(name), Object[].class, hintsOrNull);
+                reader.getNamedCompoundType(getDataTypeName(name), Object[].class, hintsOrNull);
         return new FeatureGroup(name, type);
     }
 

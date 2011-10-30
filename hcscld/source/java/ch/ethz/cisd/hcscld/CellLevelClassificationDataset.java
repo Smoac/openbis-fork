@@ -20,7 +20,7 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import ch.ethz.cisd.hcscld.WellFieldRunner.IExistChecker;
+import ch.ethz.cisd.hcscld.ImageRunner.IExistChecker;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValueArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
@@ -34,7 +34,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         ICellLevelClassificationDataset
 {
     CellLevelClassificationDataset(IHDF5Reader reader, String datasetCode,
-            WellFieldGeometry geometry)
+            ImageQuantityStructure geometry)
     {
         super(reader, datasetCode, geometry);
     }
@@ -61,28 +61,28 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         return this;
     }
 
-    public String getClassification(WellFieldId id, int cellId)
+    public String getClassification(ImageId id, int cellId)
     {
         return reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getValue(0);
     }
 
-    public <T extends Enum<T>> T getClassification(WellFieldId id, Class<T> enumClass, int cellId)
+    public <T extends Enum<T>> T getClassification(ImageId id, Class<T> enumClass, int cellId)
     {
         return Enum.valueOf(enumClass,
                 reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getValue(0));
     }
 
-    public int getClassificationOrdinal(WellFieldId id, int cellId)
+    public int getClassificationOrdinal(ImageId id, int cellId)
     {
         return reader.readEnumArrayBlockWithOffset(getObjectPath(id), 1, cellId).getOrdinal(0);
     }
 
-    public String[] getClassifications(WellFieldId id)
+    public String[] getClassifications(ImageId id)
     {
         return reader.readEnumArrayAsString(getObjectPath(id));
     }
 
-    public <T extends Enum<T>> T[] getClassifications(WellFieldId id, Class<T> enumClass)
+    public <T extends Enum<T>> T[] getClassifications(ImageId id, Class<T> enumClass)
     {
         final String[] clsStr = getClassifications(id);
         try
@@ -101,7 +101,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
         }
     }
 
-    public int[] getClassificationsOrdinal(WellFieldId id)
+    public int[] getClassificationsOrdinal(ImageId id)
     {
         final HDF5EnumerationValueArray array = reader.readEnumArray(getObjectPath(id));
         final int[] ordinals = new int[array.getLength()];
@@ -120,10 +120,10 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                 {
                     return new Iterator<CellLevelClassificationsString>()
                         {
-                            final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
-                                    geometry, new IExistChecker()
+                            final Iterator<ImageId> idIterator = ImageRunner.iterator(
+                                    quantityStructure, new IExistChecker()
                                         {
-                                            public boolean exists(WellFieldId id)
+                                            public boolean exists(ImageId id)
                                             {
                                                 return reader.exists(getObjectPath(id));
                                             }
@@ -139,7 +139,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     {
                                         return false;
                                     }
-                                    final WellFieldId id = idIterator.next();
+                                    final ImageId id = idIterator.next();
                                     next =
                                             new CellLevelClassificationsString(id,
                                                     getClassifications(id));
@@ -180,10 +180,10 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                 {
                     return new Iterator<CellLevelClassificationsEnum<T>>()
                         {
-                            final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
-                                    geometry, new IExistChecker()
+                            final Iterator<ImageId> idIterator = ImageRunner.iterator(
+                                    quantityStructure, new IExistChecker()
                                         {
-                                            public boolean exists(WellFieldId id)
+                                            public boolean exists(ImageId id)
                                             {
                                                 return reader.exists(getObjectPath(id));
                                             }
@@ -199,7 +199,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     {
                                         return false;
                                     }
-                                    final WellFieldId id = idIterator.next();
+                                    final ImageId id = idIterator.next();
                                     next =
                                             new CellLevelClassificationsEnum<T>(id,
                                                     getClassifications(id, enumClass));
@@ -239,10 +239,10 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                 {
                     return new Iterator<CellLevelClassificationsOrdinal>()
                         {
-                            final Iterator<WellFieldId> idIterator = WellFieldRunner.iterator(
-                                    geometry, new IExistChecker()
+                            final Iterator<ImageId> idIterator = ImageRunner.iterator(
+                                    quantityStructure, new IExistChecker()
                                         {
-                                            public boolean exists(WellFieldId id)
+                                            public boolean exists(ImageId id)
                                             {
                                                 return reader.exists(getObjectPath(id));
                                             }
@@ -258,7 +258,7 @@ class CellLevelClassificationDataset extends CellLevelDataset implements
                                     {
                                         return false;
                                     }
-                                    final WellFieldId id = idIterator.next();
+                                    final ImageId id = idIterator.next();
                                     next =
                                             new CellLevelClassificationsOrdinal(id,
                                                     getClassificationsOrdinal(id));

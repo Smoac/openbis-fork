@@ -17,6 +17,8 @@
 package ch.ethz.cisd.hcscld;
 
 
+import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
+
 /**
  * Base class for all writable cell level data sets.
  * 
@@ -41,5 +43,20 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
      * segmentation data set and <code>null</code> otherwise.
      */
     public ICellLevelSegmentationWritableDataset toSegmentationDataset();
+    
+    /**
+     * Add annotations for a time series image sequence. 
+     */
+    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues);
+    
+    /**
+     * Add annotations for a depth scan image sequence. 
+     */
+    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues);
+
+    /**
+     * Add annotations for a custom image sequence.
+     */
+    public void addCustomSequenceAnnotation(String[] customDescriptions);
 
 }

@@ -23,11 +23,11 @@ package ch.ethz.cisd.hcscld;
  */
 public class CellLevelClassificationsEnum<T extends Enum<T>>
 {
-    private final WellFieldId id;
+    private final ImageId id;
 
     private final T[] data;
 
-    CellLevelClassificationsEnum(WellFieldId id, T[] data)
+    CellLevelClassificationsEnum(ImageId id, T[] data)
     {
         this.id = id;
         this.data = data;
@@ -36,7 +36,7 @@ public class CellLevelClassificationsEnum<T extends Enum<T>>
     /**
      * Returns the well field id of this classification results.
      */
-    public WellFieldId getId()
+    public ImageId getId()
     {
         return id;
     }

@@ -20,13 +20,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A runner for P@link {@link IWellFieldRunnable}.
+ * A runner for {@link IImageRunnable}.
  * 
  * @author Bernd Rinn
  */
-class WellFieldRunner
+class ImageRunner
 {
-    static void run(final WellFieldGeometry geometry, final IWellFieldRunnable runnable,
+    static void run(final ImageQuantityStructure geometry, final IImageRunnable runnable,
             final Object stateOrNull)
     {
         for (int row = 0; row < geometry.getNumberOfRows(); ++row)
@@ -35,7 +35,10 @@ class WellFieldRunner
             {
                 for (int field = 0; field < geometry.getNumberOfFields(); ++field)
                 {
-                    runnable.run(new WellFieldId(row, col, field), stateOrNull);
+                    for (int seqIdx = 0; seqIdx < geometry.getSequenceLength(); ++seqIdx)
+                    {
+                        runnable.run(new ImageId(row, col, field, seqIdx), stateOrNull);
+                    }
                 }
             }
         }
@@ -43,49 +46,55 @@ class WellFieldRunner
 
     interface IExistChecker
     {
-        boolean exists(WellFieldId id);
+        boolean exists(ImageId id);
     }
 
-    static Iterator<WellFieldId> iterator(final WellFieldGeometry geometry,
+    static Iterator<ImageId> iterator(final ImageQuantityStructure geometry,
             final IExistChecker checkerOrNull)
     {
-        return new Iterator<WellFieldId>()
+        return new Iterator<ImageId>()
             {
                 int row = 0;
 
                 int col = 0;
 
                 int field = 0;
+                
+                int sequenceIdx = 0;
 
                 boolean hasNext = true;
 
-                WellFieldId next = null;
+                ImageId next = null;
 
-                WellFieldId tryInternalNext()
+                ImageId tryInternalNext()
                 {
                     if (hasNext == false)
                     {
                         return null;
                     }
-                    final WellFieldId id = new WellFieldId(row, col, field);
-                    if (++field == geometry.getNumberOfFields())
+                    final ImageId id = new ImageId(row, col, field, sequenceIdx);
+                    if (++sequenceIdx == geometry.getSequenceLength())
                     {
-                        field = 0;
-                        if (++col == geometry.getNumberOfColumns())
+                        sequenceIdx = 0;
+                        if (++field == geometry.getNumberOfFields())
                         {
-                            col = 0;
-                            if (++row == geometry.getNumberOfRows())
+                            field = 0;
+                            if (++col == geometry.getNumberOfColumns())
                             {
-                                hasNext = false;
+                                col = 0;
+                                if (++row == geometry.getNumberOfRows())
+                                {
+                                    hasNext = false;
+                                }
                             }
                         }
                     }
                     return id;
                 }
 
-                WellFieldId tryFindNext()
+                ImageId tryFindNext()
                 {
-                    WellFieldId id = tryInternalNext();
+                    ImageId id = tryInternalNext();
                     while (id != null && checkerOrNull != null && checkerOrNull.exists(id) == false)
                     {
                         id = tryInternalNext();
@@ -102,7 +111,7 @@ class WellFieldRunner
                     return (next != null);
                 }
 
-                public WellFieldId next()
+                public ImageId next()
                 {
                     try
                     {

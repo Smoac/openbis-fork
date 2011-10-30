@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.hdf5.BitSetConversionUtils;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
+import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -36,21 +37,54 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     private final boolean storeEdgeMasks;
 
     CellLevelSegmentationWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final String segmentedObjectTypeName, final WellFieldGeometry geometry,
+            final String segmentedObjectTypeName, final ImageQuantityStructure quantityStructure,
             final ImageGeometry imageGeometry, final HDF5EnumerationType hdf5KindEnum,
             final boolean storeEdgeMasks)
     {
-        super(writer, datasetCode, geometry, imageGeometry);
+        super(writer, datasetCode, quantityStructure, imageGeometry);
         this.base =
-                new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
-                        CellLevelDatasetType.SEGMENTATION);
+                new CellLevelBaseWritableDataset(writer, datasetCode, quantityStructure,
+                        hdf5KindEnum, CellLevelDatasetType.SEGMENTATION);
         this.storeEdgeMasks = storeEdgeMasks;
         writer.writeCompound(getImageGeometryObjectPath(), imageGeometry);
         this.segmentedObjectTypeName = segmentedObjectTypeName;
         writer.writeString(getSegmentedObjectFileName(), segmentedObjectTypeName);
     }
 
-    public void writeImageSegmentation(WellFieldId id, List<SegmentedObject> objects)
+    @Override
+    public ICellLevelFeatureWritableDataset toFeatureDataset()
+    {
+        return (ICellLevelFeatureWritableDataset) super.toFeatureDataset();
+    }
+
+    @Override
+    public ICellLevelSegmentationWritableDataset toSegmentationDataset()
+    {
+        return this;
+    }
+    
+    @Override
+    public ICellLevelClassificationWritableDataset toClassificationDataset()
+    {
+        return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
+    }
+
+    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    {
+        base.addTimeSeriesSequenceAnnotation(timeValues);
+    }
+
+    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    {
+        base.addDepthScanSequenceAnnotation(zValues);
+    }
+
+    public void addCustomSequenceAnnotation(String[] customSequenceDescriptions)
+    {
+        base.addCustomSequenceAnnotation(customSequenceDescriptions);
+    }
+
+    public void writeImageSegmentation(ImageId id, List<SegmentedObject> objects)
     {
         int offset = 0;
         for (SegmentedObject o : objects)

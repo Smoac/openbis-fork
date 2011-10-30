@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValueArray;
 import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
+import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -36,7 +37,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     private final HDF5EnumerationType hdf5EnumType;
 
     CellLevelClassificationWritableDataset(IHDF5Writer writer, String datasetCode,
-            WellFieldGeometry geometry, final HDF5EnumerationType hdf5KindEnum,
+            ImageQuantityStructure geometry, final HDF5EnumerationType hdf5KindEnum,
             final Class<? extends Enum<?>> enumTypeClass)
     {
         this(writer, datasetCode, geometry, hdf5KindEnum, CellLevelBaseWritableDataset.addEnum(
@@ -44,7 +45,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     CellLevelClassificationWritableDataset(IHDF5Writer writer, String datasetCode,
-            WellFieldGeometry geometry, final HDF5EnumerationType hdf5KindEnum,
+            ImageQuantityStructure geometry, final HDF5EnumerationType hdf5KindEnum,
             final List<String> options)
     {
         this(writer, datasetCode, geometry, hdf5KindEnum, CellLevelBaseWritableDataset.addEnum(
@@ -52,7 +53,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     }
 
     private CellLevelClassificationWritableDataset(IHDF5Writer writer, String datasetCode,
-            WellFieldGeometry geometry, final HDF5EnumerationType hdf5KindEnum,
+            ImageQuantityStructure geometry, final HDF5EnumerationType hdf5KindEnum,
             final HDF5EnumerationType hdf5EnumType)
     {
         super(writer, datasetCode, geometry);
@@ -65,19 +66,34 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     @Override
     public ICellLevelFeatureWritableDataset toFeatureDataset()
     {
-        return null;
+        return (ICellLevelFeatureWritableDataset) super.toFeatureDataset();
     }
 
     @Override
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
-        return null;
+        return (ICellLevelSegmentationWritableDataset) super.toSegmentationDataset();
     }
 
     @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
         return this;
+    }
+
+    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    {
+        base.addTimeSeriesSequenceAnnotation(timeValues);
+    }
+
+    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    {
+        base.addDepthScanSequenceAnnotation(zValues);
+    }
+
+    public void addCustomSequenceAnnotation(String[] customSequenceDescriptions)
+    {
+        base.addCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
     public HDF5EnumerationType addEnum(String name, List<String> values)
@@ -90,7 +106,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return base.addEnum(enumClass);
     }
 
-    public void writeClassification(WellFieldId id, Enum<?>[] classifications)
+    public void writeClassification(ImageId id, Enum<?>[] classifications)
     {
         final int[] ordinals = new int[classifications.length];
         for (int i = 0; i < classifications.length; ++i)
@@ -102,7 +118,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
                 .getStorageFeatures(classifications.length)));
     }
 
-    public void writeClassification(WellFieldId id, String[] classifications)
+    public void writeClassification(ImageId id, String[] classifications)
     {
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classifications), HDF5IntStorageFeatures
@@ -110,7 +126,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
                         .getStorageFeatures(classifications.length)));
     }
 
-    public void writeClassification(WellFieldId id, int[] classificationOrdinals)
+    public void writeClassification(ImageId id, int[] classificationOrdinals)
     {
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classificationOrdinals), HDF5IntStorageFeatures

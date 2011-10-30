@@ -119,7 +119,7 @@ public interface IFeaturesDefinition
      * <p>
      * <i>This method and {@link #createFeatureGroup(String)} are mutual exclusive on a dataset.</i>
      * 
-     * @see ICellLevelFeatureWritableDataset#writeFeatures(WellFieldId, Object[][])
+     * @see ICellLevelFeatureWritableDataset#writeFeatures(ImageId, Object[][])
      */
     public void create();
 

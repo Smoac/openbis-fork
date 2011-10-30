@@ -31,7 +31,7 @@ public interface ICellLevelClassificationWritableDataset extends ICellLevelClass
      * @param id The well and field id.
      * @param classifications The classification values.
      */
-    public void writeClassification(WellFieldId id, Enum<?>[] classifications);
+    public void writeClassification(ImageId id, Enum<?>[] classifications);
 
     /**
      * Writes out the classification values for the given well and field.
@@ -39,16 +39,16 @@ public interface ICellLevelClassificationWritableDataset extends ICellLevelClass
      * @param id The well and field id.
      * @param classifications The classification values.
      */
-    public void writeClassification(WellFieldId id, String[] classifications);
+    public void writeClassification(ImageId id, String[] classifications);
 
     /**
      * Writes out the classification values for the given well and field.
      * 
      * @param id The well and field id.
      * @param classificationOrdinals The ordinal values of the classification as defined by
-     *            {@link ICellLevelDataWriter#addClassificationDataset(String, WellFieldGeometry, java.util.List)}
+     *            {@link ICellLevelDataWriter#addClassificationDataset(String, ImageQuantityStructure, java.util.List)}
      *            .
      */
-    public void writeClassification(WellFieldId id, int[] classificationOrdinals);
+    public void writeClassification(ImageId id, int[] classificationOrdinals);
 
 }

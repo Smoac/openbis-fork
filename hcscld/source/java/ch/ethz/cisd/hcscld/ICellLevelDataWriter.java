@@ -32,7 +32,7 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      * @param geometry The geometry of the new data set.
      */
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
-            WellFieldGeometry geometry);
+            ImageQuantityStructure geometry);
 
     /**
      * Adds a new classification data set.
@@ -42,7 +42,7 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      * @param enumType The type of the enumeration that represents the classification results.
      */
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            WellFieldGeometry geometry, Class<? extends Enum<?>> enumType);
+            ImageQuantityStructure geometry, Class<? extends Enum<?>> enumType);
 
     /**
      * Adds a new classification data set.
@@ -52,7 +52,7 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      * @param options The options that represents the classification results.
      */
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
-            WellFieldGeometry geometry, List<String> options);
+            ImageQuantityStructure geometry, List<String> options);
 
     /**
      * Adds a new image segmentation data set.
@@ -66,6 +66,6 @@ public interface ICellLevelDataWriter extends ICellLevelDataReader
      *            retrieved faster.
      */
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            String segmentedObjectTypeName, WellFieldGeometry geometry,
+            String segmentedObjectTypeName, ImageQuantityStructure geometry,
             ImageGeometry imageGeometry, boolean storeEdgeMasks);
 }

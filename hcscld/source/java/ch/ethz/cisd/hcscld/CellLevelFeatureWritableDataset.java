@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
@@ -34,7 +35,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     private final CellLevelBaseWritableDataset base;
 
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final WellFieldGeometry geometry, final HDF5CompoundMappingHints hintsOrNull,
+            final ImageQuantityStructure geometry, final HDF5CompoundMappingHints hintsOrNull,
             final HDF5EnumerationType hdf5KindEnum)
     {
         super(writer, datasetCode, geometry, hintsOrNull);
@@ -53,13 +54,13 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
-        return null;
+        return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
     }
 
     @Override
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
-        return null;
+        return (ICellLevelSegmentationWritableDataset) super.toSegmentationDataset();
     }
 
     HDF5EnumerationType addEnum(String name, List<String> values)
@@ -70,6 +71,21 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
     {
         return base.addEnum(enumClass);
+    }
+
+    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    {
+        base.addTimeSeriesSequenceAnnotation(timeValues);
+    }
+
+    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    {
+        base.addDepthScanSequenceAnnotation(zValues);
+    }
+
+    public void addCustomSequenceAnnotation(String[] customSequenceDescriptions)
+    {
+        base.addCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
     public IFeaturesDefinition createFeaturesDefinition()
@@ -90,7 +106,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     FeatureGroup addFeatureGroupInternal(final String name, final FeaturesDefinition features)
     {
         final HDF5CompoundType<Object[]> type =
-                base.writer.getCompoundType(getNameInDataset(name), Object[].class,
+                base.writer.getCompoundType(getDataTypeName(name), Object[].class,
                         features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup = new FeatureGroup(name, type);
         final String featureGroupsFile = getFeatureGroupsFilename();
@@ -100,7 +116,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return featureGroup;
     }
 
-    public void writeFeatures(WellFieldId id, IFeatureGroup featureGroup, Object[][] featureValues)
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         checkNumberOfElements(id, featureValues.length);
@@ -112,7 +128,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         * fg.getType().getRecordSize()));
     }
 
-    private void checkNumberOfElements(WellFieldId id, int numberOfObjectsToWrite)
+    private void checkNumberOfElements(ImageId id, int numberOfObjectsToWrite)
             throws IllegalArgumentException
     {
         if (featureGroups.isEmpty() == false && featureGroups.get(0).existsIn(id))
@@ -130,7 +146,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         }
     }
 
-    public void writeFeatures(WellFieldId id, Object[][] featureValues)
+    public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
         final FeatureGroup fg = featureGroups.get(0);

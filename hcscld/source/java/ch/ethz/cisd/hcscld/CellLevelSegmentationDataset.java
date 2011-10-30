@@ -43,9 +43,9 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     private final HDF5CompoundType<SegmentedObjectBox> indexType;
 
     CellLevelSegmentationDataset(IHDF5Reader reader, String datasetCode,
-            WellFieldGeometry geometry, ImageGeometry imageGeometry)
+            ImageQuantityStructure quantityStructure, ImageGeometry imageGeometry)
     {
-        super(reader, datasetCode, geometry);
+        super(reader, datasetCode, quantityStructure);
         this.imageGeometry = imageGeometry;
         this.indexType = reader.getInferredCompoundType(SegmentedObjectBox.class);
     }
@@ -96,7 +96,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return this;
     }
 
-    public SegmentedObject getObject(WellFieldId wellId, int objectId, boolean withEdge)
+    public SegmentedObject getObject(ImageId wellId, int objectId, boolean withEdge)
     {
         final SegmentedObjectBox objectBox =
                 reader.readCompoundArrayBlock(getObjectPath(wellId, INDEX_PREFIX), indexType,
@@ -104,7 +104,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return getObject(wellId, objectBox, withEdge);
     }
 
-    public SegmentedObject tryFindObject(WellFieldId wellId, int x, int y, boolean withEdge)
+    public SegmentedObject tryFindObject(ImageId wellId, int x, int y, boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX);
         final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
@@ -123,7 +123,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return null;
     }
 
-    SegmentedObject getObject(WellFieldId wellId, final SegmentedObjectBox objectBox,
+    SegmentedObject getObject(ImageId wellId, final SegmentedObjectBox objectBox,
             boolean withEdge)
     {
         final BitSet mask =
@@ -153,7 +153,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return new SegmentedObject(objectBox, mask, edgeMask);
     }
 
-    public SegmentedObject[] getObjects(WellFieldId wellId, boolean withEdge)
+    public SegmentedObject[] getObjects(ImageId wellId, boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX);
         final SegmentedObjectBox[] objectBoxes = reader.readCompoundArray(objectPath, indexType);
@@ -195,7 +195,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return edgeMasks;
     }
 
-    BitSet[] getMasks(WellFieldId wellId, String objectPath, SegmentedObjectBox[] objectBoxes)
+    BitSet[] getMasks(ImageId wellId, String objectPath, SegmentedObjectBox[] objectBoxes)
     {
         final long[] maskArray =
                 BitSetConversionUtils.toStorageForm(reader.readBitField(objectPath));
@@ -218,7 +218,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
 
     static String getImageGeometryObjectPath(String datasetCode)
     {
-        return getObjectPath(datasetCode) + "/imageGeometry";
+        return getDatasetPath(datasetCode) + "/imageGeometry";
     }
 
 }

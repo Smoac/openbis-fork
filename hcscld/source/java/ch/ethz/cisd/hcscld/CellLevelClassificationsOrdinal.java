@@ -23,11 +23,11 @@ package ch.ethz.cisd.hcscld;
  */
 public class CellLevelClassificationsOrdinal
 {
-    private final WellFieldId id;
+    private final ImageId id;
 
     private final int[] data;
 
-    CellLevelClassificationsOrdinal(WellFieldId id, int[] data)
+    CellLevelClassificationsOrdinal(ImageId id, int[] data)
     {
         this.id = id;
         this.data = data;
@@ -36,7 +36,7 @@ public class CellLevelClassificationsOrdinal
     /**
      * Returns the well field id of this classification results.
      */
-    public WellFieldId getId()
+    public ImageId getId()
     {
         return id;
     }

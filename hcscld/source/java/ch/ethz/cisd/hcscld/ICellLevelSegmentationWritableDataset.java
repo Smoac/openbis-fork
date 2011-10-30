@@ -23,10 +23,11 @@ import java.util.List;
  * 
  * @author Bernd Rinn
  */
-public interface ICellLevelSegmentationWritableDataset extends ICellLevelSegmentationDataset
+public interface ICellLevelSegmentationWritableDataset extends ICellLevelWritableDataset,
+        ICellLevelSegmentationDataset
 {
     /**
      * Writes the image segmentation for one <var>id</var>.
      */
-    public void writeImageSegmentation(WellFieldId id, List<SegmentedObject> objects);
+    public void writeImageSegmentation(ImageId id, List<SegmentedObject> objects);
 }

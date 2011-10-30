@@ -67,7 +67,7 @@ class CellLevelDataReader implements ICellLevelDataReader
     private CellLevelDatasetType getDatasetType(String datasetCode)
     {
         return CellLevelDatasetType.valueOf(reader.getEnumAttributeAsString(
-                CellLevelDataset.getObjectPath(datasetCode), "datasetType"));
+                CellLevelDataset.getDatasetPath(datasetCode), "datasetType"));
     }
 
     public List<ICellLevelDataset> getDataSets()
@@ -80,17 +80,17 @@ class CellLevelDataReader implements ICellLevelDataReader
             {
                 case CLASSIFICATION:
                     result.add(new CellLevelClassificationDataset(reader, code, reader
-                            .readCompound(CellLevelDataset.getGeometryObjectPath(code),
-                                    WellFieldGeometry.class)));
+                            .readCompound(CellLevelDataset.getImageQuantityStructureObjectPath(code),
+                                    ImageQuantityStructure.class)));
                     break;
                 case FEATURES:
                     result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(
-                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class),
+                            CellLevelDataset.getImageQuantityStructureObjectPath(code), ImageQuantityStructure.class),
                             hints));
                     break;
                 case SEGMENTATION:
                     result.add(new CellLevelSegmentationDataset(reader, code, reader.readCompound(
-                            CellLevelDataset.getGeometryObjectPath(code), WellFieldGeometry.class),
+                            CellLevelDataset.getImageQuantityStructureObjectPath(code), ImageQuantityStructure.class),
                             reader.readCompound(
                                     CellLevelSegmentationDataset.getImageGeometryObjectPath(code),
                                     ImageGeometry.class)));
@@ -108,16 +108,16 @@ class CellLevelDataReader implements ICellLevelDataReader
         {
             case CLASSIFICATION:
                 return new CellLevelClassificationDataset(reader, datasetCode, reader.readCompound(
-                        CellLevelDataset.getGeometryObjectPath(datasetCode),
-                        WellFieldGeometry.class));
+                        CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
+                        ImageQuantityStructure.class));
             case FEATURES:
                 return new CellLevelFeatureDataset(reader, datasetCode, reader.readCompound(
-                        CellLevelDataset.getGeometryObjectPath(datasetCode),
-                        WellFieldGeometry.class), hints);
+                        CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
+                        ImageQuantityStructure.class), hints);
             case SEGMENTATION:
                 return new CellLevelSegmentationDataset(reader, datasetCode, reader.readCompound(
-                        CellLevelDataset.getGeometryObjectPath(datasetCode),
-                        WellFieldGeometry.class), reader.readCompound(
+                        CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
+                        ImageQuantityStructure.class), reader.readCompound(
                         CellLevelSegmentationDataset.getImageGeometryObjectPath(datasetCode),
                         ImageGeometry.class));
             default:

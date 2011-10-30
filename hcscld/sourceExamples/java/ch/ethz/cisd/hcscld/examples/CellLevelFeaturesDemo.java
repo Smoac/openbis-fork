@@ -9,8 +9,8 @@ import ch.ethz.cisd.hcscld.ICellLevelDataReader;
 import ch.ethz.cisd.hcscld.ICellLevelDataWriter;
 import ch.ethz.cisd.hcscld.ICellLevelFeatureDataset;
 import ch.ethz.cisd.hcscld.ICellLevelFeatureWritableDataset;
-import ch.ethz.cisd.hcscld.WellFieldGeometry;
-import ch.ethz.cisd.hcscld.WellFieldId;
+import ch.ethz.cisd.hcscld.ImageQuantityStructure;
+import ch.ethz.cisd.hcscld.ImageId;
 
 /**
  * A demo program for writing and reading cell-level feature data.
@@ -22,16 +22,16 @@ public class CellLevelFeaturesDemo
 
     public static void main(String[] args)
     {
-        File f = new File("features.h5");
+        File f = new File("features.cld");
         f.delete();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset wds =
-                writer.addFeatureDataset("123", new WellFieldGeometry(16, 24, 9));
+                writer.addFeatureDataset("123", new ImageQuantityStructure(16, 24, 9));
         wds.createFeaturesDefinition().addInt32Feature("a").addFloat32Feature("b")
                 .addEnumFeature("c", "CellState", Arrays.asList("INFECTED", "HEALTHY", "UNCLEAR"))
                 .create();
         long start = System.currentTimeMillis();
-        for (WellFieldId id : wds.getGeometry())
+        for (ImageId id : wds.getImageQuantityStructure())
         {
             wds.writeFeatures(id, new Object[][]
                 {

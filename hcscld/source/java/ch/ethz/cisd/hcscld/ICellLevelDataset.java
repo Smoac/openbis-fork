@@ -16,6 +16,8 @@
 
 package ch.ethz.cisd.hcscld;
 
+import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
+
 /**
  * Base interface for all cell level datasets.
  * 
@@ -29,9 +31,9 @@ public interface ICellLevelDataset
     public String getDatasetCode();
 
     /**
-     * Returns the well/field geometry.
+     * Returns the image quantity structure (number of wells, fields and length of sequence).
      */
-    public WellFieldGeometry getGeometry();
+    public ImageQuantityStructure getImageQuantityStructure();
 
     /**
      * Returns the type of the dataset.
@@ -42,7 +44,6 @@ public interface ICellLevelDataset
      * Returns the dataset as a feature dataset.
      * 
      * @return This data set.
-     * 
      * @throws WrongDatasetTypeException if {@link #getType()} !=
      *             {@link CellLevelDatasetType#FEATURES}.
      */
@@ -52,7 +53,6 @@ public interface ICellLevelDataset
      * Returns the dataset as a classification dataset.
      * 
      * @return This data set.
-     * 
      * @throws WrongDatasetTypeException if {@link #getType()} !=
      *             {@link CellLevelDatasetType#CLASSIFICATION}.
      */
@@ -63,9 +63,27 @@ public interface ICellLevelDataset
      * Returns the dataset as an image segmentation dataset.
      * 
      * @return This data set.
-     * 
      * @throws WrongDatasetTypeException if {@link #getType()} !=
      *             {@link CellLevelDatasetType#SEGMENTATION}.
      */
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
+
+    /**
+     * Returns the annotation for a time series sequence, or <code>null</code>, if this dataset has
+     * no time series sequence annotation.
+     */
+    public HDF5TimeDurationArray tryGetTimeSeriesSequenceAnnotation();
+
+    /**
+     * Returns the annotation for a depth scan sequence, or <code>null</code>, if this dataset has
+     * no depth scan sequence annotation.
+     */
+    public DepthScanAnnotation tryGetDepthScanSequenceAnnotation();
+
+    /**
+     * Returns the annotation for a custom sequence, or <code>null</code>, if this dataset has
+     * no custom annotation.
+     */
+    public String[] tryGetCustomSequenceAnnotation();
+
 }

@@ -17,11 +17,11 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * A field runner that executes once for each well and field.
+ * A runner that executes once for each image of the dataset.
  *
  * @author Bernd Rinn
  */
-interface IWellFieldRunnable
+interface IImageRunnable
 {
-    public void run(WellFieldId id, Object state);
+    public void run(ImageId id, Object state);
 }

@@ -17,36 +17,41 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * The cell level classifications as strings for a given well and field.
+ * Annotation for depth scans sequences.
  *
  * @author Bernd Rinn
  */
-public class CellLevelClassificationsString
+public class DepthScanAnnotation
 {
-    private final ImageId id;
+    private final String unit;
+    
+    private final double[] zValues;
 
-    private final String[] data;
-
-    CellLevelClassificationsString(ImageId id, String[] data)
+    /**
+     * Creates a depth scan annotation.
+     *
+     * @param unit The unit of the z values
+     * @param zValues The z values.
+     */
+    public DepthScanAnnotation(String unit, double[] zValues)
     {
-        this.id = id;
-        this.data = data;
+        this.unit = unit;
+        this.zValues = zValues;
     }
 
     /**
-     * Returns the well field id of this classification results.
+     * Returns the unit of the z values.
      */
-    public ImageId getId()
+    public String getUnit()
     {
-        return id;
+        return unit;
     }
 
     /**
-     * Returns the classification results as strings.
+     * Returns the z values.
      */
-    public String[] getData()
+    public double[] getZValues()
     {
-        return data;
+        return zValues;
     }
-
 }

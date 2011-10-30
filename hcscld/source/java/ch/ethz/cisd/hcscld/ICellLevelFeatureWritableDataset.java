@@ -37,7 +37,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the <var>featureGroup</var>.
      */
-    public void writeFeatures(WellFieldId id, IFeatureGroup featureGroup, Object[][] featureValues);
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues);
 
     /**
      * Writes the values of the features to the dataset.
@@ -48,6 +48,6 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the default feature group.
      */
-    public void writeFeatures(WellFieldId id, Object[][] featureValues);
+    public void writeFeatures(ImageId id, Object[][] featureValues);
 
 }

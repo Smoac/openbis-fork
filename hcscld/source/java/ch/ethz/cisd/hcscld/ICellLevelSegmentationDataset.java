@@ -45,7 +45,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      *            computed.
      * @return The object as found by <code>segmentation</code>.
      */
-    public SegmentedObject getObject(WellFieldId wellId, int objectId, boolean withEdge);
+    public SegmentedObject getObject(ImageId wellId, int objectId, boolean withEdge);
 
     /**
      * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
@@ -58,7 +58,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
      *         , if no object was found at this point.
      */
-    public SegmentedObject tryFindObject(WellFieldId wellId, int x, int y, boolean withEdge);
+    public SegmentedObject tryFindObject(ImageId wellId, int x, int y, boolean withEdge);
 
     /**
      * Returns all segmented objects in the given <var>wellId</var>.
@@ -68,6 +68,6 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      *            computed.
      * @return All objects as found by <code>segmentation</code>.
      */
-    public SegmentedObject[] getObjects(WellFieldId wellId, boolean withEdge);
+    public SegmentedObject[] getObjects(ImageId wellId, boolean withEdge);
 
 }
