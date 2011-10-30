@@ -64,7 +64,7 @@ public class ImageQuantityStructure implements Iterable<ImageId>
 
     private SequenceType sequenceType;
 
-    @CompoundElement
+    @CompoundElement(memberName = "sequenceType")
     private HDF5EnumerationValue persistentSequenceType;
 
     @CompoundElement
