@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.*;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
@@ -155,9 +157,15 @@ public class FeatureDatasetRoundtripTest
         final String dsCode = "123";
         final File f = new File("default.cld");
         f.delete();
-        f.deleteOnExit();
+        //f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
-        createDefaultFeatureGroupDataset(writer, dsCode, new ImageQuantityStructure(2, 3, 4));
+        ICellLevelFeatureWritableDataset dsw =
+                createDefaultFeatureGroupDataset(writer, dsCode,
+                        new ImageQuantityStructure(2, 3, 4));
+        dsw.setPlateBarcode("plate_abc");
+        dsw.setParentDatasetCode("ds_xyz");
+        final String now = new Date().toString();
+        dsw.addDatasetAnnotation("dateOfCreation", now);
         writer.close();
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
@@ -175,6 +183,12 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(i % 3, clf.getValues()[i][2]);
             }
         }
+        assertEquals("plate_abc", ds.tryGetPlateBarcode());
+        assertEquals("ds_xyz", ds.tryGetParentDatasetCode());
+        assertEquals(new HashSet<String>(Arrays.asList("dateOfCreation")),
+                ds.getDatasetAnnotationKeys());
+        assertEquals(now, ds.tryGetDatasetAnnotation("dateOfCreation"));
+        assertNull(ds.tryGetDatasetAnnotation("creator"));
         reader.close();
     }
 
@@ -191,26 +205,26 @@ public class FeatureDatasetRoundtripTest
                         SequenceType.TIMESERIES, true));
         try
         {
-            dsw.addDepthScanSequenceAnnotation(new DepthScanAnnotation("mm", new double[]
+            dsw.setDepthScanSequenceAnnotation(new DepthScanAnnotation("mm", new double[]
                 { 2, 4, 6 }));
             fail("Attempt to add depth scan annotation to time series not detected.");
-        } catch (IllegalArgumentException ex)
+        } catch (WrongSequenceTypeException ex)
         {
             assertTrue(ex.getMessage(), ex.getMessage()
                     .contains(SequenceType.TIMESERIES.toString()));
         }
         try
         {
-            dsw.addCustomSequenceAnnotation(new String[]
+            dsw.setCustomSequenceAnnotation(new String[]
                 { "One", "Two", "Three", "Four" });
             fail("Attempt to add annotation of wrong length not detected.");
         } catch (IllegalArgumentException ex)
         {
             assertTrue(ex.getMessage(), ex.getMessage().contains("Wrong sequence length"));
         }
-        dsw.addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray.create(HDF5TimeUnit.MINUTES, 1,
+        dsw.setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray.create(HDF5TimeUnit.MINUTES, 1,
                 2, 4));
-        dsw.addCustomSequenceAnnotation(new String[]
+        dsw.setCustomSequenceAnnotation(new String[]
             { "One", "Two", "Three" });
         writer.close();
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
@@ -234,6 +248,9 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(i % 3, clf.getValues()[i][2]);
             }
         }
+        assertNull(ds.tryGetPlateBarcode());
+        assertNull(ds.tryGetParentDatasetCode());
+        assertTrue(ds.getDatasetAnnotationKeys().isEmpty());
         reader.close();
     }
 
