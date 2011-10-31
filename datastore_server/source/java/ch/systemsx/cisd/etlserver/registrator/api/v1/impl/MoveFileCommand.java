@@ -87,7 +87,7 @@ public class MoveFileCommand extends AbstractTransactionalCommand
 
     private void moveFile(File from, File to)
     {
-        String entity = from.isFile() ? "file" : "direcrtory";
+        String entity = from.isFile() ? "file" : "directory";
         getOperationLog().info(
                 String.format("Moving %s '%s' to '%s'", entity, from.getAbsolutePath(),
                         to.getAbsolutePath()));
