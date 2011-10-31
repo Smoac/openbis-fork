@@ -81,19 +81,19 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return this;
     }
 
-    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
-        base.addTimeSeriesSequenceAnnotation(timeValues);
+        base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
-    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
-        base.addDepthScanSequenceAnnotation(zValues);
+        base.setDepthScanSequenceAnnotation(zValues);
     }
 
-    public void addCustomSequenceAnnotation(String[] customSequenceDescriptions)
+    public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
-        base.addCustomSequenceAnnotation(customSequenceDescriptions);
+        base.setCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
     public HDF5EnumerationType addEnum(String name, List<String> values)
@@ -104,6 +104,21 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     public HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
     {
         return base.addEnum(enumClass);
+    }
+
+    public void setPlateBarcode(String plateBarcode)
+    {
+        base.setPlateBarcode(plateBarcode);
+    }
+
+    public void setParentDatasetCode(String parentDatasetCode)
+    {
+        base.setParentDatasetCode(parentDatasetCode);
+    }
+
+    public void addDatasetAnnotation(String annotationKey, String annotation)
+    {
+        base.addDatasetAnnotation(annotationKey, annotation);
     }
 
     public void writeClassification(ImageId id, Enum<?>[] classifications)

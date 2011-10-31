@@ -16,6 +16,9 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
@@ -75,9 +78,47 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return reader.exists(objectPath) ? reader.readStringArray(objectPath) : null;
     }
 
+    public String tryGetPlateBarcode()
+    {
+        final String objectPath = getObjectPath();
+        final String plateBarcodeAttributeName = getPlateBarcodeAttributeName();
+        return reader.hasAttribute(objectPath, plateBarcodeAttributeName) ? reader
+                .getStringAttribute(objectPath, plateBarcodeAttributeName) : null;
+    }
+
+    public String tryGetParentDatasetCode()
+    {
+        final String objectPath = getObjectPath();
+        final String parentDatasetAttributeName = getParentDatasetAttributeName();
+        return reader.hasAttribute(objectPath, parentDatasetAttributeName) ? reader
+                .getStringAttribute(objectPath, parentDatasetAttributeName) : null;
+    }
+
+    public Set<String> getDatasetAnnotationKeys()
+    {
+        return new HashSet<String>(reader.getGroupMembers(getDatasetAnnotationObjectPath()));
+    }
+
+    public String tryGetDatasetAnnotation(String annotationKey)
+    {
+        final String datasetAnnotationObjectPath = getDatasetAnnotationObjectPath(annotationKey);
+        return reader.exists(datasetAnnotationObjectPath) ? reader
+                .readString(datasetAnnotationObjectPath) : null;
+    }
+
     String getDatasetTypeAttributeName()
     {
         return "datasetType";
+    }
+
+    String getPlateBarcodeAttributeName()
+    {
+        return "plateBarcode";
+    }
+
+    String getParentDatasetAttributeName()
+    {
+        return "parentDatasets";
     }
 
     String getDataTypeName(final String dataTypeName)
@@ -95,6 +136,11 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getDatasetPath(datasetCode) + "/" + name;
     }
 
+    String getObjectPath(final String dir, final String name)
+    {
+        return getDatasetPath(datasetCode) + "/" + dir + "/" + name;
+    }
+
     String getObjectPath(ImageId id)
     {
         return getObjectPath(id, null);
@@ -102,17 +148,27 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     String getTimeSeriesSequenceAnnotationObjectPath()
     {
-        return getObjectPath("timeSeriesSeqAnnotation");
+        return getObjectPath("timeSeriesSequenceAnnotation");
     }
 
     String getDepthScanSequenceAnnotationObjectPath()
     {
-        return getObjectPath("depthScanSeqAnnotation");
+        return getObjectPath("depthScanSequenceAnnotation");
     }
 
     String getCustomSequenceAnnotationObjectPath()
     {
-        return getObjectPath("customSeqAnnotation");
+        return getObjectPath("customSequenceAnnotation");
+    }
+
+    String getDatasetAnnotationObjectPath()
+    {
+        return getObjectPath("datasetAnnotations");
+    }
+
+    String getDatasetAnnotationObjectPath(String annotationKey)
+    {
+        return getObjectPath("datasetAnnotations", annotationKey);
     }
 
     String getObjectPath(ImageId id, String prefix)

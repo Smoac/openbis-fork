@@ -16,6 +16,8 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Set;
+
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 
 /**
@@ -69,21 +71,60 @@ public interface ICellLevelDataset
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
 
     /**
-     * Returns the annotation for a time series sequence, or <code>null</code>, if this dataset has
-     * no time series sequence annotation.
+     * Returns annotation for a time series image sequence.
+     * 
+     * @return The annotation for a time series sequence, or <code>null</code>, if this dataset has
+     *         no time series sequence annotation. If the annotation exists, it will contain the
+     *         time point for each image of the sequence in the order of sequence indices.
      */
     public HDF5TimeDurationArray tryGetTimeSeriesSequenceAnnotation();
 
     /**
-     * Returns the annotation for a depth scan sequence, or <code>null</code>, if this dataset has
-     * no depth scan sequence annotation.
+     * Returns annotation for a depth scan image sequence.
+     * 
+     * @return The annotation for a depth scan sequence, or <code>null</code>, if this dataset has
+     *         no depth scan sequence annotation. If the annotation exists, it will contain the
+     *         z-value for each image of the sequence in the order of sequence indices.
      */
     public DepthScanAnnotation tryGetDepthScanSequenceAnnotation();
 
     /**
-     * Returns the annotation for a custom sequence, or <code>null</code>, if this dataset has
-     * no custom annotation.
+     * Returns custom annotation for any image sequence.
+     * 
+     * @return The annotation for a custom sequence, or <code>null</code>, if this dataset has no
+     *         custom annotation. If the annotation exists, it will contain a description string for
+     *         each image of the sequence in the order of sequence indices.
      */
     public String[] tryGetCustomSequenceAnnotation();
 
+    /**
+     * Returns the plate barcode.
+     * 
+     * @returns The plate barcode, or <code>null</code>, if no plate barcode has been set for this
+     *          dataset.
+     */
+    public String tryGetPlateBarcode();
+
+    /**
+     * Returns the dataset code of the parent dataset.
+     * 
+     * @returns The dataset code of the parent dataset, or <code>null</code>, if no parent dataset
+     *          code has been set for this dataset.
+     */
+    public String tryGetParentDatasetCode();
+
+    /**
+     * Returns the set of keys of dataset annotations available for this dataset.
+     * 
+     * @return The keys of all dataset annotations available for this dataset.
+     */
+    public Set<String> getDatasetAnnotationKeys();
+
+    /**
+     * Returns a dataset annotation.
+     * 
+     * @param annotationKey The key of the annotation to retrieve.
+     * @return The dataset annotation, or <code>null</code>, if no such dataset annotation exists.
+     */
+    public String tryGetDatasetAnnotation(String annotationKey);
 }

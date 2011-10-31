@@ -21,12 +21,12 @@ package ch.ethz.cisd.hcscld;
  * 
  * @author Bernd Rinn
  */
-public class WrongDatasetTypeException extends RuntimeException
+public class WrongDatasetTypeException extends IllegalArgumentException
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final String datasetCode;
-    
+
     private final CellLevelDatasetType expectedDatasetType;
 
     private final CellLevelDatasetType foundDatasetType;
@@ -34,23 +34,32 @@ public class WrongDatasetTypeException extends RuntimeException
     WrongDatasetTypeException(String datasetCode, CellLevelDatasetType expectedType,
             CellLevelDatasetType foundType)
     {
-        super(String.format("Dataset '%s [expected: %s, found: %s]", datasetCode, expectedType,
-                foundType));
+        super(String.format("Dataset '%s [type expected: %s, type found: %s]", datasetCode,
+                expectedType, foundType));
         this.datasetCode = datasetCode;
         this.expectedDatasetType = expectedType;
         this.foundDatasetType = foundType;
     }
 
+    /**
+     * Returns the dataset code of the exception.
+     */
     public String getDatasetCode()
     {
         return datasetCode;
     }
 
+    /**
+     * Returns the dataset type expected.
+     */
     public CellLevelDatasetType getExpectedDatasetType()
     {
         return expectedDatasetType;
     }
 
+    /**
+     * Returns the dataset type found.
+     */
     public CellLevelDatasetType getFoundDatasetType()
     {
         return foundDatasetType;

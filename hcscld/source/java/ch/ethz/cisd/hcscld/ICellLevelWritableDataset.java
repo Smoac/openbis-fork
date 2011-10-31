@@ -16,7 +16,6 @@
 
 package ch.ethz.cisd.hcscld;
 
-
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 
 /**
@@ -43,20 +42,37 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
      * segmentation data set and <code>null</code> otherwise.
      */
     public ICellLevelSegmentationWritableDataset toSegmentationDataset();
-    
-    /**
-     * Add annotations for a time series image sequence. 
-     */
-    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues);
-    
-    /**
-     * Add annotations for a depth scan image sequence. 
-     */
-    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues);
 
     /**
-     * Add annotations for a custom image sequence.
+     * Add annotations for a time series image sequence. The annotation is supposed to provide the
+     * timepoint for each image of the sequence, ordered by sequence index.
      */
-    public void addCustomSequenceAnnotation(String[] customDescriptions);
+    public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues);
 
+    /**
+     * Add annotations for a depth scan image sequence. The annotation is supposed to provide the
+     * z-value for each image of the sequence, ordered by sequence index.
+     */
+    public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues);
+
+    /**
+     * Add annotations for a custom image sequence. The annotation is supposed to provide a
+     * description for each image of the sequence, ordered by sequence index.
+     */
+    public void setCustomSequenceAnnotation(String[] customDescriptions);
+
+    /**
+     * Sets the plate barcode that this dataset refers to.
+     */
+    public void setPlateBarcode(String plateBarcode);
+
+    /**
+     * Sets the parent dataset code of this dataset.
+     */
+    public void setParentDatasetCode(String parentDatasetCode);
+
+    /**
+     * Sets a custom dataset <var>annotation</var> with key <var>annoationKey</var>.
+     */
+    public void addDatasetAnnotation(String annotationKey, String annotation);
 }

@@ -69,19 +69,34 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
     }
 
-    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
-        base.addTimeSeriesSequenceAnnotation(timeValues);
+        base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
-    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
-        base.addDepthScanSequenceAnnotation(zValues);
+        base.setDepthScanSequenceAnnotation(zValues);
     }
 
-    public void addCustomSequenceAnnotation(String[] customSequenceDescriptions)
+    public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
-        base.addCustomSequenceAnnotation(customSequenceDescriptions);
+        base.setCustomSequenceAnnotation(customSequenceDescriptions);
+    }
+
+    public void setPlateBarcode(String plateBarcode)
+    {
+        base.setPlateBarcode(plateBarcode);
+    }
+
+    public void setParentDatasetCode(String parentDatasetCode)
+    {
+        base.setParentDatasetCode(parentDatasetCode);
+    }
+
+    public void addDatasetAnnotation(String annotationKey, String annotation)
+    {
+        base.addDatasetAnnotation(annotationKey, annotation);
     }
 
     public void writeImageSegmentation(ImageId id, List<SegmentedObject> objects)

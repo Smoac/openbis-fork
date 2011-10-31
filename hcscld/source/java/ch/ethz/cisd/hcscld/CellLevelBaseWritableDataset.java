@@ -46,6 +46,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         quantityStructure.writeToDataset(this);
         writer.setEnumAttribute(getObjectPath(), getDatasetTypeAttributeName(),
                 new HDF5EnumerationValue(hdf5KindEnum, datasetType.ordinal()));
+        writer.createGroup(getDatasetAnnotationObjectPath());
     }
 
     void run(IImageRunnable runnable, Object stateOrNull)
@@ -124,14 +125,14 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         throw new UnsupportedOperationException();
     }
 
-    public void addTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
+    public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         checkSequenceLength(timeValues.getLength());
         checkTimeSeriesSequence();
         writer.writeTimeDurationArray(getTimeSeriesSequenceAnnotationObjectPath(), timeValues);
     }
 
-    public void addDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
+    public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         checkSequenceLength(zValues.getZValues().length);
         checkDepthScanSequence();
@@ -140,7 +141,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         writer.setStringAttribute(objectPath, "unit", zValues.getUnit());
     }
 
-    public void addCustomSequenceAnnotation(String[] customDescriptions)
+    public void setCustomSequenceAnnotation(String[] customDescriptions)
     {
         checkSequenceLength(customDescriptions.length);
         checkCustomSequence();
@@ -156,34 +157,52 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         }
     }
 
-    private void checkTimeSeriesSequence() throws IllegalArgumentException
+    private void checkTimeSeriesSequence() throws WrongSequenceTypeException
     {
         if (quantityStructure.getSequenceType() != SequenceType.TIMESERIES
                 && quantityStructure.getSequenceType() != SequenceType.TIMESERIES_DEPTHSCAN)
         {
-            throw new IllegalArgumentException("Sequence of type "
-                    + quantityStructure.getSequenceType()
-                    + " does not allow time series annotation.");
+            throw new WrongSequenceTypeException(datasetCode, new SequenceType[]
+                { SequenceType.TIMESERIES, SequenceType.TIMESERIES_DEPTHSCAN },
+                    quantityStructure.getSequenceType());
         }
     }
 
-    private void checkDepthScanSequence() throws IllegalArgumentException
+    private void checkDepthScanSequence() throws WrongSequenceTypeException
     {
         if (quantityStructure.getSequenceType() != SequenceType.DEPTHSSCAN
                 && quantityStructure.getSequenceType() != SequenceType.TIMESERIES_DEPTHSCAN)
         {
-            throw new IllegalArgumentException("Sequence of type "
-                    + quantityStructure.getSequenceType()
-                    + " does not allow depth scan annotation.");
+            throw new WrongSequenceTypeException(datasetCode, new SequenceType[]
+                { SequenceType.DEPTHSSCAN, SequenceType.TIMESERIES_DEPTHSCAN },
+                    quantityStructure.getSequenceType());
         }
     }
 
-    private void checkCustomSequence() throws IllegalArgumentException
+    private void checkCustomSequence() throws WrongSequenceTypeException
     {
         if (quantityStructure.getSequenceType() == SequenceType.NONE)
         {
-            throw new IllegalArgumentException(
-                    "This dataset is not a sequence and thus doesn't allow custom annotations.");
+            throw new WrongSequenceTypeException(datasetCode, new SequenceType[]
+                { SequenceType.TIMESERIES, SequenceType.DEPTHSSCAN,
+                        SequenceType.TIMESERIES_DEPTHSCAN, SequenceType.CUSTOM },
+                    quantityStructure.getSequenceType());
         }
+    }
+
+    public void setPlateBarcode(String plateBarcode)
+    {
+        writer.setStringAttribute(getObjectPath(), getPlateBarcodeAttributeName(), plateBarcode);
+    }
+
+    public void setParentDatasetCode(String parentDatasetCode)
+    {
+        writer.setStringAttribute(getObjectPath(), getParentDatasetAttributeName(),
+                parentDatasetCode);
+    }
+
+    public void addDatasetAnnotation(String annotationKey, String annotation)
+    {
+        writer.writeStringVariableLength(getDatasetAnnotationObjectPath(annotationKey), annotation);
     }
 }
