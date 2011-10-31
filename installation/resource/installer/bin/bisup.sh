@@ -1,6 +1,17 @@
 #!/bin/bash
 # Starts up openBIS server
 
+function fileAgeInSeconds() {
+
+  FILE_NAME=$(basename $1)
+  DIR_NAME=$(dirname $1)
+
+  fftime=$(find $DIR_NAME -name $FILE_NAME -type f -printf '%T@')
+  nnow=$(date +%s)
+
+  return $(expr $nnow - ${fftime%%\.*})
+}
+
 STARTING_MESSAGE="STARTING SERVER"
 STARTED_MESSAGE="SERVER STARTED"
 ERROR_MESSAGE="ERROR"
@@ -24,13 +35,21 @@ fi
 JETTY_HOME=$BASE/../servers/openBIS-server/jetty
 OPENBIS_LOG=$JETTY_HOME/logs/openbis_log.txt
 JETTY_LOG=$JETTY_HOME/logs/jetty.out
+TIMEOUT=15
 
 echo Starting openBIS...
 echo $STARTING_MESSAGE >> $OPENBIS_LOG
 
 $JETTY_HOME/bin/startup.sh
 
-for i in {1..120}; do 
+bisLogAgeInSeconds=5
+jettyLogAgeInSeconds=5
+
+# 
+# Loop while the openBIS process alters writes to the log files
+#
+while [ "$bisLogAgeInSeconds" -lt $TIMEOUT ] || [ "$jettyLogAgeInSeconds" -lt $TIMEOUT ]; do
+    
     echo -n "."
     sleep 2
     
@@ -55,6 +74,11 @@ for i in {1..120}; do
         exit 1;
     fi
     
+    fileAgeInSeconds $OPENBIS_LOG
+    bisLogAgeInSeconds=$?
+    
+    fileAgeInSeconds $JETTY_LOG
+    jettyLogAgeInSeconds=$?
 done
 
 
