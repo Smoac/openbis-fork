@@ -1,3 +1,4 @@
+import os
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata, SimpleImageDataConfig, Location
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
@@ -21,7 +22,7 @@ class OperaFlexImageDataSet(SimpleImageDataConfig):
         for image in imageIdentifiers:
             token = ImageMetadata()
             
-            token.well = extractWellCode(imagePath)
+            token.well = self.extractWellCode(imagePath)
             imageIndex = image.getTimeSeriesIndex()
             token.tileNumber = self.flexHelper.getTileNumber(imageIndex)
             token.channelCode = self.flexHelper.getChannelCode(imageIndex)
@@ -86,3 +87,4 @@ if incoming.isDirectory():
     dataSetRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     dataSet = tr.createNewDataSet(dataSetRegistrationDetails)
     tr.moveFile(incoming.getAbsolutePath(), dataSet)
+
