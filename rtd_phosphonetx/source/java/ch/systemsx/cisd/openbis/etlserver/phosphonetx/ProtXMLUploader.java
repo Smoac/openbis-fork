@@ -42,6 +42,8 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 public class ProtXMLUploader implements IDataSetUploader
 {
     private static final String VALIDATING_XML = "validating-xml";
+    
+    private static final String ASSUMING_EXTENDED_PROT_XML = "assuming-extended-prot-xml";
 
     private static final String DATABASE_ENGINE = "database.engine";
 
@@ -76,12 +78,15 @@ public class ProtXMLUploader implements IDataSetUploader
 
     private final DataSource dataSource;
 
+    private final boolean assumingExtendedProtXML;
+    
     private ResultDataSetUploader currentResultDataSetUploader;
 
     public ProtXMLUploader(Properties properties, IEncapsulatedOpenBISService openbisService)
     {
         dataSource = createDataSource(properties);
         this.openbisService = openbisService;
+        assumingExtendedProtXML = PropertyUtils.getBoolean(properties, ASSUMING_EXTENDED_PROT_XML, true);
         loader = new ProtXMLLoader(PropertyUtils.getBoolean(properties, VALIDATING_XML, false));
     }
 
@@ -147,7 +152,7 @@ public class ProtXMLUploader implements IDataSetUploader
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        return new ResultDataSetUploader(connection, openbisService);
+        return new ResultDataSetUploader(connection, openbisService, assumingExtendedProtXML);
     }
 
     private File getProtXMLFile(File dataSet)

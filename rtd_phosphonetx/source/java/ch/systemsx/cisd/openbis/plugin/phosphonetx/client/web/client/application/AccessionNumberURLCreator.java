@@ -27,6 +27,7 @@ import java.util.Map;
 class AccessionNumberURLCreator
 {
     private static final String UNIPROT_URL_TEMPLATE = "http://www.uniprot.org/uniprot/$id";
+    private static final String UNIPROT_QUERY_URL_TEMPLATE = "http://www.uniprot.org/uniprot/?query=$id";
     private static final Map<String, String> URL_TEMPLATES = createURLTemplates();
     
     private static final Map<String, String> createURLTemplates()
@@ -34,6 +35,11 @@ class AccessionNumberURLCreator
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("sp", UNIPROT_URL_TEMPLATE);
         map.put("tr", UNIPROT_URL_TEMPLATE);
+        map.put("ipi", UNIPROT_QUERY_URL_TEMPLATE);
+        map.put("ens", UNIPROT_QUERY_URL_TEMPLATE);
+        map.put("rs", UNIPROT_QUERY_URL_TEMPLATE);
+        map.put("ll", UNIPROT_QUERY_URL_TEMPLATE);
+        map.put("fb", UNIPROT_QUERY_URL_TEMPLATE);
         map.put("gi", "http://www.ncbi.nlm.nih.gov/protein/$id");
         map.put("isb", "http://www.ebi.ac.uk/ebisearch/search.ebi?db=proteinSequences&t=$id");
         return map;

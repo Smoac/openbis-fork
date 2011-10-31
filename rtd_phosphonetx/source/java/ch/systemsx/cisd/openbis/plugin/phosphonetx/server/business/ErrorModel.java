@@ -46,7 +46,8 @@ class ErrorModel
     boolean passProtein(ProteinReferenceWithProtein protein, double falseDiscoveryRate)
     {
         ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
-        return calculator.calculateFDR(protein.getProbability()) <= falseDiscoveryRate;
+        double fdr = calculator.calculateFDR(protein.getProbability());
+        return Double.isNaN(fdr) || fdr <= falseDiscoveryRate;
     }
 
     void setFalseDiscoveryRateFor(IdentifiedProtein protein)
@@ -59,8 +60,7 @@ class ErrorModel
     double calculateFalsDiscoveryRate(long dataSetID, double probability)
     {
         ProbabilityToFDRCalculator calculator = getCalculator(dataSetID);
-        double fdr = calculator.calculateFDR(probability);
-        return fdr;
+        return calculator.calculateFDR(probability);
     }
 
     private ProbabilityToFDRCalculator getCalculator(long dataSetID)

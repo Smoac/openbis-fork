@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
 
 final class ProteinDescription
 {
@@ -35,22 +36,55 @@ final class ProteinDescription
 
     private final String sequence;
 
-    public ProteinDescription(String proteinDescription)
+    public ProteinDescription(ProteinAnnotation annotation, long proteinID, boolean assumingExtendedProtXML)
     {
-        String[] items = proteinDescription.split("\\\\");
-        accessionNumber = tryToGetAccessionNumber(items);
-        description = tryToGetValue(items, DESCRIPTION_KEY);
-        sequence = tryToGetValue(items, SEQUENCE_KEY);
-        if (accessionNumber == null)
+        String proteinDescription = annotation.getDescription();
+        if (assumingExtendedProtXML)
         {
-            throw new UserFailureException("Cannot find an accession number in a protein description: "
-                    + proteinDescription);
-        }
-        if (sequence == null)
+            String[] items = proteinDescription.split("\\\\");
+            accessionNumber = tryToGetAccessionNumber(items);
+            description = tryToGetValue(items, DESCRIPTION_KEY);
+            sequence = tryToGetValue(items, SEQUENCE_KEY);
+            if (accessionNumber == null)
+            {
+                throw new UserFailureException("Cannot find an accession number in a protein description: "
+                        + proteinDescription);
+            }
+            if (sequence == null)
+            {
+                throw new UserFailureException(
+                        "Cannot find a protein sequence in a protein description: "
+                                + proteinDescription);
+            }
+        } else
         {
-            throw new UserFailureException(
-                    "Cannot find a protein sequence in a protein description: "
-                            + proteinDescription);
+            description = proteinDescription;
+            sequence = "";
+            if (annotation.getSwissprotName() != null)
+            {
+                accessionNumber = "sp|" + annotation.getSwissprotName();
+            } else if (annotation.getTremblName() != null)
+            {
+                accessionNumber = "tr|" + annotation.getTremblName();
+            } else if (annotation.getIpiName() != null)
+            {
+                accessionNumber = "ipi|" + annotation.getIpiName();
+            } else if (annotation.getEnsemblName() != null)
+            {
+                accessionNumber = "ens|" + annotation.getEnsemblName();
+            } else if (annotation.getRefseqName() != null)
+            {
+                accessionNumber = "rs|" + annotation.getRefseqName();
+            } else if (annotation.getLocusLinkName() != null)
+            {
+                accessionNumber = "ll|" + annotation.getLocusLinkName();
+            } else if (annotation.getFlybase() != null)
+            {
+                accessionNumber = "fb|" + annotation.getFlybase();
+            } else
+            {
+                accessionNumber = "unknown|" + proteinID;
+            }
         }
     }
 

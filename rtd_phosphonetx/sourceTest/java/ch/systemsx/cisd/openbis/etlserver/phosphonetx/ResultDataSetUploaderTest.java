@@ -141,7 +141,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         dao = context.mock(IProtDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
 
-        uploader = new ResultDataSetUploader(dao, connection, service);
+        uploader = new ResultDataSetUploader(dao, connection, service, true);
     }
 
     @AfterMethod
@@ -546,7 +546,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     private void prepareForCreatingIdentifiedProtein(ProteinAnnotation annotation,
             final boolean referenceExist, final boolean primary)
     {
-        ProteinDescription proteinDescription = new ProteinDescription(annotation.getDescription());
+        ProteinDescription proteinDescription = new ProteinDescription(annotation, 0, true);
         final String uniprotID = proteinDescription.getAccessionNumber();
         final String description = proteinDescription.getDescription();
         final String sequence = proteinDescription.getSequence();

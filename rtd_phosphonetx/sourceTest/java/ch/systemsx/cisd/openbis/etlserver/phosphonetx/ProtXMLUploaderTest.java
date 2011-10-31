@@ -53,7 +53,7 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
         @Override
         protected ResultDataSetUploader createUploader()
         {
-            return new ResultDataSetUploader(null, null, null)
+            return new ResultDataSetUploader(null, null, null, true)
                 {
                     @Override
                     void upload(DataSetInformation dataSetInfo, ProteinSummary summary)

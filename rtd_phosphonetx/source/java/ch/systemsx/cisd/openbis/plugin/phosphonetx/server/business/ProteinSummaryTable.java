@@ -74,7 +74,7 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
 
         public void handle(double fdr, ProteinReferenceWithProbabilityAndPeptide protein)
         {
-            if (fdr <= fdrLevel)
+            if (Double.isNaN(fdr) || fdr <= fdrLevel)
             {
                 String accessionNumber = protein.getAccessionNumber();
                 if (accessionNumber.startsWith("DECOY_"))

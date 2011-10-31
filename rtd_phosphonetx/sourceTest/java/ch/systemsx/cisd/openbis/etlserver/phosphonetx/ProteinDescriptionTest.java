@@ -20,6 +20,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinAnnotation;
 
 /**
  * 
@@ -31,9 +32,11 @@ public class ProteinDescriptionTest extends AssertJUnit
     @Test
     public void testWithOutAccessionNumber()
     {
+        ProteinAnnotation annotation = new ProteinAnnotation();
+        annotation.setDescription("Q92902");
         try
         {
-            new ProteinDescription("Q92902");
+            new ProteinDescription(annotation, 0, true);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -44,11 +47,12 @@ public class ProteinDescriptionTest extends AssertJUnit
     @Test
     public void testWithAccessionNumberAndSequence()
     {
-        ProteinDescription description =
-            new ProteinDescription("Q92902 \\ID=HPS1_HUMAN \\MODRES= "
-                    + "\\VARIANT=(55|.|)(100|E|D)(186|A|V)(283|G|W)(480|A|T) "
-                    + "\\NCBITAXID=9606 \\DE=Hermansky-Pudlak syndrome 1 protein "
-                    + "\\SEQ=MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA");
+        ProteinAnnotation annotation = new ProteinAnnotation();
+        annotation.setDescription("Q92902 \\ID=HPS1_HUMAN \\MODRES= "
+                + "\\VARIANT=(55|.|)(100|E|D)(186|A|V)(283|G|W)(480|A|T) "
+                + "\\NCBITAXID=9606 \\DE=Hermansky-Pudlak syndrome 1 protein "
+                + "\\SEQ=MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA");
+        ProteinDescription description = new ProteinDescription(annotation, 0, true);
         assertEquals("Q92902", description.getAccessionNumber());
         assertEquals("Hermansky-Pudlak syndrome 1 protein", description.getDescription());
         assertEquals("MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA", description.getSequence());

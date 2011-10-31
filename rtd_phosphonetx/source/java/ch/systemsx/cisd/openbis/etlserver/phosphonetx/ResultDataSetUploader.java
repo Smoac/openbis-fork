@@ -73,17 +73,20 @@ class ResultDataSetUploader extends AbstractHandler
 
     private final StringBuffer errorMessages;
 
-    ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService)
+    private final boolean assumingExtendedProtXML;
+
+    ResultDataSetUploader(Connection connection, IEncapsulatedOpenBISService openbisService, boolean assumingExtendedProtXML)
     {
-        this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService);
+        this(QueryTool.getQuery(connection, IProtDAO.class), connection, openbisService, assumingExtendedProtXML);
     }
 
     ResultDataSetUploader(IProtDAO dao, Connection connection,
-            IEncapsulatedOpenBISService openbisService)
+            IEncapsulatedOpenBISService openbisService, boolean assumingExtendedProtXML)
     {
         super(dao);
         this.connection = connection;
         this.openbisService = openbisService;
+        this.assumingExtendedProtXML = assumingExtendedProtXML;
         this.errorMessages = new StringBuffer();
     }
 
@@ -216,7 +219,8 @@ class ResultDataSetUploader extends AbstractHandler
             {
                 try
                 {
-                    if (calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)
+                    if (assumingExtendedProtXML == false
+                            || calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)
                     {
                         addProtein(protein, dataSetID, databaseID, abundanceHandler,
                                 modificationFractionHandler);
@@ -363,7 +367,8 @@ class ResultDataSetUploader extends AbstractHandler
     private void createIdentifiedProtein(long proteinID, Set<String> peptideSequences,
             Long databaseID, ProteinAnnotation annotation, boolean primary)
     {
-        ProteinDescription protDesc = new ProteinDescription(annotation.getDescription());
+        ProteinDescription protDesc =
+                new ProteinDescription(annotation, proteinID, assumingExtendedProtXML);
         String accessionNumber = protDesc.getAccessionNumber();
         String description = protDesc.getDescription();
         ProteinReference proteinReference = dao.tryToGetProteinReference(accessionNumber);
@@ -439,6 +444,10 @@ class ResultDataSetUploader extends AbstractHandler
                     return calculator;
                 }
             }
+        }
+        if (assumingExtendedProtXML == false)
+        {
+            return calculator;
         }
         throw new UserFailureException("Missing Protein Prophet details.");
     }

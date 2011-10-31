@@ -62,6 +62,10 @@ public final class ProbabilityToFDRCalculator
 
     public double calculateFDR(double probability)
     {
+        if (mappingEntries.isEmpty())
+        {
+            return Double.NaN;
+        }
         int index = Collections.binarySearch(mappingEntries, new MappingEntry(probability, 0));
         if (index >= 0)
         {
