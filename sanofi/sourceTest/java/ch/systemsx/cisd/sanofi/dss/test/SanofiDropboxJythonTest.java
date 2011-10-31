@@ -100,6 +100,10 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private static final String BATCH_MATERIAL_TYPE = "COMPOUND_BATCH";
 
+    private static final String BATCH_MATERIAL_COMPOUND_PROP = "COMPOUND";
+
+    private static final String BATCH_MATERIAL_SUFFIX = "BATCH_MATERIAL";
+
     private static final String POSITIVE_CONTROL_TYPE = "POSITIVE_CONTROL";
 
     private static final String NEGATIVE_CONTROL_TYPE = "NEGATIVE_CONTROL";
@@ -107,9 +111,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String COMPOUND_WELL_TYPE = "COMPOUND_WELL";
 
     private static final String COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M";
-
-    // TODO KE: Use this constant after the feedback from Matt
-    //private static final String COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND";
 
     private static final String COMPOUND_WELL_BATCH_PROPNAME = "COMPOUND_BATCH";
 
@@ -381,6 +382,10 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 .tryGetMaterialType().getCode());
         assertEquals(true, queryResult.hasCloseBeenInvoked());
 
+        Map<String, List<NewMaterial>> registeredMaterials =
+                atomicatOperationDetails.recordedObject().getMaterialRegistrations();
+        assertBatchMaterialsHaveCompoundProperties(registeredMaterials);
+
         List<NewSample> registeredSamples =
                 atomicatOperationDetails.recordedObject().getSampleRegistrations();
 
@@ -572,8 +577,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         final Sample plate = plateWithLibTemplateAndGeometry("0.75\tH\n54.12\tL", "8_WELLS_2X4");
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
-        queryResult.add(createQueryResult("A1", "batch_material", "compound_material"));
-        queryResult.add(createQueryResult("B1", "batch_material", "compound_material"));
+        queryResult.add(createQueryResult("A1", BATCH_MATERIAL_SUFFIX, "compound_material"));
+        queryResult.add(createQueryResult("B1", BATCH_MATERIAL_SUFFIX, "compound_material"));
 
         setDataSetExpectations();
         setUpListAdministratorExpectations();
@@ -623,9 +628,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
         assertEquals(4, registeredSamples.size());
         assertAllSamplesHaveContainer(registeredSamples, plate.getIdentifier());
-        assertCompoundWell(registeredSamples, "A1", "0.75", "batch_material", "compound_material");
+        assertCompoundWell(registeredSamples, "A1", "0.75", BATCH_MATERIAL_SUFFIX,
+                "compound_material");
         assertPositiveControl(registeredSamples, "A2");
-        assertCompoundWell(registeredSamples, "B1", "54.12", "batch_material", "compound_material");
+        assertCompoundWell(registeredSamples, "B1", "54.12", BATCH_MATERIAL_SUFFIX,
+                "compound_material");
 
         List<? extends NewExternalData> dataSetsRegistered =
                 atomicatOperationDetails.recordedObject().getDataSetRegistrations();
@@ -656,7 +663,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         final List<NewMaterial> batchMaterialsRegistered =
                 materialsRegistered.get(BATCH_MATERIAL_TYPE);
         assertEquals(1, batchMaterialsRegistered.size());
-        assertEquals("batch_material", batchMaterialsRegistered.get(0).getCode());
+        assertEquals(BATCH_MATERIAL_SUFFIX, batchMaterialsRegistered.get(0).getCode());
 
         AssertionUtil
                 .assertContains(
@@ -703,6 +710,26 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         throw new RuntimeException("Failed to find sample registration for well " + wellCode);
     }
 
+    private void assertBatchMaterialsHaveCompoundProperties(
+            Map<String, List<NewMaterial>> registeredMaterials)
+    {
+        
+        for (String materialTypeCode : registeredMaterials.keySet()) {
+            if (materialTypeCode.endsWith(BATCH_MATERIAL_SUFFIX))
+            {
+                for (NewMaterial newMaterial : registeredMaterials.get(materialTypeCode)) {
+                    IEntityProperty property =
+                            EntityHelper.tryFindProperty(newMaterial.getProperties(),
+                                    BATCH_MATERIAL_COMPOUND_PROP);
+                    assertNotNull(property);
+                    assertTrue(property.getValue().endsWith(" (COMPOUND)"));
+                }
+            }
+        }
+        
+    }
+
+
     private void assertNegativeControl(List<NewSample> newSamples, String wellCode)
     {
         NewSample newSample = findByWellCode(newSamples, wellCode);
@@ -747,16 +774,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertNotNull(batchMaterialProp);
         assertEquals("Invalid batch material found in well '" + wellCode + "': ",
                 batchMaterialIdentifier.print(), batchMaterialProp.tryGetAsString());
-        // TODO KE: check created BATCH MATERIAL properties (we need to have a "COMPOUND" property !)
-        //
-        // MaterialIdentifier compoundMaterialIdentifier =
-        // new MaterialIdentifier(compoundMaterialCode, COMPOUND_MATERIAL_TYPE);
-        // IEntityProperty compoundMaterialProp =
-        // EntityHelper.tryFindProperty(newSample.getProperties(),
-        // COMPOUND_WELL_MATERIAL_PROPNAME);
-        // assertNotNull(compoundMaterialProp);
-        // assertEquals("Invalid compound material found in well '" + wellCode + "': ",
-        // compoundMaterialIdentifier.print(), compoundMaterialProp.tryGetAsString());
     }
 
     public Sample plateWithLibTemplateAndGeometry(String libraryTemplate, String plateGeometry)
@@ -910,7 +927,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     private String getBatchMaterialCodeByWellCode(String wellCode)
     {
-        return wellCode + "_batch_material";
+        return wellCode + "_" + BATCH_MATERIAL_SUFFIX;
     }
 
     private String getCompoundMaterialCodeByWellCode(String wellCode)

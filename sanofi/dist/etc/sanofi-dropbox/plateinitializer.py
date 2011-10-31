@@ -165,9 +165,10 @@ class PlateInitializer:
         
         return sanofiMaterials
     
-    def createCompoundBatchMaterial(self, sanofiMaterial):
+    def createCompoundBatchMaterial(self, sanofiMaterial, compoundMaterialByCode):
         material = self.transaction.createNewMaterial(sanofiMaterial.compoundBatchId, self.MATERIAL_BATCH_TYPE)
-        material.setPropertyValue(self.MATERIAL_ID_PROPNAME, sanofiMaterial.compoundId)
+        compoundMaterial = compoundMaterialByCode[sanofiMaterial.compoundId]
+        material.setPropertyValue(self.MATERIAL_ID_PROPNAME, compoundMaterial.getMaterialIdentifier())
         return material
     
     def createCompoundMaterial(self, sanofiMaterial):
@@ -175,23 +176,25 @@ class PlateInitializer:
         return material
 
     def findExistingMaterials(self, materialType, materialCodes):
+        """
+           Returns a dictionary with entries (code: IMaterialImmutable) for the specified material codes.
+        """
         materialIdentifiers = MaterialIdentifierCollection()
         for materialCode in materialCodes:
             materialIdentifiers.addIdentifier(materialType, materialCode)
-        searchService = self.transaction.getSearchService() 
-        return list(searchService.listMaterials(materialIdentifiers))
-
-    def createNonExistingMaterials(self, sanofiMaterialsByCode, existingMaterials, createFunction):
-        materialsByCode = {}
-        for material in existingMaterials:
-            materialsByCode[ material.getCode() ] = material
-
-        for materialCode in sanofiMaterialsByCode:
-            if not materialCode in materialsByCode:
-                sanofiMaterial = sanofiMaterialsByCode[materialCode]
-                materialsByCode[materialCode] = createFunction(sanofiMaterial)
+        searchService = self.transaction.getSearchService()
         
-        return materialsByCode
+        materialList = list(searchService.listMaterials(materialIdentifiers))
+        return dict([ (material.getCode(), material) for material in materialList ])
+
+    def createNonExistingMaterials(self, sanofiMaterialsByCode, existingMaterialsByCode, createFunction):
+        createdMaterials = {}
+        for materialCode in sanofiMaterialsByCode:
+            if not materialCode in existingMaterialsByCode:
+                sanofiMaterial = sanofiMaterialsByCode[materialCode]
+                createdMaterials[materialCode] = createFunction(sanofiMaterial)
+        
+        return createdMaterials
         
 
     def getOrCreateMaterials(self, template, sanofiMaterials):
@@ -202,16 +205,17 @@ class PlateInitializer:
             materialsByBatchId[ sanofiMaterial.compoundBatchId ] = sanofiMaterial
             materialsByCompoundId[ sanofiMaterial.compoundId ] = sanofiMaterial
 
-        existingCompoundMaterials = self.findExistingMaterials(self.MATERIAL_COMPOUND_TYPE, materialsByCompoundId)
-        allCompoundMaterialsByCode = self.createNonExistingMaterials(materialsByCompoundId, existingCompoundMaterials, self.createCompoundMaterial)
+        existingCompoundMaterialsByCode = self.findExistingMaterials(self.MATERIAL_COMPOUND_TYPE, materialsByCompoundId)
+        createdCompoundMaterialsByCode = self.createNonExistingMaterials(materialsByCompoundId, existingCompoundMaterialsByCode, self.createCompoundMaterial)
+        compoundMaterialsByCode = dict(existingCompoundMaterialsByCode)
+        compoundMaterialsByCode.update(createdCompoundMaterialsByCode)
         
-        existingBatchMaterials = self.findExistingMaterials(self.MATERIAL_BATCH_TYPE, materialsByBatchId)
-        allBatchMaterialsByCode = self.createNonExistingMaterials(materialsByBatchId, existingBatchMaterials, self.createCompoundBatchMaterial)
+        existingBatchMaterialsByCode = self.findExistingMaterials(self.MATERIAL_BATCH_TYPE, materialsByBatchId)
+        createdBatchMaterialsByCode = self.createNonExistingMaterials(materialsByBatchId, existingBatchMaterialsByCode, lambda material: self.createCompoundBatchMaterial(material, compoundMaterialsByCode))
         
-        # returns a dict UNION 
-        allMaterialsByCode = dict(allCompoundMaterialsByCode)
-        allMaterialsByCode.update(allBatchMaterialsByCode)
-        return allMaterialsByCode
+        batchMaterialsByCode = dict(existingBatchMaterialsByCode)
+        batchMaterialsByCode.update(createdBatchMaterialsByCode)
+        return batchMaterialsByCode
             
     
     def getByWellCode(self, wellCode, sanofiMaterials):
