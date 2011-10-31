@@ -4,7 +4,7 @@
 #
 # Return the age of a file in seconds.
 #
-# paramter $1: a file name
+# parameter $1: a file name
 #
 function fileAgeInSeconds() {
 
