@@ -17,7 +17,7 @@
 package ch.ethz.cisd.hcscld;
 
 /**
- * The cell level classifications as strings for a given well and field.
+ * The cell level classifications as ordinal values for a given image.
  *
  * @author Bernd Rinn
  */
