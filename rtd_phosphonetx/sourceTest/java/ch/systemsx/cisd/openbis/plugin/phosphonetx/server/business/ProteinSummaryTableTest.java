@@ -121,6 +121,38 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         assertEquals(FDR_LEVELS.length, summaries.size());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testLoadDataWithNoFDRMapping()
+    {
+        ProteinReferenceWithProbabilityAndPeptide i1 = createItem("A", 0.5, 123, "ABCD");
+        ProteinReferenceWithProbabilityAndPeptide i2 = createItem("B", 0.5, 123, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i3 = createItem("C", 0.75, 123, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i4 = createItem("D", 0.75, 456, "ABC");
+        ProteinReferenceWithProbabilityAndPeptide i5 = createItem("E", 1, 456, "DEF");
+        ProteinReferenceWithProbabilityAndPeptide i6 = createItem("F", 1, 456, "XYZ");
+        ProteinReferenceWithProbabilityAndPeptide i7 = createItem("DECOY_F", 0.75, 456, "XYZ");
+        prepare(i1, i2, i3, i4, i5, i6, i7);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(proteinDAO).getProbabilityFDRMapping(DATA_SET_ID);
+                    MockDataSet<ProbabilityFDRMapping> dataSet =
+                            new MockDataSet<ProbabilityFDRMapping>();
+                    will(returnValue(dataSet));
+                }
+            });
+        table.load(EXPERIMENT_ID);
+        
+        List<ProteinSummary> summaries = table.getProteinSummaries();
+        assertSummary(0, 2, 4, 1, 1, summaries);
+        assertSummary(1, 2, 4, 1, 1, summaries);
+        assertSummary(2, 2, 4, 1, 1, summaries);
+        assertSummary(3, 2, 4, 1, 1, summaries);
+        assertSummary(4, 2, 4, 1, 1, summaries);
+        assertEquals(FDR_LEVELS.length, summaries.size());
+        context.assertIsSatisfied();
+    }
 
     private void assertSummary(int index, int expectedProteinCount, int expectedPeptideCount,
             int expectedDecoyProteinCount, int expectedDecoyPeptideCount,

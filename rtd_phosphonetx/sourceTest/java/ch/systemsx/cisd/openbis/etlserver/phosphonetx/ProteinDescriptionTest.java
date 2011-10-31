@@ -32,8 +32,7 @@ public class ProteinDescriptionTest extends AssertJUnit
     @Test
     public void testWithOutAccessionNumber()
     {
-        ProteinAnnotation annotation = new ProteinAnnotation();
-        annotation.setDescription("Q92902");
+        ProteinAnnotation annotation = createAnnotation("Q92902");
         try
         {
             new ProteinDescription(annotation, 0, true);
@@ -47,14 +46,137 @@ public class ProteinDescriptionTest extends AssertJUnit
     @Test
     public void testWithAccessionNumberAndSequence()
     {
-        ProteinAnnotation annotation = new ProteinAnnotation();
-        annotation.setDescription("Q92902 \\ID=HPS1_HUMAN \\MODRES= "
-                + "\\VARIANT=(55|.|)(100|E|D)(186|A|V)(283|G|W)(480|A|T) "
-                + "\\NCBITAXID=9606 \\DE=Hermansky-Pudlak syndrome 1 protein "
-                + "\\SEQ=MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA");
+        ProteinAnnotation annotation =
+                createAnnotation("Q92902 \\ID=HPS1_HUMAN \\MODRES= "
+                        + "\\VARIANT=(55|.|)(100|E|D)(186|A|V)(283|G|W)(480|A|T) "
+                        + "\\NCBITAXID=9606 \\DE=Hermansky-Pudlak syndrome 1 protein "
+                        + "\\SEQ=MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA");
         ProteinDescription description = new ProteinDescription(annotation, 0, true);
         assertEquals("Q92902", description.getAccessionNumber());
         assertEquals("Hermansky-Pudlak syndrome 1 protein", description.getDescription());
         assertEquals("MKCVLVATEGAEVLFYWTDQEFEESLRLKFGQSENEEEELPA", description.getSequence());
+    }
+    
+    @Test
+    public void testWithSwissProtNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("sp|swissprot-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithTremblNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("tr|trembl-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithIpiNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        annotation.setTremblName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("ipi|ipi-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithEnsemblNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        annotation.setTremblName(null);
+        annotation.setIpiName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("ens|ensembl-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithRefSeqNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        annotation.setTremblName(null);
+        annotation.setIpiName(null);
+        annotation.setEnsemblName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("rs|refseq-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithLocusLinkNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        annotation.setTremblName(null);
+        annotation.setIpiName(null);
+        annotation.setEnsemblName(null);
+        annotation.setRefseqName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("ll|locus-link-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithFlybaseNameAsAccessionNumber()
+    {
+        ProteinAnnotation annotation = createAnnotation("my protein");
+        annotation.setSwissprotName(null);
+        annotation.setTremblName(null);
+        annotation.setIpiName(null);
+        annotation.setEnsemblName(null);
+        annotation.setRefseqName(null);
+        annotation.setLocusLinkName(null);
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals("my protein", description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("fb|flybase-42", description.getAccessionNumber());
+    }
+    
+    @Test
+    public void testWithNoAccessionNumber()
+    {
+        ProteinAnnotation annotation = new ProteinAnnotation();
+        ProteinDescription description = new ProteinDescription(annotation, 4711, false);
+        
+        assertEquals(null, description.getDescription());
+        assertEquals("", description.getSequence());
+        assertEquals("unknown|4711", description.getAccessionNumber());
+    }
+    
+    private ProteinAnnotation createAnnotation(String description)
+    {
+        ProteinAnnotation proteinAnnotation = new ProteinAnnotation();
+        proteinAnnotation.setDescription(description);
+        proteinAnnotation.setEnsemblName("ensembl-42");
+        proteinAnnotation.setFlybase("flybase-42");
+        proteinAnnotation.setIpiName("ipi-42");
+        proteinAnnotation.setLocusLinkName("locus-link-42");
+        proteinAnnotation.setRefseqName("refseq-42");
+        proteinAnnotation.setSwissprotName("swissprot-42");
+        proteinAnnotation.setTremblName("trembl-42");
+        return proteinAnnotation;
     }
 }

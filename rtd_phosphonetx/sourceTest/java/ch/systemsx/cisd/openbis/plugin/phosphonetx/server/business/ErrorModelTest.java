@@ -40,6 +40,7 @@ public class ErrorModelTest extends AssertJUnit
     private static final double TOL = 1e-6;
     private static final long DATA_SET1_ID = 42;
     private static final long DATA_SET2_ID = 43;
+    private static final long DATA_SET3_ID = 44;
     
     private Mockery context;
     private IPhosphoNetXDAOFactory specificDAOFactory;
@@ -72,6 +73,10 @@ public class ErrorModelTest extends AssertJUnit
                     createEntry(dataSet2, 0.1, 0.7);
                     createEntry(dataSet2, 0.0, 0.6);
                     will(returnValue(dataSet2));
+                    
+                    atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET3_ID);
+                    MockDataSet<ProbabilityFDRMapping> dataSet3 = new MockDataSet<ProbabilityFDRMapping>();
+                    will(returnValue(dataSet3));
                 }
             });
     }
@@ -125,6 +130,17 @@ public class ErrorModelTest extends AssertJUnit
         assertEquals(0.95, protein.getFalseDiscoveryRate(), TOL);
         
         context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testNoMappings()
+    {
+        IdentifiedProtein protein = create(DATA_SET3_ID, 0.2);
+        
+        errorModel.setFalseDiscoveryRateFor(protein);
+        
+        double falseDiscoveryRate = protein.getFalseDiscoveryRate();
+        assertTrue("unexpected FDR: " + falseDiscoveryRate, Double.isNaN(falseDiscoveryRate));
     }
     
     private IdentifiedProtein create(long dataSetID, double probability)
