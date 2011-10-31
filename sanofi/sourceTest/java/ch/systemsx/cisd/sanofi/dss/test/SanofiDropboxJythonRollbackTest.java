@@ -158,7 +158,8 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             with(any(String.class)), with(anything()));
                     will(returnValue(queryResult));
 
-                    one(openBisService).listMaterials(with(materialCriteria), with(equal(true)));
+                    exactly(2).of(openBisService).listMaterials(with(materialCriteria),
+                            with(equal(true)));
                     will(returnValue(Collections.emptyList()));
 
                     exactly(4).of(openBisService).createPermId();

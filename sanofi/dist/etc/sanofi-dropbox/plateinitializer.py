@@ -18,11 +18,10 @@ class SanofiMaterial:
     """
        A data structure class holding compound materials as they exist in the Abase (Sanofi) database.
     """
-    def __init__(self, wellCode, materialCode, sanofiId, sanofiBatchId):
+    def __init__(self, wellCode, compoundBatchId, compoundId):
         self.wellCode = self.normalizeWellCode(wellCode)
-        self.materialCode = materialCode
-        self.sanofiId = sanofiId
-        self.sanofiBatchId = sanofiBatchId
+        self.compoundBatchId = compoundBatchId
+        self.compoundId = compoundId
     
     def normalizeWellCode(self, wellCode):
         """ normalizes Sanofi wellCodes to openBIS wellCodes e.g. AB007 to AB7 """
@@ -30,10 +29,17 @@ class SanofiMaterial:
             
 class PlateInitializer:
     ABASE_DATA_SOURCE = "abase-datasource"
+#    ABASE_PRODUCTION_QUERY = """select
+#                                    ptodwellreference WELL_CODE,
+#                                    translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
+#                                    translate(objdid,'{/:()+','{_____') ABASE_COMPOUND_ID,
+#                                    olptid ABASE_PLATE_CODE
+#                                from sysadmin.plteobjd
+#                                    where olptid = ?{1}"""
+
     ABASE_PRODUCTION_QUERY = """select
                                     ptodwellreference WELL_CODE,
-                                    translate(objdbatchref,'{/:()+','{_____') MATERIAL_CODE,
-                                    objdbatchref ABASE_COMPOUND_BATCH_ID,
+                                    objdbatchref MATERIAL_CODE,
                                     objdid ABASE_COMPOUND_ID,
                                     olptid ABASE_PLATE_CODE
                                 from sysadmin.plteobjd
@@ -42,7 +48,7 @@ class PlateInitializer:
     # used for integration testing from openBIS team members    
     ABASE_TEST_MODE_QUERY = """select 
                                    WELL_CODE, MATERIAL_CODE, ABASE_COMPOUND_ID, 
-                                   ABASE_COMPOUND_BATCH_ID, ABASE_PLATE_CODE 
+                                   ABASE_PLATE_CODE 
                                from plates 
                                    where ABASE_PLATE_CODE = ?{1}"""
                         
@@ -53,12 +59,12 @@ class PlateInitializer:
     
     COMPOUND_WELL_TYPE = "COMPOUND_WELL"
     COMPOUND_WELL_CONCENTRATION_PROPNAME = "CONCENTRATION_M"
-    COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND"
+    COMPOUND_WELL_MATERIAL_PROPNAME = "COMPOUND_BATCH"
     
-    MATERIAL_TYPE = "COMPOUND"
-    MATERIAL_ID_PROPNAME = "COMPOUND_ID"
-    MATERIAL_BATCH_ID_PROPNAME = "COMPOUND_BATCH_ID"
-            
+    MATERIAL_BATCH_TYPE = "COMPOUND_BATCH"
+    MATERIAL_COMPOUND_TYPE = "COMPOUND"
+    MATERIAL_ID_PROPNAME = "COMPOUND"
+        
     def __init__(self, transaction, state, plate, experiment, testMode):
         self.transaction = transaction
         self.state = state
@@ -151,7 +157,7 @@ class PlateInitializer:
                     raise RuntimeException("No column '%s' in the query results from the ABASE Database" % (code))
                 
             material = SanofiMaterial(val('WELL_CODE'), val('MATERIAL_CODE'), \
-                                      val('ABASE_COMPOUND_ID'), val('ABASE_COMPOUND_BATCH_ID'))
+                                      val('ABASE_COMPOUND_ID'))
                 
             sanofiMaterials.append(material)
             
@@ -159,34 +165,53 @@ class PlateInitializer:
         
         return sanofiMaterials
     
-    def createMaterial(self, sanofiMaterial):
-        material = self.transaction.createNewMaterial(sanofiMaterial.materialCode, self.MATERIAL_TYPE)
-        material.setPropertyValue(self.MATERIAL_ID_PROPNAME, sanofiMaterial.sanofiId)
-        material.setPropertyValue(self.MATERIAL_BATCH_ID_PROPNAME, sanofiMaterial.sanofiBatchId)
+    def createCompoundBatchMaterial(self, sanofiMaterial):
+        material = self.transaction.createNewMaterial(sanofiMaterial.compoundBatchId, self.MATERIAL_BATCH_TYPE)
+        material.setPropertyValue(self.MATERIAL_ID_PROPNAME, sanofiMaterial.compoundId)
         return material
     
-    def getOrCreateMaterials(self, template, sanofiMaterials):
-        materialsByCode = {}
-        for sanofiMaterial in sanofiMaterials:
-            materialsByCode[ sanofiMaterial.materialCode ] = sanofiMaterial
+    def createCompoundMaterial(self, sanofiMaterial):
+        material = self.transaction.createNewMaterial(sanofiMaterial.compoundId, self.MATERIAL_COMPOUND_TYPE)
+        return material
 
+    def findExistingMaterials(self, materialType, materialCodes):
         materialIdentifiers = MaterialIdentifierCollection()
-        for materialCode in materialsByCode:
-            materialIdentifiers.addIdentifier(self.MATERIAL_TYPE, materialCode)
+        for materialCode in materialCodes:
+            materialIdentifiers.addIdentifier(materialType, materialCode)
         searchService = self.transaction.getSearchService() 
-        existingMaterials = list(searchService.listMaterials(materialIdentifiers))
-        
-        existingMaterialsByCode = {}
+        return list(searchService.listMaterials(materialIdentifiers))
+
+    def createNonExistingMaterials(self, sanofiMaterialsByCode, existingMaterials, createFunction):
+        materialsByCode = {}
         for material in existingMaterials:
-            existingMaterialsByCode[ material.getCode() ] = material
-            
-        for materialCode in materialsByCode:
-            if not materialCode in existingMaterialsByCode:
-                sanofiMaterial = materialsByCode[materialCode]
-                openbisMaterial = self.createMaterial(sanofiMaterial)
-                existingMaterialsByCode[materialCode] = openbisMaterial 
+            materialsByCode[ material.getCode() ] = material
+
+        for materialCode in sanofiMaterialsByCode:
+            if not materialCode in materialsByCode:
+                sanofiMaterial = sanofiMaterialsByCode[materialCode]
+                materialsByCode[materialCode] = createFunction(sanofiMaterial)
         
-        return existingMaterialsByCode
+        return materialsByCode
+        
+
+    def getOrCreateMaterials(self, template, sanofiMaterials):
+        materialsByBatchId = {}
+        materialsByCompoundId = {}
+        
+        for sanofiMaterial in sanofiMaterials:
+            materialsByBatchId[ sanofiMaterial.compoundBatchId ] = sanofiMaterial
+            materialsByCompoundId[ sanofiMaterial.compoundId ] = sanofiMaterial
+
+        existingCompoundMaterials = self.findExistingMaterials(self.MATERIAL_COMPOUND_TYPE, materialsByCompoundId)
+        allCompoundMaterialsByCode = self.createNonExistingMaterials(materialsByCompoundId, existingCompoundMaterials, self.createCompoundMaterial)
+        
+        existingBatchMaterials = self.findExistingMaterials(self.MATERIAL_BATCH_TYPE, materialsByBatchId)
+        allBatchMaterialsByCode = self.createNonExistingMaterials(materialsByBatchId, existingBatchMaterials, self.createCompoundBatchMaterial)
+        
+        # returns a dict UNION 
+        allMaterialsByCode = dict(allCompoundMaterialsByCode)
+        allMaterialsByCode.update(allBatchMaterialsByCode)
+        return allMaterialsByCode
             
     
     def getByWellCode(self, wellCode, sanofiMaterials):
@@ -233,7 +258,7 @@ class PlateInitializer:
                    well.setContainer(self.plate)
                    concentration = self.parseConcentration(templateValue)
                    well.setPropertyValue(self.COMPOUND_WELL_CONCENTRATION_PROPNAME, concentration)
-                   materialCode = sanofiMaterial.materialCode
+                   materialCode = sanofiMaterial.compoundBatchId
                    material = openbisMaterials[materialCode]
                    well.setPropertyValue(self.COMPOUND_WELL_MATERIAL_PROPNAME, material.getMaterialIdentifier())
        
