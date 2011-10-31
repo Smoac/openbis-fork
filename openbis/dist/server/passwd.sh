@@ -31,6 +31,8 @@ fi
 
 
 LIB=webapps/$APPLICATION_NAME/WEB-INF/lib
-$JVM \
-   -cp $LIB/cisd-args4j.jar:$LIB/commons-lang.jar:$LIB/commons-io.jar:$LIB/commons-codec.jar:$LIB/jline.jar:$LIB/log4j.jar:$LIB/$APPLICATION_NAME.jar:$LIB/screening.jar \
-   ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"
+
+# Build classpath from $LIB content.
+CP=`echo $LIB/*.jar | sed 's/ /:/g'`
+
+$JVM -cp $CP ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"
