@@ -1,6 +1,11 @@
 #!/bin/bash
 # Starts up openBIS server
 
+#
+# Return the age of a file in seconds.
+#
+# paramter $1: a file name
+#
 function fileAgeInSeconds() {
 
   FILE_NAME=$(basename $1)
