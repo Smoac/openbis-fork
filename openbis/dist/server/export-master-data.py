@@ -68,13 +68,11 @@ def exportVocabulary(vocabulary, out):
         term_var = getVarName("VOCABULARY_TERM", vocabulary.getCode() + "_" + term.getCode())
         term_code = codeLiteral(term.getCode())
         term_description = strLiteral(term.getDescription())
-        term_url = strLiteral(term.getUrl())
         term_label = strLiteral(term.getLabel())
         term_ordinal = term.getOrdinal()
         out.write("""
 %(term_var)s = tr.createNewVocabularyTerm(%(term_code)s)
 %(term_var)s.setDescription(%(term_description)s)
-%(term_var)s.setUrl(%(term_url)s)
 %(term_var)s.setLabel(%(term_label)s)
 %(term_var)s.setOrdinal(%(term_ordinal)s)
 %(var)s.addTerm(%(term_var)s)

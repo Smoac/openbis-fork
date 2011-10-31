@@ -40,6 +40,9 @@ public class VocabularyTerm extends VocabularyTermImmutable implements IVocabula
         getVocabularyTerm().setLabel(label);
     }
 
+    /**
+     * Keep for backward-compatibility reasons. Executing the method has no effect.
+     */
     public void setUrl(String url)
     {
         getVocabularyTerm().setUrl(url);

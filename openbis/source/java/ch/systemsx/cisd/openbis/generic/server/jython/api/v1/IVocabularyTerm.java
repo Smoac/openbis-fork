@@ -32,11 +32,6 @@ public interface IVocabularyTerm extends IVocabularyTermImmutable
     void setLabel(String label);
 
     /**
-     * Set a URL where containing additional information for the term.
-     */
-    void setUrl(String url);
-
-    /**
      * Set position of the term in the context of its vocabulary.
      */
     void setOrdinal(Long ordinal);
