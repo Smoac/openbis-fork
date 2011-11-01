@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,10 +78,18 @@ public class SampleLoader implements ISampleLoader
     {
         SampleTypePE sampleTypePE =
                 daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
+        if (sampleTypePE == null)
+        {
+            return Collections.emptySet();
+        }
         final Long sampleTypeID = sampleTypePE.getId();
         SpacePE space =
                 daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
                         daoFactory.getHomeDatabaseInstance());
+        if (space == null)
+        {
+            return Collections.emptySet();
+        }
         final Long spaceID = space.getId();
         List<SampleSkeleton> sampleSkeletons =
                 sampleLister.listSampleBy(new IValidator<SampleSkeleton>()

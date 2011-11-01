@@ -11,7 +11,7 @@
     
     <bean id="phosphonetx-db-configuration-context"
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
-        <property name="basicDatabaseName" value="phosphonetx" />
+        <property name="basicDatabaseName" value="${phosphonetx.database.basic-name}" />
         <property name="createFromScratch" value="${phosphonetx.database.create-from-scratch}" />
         <property name="scriptSingleStepMode" value="${phosphonetx.database.script-single-step-mode}" />
         <property name="sequenceNameMapper">
