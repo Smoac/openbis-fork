@@ -258,7 +258,8 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         listAndCheckProteins(p4, experimentID1, fdr1, f2, treatment1, false);
         listAndCheckProteins(p5, experimentID1, fdr1, f1, treatment2, false);
         listAndCheckProteins(p6, experimentID1, fdr1, f1, treatment1, true);
-        assertEquals(19, cacheFolder.listFiles().length);
+        assertEquals("Unexpectd number of files: " + Arrays.asList(cacheFolder.listFiles()), 19,
+                cacheFolder.listFiles().length);
         
         context.assertIsSatisfied();
     }
