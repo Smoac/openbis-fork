@@ -84,6 +84,7 @@ prop_type_PARENTDATASETCODES = tr.createNewPropertyType('PARENT-DATA-SET-CODES',
 prop_type_PARENTDATASETCODES.setLabel('Parent Dataset Codes')
 prop_type_PARENTDATASETCODES.setManagedInternally(False)
 prop_type_PARENTDATASETCODES.setInternalNamespace(False)
+
 prop_type_TREATMENT_TYPE1 = tr.createNewPropertyType('TREATMENT_TYPE1', DataType.CONTROLLEDVOCABULARY)
 prop_type_TREATMENT_TYPE1.setLabel('Treatment Type 1')
 prop_type_TREATMENT_TYPE1.setManagedInternally(False)
@@ -105,4 +106,4 @@ prop_type_TREATMENT_TYPE3.setInternalNamespace(False)
 
 prop_type_TREATMENT_TYPE3.setVocabulary(vocabulary_TREATMENT_TYPE)
 
-tr.createSpace('MS_DATA')
+
