@@ -22,8 +22,6 @@ if [ "$BACKUP_DIR" == "" ]; then
 	exit 1
 fi
 
-source $BASE/env
-
 $BASE/alldown.sh
 
 ROOT_DIR=$BASE/../servers
@@ -32,6 +30,12 @@ CONFIG=$BACKUP_DIR/config-backup
 echo "Creating backup folder $BACKUP_DIR ..."
 mkdir -p $CONFIG
 $BASE/backup-config.sh $CONFIG
+
+$BASE/backup-databases.sh $BACKUP_DIR 
+if [ $? -ne "0" ]; then
+  echo "Creating database backups had failed. Aborting ..."
+  exit 1
+fi
 
 OLD_BIS=$BACKUP_DIR/openBIS-server
 
@@ -42,14 +46,5 @@ mv $ROOT_DIR/openBIS-server $OLD_BIS
  
 echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
-
-
-
-# Note: to restore the database afterwards one can use:
-#    pg_restore -d db-name db-file.dmp 
-echo "Creating database dumps for $OPENBIS_DB and $IMAGING_DB..."
-
-echo "$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp"
-$PG_DUMP -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB.dmp
 
 echo "DONE"
