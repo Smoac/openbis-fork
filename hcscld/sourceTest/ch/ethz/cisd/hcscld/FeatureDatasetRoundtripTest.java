@@ -16,7 +16,10 @@
 
 package ch.ethz.cisd.hcscld;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.util.Arrays;
@@ -27,8 +30,10 @@ import org.testng.annotations.Test;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
+import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.HDF5TimeUnit;
+import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 /**
  * Roundtrip test for feature datasets.
@@ -157,7 +162,7 @@ public class FeatureDatasetRoundtripTest
         final String dsCode = "123";
         final File f = new File("default.cld");
         f.delete();
-        //f.deleteOnExit();
+        f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset dsw =
                 createDefaultFeatureGroupDataset(writer, dsCode,
@@ -361,5 +366,22 @@ public class FeatureDatasetRoundtripTest
         f.delete();
         f.deleteOnExit();
         createTwoFeatureGroupsDatasetInconsistentLength(f, dsCode);
+    }
+
+    @Test(expectedExceptions = UnsupportedFileFormatException.class)
+    public void testIllegalFielFormat()
+    {
+        final File f = new File("wantabee.cld");
+        f.delete();
+        f.deleteOnExit();
+        final IHDF5Writer writer = HDF5Factory.open(f);
+        writer.writeString("message", "I am not a CLD file.");
+        try
+        {
+            CellLevelDataFactory.open(writer);
+        } finally
+        {
+            writer.close();
+        }
     }
 }

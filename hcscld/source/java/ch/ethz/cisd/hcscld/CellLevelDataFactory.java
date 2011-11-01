@@ -18,6 +18,8 @@ package ch.ethz.cisd.hcscld;
 
 import java.io.File;
 
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
@@ -56,7 +58,14 @@ public class CellLevelDataFactory
      */
     public static ICellLevelDataReader openForReading(File file)
     {
-        return new CellLevelDataReader(file);
+        try
+        {
+            return new CellLevelDataReader(file);
+        } catch (HDF5Exception ex)
+        {
+            throw new UnsupportedFileFormatException(ex.getClass().getSimpleName() + ":" + ex.getMessage(),
+                    ex);
+        }
     }
 
     /**
@@ -66,7 +75,14 @@ public class CellLevelDataFactory
      */
     public static ICellLevelDataReader openForReading(IHDF5Reader reader)
     {
-        return new CellLevelDataReader(reader);
+        try
+        {
+            return new CellLevelDataReader(reader);
+        } catch (HDF5Exception ex)
+        {
+            throw new UnsupportedFileFormatException(ex.getClass().getSimpleName() + ":" + ex.getMessage(),
+                    ex);
+        }
     }
 
 }

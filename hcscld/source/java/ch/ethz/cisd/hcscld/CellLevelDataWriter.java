@@ -43,8 +43,22 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
 
     CellLevelDataWriter(IHDF5Writer writer, boolean manageWriter)
     {
-        super(writer, manageWriter);
+        super(writer, manageWriter, false);
         this.writer = writer;
+        if (writer.hasAttribute("/", getCLDFormatTagAttributeName()) == false)
+        {
+            if (writer.getGroupMembers("/").isEmpty() == false)
+            {
+                throw new UnsupportedFileFormatException(
+                        "File is HDF5, but doesn't have a proper CLD tag or version.");
+            }
+            writer.setStringAttribute("/", getCLDFormatTagAttributeName(),
+                    EXPECTED_DESCRIPTOR.getFormatTag());
+            writer.setIntAttribute("/", getCLDMajorVersionObjectPath(),
+                    EXPECTED_DESCRIPTOR.getMajorVersion());
+            writer.setIntAttribute("/", getCLDMinorVersionObjectPath(),
+                    EXPECTED_DESCRIPTOR.getMinorVersion());
+        }
     }
 
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
@@ -69,10 +83,11 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
     }
 
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
-            String segmentedObjectTypeName, ImageQuantityStructure geometry, ImageGeometry imageGeometry,
-            boolean storeEdgeMasks)
+            String segmentedObjectTypeName, ImageQuantityStructure geometry,
+            ImageGeometry imageGeometry, boolean storeEdgeMasks)
     {
-        return new CellLevelSegmentationWritableDataset(writer, datasetCode, segmentedObjectTypeName,
-                geometry, imageGeometry, getHdf5DatasetTypeEnum(), storeEdgeMasks);
+        return new CellLevelSegmentationWritableDataset(writer, datasetCode,
+                segmentedObjectTypeName, geometry, imageGeometry, getHdf5DatasetTypeEnum(),
+                storeEdgeMasks);
     }
 }

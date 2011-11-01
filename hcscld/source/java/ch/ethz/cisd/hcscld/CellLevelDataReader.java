@@ -33,6 +33,56 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 class CellLevelDataReader implements ICellLevelDataReader
 {
+    /**
+     * A class to describe the format of this file.
+     */
+    static class FormatDescriptor
+    {
+        private final String formatTag;
+
+        private final int majorVersion;
+
+        private final int minorVersion;
+
+        public FormatDescriptor(String formatTag, int majorVersion, int minorVersion)
+        {
+            this.formatTag = formatTag;
+            this.majorVersion = majorVersion;
+            this.minorVersion = minorVersion;
+        }
+
+        public String getFormatTag()
+        {
+            return formatTag;
+        }
+
+        public int getMajorVersion()
+        {
+            return majorVersion;
+        }
+
+        public int getMinorVersion()
+        {
+            return minorVersion;
+        }
+
+        public static boolean canRead(FormatDescriptor descOrNull)
+        {
+            return descOrNull != null
+                    && EXPECTED_DESCRIPTOR.getFormatTag().equals(descOrNull.getFormatTag())
+                    && EXPECTED_DESCRIPTOR.getMajorVersion() == descOrNull.getMajorVersion();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "FormatDescriptor [formatTag=" + formatTag + ", majorVersion=" + majorVersion
+                    + ", minorVersion=" + minorVersion + "]";
+        }
+    }
+
+    static final FormatDescriptor EXPECTED_DESCRIPTOR = new FormatDescriptor("CISD-HCSCLD", 1, 0);
+
     private final IHDF5Reader reader;
 
     private final HDF5EnumerationType hdf5DatasetTypeEnum;
@@ -43,17 +93,25 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     CellLevelDataReader(File file)
     {
-        this(HDF5Factory.open(file), true);
+        this(HDF5Factory.open(file), true, true);
     }
 
     CellLevelDataReader(IHDF5Reader reader)
     {
-        this(reader, false);
+        this(reader, false, true);
     }
 
-    CellLevelDataReader(IHDF5Reader reader, boolean manageReader)
+    CellLevelDataReader(IHDF5Reader reader, boolean manageReader, boolean doFormatCheck)
     {
         this.reader = reader;
+        final FormatDescriptor descOrNull = tryGetCLDFormat();
+        if (doFormatCheck && FormatDescriptor.canRead(descOrNull) == false)
+        {
+            throw new UnsupportedFileFormatException(
+                    String.format(
+                            "File is HDF5, but doesn't have a proper CLD tag or version. [FormatDescriptor: %s]",
+                            (descOrNull == null) ? "NO DESCRIPTOR" : descOrNull));
+        }
         this.hdf5DatasetTypeEnum =
                 reader.getEnumType("datasetTypes",
                         new String[]
@@ -80,20 +138,21 @@ class CellLevelDataReader implements ICellLevelDataReader
             {
                 case CLASSIFICATION:
                     result.add(new CellLevelClassificationDataset(reader, code, reader
-                            .readCompound(CellLevelDataset.getImageQuantityStructureObjectPath(code),
+                            .readCompound(
+                                    CellLevelDataset.getImageQuantityStructureObjectPath(code),
                                     ImageQuantityStructure.class)));
                     break;
                 case FEATURES:
                     result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(
-                            CellLevelDataset.getImageQuantityStructureObjectPath(code), ImageQuantityStructure.class),
-                            hints));
+                            CellLevelDataset.getImageQuantityStructureObjectPath(code),
+                            ImageQuantityStructure.class), hints));
                     break;
                 case SEGMENTATION:
                     result.add(new CellLevelSegmentationDataset(reader, code, reader.readCompound(
-                            CellLevelDataset.getImageQuantityStructureObjectPath(code), ImageQuantityStructure.class),
-                            reader.readCompound(
-                                    CellLevelSegmentationDataset.getImageGeometryObjectPath(code),
-                                    ImageGeometry.class)));
+                            CellLevelDataset.getImageQuantityStructureObjectPath(code),
+                            ImageQuantityStructure.class), reader.readCompound(
+                            CellLevelSegmentationDataset.getImageGeometryObjectPath(code),
+                            ImageGeometry.class)));
                     break;
                 default:
                     throw new Error("Unknown enum type.");
@@ -159,6 +218,37 @@ class CellLevelDataReader implements ICellLevelDataReader
         {
             reader.close();
         }
+    }
+
+    FormatDescriptor tryGetCLDFormat()
+    {
+        if (reader.hasAttribute("/", getCLDFormatTagAttributeName())
+                && reader.hasAttribute("/", getCLDMajorVersionObjectPath())
+                && reader.hasAttribute("/", getCLDMinorVersionObjectPath()))
+        {
+            final String formatTag = reader.getStringAttribute("/", getCLDFormatTagAttributeName());
+            final int majorVersion = reader.getIntAttribute("/", getCLDMajorVersionObjectPath());
+            final int minorVersion = reader.getIntAttribute("/", getCLDMinorVersionObjectPath());
+            return new FormatDescriptor(formatTag, majorVersion, minorVersion);
+        } else
+        {
+            return null;
+        }
+    }
+
+    static String getCLDFormatTagAttributeName()
+    {
+        return "formatTag";
+    }
+
+    static String getCLDMajorVersionObjectPath()
+    {
+        return "formatMajorVersion";
+    }
+
+    static String getCLDMinorVersionObjectPath()
+    {
+        return "formatMinorVersion";
     }
 
 }
