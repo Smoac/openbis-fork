@@ -110,8 +110,8 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
 
     private void runInitializeMasterDataScript(CorePlugin plugin, String masterDataScript)
     {
-        operationLog
-                .info("Executing master data initialization script for plugin '%s'..." + plugin);
+        operationLog.info("Executing master data initialization script for plugin '" + plugin
+                + "'...");
         try
         {
             masterDataScriptRunner.executeScript(masterDataScript);
