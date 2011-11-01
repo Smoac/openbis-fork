@@ -8,13 +8,19 @@
 #
 function fileAgeInSeconds() {
 
-  FILE_NAME=$(basename $1)
-  DIR_NAME=$(dirname $1)
-
-  fftime=$(find $DIR_NAME -name $FILE_NAME -type f -printf '%T@')
+  local fileName=$1
+  
+  # Linux-style stat command
+  fftime=$(stat -c "%Y" $fileName 2> /dev/null )
+  
+  if [ $? -ne 0 ]; then
+     # error, perhaps we run on FreeBSD/MacOS ?
+     fftime=$(stat -f "%m" $fileName)
+  fi
+  
   nnow=$(date +%s)
 
-  return $(expr $nnow - ${fftime%%\.*})
+  return $(expr $nnow - $fftime)
 }
 
 STARTING_MESSAGE="STARTING SERVER"
@@ -54,7 +60,7 @@ jettyLogAgeInSeconds=5
 # Loop while the openBIS process alters writes to the log files
 #
 while [ "$bisLogAgeInSeconds" -lt $TIMEOUT ] || [ "$jettyLogAgeInSeconds" -lt $TIMEOUT ]; do
-    
+
     echo -n "."
     sleep 2
     
