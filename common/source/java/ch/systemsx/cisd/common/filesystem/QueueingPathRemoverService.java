@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
+import ch.systemsx.cisd.common.collections.SmartQueuePersister;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -53,8 +53,6 @@ public class QueueingPathRemoverService
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             QueueingPathRemoverService.class);
-
-    private static final int INITIAL_RECORD_SIZE = 128;
 
     @Private
     final static String SHREDDER_PREFIX = ".SHREDDER_";
@@ -106,8 +104,7 @@ public class QueueingPathRemoverService
         if (queueFileOrNull != null)
         {
             final PersistentExtendedBlockingQueueDecorator<File> persistentQueue =
-                    ExtendedBlockingQueueFactory.createPersistRecordBased(queueFileOrNull,
-                            INITIAL_RECORD_SIZE);
+                    ExtendedBlockingQueueFactory.createSmartPersist(queueFileOrNull);
             queue = persistentQueue;
             queueCloseableOrNull = persistentQueue;
         } else
@@ -239,7 +236,7 @@ public class QueueingPathRemoverService
      */
     public static final List<File> listShredderItems(File queueFile)
     {
-        return RecordBasedQueuePersister.list(File.class, queueFile);
+        return SmartQueuePersister.list(File.class, queueFile);
     }
 
     private QueueingPathRemoverService()

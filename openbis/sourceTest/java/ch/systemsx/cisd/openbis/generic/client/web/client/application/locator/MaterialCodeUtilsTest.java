@@ -34,5 +34,4 @@ public class MaterialCodeUtilsTest extends AssertJUnit
         // Chrome-style 'decoded' history tokens
         assertEquals("A_a(c:C).%d", MaterialCodeUtils.decode("A_a(c%3AC).%d"));
     }
-
 }

@@ -74,7 +74,7 @@ public final class DynamicPropertyEvaluationScheduler implements
         try
         {
             return ExtendedBlockingQueueFactory
-                    .<DynamicPropertyEvaluationOperation> createPersistRecordBased(queueFile);
+                    .<DynamicPropertyEvaluationOperation> createSmartPersist(queueFile);
         } catch (RuntimeException e)
         {
             // don't fail if e.g. deserialization of the queue fails (see SE-286)
@@ -87,7 +87,7 @@ public final class DynamicPropertyEvaluationScheduler implements
                     queueFile, newFileName));
             queueFile.renameTo(new File(newFileName));
             return ExtendedBlockingQueueFactory
-                    .<DynamicPropertyEvaluationOperation> createPersistRecordBased(queueFile);
+                    .<DynamicPropertyEvaluationOperation> createSmartPersist(queueFile);
         }
     }
 

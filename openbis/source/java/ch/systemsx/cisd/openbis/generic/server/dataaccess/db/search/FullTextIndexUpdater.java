@@ -83,7 +83,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         try
         {
             return ExtendedBlockingQueueFactory
-                    .<IndexUpdateOperation> createPersistRecordBased(queueFile);
+                    .<IndexUpdateOperation> createSmartPersist(queueFile);
         } catch (RuntimeException e)
         {
             // don't fail if e.g. deserialization of the queue fails (see SE-286)
@@ -95,7 +95,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     + "or force reindex of all entities.", e.getMessage(), queueFile, newFileName));
             queueFile.renameTo(new File(indexBase, newFileName));
             return ExtendedBlockingQueueFactory
-                    .<IndexUpdateOperation> createPersistRecordBased(queueFile);
+                    .<IndexUpdateOperation> createSmartPersist(queueFile);
         }
     }
 

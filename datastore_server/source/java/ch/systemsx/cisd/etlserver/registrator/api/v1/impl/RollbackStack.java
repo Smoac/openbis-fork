@@ -78,9 +78,9 @@ class RollbackStack implements IRollbackStack
         this.queue2File = queue2File;
 
         PersistentExtendedBlockingQueueDecorator<StackElement> queue1 =
-                ExtendedBlockingQueueFactory.createPersistRecordBased(queue1File, 16, false);
+                ExtendedBlockingQueueFactory.createSmartQueue(queue1File, false);
         PersistentExtendedBlockingQueueDecorator<StackElement> queue2 =
-                ExtendedBlockingQueueFactory.createPersistRecordBased(queue2File, 16, false);
+                ExtendedBlockingQueueFactory.createSmartQueue(queue2File, false);
 
         // If both queues are empty, it doesn't matter which is which
         if (bothQueuesAreEmpty(queue1, queue2))

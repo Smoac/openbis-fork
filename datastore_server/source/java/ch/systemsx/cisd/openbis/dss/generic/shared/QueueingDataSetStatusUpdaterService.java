@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
+import ch.systemsx.cisd.common.collections.SmartQueuePersister;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -56,8 +56,6 @@ public class QueueingDataSetStatusUpdaterService
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             QueueingDataSetStatusUpdaterService.class);
-
-    private static final int INITIAL_RECORD_SIZE = 128;
 
     private static IExtendedBlockingQueue<DataSetCodesWithStatus> queue = null;
 
@@ -89,8 +87,7 @@ public class QueueingDataSetStatusUpdaterService
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
         final PersistentExtendedBlockingQueueDecorator<DataSetCodesWithStatus> persistentQueue =
-                ExtendedBlockingQueueFactory.createPersistRecordBased(queueFile,
-                        INITIAL_RECORD_SIZE);
+                ExtendedBlockingQueueFactory.createSmartPersist(queueFile);
         queue = persistentQueue;
         queueCloseableOrNull = persistentQueue;
         updater = createDataSetStatusUpdater();
@@ -247,7 +244,7 @@ public class QueueingDataSetStatusUpdaterService
      */
     public static final List<DataSetCodesWithStatus> listItems(File queueFile)
     {
-        return RecordBasedQueuePersister.list(DataSetCodesWithStatus.class, queueFile);
+        return SmartQueuePersister.list(DataSetCodesWithStatus.class, queueFile);
     }
 
     private QueueingDataSetStatusUpdaterService()

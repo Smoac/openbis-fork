@@ -64,7 +64,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         this.store = store;
         File queueFile = getCommandQueueFile(queueDir);
         commandQueue =
-                ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
+                ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
     }
 
     void setShareIdManager(IShareIdManager shareIdManager)
@@ -194,7 +194,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     {
         final File queueFile = getCommandQueueFile(store);
         final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
-                ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
+                ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
         if (commandQueue.isEmpty())
         {
             System.out.println("Command queue is empty.");

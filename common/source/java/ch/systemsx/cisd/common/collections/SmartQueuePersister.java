@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,21 +32,17 @@ import java.util.Queue;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization
- * on the queue elements and thus requires queue elements to be serializable.
- * 
- * @author Bernd Rinn
+ * @author Pawel Glyzewski
  */
-@Deprecated
-public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
+public class SmartQueuePersister<E> implements IQueuePersister<E>
 {
-    final static int DEFAULT_INITIAL_RECORD_SIZE = 32;
+    final static int QUEUE_IMPLEMENTATION_MARKER = -123456789;
 
     private final static int HEADER_LENGTH = 3 * 4; // 3 * sizeof(int)
 
     private final static int RECORD_HEADER_LENGTH = 4; // sizeof(int)
 
-    private final static int MAX_SLICK = 1000;
+    private final static int MAX_SLICK = 100000;
 
     private final Queue<E> queue;
 
@@ -56,21 +52,20 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 
     private final boolean autoSync;
 
-    private int recordSize;
-
     private RandomAccessFile randomAccessFile;
 
-    private int firstRecord;
+    private int firstRecord = HEADER_LENGTH;
 
     private int lastRecord;
 
     /**
      * Returns a list of the content of the <var>queueFile</var>.
      */
+    @SuppressWarnings("deprecation")
     public static <E> List<E> list(Class<E> clazz, File queueFile)
     {
         final File newQueueFile = new File(queueFile.getParentFile(), queueFile.getName() + ".new");
-        final List<E> result = new ArrayList<E>();
+        List<E> result = new ArrayList<E>();
         RandomAccessFile randomAccessFile = null;
         try
         {
@@ -81,10 +76,15 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             {
                 randomAccessFile = new RandomAccessFile(queueFile, "r");
             }
-            final int firstRecord = randomAccessFile.readInt();
-            final int lastRecord = randomAccessFile.readInt();
-            final int recordSize = randomAccessFile.readInt();
-            load(randomAccessFile, result, firstRecord, lastRecord, recordSize);
+            if (randomAccessFile.readInt() != QUEUE_IMPLEMENTATION_MARKER)
+            {
+                return RecordBasedQueuePersister.list(clazz, queueFile);
+            } else
+            {
+                final int firstRecord = randomAccessFile.readInt();
+                final int lastRecord = randomAccessFile.readInt();
+                load(randomAccessFile, result, firstRecord, lastRecord);
+            }
         } catch (IOException ex)
         {
             return Collections.emptyList();
@@ -104,30 +104,21 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         return Collections.unmodifiableList(result);
     }
 
-    /**
-     * Create a {@link RecordBasedQueuePersister} for <var>queue</var>. (Uses a default initial
-     * record size of 32 and switches off auto-sync.)
-     * 
-     * @param queue The queue to persist.
-     * @param queueFile The file to persist the queue in.
-     */
-    public RecordBasedQueuePersister(Queue<E> queue, File queueFile)
+    public SmartQueuePersister(Queue<E> queue, File queueFile)
     {
-        this(queue, queueFile, DEFAULT_INITIAL_RECORD_SIZE, false);
+        this(queue, queueFile, false);
     }
 
     /**
-     * Create a {@link RecordBasedQueuePersister} for <var>queue</var>.
+     * Create a {@link SmartQueuePersister} for <var>queue</var>.
      * 
      * @param queue The queue to persist.
      * @param queueFile The file to persist the queue in.
-     * @param initialRecordSize The initial size of the record. If an element of the queue is larger
-     *            than this, the whole queue file has to be re-written with a larger record size.
      * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
      *            write operation. This is safer, but costs a lot of performance.
      */
-    public RecordBasedQueuePersister(Queue<E> queue, File queueFile, int initialRecordSize,
-            boolean autoSync)
+    @SuppressWarnings("deprecation")
+    public SmartQueuePersister(Queue<E> queue, File queueFile, boolean autoSync)
     {
         this.queue = queue;
         this.queueFile = queueFile;
@@ -144,33 +135,38 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         try
         {
             this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
-            if (randomAccessFile.length() < HEADER_LENGTH)
+            if (randomAccessFile.length() >= 4
+                    && randomAccessFile.readInt() != QUEUE_IMPLEMENTATION_MARKER)
             {
-                this.recordSize = initialRecordSize;
-                writeFullHeader(randomAccessFile, firstRecord, lastRecord, initialRecordSize);
+                RecordBasedQueuePersister<E> oldPersister =
+                        new RecordBasedQueuePersister<E>(queue, queueFile);
+                oldPersister.close();
+                persist();
             } else
             {
-                this.firstRecord = randomAccessFile.readInt();
-                if (this.firstRecord < 0)
+
+                if (randomAccessFile.length() < HEADER_LENGTH)
                 {
-                    this.firstRecord = 0;
-                }
-                this.lastRecord = randomAccessFile.readInt();
-                if (this.lastRecord < 0)
+                    writeFullHeader(randomAccessFile, firstRecord, lastRecord);
+                } else
                 {
-                    this.lastRecord = 0;
+                    this.firstRecord = randomAccessFile.readInt();
+                    if (this.firstRecord < 0)
+                    {
+                        this.firstRecord = HEADER_LENGTH;
+                    }
+                    this.lastRecord = randomAccessFile.readInt();
+                    if (this.lastRecord < 0)
+                    {
+                        this.lastRecord = 0;
+                    }
                 }
-                this.recordSize = randomAccessFile.readInt();
-                if (this.recordSize < 0)
+                load(randomAccessFile, queue, firstRecord, lastRecord);
+                // Clean up
+                if (firstRecord > 0)
                 {
-                    this.recordSize = 0;
+                    persist();
                 }
-            }
-            load(randomAccessFile, queue, firstRecord, lastRecord, recordSize);
-            // Clean up
-            if (firstRecord > 0)
-            {
-                persist();
             }
         } catch (IOException ex)
         {
@@ -208,31 +204,29 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
 
     private void writeHeader() throws IOException
     {
-        randomAccessFile.seek(0L);
-        randomAccessFile.writeInt(firstRecord);
-        randomAccessFile.writeInt(lastRecord);
+        writeFullHeader(randomAccessFile, firstRecord, lastRecord);
     }
 
-    private static void writeFullHeader(RandomAccessFile raf, int firstRecord, int lastRecord,
-            int initialRecordSize) throws IOException
+    private static void writeFullHeader(RandomAccessFile raf, int firstRecord, int lastRecord)
+            throws IOException
     {
         raf.seek(0L);
+        raf.writeInt(QUEUE_IMPLEMENTATION_MARKER);
         raf.writeInt(firstRecord);
         raf.writeInt(lastRecord);
-        raf.writeInt(initialRecordSize);
     }
 
     private static <E> void load(RandomAccessFile randomAccessFile, Collection<E> collection,
-            int firstRecord, int lastRecord, int recordSize)
+            int firstRecord, int lastRecord)
     {
-        long pos = HEADER_LENGTH + ((long) recordSize) * firstRecord;
-        for (int i = firstRecord; i < lastRecord; ++i)
+        long pos = firstRecord;
+        while (pos < lastRecord)
         {
             try
             {
                 randomAccessFile.seek(pos);
-                pos += recordSize;
                 final int len = randomAccessFile.readInt();
+                pos += len + RECORD_HEADER_LENGTH;
                 final byte[] data = new byte[len];
                 randomAccessFile.read(data, 0, len);
                 deserializeAndAdd(collection, data);
@@ -249,29 +243,17 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         collection.add((E) objFromByteArray(data));
     }
 
-    private static int getNewRecordSize(int oldRecordSize, int elementSize)
-    {
-        return (oldRecordSize < 1) ? elementSize : oldRecordSize
-                * (elementSize / oldRecordSize + 1);
-    }
-
     //
     // IQueuePersister
     //
-
     public void persist()
-    {
-        primPersist(recordSize);
-    }
-
-    private void primPersist(int newRecordSize)
     {
         synchronized (queueFile)
         {
             try
             {
                 randomAccessFile.close();
-                recordSize = fillNewQueueFile(newRecordSize);
+                fillNewQueueFile();
                 if (queueFile.delete() == false)
                 {
                     throw new IOException("Cannot delete file '" + queueFile.getPath() + "'");
@@ -293,31 +275,28 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         }
     }
 
-    private int fillNewQueueFile(int newRecordSize) throws IOException
+    private void fillNewQueueFile() throws IOException
     {
         RandomAccessFile newRandomAccessFile = null;
         try
         {
             newRandomAccessFile = new RandomAccessFile(newQueueFile, "rw");
-            firstRecord = 0;
-            lastRecord = queue.size();
-            writeFullHeader(newRandomAccessFile, firstRecord, lastRecord, newRecordSize);
-            long pos = HEADER_LENGTH;
+            firstRecord = HEADER_LENGTH;
+            lastRecord = -1;
+            writeFullHeader(newRandomAccessFile, firstRecord, lastRecord);
+            int pos = HEADER_LENGTH;
+            int elementSize = 0;
             for (E elem : queue)
             {
+                pos += elementSize;
                 newRandomAccessFile.seek(pos);
-                pos += newRecordSize;
                 final byte[] data = toByteArray(elem);
-                final int elementSize = data.length + RECORD_HEADER_LENGTH;
-                if (elementSize > newRecordSize)
-                {
-                    newRandomAccessFile.close();
-                    return fillNewQueueFile(getNewRecordSize(newRecordSize, elementSize));
-                }
+                elementSize = data.length + RECORD_HEADER_LENGTH;
                 newRandomAccessFile.writeInt(data.length);
                 newRandomAccessFile.write(data);
             }
-            return newRecordSize;
+            lastRecord = pos + elementSize;
+            writeFullHeader(newRandomAccessFile, firstRecord, lastRecord);
         } finally
         {
             if (newRandomAccessFile != null)
@@ -333,18 +312,12 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         {
             try
             {
-                long pos = HEADER_LENGTH + ((long) lastRecord) * recordSize;
-                randomAccessFile.seek(pos);
+                randomAccessFile.seek(lastRecord);
                 final byte[] data = toByteArray(elem);
                 final int elementSize = data.length + RECORD_HEADER_LENGTH;
-                if (elementSize > recordSize)
-                {
-                    primPersist(getNewRecordSize(recordSize, elementSize));
-                    return;
-                }
                 randomAccessFile.writeInt(data.length);
                 randomAccessFile.write(data);
-                ++lastRecord;
+                lastRecord += elementSize;
                 writeHeader();
                 if (autoSync)
                 {
@@ -368,7 +341,8 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
                     persist();
                 } else
                 {
-                    ++firstRecord;
+                    randomAccessFile.seek(firstRecord);
+                    firstRecord += randomAccessFile.readInt() + RECORD_HEADER_LENGTH;
                     writeHeader();
                     if (autoSync)
                     {
@@ -388,7 +362,8 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
         {
             try
             {
-                if (randomAccessFile.getFD().valid() == false)
+                if (randomAccessFile.getFD().valid() == false
+                        || false == randomAccessFile.getChannel().isOpen())
                 {
                     throw new IllegalStateException("Cannot persist: file is closed.");
                 }
@@ -426,5 +401,4 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             }
         }
     }
-
 }

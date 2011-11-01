@@ -32,7 +32,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -51,7 +50,7 @@ public class PersistentExtendedBlockingQueueDecoratorTest
 
     private PersistentExtendedBlockingQueueDecorator<String> createQueue()
     {
-        return ExtendedBlockingQueueFactory.createPersistRecordBased(queueFile, 16, false);
+        return ExtendedBlockingQueueFactory.createSmartQueue(queueFile, false);
     }
 
     private List<String> asList(Queue<String> queue)
@@ -236,24 +235,13 @@ public class PersistentExtendedBlockingQueueDecoratorTest
         assertTrue(createQueue().isEmpty());
     }
 
-    @Test(expectedExceptions =
-        { IOExceptionUnchecked.class })
+    @Test()
     public void testAddLotsOfItems()
     {
         PersistentExtendedBlockingQueueDecorator<String> persistentQueue = createQueue();
 
         final List<String> items = new ArrayList<String>();
-        for (int i = 0; i < 64; ++i)
-        {
-            items.add(createItemOfLength(i));
-            persistentQueue.add(items.get(i));
-        }
-
-        queueFile.delete();
-
-        // Running through this will throw an exception at some point when it tries to grow the
-        // persistent queue's record size.
-        for (int i = 64; i < 128; ++i)
+        for (int i = 0; i < 128; ++i)
         {
             items.add(createItemOfLength(i));
             persistentQueue.add(items.get(i));
@@ -261,12 +249,12 @@ public class PersistentExtendedBlockingQueueDecoratorTest
 
         assertEquals(items, asList(createQueue()));
     }
-    
+
     @Test
     public void testThreadSafetiness() throws Exception
     {
         final PersistentExtendedBlockingQueueDecorator<Integer> queue =
-                ExtendedBlockingQueueFactory.<Integer> createPersistRecordBased(queueFile);
+                ExtendedBlockingQueueFactory.<Integer> createSmartPersist(queueFile);
         final MessageChannel messageChannel = new MessageChannel(20000);
         new Thread(new Runnable()
             {
@@ -303,12 +291,12 @@ public class PersistentExtendedBlockingQueueDecoratorTest
             {
                 throw new RuntimeException("Crash for queue size " + queue.size(), ex);
             }
-            
+
             beBusy(0);
         }
         queue.add(-1);
         messageChannel.assertNextMessage("finished");
-        
+
         queueFile.delete();
     }
 

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 /**
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("deprecation")
 public class RecordBasedQueuePersisterTest extends AssertJUnit
 {
     private static final File TMP = new File("targets/unit-test-wd");

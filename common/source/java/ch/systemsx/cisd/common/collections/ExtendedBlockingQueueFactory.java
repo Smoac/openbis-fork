@@ -32,32 +32,16 @@ public class ExtendedBlockingQueueFactory
      * {@link ExtendedLinkedBlockingQueue} that persists record-based.
      * 
      * @param queueFile The file to persist the queue in.
-     * @param initialRecordSize The initial size of the record. If an element of the queue is larger
-     *            than this, the whole queue file has to be re-written with a larger record size.
      * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
      *            write operation. This is safer, but costs a lot of performance.
      */
-    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
-            File queueFile, int initialRecordSize, boolean autoSync)
+    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createSmartQueue(
+            File queueFile, boolean autoSync)
     {
         final IExtendedBlockingQueue<E> queue = new ExtendedLinkedBlockingQueue<E>();
         final IQueuePersister<E> queuePersister =
-                new RecordBasedQueuePersister<E>(queue, queueFile, initialRecordSize, autoSync);
+                new SmartQueuePersister<E>(queue, queueFile, autoSync);
         return new PersistentExtendedBlockingQueueDecorator<E>(queue, queuePersister);
-    }
-
-    /**
-     * Creates a {@link PersistentExtendedBlockingQueueDecorator} with a
-     * {@link ExtendedLinkedBlockingQueue} that persists record-based. (Switches off auto-sync.)
-     * 
-     * @param queueFile The file to persist the queue in.
-     * @param initialRecordSize The initial size of the record. If an element of the queue is larger
-     *            than this, the whole queue file has to be re-written with a larger record size.
-     */
-    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
-            File queueFile, int initialRecordSize)
-    {
-        return createPersistRecordBased(queueFile, initialRecordSize, false);
     }
 
     /**
@@ -67,11 +51,10 @@ public class ExtendedBlockingQueueFactory
      * 
      * @param queueFile The file to persist the queue in.
      */
-    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
+    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createSmartPersist(
             File queueFile)
     {
-        return createPersistRecordBased(queueFile,
-                RecordBasedQueuePersister.DEFAULT_INITIAL_RECORD_SIZE, false);
+        return createSmartQueue(queueFile, false);
     }
 
 }
