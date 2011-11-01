@@ -128,12 +128,10 @@
 				<exclude name="**/*.gwt.xml" />
         <include name="**/*.xsd" />
 			</classes>
-	    <copy todir="core-plugins" overwrite="true">
-	      <fileset dir="${original.dist}/core-plugins">
-	        <include name="**/*.*" />
-	        <exclude name="**/.svn/*.*" />
-	      </fileset>
-	    </copy>
+	    <zipfileset dir="${original.dist}/core-plugins" prefix="core-plugins">
+	      <include name="**/*.*" />
+	      <exclude name="**/.svn/*.*" />
+      </zipfileset>
 			<lib dir="${lib}/jaxb">
 				<include name="*.jar" />
 			</lib>
