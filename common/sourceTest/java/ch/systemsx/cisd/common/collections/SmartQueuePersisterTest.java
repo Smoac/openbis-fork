@@ -86,12 +86,8 @@ public class SmartQueuePersisterTest extends AssertJUnit
     }
 
     @Test
-    public void testZeroRecordSize()
+    public void testPersistMoreElements()
     {
-        // First delete the queue file created by setUp so we can create one where the initial
-        // record size is 0.
-        assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
-        TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
         persister = new SmartQueuePersister<String>(queue, QUEUE_FILE, false);
 
@@ -110,6 +106,10 @@ public class SmartQueuePersisterTest extends AssertJUnit
     @Test
     public void testQueueFileSizeLessThanHeaderSize() throws Exception
     {
+        // First delete the queue file created by setUp so we can create one where the header is too
+        // short.
+        assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
+        TMP.mkdirs();
         queue = new ArrayBlockingQueue<String>(10);
 
         // write a data shorter than header size
