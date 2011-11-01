@@ -37,6 +37,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -147,6 +148,7 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
                 cacheFolder.getPath());
         clientService.webClientConfigurationProvider =
                 new WebClientConfigurationProvider(properties);
+        clientService.timeProvider = new MockTimeProvider();
         clientService.afterPropertiesSet();
     }
 

@@ -38,6 +38,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -112,6 +113,8 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
+    
+    @Private ITimeProvider timeProvider = SYSTEM_TIME_PROVIDER;
 
     public PhosphoNetXClientService()
     {
@@ -129,7 +132,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         final ICacheManager cacheManager =
                 new CacheManager(webClientConfiguration, Constants.TECHNOLOGY_NAME,
-                        SYSTEM_TIME_PROVIDER, freeSpaceProvider, CACHE_VERSION);
+                        timeProvider, freeSpaceProvider, CACHE_VERSION);
         ProxyFactory proxyFactory = new ProxyFactory(server);
         proxyFactory.addInterface(IPhosphoNetXServer.class);
         AnnotationMatchingPointcut pointcut =
