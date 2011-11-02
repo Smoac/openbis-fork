@@ -3,6 +3,23 @@
 # Assumes that openbis is installed in the 'servers' directory on the same level as this script parent directory
 
 #
+# enforces the availability of a certain command on the system path
+#
+function ensureToolOnPath() 
+{
+  cmd=$1
+  cmdLocation=$(which $cmd)
+  
+  if [ -z "$cmdLocation" ]; then
+  
+     echo "The upgrade process requires '$cmd' to be on the system path."
+     echo "Please set the PATH variable accordingly and try again."
+     exit 3
+  
+  fi
+}
+
+#
 # Upgrades the installation from an installer tarball
 #
 upgrade_from_installer_tarball() 
@@ -38,6 +55,11 @@ mv $TARBALL $BACKUP_DIR
 
 }
 
+
+ensureToolOnPath "java" 
+ensureToolOnPath "psql"
+ensureToolOnPath "pg_dump"
+
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
    scriptName=$(readlink $0)
@@ -53,7 +75,6 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-source $BASE/env
 source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
