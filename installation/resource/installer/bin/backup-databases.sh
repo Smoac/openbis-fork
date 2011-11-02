@@ -55,7 +55,7 @@ function backupDatabase() {
   pg_dump -U $username -Fc $database > $dumpFile
   
   if [ "$?" -ne 0 ]; then
-      echo "Failed to backup database '$database'. Aborting..."
+      echo "Failed to backup database '$database' !"
       exit 3
   fi
 }
