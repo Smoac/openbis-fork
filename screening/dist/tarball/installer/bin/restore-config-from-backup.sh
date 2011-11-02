@@ -28,14 +28,6 @@ ROOT=$BASE/../servers
 
 echo "Restoring configuration backup from $CONF to $ROOT ..."
 
-# -- GLOBAL
-if [ -e "$CONF/env" ]; then
-    source $CONF/env
-    if [ -n "$RESTORE_ENV_FROM_BACKUP" ]; then
-        cp $CONF/env $BASE/
-    fi
-fi
-
 # -- AS
 cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
 cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
