@@ -159,9 +159,10 @@ public class ProteinDescriptionTest extends AssertJUnit
     public void testWithNoAccessionNumber()
     {
         ProteinAnnotation annotation = new ProteinAnnotation();
+        annotation.setDescription("");
         ProteinDescription description = new ProteinDescription(annotation, 4711, false);
         
-        assertEquals(null, description.getDescription());
+        assertEquals("", description.getDescription());
         assertEquals("", description.getSequence());
         assertEquals("unknown|4711", description.getAccessionNumber());
     }

@@ -30,62 +30,70 @@ final class ProteinDescription
         return "\\" + key + "=" + value;
     }
 
-    private final String accessionNumber;
+    private String accessionNumber;
 
-    private final String description;
+    private String description;
 
-    private final String sequence;
+    private String sequence;
 
-    public ProteinDescription(ProteinAnnotation annotation, long proteinID, boolean assumingExtendedProtXML)
+    public ProteinDescription(ProteinAnnotation annotation, long proteinID,
+            boolean assumingExtendedProtXML)
     {
         String proteinDescription = annotation.getDescription();
-        if (assumingExtendedProtXML)
+        String[] items = proteinDescription.split("\\\\");
+        accessionNumber = tryToGetAccessionNumber(items);
+        description = tryToGetValue(items, DESCRIPTION_KEY);
+        sequence = tryToGetValue(items, SEQUENCE_KEY);
+        if (sequence == null)
         {
-            String[] items = proteinDescription.split("\\\\");
-            accessionNumber = tryToGetAccessionNumber(items);
-            description = tryToGetValue(items, DESCRIPTION_KEY);
-            sequence = tryToGetValue(items, SEQUENCE_KEY);
-            if (accessionNumber == null)
-            {
-                throw new UserFailureException("Cannot find an accession number in a protein description: "
-                        + proteinDescription);
-            }
-            if (sequence == null)
+            if (assumingExtendedProtXML)
             {
                 throw new UserFailureException(
                         "Cannot find a protein sequence in a protein description: "
                                 + proteinDescription);
-            }
-        } else
-        {
-            description = proteinDescription;
-            sequence = "";
-            if (annotation.getSwissprotName() != null)
-            {
-                accessionNumber = "sp|" + annotation.getSwissprotName();
-            } else if (annotation.getTremblName() != null)
-            {
-                accessionNumber = "tr|" + annotation.getTremblName();
-            } else if (annotation.getIpiName() != null)
-            {
-                accessionNumber = "ipi|" + annotation.getIpiName();
-            } else if (annotation.getEnsemblName() != null)
-            {
-                accessionNumber = "ens|" + annotation.getEnsemblName();
-            } else if (annotation.getRefseqName() != null)
-            {
-                accessionNumber = "rs|" + annotation.getRefseqName();
-            } else if (annotation.getLocusLinkName() != null)
-            {
-                accessionNumber = "ll|" + annotation.getLocusLinkName();
-            } else if (annotation.getFlybase() != null)
-            {
-                accessionNumber = "fb|" + annotation.getFlybase();
             } else
             {
-                accessionNumber = "unknown|" + proteinID;
+                sequence = "";
+                accessionNumber = getAccessionNumber(annotation, proteinID);
             }
         }
+        if (description == null && assumingExtendedProtXML == false)
+        {
+            description = proteinDescription;
+        }
+    }
+    
+    private String getAccessionNumber(ProteinAnnotation annotation, long proteinID)
+    {
+        if (annotation.getSwissprotName() != null)
+        {
+            return "sp|" + annotation.getSwissprotName();
+        }
+        if (annotation.getTremblName() != null)
+        {
+            return "tr|" + annotation.getTremblName();
+        }
+        if (annotation.getIpiName() != null)
+        {
+            return "ipi|" + annotation.getIpiName();
+        }
+        if (annotation.getEnsemblName() != null)
+        {
+            return "ens|" + annotation.getEnsemblName();
+        }
+        if (annotation.getRefseqName() != null)
+        {
+            return "rs|" + annotation.getRefseqName();
+        }
+        if (annotation.getLocusLinkName() != null)
+        {
+            return "ll|" + annotation.getLocusLinkName();
+        }
+        if (annotation.getFlybase() != null)
+        {
+            return "fb|" + annotation.getFlybase();
+        }
+        return "unknown|" + proteinID;
     }
 
     public final String getAccessionNumber()

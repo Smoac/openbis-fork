@@ -219,8 +219,8 @@ class ResultDataSetUploader extends AbstractHandler
             {
                 try
                 {
-                    if (assumingExtendedProtXML == false
-                            || calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)
+                    double fdr = calculator.calculateFDR(protein.getProbability());
+                    if (Double.isNaN(fdr) || fdr <= MAX_FALSE_DISCOVERY_RATE)
                     {
                         addProtein(protein, dataSetID, databaseID, abundanceHandler,
                                 modificationFractionHandler);
