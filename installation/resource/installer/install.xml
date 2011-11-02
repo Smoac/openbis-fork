@@ -146,8 +146,6 @@
       <description>Scripts to facilitate openBIS administration</description>
       <file src="@{installer.dist.dir}/bin" targetdir="$INSTALL_PATH" />
       
-      <parsable targetfile="$INSTALL_BIN_PATH/env" />
-
       <!--  set all *.sh files executable -->      
       <executable targetfile="${INSTALL_BIN_PATH}/finish-installation.sh" stage="postinstall" keep="true">
         <args>
