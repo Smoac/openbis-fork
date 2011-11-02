@@ -41,5 +41,10 @@
       </spec>
     </field>
   </panel>
+  
+  <panel id="UserInputPanel.BACKUP">
+    <field type="title" txt="Detected existing openBIS installation" bold="true" size="2" />
+    <field type="staticText" align="left" txt="Please, click next to create a backup of the existing installation." />
+  </panel>  
 
 </userInput>

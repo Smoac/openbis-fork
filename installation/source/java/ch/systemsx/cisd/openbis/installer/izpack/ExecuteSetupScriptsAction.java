@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ADMIN_PASSWORD_VARNAME;
 import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext.ETL_SERVER_PASSWORD_VARNAME;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,10 +32,8 @@ import com.izforge.izpack.data.PanelAction;
  * 
  * @author Kaloyan Enimanev
  */
-public class ExecuteSetupScriptsAction implements PanelAction
+public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements PanelAction
 {
-    private static final String INSTALL_BIN_PATH_VARNAME = "INSTALL_BIN_PATH";
-
     /**
      * executed for first time installations.
      */
@@ -80,55 +74,11 @@ public class ExecuteSetupScriptsAction implements PanelAction
         executeAdminScript(customEnvironment, script);
     }
 
-    private String getAdminScript(AutomatedInstallData data, String scriptFileName)
-    {
-        File adminScriptFile = new File(data.getVariable(INSTALL_BIN_PATH_VARNAME), scriptFileName);
-        return adminScriptFile.getAbsolutePath();
-    }
-
-    private void executeAdminScript(Map<String, String> customEnv, String... command)
-    {
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.environment().putAll(System.getenv());
-        if (customEnv != null)
-        {
-            pb.environment().putAll(customEnv);
-        }
-        try
-        {
-            Process process = pb.start();
-            pipe(process.getErrorStream(), System.err);
-            pipe(process.getInputStream(), System.out);
-            process.waitFor();
-        } catch (Exception e)
-        {
-            System.out.println("Error executing " + command[0] + ": " + e.getMessage());
-        }
-    }
-
     public void initialize(PanelActionConfiguration arg0)
     {
     }
     
 
-    private static void pipe(final InputStream src, final PrintStream dest) {
-        new Thread(new Runnable() 
-        {
-            public void run() 
-            {
-                try 
-                {
-                    byte[] buffer = new byte[1024];
-                    for (int n = 0; n != -1; n = src.read(buffer)) 
-                    {
-                        dest.write(buffer, 0, n);
-                    }
-                } catch (IOException e) 
-                { 
-                }
-            }
-            }).start();
-    }
 
 
 }

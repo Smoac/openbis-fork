@@ -98,9 +98,12 @@
       </actions>
     </panel>
     
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP" condition="isUpdateInstallation">
+      <actions>
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction" />
+      </actions>
+    </panel>
     
-    <!--  create backup if needed -->
-    <panel classname="com.izforge.izpack.panels.process.ProcessPanel" condition="isUpdateInstallation" />
     
     <panel classname="com.izforge.izpack.panels.packs.PacksPanel"/>
     <panel classname="com.izforge.izpack.panels.install.InstallPanel">
