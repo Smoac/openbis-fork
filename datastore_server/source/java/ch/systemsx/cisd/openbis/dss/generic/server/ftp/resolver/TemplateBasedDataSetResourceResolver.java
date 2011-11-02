@@ -158,10 +158,21 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             for (int i = 0; i < dataSets.size(); i++)
             {
                 ExternalData ds = dataSets.get(i);
-                String folderName = prefix + evaluateTemplate(ds, null, computeDisambiguation(i));
-                result.add(new DataSetFtpFolder(absolutePath + FtpConstants.FILE_SEPARATOR
-                        + folderName, ds, resolverContext));
+                String dataSetUniqueSuffix = evaluateTemplate(ds, null, computeDisambiguation(i));
+                if (false == isPresentInPath(dataSetUniqueSuffix))
+                {
+                    String folderName = prefix + dataSetUniqueSuffix;
+                    result.add(new DataSetFtpFolder(absolutePath + FtpConstants.FILE_SEPARATOR
+                            + folderName, ds, resolverContext));
+                }
             }
+        }
+
+        private boolean isPresentInPath(String suffix)
+        {
+            String dataSetUniqueSuffix = suffix + FtpConstants.FILE_SEPARATOR;
+            String pathWithSeparator = absolutePath + FtpConstants.FILE_SEPARATOR;
+            return pathWithSeparator.contains(dataSetUniqueSuffix);
         }
     }
 

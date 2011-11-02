@@ -116,6 +116,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private static final String DS_TYPE2 = "DS_TYPE2";
 
+    private static final String DS_TYPE3 = "DS_TYPE3";
+
     private static final String TEMPLATE_WITH_FILENAMES =
             "DS-${dataSetType}-${fileName}-${disambiguation}";
 
@@ -140,6 +142,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     private DataSet ds1;
 
     private DataSet ds2;
+
+    private DataSet ds3;
 
     @Override
     @BeforeMethod
@@ -188,6 +192,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         File dataFolder = new File(ds2Original, "data");
         dataFolder.mkdirs();
         FileUtilities.writeToFile(new File(dataFolder, "a1.tsv"), "t\tlevel\n1.34\t2\n");
+        ds3 =
+                new DataSetBuilder().experiment(experiment).code("ds3").type(DS_TYPE3)
+                        .registrationDate(REGISTRATION_DATE).getDataSet();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -257,17 +264,18 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver.setContentProvider(simpleFileContentProvider);
         
         ds1.setParents(Arrays.<ExternalData>asList(ds2));
-        ds2.setChildren(Arrays.<ExternalData>asList(ds1));
+        ds2.setChildren(Arrays.<ExternalData> asList(ds1, ds3));
         final List<ExternalData> dataSets = Arrays.<ExternalData>asList(ds1);
         
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
         prepareListDataSetsByCode(ds2);
         prepareGetDataSetMetaData(ds2);
-        prepareListDataSetsByCode(ds1);
+        prepareListDataSetsByCode(ds1, ds3);
         
         String dataSetPathElement = "DS-DS_TYPE1-ds1-" + RENDERED_REGISTRATION_DATE + "-A";
         String ds2AsParent = "PARENT-DS-DS_TYPE2-ds2-" + RENDERED_REGISTRATION_DATE + "-A";
+
         String path =
                 EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetPathElement
                         + FtpConstants.FILE_SEPARATOR + ds2AsParent;
@@ -277,7 +285,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         assertEquals(path, ftpFile.getAbsolutePath());
         assertEquals(true, ftpFile.isDirectory());
         List<FtpFile> files = ftpFile.listFiles();
-        assertEquals("CHILD-DS-DS_TYPE1-ds1-" + RENDERED_REGISTRATION_DATE + "-A", files.get(0).getName());
+        assertEquals("CHILD-DS-DS_TYPE3-ds3-" + RENDERED_REGISTRATION_DATE + "-B", files.get(0)
+                .getName());
         assertEquals(true, files.get(0).isDirectory());
         assertEquals("original2", files.get(1).getName());
         assertEquals(true, files.get(1).isDirectory());
