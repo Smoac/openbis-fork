@@ -34,6 +34,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRODUCTION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROJECT;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.SAMPLE;
@@ -48,12 +49,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.IColumnGroup;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
@@ -151,6 +154,14 @@ public abstract class AbstractExternalDataProvider extends
             builder.column(DATA_STORE_CODE).addString(dataSet.getDataStore().getCode());
             builder.column(PERM_ID).addString(dataSet.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(dataSet.getPermlink());
+            IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
+            DataSetType dataSetType = dataSet.getDataSetType();
+            if (dataSetType != null)
+            {
+                columnGroup.addColumnsForAssignedProperties(dataSetType);
+            }
+            columnGroup.addProperties(dataSet.getProperties());
+
         }
         return builder.getModel();
     }

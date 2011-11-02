@@ -71,4 +71,7 @@ public class ExternalDataGridColumnIDs
     public static final String SHOW_DETAILS_LINK = "SHOW_DETAILS_LINK";
 
     public static final String OVERVIEW = "OVERVIEW";
+
+    public static final String PROPERTIES_PREFIX = "property-";
+
 }

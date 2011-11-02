@@ -30,9 +30,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -153,12 +153,15 @@ public class TypedTableModelBuilder<T extends ISerializable>
         {
             List<? extends EntityTypePropertyType<?>> propertyTypes =
                     entityType.getAssignedPropertyTypes();
-            for (EntityTypePropertyType<?> propertyType : propertyTypes)
+            if (propertyTypes != null)
             {
-                IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
-                column.property(entityType.getCode(), Boolean.TRUE.toString());
-                setEditableFlag(column, propertyType.getPropertyType());
-                setVocabulary(column, propertyType.getPropertyType().getVocabulary());
+                for (EntityTypePropertyType<?> propertyType : propertyTypes)
+                {
+                    IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
+                    column.property(entityType.getCode(), Boolean.TRUE.toString());
+                    setEditableFlag(column, propertyType.getPropertyType());
+                    setVocabulary(column, propertyType.getPropertyType().getVocabulary());
+                }
             }
         }
 
