@@ -22,22 +22,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
@@ -45,7 +39,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
 /**
  * Storage processor which stores HCS plate images in a special-purpose imaging database.
@@ -195,96 +188,10 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
             File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
-        HCSImageCheckList imageCheckList =
-                createImageCheckList(dataSetInformation, extractionResult.getChannels(),
-                        extractionResult.getTileGeometry());
-        checkImagesForDuplicates(extractionResult, imageCheckList);
-        if (extractionResult.getInvalidFiles().size() > 0)
-        {
-            throw UserFailureException.fromTemplate("Following invalid files %s have been found.",
-                    CollectionUtils.abbreviate(extractionResult.getInvalidFiles(), 10));
-        }
-        if (extractionResult.getImages().size() == 0)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No extractable files were found inside a dataset '%s'."
-                            + " Have you changed your naming convention?",
-                    incomingDataSetDirectory.getAbsolutePath());
-        }
-        checkCompleteness(imageCheckList, dataSetInformation, incomingDataSetDirectory.getName(),
-                mailClient);
-    }
-
-    private static void checkImagesForDuplicates(ImageFileExtractionResult extractionResult,
-            HCSImageCheckList imageCheckList)
-    {
-        List<AcquiredSingleImage> images = extractionResult.getImages();
-        for (AcquiredSingleImage image : images)
-        {
-            imageCheckList.checkOff(image);
-        }
-    }
-
-    private PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
-    {
-        return HCSContainerDatasetInfo.getPlateGeometry(dataSetInformation);
-    }
-
-    private HCSImageCheckList createImageCheckList(DataSetInformation dataSetInformation,
-            List<ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel> channels,
-            Geometry tileGeometry)
-    {
-        PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
-        List<String> channelCodes = new ArrayList<String>();
-        for (ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel channel : channels)
-        {
-            channelCodes.add(channel.getCode());
-        }
-        return new HCSImageCheckList(channelCodes, plateGeometry, tileGeometry);
-    }
-
-    private void checkCompleteness(HCSImageCheckList imageCheckList,
-            final DataSetInformation dataSetInformation, final String dataSetFileName,
-            final IMailClient mailClientOrNull)
-    {
-        final List<FullLocation> fullLocations = imageCheckList.getCheckedOnFullLocations();
-        final boolean complete = fullLocations.size() == 0;
-        dataSetInformation.setComplete(complete);
-        if (complete == false)
-        {
-            final String message =
-                    String.format("Incomplete data set '%s': %d image file(s) "
-                            + "are missing (locations: %s)", dataSetFileName, fullLocations.size(),
-                            CollectionUtils.abbreviate(fullLocations, 10));
-            operationLog.warn(message);
-            if (mailClientOrNull != null && notifyIfPlateIncomplete)
-            {
-                Experiment experiment = dataSetInformation.tryToGetExperiment();
-                assert experiment != null : "dataset not connected to an experiment: "
-                        + dataSetInformation;
-                String email = null;
-                if (experiment.getRegistrator() != null)
-                {
-                    email = experiment.getRegistrator().getEmail();
-                }
-                if (StringUtils.isBlank(email) == false)
-                {
-                    try
-                    {
-                        mailClientOrNull.sendMessage("Incomplete data set '" + dataSetFileName
-                                + "'", message, null, null, email);
-                    } catch (final EnvironmentFailureException e)
-                    {
-                        notificationLog.error("Couldn't send the following e-mail to '" + email
-                                + "': " + message, e);
-                    }
-                } else
-                {
-                    notificationLog.error("Unspecified e-mail address of experiment registrator "
-                            + experiment.getRegistrator());
-                }
-            }
-        }
+        ImageValidator validator =
+                new ImageValidator(dataSetInformation, mailClient, incomingDataSetDirectory,
+                        extractionResult, operationLog, notificationLog, notifyIfPlateIncomplete);
+        validator.validateImages();
     }
 
     @Override

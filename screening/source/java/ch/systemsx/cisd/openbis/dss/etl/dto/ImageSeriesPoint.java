@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto;
  * 
  * @author Tomasz Pylak
  */
-public final class ImageSeriesPoint
+public final class ImageSeriesPoint implements Comparable<ImageSeriesPoint>
 {
     private final Float timeOrNull;
 
@@ -34,6 +34,21 @@ public final class ImageSeriesPoint
         this.timeOrNull = timeOrNull;
         this.depthOrNull = depthOrNull;
         this.seriesNumberOrNull = seriesNumberOrNull;
+    }
+
+    public Float getTime()
+    {
+        return timeOrNull;
+    }
+
+    public Float getDepth()
+    {
+        return depthOrNull;
+    }
+
+    public Integer getSeriesNumber()
+    {
+        return seriesNumberOrNull;
     }
 
     @Override
@@ -77,5 +92,47 @@ public final class ImageSeriesPoint
         } else if (!seriesNumberOrNull.equals(other.seriesNumberOrNull))
             return false;
         return true;
+    }
+
+    public int compareTo(ImageSeriesPoint o)
+    {
+        int depthCompare = compareConstituent(depthOrNull, o.depthOrNull);
+        if (depthCompare != 0)
+        {
+            return depthCompare;
+        }
+
+        int timeCompare = compareConstituent(timeOrNull, o.timeOrNull);
+        if (timeCompare != 0)
+        {
+            return timeCompare;
+        }
+
+        return compareConstituent(seriesNumberOrNull, o.seriesNumberOrNull);
+    }
+
+    private <T extends Comparable<T>> int compareConstituent(T myValueOrNull, T otherValueOrNull)
+    {
+        int compareValue;
+        if (myValueOrNull != null)
+        {
+            if (otherValueOrNull != null)
+            {
+                compareValue = myValueOrNull.compareTo(otherValueOrNull);
+            } else
+            {
+                compareValue = 0;
+            }
+        } else
+        {
+            if (otherValueOrNull != null)
+            {
+                compareValue = -1;
+            } else
+            {
+                compareValue = 0;
+            }
+        }
+        return compareValue;
     }
 }

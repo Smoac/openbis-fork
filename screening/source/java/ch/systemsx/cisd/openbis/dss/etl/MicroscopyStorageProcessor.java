@@ -69,7 +69,10 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
             File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
-        // do nothing - for now we do not have good examples of real data
+        ImageValidator validator =
+                new ImageValidator(dataSetInformation, mailClient, incomingDataSetDirectory,
+                        extractionResult, operationLog, notificationLog, false);
+        validator.validateImages();
     }
 
 }

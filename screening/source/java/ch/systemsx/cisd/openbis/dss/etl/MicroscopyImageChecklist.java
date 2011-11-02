@@ -28,34 +28,25 @@ import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
 /**
- * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.
- * <p>
- * All the possible combinations are computed in the constructor. This class is also able to spot
- * images which have already been handled.
- * </p>
+ * This is a copy of the HCSImageCheckList and should be refactored together.
  * 
  * @author Franz-Josef Elmer
  */
-public final class HCSImageCheckList extends AbstractImageChecklist
+public final class MicroscopyImageChecklist extends AbstractImageChecklist
 {
     private final Map<FullLocation, Check> imageMap;
 
     private final HashMap<FullLocationImageSeriesPoint, DuplicateLocationImages> duplicateLocationImages;
 
-    public HCSImageCheckList(final List<String> channelCodes, final PlateDimension plateGeometry,
-            final Geometry wellGeometry)
+    public MicroscopyImageChecklist(final List<String> channelCodes, final Geometry wellGeometry)
     {
         if (channelCodes.size() < 1)
         {
             throw new IllegalArgumentException("No channels defined!");
         }
-        if (plateGeometry == null)
-        {
-            throw new IllegalArgumentException("Unspecified plate geometry.");
-        }
+
         if (wellGeometry == null)
         {
             throw new IllegalArgumentException("Unspecified well geometry.");
@@ -67,23 +58,17 @@ public final class HCSImageCheckList extends AbstractImageChecklist
 
         for (String channelCode : channelCodes)
         {
-            for (int wellCol = 1; wellCol <= plateGeometry.getColsNum(); wellCol++)
+
+            for (int tileCol = 1; tileCol <= wellGeometry.getColumns(); tileCol++)
             {
-                for (int wellRow = 1; wellRow <= plateGeometry.getRowsNum(); wellRow++)
+                for (int tileRow = 1; tileRow <= wellGeometry.getRows(); tileRow++)
                 {
-                    for (int tileCol = 1; tileCol <= wellGeometry.getColumns(); tileCol++)
-                    {
-                        for (int tileRow = 1; tileRow <= wellGeometry.getRows(); tileRow++)
-                        {
-                            imageMap.put(new FullLocation(wellRow, wellCol, tileRow, tileCol,
-                                    channelCode), new Check());
-                        }
-                    }
+                    imageMap.put(new FullLocation(tileRow, tileCol, channelCode), new Check());
                 }
             }
         }
-        assert imageMap.size() == channelCodes.size() * plateGeometry.getColsNum()
-                * plateGeometry.getRowsNum() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
+        assert imageMap.size() == channelCodes.size() * wellGeometry.getColumns()
+                * wellGeometry.getRows() : "Wrong map size";
     }
 
     @Override
@@ -156,8 +141,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
 
     private static FullLocation createLocation(AcquiredSingleImage image)
     {
-        return new FullLocation(image.getWellRow(), image.getWellColumn(), image.getTileRow(),
-                image.getTileColumn(), image.getChannelCode());
+        return new FullLocation(image.getTileRow(), image.getTileColumn(), image.getChannelCode());
     }
 
     public final List<FullLocation> getCheckedOnFullLocations()
@@ -226,16 +210,12 @@ public final class HCSImageCheckList extends AbstractImageChecklist
     public final static class FullLocation extends AbstractHashable implements
             Comparable<FullLocation>
     {
-        final int wellRow, wellCol;
-
         final int tileRow, tileCol;
 
         final String channelCode;
 
-        public FullLocation(int wellRow, int wellCol, int tileRow, int tileCol, String channelCode)
+        public FullLocation(int tileRow, int tileCol, String channelCode)
         {
-            this.wellRow = wellRow;
-            this.wellCol = wellCol;
             this.tileRow = tileRow;
             this.tileCol = tileCol;
             this.channelCode = channelCode.toUpperCase();
@@ -253,8 +233,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         @Override
         public final String toString()
         {
-            return "[channel=" + channelCode + ", " + toString(wellRow, wellCol, "well") + ", "
-                    + toString(tileRow, tileCol, "tile") + "]";
+            return "[channel=" + channelCode + ", " + toString(tileRow, tileCol, "tile") + "]";
         }
 
         /**
@@ -262,17 +241,6 @@ public final class HCSImageCheckList extends AbstractImageChecklist
          */
         public int compareTo(FullLocation o)
         {
-            int wellRowCompare = new Integer(wellRow).compareTo(new Integer(o.wellRow));
-            if (wellRowCompare != 0)
-            {
-                return wellRowCompare;
-            }
-            int wellColCompare = new Integer(wellCol).compareTo(new Integer(o.wellCol));
-            if (wellColCompare != 0)
-            {
-                return wellColCompare;
-            }
-
             int tileRowCompare = new Integer(tileRow).compareTo(new Integer(o.tileRow));
             if (tileRowCompare != 0)
             {
@@ -351,12 +319,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
         {
             StringBuffer sb = new StringBuffer();
             sb.append("Location: ");
-            sb.append("Well[");
-            sb.append(location.location.wellRow);
-            sb.append(",");
-            sb.append(location.location.wellCol);
-            sb.append("]");
-            sb.append(" Tile[");
+            sb.append("Tile[");
             sb.append(location.location.tileRow);
             sb.append(",");
             sb.append(location.location.tileCol);
@@ -402,7 +365,7 @@ public final class HCSImageCheckList extends AbstractImageChecklist
     {
         return getCheckedOnFullLocations().size();
     }
-
+    
     @Override
     public String getIncompleteDataSetErrorMessage(String dataSetFileName)
     {
