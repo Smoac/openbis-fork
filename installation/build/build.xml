@@ -37,7 +37,7 @@
 		-->
 	</target>
 	
-	<target name="dist" depends="dist-generic, dist-screening">
+	<target name="dist" depends="dist-generic, dist-screening, dist-proteomics">
 	</target>
 	
 	<target name="dist-generic" depends="compile">
@@ -61,6 +61,28 @@
       <param name="variant" value="-screening" />
       <param name="database.kind" value="screening" />
       <param name="installation.customize.folder" value="../screening/dist/tarball/installer" />
+    </antcall>
+	</target>
+	
+	<target name="dist-proteomics" depends="compile">
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		
+  	<unzip dest="${installer.dist.dir}">
+	      <fileset dir="../datastore_server/targets/dist">
+          <include name="datastore_server-S*.zip"/>
+	      </fileset>
+		</unzip>
+  	<unzip dest="${installer.dist.dir}/datastore_server">
+	      <fileset dir="../rtd_phosphonetx/targets/dist">
+          <include name="datastore_server_plugin-phosphonetx-S*.zip"/>
+	      </fileset>
+		</unzip>
+    <antcall target="create-installation-tarball">
+      <param name="openbis.server.zip.folder" value="../rtd_phosphonetx/targets/dist" />
+      <param name="datastore.server.zip.folder" value="../datastore_server/targets/dist" />
+      <param name="variant" value="-phosphonetx" />
+      <param name="database.kind" value="proteomics" />
+      <param name="installation.customize.folder" value="../rtd_phosphonetx/dist/tarball/installer" />
     </antcall>
 	</target>
 	
