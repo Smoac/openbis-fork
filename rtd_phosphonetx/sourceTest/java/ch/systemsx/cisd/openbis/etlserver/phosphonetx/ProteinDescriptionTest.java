@@ -39,7 +39,7 @@ public class ProteinDescriptionTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Cannot find a protein sequence in a protein description: Q92902", ex.getMessage());
+            assertEquals("Can not find a amino-acid sequence in following protein description: Q92902", ex.getMessage());
         }
     }
     

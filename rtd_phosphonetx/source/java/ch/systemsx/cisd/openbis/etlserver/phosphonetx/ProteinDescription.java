@@ -49,7 +49,7 @@ final class ProteinDescription
             if (assumingExtendedProtXML)
             {
                 throw new UserFailureException(
-                        "Cannot find a protein sequence in a protein description: "
+                        "Can not find a amino-acid sequence in following protein description: "
                                 + proteinDescription);
             } else
             {

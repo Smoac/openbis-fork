@@ -86,7 +86,7 @@ public class ProtXMLUploader implements IDataSetUploader
     {
         dataSource = createDataSource(properties);
         this.openbisService = openbisService;
-        assumingExtendedProtXML = PropertyUtils.getBoolean(properties, ASSUMING_EXTENDED_PROT_XML, true);
+        assumingExtendedProtXML = PropertyUtils.getBoolean(properties, ASSUMING_EXTENDED_PROT_XML, false);
         loader = new ProtXMLLoader(PropertyUtils.getBoolean(properties, VALIDATING_XML, false));
     }
 
