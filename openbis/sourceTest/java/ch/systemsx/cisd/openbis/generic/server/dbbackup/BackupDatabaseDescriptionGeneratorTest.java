@@ -36,7 +36,7 @@ public class BackupDatabaseDescriptionGeneratorTest extends TestCase
         String username = System.getProperty("user.name");
         String resultTemplate =
                 "database=openbis_fookind;username=%s;password=\n"
-                        + "database=phosphonetx_dev;username=%s;password=\n"
+                        + "database=proteomics_dev;username=%s;password=\n"
                         + "database=imaging_barkind;username=%s;password=";
         String expectedResult = String.format(resultTemplate, username, username, username);
 
