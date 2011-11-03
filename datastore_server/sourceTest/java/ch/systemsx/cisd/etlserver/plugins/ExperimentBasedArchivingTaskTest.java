@@ -73,16 +73,13 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             LogCategory.NOTIFY);
 
     private static final String FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY = LOG_ENTRY_PREFIX
-            + "Free space is below threshold: 103809024 (99 MB) < 104857600 (100 MB)";
+            + "Free space is below threshold, searching for datasets to archive.";
 
     private static final String FREE_SPACE_LOG_ENTRY = LOG_ENTRY_PREFIX
-            + "Free space: 103809024 MB, minimal free space required: 104857600 MB";
-
-    private static final String FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY2 = LOG_ENTRY_PREFIX
-            + "Free space is below threshold: 94371840 (90 MB) < 104857600 (100 MB)";
+            + "Free space: 99 MB, minimal free space required: 100 MB";
 
     private static final String FREE_SPACE_LOG_ENTRY2 = LOG_ENTRY_PREFIX
-            + "Free space: 94371840 MB, minimal free space required: 104857600 MB";
+            + "Free space: 90 MB, minimal free space required: 100 MB";
 
     private static final String LOCATION_PREFIX = "abc/";
 
@@ -357,8 +354,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         StringBuilder operationLogBuilder = new StringBuilder();
         operationLogBuilder.append(free90mb ? FREE_SPACE_LOG_ENTRY2 : FREE_SPACE_LOG_ENTRY);
         operationLogBuilder.append('\n');
-        operationLogBuilder.append(free90mb ? FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY2
-                : FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY);
+        operationLogBuilder.append(FREE_SPACE_BELOW_THRESHOLD_LOG_ENTRY);
         StringBuilder notifyMessageBuilder = new StringBuilder();
         for (String entry : archivingEntries)
         {

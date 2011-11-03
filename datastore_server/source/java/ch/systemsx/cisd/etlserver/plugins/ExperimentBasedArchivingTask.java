@@ -71,7 +71,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             ExperimentBasedArchivingTask.class);
-    
+
     private static final long ONE_KB_IN_BYTES = 1024L;
 
     static final String MINIMUM_FREE_SPACE_KEY = "minimum-free-space-in-MB";
@@ -143,11 +143,12 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private IFreeSpaceProvider setUpFreeSpaceProvider(Properties properties)
     {
-        Properties providerProps =  ExtendedProperties.getSubset(properties, FREE_SPACE_PROVIDER_PREFIX, true);
+        Properties providerProps =
+                ExtendedProperties.getSubset(properties, FREE_SPACE_PROVIDER_PREFIX, true);
         String freeSpaceProviderClassName =
                 PropertyUtils.getProperty(providerProps, "class",
                         SimpleFreeSpaceProvider.class.getName());
-        
+
         Class<?> clazz = null;
         try
         {
@@ -158,7 +159,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                     "Cannot find configured free space provider class '%s'",
                     freeSpaceProviderClassName);
         }
-        
+
         if (ClassUtils.hasConstructor(clazz, properties))
         {
             return ClassUtils.create(IFreeSpaceProvider.class, clazz, providerProps);
@@ -167,7 +168,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         {
             return ClassUtils.create(IFreeSpaceProvider.class, clazz);
         }
-        
+
     }
 
     private Map<String, Long> setUpEstimatedDataSetSizes(Properties properties)
@@ -200,9 +201,9 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         long freeSpace = getFreeSpace();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format(
-                    "Free space: %d MB, minimal free space required: %d MB", freeSpace,
-                    minimumFreeSpace));
+            operationLog.info(String.format("Free space: %s, minimal free space required: %s",
+                    FileUtils.byteCountToDisplaySize(freeSpace),
+                    FileUtils.byteCountToDisplaySize(minimumFreeSpace)));
         }
         if (freeSpace >= minimumFreeSpace)
         {
@@ -210,9 +211,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Free space is below threshold: " + freeSpace + " ("
-                    + FileUtils.byteCountToDisplaySize(freeSpace) + ") < " + minimumFreeSpace
-                    + " (" + FileUtils.byteCountToDisplaySize(minimumFreeSpace) + ")");
+            operationLog.info("Free space is below threshold, searching for datasets to archive.");
         }
         List<ExperimentDataSetsInfo> infos = new ArrayList<ExperimentDataSetsInfo>();
         for (Project project : service.listProjects())
