@@ -37,7 +37,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetTypeFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -93,7 +95,12 @@ public class DataSetUploadClientModel
     {
         this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
-        dataSetTypes = openBISService.listDataSetTypes();
+
+        DataSetTypeFilter filter =
+                new DataSetTypeFilter(
+                        System.getProperty(ResourceNames.CREATABLE_DATA_SET_TYPES_WHITELIST),
+                        System.getProperty(ResourceNames.CREATABLE_DATA_SET_TYPES_BLACKLIST));
+        dataSetTypes = filter.filterDataSetTypes(openBISService.listDataSetTypes());
         vocabularies = openBISService.listVocabularies();
         projects = openBISService.listProjects();
 
@@ -539,8 +546,7 @@ public class DataSetUploadClientModel
     }
 
     private NewVocabularyTerm createNewVocabularyTerm(String code, String label,
-            String description,
-            Long previousTermOrdinal)
+            String description, Long previousTermOrdinal)
     {
         NewVocabularyTerm term = new NewVocabularyTerm();
         term.setCode(code);
