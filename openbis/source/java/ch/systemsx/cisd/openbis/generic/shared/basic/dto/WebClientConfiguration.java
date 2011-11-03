@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,6 +57,10 @@ public class WebClientConfiguration implements ISerializable
     private boolean enableTrash;
 
     private boolean allowAddingUnofficielTerms;
+
+    private List<String> creatableDataSetTypePatternsWhitelist;
+
+    private List<String> creatableDataSetTypePatternsBlacklist;
 
     public String getPropertyOrNull(String technology, String key)
     {
@@ -146,6 +151,26 @@ public class WebClientConfiguration implements ISerializable
     public void setEnableTrash(boolean enableTrash)
     {
         this.enableTrash = enableTrash;
+    }
+
+    public List<String> getCreatableDataSetTypePatternsWhitelist()
+    {
+        return creatableDataSetTypePatternsWhitelist;
+    }
+
+    public void setCreatableDataSetTypePatternsWhitelist(List<String> aSet)
+    {
+        creatableDataSetTypePatternsWhitelist = aSet;
+    }
+
+    public List<String> getCreatableDataSetTypePatternsBlacklist()
+    {
+        return creatableDataSetTypePatternsBlacklist;
+    }
+
+    public void setCreatableDataSetTypePatternsBlacklist(List<String> aSet)
+    {
+        creatableDataSetTypePatternsBlacklist = aSet;
     }
 
     public WebClientConfiguration()

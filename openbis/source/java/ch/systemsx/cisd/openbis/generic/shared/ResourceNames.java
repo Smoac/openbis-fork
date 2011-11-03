@@ -64,4 +64,7 @@ public final class ResourceNames
 
     public final static String TRACKING_SERVER = "tracking-server";
 
+    public final static String WEB_CLIENT_CONFIGURATION_PROVIDER =
+            "web-client-configuration-provider";
+
 }

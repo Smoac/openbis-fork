@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +79,18 @@ public class WebClientConfigurationProvider
 
     private static final boolean DEFAULT_ENABLE_TRASH = false;
 
+    // The whitelist for the data set types that a GUI user should be able to create. Mutually
+    // exclusive with the blacklist; only one of the two should be specified. If both are specified,
+    // the whitelist is used.
+    private static final String CREATABLE_DATA_SET_TYPES_WHITELIST =
+            "creatable-data-set-types-whitelist";
+
+    // The blacklist for the data set types that a GUI user should not be able to create. Mutually
+    // exclusive with the whitelist; only one of the two should be specified. If both are specified,
+    // the whitelist is used.
+    private static final String CREATABLE_DATA_SET_TYPES_BLACKLIST =
+            "creatable-data-set-types-blacklist";
+
     static final String TECHNOLOGIES = "technologies";
 
     private WebClientConfiguration webClientConfiguration = new WebClientConfiguration();
@@ -134,6 +147,12 @@ public class WebClientConfigurationProvider
             }
             webClientConfiguration.addPropertiesForTechnology(sectionProperties.getKey(), map);
         }
+        webClientConfiguration
+                .setCreatableDataSetTypePatternsWhitelist(extractCreatableDataSetTypes(properties,
+                        CREATABLE_DATA_SET_TYPES_WHITELIST));
+        webClientConfiguration
+                .setCreatableDataSetTypePatternsWhitelist(extractCreatableDataSetTypes(properties,
+                        CREATABLE_DATA_SET_TYPES_BLACKLIST));
     }
 
     private Map<String, DetailViewConfiguration> extractHiddenSections(Properties properties)
@@ -230,6 +249,19 @@ public class WebClientConfigurationProvider
     private boolean extractEnableTrash(Properties properties)
     {
         return PropertyUtils.getBoolean(properties, ENABLE_TRASH, DEFAULT_ENABLE_TRASH);
+    }
+
+    /**
+     * Pass in the appropriate key to extract the whitelist and blacklist.
+     */
+    private List<String> extractCreatableDataSetTypes(Properties properties, String key)
+    {
+        List<String> list = PropertyUtils.tryGetList(properties, key);
+        if (list == null)
+        {
+            list = new ArrayList<String>();
+        }
+        return list;
     }
 
     public WebClientConfiguration getWebClientConfiguration()
