@@ -36,13 +36,20 @@ public class DataSetTypeFilter
      */
     public static String convertPatternListToString(List<String> dataSetTypePatterns)
     {
+        if (null == dataSetTypePatterns)
+        {
+            return "";
+        }
         StringBuilder patternSb = new StringBuilder();
         for (String pattern : dataSetTypePatterns)
         {
             patternSb.append(pattern);
             patternSb.append(",");
         }
-        patternSb.deleteCharAt(patternSb.length() - 1);
+        if (patternSb.length() > 0)
+        {
+            patternSb.deleteCharAt(patternSb.length() - 1);
+        }
 
         return patternSb.toString();
     }

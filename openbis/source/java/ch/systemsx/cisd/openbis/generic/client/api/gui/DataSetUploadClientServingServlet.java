@@ -69,8 +69,8 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
                             + "    <jar href='dom4j-1.6.1.jar'/>\n"
                             + "    <jar href='geronimo-stax-api_1.0_spec-1.0.jar'/>\n"
                             + "    <jar href='xmlbeans-2.3.0.jar'/>\n"
-                            + "    <property name='creatable-data-set-types-whitelist' value='${creatable-data-set-types-whitelist}'"
-                            + "    <property name='creatable-data-set-types-blacklist' value='${creatable-data-set-types-blacklist}'"
+                            + "    <property name='creatable-data-set-types-whitelist' value='${creatable-data-set-types-whitelist}' />"
+                            + "    <property name='creatable-data-set-types-blacklist' value='${creatable-data-set-types-blacklist}' />"
                             + "  </resources>\n"
                             + "  <application-desc main-class='${main-class}'>\n"
                             + "    <argument>${service-URL}</argument>\n"
@@ -138,9 +138,9 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
         String sessionToken = super.bindTemplateParameters(request, template);
 
         // Bind the specific parameters
-        template.bind("creatable-data-set-types-whitelist",
+        template.bind(ResourceNames.CREATABLE_DATA_SET_TYPES_WHITELIST,
                 getCreatableDataSetTypesWhitelistString());
-        template.bind("creatable-data-set-types-blacklist",
+        template.bind(ResourceNames.CREATABLE_DATA_SET_TYPES_BLACKLIST,
                 getCreatableDataSetTypesBlacklistString());
         return sessionToken;
     }
@@ -148,13 +148,13 @@ public class DataSetUploadClientServingServlet extends AbstractWebStartClientSer
     private String getCreatableDataSetTypesWhitelistString()
     {
         return getCreatableDataSetTypesString(webClientConfigurationProvider
-                .getWebClientConfiguration().getCreatableDataSetTypePatternsWhitelist());
+                .getWebClientConfiguration().tryCreatableDataSetTypePatternsWhitelist());
     }
 
     private String getCreatableDataSetTypesBlacklistString()
     {
         return getCreatableDataSetTypesString(webClientConfigurationProvider
-                .getWebClientConfiguration().getCreatableDataSetTypePatternsBlacklist());
+                .getWebClientConfiguration().tryCreatableDataSetTypePatternsBlacklist());
     }
 
     private String getCreatableDataSetTypesString(List<String> creatableTypes)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -42,6 +43,32 @@ public class DataSetTypeFilterTest extends AssertJUnit
     public void setUp()
     {
         initializeDataSetTypes();
+    }
+
+    @Test
+    public void testFilterStringSerialization()
+    {
+        List<String> filterStrings;
+        String filterListString;
+
+        filterListString = DataSetTypeFilter.convertPatternListToString(null);
+        assertEquals("", filterListString);
+
+        filterStrings = Arrays.asList();
+        filterListString = DataSetTypeFilter.convertPatternListToString(filterStrings);
+        assertEquals("", filterListString);
+
+        filterStrings = Arrays.asList("");
+        filterListString = DataSetTypeFilter.convertPatternListToString(filterStrings);
+        assertEquals("", filterListString);
+
+        filterStrings = Arrays.asList("foo");
+        filterListString = DataSetTypeFilter.convertPatternListToString(filterStrings);
+        assertEquals("foo", filterListString);
+
+        filterStrings = Arrays.asList("foo*", "*bar");
+        filterListString = DataSetTypeFilter.convertPatternListToString(filterStrings);
+        assertEquals("foo*,*bar", filterListString);
     }
 
     @Test

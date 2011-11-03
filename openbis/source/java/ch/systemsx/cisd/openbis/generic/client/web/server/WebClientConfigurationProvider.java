@@ -151,7 +151,7 @@ public class WebClientConfigurationProvider
                 .setCreatableDataSetTypePatternsWhitelist(extractCreatableDataSetTypes(properties,
                         CREATABLE_DATA_SET_TYPES_WHITELIST));
         webClientConfiguration
-                .setCreatableDataSetTypePatternsWhitelist(extractCreatableDataSetTypes(properties,
+                .setCreatableDataSetTypePatternsBlacklist(extractCreatableDataSetTypes(properties,
                         CREATABLE_DATA_SET_TYPES_BLACKLIST));
     }
 

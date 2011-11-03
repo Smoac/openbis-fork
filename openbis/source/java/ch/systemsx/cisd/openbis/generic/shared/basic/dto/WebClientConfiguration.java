@@ -153,24 +153,24 @@ public class WebClientConfiguration implements ISerializable
         this.enableTrash = enableTrash;
     }
 
-    public List<String> getCreatableDataSetTypePatternsWhitelist()
+    public List<String> tryCreatableDataSetTypePatternsWhitelist()
     {
         return creatableDataSetTypePatternsWhitelist;
     }
 
-    public void setCreatableDataSetTypePatternsWhitelist(List<String> aSet)
+    public void setCreatableDataSetTypePatternsWhitelist(List<String> aList)
     {
-        creatableDataSetTypePatternsWhitelist = aSet;
+        creatableDataSetTypePatternsWhitelist = aList;
     }
 
-    public List<String> getCreatableDataSetTypePatternsBlacklist()
+    public List<String> tryCreatableDataSetTypePatternsBlacklist()
     {
         return creatableDataSetTypePatternsBlacklist;
     }
 
-    public void setCreatableDataSetTypePatternsBlacklist(List<String> aSet)
+    public void setCreatableDataSetTypePatternsBlacklist(List<String> aList)
     {
-        creatableDataSetTypePatternsBlacklist = aSet;
+        creatableDataSetTypePatternsBlacklist = aList;
     }
 
     public WebClientConfiguration()
