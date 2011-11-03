@@ -24,7 +24,7 @@
   <property name="webapp.dist" value="${dist}/webapp" />
   <property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
 
-  <property name="jar.file.name" value="${ant.project.name}.jar" />
+  <property name="jar.file.name" value="openbis.jar" />
   <property name="jar.file" value="${dist}/${jar.file.name}" />
   <property name="admin.console" value="openbis-admin-console" />
   <property name="admin.jar.file" value="${dist}/${admin.console}.jar" />

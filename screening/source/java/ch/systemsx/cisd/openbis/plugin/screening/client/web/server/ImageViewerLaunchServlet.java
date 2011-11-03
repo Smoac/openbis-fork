@@ -62,7 +62,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             + "  </security>\n"
             + "  <resources>\n"
             + "    <j2se version='1.5+'/>\n"
-            + "    <jar href='screening.jar'/>\n"
+            + "    <jar href='openbis.jar'/>\n"
             + "    <jar href='cisd-base.jar'/>\n"
             + "    <jar href='image-viewer.jar'/>\n"
             + "    <jar href='spring-web.jar'/>\n"
