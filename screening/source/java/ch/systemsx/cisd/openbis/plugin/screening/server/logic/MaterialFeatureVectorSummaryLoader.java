@@ -75,7 +75,7 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
                 materialsInExperiment);
     }
 
-    private static List<MaterialReplicaFeatureSummary> convertToFeatureRows(
+    static List<MaterialReplicaFeatureSummary> convertToFeatureRows(
             MaterialAllReplicasFeatureVectors backendResult)
     {
         List<MaterialReplicaFeatureSummary> replicaRows =
@@ -158,9 +158,20 @@ public class MaterialFeatureVectorSummaryLoader extends AbstractContentLoader
         for (int pos = 0; pos < result.length; pos++)
         {
             float[] featureVector = replicas.get(pos).getFeatueVector();
-            result[pos] = featureVector[i];
+            result[pos] = getValueOrNaN(i, featureVector);
         }
         return result;
+    }
+
+    private static float getValueOrNaN(int idx, float[] values)
+    {
+        if (values != null && idx < values.length)
+        {
+            return values[idx];
+        } else
+        {
+            return Float.NaN;
+        }
     }
 
     // ----------------------

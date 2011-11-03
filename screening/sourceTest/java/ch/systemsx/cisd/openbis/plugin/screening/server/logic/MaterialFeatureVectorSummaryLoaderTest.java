@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.common.test.AssertionUtil.assertArraysEqual;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -37,8 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialAllReplicasFeatureVectors;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialBiologicalReplicateFeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialIdFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.MaterialTechnicalReplicateFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellExtendedData;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
 
@@ -106,7 +110,35 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
             }
             groupId++;
         }
+    }
 
+    @Test
+    public void testConvertDifferentFeatureVectorSize()
+    {
+        List<CodeAndLabel> featureDescriptions =
+                Arrays.asList(new CodeAndLabel("f1", "f1"), new CodeAndLabel("f2", "f2"),
+                        new CodeAndLabel("f3", "f3"));
+
+        List<MaterialTechnicalReplicateFeatureVector> technicalReplicas =
+                Arrays.asList(replica(1, 0.5f), replica(2, 0.1f, 0.2f), replica(3, 1, 2, 3));
+
+        MaterialBiologicalReplicateFeatureVector medianSummary =
+                new MaterialBiologicalReplicateFeatureVector(technicalReplicas, new float[]
+                    { 2, 4, 6 }, MaterialReplicaSummaryAggregationType.MEDIAN, "dummyGroup");
+
+        MaterialIdFeatureVectorSummary materialSummary =
+                new MaterialIdFeatureVectorSummary(1L, new float[]
+                    { 0.5f, 0.95f, 0 }, null, new int[]
+                    { 1, 2, 3 }, 1);
+
+        MaterialAllReplicasFeatureVectors backendResult =
+                new MaterialAllReplicasFeatureVectors(featureDescriptions, materialSummary,
+                        Collections.singletonList(medianSummary),
+                        technicalReplicas);
+
+        List<MaterialReplicaFeatureSummary> summaries =
+                MaterialFeatureVectorSummaryLoader.convertToFeatureRows(backendResult);
+        assertEquals(3, summaries.size());
     }
 
     private static WellExtendedData createSIRNAWellData(long replicaId, long siRNAId,
@@ -137,5 +169,10 @@ public class MaterialFeatureVectorSummaryLoaderTest extends AssertJUnit
         well.setProperties(properties);
 
         return new WellExtendedData(new WellData(replicaId, featureValues, null), well);
+    }
+
+    private MaterialTechnicalReplicateFeatureVector replica(int seqNumber, float... features)
+    {
+        return new MaterialTechnicalReplicateFeatureVector(seqNumber, features);
     }
 }
