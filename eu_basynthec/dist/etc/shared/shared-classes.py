@@ -144,7 +144,7 @@ class ValidationHelper:
       if match is None:
         self.errors.append(createFileValidationError("The Start Data Col must be a letter between A and Z (not " + value + ")."))
   
-strainIdRegex = re.compile("^JJS-MGP[0-9]{1,3}|^JJS-DIN[0-9]{1,3}|^MS|WT 168 TRP\+")
+strainIdRegex = re.compile("^JJS-MGP[0-9]{1,3}|^JJS-DIN[0-9]{1,3}|^MS|CHASSIS\s*[1-3]|WT 168 TRP\+")
 def isStrainIdValid(strainId):
   """Return true if the strain id passes validation (has the form sepecified in the regex)"""
   match = strainIdRegex.match(strainId)
@@ -154,7 +154,7 @@ def isStrainIdValid(strainId):
   
 def strainValidationErrorMessageFragment(strain):
     """Return a sentence fragment describing the strain validation error."""
-    return "must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, or WT 168 TRP+ (instead of " + strain + ")."
+    return "must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, CHASSIS [1-3], or WT 168 TRP+ (instead of " + strain + ")."
   
 def getInitialDataRowAndCol(metadata):
   """Extract the initial row and column as specified in the metadata. Returns an array with [row, col]."""

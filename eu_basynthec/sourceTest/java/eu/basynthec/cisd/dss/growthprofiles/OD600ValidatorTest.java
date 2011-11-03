@@ -52,10 +52,10 @@ public class OD600ValidatorTest extends AssertJUnit
                 scriptRunner.validate(new File("sourceTest/examples/OD600-BadData.xlsx"));
         assertEquals("The bad data should have two errors", 2, errors.size());
         assertEquals(
-                "Line 2, column 1 must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, or WT 168 TRP+ (instead of OD600).",
+                "Line 2, column 1 must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, CHASSIS [1-3], or WT 168 TRP+ (instead of OD600).",
                 errors.get(0).getErrorMessage());
         assertEquals(
-                "Line 3, column 1 must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, or WT 168 TRP+ (instead of JJS-MGP1000).",
+                "Line 3, column 1 must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, CHASSIS [1-3], or WT 168 TRP+ (instead of JJS-MGP1000).",
                 errors.get(1).getErrorMessage());
     }
 

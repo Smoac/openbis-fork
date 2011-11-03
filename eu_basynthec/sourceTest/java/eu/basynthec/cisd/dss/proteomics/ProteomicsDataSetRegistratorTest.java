@@ -68,7 +68,7 @@ public class ProteomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRe
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("JJS-MGP9", strainProperty.getValue());
+        assertEquals("CHASSIS 1", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 

@@ -39,7 +39,7 @@ public class TimeSeriesDataExcelTest extends AssertJUnit
             {
                 { "Property", "Value" },
                 { "Experiment", "/TEST/TEST/TEST" },
-                { "Strain", "JJS-MGP9" },
+                { "Strain", "CHASSIS 1" },
                 { "Timepoint Type", "EX" },
                 { "Cell Location", "CE" },
                 { "Value Type", "Std" },
