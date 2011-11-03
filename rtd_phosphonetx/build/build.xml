@@ -5,7 +5,7 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_phosphonetx" />
-	<property name="variant" value="-phosphonetx" />
+	<property name="variant" value="-proteomics" />
 	<property name="api.prefix" value="raw-data-api" />
 	<property name="api.jar" value="${dist}/${api.prefix}.jar" />
 	<property name="api.doc" value="${dist}/${api.prefix}/doc" />
@@ -146,18 +146,18 @@
 	        description="Prepare, compile, and run the module test mode">
 	</target>
 
-	<target name="compile-and-run-openbis-phosphonetx-from-eclipse"
-	        description="Compile and run the phosphonetx openbis from Eclipse">
+	<target name="compile-and-run-openbis-proteomics-from-eclipse"
+	        description="Compile and run the proteomics openbis from Eclipse">
 		<antcall target="compile-module-test">
-			<param name="module-test.path" value="openbis-test-phosphonetx" />
+			<param name="module-test.path" value="openbis-test-proteomics" />
 			<param name="module-test.module"
 			       value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
 		</antcall>
-		<antcall target="run-openbis-phosphonetx-from-eclipse" />
+		<antcall target="run-openbis-proteomics-from-eclipse" />
 	</target>
 
-	<target name="run-openbis-phosphonetx-from-eclipse"
-	        description="run the phosphonetx openbis from Eclipse">
+	<target name="run-openbis-proteomics-from-eclipse"
+	        description="run the proteomics openbis from Eclipse">
 		<antcall target="run-module-test">
 			<param name="module-test.path" value="openbis-test-phosphonetx" />
 			<param name="module-test.module"
