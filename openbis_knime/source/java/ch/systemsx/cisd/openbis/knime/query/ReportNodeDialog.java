@@ -23,9 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,8 +33,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.text.JTextComponent;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -45,6 +46,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -61,7 +63,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
  */
 public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportDescription>
 {
-    private JTextComponent dataSetCodeField;
+    private static final String DELIMITER = ", ";
+    private JTextComponent dataSetCodeFields;
 
     ReportNodeDialog()
     {
@@ -74,8 +77,8 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         JPanel panel = new JPanel(new GridLayout(0, 2));
         addField(panel, "Reports", reportComboBox);
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
-        dataSetCodeField = new JTextField();
-        textFieldWithButton.add(dataSetCodeField, BorderLayout.CENTER);
+        dataSetCodeFields = new JTextField();
+        textFieldWithButton.add(dataSetCodeFields, BorderLayout.CENTER);
         JButton button = new JButton("...");
         button.addActionListener(new ActionListener()
             {
@@ -85,7 +88,7 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
                 }
             });
         textFieldWithButton.add(button, BorderLayout.EAST);
-        addField(panel, "Data Set Code", textFieldWithButton);
+        addField(panel, "Data Set Codes", textFieldWithButton);
         JPanel northPanel = new JPanel(new BorderLayout());
         northPanel.add(panel, BorderLayout.NORTH);
         queryPanel.add(northPanel, BorderLayout.CENTER);
@@ -115,19 +118,35 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
     protected void loadMoreSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
     {
-        String dataSetCode = settings.getString(ReportNodeModel.DATA_SET_CODE_KEY, "");
-        dataSetCodeField.setText(dataSetCode);
+        String[] dataSetCodes;
+        try
+        {
+            dataSetCodes = settings.getStringArray(ReportNodeModel.DATA_SET_CODES_KEY);
+        } catch (InvalidSettingsException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String dataSetCode : dataSetCodes)
+        {
+            if (builder.length() > 0)
+            {
+                builder.append(DELIMITER);
+            }
+            builder.append(dataSetCode);
+        }
+        dataSetCodeFields.setText(builder.toString());
     }
 
     @Override
     protected void saveMoreSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException
     {
-        String dataSetCode = dataSetCodeField.getText();
-        if (dataSetCode == null || dataSetCode.trim().length() == 0)
+        String dataSetCodes = dataSetCodeFields.getText();
+        if (dataSetCodes == null || dataSetCodes.trim().length() == 0)
         {
             throw new InvalidSettingsException("Data set code hasn't been specified.");
         }
-        settings.addString(ReportNodeModel.DATA_SET_CODE_KEY, dataSetCode);
+        settings.addStringArray(ReportNodeModel.DATA_SET_CODES_KEY, dataSetCodes.split(" *, *"));
     }
 
     private void chooseDataSet(IQueryApiFacade facade)
@@ -140,16 +159,71 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         List<DataSet> dataSets = loadDataSets(description, facade);
         JTable table = new JTable(createTableModel(dataSets));
         table.setPreferredScrollableViewportSize(new Dimension(600, 400));
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
+        table.setRowSorter(sorter);
         JScrollPane scrollPane = new JScrollPane(table);
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel("Choose a data set:"), BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
+        JPanel filterPanel = new JPanel(new BorderLayout());
+        filterPanel.add(new JLabel("Filter:"), BorderLayout.WEST);
+        JTextField filterField = createFilterField(sorter);
+        filterPanel.add(filterField, BorderLayout.CENTER);
+        panel.add(filterPanel, BorderLayout.SOUTH);
         JOptionPane.showMessageDialog(getPanel(), panel);
-        int row = table.getSelectedRow();
-        if (row >= 0)
+        int[] selectedRows = table.getSelectedRows();
+        if (selectedRows.length > 0)
         {
-            dataSetCodeField.setText(dataSets.get(row).getCode());
+            StringBuilder builder = new StringBuilder();
+            for (int rowIndex : selectedRows)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(DELIMITER);
+                }
+                builder.append(dataSets.get(sorter.convertRowIndexToModel(rowIndex)).getCode());
+            }
+            dataSetCodeFields.setText(builder.toString());
         }
+    }
+
+    private JTextField createFilterField(final TableRowSorter<TableModel> sorter)
+    {
+        final JTextField filterField = new JTextField();
+        filterField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+                newFilter();
+            }
+            public void insertUpdate(DocumentEvent e) {
+                newFilter();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                newFilter();
+            }
+
+                private void newFilter()
+                {
+                    final String text = filterField.getText().toLowerCase();
+                    RowFilter<TableModel, Object> rf = new RowFilter<TableModel, Object>()
+                        {
+                            @Override
+                            public boolean include(
+                                    Entry<? extends TableModel, ? extends Object> entry)
+                            {
+                                for (int i = 0, n = entry.getValueCount(); i < n; i++)
+                                {
+                                    if (entry.getStringValue(i).toLowerCase().indexOf(text) >= 0)
+                                    {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            }
+                        };
+                    sorter.setRowFilter(rf);
+                }
+            });
+        return filterField;
     }
 
     private List<DataSet> loadDataSets(ReportDescription description, IQueryApiFacade facade)
@@ -170,87 +244,12 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
 
     private TableModel createTableModel(final List<DataSet> dataSets)
     {
-        final boolean showTypes = countDataSetTypes(dataSets) > 1;
-        TableModel tableModel = new AbstractTableModel()
-            {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public boolean isCellEditable(int row, int column)
-                {
-                    return false;
-                }
-
-                public int getRowCount()
-                {
-                    return dataSets.size();
-                }
-
-                public int getColumnCount()
-                {
-                    return showTypes ? 3 : 2;
-                }
-
-                @Override
-                public String getColumnName(int columnIndex) 
-                {
-                    if (showTypes)
-                    {
-                        switch (columnIndex)
-                        {
-                            case 0:
-                                return "Experiment";
-                            case 1:
-                                return "Code";
-                            default:
-                                return "Type";
-                        }
-                    }
-                    switch (columnIndex)
-                    {
-                        case 0:
-                            return "Experiment";
-                        default:
-                            return "Code";
-                    }
-                }
-                
-                public Object getValueAt(int rowIndex, int columnIndex)
-                {
-                    DataSet dataSet = dataSets.get(rowIndex);
-                    if (showTypes)
-                    {
-                        switch (columnIndex)
-                        {
-                            case 0:
-                                return dataSet.getExperimentIdentifier();
-                            case 1:
-                                return dataSet.getCode();
-                            default:
-                                return dataSet.getDataSetTypeCode();
-                        }
-                    }
-                    switch (columnIndex)
-                    {
-                        case 0:
-                            return dataSet.getExperimentIdentifier();
-                        default:
-                            return dataSet.getCode();
-                    }
-                }
-            };
-            
-        return tableModel;
-    }
-    
-    private int countDataSetTypes(List<DataSet> dataSets)
-    {
-        Set<String> types = new HashSet<String>();
+        TableModelBuilder builder = new TableModelBuilder();
         for (DataSet dataSet : dataSets)
         {
-            types.add(dataSet.getDataSetTypeCode());
+            builder.add(dataSet);
         }
-        return types.size();
+        return builder.getTableModel();
     }
     
 }

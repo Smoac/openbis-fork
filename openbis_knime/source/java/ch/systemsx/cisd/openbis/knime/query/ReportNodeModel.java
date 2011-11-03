@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.knime.query;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -35,10 +34,10 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
 public class ReportNodeModel extends AbstractOpenBisNodeModel
 {
     static final String REPORT_DESCRIPTION_KEY = "report-description";
-    static final String DATA_SET_CODE_KEY = "data-set-code";
+    static final String DATA_SET_CODES_KEY = "data-set-codes";
     
     private ReportDescription reportDescription;
-    private String dataSetCode;
+    private String[] dataSetCodes;
 
     @Override
     protected void loadAdditionalValidatedSettingsFrom(NodeSettingsRO settings)
@@ -46,25 +45,20 @@ public class ReportNodeModel extends AbstractOpenBisNodeModel
     {
         reportDescription =
                 Util.deserializeDescription(settings.getByteArray(REPORT_DESCRIPTION_KEY));
-        dataSetCode = settings.getString(DATA_SET_CODE_KEY);
+        dataSetCodes = settings.getStringArray(DATA_SET_CODES_KEY);
     }
 
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
         settings.addByteArray(REPORT_DESCRIPTION_KEY, Util.serializeDescription(reportDescription));
-        settings.addString(DATA_SET_CODE_KEY, dataSetCode);
+        settings.addStringArray(DATA_SET_CODES_KEY, dataSetCodes);
     }
 
     @Override
     protected QueryTableModel getData(IQueryApiFacade facade)
     {
-        List<String> dataSetCodes = Collections.emptyList();
-        if (dataSetCode != null && dataSetCode.length() > 0)
-        {
-            dataSetCodes = Collections.singletonList(dataSetCode);
-        }
-        return facade.createReportFromDataSets(reportDescription, dataSetCodes);
+        return facade.createReportFromDataSets(reportDescription, Arrays.asList(dataSetCodes));
     }
 
 }
