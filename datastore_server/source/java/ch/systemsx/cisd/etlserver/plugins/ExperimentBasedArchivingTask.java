@@ -194,9 +194,9 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     public void execute()
     {
         long freeSpace = getFreeSpace();
-        if (operationLog.isDebugEnabled())
+        if (operationLog.isInfoEnabled())
         {
-            operationLog.debug(String.format(
+            operationLog.info(String.format(
                     "Free space: %d MB, minimal free space required: %d MB", freeSpace,
                     minimumFreeSpace));
         }
