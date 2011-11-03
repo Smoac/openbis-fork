@@ -294,6 +294,42 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     }
     
     @Test
+    public void testAvoidInfiniteParentChildChains()
+    {
+        FtpServerConfig config =
+                new FtpServerConfigBuilder().withTemplate(BIG_TEMPLATE).showParentsAndChildren()
+                        .getConfig();
+        resolver = new TemplateBasedDataSetResourceResolver(config);
+        resolver.setContentProvider(simpleFileContentProvider);
+
+        ds1.setParents(Arrays.<ExternalData> asList(ds2));
+        ds2.setChildren(Arrays.<ExternalData> asList(ds1));
+        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+
+        prepareExperimentListExpectations(dataSets);
+        prepareGetDataSetMetaData(ds1);
+        prepareListDataSetsByCode(ds2);
+        prepareGetDataSetMetaData(ds2);
+        prepareListDataSetsByCode(ds1);
+
+        String dataSetPathElement = "DS-DS_TYPE1-ds1-" + RENDERED_REGISTRATION_DATE + "-A";
+        String ds2AsParent = "PARENT-DS-DS_TYPE2-ds2-" + RENDERED_REGISTRATION_DATE + "-A";
+
+        String path =
+                EXP_ID + FtpConstants.FILE_SEPARATOR + dataSetPathElement
+                        + FtpConstants.FILE_SEPARATOR + ds2AsParent;
+        FtpFile ftpFile = resolver.resolve(path, resolverContext);
+
+        assertEquals(ds2AsParent, ftpFile.getName());
+        assertEquals(path, ftpFile.getAbsolutePath());
+        assertEquals(true, ftpFile.isDirectory());
+        List<FtpFile> files = ftpFile.listFiles();
+        assertEquals("original2", files.get(0).getName());
+        assertEquals(true, files.get(0).isDirectory());
+        assertEquals(1, files.size());
+    }
+
+    @Test
     public void testResolveNestedFilesWithSimpleTemplate() throws IOException
     {
         FtpServerConfig config =
