@@ -22,8 +22,8 @@
 		<jar destfile="${plugin-jar.file}">
 			<fileset dir="${classes}">
 				<include name="ch/systemsx/cisd/openbis/dss/**/*.class" />
-				<include name="ch/systemsx/cisd/openbis/etlserver/phosphonetx/**/*.class" />
-				<include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/**/*.class" />
+				<include name="ch/systemsx/cisd/openbis/etlserver/proteomics/**/*.class" />
+				<include name="ch/systemsx/cisd/openbis/plugin/proteomics/shared/**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
 			<manifest>
@@ -53,10 +53,10 @@
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
-        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/**/api/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/proteomics/**/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/openbis/**/server/api/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
-        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/*BuildAndEnvironmentInfo.class" />
+        <include name="ch/systemsx/cisd/openbis/plugin/proteomics/*BuildAndEnvironmentInfo.class" />
         <include name="*.INFO" />
       </zipfileset>
     </jar>  	
@@ -65,8 +65,8 @@
   <target name="make-api-doc">
     <javadoc destdir="${api.doc}" access="public" author="false" version="false" classpath="${ecp}">
       <packageset dir="${sources}">
-        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/**" />
-        <include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/**" />
+        <include name="ch/systemsx/cisd/openbis/plugin/proteomics/client/api/v1/**" />
+        <include name="ch/systemsx/cisd/openbis/plugin/proteomics/shared/api/v1/**" />
       </packageset>
       <packageset dir="../openbis/${sources}">
         <include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
@@ -77,8 +77,8 @@
     </zip>
     <delete dir="${dist}/${api.prefix}" />
     <zip destfile="${api.src.zip}">
-      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/api/v1/**" />
-      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/phosphonetx/client/api/v1/**" />
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/proteomics/shared/api/v1/**" />
+      <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/proteomics/client/api/v1/**" />
       <zipfileset dir="../openbis/${sources}" includes="ch/systemsx/cisd/openbis/generic/shared/api/v1/**" />
     </zip>
   </target>
@@ -111,7 +111,7 @@
 	        depends="prepare-web-client"
 	        description="Compiles the javascript using GWT compiler.">
 		<antcall target="compile-gwt-module">
-			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+			<param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.proteomics.OpenBIS" />
 		</antcall>
 	</target>
 
@@ -120,7 +120,7 @@
         -->
 	<target name="war" depends="openbis.war, make-api-dist" description="Creates project war file.">
 		<war warfile="${webapp.file}" update="true">
-			<classes prefix="WEB-INF/classes/phosphonetx" dir="source">
+			<classes prefix="WEB-INF/classes/proteomics" dir="source">
 				<include name="**/*.sql" />
 			</classes>
 			<classes dir="../openbis/${sources}">
@@ -151,7 +151,7 @@
 		<antcall target="compile-module-test">
 			<param name="module-test.path" value="openbis-test-proteomics" />
 			<param name="module-test.module"
-			       value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+			       value="ch.systemsx.cisd.openbis.plugin.proteomics.OpenBIS" />
 		</antcall>
 		<antcall target="run-openbis-proteomics-from-eclipse" />
 	</target>
@@ -159,9 +159,9 @@
 	<target name="run-openbis-proteomics-from-eclipse"
 	        description="run the proteomics openbis from Eclipse">
 		<antcall target="run-module-test">
-			<param name="module-test.path" value="openbis-test-phosphonetx" />
+			<param name="module-test.path" value="openbis-test-proteomics" />
 			<param name="module-test.module"
-			       value="ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS" />
+			       value="ch.systemsx.cisd.openbis.plugin.proteomics.OpenBIS" />
 		</antcall>
 	</target>
 
@@ -169,7 +169,7 @@
 	        description="Parse *-dictionary.js and check that the syntax is correct.">
 		<antcall target="check-javascript-syntax">
 			<param name="javascript-file"
-			       value="../rtd_phosphonetx/${sources}/ch/systemsx/cisd/openbis/plugin/phosphonetx/client/web/public/phosphonetx-dictionary.js" />
+			       value="../rtd_phosphonetx/${sources}/ch/systemsx/cisd/openbis/plugin/proteomics/client/web/public/proteomics-dictionary.js" />
 		</antcall>
 	</target>
 	
@@ -185,7 +185,7 @@
       </fileset>
       <fileset dir="${sources}">
         <include name="ch/systemsx/cisd/openbis/generic/shared/basic/dto/DatastoreServiceDescription.java" />
-      	<include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/IRawDataService.java" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/proteomics/shared/IRawDataService.java" />
       </fileset>
     </javadoc>
   </target>

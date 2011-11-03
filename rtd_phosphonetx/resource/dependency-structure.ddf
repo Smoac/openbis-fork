@@ -5,13 +5,13 @@
 
 {root} = ch.systemsx.cisd.openbis
 {generic} = ${root}.generic
-{phosphonetx} = ${root}.plugin.phosphonetx
+{proteomics} = ${root}.plugin.proteomics
 
 ######################################################################
 # Check dependencies to openbis
 
-[etlserver] = ${root}.etlserver.phosphonetx.*
-[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.* ${phosphonetx}.shared.*
+[etlserver] = ${root}.etlserver.proteomics.*
+[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.* ${proteomics}.shared.*
 
 check sets [etlserver]
 
@@ -20,27 +20,27 @@ check [etlserver] independentOf [private_openbis]
 ######################################################################
 # Check plugin dependencies
 #
-[phosphonetx.client] = ${phosphonetx}.client.*
-[phosphonetx.server] = ${phosphonetx}.server.*
-[phosphonetx.shared] = ${phosphonetx}.shared.*
-[other.client] = ${generic}.client.* ${root}.plugin.*.client excluding  [phosphonetx.client]
-[other.server] = ${generic}.server.* ${root}.plugin.*.server excluding  [phosphonetx.server]
+[proteomics.client] = ${proteomics}.client.*
+[proteomics.server] = ${proteomics}.server.*
+[proteomics.shared] = ${proteomics}.shared.*
+[other.client] = ${generic}.client.* ${root}.plugin.*.client excluding  [proteomics.client]
+[other.server] = ${generic}.server.* ${root}.plugin.*.server excluding  [proteomics.server]
 
-check sets [phosphonetx.client] [phosphonetx.server] [phosphonetx.shared]
+check sets [proteomics.client] [proteomics.server] [proteomics.shared]
 
-layer phosphonetx.client-server = [phosphonetx.client] [phosphonetx.server]
-layer phosphonetx.shared = [phosphonetx.shared] 
-check layeringOf phosphonetx.shared phosphonetx.client-server
+layer proteomics.client-server = [proteomics.client] [proteomics.server]
+layer proteomics.shared = [proteomics.shared] 
+check layeringOf proteomics.shared proteomics.client-server
 
-check [phosphonetx.client] independentOf [other.server]
-check [phosphonetx.server] independentOf [other.client]
+check [proteomics.client] independentOf [other.server]
+check [proteomics.server] independentOf [other.client]
 
 ######################################################################
 # Check API
 #
 
-[api-shared] = ${root}.generic.shared.api.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${phosphonetx}.shared.api.* 
-[api-client] = ${phosphonetx}.client.api.*
+[api-shared] = ${root}.generic.shared.api.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${proteomics}.shared.api.* 
+[api-client] = ${proteomics}.client.api.*
 [everything-except-java] = * excluding java* *.annotation.* ch.systemsx.cisd.common.api.IRpcService
 [everything-except-java-and-api-shared] = [everything-except-java] excluding [api-shared] ch.systemsx.cisd.common.api.client.*
 
