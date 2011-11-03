@@ -33,14 +33,14 @@ public class BackupDatabaseDescriptionGenerator
 {
     public static final String AS_DB_KEY_PREFIX = "database.";
 
-    public static final String PROTEOMICS_DB_KEY_PREFIX = "phosphonetx.database.";
+    public static final String PROTEOMICS_DB_KEY_PREFIX = "proteomics.database.";
 
     public static final String HCS_IMAGING_DB_VERSION_HOLDER =
             "ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseVersionHolder";
 
     private static final String AS_BASIC_DB_NAME = "openbis";
 
-    private static final String PROTEOMICS_BASIC_DB_NAME = "phosphonetx";
+    private static final String PROTEOMICS_BASIC_DB_NAME = "proteomics";
 
     private StringBuilder result = new StringBuilder();
 

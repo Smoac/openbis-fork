@@ -11,22 +11,22 @@
     
     <bean id="phosphonetx-db-configuration-context"
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
-        <property name="basicDatabaseName" value="${phosphonetx.database.basic-name}" />
-        <property name="createFromScratch" value="${phosphonetx.database.create-from-scratch}" />
-        <property name="scriptSingleStepMode" value="${phosphonetx.database.script-single-step-mode}" />
+        <property name="basicDatabaseName" value="${proteomics.database.basic-name}" />
+        <property name="createFromScratch" value="${proteomics.database.create-from-scratch}" />
+        <property name="scriptSingleStepMode" value="${proteomics.database.script-single-step-mode}" />
         <property name="sequenceNameMapper">
             <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />
         </property>
-        <property name="urlHostPart" value="${phosphonetx.database.url-host-part}" />
-        <property name="adminUser" value="${phosphonetx.database.admin-user}" />
-        <property name="owner" value="${phosphonetx.database.owner}" />
+        <property name="urlHostPart" value="${proteomics.database.url-host-part}" />
+        <property name="adminUser" value="${proteomics.database.admin-user}" />
+        <property name="owner" value="${proteomics.database.owner}" />
         <property name="readOnlyGroup" value="phosphonetx_readonly" />
-        <property name="password" value="${phosphonetx.database.owner-password}" />
-        <property name="adminPassword" value="${phosphonetx.database.admin-password}" />
-        <property name="databaseKind" value="${phosphonetx.database.kind}" />
-        <property name="databaseEngineCode" value="${phosphonetx.database.engine}" />
-        <property name="scriptFolder" value="${phosphonetx.script-folder}/sql" />
-        <property name="databaseInstance" value="${phosphonetx.database-instance}" />
+        <property name="password" value="${proteomics.database.owner-password}" />
+        <property name="adminPassword" value="${proteomics.database.admin-password}" />
+        <property name="databaseKind" value="${proteomics.database.kind}" />
+        <property name="databaseEngineCode" value="${proteomics.database.engine}" />
+        <property name="scriptFolder" value="${proteomics.script-folder}/sql" />
+        <property name="databaseInstance" value="${proteomics.database-instance}" />
     </bean>
     
     <bean id="phosphonetx-dao-factory"
