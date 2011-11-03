@@ -878,9 +878,9 @@ public class OpenBISScreeningML
      * Matlab example:
      * 
      * <pre>
-     * % Load all data sets of plate P005 in space SPACE
+     * % Load all data sets of experiment E005 in space SPACE and project PROJECT
      * properties = {'ANALYSIS_PROCEDURE' 'AX87'}
-     * dsinfo = OpenBISScreeningML.loadDataSets('/SPACE/PROJECT/EXPERIMENT', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', properties, '/mount/openbis-store')
+     * dsinfo = OpenBISScreeningML.loadDataSetsForExperiment('/SPACE/PROJECT/E005', 'HCS_ANALYSIS_CELL_FEATURES_CC_MAT', properties, '/mount/openbis-store')
      * % Get the data set codes
      * dsinfo(:,1)
      * % Get root path of first data set (assuming there is at least one)
@@ -929,6 +929,58 @@ public class OpenBISScreeningML
         }
     }
 
+    /**
+     * Lists all files of all data sets for specified experiment and data set type code matching
+     * specified regular expression pattern.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % List all data sets of experiment E005 in space SPACE and project PROJECT. The query is restricted to data sets
+     * % of a type starting with HCS_IMAGE
+     * files = OpenBISScreeningML.listDataSetFilesForExperiment('/SPACE/PROJECT/E005', 'HCS_IMAGE.*')
+     * % Codes of all found data sets
+     * files(:,1)
+     * % Code of third data set (assuming at least three data sets found)
+     * files(3,1)
+     * % Files of third data set (assuming at least three data sets found)
+     * files(3,2,:)
+     * </pre>
+     * 
+     * @param augmentedExperimentCode The augmented experiment code.
+     * @param dataSetTypeCodePattern only data sets of the type which matches the specified pattern
+     *            will be returned. To fetch all data sets specify ".*".
+     * @return <code>{data set code, file/folder paths}</code>
+     */
+    public static Object[][][] listDataSetFilesForExperiment(String augmentedExperimentCode,
+            String dataSetTypeCodePattern)
+    {
+        checkLoggedIn();
+        ExperimentIdentifier experimentIdentifier =
+                getExperimentIdentifierOrFail(augmentedExperimentCode);
+
+        List<IDataSetDss> dataSets =
+                openbis.getDataSets(experimentIdentifier, new TypeBasedDataSetFilter(
+                        dataSetTypeCodePattern));
+        Object[][][] result = new Object[dataSets.size()][][];
+        for (int i = 0; i < dataSets.size(); i++)
+        {
+            IDataSetDss dataSet = dataSets.get(i);
+            FileInfoDssDTO[] fileInfos = dataSet.listFiles("/", true);
+            String code = dataSet.getCode();
+            result[i] = new Object[4][];
+            result[i][0] = new Object[]
+                { code };
+            result[i][1] = new Object[fileInfos.length];
+            for (int j = 0; j < fileInfos.length; j++)
+            {
+                FileInfoDssDTO fileInfo = fileInfos[j];
+                result[i][1][j] = fileInfo.getPathInDataSet();
+            }
+        }
+        return result;
+    }
+
     private static Object[][] translateDataSets(String overrideStoreRootPathOrNull,
             List<DataSet> dataSets)
     {
@@ -940,9 +992,7 @@ public class OpenBISScreeningML
             File file = new File(dataSetsDir, code);
             if (file.exists() == false)
             {
-                file =
-                        dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull,
-                                dataSetsDir);
+                file = dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull, dataSetsDir);
             }
             List<String> parents = dataSet.getParentCodes();
             Object[] parentCodes = new Object[parents.size()];

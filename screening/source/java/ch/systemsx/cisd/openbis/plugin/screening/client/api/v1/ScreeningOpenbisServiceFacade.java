@@ -601,6 +601,28 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    public List<IDataSetDss> getDataSets(final ExperimentIdentifier experimentIdentifier,
+            IDataSetFilter filter)
+    {
+        List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken,
+                        Collections.singletonList(experimentIdentifier.getAugmentedCode()));
+
+        final List<DataSet> dataSets =
+                generalInformationService.listDataSetsForExperiments(sessionToken, experiments,
+                        EnumSet.of(Connections.PARENTS));
+
+        final List<IDataSetDss> result = new ArrayList<IDataSetDss>();
+        for (DataSet dataSet : dataSets)
+        {
+            if (filter.pass(dataSet))
+            {
+                result.add(dssComponent.getDataSet(dataSet.getCode()));
+            }
+        }
+        return result;
+    }
+
     public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
             ExperimentIdentifier experimentIdentifier, IDataSetFilter dataSetFilter)
             throws IllegalStateException, EnvironmentFailureException

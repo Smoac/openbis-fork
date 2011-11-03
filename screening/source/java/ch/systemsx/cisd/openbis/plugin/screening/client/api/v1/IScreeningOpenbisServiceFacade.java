@@ -283,6 +283,16 @@ public interface IScreeningOpenbisServiceFacade
             IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
     /**
+     * Gets proxies to the data sets owned by specified experiment and passing specified filter.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(ExperimentIdentifier plateIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
+
+    /**
      * A list of data sets owned by specified experiment and passing specified filter. The data set
      * objects provide metadata (e.g. code, properties etc. from the openBIS AS) as well as data
      * (e.g. files from openBIS DSS).
@@ -291,9 +301,8 @@ public interface IScreeningOpenbisServiceFacade
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet> getFullDataSets(
-            ExperimentIdentifier experimentIdentifier, IDataSetFilter dataSetFilter)
-            throws IllegalStateException, EnvironmentFailureException;
+    public List<DataSet> getFullDataSets(ExperimentIdentifier experimentIdentifier,
+            IDataSetFilter dataSetFilter) throws IllegalStateException, EnvironmentFailureException;
 
     /**
      * Returns meta data for all specified data set codes. This contains data set type, properties,
@@ -385,9 +394,8 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * For a given set of feature vector data sets provide the list of all available features. This
      * contains the code, label and description of the feature. If for different data sets different
-     * sets of features are available, provide the union of the features of all data sets.
-     * 
-     * Only available when all data store services have minor version 9 or newer.
+     * sets of features are available, provide the union of the features of all data sets. Only
+     * available when all data store services have minor version 9 or newer.
      */
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
@@ -788,6 +796,5 @@ public interface IScreeningOpenbisServiceFacade
      * specified experiment.
      */
     public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier);
-
 
 }
