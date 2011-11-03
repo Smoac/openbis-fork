@@ -83,10 +83,6 @@ public class DeleteFromExternalDBMaintenanceTask extends
         permIDColumn = properties.getProperty(DATA_SET_PERM_ID_KEY, DEFAULT_DATA_SET_PERM_ID);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         checkDatabaseConnection();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Plugin initialized: " + pluginName);
-        }
     }
 
     /**

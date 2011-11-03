@@ -62,9 +62,19 @@ public class MaintenancePlugin
         if (parameters.isExecuteOnlyOnce())
         {
             workerTimer.schedule(timerTask, startDate);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Plugin scheduled: " + parameters.getPluginName()
+                        + ", single execution at " + startDate);
+            }
         } else
         {
             workerTimer.schedule(timerTask, startDate, parameters.getIntervalSeconds() * 1000);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Plugin scheduled: " + parameters.getPluginName()
+                        + ", first execution at " + startDate);
+            }
         }
     }
 
