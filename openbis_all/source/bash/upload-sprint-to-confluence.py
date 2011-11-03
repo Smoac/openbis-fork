@@ -87,8 +87,14 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki("* Command Line Installation")
   processFile("Application Server (AS)", "openBIS-server-screening", version, 2)
   processFile("Data Store Server (DSS)", "datastore_server-screening", version, 2)
-
   processFile("API", "screening-api", version)
+  printWiki()
+  printWiki('h5. openBIS for Proteomics')
+  printWiki()
+  processFile("Installation and Upgrade Wizard (AS+DSS)", "openBIS-installation-proteomics", version)
+  printWiki("* Command Line Installation")
+  processFile("Application Server (AS)", "openBIS-server-proteomics", version, 2)
+  processFile("Data Store Server (DSS) plugin (generic DSS also needed)", "datastore_server_plugin-proteomics", version, 2)
 
 def uploadToConfluenceMetabolomicsAndPrintPageText(version):
   global wikiText
