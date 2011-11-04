@@ -34,11 +34,12 @@ import ch.systemsx.cisd.common.mail.IMailClient;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 public class ImageValidatorTest extends AbstractFileSystemTestCase
 {
 
     private Mockery context;
-
+   
     private IMailClient mailClient;
 
     private Logger operationLog;
