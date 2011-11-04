@@ -49,28 +49,31 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 
 /**
  * Maintenance task performing {@link IPostRegistrationTask}s.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PostRegistrationMaintenanceTask implements IDataStoreLockingMaintenanceTask
 {
-    @Private static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
-    
-    @Private static final String IGNORE_DATA_SETS = "ignore-data-sets-before-date";
-    
-    @Private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
-    
+    @Private
+    static final String POST_REGISTRATION_TASKS_PROPERTY = "post-registration-tasks";
+
+    @Private
+    static final String IGNORE_DATA_SETS = "ignore-data-sets-before-date";
+
+    @Private
+    static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
+
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set.txt";
-    
-    private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, PostRegistrationMaintenanceTask.class);
-    
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PostRegistrationMaintenanceTask.class);
+
     private IEncapsulatedOpenBISService service;
-    
+
     private boolean needsLockOnDataStore;
-    
+
     private Set<Entry<String, IPostRegistrationTask>> tasks;
-    
+
     private File lastSeenDataSetFile;
 
     private File newLastSeenDataSetFile;
@@ -115,12 +118,13 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         String property = properties.getProperty(IGNORE_DATA_SETS);
         if (property == null)
         {
-            ignoreBeforeDate =  new Date(0);
+            ignoreBeforeDate = new Date(0);
         } else
         {
             try
             {
-                ignoreBeforeDate = DateUtils.parseDate(property, new String[] { "yyyy-MM-dd" });
+                ignoreBeforeDate = DateUtils.parseDate(property, new String[]
+                    { "yyyy-MM-dd" });
             } catch (ParseException ex)
             {
                 throw new ConfigurationFailureException("Invalid value of property '"
@@ -150,6 +154,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
                 saveLastSeenDataSetId(dataSet.getId());
             } catch (Throwable ex)
             {
+                operationLog.error("Post registration failed.", ex);
                 logPostponingMessage(dataSets, i);
                 break;
             }
