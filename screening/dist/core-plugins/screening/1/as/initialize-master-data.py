@@ -172,9 +172,13 @@ data_set_type_HCS_IMAGE_SEGMENTATION = tr.createNewDataSetType('HCS_IMAGE_SEGMEN
 data_set_type_HCS_IMAGE_SEGMENTATION.setDescription('HCS Segmentation Images (overlays).')
 data_set_type_HCS_IMAGE_SEGMENTATION.setContainerType(False)
 
-data_set_type_HCS_IMAGE_CONTAINER = tr.createNewDataSetType('HCS_IMAGE_CONTAINER')
-data_set_type_HCS_IMAGE_CONTAINER.setDescription('Container for HCS images of different resolutions (raw, overviews, thumbnails).')
-data_set_type_HCS_IMAGE_CONTAINER.setContainerType(True)
+data_set_type_HCS_IMAGE_CONTAINER_RAW = tr.createNewDataSetType('HCS_IMAGE_CONTAINER_RAW')
+data_set_type_HCS_IMAGE_CONTAINER_RAW.setDescription('Container for HCS images of different resolutions (raw, overviews, thumbnails).')
+data_set_type_HCS_IMAGE_CONTAINER_RAW.setContainerType(True)
+
+data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION = tr.createNewDataSetType('HCS_IMAGE_CONTAINER_SEGMENTATION')
+data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setDescription('Container for HCS segmentation (a.k.a. overlays) images of different resolutions (original, overviews, thumbnails).')
+data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setContainerType(True)
 
 # Exists in the database by default
 #data_set_type_UNKNOWN = tr.createNewDataSetType('UNKNOWN')
