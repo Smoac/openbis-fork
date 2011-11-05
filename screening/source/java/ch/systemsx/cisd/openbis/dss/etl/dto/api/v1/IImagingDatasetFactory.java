@@ -68,7 +68,7 @@ public interface IImagingDatasetFactory
     /**
      * Creates feature vector dataset details by using the specified builder.
      */
-    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetailsNew(
             IFeaturesBuilder featureBuilder);
 
     /**

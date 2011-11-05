@@ -183,10 +183,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
                 IFeaturesBuilder featureBuilder, Object incomingDatasetFolder)
         {
-            return createFeatureVectorRegistrationDetails(featureBuilder);
+            return createFeatureVectorRegistrationDetailsNew(featureBuilder);
         }
 
-        public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+        public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetailsNew(
                 IFeaturesBuilder featureBuilder)
         {
             FeaturesBuilder myFeatureBuilder = (FeaturesBuilder) featureBuilder;
