@@ -422,7 +422,7 @@ def registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMeta
 
     transaction = service.transaction()
     featuresBuilder = defineFeaturesFromCsvMatrix(incomingCsvFile, factory)
-    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(featuresBuilder, incoming)
+    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetailsNew(featuresBuilder)
     analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
     analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
     dataset = transaction.createNewDataSet(analysisRegistrationDetails)
