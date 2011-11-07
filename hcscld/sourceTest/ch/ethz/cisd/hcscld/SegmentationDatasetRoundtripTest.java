@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 /**
@@ -32,10 +33,23 @@ import org.testng.annotations.Test;
 public class SegmentationDatasetRoundtripTest
 {
 
+    private static final File rootDirectory = new File("targets", "unit-test-wd");
+
+    private static final File workingDirectory = new File(rootDirectory, "segmentation-roundtrip-wd");
+
+    @BeforeSuite
+    public void init()
+    {
+        workingDirectory.mkdirs();
+        assertTrue(workingDirectory.isDirectory());
+        workingDirectory.deleteOnExit();
+        rootDirectory.deleteOnExit();
+    }
+
     @Test
     public void testSegmentation()
     {
-        File f = new File("segmentation.h5");
+        File f = new File(workingDirectory, "segmentation.cld");
         f.delete();
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);

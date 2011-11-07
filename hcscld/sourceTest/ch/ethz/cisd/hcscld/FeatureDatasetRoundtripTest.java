@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.ethz.cisd.hcscld.Feature.FeatureDataType;
@@ -42,6 +43,19 @@ import ch.systemsx.cisd.hdf5.IHDF5Writer;
  */
 public class FeatureDatasetRoundtripTest
 {
+    private static final File rootDirectory = new File("targets", "unit-test-wd");
+
+    private static final File workingDirectory = new File(rootDirectory, "feature-roundtrip-wd");
+
+    @BeforeSuite
+    public void init()
+    {
+        workingDirectory.mkdirs();
+        assertTrue(workingDirectory.isDirectory());
+        workingDirectory.deleteOnExit();
+        rootDirectory.deleteOnExit();
+    }
+
     enum State
     {
         A, B, C
