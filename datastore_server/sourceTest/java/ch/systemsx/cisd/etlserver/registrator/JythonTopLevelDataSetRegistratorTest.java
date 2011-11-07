@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,9 +28,11 @@ import java.util.Properties;
 
 import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
+import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -152,6 +155,36 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 incomingDir);
         assertEquals("hello world1",
                 FileUtilities.loadToString(new File(datasetLocation, "read1.me")).trim());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testFileNotFound()
+    {
+        setUpHomeDataBaseExpectations();
+        Properties properties = createThreadPropertiesRelativeToScriptsFolder("file-not-found.py");
+        createHandler(properties, false, true);
+        createData();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
+                }
+            });
+
+        try
+        {
+            handler.handle(markerFile);
+            fail("Expected a FileNotFound exception.");
+        } catch (PyException pyException)
+        {
+            IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
+            FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
+            assertTrue(ex.getMessage().startsWith("Neither '/non/existent/path' nor '"));
+        }
+
         context.assertIsSatisfied();
     }
 

@@ -5,7 +5,7 @@ dataSet.setDataSetType('O1')
 
 experiment = transaction.getExperiment('/SPACE/PROJECT/EXP')
 dataSet.setExperiment(experiment)
-transaction.moveFile(incoming.getPath(), dataSet)
+transaction.moveFile(incoming.getAbsolutePath(), dataSet)
 
 container = transaction.getDataSetForUpdate("container-data-set-code")
 newContents = list(container.containedDataSetCodes)

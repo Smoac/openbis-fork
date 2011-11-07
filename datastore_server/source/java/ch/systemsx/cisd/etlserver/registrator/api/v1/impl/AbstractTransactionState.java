@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -422,6 +424,13 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 // Try it relative
                 srcFile = new File(workingDirectory, src);
+                if (false == srcFile.exists())
+                {
+                    // The file could not be found
+                    throw CheckedExceptionTunnel.wrapIfNecessary(new FileNotFoundException(
+                            "Neither '" + src + "' nor '" + srcFile.getAbsolutePath()
+                                    + "' were found."));
+                }
             }
 
             File dataSetFolder = dataSet.getDataSetStagingFolder();
