@@ -332,6 +332,30 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
+     * Lists experiments having data sets by project.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperimentsHavingDataSets(
+            final String sessionToken,
+            ExperimentType experimentType,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
+
+    /**
+     * Lists experiments having samples by project.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperimentsHavingSamples(
+            final String sessionToken,
+            ExperimentType experimentType,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ProjectIdentifier project);
+
+    /**
      * Lists experiments by space.
      * 
      * @return a sorted list of {@link Experiment}.

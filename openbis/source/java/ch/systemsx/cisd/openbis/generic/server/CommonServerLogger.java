@@ -316,6 +316,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier project)
+    {
+        logAccess(sessionToken, "list_experiments_having_samples", "TYPE(%s) PROJECT(%s)",
+                experimentType, project);
+        return null;
+    }
+
+    public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier project)
+    {
+        logAccess(sessionToken, "list_experiments_data_sets", "TYPE(%s) PROJECT(%s)",
+                experimentType, project);
+        return null;
+    }
+
     public List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier space)
     {

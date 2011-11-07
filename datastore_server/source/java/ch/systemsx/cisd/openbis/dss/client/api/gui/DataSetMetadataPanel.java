@@ -184,10 +184,14 @@ public class DataSetMetadataPanel extends JPanel implements Observer
         // Initialize the fields in the gui
         ownerIdLabel = new JLabel("Owner:", JLabel.TRAILING);
         samplePanel =
-                new SamplePickerPanel(mainWindow, clientModel.getExperiments(),
+                new SamplePickerPanel(mainWindow, clientModel.getOpenBISService()
+                        .listExperimentsHavingSamplesForProjects(
+                                clientModel.getProjectIdentifiers()),
                         clientModel.getOpenBISService());
         dataSetPanel =
-                new DataSetPickerPanel(mainWindow, clientModel.getExperiments(),
+                new DataSetPickerPanel(mainWindow, clientModel.getOpenBISService()
+                        .listExperimentsHavingDataSetsForProjects(
+                                clientModel.getProjectIdentifiers()),
                         clientModel.getOpenBISService());
         experimentPicker =
                 new ExperimentPickerPanel(mainWindow, clientModel.getExperiments(),

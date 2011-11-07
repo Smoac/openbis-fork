@@ -39,8 +39,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     /**
      * Lists experiments of the specified project. Fetches also properties.
      */
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
-            throws DataAccessException;
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project,
+            boolean onlyHavingSamples, boolean onlyHavingDataSets) throws DataAccessException;
 
     /**
      * Lists experiments of the specified space. Fetches also properties.
@@ -61,6 +61,15 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public List<ExperimentPE> listExperimentsWithProperties(
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException;
+
+    /**
+     * Lists experiments of specified type, project and space. All criteria are optional. If no
+     * criteria is specified all experiments are returned. Fetches also properties.
+     */
+    public List<ExperimentPE> listExperimentsWithProperties(
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
+            final SpacePE spaceOrNull, boolean onlyHavingSamples, boolean onlyHavingDataSets)
+            throws DataAccessException;
 
     /**
      * Lists all registered experiments. Doesn't fetch properties.
@@ -91,7 +100,7 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public ExperimentPE tryGetByPermID(String permId);
 
     public List<ExperimentPE> listByPermID(Set<String> permId);
-    
+
     public List<ExperimentPE> listByIDs(Collection<Long> ids);
 
     /**

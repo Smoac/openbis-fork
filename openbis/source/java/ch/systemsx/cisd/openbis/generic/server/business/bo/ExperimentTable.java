@@ -79,6 +79,13 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     public final void load(final String experimentTypeCode,
             final ProjectIdentifier projectIdentifier)
     {
+        load(experimentTypeCode, projectIdentifier, false, false);
+    }
+
+    public final void load(final String experimentTypeCode,
+            final ProjectIdentifier projectIdentifier, boolean onlyHavingSamples,
+            boolean onlyHavingDataSets)
+    {
         checkNotNull(experimentTypeCode, projectIdentifier);
         fillSpaceIdentifier(projectIdentifier);
         final ProjectPE project =
@@ -87,7 +94,9 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         checkNotNull(projectIdentifier, project);
         if (EntityType.isAllTypesCode(experimentTypeCode))
         {
-            experiments = getExperimentDAO().listExperimentsWithProperties(project);
+            experiments =
+                    getExperimentDAO().listExperimentsWithProperties(project, onlyHavingSamples,
+                            onlyHavingDataSets);
         } else
         {
             final EntityTypePE entityType =
@@ -96,7 +105,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             checkNotNull(experimentTypeCode, entityType);
             experiments =
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
-                            project, null);
+                            project, null, onlyHavingSamples, onlyHavingDataSets);
         }
     }
 

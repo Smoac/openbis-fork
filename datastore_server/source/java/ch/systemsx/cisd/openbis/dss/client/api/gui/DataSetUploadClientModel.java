@@ -91,6 +91,8 @@ public class DataSetUploadClientModel
 
     private List<Experiment> experiments;
 
+    private List<String> projectIdentifiers;
+
     public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
     {
         this.openBISService = commState.getOpenBISService();
@@ -110,6 +112,7 @@ public class DataSetUploadClientModel
             ProjectIdentifier id = new ProjectIdentifier(project.getSpaceCode(), project.getCode());
             projectIds.add(id.toString());
         }
+        this.projectIdentifiers = projectIds;
         experiments = openBISService.listExperimentsForProjects(projectIds);
     }
 
@@ -572,6 +575,11 @@ public class DataSetUploadClientModel
     public List<Experiment> getExperiments()
     {
         return experiments;
+    }
+
+    public List<String> getProjectIdentifiers()
+    {
+        return projectIdentifiers;
     }
 
     public Vocabulary getVocabulary(String code)

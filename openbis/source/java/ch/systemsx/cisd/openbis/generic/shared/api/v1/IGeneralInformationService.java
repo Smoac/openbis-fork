@@ -135,8 +135,40 @@ public interface IGeneralInformationService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class)
-            List<Project> projects, String experimentType);
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
+            String experimentType);
+
+    /**
+     * Return all experiments of the given type that belong to the supplied projects and have
+     * registered samles. Available since minor version 15.
+     * 
+     * @param projects The projects for which we return attached experiments.
+     * @param experimentType The experiment type of the experiments we want to list. Specifying a
+     *            NULL experiment type will result in all experiments for the specified projects
+     *            being returned.
+     * @since 1.15
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperimentsHavingSamples(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
+            String experimentType);
+
+    /**
+     * Return all experiments of the given type that belong to the supplied projects and have
+     * registered data sets. Available since minor version 15.
+     * 
+     * @param projects The projects for which we return attached experiments.
+     * @param experimentType The experiment type of the experiments we want to list. Specifying a
+     *            NULL experiment type will result in all experiments for the specified projects
+     *            being returned.
+     * @since 1.15
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
+            String experimentType);
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.

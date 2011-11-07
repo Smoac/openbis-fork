@@ -165,7 +165,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 14;
+        return 15;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -271,6 +271,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentTypeString)
     {
+        return listExperiments(sessionToken, projects, experimentTypeString, false, false);
+    }
+
+    public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
+            List<Project> projects, String experimentTypeString)
+    {
+        return listExperiments(sessionToken, projects, experimentTypeString, false, true);
+    }
+
+    public List<Experiment> listExperimentsHavingSamples(String sessionToken,
+            List<Project> projects, String experimentTypeString)
+    {
+        return listExperiments(sessionToken, projects, experimentTypeString, true, false);
+    }
+
+    private List<Experiment> listExperiments(String sessionToken, List<Project> projects,
+            String experimentTypeString, boolean onlyHavingSamples, boolean onlyHavingDataSets)
+    {
         checkSession(sessionToken);
 
         // Convert the string to an experiment type
@@ -286,7 +304,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             {
                 throw new UserFailureException("Unknown experiment type : " + experimentTypeString);
             }
-
         }
 
         // Retrieve the matches for each project
@@ -297,8 +314,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             ProjectIdentifier projectIdentifier =
                     new ProjectIdentifier(project.getSpaceCode(), project.getCode());
 
-            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> basicExperiments =
-                    commonServer.listExperiments(sessionToken, experimentType, projectIdentifier);
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> basicExperiments;
+
+            if (onlyHavingSamples)
+            {
+                basicExperiments =
+                        commonServer.listExperimentsHavingSamples(sessionToken, experimentType,
+                                projectIdentifier);
+            } else if (onlyHavingDataSets)
+            {
+                basicExperiments =
+                        commonServer.listExperimentsHavingDataSets(sessionToken, experimentType,
+                                projectIdentifier);
+            } else
+            {
+                basicExperiments =
+                        commonServer.listExperiments(sessionToken, experimentType,
+                                projectIdentifier);
+            }
             for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment basicExperiment : basicExperiments)
             {
                 experiments.add(Translator.translate(basicExperiment));

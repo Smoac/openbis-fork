@@ -649,7 +649,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExperimentTable(SESSION);
                     will(returnValue(experimentTable));
 
-                    one(experimentTable).load(experimentType.getCode(), projectIdentifier);
+                    one(experimentTable).load(experimentType.getCode(), projectIdentifier, false,
+                            false);
 
                     one(experimentTable).getExperiments();
                     will(returnValue(new ArrayList<ExperimentPE>()));
@@ -1662,13 +1663,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     one(commonBusinessObjectFactory).createDeletionTable(SESSION);
                     will(returnValue(deletionTable));
-                    
+
                     one(deletionTable).load(true);
                     one(deletionTable).getDeletions();
                     will(returnValue(deletions));
                 }
             });
-        
+
         List<Deletion> result = createServer().listDeletions(SESSION_TOKEN, true);
 
         assertSame(deletions, result);

@@ -631,13 +631,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
-        return listExperiments(sessionToken, experimentType, null, projectIdentifier);
+        return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, false);
+    }
+
+    public final List<Experiment> listExperimentsHavingSamples(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
+    {
+        return listExperiments(sessionToken, experimentType, null, projectIdentifier, true, false);
+    }
+
+    public final List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
+            final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
+    {
+        return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, true);
     }
 
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifier)
     {
-        return listExperiments(sessionToken, experimentType, spaceIdentifier, null);
+        return listExperiments(sessionToken, experimentType, spaceIdentifier, null, false, false);
     }
 
     public List<Experiment> listExperiments(String sessionToken,
@@ -655,14 +667,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifierOrNull,
-            final ProjectIdentifier projectIdentifierOrNull)
+            final ProjectIdentifier projectIdentifierOrNull, boolean onlyHavingSamples,
+            boolean onlyHavingDataSets)
     {
         final Session session = getSession(sessionToken);
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
         if (projectIdentifierOrNull != null)
         {
-            experimentTable.load(experimentType.getCode(), projectIdentifierOrNull);
+            experimentTable.load(experimentType.getCode(), projectIdentifierOrNull,
+                    onlyHavingSamples, onlyHavingDataSets);
         } else if (spaceIdentifierOrNull != null)
         {
             experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);

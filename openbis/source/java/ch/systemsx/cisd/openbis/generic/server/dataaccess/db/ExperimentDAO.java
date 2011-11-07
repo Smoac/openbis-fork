@@ -66,14 +66,15 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         super(persistencyResources, databaseInstance, ExperimentPE.class);
     }
 
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
-            throws DataAccessException
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project,
+            boolean onlyHavingSamples, boolean onlyHavingDataSets) throws DataAccessException
     {
         if (project == null)
         {
             throw new IllegalArgumentException("Project wasn't set");
         }
-        return listExperimentsWithProperties(null, project, null);
+        return listExperimentsWithProperties(null, project, null, onlyHavingSamples,
+                onlyHavingDataSets);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(final SpacePE space)
@@ -90,6 +91,15 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException
     {
+        return listExperimentsWithProperties(experimentTypeOrNull, projectOrNull, spaceOrNull,
+                false, false);
+    }
+
+    public List<ExperimentPE> listExperimentsWithProperties(
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
+            final SpacePE spaceOrNull, final boolean onlyHavingSamples,
+            final boolean onlyHavingDataSets) throws DataAccessException
+    {
         final DetachedCriteria criteria = createCriteriaForUndeleted();
         if (experimentTypeOrNull != null)
         {
@@ -105,6 +115,15 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             criteria.createAlias("projectInternal", "project");
             criteria.add(Restrictions.eq("project.space", spaceOrNull));
         }
+        if (onlyHavingSamples)
+        {
+            criteria.add(Restrictions.isNotEmpty("experimentSamples"));
+        }
+        if (onlyHavingDataSets)
+        {
+            criteria.add(Restrictions.isNotEmpty("experimentDataSets"));
+        }
+
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())

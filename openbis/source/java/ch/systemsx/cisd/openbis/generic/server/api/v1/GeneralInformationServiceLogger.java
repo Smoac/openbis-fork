@@ -103,6 +103,20 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<Experiment> listExperimentsHavingSamples(String sessionToken,
+            List<Project> projects, String experimentType)
+    {
+        logAccess(sessionToken, "list-experiments-having-samples", "EXP_TYPE(%s)", experimentType);
+        return null;
+    }
+
+    public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
+            List<Project> projects, String experimentType)
+    {
+        logAccess(sessionToken, "list-experiments-having-data-sets", "EXP_TYPE(%s)", experimentType);
+        return null;
+    }
+
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded)
     {

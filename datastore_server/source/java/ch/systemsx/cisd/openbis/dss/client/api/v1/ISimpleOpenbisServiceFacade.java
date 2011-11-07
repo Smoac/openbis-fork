@@ -67,6 +67,18 @@ public interface ISimpleOpenbisServiceFacade
     List<Experiment> listExperimentsForProjects(List<String> projectIdentifiers);
 
     /**
+     * Return all experiments having samples for a given list of project identifiers. If some of the
+     * specified project identifiers does not exist in openBIS it will be silently ignored.
+     */
+    List<Experiment> listExperimentsHavingSamplesForProjects(List<String> projectIdentifiers);
+
+    /**
+     * Return all experiments having data sets for a given list of project identifiers. If some of
+     * the specified project identifiers does not exist in openBIS it will be silently ignored.
+     */
+    List<Experiment> listExperimentsHavingDataSetsForProjects(List<String> projectIdentifiers);
+
+    /**
      * Return {@link Sample} objects for a set of given sample identifiers. If some of the specified
      * sample identifiers does not exist in openBIS it will be silently ignored.
      */

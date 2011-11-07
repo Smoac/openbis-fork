@@ -172,6 +172,25 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<Experiment> listExperimentsForProjects(List<String> projectIdentifiers)
             throws EnvironmentFailureException
     {
+        return service.listExperiments(sessionToken, getProjects(projectIdentifiers), null);
+    }
+
+    public List<Experiment> listExperimentsHavingSamplesForProjects(List<String> projectIdentifiers)
+            throws EnvironmentFailureException
+    {
+        return service.listExperimentsHavingSamples(sessionToken, getProjects(projectIdentifiers),
+                null);
+    }
+
+    public List<Experiment> listExperimentsHavingDataSetsForProjects(List<String> projectIdentifiers)
+            throws EnvironmentFailureException
+    {
+        return service.listExperimentsHavingDataSets(sessionToken, getProjects(projectIdentifiers),
+                null);
+    }
+
+    private List<Project> getProjects(List<String> projectIdentifiers)
+    {
         List<Project> projects = new ArrayList<Project>();
         for (ProjectIdentifier identifier : parseProjectIdentifiers(projectIdentifiers))
         {
@@ -179,7 +198,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             projects.add(project);
         }
 
-        return service.listExperiments(sessionToken, projects, null);
+        return projects;
     }
 
     public List<Sample> getSamples(final List<String> sampleIdentifiers)

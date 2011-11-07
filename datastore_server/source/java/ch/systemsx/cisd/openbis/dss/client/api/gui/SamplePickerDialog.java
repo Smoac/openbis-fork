@@ -231,7 +231,12 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
             return null;
         } else
         {
-            return tree.getSelectionPath().getLastPathComponent().toString();
+            TreePath treePath = tree.getSelectionPath();
+            if (treePath == null)
+            {
+                return null;
+            }
+            return treePath.getLastPathComponent().toString();
         }
     }
 
