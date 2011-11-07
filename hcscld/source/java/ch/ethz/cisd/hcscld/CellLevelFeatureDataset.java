@@ -35,6 +35,10 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeatureDataset
 {
+    static final String FORMAT_TYPE = "CompoundArray";
+    
+    static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
+    
     static final String DEFAULT_FEATURE_GROUP_NAME = "default";
 
     static final String ALL_FEATURE_GROUP_NAME = "all";
@@ -144,9 +148,10 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     final HDF5CompoundMappingHints hintsOrNull;
 
     CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode, ImageQuantityStructure geometry,
-            HDF5CompoundMappingHints hintsOrNull)
+            HDF5CompoundMappingHints hintsOrNull, String formatType, int formatVersionNumber)
     {
-        super(reader, datasetCode, geometry);
+        super(reader, datasetCode, geometry, formatVersionNumber);
+        checkFormat(FORMAT_TYPE, formatType);
         this.hintsOrNull = hintsOrNull;
         this.featureGroups = readFeatureGroups();
         int numberOfFeatures = 0;

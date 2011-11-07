@@ -56,10 +56,10 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
             ImageQuantityStructure geometry, final HDF5EnumerationType hdf5KindEnum,
             final HDF5EnumerationType hdf5EnumType)
     {
-        super(writer, datasetCode, geometry);
+        super(writer, datasetCode, geometry, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
-                        CellLevelDatasetType.CLASSIFICATION);
+                        CellLevelDatasetType.CLASSIFICATION, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.hdf5EnumType = hdf5EnumType;
     }
 

@@ -33,10 +33,15 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
 class CellLevelClassificationDataset extends CellLevelDataset implements
         ICellLevelClassificationDataset
 {
+    static final String FORMAT_TYPE = "EnumArray";
+    
+    static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
+    
     CellLevelClassificationDataset(IHDF5Reader reader, String datasetCode,
-            ImageQuantityStructure geometry)
+            ImageQuantityStructure geometry, String formatType, int formatVersionNumber)
     {
-        super(reader, datasetCode, geometry);
+        super(reader, datasetCode, geometry, formatVersionNumber);
+        checkFormat(FORMAT_TYPE, formatType);
     }
 
     public CellLevelDatasetType getType()

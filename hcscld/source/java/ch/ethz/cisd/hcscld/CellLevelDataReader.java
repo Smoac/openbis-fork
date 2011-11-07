@@ -39,7 +39,8 @@ class CellLevelDataReader implements ICellLevelDataReader
      */
     static class FormatDescriptor
     {
-        @CompoundElement(dimensions = { 20 })
+        @CompoundElement(dimensions =
+            { 20 })
         private String formatTag;
 
         private int majorVersion;
@@ -130,10 +131,11 @@ class CellLevelDataReader implements ICellLevelDataReader
         this.hints = new HDF5CompoundMappingHints().enumReturnType(EnumReturnType.STRING);
     }
 
-    private CellLevelDatasetType getDatasetType(String datasetCode)
+    private CellLevelDatasetTypeDescriptor getDatasetTypeDesc(String datasetCode)
     {
-        return CellLevelDatasetType.valueOf(reader.getEnumAttributeAsString(
-                CellLevelDataset.getDatasetPath(datasetCode), "datasetType"));
+        return reader.getCompoundAttribute(CellLevelDataset.getDatasetPath(datasetCode),
+                CellLevelDataset.getDatasetTypeAttributeName(),
+                CellLevelDatasetTypeDescriptor.class);
     }
 
     public List<ICellLevelDataset> getDataSets()
@@ -142,25 +144,29 @@ class CellLevelDataReader implements ICellLevelDataReader
         final List<ICellLevelDataset> result = new ArrayList<ICellLevelDataset>(codes.size());
         for (String code : codes)
         {
-            switch (getDatasetType(code))
+            final CellLevelDatasetTypeDescriptor desc = getDatasetTypeDesc(code);
+            switch (desc.getDatasetType())
             {
                 case CLASSIFICATION:
                     result.add(new CellLevelClassificationDataset(reader, code, reader
                             .readCompound(
                                     CellLevelDataset.getImageQuantityStructureObjectPath(code),
-                                    ImageQuantityStructure.class)));
+                                    ImageQuantityStructure.class), desc.getFormatType(), desc
+                            .getFormatVersionNumber()));
                     break;
                 case FEATURES:
                     result.add(new CellLevelFeatureDataset(reader, code, reader.readCompound(
                             CellLevelDataset.getImageQuantityStructureObjectPath(code),
-                            ImageQuantityStructure.class), hints));
+                            ImageQuantityStructure.class), hints, desc.getFormatType(), desc
+                            .getFormatVersionNumber()));
                     break;
                 case SEGMENTATION:
                     result.add(new CellLevelSegmentationDataset(reader, code, reader.readCompound(
                             CellLevelDataset.getImageQuantityStructureObjectPath(code),
                             ImageQuantityStructure.class), reader.readCompound(
                             CellLevelSegmentationDataset.getImageGeometryObjectPath(code),
-                            ImageGeometry.class)));
+                            ImageGeometry.class), desc.getFormatType(), desc
+                            .getFormatVersionNumber()));
                     break;
                 default:
                     throw new Error("Unknown enum type.");
@@ -171,22 +177,26 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     public ICellLevelDataset getDataSet(String datasetCode)
     {
-        switch (getDatasetType(datasetCode))
+        final CellLevelDatasetTypeDescriptor desc = getDatasetTypeDesc(datasetCode);
+        switch (desc.getDatasetType())
         {
             case CLASSIFICATION:
                 return new CellLevelClassificationDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
-                        ImageQuantityStructure.class));
+                        ImageQuantityStructure.class), desc.getFormatType(), desc
+                        .getFormatVersionNumber());
             case FEATURES:
                 return new CellLevelFeatureDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
-                        ImageQuantityStructure.class), hints);
+                        ImageQuantityStructure.class), hints, desc.getFormatType(), desc
+                        .getFormatVersionNumber());
             case SEGMENTATION:
                 return new CellLevelSegmentationDataset(reader, datasetCode, reader.readCompound(
                         CellLevelDataset.getImageQuantityStructureObjectPath(datasetCode),
                         ImageQuantityStructure.class), reader.readCompound(
                         CellLevelSegmentationDataset.getImageGeometryObjectPath(datasetCode),
-                        ImageGeometry.class));
+                        ImageGeometry.class), desc.getFormatType(), desc
+                        .getFormatVersionNumber());
             default:
                 throw new Error("Unknown enum type.");
         }

@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
@@ -34,18 +33,19 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 {
     final IHDF5Writer writer;
 
-    private final CellLevelDatasetType datasetType;
+    private final CellLevelDatasetTypeDescriptor datasetType;
 
     CellLevelBaseWritableDataset(final IHDF5Writer writer, final String datasetCode,
             final ImageQuantityStructure quantityStructure, final HDF5EnumerationType hdf5KindEnum,
-            final CellLevelDatasetType datasetType)
+            final CellLevelDatasetType datasetType, final String formatType,
+            final int formatVersionNumber)
     {
-        super(writer, datasetCode, quantityStructure);
+        super(writer, datasetCode, quantityStructure, formatVersionNumber);
         this.writer = writer;
-        this.datasetType = datasetType;
+        this.datasetType =
+                new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
+                        this);
         quantityStructure.writeToDataset(this);
-        writer.setEnumAttribute(getObjectPath(), getDatasetTypeAttributeName(),
-                new HDF5EnumerationValue(hdf5KindEnum, datasetType.ordinal()));
         writer.createGroup(getDatasetAnnotationObjectPath());
     }
 
@@ -56,7 +56,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     public CellLevelDatasetType getType()
     {
-        return datasetType;
+        return datasetType.getDatasetType();
     }
 
     HDF5EnumerationType addEnum(String name, List<String> values)

@@ -41,10 +41,12 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
             final ImageGeometry imageGeometry, final HDF5EnumerationType hdf5KindEnum,
             final boolean storeEdgeMasks)
     {
-        super(writer, datasetCode, quantityStructure, imageGeometry);
+        super(writer, datasetCode, quantityStructure, imageGeometry, FORMAT_TYPE,
+                CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, quantityStructure,
-                        hdf5KindEnum, CellLevelDatasetType.SEGMENTATION);
+                        hdf5KindEnum, CellLevelDatasetType.SEGMENTATION, FORMAT_TYPE,
+                        CURRENT_FORMAT_VERSION_NUMBER);
         this.storeEdgeMasks = storeEdgeMasks;
         writer.writeCompound(getImageGeometryObjectPath(), imageGeometry);
         this.segmentedObjectTypeName = segmentedObjectTypeName;
@@ -62,7 +64,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     {
         return this;
     }
-    
+
     @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset()
     {

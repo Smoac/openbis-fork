@@ -35,12 +35,15 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     final ImageQuantityStructure quantityStructure;
 
+    final int formatVersionNumber;
+    
     CellLevelDataset(IHDF5Reader reader, String datasetCode,
-            ImageQuantityStructure quantityStructure)
+            ImageQuantityStructure quantityStructure, int formatVersionNumber)
     {
         this.reader = reader;
         this.datasetCode = datasetCode;
         this.quantityStructure = quantityStructure;
+        this.formatVersionNumber = formatVersionNumber;
     }
 
     public String getDatasetCode()
@@ -106,17 +109,31 @@ abstract class CellLevelDataset implements ICellLevelDataset
                 .readString(datasetAnnotationObjectPath) : null;
     }
 
-    String getDatasetTypeAttributeName()
+    public int getFormatVersionNumber()
+    {
+        return formatVersionNumber;
+    }
+
+    void checkFormat(String expectedFormatType, String foundFormatType)
+    {
+        if (expectedFormatType.equals(foundFormatType) == false)
+        {
+            throw new WrongDatasetFormatException(datasetCode, expectedFormatType, foundFormatType);
+        }
+        
+    }
+    
+    static String getDatasetTypeAttributeName()
     {
         return "datasetType";
     }
 
-    String getPlateBarcodeAttributeName()
+    static String getPlateBarcodeAttributeName()
     {
         return "plateBarcode";
     }
 
-    String getParentDatasetAttributeName()
+    static String getParentDatasetAttributeName()
     {
         return "parentDatasets";
     }

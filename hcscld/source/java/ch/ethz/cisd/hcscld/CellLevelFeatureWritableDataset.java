@@ -38,10 +38,10 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
             final ImageQuantityStructure geometry, final HDF5CompoundMappingHints hintsOrNull,
             final HDF5EnumerationType hdf5KindEnum)
     {
-        super(writer, datasetCode, geometry, hintsOrNull);
+        super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
-                        CellLevelDatasetType.FEATURES);
+                        CellLevelDatasetType.FEATURES, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
         writer.createStringArray(getFeatureGroupsFilename(), 100, 0, 1);
     }
 
