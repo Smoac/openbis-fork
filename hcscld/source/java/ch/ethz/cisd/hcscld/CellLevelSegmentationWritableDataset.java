@@ -48,7 +48,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         this.storeEdgeMasks = storeEdgeMasks;
         writer.writeCompound(getImageGeometryObjectPath(), imageGeometry);
         this.segmentedObjectTypeName = segmentedObjectTypeName;
-        writer.writeString(getSegmentedObjectFileName(), segmentedObjectTypeName);
+        writer.writeString(getSegmentedObjectTypeFileName(), segmentedObjectTypeName);
     }
 
     @Override

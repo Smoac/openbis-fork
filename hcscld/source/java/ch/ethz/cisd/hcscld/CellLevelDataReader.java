@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.hdf5.CompoundElement;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints.EnumReturnType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
@@ -38,11 +39,17 @@ class CellLevelDataReader implements ICellLevelDataReader
      */
     static class FormatDescriptor
     {
-        private final String formatTag;
+        @CompoundElement(dimensions = { 20 })
+        private String formatTag;
 
-        private final int majorVersion;
+        private int majorVersion;
 
-        private final int minorVersion;
+        private int minorVersion;
+
+        // Used when reading from the HDF5 file.
+        FormatDescriptor()
+        {
+        }
 
         public FormatDescriptor(String formatTag, int majorVersion, int minorVersion)
         {
@@ -69,8 +76,8 @@ class CellLevelDataReader implements ICellLevelDataReader
         public static boolean canRead(FormatDescriptor descOrNull)
         {
             return descOrNull != null
-                    && EXPECTED_DESCRIPTOR.getFormatTag().equals(descOrNull.getFormatTag())
-                    && EXPECTED_DESCRIPTOR.getMajorVersion() == descOrNull.getMajorVersion();
+                    && CURRENT_FORMAT_DESCRIPTOR.getFormatTag().equals(descOrNull.getFormatTag())
+                    && CURRENT_FORMAT_DESCRIPTOR.getMajorVersion() == descOrNull.getMajorVersion();
         }
 
         @Override
@@ -81,7 +88,8 @@ class CellLevelDataReader implements ICellLevelDataReader
         }
     }
 
-    static final FormatDescriptor EXPECTED_DESCRIPTOR = new FormatDescriptor("CISD-HCSCLD", 1, 0);
+    static final FormatDescriptor CURRENT_FORMAT_DESCRIPTOR = new FormatDescriptor("CISD-HCSCLD",
+            1, 0);
 
     private final IHDF5Reader reader;
 
@@ -222,14 +230,10 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     FormatDescriptor tryGetCLDFormat()
     {
-        if (reader.hasAttribute("/", getCLDFormatTagAttributeName())
-                && reader.hasAttribute("/", getCLDMajorVersionObjectPath())
-                && reader.hasAttribute("/", getCLDMinorVersionObjectPath()))
+        if (reader.hasAttribute("/", getCLDFormatTagAttributeName()))
         {
-            final String formatTag = reader.getStringAttribute("/", getCLDFormatTagAttributeName());
-            final int majorVersion = reader.getIntAttribute("/", getCLDMajorVersionObjectPath());
-            final int minorVersion = reader.getIntAttribute("/", getCLDMinorVersionObjectPath());
-            return new FormatDescriptor(formatTag, majorVersion, minorVersion);
+            return reader.getCompoundAttribute("/", getCLDFormatTagAttributeName(),
+                    FormatDescriptor.class);
         } else
         {
             return null;
@@ -239,16 +243,6 @@ class CellLevelDataReader implements ICellLevelDataReader
     static String getCLDFormatTagAttributeName()
     {
         return "formatTag";
-    }
-
-    static String getCLDMajorVersionObjectPath()
-    {
-        return "formatMajorVersion";
-    }
-
-    static String getCLDMinorVersionObjectPath()
-    {
-        return "formatMinorVersion";
     }
 
 }

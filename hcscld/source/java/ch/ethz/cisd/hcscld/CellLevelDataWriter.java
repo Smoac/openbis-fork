@@ -52,12 +52,8 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
                 throw new UnsupportedFileFormatException(
                         "File is HDF5, but doesn't have a proper CLD tag or version.");
             }
-            writer.setStringAttribute("/", getCLDFormatTagAttributeName(),
-                    EXPECTED_DESCRIPTOR.getFormatTag());
-            writer.setIntAttribute("/", getCLDMajorVersionObjectPath(),
-                    EXPECTED_DESCRIPTOR.getMajorVersion());
-            writer.setIntAttribute("/", getCLDMinorVersionObjectPath(),
-                    EXPECTED_DESCRIPTOR.getMinorVersion());
+            writer.setCompoundAttribute("/", getCLDFormatTagAttributeName(),
+                    CURRENT_FORMAT_DESCRIPTOR);
         }
     }
 

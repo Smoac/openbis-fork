@@ -55,7 +55,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return indexType;
     }
 
-    String getSegmentedObjectFileName()
+    String getSegmentedObjectTypeFileName()
     {
         return getObjectPath() + "/segmentedObjectType";
     }
@@ -74,7 +74,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     {
         if (segmentedObjectTypeName == null)
         {
-            segmentedObjectTypeName = reader.readString(getSegmentedObjectFileName());
+            segmentedObjectTypeName = reader.readString(getSegmentedObjectTypeFileName());
         }
         return segmentedObjectTypeName;
     }
