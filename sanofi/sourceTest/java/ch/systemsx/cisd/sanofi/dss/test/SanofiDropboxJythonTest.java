@@ -17,7 +17,6 @@
 
 package ch.systemsx.cisd.sanofi.dss.test;
 
-
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 
@@ -115,10 +114,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String COMPOUND_WELL_BATCH_PROPNAME = "COMPOUND_BATCH";
 
     private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
-
-    private static final String OVERLAYS_DATA_SET_DIR_NAME = "overlays";
-
-    private static final String ANALYSIS_DATA_SET_FILE_NAME = "analysis";
 
     private static final String IMAGE_DATA_SET_CODE = "data-set-code";
 
@@ -706,11 +701,13 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private void assertBatchMaterialsHaveCompoundProperties(
             Map<String, List<NewMaterial>> registeredMaterials)
     {
-        
-        for (String materialTypeCode : registeredMaterials.keySet()) {
+
+        for (String materialTypeCode : registeredMaterials.keySet())
+        {
             if (materialTypeCode.endsWith(BATCH_MATERIAL_SUFFIX))
             {
-                for (NewMaterial newMaterial : registeredMaterials.get(materialTypeCode)) {
+                for (NewMaterial newMaterial : registeredMaterials.get(materialTypeCode))
+                {
                     IEntityProperty property =
                             EntityHelper.tryFindProperty(newMaterial.getProperties(),
                                     BATCH_MATERIAL_COMPOUND_PROP);
@@ -719,9 +716,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 }
             }
         }
-        
-    }
 
+    }
 
     private void assertNegativeControl(List<NewSample> newSamples, String wellCode)
     {

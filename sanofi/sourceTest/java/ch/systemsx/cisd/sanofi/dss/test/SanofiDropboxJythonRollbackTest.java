@@ -54,8 +54,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -95,31 +93,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
 
     private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
 
-    private static final String OVERLAYS_DATA_SET_DIR_NAME = "overlays";
-
-    private static final String ANALYSIS_DATA_SET_FILE_NAME = "analysis";
-
-    private static final String IMAGE_DATA_SET_CODE = "data-set-code";
-
-    private static final DataSetType IMAGE_DATA_SET_TYPE = new DataSetType("HCS_IMAGE_RAW");
-
-    private static final String OVERLAY_DATA_SET_CODE = "overlay-data-set-code";
-
-    private static final DataSetType OVERLAY_DATA_SET_TYPE = new DataSetType(
-            "HCS_IMAGE_SEGMENTATION");
-
-    private static final String ANALYSIS_DATA_SET_CODE = "analysis-data-set-code";
-
-    private static final DataSetType ANALYSIS_DATA_SET_TYPE = new DataSetType(
-            "HCS_ANALYSIS_WELL_FEATURES");
-
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
 
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
-
-    private RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails;
-
-    private RecordingMatcher<ListMaterialCriteria> materialCriteria;
 
     private RecordingMatcher<String> email;
 
@@ -130,10 +106,6 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         super.setUp();
 
         extendJythonLibPath(getRegistrationScriptsFolderPath());
-
-        atomicatOperationDetails =
-                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
-        materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
         email = new RecordingMatcher<String>();
     }
 
