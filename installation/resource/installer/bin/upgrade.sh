@@ -79,8 +79,6 @@ source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
 
-$BASE/alldown.sh
-
 installer_tarball=""
 for installer_tarball in $ROOT_DIR/*.tar.gz; do
   : # only use the loop to assign the correct value of the installer_tarball
