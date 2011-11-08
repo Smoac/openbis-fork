@@ -6,6 +6,8 @@ if [ ${JETTY_BIN_DIR#/} == ${JETTY_BIN_DIR} ]; then
     JETTY_BIN_DIR="`pwd`/${JETTY_BIN_DIR}"
 fi
 
+JETTY_PID_FILE="$JETTY_BIN_DIR/../openbis.pid"
+
 source "$JETTY_BIN_DIR/../etc/jetty.properties"
 source "$JETTY_BIN_DIR/../etc/openbis.conf"
 cd "$JETTY_BIN_DIR"/..
@@ -17,3 +19,50 @@ else
 fi 
 
 JETTY_LIB_PATH="$JETTY_BIN_DIR"/../webapps/openbis/WEB-INF/jython-lib
+
+awkBin()
+{
+  # We need a awk that accepts variable assignments with '-v'
+  case `uname -s` in
+    "SunOS")
+      echo "nawk"
+      return
+      ;;
+  esac
+  # default
+  echo "awk"
+}
+
+isPIDRunning()
+{
+  if [ "$1" = "" ]; then
+    return 1
+  fi
+  if [ "$1" = "fake" ]; then # for unit tests
+    return 0
+  fi
+  # This will have a return value of 0 on BSDish systems
+  isBSD="`ps aux > /dev/null 2>&1; echo $?`"
+  AWK=`awkBin`
+  if [ "$isBSD" = "0" ]; then
+    if [ "`ps aux | $AWK -v PID=$1 '{if ($2==PID) {print "FOUND"}}'`" = "FOUND" ]; then
+      return 0
+    else
+      return 1
+    fi
+  else
+    if [ "`ps -ef | $AWK -v PID=$1 '{if ($2==PID) {print "FOUND"}}'`" = "FOUND" ]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
+checkNotRoot()
+{
+  if [ $UID -eq 0 ]; then
+    echo "openBIS Data Store Server cannot run as user 'root'." > /dev/stderr
+    exit 1
+  fi
+}
