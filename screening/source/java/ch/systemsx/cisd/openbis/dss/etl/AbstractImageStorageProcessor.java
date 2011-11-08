@@ -73,7 +73,6 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -152,13 +151,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private final static String ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY =
             "original-data-storage-format";
 
-    private static final String ORIGINAL_DIR_NAME_PROPERTY = "original-dir-name";
-
     // ---
 
     private final DataSource dataSource;
-
-    private final String originalDirName;
 
     /**
      * Default configuration for all datasets, can be changed by {@link ImageDataSetInformation}.
@@ -184,9 +179,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         this.globalImageStorageConfiguraton = getGlobalImageStorageConfiguraton(properties);
 
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
-        this.originalDirName =
-                PropertyUtils.getProperty(properties, ORIGINAL_DIR_NAME_PROPERTY,
-                        ScreeningConstants.ORIGINAL_DATA_DIR);
     }
 
     // --- ImageStorageConfiguraton ---
@@ -332,7 +324,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             if (shouldDeleteOriginalDataOnCommit)
             {
-                processor.commitHdf5StorageFormatChanges(storedDataDirectory);
+                commitHdf5StorageFormatChanges(storedDataDirectory);
             }
 
             // commit the database transaction
@@ -726,7 +718,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    private void commitHdf5StorageFormatChanges(File storedDataDirectory)
+    private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
         File originalFolder = storedDataDirectory;
         File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
@@ -814,11 +806,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             throw EnvironmentFailureException.fromTemplate("Can not delete symbolic link '%s'.",
                     source.getPath());
         }
-    }
-
-    private File getOriginalFolder(File storedDataDirectory)
-    {
-        return new File(storedDataDirectory, originalDirName);
     }
 
     protected static List<String> extractChannelCodes(final List<ChannelDescription> descriptions)
