@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
-import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
@@ -73,14 +73,14 @@ public class DefaultFileBasedHierarchicalContentFactoryTest extends AbstractFile
     {
         final IHierarchicalContent rootContent = createRootContent();
 
-        final File hdf5Container = new File(rootDir, "container.h5");
+        final File hdf5Container = createFile("container.h5");
         IHierarchicalContentNode hdf5ContainerNode =
                 factory.asHierarchicalContentNode(rootContent, hdf5Container);
         assertEquals("HDF5ContainerBasedHierarchicalContentNode [root="
                 + defaultRootContentAsString() + ", container=" + hdf5Container.toString() + "]",
                 hdf5ContainerNode.toString());
 
-        final File hdf5Archive = new File(rootDir, "container.h5ar");
+        final File hdf5Archive = createFile("container.h5ar");
         IHierarchicalContentNode hdf5ArchiveNode =
                 factory.asHierarchicalContentNode(rootContent, hdf5Archive);
         assertEquals("HDF5ContainerBasedHierarchicalContentNode [root="
@@ -96,5 +96,18 @@ public class DefaultFileBasedHierarchicalContentFactoryTest extends AbstractFile
     private String defaultRootContentAsString()
     {
         return "DefaultFileBasedHierarchicalContent [root=" + rootDir.toString() + "]";
+    }
+
+    private File createFile(String name)
+    {
+        File result = new File(rootDir, name);
+        try
+        {
+            result.createNewFile();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        return result;
     }
 }
