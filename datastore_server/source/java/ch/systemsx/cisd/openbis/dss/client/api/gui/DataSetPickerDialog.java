@@ -203,13 +203,27 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
 
         Object value = optionPane.getValue();
         optionPane.setValue(optionPane.getInitialValue());
-        if (value == null || ((Integer) value).intValue() == JOptionPane.CANCEL_OPTION)
-        {
-            return null;
-        } else
+        if (isDataSetPicked(value))
         {
             return tree.getSelectionPath().getLastPathComponent().toString();
+        } else
+        {
+            return null;
         }
+    }
+
+    private boolean isDataSetPicked(Object optionPaneValue)
+    {
+        if (optionPaneValue == null
+                || ((Integer) optionPaneValue).intValue() == JOptionPane.CANCEL_OPTION)
+        {
+            return false;
+        }
+        if (tree.getSelectionPath() == null)
+        {
+            return false;
+        }
+        return true;
     }
 
     public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException
