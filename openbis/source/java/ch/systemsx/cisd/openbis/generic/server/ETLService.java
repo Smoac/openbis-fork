@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -1473,4 +1474,21 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return criteria;
 
     }
+
+    @SuppressWarnings("deprecation")
+    public void removeDataSetsPermanently(String sessionToken, List<String> dataSetCodes,
+            String reason)
+    {
+        Session session = getSession(sessionToken);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, true);
+    }
+
+    public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates)
+    {
+        final Session session = getSession(sessionToken);
+        final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
+        dataSetBO.update(dataSetUpdates);
+    }
+
 }

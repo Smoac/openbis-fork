@@ -261,6 +261,20 @@ public class DataSetInformation implements Serializable
                 sampleCode);
     }
 
+    /**
+     * Sets the sample identifier.
+     */
+    public final void setSampleIdentifier(SampleIdentifier sampleIdentifier)
+    {
+        setSampleCode(sampleIdentifier.getSampleCode());
+        final SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
+        if (spaceLevel != null)
+        {
+            setSpaceCode(spaceLevel.getSpaceCode());
+            setInstanceCode(spaceLevel.getDatabaseInstanceCode());
+        }
+    }
+
     public final String getSampleCode()
     {
         return sampleCode;

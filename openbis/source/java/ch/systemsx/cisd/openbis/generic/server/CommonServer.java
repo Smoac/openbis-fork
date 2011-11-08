@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +84,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
-import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -1166,6 +1164,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         // NOTE: logical deletion and new implementation of permanent deletion doesn't use
         // IDataSetTypeSlaveServerPlugin (we have just 1 implementation!)
+        final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         switch (deletionType)
         {
             case PERMANENT:
@@ -1177,47 +1176,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason, force);
                 } else
                 {
-                    permanentlyDeleteDataSets(session, dataSetCodes, reason, force);
+                    permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, force);
                 }
                 break;
             case TRASH:
-                IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
                 dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
                 List<DataPE> dataSets = dataSetTable.getDataSets();
                 ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
                 trashBO.createDeletion(reason);
                 trashBO.trashDataSets(TechId.createList(dataSets));
                 break;
-        }
-    }
-
-    @Deprecated
-    /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
-    private void permanentlyDeleteDataSets(Session session, List<String> dataSetCodes,
-            String reason, boolean force)
-    {
-        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
-        dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
-        List<DataPE> dataSets = dataSetTable.getDataSets();
-        Map<DataSetTypePE, List<DataPE>> groupedDataSets =
-                new LinkedHashMap<DataSetTypePE, List<DataPE>>();
-        for (DataPE dataSet : dataSets)
-        {
-            DataSetTypePE dataSetType = dataSet.getDataSetType();
-            List<DataPE> list = groupedDataSets.get(dataSetType);
-            if (list == null)
-            {
-                list = new ArrayList<DataPE>();
-                groupedDataSets.put(dataSetType, list);
-            }
-            list.add(dataSet);
-        }
-        for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
-        {
-            DataSetTypePE dataSetType = entry.getKey();
-            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason, force);
         }
     }
 

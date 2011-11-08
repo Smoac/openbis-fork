@@ -22,7 +22,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -43,6 +45,7 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -62,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
@@ -209,6 +213,35 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         return dataSetServerPluginRegistry.getPlugin(EntityKind.DATA_SET, dataSetType)
                 .getSlaveServer();
+    }
+
+    @Deprecated
+    /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
+    protected void permanentlyDeleteDataSets(Session session, IDataSetTable dataSetTable,
+            List<String> dataSetCodes, String reason, boolean force)
+    {
+        // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
+        dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+        List<DataPE> dataSets = dataSetTable.getDataSets();
+        Map<DataSetTypePE, List<DataPE>> groupedDataSets =
+                new LinkedHashMap<DataSetTypePE, List<DataPE>>();
+        for (DataPE dataSet : dataSets)
+        {
+            DataSetTypePE dataSetType = dataSet.getDataSetType();
+            List<DataPE> list = groupedDataSets.get(dataSetType);
+            if (list == null)
+            {
+                list = new ArrayList<DataPE>();
+                groupedDataSets.put(dataSetType, list);
+            }
+            list.add(dataSet);
+        }
+        for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
+        {
+            DataSetTypePE dataSetType = entry.getKey();
+            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
+            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason, force);
+        }
     }
 
     private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,

@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
@@ -506,5 +508,17 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         logAccess(sessionToken, "listMaterials", "CRITERIA(%s), WITH_PROPERTIES(%s)", criteria,
                 withProperties);
         return null;
+    }
+
+    public void removeDataSetsPermanently(String sessionToken, List<String> dataSetCodes,
+            String reason)
+    {
+        logAccess(sessionToken, "removeDataSetsPermanently", "DATA_SET_CODES(%s) REASON(%s)",
+                CollectionUtils.abbreviate(dataSetCodes, 5), reason);
+    }
+
+    public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates)
+    {
+        logAccess(sessionToken, "updateDataSet", "DATA_SET_UPDATES(%s)", dataSetUpdates);
     }
 }

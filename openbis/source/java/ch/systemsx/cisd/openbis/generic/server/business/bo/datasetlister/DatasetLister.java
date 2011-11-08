@@ -341,8 +341,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         String[] codes = datasetCodes.toArray(new String[datasetCodes.size()]);
         DataIterator<DatasetRecord> datasets = query.getDatasets(codes);
-        loadSmallConnectedTables();
-        return asList(createPrimaryDatasets(asList(datasets)));
+        return enrichDatasets(datasets);
+        // loadSmallConnectedTables();
+        // return asList(createPrimaryDatasets(asList(datasets)));
     }
 
     public List<ExternalData> listByDataStore(long dataStoreID)

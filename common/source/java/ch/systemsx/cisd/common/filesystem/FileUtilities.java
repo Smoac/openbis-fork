@@ -1220,9 +1220,18 @@ public final class FileUtilities
      * 
      * @returns <code>true</code> if and only if <var>file</var> has 'h5' or 'h5ar' as extension
      */
-    public final static boolean isHDF5ContainerFile(File file)
+    public final static boolean hasHDF5ContainerSuffix(File file)
     {
         return FilenameUtils.isExtension(file.getName().toLowerCase(), Arrays.asList("h5", "h5ar"));
+    }
+
+    /**
+     * @returns <code>true</code> if and only if <var>file</var> is a valid file and has 'h5' or
+     *          'h5ar' as extension
+     */
+    public final static boolean isHDF5ContainerFile(File file)
+    {
+        return file.isFile() && hasHDF5ContainerSuffix(file);
     }
 
     /**

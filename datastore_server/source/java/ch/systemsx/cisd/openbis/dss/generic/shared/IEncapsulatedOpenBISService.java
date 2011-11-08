@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -470,4 +471,15 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier);
 
+    /**
+     * {@link IETLLIMSService#removeDataSetsPermanently(String, List, String)}
+     */
+    @ManagedAuthentication
+    public void removeDataSetsPermanently(List<String> dataSetCodes, String reason);
+
+    /**
+     * {@link IETLLIMSService#updateDataSet(String, DataSetUpdatesDTO)}
+     */
+    @ManagedAuthentication
+    public void updateDataSet(DataSetUpdatesDTO dataSetUpdates);
 }
