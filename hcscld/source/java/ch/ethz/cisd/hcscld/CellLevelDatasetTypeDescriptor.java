@@ -17,28 +17,20 @@
 package ch.ethz.cisd.hcscld;
 
 import ch.systemsx.cisd.hdf5.CompoundElement;
-import ch.systemsx.cisd.hdf5.CompoundType;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 
 /**
  * A descriptor for the cell-level dataset type.
  * 
  * @author Bernd Rinn
  */
-@CompoundType(mapAllFields = false)
 public class CellLevelDatasetTypeDescriptor
 {
     private CellLevelDatasetType datasetType;
-
-    @CompoundElement
-    private HDF5EnumerationValue datasetTypePersistentOrNull;
 
     @CompoundElement(dimensions =
         { 50 })
     private String formatType;
 
-    @CompoundElement
     private int formatVersionNumber;
 
     // Used by HDF5 when reading
@@ -52,29 +44,10 @@ public class CellLevelDatasetTypeDescriptor
         this.datasetType = datasetType;
         this.formatType = formatType;
         this.formatVersionNumber = formatVersionNumber;
-        writeToDataset(writeableDataset);
-    }
-
-    private void writeToDataset(CellLevelBaseWritableDataset writeableDataset)
-    {
-        if (datasetTypePersistentOrNull == null)
-        {
-            final HDF5EnumerationType enumType =
-                    writeableDataset.addEnumGlobal("CellLevelDatasetType",
-                            CellLevelDatasetType.class);
-            datasetTypePersistentOrNull = new HDF5EnumerationValue(enumType, datasetType.ordinal());
-        }
-        writeableDataset.writer.createGroup(writeableDataset.getObjectPath());
-        writeableDataset.writer.setCompoundAttribute(writeableDataset.getObjectPath(),
-                CellLevelBaseWritableDataset.getDatasetTypeAttributeName(), this);
     }
 
     public CellLevelDatasetType getDatasetType()
     {
-        if (datasetType == null && datasetTypePersistentOrNull != null)
-        {
-            datasetType = CellLevelDatasetType.values()[datasetTypePersistentOrNull.getOrdinal()];
-        }
         return datasetType;
     }
 

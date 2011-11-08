@@ -174,7 +174,7 @@ public class FeatureDatasetRoundtripTest
     public void testDefaultFeatureGroup()
     {
         final String dsCode = "123";
-        final File f = new File("default.cld");
+        final File f = new File(workingDirectory, "default.cld");
         f.delete();
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
@@ -215,7 +215,7 @@ public class FeatureDatasetRoundtripTest
     public void testDefaultFeatureGroupForSequence()
     {
         final String dsCode = "123";
-        final File f = new File("sequence.cld");
+        final File f = new File(workingDirectory, "sequence.cld");
         f.delete();
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
@@ -277,7 +277,7 @@ public class FeatureDatasetRoundtripTest
     public void testOneFeatureGroup()
     {
         final String dsCode = "123";
-        final File f = new File("main.cld");
+        final File f = new File(workingDirectory, "main.cld");
         f.delete();
         f.deleteOnExit();
         createMainFeatureGroupDataset(f, dsCode);
@@ -304,7 +304,7 @@ public class FeatureDatasetRoundtripTest
     public void testTwoFeatureGroups()
     {
         final String dsCode = "123";
-        final File f = new File("twogroups.cld");
+        final File f = new File(workingDirectory, "twogroups.cld");
         f.delete();
         f.deleteOnExit();
         createTwoFeatureGroupsDataset(f, dsCode);
@@ -376,7 +376,7 @@ public class FeatureDatasetRoundtripTest
     public void testTwoFeatureGroupsInconsistentLength()
     {
         final String dsCode = "123";
-        final File f = new File("twogroups.cld");
+        final File f = new File(workingDirectory, "twogroups.cld");
         f.delete();
         f.deleteOnExit();
         createTwoFeatureGroupsDatasetInconsistentLength(f, dsCode);
@@ -385,7 +385,7 @@ public class FeatureDatasetRoundtripTest
     @Test(expectedExceptions = UnsupportedFileFormatException.class)
     public void testIllegalFielFormat()
     {
-        final File f = new File("wantabee.cld");
+        final File f = new File(workingDirectory, "wantabee.cld");
         f.delete();
         f.deleteOnExit();
         final IHDF5Writer writer = HDF5Factory.open(f);

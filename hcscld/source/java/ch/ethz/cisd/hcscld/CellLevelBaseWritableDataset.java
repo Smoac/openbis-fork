@@ -33,7 +33,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 {
     final IHDF5Writer writer;
 
-    private final CellLevelDatasetTypeDescriptor datasetType;
+    private final CellLevelDatasetTypeDescriptor datasetTypeDescriptor;
 
     CellLevelBaseWritableDataset(final IHDF5Writer writer, final String datasetCode,
             final ImageQuantityStructure quantityStructure, final HDF5EnumerationType hdf5KindEnum,
@@ -42,10 +42,13 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         super(writer, datasetCode, quantityStructure, formatVersionNumber);
         this.writer = writer;
-        this.datasetType =
+        this.datasetTypeDescriptor =
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
-        quantityStructure.writeToDataset(this);
+        writer.createGroup(getObjectPath());
+        writer.setCompoundAttribute(getObjectPath(), getDatasetTypeAttributeName(),
+                datasetTypeDescriptor);
+        writer.writeCompound(getImageQuantityStructureObjectPath(), quantityStructure);
         writer.createGroup(getDatasetAnnotationObjectPath());
     }
 
@@ -56,7 +59,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     public CellLevelDatasetType getType()
     {
-        return datasetType.getDatasetType();
+        return datasetTypeDescriptor.getDatasetType();
     }
 
     HDF5EnumerationType addEnum(String name, List<String> values)

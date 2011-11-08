@@ -18,18 +18,12 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.Iterator;
 
-import ch.systemsx.cisd.hdf5.CompoundElement;
-import ch.systemsx.cisd.hdf5.CompoundType;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
-
 /**
  * The quantity structure (number of rows, columns, fields, and the length of the sequence of an HCS
  * dataset derived from an image sequence).
  * 
  * @author Bernd Rinn
  */
-@CompoundType(mapAllFields = false)
 public class ImageQuantityStructure implements Iterable<ImageId>
 {
     /** The type of the image sequence. */
@@ -50,24 +44,16 @@ public class ImageQuantityStructure implements Iterable<ImageId>
         TIMESERIES_DEPTHSCAN,
     }
 
-    @CompoundElement
     private int numberOfRows;
 
-    @CompoundElement
     private int numberOfColumns;
 
-    @CompoundElement
     private int numberOfFields;
 
-    @CompoundElement
     private int sequenceLength;
 
     private SequenceType sequenceType;
 
-    @CompoundElement(memberName = "sequenceType")
-    private HDF5EnumerationValue persistentSequenceType;
-
-    @CompoundElement
     private boolean objectsIdenticalInSequence;
 
     // Used by JHDF5 when constructing the geometry from a compound.
@@ -127,18 +113,6 @@ public class ImageQuantityStructure implements Iterable<ImageId>
         this(1, 1, 1, sequenceLength, sequenceType, objectsIdenticalInSequence);
     }
 
-    void writeToDataset(CellLevelBaseWritableDataset writeableDataset)
-    {
-        if (persistentSequenceType == null)
-        {
-            final HDF5EnumerationType enumType =
-                    writeableDataset.addEnumGlobal("SequenceType", SequenceType.class);
-            persistentSequenceType = new HDF5EnumerationValue(enumType, sequenceType.ordinal());
-        }
-        writeableDataset.writer.writeCompound(
-                writeableDataset.getImageQuantityStructureObjectPath(), this);
-    }
-
     void checkInBounds(ImageId id) throws IndexOutOfBoundsException
     {
         if (id.getRow() >= numberOfRows || id.getColumn() >= numberOfColumns
@@ -191,10 +165,6 @@ public class ImageQuantityStructure implements Iterable<ImageId>
      */
     public SequenceType getSequenceType()
     {
-        if (sequenceType == null && persistentSequenceType != null)
-        {
-            sequenceType = SequenceType.values()[persistentSequenceType.getOrdinal()];
-        }
         return sequenceType;
     }
 
