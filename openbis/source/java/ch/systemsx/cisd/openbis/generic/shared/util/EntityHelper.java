@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -38,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -117,6 +120,36 @@ public class EntityHelper
         for (final NewProperty property : properties)
         {
             if (property.getPropertyCode().equalsIgnoreCase(propertyCode))
+            {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    public static String tryFindPropertyValue(
+            ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder holder,
+            String propertyCode)
+    {
+        EntityPropertyPE property = null;
+
+        if (holder != null && holder.getProperties() != null)
+        {
+            property = EntityHelper.tryFindProperty(holder.getProperties(), propertyCode);
+        }
+
+        return (property != null) ? property.tryGetUntypedValue() : null;
+    }
+
+    private static EntityPropertyPE tryFindProperty(Set<? extends EntityPropertyPE> properties,
+            String propertyCode)
+    {
+
+        for (final EntityPropertyPE property : properties)
+        {
+            final PropertyTypePE propertyType =
+                    property.getEntityTypePropertyType().getPropertyType();
+            if (propertyType.getCode().equalsIgnoreCase(propertyCode))
             {
                 return property;
             }
