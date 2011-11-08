@@ -88,7 +88,6 @@ source $BASE/common-functions.sh
 
 ROOT_DIR=$BASE/../servers
 
-$BASE/alldown.sh
 
 installer_tarball=""
 for installer_tarball in $ROOT_DIR/*.tar.gz; do
@@ -98,6 +97,7 @@ done
 if [ -f "$installer_tarball" ]; then
   upgrade_from_installer_tarball $installer_tarball
 else 
+  $BASE/alldown.sh
   upgrade_from_zips
 fi
 
