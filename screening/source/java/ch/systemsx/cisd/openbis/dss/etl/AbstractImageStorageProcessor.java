@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -360,7 +361,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             assert storedDataDirectory != null : "Unspecified stored data directory. Please call storeData(...)";
 
-            File originalFolder = storedDataDirectory;
+            File originalFolder = getOriginalFolder(storedDataDirectory);
             File[] content = originalFolder.listFiles();
             if (content == null || content.length == 0)
             {
@@ -720,7 +721,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
-        File originalFolder = storedDataDirectory;
+        File originalFolder = getOriginalFolder(storedDataDirectory);
         File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
         if (hdf5OriginalContainer.exists()) // this should be always true
         {
@@ -738,6 +739,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                             + "Keeping the original directory '%s'.", hdf5OriginalContainer,
                     originalFolder));
         }
+    }
+
+    private static File getOriginalFolder(File storedDataDirectory)
+    {
+        return new File(storedDataDirectory, ScreeningConstants.ORIGINAL_DATA_DIR);
     }
 
     /**
