@@ -1382,7 +1382,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testPermanentlyDeleteDataSetsWithTrashEnabled()
     {
         final boolean enableTrash = true;

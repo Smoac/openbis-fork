@@ -1156,6 +1156,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType deletionType, boolean force, boolean isTrashEnabled)
     {
@@ -1164,7 +1165,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         // NOTE: logical deletion and new implementation of permanent deletion doesn't use
         // IDataSetTypeSlaveServerPlugin (we have just 1 implementation!)
-        final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         switch (deletionType)
         {
             case PERMANENT:
@@ -1176,10 +1176,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason, force);
                 } else
                 {
+                    final IDataSetTable dataSetTable =
+                            businessObjectFactory.createDataSetTable(session);
                     permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, force);
                 }
                 break;
             case TRASH:
+                final IDataSetTable dataSetTable =
+                        businessObjectFactory.createDataSetTable(session);
                 dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
                 List<DataPE> dataSets = dataSetTable.getDataSets();
                 ITrashBO trashBO = businessObjectFactory.createTrashBO(session);
