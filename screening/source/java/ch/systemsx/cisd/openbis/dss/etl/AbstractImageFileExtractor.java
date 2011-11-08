@@ -40,12 +40,15 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -56,6 +59,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * <br>
  * If 'extract-single-image-channels' property is specified for storage processor then the channels
  * are extracted from the color components and the channel in the image file name is ignored.
+ * <p>
+ * Deprecated, use python dropboxes instead! Image datasets registered with the extractor 1. cannot
+ * have any thumbnails and 2. will not be saved in 'original' directory!
  * 
  * @author Tomasz Pylak
  */
@@ -243,7 +249,10 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                 invalidFiles.add(imageFile);
             }
         }
-        return new ImageFileExtractionResult(acquiredImages,
+        File datasetRelativeImagesFolderPath =
+                new File(ScreeningConstants.ORIGINAL_DATA_DIR + File.separator
+                        + incomingDataSetDirectory.getName());
+        return new ImageFileExtractionResult(acquiredImages, datasetRelativeImagesFolderPath,
                 Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages),
                 tileGeometry, null, null);
 
@@ -260,13 +269,14 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
                 ChannelDescription channelDescription = channelDescriptionsOrNull.get(i);
-                images.add(createImage(imageInfo, channelDescription.getCode(), colorComponent));
+                images.add(createImage(imageInfo, channelDescription.getCode(), colorComponent,
+                        null));
             }
             return images;
         } else
         {
             ensureChannelExist(channelDescriptionsOrNull, imageInfo.getChannelCode());
-            return createImagesWithNoColorComponent(imageInfo);
+            return createImagesWithNoColorComponent(imageInfo, null);
         }
     }
 
@@ -373,18 +383,6 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return channels;
     }
 
-    protected final static List<ChannelDescription> extractChannelDescriptions(
-            final Properties properties)
-    {
-        List<ChannelDescription> channelDescriptions = tryExtractChannelDescriptions(properties);
-        if (channelDescriptions == null)
-        {
-            throw new ConfigurationFailureException(String.format(
-                    "Both '%s' and '%s' should be configured", CHANNEL_CODES, CHANNEL_LABELS));
-        }
-        return channelDescriptions;
-    }
-
     private final static List<ChannelDescription> tryExtractChannelDescriptions(
             final Properties properties)
     {
@@ -459,20 +457,32 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     }
 
     public final static List<AcquiredSingleImage> createImagesWithNoColorComponent(
-            ImageFileInfo imageInfo)
+            ImageFileInfo imageInfo, ThumbnailFilePaths thumbnailFilePathsOrNull)
     {
         List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
-        images.add(createImage(imageInfo, imageInfo.getChannelCode(), null));
+        images.add(createImage(imageInfo, imageInfo.getChannelCode(), null,
+                thumbnailFilePathsOrNull));
         return images;
     }
 
     public final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
-            String channelCode, ColorComponent colorComponentOrNull)
+            String channelCode, ColorComponent colorComponentOrNull,
+            ThumbnailFilePaths thumbnailFilePathsOrNull)
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(),
                         getUniqueStringIdentifier(imageInfo.tryGetImageIdentifier()),
                         colorComponentOrNull);
+
+        RelativeImageReference relativeThumbnailRef = null;
+        if (thumbnailFilePathsOrNull != null)
+        {
+            String relativeThumbnailPath =
+                    thumbnailFilePathsOrNull.getThumbnailPath(RelativeImageFile.create(imageInfo));
+            relativeThumbnailRef =
+                    new RelativeImageReference(relativeThumbnailPath, null, colorComponentOrNull);
+        }
+
         Location wellLoc = null;
         if (imageInfo.hasWellLocation())
         {
@@ -484,7 +494,8 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                 Location.createLocationFromRowAndColumn(imageInfo.getTileRow(),
                         imageInfo.getTileColumn());
         return new AcquiredSingleImage(wellLoc, tileLoc, channelCode, imageInfo.tryGetTimepoint(),
-                imageInfo.tryGetDepth(), imageInfo.tryGetSeriesNumber(), relativeImageRef);
+                imageInfo.tryGetDepth(), imageInfo.tryGetSeriesNumber(), relativeImageRef,
+                relativeThumbnailRef);
     }
 
     private static String getUniqueStringIdentifier(ImageIdentifier identifier)

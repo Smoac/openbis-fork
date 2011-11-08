@@ -34,7 +34,7 @@ public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
     {
         super.setContainerRows(info.getContainerRows());
         super.setContainerColumns(info.getContainerColumns());
-        super.setContainerPermId(info.getContainerPermId());
+        super.setContainerSamplePermId(info.getContainerSamplePermId());
         super.setDatasetPermId(info.getDatasetPermId());
         super.setExperimentPermId(info.getExperimentPermId());
         this.storeChannelsOnExperimentLevel = storeChannelsOnExperimentLevel;

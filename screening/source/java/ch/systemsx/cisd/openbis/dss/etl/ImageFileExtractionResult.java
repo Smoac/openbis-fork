@@ -32,6 +32,13 @@ public final class ImageFileExtractionResult
     /** The images files with description. */
     private final List<AcquiredSingleImage> images;
 
+    /**
+     * Path to the incoming folder with images, relative to the dataset directory. E.g. if the
+     * incoming folder name is X and the transaction's dataset registration code put it inside
+     * 'original' folder, then this path points to "original/X'.
+     */
+    private File datasetRelativeImagesFolderPath;
+
     /** The invalid files found. */
     private final List<File> invalidFiles;
 
@@ -44,11 +51,13 @@ public final class ImageFileExtractionResult
 
     private final ImageLibraryInfo imageLibraryOrNull;
 
-    public ImageFileExtractionResult(List<AcquiredSingleImage> images, List<File> invalidFiles,
-            List<Channel> channels, Geometry tileGeometry,
-            Boolean storeChannelsOnExperimentLevelOrNull, ImageLibraryInfo imageLibraryOrNull)
+    public ImageFileExtractionResult(List<AcquiredSingleImage> images,
+            File datasetRelativeImagesFolderPath, List<File> invalidFiles, List<Channel> channels,
+            Geometry tileGeometry, Boolean storeChannelsOnExperimentLevelOrNull,
+            ImageLibraryInfo imageLibraryOrNull)
     {
         this.images = images;
+        this.datasetRelativeImagesFolderPath = datasetRelativeImagesFolderPath;
         this.invalidFiles = invalidFiles;
         this.channels = channels;
         this.tileGeometry = tileGeometry;
@@ -59,6 +68,11 @@ public final class ImageFileExtractionResult
     public List<AcquiredSingleImage> getImages()
     {
         return images;
+    }
+
+    public File getDatasetRelativeImagesFolderPath()
+    {
+        return datasetRelativeImagesFolderPath;
     }
 
     public List<File> getInvalidFiles()

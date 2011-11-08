@@ -101,7 +101,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         List<ImgSpotDTO> oldSpots = dao.listSpots(contId);
         List<ImgSpotDTO> newSpots =
                 createNewSpots(contId, images, oldSpots, info.getContainerRows(),
-                        info.getContainerColumns(), info.getContainerPermId());
+                        info.getContainerColumns(), info.getContainerSamplePermId());
         newSpots.addAll(oldSpots);
         return makeTechIdMatrix(newSpots, info.getContainerRows(), info.getContainerColumns());
     }

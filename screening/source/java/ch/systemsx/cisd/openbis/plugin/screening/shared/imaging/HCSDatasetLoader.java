@@ -20,13 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -46,6 +50,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class HCSDatasetLoader implements IImageDatasetLoader
 {
+    static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HCSDatasetLoader.class);
+
     protected final IImagingReadonlyQueryDAO query;
 
     protected final ImgImageDatasetDTO dataset;
@@ -238,9 +245,9 @@ public class HCSDatasetLoader implements IImageDatasetLoader
     {
         String transformationSignature =
                 tryGetSignature(transformation.getSerializedImageTransformerFactory());
-        return new InternalImageTransformationInfo(transformation.getCode(), transformation.getLabel(),
-                transformation.getDescription(), transformationSignature,
-                transformation.getIsDefault());
+        return new InternalImageTransformationInfo(transformation.getCode(),
+                transformation.getLabel(), transformation.getDescription(),
+                transformationSignature, transformation.getIsDefault());
     }
 
     private static String tryGetSignature(byte[] bytesOrNull)

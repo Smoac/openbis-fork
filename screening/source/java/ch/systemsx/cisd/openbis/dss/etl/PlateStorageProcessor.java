@@ -20,25 +20,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.storage.IFile;
-import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
-import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Storage processor which stores HCS plate images in a special-purpose imaging database.
@@ -49,9 +45,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescrip
  */
 public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 {
-    // a class of the old-style image extractor
-    private static final String DEPRECATED_FILE_EXTRACTOR_PROPERTY = "deprecated-file-extractor";
-
     /**
      * Optional boolean property. Defines if all image datasets in one experiment have the same
      * channels or if each imported dataset can have different channels. By default true.
@@ -66,8 +59,6 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     // ---
 
-    private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractorOrNull;
-
     // can be overwritten for each dataset
     private final boolean globalStoreChannelsOnExperimentLevel;
 
@@ -76,141 +67,134 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     public PlateStorageProcessor(Properties properties)
     {
         super(properties);
-        this.deprecatedImageFileExtractorOrNull = tryCreateDeprecatedFileExtractor();
         this.globalStoreChannelsOnExperimentLevel =
                 PropertyUtils.getBoolean(properties, CHANNELS_PER_EXPERIMENT_PROPERTY, true);
         this.notifyIfPlateIncomplete =
                 PropertyUtils.getBoolean(properties, NOTIFY_IF_INCOMPLETE_PROPERTY, true);
     }
 
-    private IHCSImageFileExtractor tryCreateDeprecatedFileExtractor()
+    public static class DatasetOwnerInformation extends AbstractHashable
     {
-        if (imageFileExtractorOrNull == null)
+        public static DatasetOwnerInformation create(DataSetInformation dataSetInformation)
         {
-            String fileExtractorClass = properties.getProperty(DEPRECATED_FILE_EXTRACTOR_PROPERTY);
-            if (fileExtractorClass != null)
+            return new DatasetOwnerInformation(dataSetInformation.getDataSetCode(),
+                    dataSetInformation);
+        }
+
+        private final Experiment experiment;
+
+        private final SampleIdentifier sampleIdentifier;
+
+        private final ExperimentIdentifier experimentIdentifier;
+
+        private final Sample sample;
+
+        private final String dataSetCode;
+
+        private final IEntityProperty[] sampleProperties;
+
+        protected DatasetOwnerInformation(String dataSetCode, DataSetInformation dataSetOwner)
+        {
+            this(dataSetCode, dataSetOwner.tryToGetSample(), dataSetOwner.getSampleIdentifier(),
+                    dataSetOwner.getProperties(), dataSetOwner.tryToGetExperiment(), dataSetOwner
+                            .getExperimentIdentifier());
+        }
+
+        private DatasetOwnerInformation(String dataSetCode, Sample sample,
+                SampleIdentifier sampleIdentifier, IEntityProperty[] sampleProperties,
+                Experiment experiment, ExperimentIdentifier experimentIdentifier)
+        {
+            this.dataSetCode = dataSetCode;
+            this.sample = sample;
+            this.sampleIdentifier = sampleIdentifier;
+            this.sampleProperties = sampleProperties;
+            this.experiment = experiment;
+            this.experimentIdentifier = experimentIdentifier;
+        }
+
+        public String getDataSetCode()
+        {
+            return dataSetCode;
+        }
+
+        public SampleIdentifier getSampleIdentifier()
+        {
+            return sampleIdentifier;
+        }
+
+        public Sample tryGetSample()
+        {
+            return sample;
+        }
+
+        public IEntityProperty[] getSampleProperties()
+        {
+            return sampleProperties;
+        }
+
+        public Experiment tryGetExperiment()
+        {
+            return experiment;
+        }
+
+        public ExperimentIdentifier getExperimentIdentifier()
+        {
+            return experimentIdentifier;
+        }
+    }
+
+    public static class ImageDatasetOwnerInformation extends DatasetOwnerInformation
+    {
+        public static ImageDatasetOwnerInformation create(String containerDatasetPermId,
+                DataSetInformation originalDataset, String thumbnailDatasetPermIdOrNull)
+        {
+            return new ImageDatasetOwnerInformation(containerDatasetPermId, originalDataset,
+                    thumbnailDatasetPermIdOrNull);
+        }
+
+        private final List<ImageZoomLevel> imageZoomLevels;
+
+        private ImageDatasetOwnerInformation(String containerDatasetPermId,
+                DataSetInformation originalDataset, String thumbnailDatasetPermIdOrNull)
+        {
+            super(containerDatasetPermId, originalDataset);
+            this.imageZoomLevels = createZoomLevels(originalDataset, thumbnailDatasetPermIdOrNull);
+        }
+
+        private static List<ImageZoomLevel> createZoomLevels(DataSetInformation originalDataset,
+                String thumbnailDatasetPermIdOrNull)
+        {
+            List<ImageZoomLevel> zoomLevels = new ArrayList<ImageZoomLevel>();
+            ImageZoomLevel originalZoomLevel =
+                    new ImageZoomLevel(originalDataset.getDataSetCode(), true);
+            zoomLevels.add(originalZoomLevel);
+            if (thumbnailDatasetPermIdOrNull != null)
             {
-                return ClassUtils.create(ch.systemsx.cisd.etlserver.IHCSImageFileExtractor.class,
-                        fileExtractorClass, properties);
+                ImageZoomLevel thumbnailZoomLevel =
+                        new ImageZoomLevel(thumbnailDatasetPermIdOrNull, false);
+                zoomLevels.add(thumbnailZoomLevel);
             }
+            return zoomLevels;
         }
-        return null;
-    }
 
-    private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
-    {
-        private final List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
-
-        private final File imageFileRootDirectory;
-
-        private final List<String> channelCodes;
-
-        public HCSImageFileAccepter(File imageFileRootDirectory, List<String> channelCodes)
+        public List<ImageZoomLevel> getImageZoomLevels()
         {
-            this.imageFileRootDirectory = imageFileRootDirectory;
-            this.channelCodes = channelCodes;
+            return imageZoomLevels;
         }
-
-        public final void accept(final int channel, final Location wellLocation,
-                final Location tileLocation, final IFile imageFile)
-        {
-            final String imageRelativePath =
-                    FileUtilities.getRelativeFilePath(imageFileRootDirectory,
-                            new File(imageFile.getPath()));
-            assert imageRelativePath != null : "Image relative path should not be null.";
-            String channelCode = getChannelCodeOrLabel(channelCodes, channel);
-            AcquiredSingleImage imageDesc =
-                    new AcquiredSingleImage(wellLocation, tileLocation, channelCode, null, null,
-                            null, new RelativeImageReference(imageRelativePath, null, null));
-            images.add(imageDesc);
-        }
-
-        public List<AcquiredSingleImage> getImages()
-        {
-            return images;
-        }
-    }
-
-    // adapts old-style image extractor to the new one which is stateless
-    private static IImageFileExtractor adapt(
-            final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor extractor,
-            final File imageFileRootDirectory, final List<ChannelDescription> descriptions,
-            final Geometry tileGeometry)
-    {
-        return new IImageFileExtractor()
-            {
-                public ImageFileExtractionResult extract(File incomingDataSetDirectory,
-                        DataSetInformation dataSetInformation)
-                {
-                    HCSImageFileAccepter accepter =
-                            new HCSImageFileAccepter(imageFileRootDirectory,
-                                    extractChannelCodes(descriptions));
-                    ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult originalResult =
-                            extractor.process(
-                                    NodeFactory.createDirectoryNode(incomingDataSetDirectory),
-                                    dataSetInformation, accepter);
-                    List<Channel> channels = convert(originalResult.getChannels());
-                    return new ImageFileExtractionResult(accepter.getImages(),
-                            asRelativePaths(originalResult.getInvalidFiles()), channels,
-                            tileGeometry, true, null);
-                }
-
-                private List<Channel> convert(Set<ch.systemsx.cisd.bds.hcs.Channel> channels)
-                {
-                    List<Channel> result = new ArrayList<Channel>();
-                    for (ch.systemsx.cisd.bds.hcs.Channel channel : channels)
-                    {
-                        String channelCode =
-                                getChannelCodeOrLabel(extractChannelCodes(descriptions),
-                                        channel.getCounter());
-                        String channelLabel =
-                                getChannelCodeOrLabel(extractChannelLabels(descriptions),
-                                        channel.getCounter());
-                        Channel convertedChannel = new Channel(channelCode, channelLabel);
-                        result.add(convertedChannel);
-                    }
-                    return result;
-                }
-
-                private List<File> asRelativePaths(List<IFile> files)
-                {
-                    List<File> result = new ArrayList<File>();
-                    for (IFile file : files)
-                    {
-                        result.add(new File(file.getPath()));
-                    }
-                    return result;
-                }
-            };
     }
 
     @Override
-    protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
-            File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
+    protected boolean validateImages(DatasetOwnerInformation dataSetInformation,
+            IMailClient mailClient, File incomingDataSetDirectory,
+            ImageFileExtractionResult extractionResult)
     {
         ImageValidator validator =
                 new ImageValidator(dataSetInformation, mailClient, incomingDataSetDirectory,
                         extractionResult, operationLog, notificationLog, notifyIfPlateIncomplete);
-        validator.validateImages();
+        return validator.validateImages();
     }
-
-    @Override
-    protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)
-    {
-        IImageFileExtractor extractor = imageFileExtractorOrNull;
-        if (extractor == null && deprecatedImageFileExtractorOrNull != null)
-        {
-            List<ChannelDescription> channelDescriptions =
-                    AbstractImageFileExtractor.extractChannelDescriptions(properties);
-            Geometry tileGeometry = AbstractImageFileExtractor.getMandatoryTileGeometry(properties);
-            extractor =
-                    adapt(deprecatedImageFileExtractorOrNull, incomingDataSetDirectory,
-                            channelDescriptions, tileGeometry);
-        }
-        return extractor;
-    }
-
-    private void checkDataSetInformation(final DataSetInformation dataSetInformation)
+    
+    private void checkDataSetInformation(final DatasetOwnerInformation dataSetInformation)
     {
         assert dataSetInformation != null : "Unspecified data set information";
         assert dataSetInformation.getSampleIdentifier() != null : "Unspecified sample identifier";
@@ -218,7 +202,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier =
                 dataSetInformation.getExperimentIdentifier();
         assert experimentIdentifier != null : "Unspecified experiment identifier";
-        assert dataSetInformation.tryToGetExperiment() != null : "experiment not set";
+        assert dataSetInformation.tryGetExperiment() != null : "experiment not set";
         checkExperimentIdentifier(experimentIdentifier);
     }
 
@@ -231,12 +215,13 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     }
 
     @Override
-    protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
+    protected void storeInDatabase(IImagingQueryDAO dao,
+            ImageDatasetOwnerInformation dataSetInformation,
             ImageFileExtractionResult extractedImages)
     {
         checkDataSetInformation(dataSetInformation);
 
-        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        Experiment experiment = dataSetInformation.tryGetExperiment();
         assert experiment != null : "experiment is null";
         List<AcquiredSingleImage> images = extractedImages.getImages();
         boolean storeChannelsOnExperimentLevel = globalStoreChannelsOnExperimentLevel;
@@ -253,16 +238,18 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     }
 
     private HCSImageDatasetInfo createImageDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages,
-            Geometry tileGeometry, ImageLibraryInfo imageLibraryInfoOrNull,
-            boolean storeChannelsOnExperimentLevel)
+            ImageDatasetOwnerInformation dataSetInformation,
+            List<AcquiredSingleImage> acquiredImages, Geometry tileGeometry,
+            ImageLibraryInfo imageLibraryInfoOrNull, boolean storeChannelsOnExperimentLevel)
     {
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
         boolean hasImageSeries = hasImageSeries(acquiredImages);
         ImageDatasetInfo imageDatasetInfo =
                 new ImageDatasetInfo(tileGeometry.getRows(), tileGeometry.getColumns(),
-                        hasImageSeries, imageLibraryInfoOrNull);
+                        hasImageSeries, imageLibraryInfoOrNull,
+                        dataSetInformation.getImageZoomLevels());
         return new HCSImageDatasetInfo(info, imageDatasetInfo, storeChannelsOnExperimentLevel);
     }
+
 }

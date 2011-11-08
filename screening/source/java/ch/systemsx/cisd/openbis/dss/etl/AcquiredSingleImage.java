@@ -51,7 +51,8 @@ public class AcquiredSingleImage extends AbstractHashable
 
     public AcquiredSingleImage(Location wellLocationOrNull, Location tileLocation,
             String channelCode, Float timePointOrNull, Float depthOrNull,
-            Integer seriesNumberOrNull, RelativeImageReference imageFilePath)
+            Integer seriesNumberOrNull, RelativeImageReference imageFilePath,
+            RelativeImageReference thumbnailFilePathOrNull)
     {
         this.wellLocationOrNull = wellLocationOrNull;
         this.tileLocation = tileLocation;
@@ -60,6 +61,7 @@ public class AcquiredSingleImage extends AbstractHashable
         this.depthOrNull = depthOrNull;
         this.seriesNumberOrNull = seriesNumberOrNull;
         this.imageFilePath = imageFilePath;
+        this.thumbnailFilePathOrNull = thumbnailFilePathOrNull;
     }
 
     public Location tryGetWellLocation()
@@ -122,11 +124,6 @@ public class AcquiredSingleImage extends AbstractHashable
     }
 
     // ---- setters
-
-    public final void setThumbnailFilePathOrNull(RelativeImageReference thumbnailFilePathOrNull)
-    {
-        this.thumbnailFilePathOrNull = thumbnailFilePathOrNull;
-    }
 
     public void setSeriesNumber(int seriesNumber)
     {

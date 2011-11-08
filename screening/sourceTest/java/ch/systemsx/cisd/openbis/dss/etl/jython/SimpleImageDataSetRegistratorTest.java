@@ -33,21 +33,21 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageContainerDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.jython.SimpleImageDataSetRegistrator.IImageReaderFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=SimpleImageDataSetRegistrator.class)
+@Friend(toClasses = SimpleImageDataSetRegistrator.class)
 public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCase
 {
-    private static final File TEST_DATA_FOLDER = new File("resource/test-data/SimpleImageDataSetRegistratorTest");
+    private static final File TEST_DATA_FOLDER = new File(
+            "resource/test-data/SimpleImageDataSetRegistratorTest");
+
     private static final class MyConfigData extends SimpleImageContainerDataConfig
     {
         String channelCodes = "";
@@ -58,7 +58,7 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
             channelCodes += channelCode;
             return ChannelColor.createFromIndex(channelCodes.length());
         }
-        
+
     }
 
     private Mockery context;
@@ -125,24 +125,27 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
                         factory, readerFactory);
 
         assertSame(details, actualDetails);
-        List<ImageFileInfo> images = actualDetails.getDataSetInformation().getImages();
-        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, " +
-        		"path=images/pond.tif, timepoint=1.0, depth=2.0, seriesNumber=1]", images.get(0).toString());
-        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-10, " +
-                "path=images/pond.tif, timepoint=2.0, depth=3.0, seriesNumber=2]", images.get(1).toString());
-        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, " +
-                "path=images/pond.tif, timepoint=8.0, depth=9.0, seriesNumber=3]", images.get(2).toString());
+        List<ImageFileInfo> images =
+                actualDetails.getDataSetInformation().getImageDataSetStructure().getImages();
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, "
+                + "path=images/pond.tif, timepoint=1.0, depth=2.0, seriesNumber=1]", images.get(0)
+                .toString());
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-10, "
+                + "path=images/pond.tif, timepoint=2.0, depth=3.0, seriesNumber=2]", images.get(1)
+                .toString());
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, "
+                + "path=images/pond.tif, timepoint=8.0, depth=9.0, seriesNumber=3]", images.get(2)
+                .toString());
         assertEquals(3, images.size());
         assertEquals("CHANNEL-4CHANNEL-10", configData.channelCodes);
         context.assertIsSatisfied();
     }
-    
+
     private File copyExampleFile(String fileName)
     {
-        File destinationFile = new File(imageFolder,
-                fileName);
+        File destinationFile = new File(imageFolder, fileName);
         FileUtilities.copyFileTo(new File(TEST_DATA_FOLDER, fileName), destinationFile, false);
         return destinationFile;
     }
-    
+
 }

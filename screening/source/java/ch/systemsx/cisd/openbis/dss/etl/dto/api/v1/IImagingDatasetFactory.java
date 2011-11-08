@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 
 /**
  * Factory for defining image and feature vector datasets.
@@ -39,6 +40,7 @@ public interface IImagingDatasetFactory
      * 2. {@link SimpleImageDataConfig} is not sufficient to describe the dataset and further
      * modifications on the dataset detail object are required.
      */
+    @Deprecated
     DataSetRegistrationDetails<ImageDataSetInformation> createImageRegistrationDetails(
             SimpleImageDataConfig imageDataSet, File incomingDatasetFolder);
 
@@ -55,20 +57,21 @@ public interface IImagingDatasetFactory
      * 
      * @param imageDatasetDetails advanced dataset specification
      */
+    @Deprecated
     boolean registerImageDataset(
             DataSetRegistrationDetails<ImageDataSetInformation> imageDatasetDetails,
             File incomingDatasetFolder, DataSetRegistrationService<ImageDataSetInformation> service);
 
     /**
      * Allows to define feature vectors of one image analysis dataset. Used to define a dataset
-     * details with {@link #createFeatureVectorRegistrationDetails(IFeaturesBuilder)}.
+     * details with {@link #createFeatureVectorDatasetDetails(IFeaturesBuilder)}.
      */
     IFeaturesBuilder createFeaturesBuilder();
 
     /**
      * Creates feature vector dataset details by using the specified builder.
      */
-    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetailsNew(
+    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorDatasetDetails(
             IFeaturesBuilder featureBuilder);
 
     /**
@@ -89,7 +92,7 @@ public interface IImagingDatasetFactory
      * 
      * @throws IOException if file cannot be parsed
      */
-    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+    DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorDatasetDetails(
             String csvFilePath, Properties properties) throws IOException;
 
     /**

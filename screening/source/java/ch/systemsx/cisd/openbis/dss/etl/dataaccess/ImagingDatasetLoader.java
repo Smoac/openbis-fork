@@ -96,6 +96,12 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         {
             // get the image content from the original image
             imageDTO = tryGetOriginalImage(chosenChannelId, channelStackReference, datasetId);
+            // Thumbnail is not required, but original image is not there.
+            // We have to fetch the thumbnail anyway.
+            if (imageDTO == null && imageSize.isThumbnailRequired() == false)
+            {
+                imageDTO = tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
+            }
         }
         if (imageDTO == null)
         {
@@ -259,20 +265,23 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
         MicroscopyChannelStackByLocationReference micRef =
                 channelStackReference.tryGetMicroscopyChannelStack();
+        ImgImageDTO image;
         if (hcsRef != null)
         {
-            return query.tryGetHCSImage(channelId, datasetId, hcsRef.getTileLocation(),
-                    hcsRef.getWellLocation());
+            image =
+                    query.tryGetHCSImage(channelId, datasetId, hcsRef.getTileLocation(),
+                            hcsRef.getWellLocation());
         } else if (micRef != null)
         {
-            return query.tryGetMicroscopyImage(channelId, datasetId, micRef.getTileLocation());
+            image = query.tryGetMicroscopyImage(channelId, datasetId, micRef.getTileLocation());
         } else
         {
             Long channelStackId = channelStackReference.tryGetChannelStackId();
             assert channelStackId != null : "invalid specification of the channel stack: "
                     + channelStackReference;
-            return query.tryGetImage(channelId, channelStackId, datasetId);
+            image = query.tryGetImage(channelId, channelStackId, datasetId);
         }
+        return checkAccessability(image);
     }
 
     private ImgImageDTO tryGetThumbnail(long channelId,
@@ -281,19 +290,44 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
         MicroscopyChannelStackByLocationReference micRef =
                 channelStackReference.tryGetMicroscopyChannelStack();
+        ImgImageDTO image;
         if (hcsRef != null)
         {
-            return query.tryGetHCSThumbnail(channelId, datasetId, hcsRef.getTileLocation(),
-                    hcsRef.getWellLocation());
+            image =
+                    query.tryGetHCSThumbnail(channelId, datasetId, hcsRef.getTileLocation(),
+                            hcsRef.getWellLocation());
         } else if (micRef != null)
         {
-            return query.tryGetMicroscopyThumbnail(channelId, datasetId, micRef.getTileLocation());
+            image = query.tryGetMicroscopyThumbnail(channelId, datasetId, micRef.getTileLocation());
         } else
         {
             Long channelStackId = channelStackReference.tryGetChannelStackId();
             assert channelStackId != null : "invalid specification of the channel stack: "
                     + channelStackReference;
-            return query.tryGetThumbnail(channelId, channelStackId, datasetId);
+            image = query.tryGetThumbnail(channelId, channelStackId, datasetId);
+        }
+        return checkAccessability(image);
+    }
+
+    private ImgImageDTO checkAccessability(ImgImageDTO image)
+    {
+        return isFileAccessible(image) ? image : null;
+    }
+
+    private boolean isFileAccessible(ImgImageDTO image)
+    {
+        String filePath = image.getFilePath();
+        try
+        {
+            content.getNode(filePath);
+            return true;
+        } catch (IllegalArgumentException ex)
+        {
+            operationLog
+                    .warn(String
+                            .format("Path '%s' is unaccessible, probably the dataset has been deleted and the imaging db is not yet synchronized.",
+                                    filePath));
+            return false;
         }
     }
 
@@ -326,7 +360,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                         query.tryGetHCSRepresentativeImage(datasetId, wellLocationOrNull, channelId);
             }
         }
-        return image;
+        return checkAccessability(image);
     }
 
     public AbsoluteImageReference tryFindAnyOriginalImage()
@@ -373,14 +407,17 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
     private ImgImageDTO tryGetRepresentativeThumbnailImageDTO(long channelId,
             Location wellLocationOrNull)
     {
+        ImgImageDTO image;
         if (wellLocationOrNull == null)
         {
-            return query.tryGetMicroscopyRepresentativeThumbnail(dataset.getId(), channelId);
+            image = query.tryGetMicroscopyRepresentativeThumbnail(dataset.getId(), channelId);
         } else
         {
-            return query.tryGetHCSRepresentativeThumbnail(dataset.getId(), wellLocationOrNull,
-                    channelId);
+            image =
+                    query.tryGetHCSRepresentativeThumbnail(dataset.getId(), wellLocationOrNull,
+                            channelId);
         }
+        return checkAccessability(image);
     }
 
     public AbsoluteImageReference tryFindAnyThumbnail()

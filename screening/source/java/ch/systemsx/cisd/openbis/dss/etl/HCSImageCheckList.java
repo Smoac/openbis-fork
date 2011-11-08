@@ -387,11 +387,11 @@ public final class HCSImageCheckList extends AbstractImageChecklist
 
             sb.append(" mapped to the following images:");
             sb.append("\n\t");
-            sb.append(primaryImage.getImageReference().getRelativeImagePath());
+            sb.append(primaryImage.getImageReference().getImageRelativePath());
             for (AcquiredSingleImage duplicateImage : duplicateImages)
             {
                 sb.append("\n\t");
-                sb.append(duplicateImage.getImageReference().getRelativeImagePath());
+                sb.append(duplicateImage.getImageReference().getImageRelativePath());
             }
             return sb.toString();
         }

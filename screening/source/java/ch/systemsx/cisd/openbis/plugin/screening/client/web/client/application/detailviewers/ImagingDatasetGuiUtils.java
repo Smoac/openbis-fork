@@ -242,7 +242,9 @@ class ImagingDatasetGuiUtils
                 sb.append("Dataset Code: ").append(reference.getCode()).append("<BR/>");
                 sb.append("Dataset Type: ").append(reference.getEntityType().getCode())
                         .append("<BR/>");
-                sb.append("File Type: ").append(reference.getFileTypeCode()).append("<BR/>");
+                String fileTypeCode = reference.getFileTypeCode();
+                fileTypeCode = (fileTypeCode == null) ? "none" : fileTypeCode;
+                sb.append("File Type: ").append(fileTypeCode).append("<BR/>");
                 sb.append("Registration Date: ").append(reference.getRegistrationDate())
                         .append("<BR/>");
                 if (featureVectorDataset.getAnalysisProcedure() != null)
@@ -303,7 +305,8 @@ class ImagingDatasetGuiUtils
         private String createDatasetSimpleViewModeHref(
                 SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
         {
-            return LinkExtractor.tryExtract(datasetChooser.tryGetChosenItem().getDatasetReference());
+            return LinkExtractor
+                    .tryExtract(datasetChooser.tryGetChosenItem().getDatasetReference());
         }
     }
 

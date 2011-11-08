@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5WriterClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerWriter;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
@@ -42,7 +43,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessIOStrategy;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
@@ -51,18 +55,59 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class Hdf5ThumbnailGenerator implements IHDF5WriterClient
+public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 {
+    /**
+     * Generates thumbnails of specified images whose paths are relative to the specified image
+     * parent directory.
+     * 
+     * @param images path to the images relative to the imagesParentDirectory
+     * @param thumbnailFilePath absolute path to the file where thumbnails will be saved
+     * @param imageStorageConfiguraton describes how the thumbnails should be generated
+     * @return null if thumbnails generation was not requested
+     */
+    public static ThumbnailFilePaths tryGenerateThumbnails(List<RelativeImageFile> images,
+            File imagesParentDirectory, String thumbnailFilePath,
+            ImageStorageConfiguraton imageStorageConfiguraton, String thumbnailPhysicalDatasetPermId)
+    {
+        ThumbnailsStorageFormat thumbnailsStorageFormatOrNull =
+                imageStorageConfiguraton.getThumbnailsStorageFormat();
+        if (thumbnailsStorageFormatOrNull != null)
+        {
+            ThumbnailFilePaths thumbnailPaths =
+                    new ThumbnailFilePaths(thumbnailPhysicalDatasetPermId);
+
+            File thumbnailsFile = new File(thumbnailFilePath);
+            final String relativeThumbnailFilePath = thumbnailsFile.getName();
+
+            HDF5Container container = new HDF5Container(thumbnailsFile);
+            ImageLibraryInfo imageLibrary = imageStorageConfiguraton.tryGetImageLibrary();
+            Hdf5ThumbnailGenerator thumbnailsGenerator =
+                    new Hdf5ThumbnailGenerator(images, imagesParentDirectory,
+                            thumbnailsStorageFormatOrNull, imageLibrary, relativeThumbnailFilePath,
+                            thumbnailPaths, operationLog);
+            container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
+                    thumbnailsGenerator);
+            return thumbnailPaths;
+        } else
+        {
+            return null;
+        }
+    }
+
     private static final File convertUtilityOrNull = OSUtilities.findExecutable("convert");
 
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             Hdf5ThumbnailGenerator.class);
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            Hdf5ThumbnailGenerator.class);
+
     private static final int MAX_RETRY_OF_FAILED_GENERATION = 3;
 
-    private final List<AcquiredSingleImage> plateImages;
+    private final List<RelativeImageFile> images;
 
-    private final File imagesInStoreFolder;
+    private final File imagesParentDirectory;
 
     private final ThumbnailsStorageFormat thumbnailsStorageFormat;
 
@@ -70,18 +115,22 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private final String relativeThumbnailFilePath;
 
-    private final Logger operationLog;
+    private final ThumbnailFilePaths thumbnailPathCollector;
 
-    Hdf5ThumbnailGenerator(List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
+    private final Logger logger;
+
+    private Hdf5ThumbnailGenerator(List<RelativeImageFile> images, File imagesParentDirectory,
             ThumbnailsStorageFormat thumbnailsStorageFormat, ImageLibraryInfo imageLibraryOrNull,
-            String relativeThumbnailFilePath, Logger operationLog)
+            String relativeThumbnailFilePath, ThumbnailFilePaths thumbnailPathCollector,
+            Logger operationLog)
     {
-        this.plateImages = plateImages;
-        this.imagesInStoreFolder = imagesInStoreFolder;
+        this.images = images;
+        this.imagesParentDirectory = imagesParentDirectory;
         this.thumbnailsStorageFormat = thumbnailsStorageFormat;
         this.imageLibraryOrNull = imageLibraryOrNull;
         this.relativeThumbnailFilePath = relativeThumbnailFilePath;
-        this.operationLog = operationLog;
+        this.thumbnailPathCollector = thumbnailPathCollector;
+        this.logger = operationLog;
     }
 
     /**
@@ -89,29 +138,27 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
      *            the thumbnail. Using it allows not to allocate memory each time when a thumbnail
      *            is generated.
      */
-    private Status generateThumbnail(IHDF5ContainerWriter writer, AcquiredSingleImage plateImage,
+    private Status generateThumbnail(IHDF5ContainerWriter writer, RelativeImageFile image,
             ByteArrayOutputStream bufferOutputStream)
     {
-        RelativeImageReference imageReference = plateImage.getImageReference();
-        String imagePath = imageReference.getRelativeImagePath();
-        String thumbnailPath = createThumbnailPath(imageReference);
-        File img = new File(imagesInStoreFolder, imagePath);
+        String imagePath = image.getImageRelativePath();
+        String thumbnailPath = createThumbnailPath(image);
+        File img = new File(imagesParentDirectory, imagePath);
 
         try
         {
             long start = System.currentTimeMillis();
-            String imageIdOrNull = imageReference.tryGetImageID();
+            String imageIdOrNull = image.tryGetImageID();
             byte[] byteArray = generateThumbnail(bufferOutputStream, img, imageIdOrNull);
             String path =
                     relativeThumbnailFilePath + AbstractImageStorageProcessor.ARCHIVE_DELIMITER
                             + thumbnailPath;
-            plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path, null,
-                    imageReference.tryGetColorComponent()));
+            thumbnailPathCollector.saveThumbnailPath(image, path);
 
-            if (operationLog.isDebugEnabled())
+            if (logger.isDebugEnabled())
             {
                 long now = System.currentTimeMillis();
-                operationLog.debug(Thread.currentThread().getName() + " thumbnail " + thumbnailPath
+                logger.debug(Thread.currentThread().getName() + " thumbnail " + thumbnailPath
                         + " (" + byteArray.length + " bytes) generated in " + (now - start)
                         + " msec");
             }
@@ -127,16 +174,16 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         return Status.OK;
     }
 
-    private String createThumbnailPath(RelativeImageReference imageReference)
+    private String createThumbnailPath(RelativeImageFile plateImage)
     {
-        String imagePath = imageReference.getRelativeImagePath();
+        String imagePath = plateImage.getImageRelativePath();
         String newImagePath = imagePath;
         int lastIndex = imagePath.lastIndexOf('.');
         if (lastIndex > 0)
         {
             newImagePath = imagePath.substring(0, lastIndex);
         }
-        String imageIdOrNull = imageReference.tryGetImageID();
+        String imageIdOrNull = plateImage.tryGetImageID();
         if (imageIdOrNull != null)
         {
             newImagePath += "_" + imageIdOrNull;
@@ -174,7 +221,7 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         }
         params.add("png:-");
         final ProcessResult result =
-                ProcessExecutionHelper.run(params, operationLog, machineLog,
+                ProcessExecutionHelper.run(params, logger, machineLog,
                         ConcurrencyUtilities.NO_TIMEOUT,
                         ProcessIOStrategy.BINARY_DISCARD_STDERR_IO_STRATEGY, false);
         if (result.isOK() == false)
@@ -208,15 +255,15 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private Status createStatus(String thumbnailPath, IOException ex)
     {
-        operationLog.warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
+        logger.warn("Retriable error when creating thumbnail '" + thumbnailPath + "'", ex);
         return Status.createRetriableError(String.format("Could not generate a thumbnail '%s': %s",
                 thumbnailPath, ex.getMessage()));
     }
 
-    private ITaskExecutor<AcquiredSingleImage> createThumbnailGenerator(
+    private ITaskExecutor<RelativeImageFile> createThumbnailGenerator(
             final IHDF5ContainerWriter writer)
     {
-        return new ITaskExecutor<AcquiredSingleImage>()
+        return new ITaskExecutor<RelativeImageFile>()
             {
                 private ThreadLocal<ByteArrayOutputStream> outputStreamBuffers =
                         new ThreadLocal<ByteArrayOutputStream>()
@@ -228,21 +275,21 @@ class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                                 }
                             };
 
-                public Status execute(AcquiredSingleImage plateImage)
+                public Status execute(RelativeImageFile image)
                 {
                     // each thread will get its own buffer to avoid allocating memory for the
                     // internal array each time
                     ByteArrayOutputStream outputStreamBuffer = outputStreamBuffers.get();
                     outputStreamBuffer.reset();
-                    return generateThumbnail(writer, plateImage, outputStreamBuffer);
+                    return generateThumbnail(writer, image, outputStreamBuffer);
                 }
             };
     }
 
     public void runWithSimpleWriter(IHDF5ContainerWriter writer)
     {
-        Collection<FailureRecord<AcquiredSingleImage>> errors =
-                ParallelizedExecutor.process(plateImages, createThumbnailGenerator(writer),
+        Collection<FailureRecord<RelativeImageFile>> errors =
+                ParallelizedExecutor.process(images, createThumbnailGenerator(writer),
                         thumbnailsStorageFormat.getAllowedMachineLoadDuringGeneration(), 100,
                         "Thumbnails generation", MAX_RETRY_OF_FAILED_GENERATION, true);
         if (errors.size() > 0)

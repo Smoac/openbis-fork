@@ -108,7 +108,9 @@ public class EntityTypeLabelUtils
             String registrationDate, String analysisProcedure, boolean withDatasetCode)
     {
         String typeLabel = getDatasetUserFriendlyTypeCode(datasetReference);
-        String fileType = withFileType ? " (" + datasetReference.getFileTypeCode() + ")" : "";
+        String fileType =
+                withFileType && datasetReference.getFileTypeCode() != null ? " ("
+                        + datasetReference.getFileTypeCode() + ")" : "";
         String analysisProcedureRendered =
                 StringUtils.isBlank(analysisProcedure) ? "" : analysisProcedure + ", ";
         return typeLabel + fileType + ", " + analysisProcedureRendered + registrationDate
@@ -127,6 +129,14 @@ public class EntityTypeLabelUtils
         String label =
                 tryWithoutPrefix(datasetTypeCode,
                         ScreeningConstants.HCS_ANALYSIS_DATASET_TYPE_PREFIX);
+        if (StringUtils.isBlank(label))
+        {
+            label =
+                    tryWithoutPrefix(datasetTypeCode,
+                            ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX
+                                    + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
+        }
+
         if (StringUtils.isBlank(label))
         {
             label =

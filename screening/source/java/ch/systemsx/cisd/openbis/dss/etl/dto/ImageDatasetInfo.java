@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
+import java.util.List;
+
 
 /**
  * Information about the dataset specific for the image datasets (hcs and microscopy).
@@ -31,13 +33,16 @@ public class ImageDatasetInfo
 
     private final ImageLibraryInfo imageLibraryOrNull;
 
+    private final List<ImageZoomLevel> imageZoomLevels;
+
     public ImageDatasetInfo(int tileRows, int tileColumns, boolean hasImageSeries,
-            ImageLibraryInfo imageLibraryOrNull)
+            ImageLibraryInfo imageLibraryOrNull, List<ImageZoomLevel> imageZoomLevels)
     {
         this.tileRows = tileRows;
         this.tileColumns = tileColumns;
         this.hasImageSeries = hasImageSeries;
         this.imageLibraryOrNull = imageLibraryOrNull;
+        this.imageZoomLevels = imageZoomLevels;
     }
 
     public int getTileRows()
@@ -58,5 +63,10 @@ public class ImageDatasetInfo
     public ImageLibraryInfo tryGetImageLibrary()
     {
         return imageLibraryOrNull;
+    }
+
+    public List<ImageZoomLevel> getImageZoomLevels()
+    {
+        return imageZoomLevels;
     }
 }

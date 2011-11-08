@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -34,11 +35,11 @@ public class HCSContainerDatasetInfo
 {
     private String experimentPermId;
 
-    private String containerPermId;
+    private String containerSamplePermId;
+
+    private int containerSampleRows, containerSampleColumns;
 
     private String datasetPermId;
-
-    private int containerRows, containerColumns;
 
     public String getExperimentPermId()
     {
@@ -50,14 +51,14 @@ public class HCSContainerDatasetInfo
         this.experimentPermId = experimentPermId;
     }
 
-    public String getContainerPermId()
+    public String getContainerSamplePermId()
     {
-        return containerPermId;
+        return containerSamplePermId;
     }
 
-    public void setContainerPermId(String containerPermId)
+    public void setContainerSamplePermId(String containerSamplePermId)
     {
-        this.containerPermId = containerPermId;
+        this.containerSamplePermId = containerSamplePermId;
     }
 
     public String getDatasetPermId()
@@ -72,33 +73,40 @@ public class HCSContainerDatasetInfo
 
     public int getContainerRows()
     {
-        return containerRows;
+        return containerSampleRows;
     }
 
     public void setContainerRows(int containerRows)
     {
-        this.containerRows = containerRows;
+        this.containerSampleRows = containerRows;
     }
 
     public int getContainerColumns()
     {
-        return containerColumns;
+        return containerSampleColumns;
     }
 
     public void setContainerColumns(int containerColumns)
     {
-        this.containerColumns = containerColumns;
+        this.containerSampleColumns = containerColumns;
     }
 
     public Geometry getContainerGeometry()
     {
-        return Geometry.createFromRowColDimensions(containerRows, containerColumns);
+        return Geometry.createFromRowColDimensions(containerSampleRows, containerSampleColumns);
+    }
+
+    public static HCSContainerDatasetInfo createScreeningDatasetInfoWithSample(
+            DataSetInformation dataSetInformation, Sample sampleOrNull)
+    {
+        return createScreeningDatasetInfoWithSample(
+                DatasetOwnerInformation.create(dataSetInformation), sampleOrNull);
     }
 
     public static HCSContainerDatasetInfo createScreeningDatasetInfo(
-            DataSetInformation dataSetInformation)
+            DatasetOwnerInformation dataSetInformation)
     {
-        Sample sample = dataSetInformation.tryToGetSample();
+        Sample sample = dataSetInformation.tryGetSample();
         assert sample != null : "no sample connected to a dataset";
         PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
         HCSContainerDatasetInfo info =
@@ -110,7 +118,7 @@ public class HCSContainerDatasetInfo
      * Create a screening data set info given sample.
      */
     public static HCSContainerDatasetInfo createScreeningDatasetInfoWithSample(
-            DataSetInformation dataSetInformation, Sample containingSample)
+            DatasetOwnerInformation dataSetInformation, Sample containingSample)
     {
         Sample sample = containingSample;
         assert sample != null : "no sample connected to a dataset";
@@ -121,12 +129,12 @@ public class HCSContainerDatasetInfo
     }
 
     private static HCSContainerDatasetInfo createBasicScreeningDataSetInfo(
-            DataSetInformation dataSetInformation, Sample sample, PlateDimension plateGeometry)
+            DatasetOwnerInformation dataSetInformation, Sample sample, PlateDimension plateGeometry)
     {
-        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        Experiment experiment = dataSetInformation.tryGetExperiment();
         HCSContainerDatasetInfo info = new HCSContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
-        info.setContainerPermId(sample.getPermId());
+        info.setContainerSamplePermId(sample.getPermId());
         info.setDatasetPermId(dataSetInformation.getDataSetCode());
         info.setContainerRows(plateGeometry.getRowsNum());
         info.setContainerColumns(plateGeometry.getColsNum());
@@ -148,14 +156,14 @@ public class HCSContainerDatasetInfo
         return plateDimension;
     }
 
-    public static PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
+    public static PlateDimension getPlateGeometry(final DatasetOwnerInformation dataSetInformation)
     {
-        IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
+        IEntityProperty[] sampleProperties = dataSetInformation.getSampleProperties();
         if ((sampleProperties == null || sampleProperties.length == 0)
-                && dataSetInformation.tryToGetSample() != null)
+                && dataSetInformation.tryGetSample() != null)
         {
             sampleProperties =
-                    dataSetInformation.tryToGetSample().getProperties()
+                    dataSetInformation.tryGetSample().getProperties()
                             .toArray(new IEntityProperty[0]);
         }
         final PlateDimension plateDimension =
@@ -168,5 +176,4 @@ public class HCSContainerDatasetInfo
         }
         return plateDimension;
     }
-
 }

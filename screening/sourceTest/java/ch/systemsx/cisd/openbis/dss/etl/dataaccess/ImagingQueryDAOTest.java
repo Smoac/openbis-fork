@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ExampleImageTransformerFactory;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -424,6 +426,11 @@ public class ImagingQueryDAOTest extends AbstractDBTest
                 new ImgImageDatasetDTO(permId, fieldsHeight, fieldsWidth, containerIdOrNull, false,
                         libraryName, libraryReader);
         final long datasetId = dao.addImageDataset(dataset);
+        String physicalDatasetPermIdPrefix = permId + "666";
+        dao.addImageZoomLevel(new ImgImageZoomLevelDTO(physicalDatasetPermIdPrefix + "-123", true,
+                datasetId));
+        dao.addImageZoomLevel(new ImgImageZoomLevelDTO(physicalDatasetPermIdPrefix + "-666", false,
+                datasetId));
 
         final ImgImageDatasetDTO loadedDataset = dao.tryGetImageDatasetByPermId(permId);
         assertNotNull(loadedDataset);
@@ -439,6 +446,15 @@ public class ImagingQueryDAOTest extends AbstractDBTest
             { permId, "not existing" });
         assertEquals(1, datasets.size());
         assertEquals(loadedDataset, datasets.get(0));
+
+        // test listImageZoomLevels
+        List<ImgImageZoomLevelDTO> zoomLevels = dao.listImageZoomLevels(permId);
+        assertEquals(2, zoomLevels.size());
+        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
+        {
+            AssertionUtil.assertContains(physicalDatasetPermIdPrefix,
+                    zoomLevel.getPhysicalDatasetPermId());
+        }
 
         return datasetId;
     }

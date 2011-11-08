@@ -30,7 +30,6 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -58,21 +57,22 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.openbis.dss.Constants;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.ImageDatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.OriginalDataStorageFormat;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -123,20 +123,20 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
      * @param dao should not be commited or rollbacked, it's done outside of this method.
      */
     abstract protected void storeInDatabase(IImagingQueryDAO dao,
-            DataSetInformation dataSetInformation, ImageFileExtractionResult extractedImages);
+            ImageDatasetOwnerInformation dataSetInformation,
+            ImageFileExtractionResult extractedImages);
 
     /**
      * Additional image validation (e.g. are there all images that were expected?). Prints warnings
      * to the log, does not throw exceptions.
+     * 
+     * @return true if the images are 'complete'.
      */
-    abstract protected void validateImages(DataSetInformation dataSetInformation,
+    abstract protected boolean validateImages(DatasetOwnerInformation dataSetInformation,
             IMailClient mailClient, File incomingDataSetDirectory,
             ImageFileExtractionResult extractionResult);
 
     // --------------------------------------------
-
-    /** The directory where <i>original</i> data could be found. */
-    private static final String DIR_ORIGINAL = ScreeningConstants.ORIGINAL_DATA_DIR;
 
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PlateStorageProcessor.class);
@@ -150,14 +150,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     private final static String ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY =
             "original-data-storage-format";
-
-    private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
-
-    private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
-
-    private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
-
-    private static final String THUMBNAIL_MAX_HEIGHT_PROPERTY = "thumbnail-max-height";
 
     // ---
 
@@ -195,35 +187,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         ImageStorageConfiguraton storageFormatParameters = new ImageStorageConfiguraton();
         storageFormatParameters
-                .setThumbnailsStorageFormat(tryCreateThumbnailsStorageFormat(properties));
-        storageFormatParameters
                 .setOriginalDataStorageFormat(getOriginalDataStorageFormat(properties));
         return storageFormatParameters;
-    }
-
-    private static ThumbnailsStorageFormat tryCreateThumbnailsStorageFormat(Properties properties)
-    {
-        boolean generateThumbnails =
-                PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
-        if (generateThumbnails == false)
-        {
-            return null;
-        }
-        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-        int thumbnailMaxWidth =
-                PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
-                        ThumbnailsStorageFormat.DEFAULT_THUMBNAIL_MAX_SIZE);
-        int thumbnailMaxHeight =
-                PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
-                        ThumbnailsStorageFormat.DEFAULT_THUMBNAIL_MAX_SIZE);
-        boolean areThumbnailsCompressed =
-                PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY,
-                        ThumbnailsStorageFormat.DEFAULT_COMPRESS_THUMBNAILS);
-
-        thumbnailsStorageFormat.setMaxWidth(thumbnailMaxWidth);
-        thumbnailsStorageFormat.setMaxHeight(thumbnailMaxHeight);
-        thumbnailsStorageFormat.setStoreCompressed(areThumbnailsCompressed);
-        return thumbnailsStorageFormat;
     }
 
     private static OriginalDataStorageFormat getOriginalDataStorageFormat(
@@ -294,31 +259,64 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 this.incomingDataSetDirectory = unzipedFolder;
                 return getStoredDataDirectory();
             }
+            if (isImageDataset() == false)
+            {
+                plainMoveToStore();
+                return rootDirectory;
+            }
 
             ImageFileExtractionWithConfig extractionResultWithConfig =
                     processor.extractImages(dataSetInformation, incomingDataSetDirectory);
             ImageFileExtractionResult extractionResult =
                     extractionResultWithConfig.getExtractionResult();
 
-            processor.validateImages(dataSetInformation, mailClient, incomingDataSetDirectory,
-                    extractionResult);
+            validateImages(mailClient, extractionResultWithConfig, extractionResult);
+
             List<AcquiredSingleImage> plateImages = extractionResult.getImages();
             ImageStorageConfiguraton imageStorageConfiguraton =
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
-            File imagesInStoreFolder =
-                    processor.moveToStore(incomingDataSetDirectory, rootDirectory);
-            this.storedDataDirectory = rootDirectory;
-            // NOTE: plateImages will be changed by reference
-            processImages(rootDirectory, plateImages, imagesInStoreFolder, imageStorageConfiguraton);
+            File datasetRelativeImagesFolderPath =
+                    extractionResultWithConfig.getExtractionResult()
+                            .getDatasetRelativeImagesFolderPath();
+            plainMoveToStore();
+            processImages(rootDirectory, plateImages, datasetRelativeImagesFolderPath,
+                    imageStorageConfiguraton);
 
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
 
             dbTransaction = processor.createQuery();
-            processor.storeInDatabase(dbTransaction, dataSetInformation, extractionResult);
+            processor.storeInDatabase(dbTransaction,
+                    extractionResultWithConfig.getImageDatasetOwner(), extractionResult);
 
             return rootDirectory;
+        }
+
+        private void validateImages(final IMailClient mailClient,
+                ImageFileExtractionWithConfig extractionResultWithConfig,
+                ImageFileExtractionResult extractionResult)
+        {
+            boolean isComplete =
+                    processor.validateImages(extractionResultWithConfig.getImageDatasetOwner(),
+                            mailClient, incomingDataSetDirectory, extractionResult);
+            dataSetInformation.setComplete(isComplete);
+        }
+
+        private boolean isImageDataset()
+        {
+            return (processor.imageFileExtractorOrNull != null)
+                    || dataSetInformation instanceof ImageDataSetInformation;
+        }
+
+        // moves the incoming folder to the store
+        private File plainMoveToStore()
+        {
+            File destinationDir =
+                    AbstractImageStorageProcessor.moveFileToDirectory(incomingDataSetDirectory,
+                            rootDirectory);
+            this.storedDataDirectory = rootDirectory;
+            return destinationDir;
         }
 
         @Override
@@ -330,7 +328,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
 
             // commit the database transaction
-            dbTransaction.close(true);
+            if (dbTransaction != null)
+            {
+                dbTransaction.close(true);
+            }
         }
 
         @Override
@@ -359,7 +360,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         {
             assert storedDataDirectory != null : "Unspecified stored data directory. Please call storeData(...)";
 
-            File originalFolder = getOriginalFolder(storedDataDirectory);
+            File originalFolder = storedDataDirectory;
             File[] content = originalFolder.listFiles();
             if (content == null || content.length == 0)
             {
@@ -390,7 +391,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 storedDataDirectory = rootDirectory;
             }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
-            
+
             final File originalDataFile = tryGetProprietaryData();
             if (originalDataFile == null)
             {
@@ -452,18 +453,28 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
     private final class ImageFileExtractionWithConfig
     {
+        private final ImageDatasetOwnerInformation imageDatasetOwner;
+
         private final ImageFileExtractionResult extractionResult;
 
         private final ImageStorageConfiguraton imageStorageConfiguraton;
 
-        public ImageFileExtractionWithConfig(ImageFileExtractionResult extractionResult,
+        public ImageFileExtractionWithConfig(ImageDatasetOwnerInformation imageDatasetOwner,
+                ImageFileExtractionResult extractionResult,
                 ImageStorageConfiguraton imageStorageConfiguraton)
         {
+            assert imageDatasetOwner != null : "imageDatasetOwner is null";
             assert extractionResult != null : "extractionResult is null";
             assert imageStorageConfiguraton != null : "imageStorageConfiguraton is null";
 
+            this.imageDatasetOwner = imageDatasetOwner;
             this.extractionResult = extractionResult;
             this.imageStorageConfiguraton = imageStorageConfiguraton;
+        }
+
+        public ImageDatasetOwnerInformation getImageDatasetOwner()
+        {
+            return imageDatasetOwner;
         }
 
         public ImageFileExtractionResult getExtractionResult()
@@ -494,16 +505,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return output;
     }
 
-    private static void processImages(final File rootDirectory,
-            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
-            ImageStorageConfiguraton imageStorageConfiguraton)
+    private static void processImages(final File rootDirectory, List<AcquiredSingleImage> images,
+            File datasetRelativeImagesFolderPath, ImageStorageConfiguraton imageStorageConfiguraton)
     {
-        generateThumbnails(plateImages, rootDirectory, imagesInStoreFolder,
-                imageStorageConfiguraton);
         String relativeImagesDirectory =
-                packageImagesIfNecessary(rootDirectory, plateImages, imagesInStoreFolder,
+                packageImagesIfNecessary(rootDirectory, images, datasetRelativeImagesFolderPath,
                         imageStorageConfiguraton);
-        updateImagesRelativePath(relativeImagesDirectory, plateImages);
+        updateImagesRelativePath(relativeImagesDirectory, images);
     }
 
     // returns the prefix which should be added before each image path to create a path relative to
@@ -514,19 +522,19 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     {
         OriginalDataStorageFormat originalDataStorageFormat =
                 imageStorageConfiguraton.getOriginalDataStorageFormat();
+        File absolutePath = new File(rootDirectory, imagesInStoreFolder.getPath());
         if (originalDataStorageFormat.isHdf5())
         {
             File hdf5OriginalContainer = getHdf5OriginalContainer(rootDirectory);
             boolean isDataCompressed =
                     originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
-            String pathInHdf5Container = "/" + imagesInStoreFolder.getName() + "/";
-            saveInHdf5(imagesInStoreFolder, pathInHdf5Container, hdf5OriginalContainer,
-                    isDataCompressed);
+            String pathInHdf5Container = "/" + absolutePath.getName() + "/";
+            saveInHdf5(absolutePath, pathInHdf5Container, hdf5OriginalContainer, isDataCompressed);
             String hdf5ArchivePathPrefix = hdf5OriginalContainer.getName() + ARCHIVE_DELIMITER;
             return hdf5ArchivePathPrefix + pathInHdf5Container;
         } else
         {
-            return getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder) + "/";
+            return imagesInStoreFolder.getPath() + "/";
         }
     }
 
@@ -544,63 +552,14 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                         pathInHdf5Container));
     }
 
-    private File moveToStore(File incomingDataSetDirectory, File rootDirectory)
-    {
-        File originalFolder = getOriginalFolder(rootDirectory);
-        originalFolder.mkdirs();
-        if (originalFolder.exists() == false)
-        {
-            throw new UserFailureException("Cannot create a directory: " + originalFolder);
-        }
-        return moveFileToDirectory(incomingDataSetDirectory, originalFolder);
-
-    }
-
-    // modifies plateImages by setting the path to thumbnails
-    private static void generateThumbnails(final List<AcquiredSingleImage> plateImages,
-            final File rootDirectory, final File imagesInStoreFolder,
-            ImageStorageConfiguraton imageStorageConfiguraton)
-    {
-        final File thumbnailsFile =
-                new File(rootDirectory, Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME);
-        final String relativeThumbnailFilePath =
-                getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
-
-        ThumbnailsStorageFormat thumbnailsStorageFormatOrNull =
-                imageStorageConfiguraton.getThumbnailsStorageFormat();
-        if (thumbnailsStorageFormatOrNull != null)
-        {
-            HDF5Container container = new HDF5Container(thumbnailsFile);
-            ImageLibraryInfo imageLibrary = imageStorageConfiguraton.tryGetImageLibrary();
-            Hdf5ThumbnailGenerator thumbnailsGenerator =
-                    new Hdf5ThumbnailGenerator(plateImages, imagesInStoreFolder,
-                            thumbnailsStorageFormatOrNull, imageLibrary, relativeThumbnailFilePath,
-                            operationLog);
-            container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
-                    thumbnailsGenerator);
-        }
-    }
-
-    private static void updateImagesRelativePath(String folderPathPrefix,
+    private static void updateImagesRelativePath(String pathPrefixToAdd,
             final List<AcquiredSingleImage> plateImages)
     {
         for (AcquiredSingleImage plateImage : plateImages)
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
-            imageReference.setRelativeImageFolder(folderPathPrefix);
+            imageReference.setRelativeImageFolder(pathPrefixToAdd);
         }
-    }
-
-    private static String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
-    {
-        String root = rootDirectory.getAbsolutePath();
-        String imgDir = imagesInStoreFolder.getAbsolutePath();
-        if (imgDir.startsWith(root) == false)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Directory %s should be a subdirectory of directory %s.", imgDir, root);
-        }
-        return imgDir.substring(root.length());
     }
 
     /**
@@ -615,27 +574,35 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     private ImageFileExtractionWithConfig extractImages(
             final DataSetInformation dataSetInformation, final File incomingDataSetDirectory)
     {
-        long extractionStart = System.currentTimeMillis();
-        IImageFileExtractor extractor = tryGetImageFileExtractor(incomingDataSetDirectory);
-        if (extractor == null)
+        if (imageFileExtractorOrNull == null)
         {
             return extractImagesFromDatasetInfoOrDie(dataSetInformation);
+        } else
+        {
+            return deprecatedExtractImages(dataSetInformation, incomingDataSetDirectory,
+                    imageFileExtractorOrNull);
         }
+    }
+
+    // handle deprecated non-jython way of importing images
+    private ImageFileExtractionWithConfig deprecatedExtractImages(
+            final DataSetInformation dataSetInformation, final File incomingDataSetDirectory,
+            IImageFileExtractor extractor)
+    {
         ImageFileExtractionResult result =
                 extractor.extract(incomingDataSetDirectory, dataSetInformation);
-
-        if (operationLog.isInfoEnabled())
-        {
-            long duration = System.currentTimeMillis() - extractionStart;
-            operationLog.info(String.format("Extraction of %d files took %s.", result.getImages()
-                    .size(), DurationFormatUtils.formatDurationHMS(duration)));
-        }
         if (result.getImages().size() == 0)
         {
             throw new UserFailureException("No images found in the incoming diretcory: "
                     + incomingDataSetDirectory);
         }
-        return new ImageFileExtractionWithConfig(result, globalImageStorageConfiguraton);
+        // no container dataset will be created in this case, having thumbnails will also not be
+        // allowed
+        ImageDatasetOwnerInformation imageDatasetOwner =
+                ImageDatasetOwnerInformation.create(dataSetInformation.getDataSetCode(),
+                        dataSetInformation, null);
+        return new ImageFileExtractionWithConfig(imageDatasetOwner, result,
+                globalImageStorageConfiguraton);
     }
 
     private ImageFileExtractionWithConfig extractImagesFromDatasetInfoOrDie(
@@ -655,24 +622,26 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
     }
 
     private ImageFileExtractionWithConfig extractImagesFromDatasetInfo(
-            ImageDataSetInformation imageDataSetInfo)
+            ImageDataSetInformation dataSetInformation)
     {
-        if (imageDataSetInfo.isValid() == false)
+        ImageDataSetStructure imageDataSetStructure = dataSetInformation.getImageDataSetStructure();
+        if (imageDataSetStructure.isValid() == false)
         {
             throw ConfigurationFailureException
                     .fromTemplate("Invalid image dataset info object, check if your jython script fills all the required fields. "
                             + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
-                            + imageDataSetInfo);
+                            + imageDataSetStructure);
         }
         Geometry tileGeometry =
-                new Geometry(imageDataSetInfo.getTileRowsNumber(),
-                        imageDataSetInfo.getTileColumnsNumber());
+                new Geometry(imageDataSetStructure.getTileRowsNumber(),
+                        imageDataSetStructure.getTileColumnsNumber());
 
-        List<AcquiredSingleImage> images = convertImages(imageDataSetInfo);
+        ThumbnailFilePaths thumbnailFilePaths = dataSetInformation.tryGetThumbnailFilePaths();
+        List<AcquiredSingleImage> images = convertImages(imageDataSetStructure, thumbnailFilePaths);
 
         List<File> invalidFiles = new ArrayList<File>(); // handles in an earlier phase
         ImageStorageConfiguraton imageStorageConfiguraton =
-                imageDataSetInfo.getImageStorageConfiguraton();
+                imageDataSetStructure.getImageStorageConfiguraton();
         if (imageStorageConfiguraton == null)
         {
             imageStorageConfiguraton = globalImageStorageConfiguraton;
@@ -681,18 +650,29 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         setPerImageTransformationIfNeeded(images, imageStorageConfiguraton);
 
         ImageFileExtractionResult extractionResult =
-                new ImageFileExtractionResult(images, invalidFiles, imageDataSetInfo.getChannels(),
-                        tileGeometry, imageStorageConfiguraton.getStoreChannelsOnExperimentLevel(),
+                new ImageFileExtractionResult(images,
+                        dataSetInformation.getDatasetRelativeImagesFolderPath(), invalidFiles,
+                        imageDataSetStructure.getChannels(), tileGeometry,
+                        imageStorageConfiguraton.getStoreChannelsOnExperimentLevel(),
                         imageStorageConfiguraton.tryGetImageLibrary());
-        return new ImageFileExtractionWithConfig(extractionResult, imageStorageConfiguraton);
+
+        String thumbnailDatasetPermIdOrNull =
+                (thumbnailFilePaths == null) ? null : thumbnailFilePaths
+                        .getThumbnailPhysicalDatasetPermId();
+        ImageDatasetOwnerInformation imageDatasetOwner =
+                ImageDatasetOwnerInformation.create(dataSetInformation.getContainerDatasetPermId(),
+                        dataSetInformation, thumbnailDatasetPermIdOrNull);
+        return new ImageFileExtractionWithConfig(imageDatasetOwner, extractionResult,
+                imageStorageConfiguraton);
     }
 
-    private static List<AcquiredSingleImage> convertImages(ImageDataSetInformation imageDataSetInfo)
+    private static List<AcquiredSingleImage> convertImages(
+            ImageDataSetStructure imageDataSetStructure, ThumbnailFilePaths thumbnailFilePathsOrNull)
     {
-        List<ImageFileInfo> imageInfos = imageDataSetInfo.getImages();
+        List<ImageFileInfo> imageInfos = imageDataSetStructure.getImages();
         List<ChannelColorComponent> channelColorComponentsOrNull =
-                imageDataSetInfo.getChannelColorComponents();
-        List<Channel> channels = imageDataSetInfo.getChannels();
+                imageDataSetStructure.getChannelColorComponents();
+        List<Channel> channels = imageDataSetStructure.getChannels();
 
         List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
         for (ImageFileInfo imageInfo : imageInfos)
@@ -706,13 +686,13 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     Channel channel = channels.get(i);
                     AcquiredSingleImage image =
                             AbstractImageFileExtractor.createImage(imageInfo, channel.getCode(),
-                                    colorComponent);
+                                    colorComponent, thumbnailFilePathsOrNull);
                     images.add(image);
                 }
             } else
             {
-                images.addAll(AbstractImageFileExtractor
-                        .createImagesWithNoColorComponent(imageInfo));
+                images.addAll(AbstractImageFileExtractor.createImagesWithNoColorComponent(
+                        imageInfo, thumbnailFilePathsOrNull));
             }
         }
         return images;
@@ -738,14 +718,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         }
     }
 
-    protected IImageFileExtractor tryGetImageFileExtractor(File incomingDataSetDirectory)
-    {
-        return imageFileExtractorOrNull;
-    }
-
     private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
     {
-        File originalFolder = getOriginalFolder(storedDataDirectory);
+        File originalFolder = storedDataDirectory;
         File hdf5OriginalContainer = getHdf5OriginalContainer(storedDataDirectory);
         if (hdf5OriginalContainer.exists()) // this should be always true
         {
@@ -831,11 +806,6 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             throw EnvironmentFailureException.fromTemplate("Can not delete symbolic link '%s'.",
                     source.getPath());
         }
-    }
-
-    private static File getOriginalFolder(File storedDataDirectory)
-    {
-        return new File(storedDataDirectory, DIR_ORIGINAL);
     }
 
     protected static List<String> extractChannelCodes(final List<ChannelDescription> descriptions)

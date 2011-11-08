@@ -128,7 +128,7 @@ public class ImagingDatabaseHelper
     private static CreatedOrFetchedEntity getOrCreateContainer(IImagingQueryDAO dao,
             HCSContainerDatasetInfo info, long expId)
     {
-        String containerPermId = info.getContainerPermId();
+        String containerPermId = info.getContainerSamplePermId();
         Long containerId = dao.tryGetContainerIdPermId(containerPermId);
         if (containerId != null)
         {

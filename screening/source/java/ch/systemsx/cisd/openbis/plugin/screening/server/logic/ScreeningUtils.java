@@ -18,16 +18,20 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.AnalysisProcedureResult;
@@ -57,22 +61,54 @@ public class ScreeningUtils
         }
     }
 
+    public static DatasetReference createDatasetReference(DataPE dataset, String baseIndexURL)
+    {
+        DataStore dataStore = DataStoreTranslator.translate(dataset.getDataStore());
+        String dataTypeCode = dataset.getDataSetType().getCode();
+        String fileTypeCode = null;
+        Experiment experiment =
+                ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL);
+        String analysisProcedureOrNull =
+                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,
+                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
+    }
+
     public static DatasetReference createDatasetReference(ExternalData dataset)
     {
         DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
-        @SuppressWarnings("deprecation")
-        String fileTypeCode = dataset.getFileFormatType().getCode();
+        String fileTypeCode = tryGetFileTypeCode(dataset);
         Experiment experiment = dataset.getExperiment();
         String analysisProcedureOrNull =
                 EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
-        return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
-                dataset.getRegistrationDate(), fileTypeCode, dataStore.getCode(),
-                dataStore.getHostUrl(), experiment.getPermId(), experiment.getIdentifier(),
-                analysisProcedureOrNull);
+        return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,
+                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
     }
 
-    public static List<ExternalDataPE> filterImageAnalysisDatasetsPE(List<ExternalDataPE> datasets)
+    private static String tryGetFileTypeCode(ExternalData dataset)
+    {
+        @SuppressWarnings("deprecation")
+        FileFormatType fileFormat = dataset.getFileFormatType();
+        String fileTypeCode = fileFormat == null ? null : fileFormat.getCode();
+        if (fileTypeCode != null
+                && fileTypeCode.equalsIgnoreCase(ScreeningConstants.UNKNOWN_FILE_FORMAT))
+        {
+            fileTypeCode = null;
+        }
+        return fileTypeCode;
+    }
+
+    private static DatasetReference createDatasetReference(long datasetId, String datasetCode,
+            String analysisProcedureOrNull, DataStore dataStore, String dataTypeCode,
+            Date registrationDate, String fileTypeCode, Experiment experiment)
+    {
+        return new DatasetReference(datasetId, datasetCode, dataTypeCode, registrationDate,
+                fileTypeCode, dataStore.getCode(), dataStore.getHostUrl(), experiment.getPermId(),
+                experiment.getIdentifier(), analysisProcedureOrNull);
+    }
+
+    public static <T extends DataPE> List<T> filterImageAnalysisDatasetsPE(List<T> datasets)
     {
         return filterDatasetsByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
@@ -102,16 +138,16 @@ public class ScreeningUtils
 
     public static <T extends DataPE> List<T> filterImageOverlayDatasets(Collection<T> datasets)
     {
-        return filterDatasetsByTypePattern(datasets,
+        return filterNonContainedDatasets(datasets,
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN,
                 ScreeningConstants.MICROSCOPY_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     /** excludes overlay image data sets even when they match to the image dataset pattern */
-    public static List<ExternalDataPE> filterImageDatasets(List<ExternalDataPE> datasets)
+    public static <T extends DataPE> List<T> filterImageDatasets(List<T> datasets)
     {
-        List<ExternalDataPE> allDatasets =
-                filterDatasetsByTypePattern(datasets,
+        List<T> allDatasets =
+                filterNonContainedDatasets(datasets,
                         ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN,
                         ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
 
@@ -122,8 +158,40 @@ public class ScreeningUtils
         return allDatasets;
     }
 
+    // returns datasets matching one of the specified types which at the same time do not have a
+    // matching container dataset
+    private static <T extends DataPE> List<T> filterNonContainedDatasets(Collection<T> datasets,
+            String... datasetTypeCodePatterns)
+    {
+        List<T> typeMatchingDatasets =
+                filterDatasetsByTypePattern(datasets, datasetTypeCodePatterns);
+        final List<T> chosenDatasets = new ArrayList<T>();
+        for (T dataset : typeMatchingDatasets)
+        {
+            if (isContainerMatching(dataset, datasetTypeCodePatterns) == false)
+            {
+                chosenDatasets.add(dataset);
+            }
+        }
+        return chosenDatasets;
+    }
+
+    private static boolean isContainerMatching(ExternalData dataset,
+            String... datasetTypeCodePatterns)
+    {
+        ContainerDataSet container = dataset.tryGetContainer();
+        return container != null && isOneOfTypesMatching(container, datasetTypeCodePatterns);
+    }
+
+    private static <T extends DataPE> boolean isContainerMatching(T dataset,
+            String... datasetTypeCodePatterns)
+    {
+        DataPE container = dataset.getContainer();
+        return container != null && isOneOfTypesMatching(container, datasetTypeCodePatterns);
+    }
+
     /** chooses datasets of unknown types */
-    public static List<ExternalDataPE> filterUnknownDatasets(List<ExternalDataPE> datasets)
+    public static <T extends DataPE> List<T> filterUnknownDatasets(List<T> datasets)
     {
         return excludeDatasetsByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN,
@@ -191,20 +259,28 @@ public class ScreeningUtils
      */
     public static boolean isHcsImageDataset(ExternalData externalData)
     {
-        return isOneOfTypesMatching(externalData,
+        return isTypeMatchingExcludingContainer(externalData,
                 ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
+    }
+
+    private static boolean isTypeMatchingExcludingContainer(ExternalData externalData,
+            String typePattern)
+    {
+        return isOneOfTypesMatching(externalData, typePattern)
+                && isContainerMatching(externalData, typePattern) == false;
     }
 
     public static boolean isRawHcsImageDataset(ExternalData externalData)
     {
-        return isTypeMatching(externalData, ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN)
+        return isTypeMatchingExcludingContainer(externalData,
+                ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN)
                 || ScreeningConstants.HCS_RAW_IMAGE_LEGACY_DATASET_TYPE.equals(externalData
                         .getDataSetType().getCode());
     }
 
     public static boolean isSegmentationHcsImageDataset(ExternalData externalData)
     {
-        return isOneOfTypesMatching(externalData,
+        return isTypeMatchingExcludingContainer(externalData,
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 

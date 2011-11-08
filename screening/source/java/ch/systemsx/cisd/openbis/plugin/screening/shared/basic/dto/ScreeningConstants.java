@@ -37,6 +37,13 @@ public class ScreeningConstants
 
     // ---- required entity type patterns -----------
 
+    /**
+     * All image datasets (both hcs and microscopy) which contain this marker in the dataset type
+     * code are considered to be container datasets with original physical dataset inside.
+     * Optionally the container can contain thumbnail datasets.
+     */
+    public static final String IMAGE_CONTAINER_DATASET_TYPE_MARKER = "_CONTAINER";
+
     // --- HCS dataset types
 
     /** Prefix of a dataset's type which stores hcs data. */
@@ -48,11 +55,11 @@ public class ScreeningConstants
     /** Type of the dataset which stores plate image overlays. */
     public static final String HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN =
             (HCS_IMAGE_DATASET_TYPE_PREFIX + ".*OVERLAY.*") + "|" // legacy
-                    + (HCS_IMAGE_DATASET_TYPE_PREFIX + "_SEGMENTATION.*");
+                    + (HCS_IMAGE_DATASET_TYPE_PREFIX + ".*_SEGMENTATION.*");
 
     /** Type of the dataset which stores raw plate images. */
     public static final String HCS_RAW_IMAGE_DATASET_TYPE_PATTERN = HCS_IMAGE_DATASET_TYPE_PREFIX
-            + "_RAW.*";
+            + ".*_RAW.*";
 
     /** The plain old legacy type for raw image data sets. */
     public static final String HCS_RAW_IMAGE_LEGACY_DATASET_TYPE = HCS_IMAGE_DATASET_TYPE_PREFIX;
@@ -108,20 +115,33 @@ public class ScreeningConstants
 
     // --- Default dataset type codes for screening datasets
 
-    /** type of the new raw image dataset */
+    /** type of the image container dataset type for raw images */
+    public static final String DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE = "HCS_IMAGE_CONTAINER_RAW";
+
+    /** type of the raw image physical dataset */
     public static final String DEFAULT_RAW_IMAGE_DATASET_TYPE = "HCS_IMAGE_RAW";
 
-    /** type of the new overview image dataset */
-    public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE = "HCS_IMAGE_OVERVIEW";
+    /** type of the image segmentation (overlay) physical dataset */
+    public static final String DEFAULT_SEGMENTATION_IMAGE_CONTAINER_DATASET_TYPE =
+            "HCS_IMAGE_CONTAINER_SEGMENTATION";
 
-    /** type of the new image segmentation (overlay) dataset */
+    /** type of the image segmentation (overlay) physical dataset */
     public static final String DEFAULT_SEGMENTATION_IMAGE_DATASET_TYPE = "HCS_IMAGE_SEGMENTATION";
+
+    /**
+     * type of the overview (aka thumbnail) image physical dataset. Used for both raw and overview
+     * datasets.
+     */
+    public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE = "HCS_IMAGE_OVERVIEW";
 
     /** type of the new analysis dataset */
     public static final String DEFAULT_ANALYSIS_WELL_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES";
 
     /** unknown file format code */
     public static final String UNKNOWN_FILE_FORMAT = "UNKNOWN";
+
+    /** Default file format of thumbnail datasets. */
+    public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_FILE_FORMAT = "PNG";
 
     // ----
 

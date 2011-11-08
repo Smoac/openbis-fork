@@ -187,7 +187,7 @@ abstract public class SimpleImageDataConfig
 
     // --- auxiliary structures ----------------------------------------------
 
-    private String datasetTypeCode;
+    private String mainDatasetTypeCode;
 
     private String fileFormatCode = ScreeningConstants.UNKNOWN_FILE_FORMAT;
 
@@ -613,7 +613,7 @@ abstract public class SimpleImageDataConfig
     /** Sets the type of the dataset. */
     public void setDataSetType(String datasetTypeCode)
     {
-        this.datasetTypeCode = datasetTypeCode;
+        this.mainDatasetTypeCode = datasetTypeCode;
     }
 
     /** Sets the file type of the dataset. */
@@ -642,7 +642,7 @@ abstract public class SimpleImageDataConfig
 
     public String getDataSetType()
     {
-        return datasetTypeCode;
+        return mainDatasetTypeCode;
     }
 
     public String getFileFormatType()

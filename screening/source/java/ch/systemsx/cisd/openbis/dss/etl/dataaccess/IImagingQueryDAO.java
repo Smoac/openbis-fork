@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
@@ -88,6 +89,10 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
             + "?{1.containerId}, ?{1.isMultidimensional}, "
             + "?{1.imageLibraryName}, ?{1.imageReaderName}) returning ID")
     public long addImageDataset(ImgImageDatasetDTO dataset);
+
+    @Select("insert into image_zoom_levels (physical_dataset_perm_id, is_original, container_dataset_id)  "
+            + "values(?{1.physicalDatasetPermId}, ?{1.isOriginal}, ?{1.containerDatasetId}) returning ID")
+    public long addImageZoomLevel(ImgImageZoomLevelDTO dataset);
 
     @Select("insert into ANALYSIS_DATA_SETS (PERM_ID, CONT_ID)                     "
             + "values(?{1.permId}, ?{1.containerId}) returning ID")

@@ -32,11 +32,13 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
  * Abstract superclass for uploaders of image datasets into the imaging database.
@@ -261,7 +263,7 @@ abstract class AbstractImageDatasetUploader
     {
 
         ImgImageDTO dto =
-                new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getRelativeImagePath(),
+                new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getImageRelativePath(),
                         imageReferenceOrNull.tryGetImageID(),
                         imageReferenceOrNull.tryGetColorComponent());
         return dto;
@@ -272,7 +274,18 @@ abstract class AbstractImageDatasetUploader
     {
         ImgImageDatasetDTO dataset =
                 createImageDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
-        return dao.addImageDataset(dataset);
+        long imageContainerDatasetId = dao.addImageDataset(dataset);
+        for (ImageZoomLevel imageZoomLevel : imageDatasetInfo.getImageZoomLevels())
+        {
+            dao.addImageZoomLevel(convert(imageContainerDatasetId, imageZoomLevel));
+        }
+        return imageContainerDatasetId;
+    }
+
+    private ImgImageZoomLevelDTO convert(long imageContainerDatasetId, ImageZoomLevel imageZoomLevel)
+    {
+        return new ImgImageZoomLevelDTO(imageZoomLevel.getPhysicalDatasetPermId(),
+                imageZoomLevel.isOriginal(), imageContainerDatasetId);
     }
 
     private static ImgImageDatasetDTO createImageDatasetDTO(String datasetPermId,

@@ -26,11 +26,12 @@ import java.util.Properties;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.ImageDatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 
@@ -85,7 +86,8 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
     }
 
     @Override
-    protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
+    protected void storeInDatabase(IImagingQueryDAO dao,
+            ImageDatasetOwnerInformation dataSetInformation,
             ImageFileExtractionResult extractedImages)
     {
         List<AcquiredSingleImage> images = extractedImages.getImages();
@@ -118,27 +120,30 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
 
                 private String getPath(AcquiredSingleImage o1)
                 {
-                    return o1.getImageReference().getRelativeImagePath();
+                    return o1.getImageReference().getImageRelativePath();
                 }
             };
     }
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images,
+            ImageDatasetOwnerInformation dataSetInformation, List<AcquiredSingleImage> images,
             Geometry tileGeometry, ImageLibraryInfo imageLibraryInfoOrNull)
     {
         boolean hasImageSeries = hasImageSeries(images);
         ImageDatasetInfo imageDatasetInfo =
                 new ImageDatasetInfo(tileGeometry.getRows(), tileGeometry.getColumns(),
-                        hasImageSeries, imageLibraryInfoOrNull);
+                        hasImageSeries, imageLibraryInfoOrNull,
+                        dataSetInformation.getImageZoomLevels());
         return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(), imageDatasetInfo);
     }
 
     @Override
-    protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
-            File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
+    protected boolean validateImages(DatasetOwnerInformation dataSetInformation,
+            IMailClient mailClient, File incomingDataSetDirectory,
+            ImageFileExtractionResult extractionResult)
     {
         // do nothing - for now we do not have good examples of real data
+        return true;
     }
 
 }

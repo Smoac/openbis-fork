@@ -46,8 +46,9 @@ import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
@@ -529,11 +530,15 @@ public class SimpleImageDataSetRegistrator
         dataset.setFileFormatCode(simpleImageConfig.getFileFormatType());
         dataset.setMeasured(simpleImageConfig.isMeasuredData());
 
-        String sampleCode = simpleImageConfig.getPlateCode();
-        String spaceCode = simpleImageConfig.getPlateSpace();
-        dataset.setSample(spaceCode, sampleCode);
-        dataset.setMeasured(true);
+        dataset.setSample(simpleImageConfig.getPlateSpace(), simpleImageConfig.getPlateCode());
+        dataset.setIncomingDirectory(incoming);
 
+        ImageDataSetStructure imageStruct = createImageDataSetStructure(incoming);
+        dataset.setImageDataSetStructure(imageStruct);
+    }
+
+    private ImageDataSetStructure createImageDataSetStructure(File incoming)
+    {
         List<File> imageFiles = extractImageFiles(incoming);
         IImageReader imageReaderOrNull = tryCreateAndSaveImageReader(imageFiles);
         List<ImageTokensWithPath> imageTokensList =
@@ -547,11 +552,14 @@ public class SimpleImageDataSetRegistrator
         computeAndAppendCommonIntensityRangeTransformation(images, incoming, channels,
                 imageReaderOrNull);
 
-        dataset.setImages(images);
-        dataset.setChannels(channels);
-        dataset.setTileGeometry(tileGeometry.getNumberOfRows(), tileGeometry.getNumberOfColumns());
+        ImageDataSetStructure imageStruct = new ImageDataSetStructure();
+        imageStruct.setImages(images);
+        imageStruct.setChannels(channels);
+        imageStruct.setTileGeometry(tileGeometry.getNumberOfRows(),
+                tileGeometry.getNumberOfColumns());
 
-        dataset.setImageStorageConfiguraton(simpleImageConfig.getImageStorageConfiguration());
+        imageStruct.setImageStorageConfiguraton(simpleImageConfig.getImageStorageConfiguration());
+        return imageStruct;
     }
 
     private <T extends DataSetInformation> void setRegistrationDetails(

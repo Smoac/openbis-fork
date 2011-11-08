@@ -68,7 +68,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
     {
         HCSContainerDatasetInfo info = new HCSContainerDatasetInfo();
         info.setExperimentPermId(EXP_PERM_ID);
-        info.setContainerPermId(CONTAINER_PERM_ID);
+        info.setContainerSamplePermId(CONTAINER_PERM_ID);
         info.setDatasetPermId(DS_PERM_ID);
         FeatureVectorUploader uploader = new FeatureVectorUploader(dao, info);
         ArrayList<CanonicalFeatureVector> fvecs = new ArrayList<CanonicalFeatureVector>();

@@ -31,17 +31,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -170,17 +167,12 @@ public class PlateContentLoader
         return dataSet;
     }
 
-    private ExternalData translate(ExternalDataPE externalData)
-    {
-        return DataSetTranslator.translate(externalData, session.getBaseIndexURL());
-    }
-
     private PlateContent getPlateContent(TechId plateId)
     {
         IDataSetTable dataSetTable = createDataSetTable();
 
         Sample plate = loadPlate(plateId);
-        List<ExternalDataPE> datasets = loadDatasets(plateId, dataSetTable);
+        List<DataPE> datasets = loadDatasets(plateId, dataSetTable);
         List<WellMetadata> wells = loadWells(plateId);
 
         List<ImageDatasetEnrichedReference> imageDatasetReferences =
@@ -196,17 +188,16 @@ public class PlateContentLoader
                 unknownDatasetReferences);
     }
 
-    private List<DatasetReference> extractUnknownDatasets(List<ExternalDataPE> datasets)
+    private List<DatasetReference> extractUnknownDatasets(List<DataPE> datasets)
     {
-        List<ExternalDataPE> unknownDatasets = ScreeningUtils.filterUnknownDatasets(datasets);
+        List<DataPE> unknownDatasets = ScreeningUtils.filterUnknownDatasets(datasets);
         List<DatasetReference> unknownDatasetReferences = createDatasetReferences(unknownDatasets);
         return unknownDatasetReferences;
     }
 
-    private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<ExternalDataPE> datasets)
+    private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<DataPE> datasets)
     {
-        List<ExternalDataPE> analysisDatasets =
-                ScreeningUtils.filterImageAnalysisDatasetsPE(datasets);
+        List<DataPE> analysisDatasets = ScreeningUtils.filterImageAnalysisDatasetsPE(datasets);
         List<DatasetReference> featureVectorDatasetReferences =
                 createDatasetReferences(analysisDatasets);
         return fetchFeatureVectors(featureVectorDatasetReferences);
@@ -303,12 +294,13 @@ public class PlateContentLoader
         return featureVectorDataset;
     }
 
-    private List<DatasetReference> createDatasetReferences(List<ExternalDataPE> datasets)
+    private <T extends DataPE> List<DatasetReference> createDatasetReferences(List<T> datasets)
     {
         List<DatasetReference> datasetReferences = new ArrayList<DatasetReference>();
-        for (ExternalDataPE dataset : datasets)
+        for (T dataset : datasets)
         {
-            datasetReferences.add(ScreeningUtils.createDatasetReference(translate(dataset)));
+            datasetReferences.add(ScreeningUtils.createDatasetReference(dataset,
+                    session.getBaseIndexURL()));
         }
         return datasetReferences;
     }
@@ -361,10 +353,10 @@ public class PlateContentLoader
         return materials;
     }
 
-    protected static List<ExternalDataPE> loadDatasets(TechId plateId, IDataSetTable dataSetTable)
+    protected static List<DataPE> loadDatasets(TechId plateId, IDataSetTable dataSetTable)
     {
         dataSetTable.loadBySampleTechId(plateId);
-        return dataSetTable.getExternalData();
+        return dataSetTable.getDataSets();
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -415,11 +407,11 @@ public class PlateContentLoader
         {
             datasetOwnerSampleId = sampleId;
         }
-        List<ExternalDataPE> datasets = loadDatasets(datasetOwnerSampleId, createDataSetTable());
-        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
+        List<DataPE> datasets = loadDatasets(datasetOwnerSampleId, createDataSetTable());
+        List<DataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
 
         List<LogicalImageInfo> logicalImages = new ArrayList<LogicalImageInfo>();
-        for (ExternalDataPE imageDataset : imageDatasets)
+        for (DataPE imageDataset : imageDatasets)
         {
             LogicalImageInfo logicalImage =
                     imageLoader.loadLogicalImageInfo(imageDataset.getCode(), imageDataset

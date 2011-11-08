@@ -28,8 +28,8 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
  */
 public class ImageValidator
 {
-    private final DataSetInformation dataSetInformation;
+    private final DatasetOwnerInformation dataSetInformation;
 
     private final IMailClient mailClient;
 
@@ -65,7 +65,7 @@ public class ImageValidator
      * @param extractionResult
      * @param operationLog
      */
-    public ImageValidator(DataSetInformation dataSetInformation, IMailClient mailClient,
+    public ImageValidator(DatasetOwnerInformation dataSetInformation, IMailClient mailClient,
             File incomingDataSetDirectory, ImageFileExtractionResult extractionResult,
             Logger operationLog, Logger notificationLog, boolean notifyIfPlateIncomplete)
     {
@@ -82,7 +82,7 @@ public class ImageValidator
     /**
      * Validate the images and throw exceptions if they are not valid.
      */
-    public void validateImages()
+    public boolean validateImages()
     {
         initializeImageCheckList();
         checkImagesForDuplicates();
@@ -98,7 +98,7 @@ public class ImageValidator
                             + " Have you changed your naming convention?",
                     incomingDataSetDirectory.getAbsolutePath());
         }
-        checkCompleteness();
+        return checkCompleteness();
     }
 
     private void initializeImageCheckList()
@@ -134,18 +134,17 @@ public class ImageValidator
         imageCheckList.checkForDuplicates();
     }
 
-    private void checkCompleteness()
+    private boolean checkCompleteness()
     {
         String dataSetFileName = incomingDataSetDirectory.getName();
         final boolean complete = imageCheckList.getCheckedOnFullLocationsSize() == 0;
-        dataSetInformation.setComplete(complete);
         if (complete == false)
         {
             final String message = imageCheckList.getIncompleteDataSetErrorMessage(dataSetFileName);
             operationLog.warn(message);
             if (mailClient != null && notifyIfPlateIncomplete)
             {
-                Experiment experiment = dataSetInformation.tryToGetExperiment();
+                Experiment experiment = dataSetInformation.tryGetExperiment();
                 assert experiment != null : "dataset not connected to an experiment: "
                         + dataSetInformation;
                 String email = null;
@@ -171,6 +170,7 @@ public class ImageValidator
                 }
             }
         }
+        return complete;
     }
 
     private PlateDimension getPlateGeometry()

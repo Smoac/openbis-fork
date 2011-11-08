@@ -34,7 +34,7 @@ public class RelativeImageReference extends AbstractImageReference
         this.imageRelativePath = relativePath;
     }
 
-    public String getRelativeImagePath()
+    public String getImageRelativePath()
     {
         return imageRelativePath;
     }

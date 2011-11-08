@@ -166,7 +166,6 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         return ServiceProvider.getOpenBISService();
     }
 
-
     @Override
     public IStorageProcessorTransaction createTransaction(
             StorageProcessorTransactionParameters parameters)
@@ -176,8 +175,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     protected void transform(IImagingQueryDAO dataAccessObject, File originalDataSet,
-            File targetFolderForTransformedDataSet,
-            DataSetInformation dataSetInformation)
+            File targetFolderForTransformedDataSet, DataSetInformation dataSetInformation)
     {
         List<String> lines = FileUtilities.loadToStringList(originalDataSet);
         if (lines.isEmpty())
@@ -202,8 +200,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     private void loadDataSetIntoDatabase(IImagingQueryDAO dataAccessObject, List<String> lines,
-            DataSetInformation dataSetInformation)
-            throws IOException
+            DataSetInformation dataSetInformation) throws IOException
     {
         GenedataFormatToCanonicalFeatureVector convertor =
                 new GenedataFormatToCanonicalFeatureVector(lines, LAYER_PREFIX);
@@ -215,8 +212,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         uploader.uploadFeatureVectors(fvecs);
     }
 
-    private HCSContainerDatasetInfo createScreeningDatasetInfo(
-            DataSetInformation dataSetInformation)
+    private HCSContainerDatasetInfo createScreeningDatasetInfo(DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
         if (sampleOrNull == null)
@@ -225,8 +221,8 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
                     "Cannot find a sample to which a plate should be (directly or indirectly) connected: "
                             + dataSetInformation);
         }
-        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(
-                dataSetInformation, sampleOrNull);
+        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
+                sampleOrNull);
     }
 
     private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)
@@ -332,7 +328,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         return new UserFailureException("Error in line " + lineIndex + 1 + ": " + reason + ": "
                 + line);
     }
-    
+
     private static class FeatureStorageProcessorTransaction extends
             AbstractDelegatingStorageProcessorTransaction
     {
@@ -352,14 +348,12 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         @Override
         protected File executeStoreData(ITypeExtractor typeExtractor, IMailClient mailClient)
         {
-            nestedTransaction
-                    .storeData(typeExtractor, mailClient, incomingDataSetDirectory);
+            nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
 
             dataAccessObject = processor.createDAO();
             File storedDataSet = nestedTransaction.getStoredDataDirectory();
             File originalDir = DefaultStorageProcessor.getOriginalDirectory(storedDataSet);
-            File targetFile =
-                    new File(originalDir, incomingDataSetDirectory.getName());
+            File targetFile = new File(originalDir, incomingDataSetDirectory.getName());
             processor.transform(dataAccessObject, targetFile, storedDataSet, dataSetInformation);
             return nestedTransaction.getStoredDataDirectory();
         }
@@ -399,6 +393,5 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             dataAccessObject = null;
         }
     }
-    
 
 }

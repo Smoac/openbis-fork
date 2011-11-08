@@ -22,10 +22,11 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
+import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.ImageDatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Storage processor which stores microscopy images in a special-purpose imaging database.
@@ -43,7 +44,8 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     }
 
     @Override
-    protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
+    protected void storeInDatabase(IImagingQueryDAO dao,
+            ImageDatasetOwnerInformation dataSetInformation,
             ImageFileExtractionResult extractedImages)
     {
         List<AcquiredSingleImage> images = extractedImages.getImages();
@@ -55,24 +57,26 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     }
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
-            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images,
+            ImageDatasetOwnerInformation dataSetInformation, List<AcquiredSingleImage> images,
             Geometry tileGeometry, ImageLibraryInfo imageLibraryInfoOrNull)
     {
         boolean hasImageSeries = hasImageSeries(images);
         ImageDatasetInfo imageDatasetInfo =
                 new ImageDatasetInfo(tileGeometry.getRows(), tileGeometry.getColumns(),
-                        hasImageSeries, imageLibraryInfoOrNull);
+                        hasImageSeries, imageLibraryInfoOrNull,
+                        dataSetInformation.getImageZoomLevels());
         return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(), imageDatasetInfo);
     }
 
     @Override
-    protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
-            File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
+    protected boolean validateImages(DatasetOwnerInformation dataSetInformation,
+            IMailClient mailClient, File incomingDataSetDirectory,
+            ImageFileExtractionResult extractionResult)
     {
         ImageValidator validator =
                 new ImageValidator(dataSetInformation, mailClient, incomingDataSetDirectory,
                         extractionResult, operationLog, notificationLog, false);
         validator.validateImages();
+        return true;
     }
-
 }

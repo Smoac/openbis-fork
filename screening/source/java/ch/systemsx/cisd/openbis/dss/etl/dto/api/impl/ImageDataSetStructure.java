@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
+package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 
 /**
- * Extends {@link DataSetInformation} with information about images needed in HCS/Microscopy.
+ * Information about images needed in HCS/Microscopy. Does not contain information about datasets
+ * entities and their metadata.
  * 
  * @author Tomasz Pylak
  */
-public class ImageDataSetInformation extends BasicDataSetInformation
+public class ImageDataSetStructure
 {
-    private static final long serialVersionUID = IServer.VERSION;
-
     private List<ImageFileInfo> images;
 
     private List<Channel> channels;
@@ -73,6 +75,11 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     public ImageStorageConfiguraton getImageStorageConfiguraton()
     {
         return imageStorageConfiguratonOrNull;
+    }
+
+    public boolean areThumbnailsGenerated()
+    {
+        return getImageStorageConfiguraton().getThumbnailsStorageFormat() != null;
     }
 
     // ------ setters
@@ -122,8 +129,6 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         this.imageStorageConfiguratonOrNull = imageStorageConfiguratonOrNull;
     }
 
-    // -------
-
     /** are all necessary fields filled? */
     public boolean isValid()
     {
@@ -133,11 +138,12 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     @Override
     public String toString()
     {
-        final StringBuilder buffer = new StringBuilder(super.toString());
-        appendNameAndObject(buffer, "config", imageStorageConfiguratonOrNull);
-        appendNameAndObject(buffer, "tile", tileRowsNumber + "x" + tileColumnsNumber);
-        appendNameAndObject(buffer, "channels", CollectionUtils.abbreviate(channels, -1));
-        appendNameAndObject(buffer, "number of images", images.size());
+        final StringBuilder buffer = new StringBuilder();
+        ToStringUtil.appendNameAndObject(buffer, "config", imageStorageConfiguratonOrNull);
+        ToStringUtil.appendNameAndObject(buffer, "tile", tileRowsNumber + "x" + tileColumnsNumber);
+        ToStringUtil.appendNameAndObject(buffer, "channels",
+                CollectionUtils.abbreviate(channels, -1));
+        ToStringUtil.appendNameAndObject(buffer, "number of images", images.size());
         return buffer.toString();
     }
 

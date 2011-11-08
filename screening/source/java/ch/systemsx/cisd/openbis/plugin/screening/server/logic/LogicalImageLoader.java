@@ -23,7 +23,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -104,11 +103,11 @@ public class LogicalImageLoader
         return new ImageDatasetEnrichedReference(datasetImagesReference, overlayDatasets);
     }
 
-    List<ImageDatasetEnrichedReference> loadImageDatasets(List<ExternalDataPE> datasets)
+    List<ImageDatasetEnrichedReference> loadImageDatasets(List<DataPE> datasets)
     {
         List<ImageDatasetEnrichedReference> refs = new ArrayList<ImageDatasetEnrichedReference>();
-        List<ExternalDataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
-        for (ExternalDataPE imageDataset : imageDatasets)
+        List<DataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
+        for (DataPE imageDataset : imageDatasets)
         {
             DatasetImagesReference ref = loadImageDatasetReference(imageDataset);
             List<DatasetOverlayImagesReference> overlays = extractImageOverlays(imageDataset);

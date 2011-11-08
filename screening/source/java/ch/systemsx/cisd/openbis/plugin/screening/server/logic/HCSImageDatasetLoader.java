@@ -242,17 +242,21 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
                 createChildToParentDataSetsMap(filteredChildrenForParents, parentDataSets,
                         datasetLister);
 
-        List<ExternalData> childrenDataSets = new ArrayList<ExternalData>();
-        for (ExternalData child : filteredChildrenForParents)
+        setParentDatasets(filteredChildrenForParents, childIdToParentDataSetsMap);
+        return filteredChildrenForParents;
+    }
+
+    private static void setParentDatasets(List<ExternalData> childrenDatasets,
+            Map<Long, ExternalData> childIdToParentDataSetsMap)
+    {
+        for (ExternalData child : childrenDatasets)
         {
             ExternalData parentImageDataset = childIdToParentDataSetsMap.get(child.getId());
             if (parentImageDataset != null)
             {
                 child.setParents(Arrays.asList(parentImageDataset));
             }
-            childrenDataSets.add(child);
         }
-        return childrenDataSets;
     }
 
     private Map<Long, ExternalData> createChildToParentDataSetsMap(
