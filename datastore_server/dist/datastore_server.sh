@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Control script for CISD openBIS ETL Server on Unix / Linux systems
+# Control script for CISD openBIS Data Store Server on Unix / Linux systems
 # -------------------------------------------------------------------------
 
 awkBin()
@@ -93,14 +93,14 @@ printStatus()
     PID=`cat $PIDFILE`
     isPIDRunning $PID
     if [ $? -eq 0 ]; then
-      echo "ETL Server is running (pid $PID)"
+      echo "Data Store Server is running (pid $PID)"
       return 0
     else
-      echo "ETL Server is dead (stale pid $PID)"
+      echo "Data Store Server is dead (stale pid $PID)"
       return 1
     fi
   else
-    echo "ETL Server is not running."
+    echo "Data Store Server is not running."
     return 2
   fi
 }
@@ -155,7 +155,7 @@ case "$command" in
     getStatus
     EXIT_STATUS=$?
     if [ $EXIT_STATUS -eq 0 ]; then
-      echo "Cannot start ETL Server: already running."
+      echo "Cannot start Data Store Server: already running."
       exit 100
     fi
 
