@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
+import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -148,33 +147,16 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         queryResult.add(createQueryResult("A1", "material-1"));
         queryResult.add(createQueryResult("B1", "material-1"));
 
-        setDataSetExpectations();
         setUpListAdministratorExpectations();
 
         context.checking(new Expectations()
             {
                 {
-                    one(dataSourceQueryService).select(with(any(String.class)),
-                            with(any(String.class)), with(anything()));
-                    will(returnValue(queryResult));
-
-                    exactly(2).of(openBisService).listMaterials(with(materialCriteria),
-                            with(equal(true)));
-                    will(returnValue(Collections.emptyList()));
-
-                    exactly(4).of(openBisService).createPermId();
-                    will(returnValue("well-permId"));
-
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    exactly(1).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
-                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
-                            sampleIdentifier);
-                    will(returnValue(new IEntityProperty[0]));
-
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     CustomAction makeFileSystemUnavailable = new CustomAction("foo")
                         {
                             public Object invoke(Invocation invocation) throws Throwable
@@ -183,8 +165,8 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                                 return null;
                             }
                         };
-                    will(doAll(makeFileSystemUnavailable,
-                            throwException(new AssertionError("Fail"))));
+                    will(doAll(makeFileSystemUnavailable, throwException(new IOExceptionUnchecked(
+                            "Fail"))));
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
@@ -200,8 +182,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         {
             handler.handle(markerFile);
             fail("No IOException thrown");
-        } catch (IOExceptionUnchecked e)
+        } catch (PyException ep)
         {
+            assertTrue(ep.getCause() instanceof IOExceptionUnchecked);
             // Make the file system available again and rollback
             makeFileSystemAvailable(workingDirectory);
             DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
@@ -236,38 +219,6 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                 createThreadPropertiesRelativeToScriptsFolder("dropbox-all-in-one-with-library.py");
         createHandler(properties, shouldRegistrationFail, rethrowExceptions);
         createData();
-    }
-
-    private void setDataSetExpectations()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(IMAGE_DATA_SET_CODE));
-
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(ANALYSIS_DATA_SET_CODE));
-
-                    one(openBisService).createDataSetCode();
-                    will(returnValue(OVERLAY_DATA_SET_CODE));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            IMAGE_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE),
-                                    IMAGE_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            OVERLAY_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
-                                    OVERLAYS_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            ANALYSIS_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
-                                    ANALYSIS_DATA_SET_FILE_NAME));
-                }
-            });
     }
 
     private void setUpPlateSearchExpectations(final Sample plate)

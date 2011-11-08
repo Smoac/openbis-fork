@@ -358,15 +358,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    exactly(1).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
-
-                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
-                            sampleIdentifier);
-                    will(returnValue(new IEntityProperty[0]));
-
-                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
-                    will(returnValue(new AtomicEntityOperationResult()));
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
@@ -808,21 +801,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     one(openBisService).createDataSetCode();
                     will(returnValue(OVERLAY_DATA_SET_CODE));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            IMAGE_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE),
-                                    IMAGE_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            OVERLAY_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
-                                    OVERLAYS_DATA_SET_DIR_NAME));
-
-                    one(dataSetValidator).assertValidDataSet(
-                            ANALYSIS_DATA_SET_TYPE,
-                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
-                                    ANALYSIS_DATA_SET_FILE_NAME));
                 }
             });
     }
