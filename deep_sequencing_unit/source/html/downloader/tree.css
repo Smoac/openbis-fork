@@ -1,0 +1,55 @@
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node {
+  font: 12px "Verdana", sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+g.withchildren:hover {
+	opacity: 0.5;
+	color: #AAA;
+}
+
+g.leaf:hover {
+	font-weight: bold
+}
+
+.inspected {
+	font-weight: bold
+}
+
+/* Inspector */
+.inspector {
+  font-family: "Trebuchet MS", sans-serif;
+	font-size: 12px;
+}
+
+div.inspector {
+	font: 12px "Verdana", sans-serif;
+	padding: 10px;
+	border: 1px solid gray;
+	margin: 10px 2px;
+	font-weight: bold;
+}
+
+.property {
+  font-size: 10px;
+}
+
+.close {
+	float: right;
+}
+
+.close:hover {
+	opacity: 0.5;
+	color: #AAA;
+}
