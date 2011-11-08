@@ -215,7 +215,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("hello world", new String(attachment.getContent()));
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testBulkUpdateExperiments() throws UnsupportedEncodingException
     {
         logIntoCommonClientService();

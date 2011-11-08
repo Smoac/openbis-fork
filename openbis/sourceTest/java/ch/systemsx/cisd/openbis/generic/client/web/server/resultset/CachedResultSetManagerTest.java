@@ -884,7 +884,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testWaitingForFuture()
     {
         List<DataHolder> data = createDataList("a", "b", "c", "d");

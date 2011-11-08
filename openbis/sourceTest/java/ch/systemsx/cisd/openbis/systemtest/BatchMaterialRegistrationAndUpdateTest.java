@@ -69,7 +69,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         commonClientService.unassignPropertyType(EntityKind.MATERIAL, "COMMENT", MATERIAL_TYPE);
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testBatchRegistrationWithManagedProperty()
     {
         logIntoCommonClientService().getSessionID();
@@ -104,7 +104,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         assertProperties("[COMMENT: a & b, DESCRIPTION: compound 2, SIZE: 43]", "C2");
     }
 
-    @Test
+    @Test(groups = "slow")
     public void testUpdateOfPropertiesOfVariousTypes()
     {
         logIntoCommonClientService();
