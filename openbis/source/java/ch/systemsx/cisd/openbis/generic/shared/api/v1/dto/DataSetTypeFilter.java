@@ -56,7 +56,8 @@ public class DataSetTypeFilter
 
     private static List<Pattern> convertPatternListStringToList(String patternListString)
     {
-        String[] patterns = patternListString.split(",");
+        String patternsString = patternListString == null ? "" : patternListString;
+        String[] patterns = patternsString.split(",");
         ArrayList<Pattern> patternsList = new ArrayList<Pattern>();
         for (String pattern : patterns)
         {
