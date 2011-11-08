@@ -72,7 +72,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 
 /**
@@ -457,8 +459,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
 
         assertEquals(CommonConstants.MS_DATA_SPACE, info.getSpaceCode());
-        assertEquals(null, info.getSampleCode());
-        assertEquals(null, info.getSampleIdentifier());
+        assertEquals(SAMPLE_CODE, info.getSampleCode());
+        assertEquals(new SampleIdentifier(new SpaceIdentifier(CommonConstants.MS_DATA_SPACE),
+                SAMPLE_CODE), info.getSampleIdentifier());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
         assertEquals(0, info.getDataSetProperties().size());
         List<String> parentDataSetCodes = info.getParentDataSetCodes();

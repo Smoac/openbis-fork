@@ -138,7 +138,6 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             if (youngestDataSet != null)
             {
                 info.setParentDataSetCodes(Arrays.asList(youngestDataSet.getCode()));
-                info.setSampleCode(null);
             }
         }
         return info;
