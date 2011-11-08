@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
  * {@link HCSDatasetLoader} extension with code for handling images.
@@ -328,6 +329,28 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return image;
     }
 
+    public AbsoluteImageReference tryFindAnyOriginalImage()
+    {
+        List<ImgSpotDTO> wells = query.listWellsWithAnyImages(dataset.getId());
+        List<String> channelCodes = getImageParameters().getChannelsCodes();
+        RequestedImageSize originalOrThumbnail = RequestedImageSize.createOriginal();
+
+        for (ImgSpotDTO well : wells)
+        {
+            for (String channelCode : channelCodes)
+            {
+                AbsoluteImageReference image =
+                        tryGetRepresentativeImage(channelCode,
+                                new Location(well.getRow(), well.getColumn()), originalOrThumbnail);
+                if (image != null)
+                {
+                    return image;
+                }
+            }
+        }
+        return null;
+    }
+
     public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
             Location wellLocationOrNull, RequestedImageSize imageSize)
     {
@@ -358,6 +381,26 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             return query.tryGetHCSRepresentativeThumbnail(dataset.getId(), wellLocationOrNull,
                     channelId);
         }
+    }
+
+    public AbsoluteImageReference tryFindAnyThumbnail()
+    {
+        List<ImgSpotDTO> wells = query.listWellsWithAnyThumbnails(dataset.getId());
+        List<String> channelCodes = getImageParameters().getChannelsCodes();
+        for (ImgSpotDTO well : wells)
+        {
+            for (String channelCode : channelCodes)
+            {
+                AbsoluteImageReference image =
+                        tryGetRepresentativeThumbnail(channelCode,
+                                new Location(well.getRow(), well.getColumn()));
+                if (image != null)
+                {
+                    return image;
+                }
+            }
+        }
+        return null;
     }
 
     public AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,

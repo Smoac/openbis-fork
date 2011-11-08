@@ -41,6 +41,11 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
             ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
 
     /**
+     * Finds representative image of this data set. Returns <code>null</code> if no image was found.
+     */
+    AbsoluteImageReference tryFindAnyOriginalImage();
+
+    /**
      * Finds representative image of this dataset in a given channel.
      * 
      * @param channelCode channel code for which representative image is requested
@@ -53,6 +58,12 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
             Location wellLocationOrNull, RequestedImageSize imageSize);
+
+    /**
+     * Tries to find a representative thumbnail of this data set. Returns <code>null</code> if no
+     * thumbnail was found.
+     */
+    AbsoluteImageReference tryFindAnyThumbnail();
 
     /**
      * Tries to find a representative thumbnail of this dataset in a given channel. Returns NULL if

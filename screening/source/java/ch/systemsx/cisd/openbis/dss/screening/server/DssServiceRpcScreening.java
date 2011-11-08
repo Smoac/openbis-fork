@@ -355,47 +355,25 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private static BufferedImage getAnyHCSThumbnail(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
-        ImageDatasetParameters params = imageAccessor.getImageParameters();
-        for (int row = 1; row <= params.tryGetRowsNum(); row++)
+        AbsoluteImageReference image = imageAccessor.tryFindAnyThumbnail();
+        if (image != null)
         {
-            for (int col = 1; col <= params.tryGetColsNum(); col++)
-            {
-                for (String channelCode : params.getChannelsCodes())
-                {
-                    AbsoluteImageReference image =
-                            imageAccessor.tryGetRepresentativeThumbnail(channelCode, new Location(
-                                    col, row));
-                    if (image != null)
-                    {
-                        return image.getUnchangedImage();
-                    }
-                }
-            }
+            return image.getUnchangedImage();
         }
+
         return null;
     }
 
     private static BufferedImage getAnyHCSImage(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
-        ImageDatasetParameters params = imageAccessor.getImageParameters();
-        RequestedImageSize originalOrThumbnail = RequestedImageSize.createOriginal();
-        for (int row = 1; row <= params.tryGetRowsNum(); row++)
+        AbsoluteImageReference image = imageAccessor.tryFindAnyOriginalImage();
+
+        if (image != null)
         {
-            for (int col = 1; col <= params.tryGetColsNum(); col++)
-            {
-                for (String channelCode : params.getChannelsCodes())
-                {
-                    AbsoluteImageReference image =
-                            imageAccessor.tryGetRepresentativeImage(channelCode, new Location(col,
-                                    row), originalOrThumbnail);
-                    if (image != null)
-                    {
-                        return image.getUnchangedImage();
-                    }
-                }
-            }
+            return image.getUnchangedImage();
         }
+
         throw new IllegalStateException("Cannot find any image in a dataset: " + dataset);
     }
 
