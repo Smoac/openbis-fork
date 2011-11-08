@@ -335,4 +335,24 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
         { LongArrayMapper.class }, fetchSize = FETCH_SIZE, resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(long... featureDefIds);
 
+    // ------------------ Experiment metadata queries ------------------------
+
+    final static String SELECT_PLATE_GEOMETRIES_FOR_EXPERIMENT =
+            " select distinct container.spots_width as width, container.spots_height as height "
+                    + "      from experiments exp "
+                    + "           join containers container on container.expe_id = exp.id "
+                    + "      where exp.id = ?{1}";
+
+    @Select(sql = SELECT_PLATE_GEOMETRIES_FOR_EXPERIMENT)
+    public List<WidthAndHeightDTO> listPlateGeometriesForExperiment(long experimentId);
+
+    final static String SELECT_TILE_GEOMETRIES_FOR_EXPERIMENT =
+            " select distinct dataset.fields_width as width, dataset.fields_height as height "
+                    + "      from experiments exp "
+                    + "           join containers container on container.expe_id = exp.id "
+                    + "           join image_data_sets dataset on dataset.cont_id = container.id "
+                    + "      where exp.id = ?{1}";
+
+    @Select(sql = SELECT_TILE_GEOMETRIES_FOR_EXPERIMENT)
+    public List<WidthAndHeightDTO> listTileGeometriesForExperiment(long experimentId);
 }

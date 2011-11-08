@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.WellImageCache.We
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -1818,6 +1819,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             }
             index++;
         } while (size >= 0);
+    }
+
+    public ExperimentImageMetadata getExperimentImageMetadata(
+            ExperimentIdentifier experimentIdentifier)
+    {
+        checkASMinimalMinorVersion("getExperimentImageMetadata", ExperimentIdentifier.class);
+        return openbisScreeningServer
+                .getExperimentImageMetadata(sessionToken, experimentIdentifier);
     }
 
 }

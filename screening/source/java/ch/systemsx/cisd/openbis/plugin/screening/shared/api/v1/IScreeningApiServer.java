@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorizati
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization.ScreeningPlateValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization.WellIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -287,5 +288,17 @@ public interface IScreeningApiServer extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
+
+    /**
+     * Returns aggregated metadata for all images/plates within one experiment.
+     * 
+     * @since 1.9
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(1)
+    ExperimentImageMetadata getExperimentImageMetadata(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class) ExperimentIdentifier experimentIdentifer);
 
 }

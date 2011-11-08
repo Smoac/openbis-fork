@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -34,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentMetadaLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.IExperimentMetadataLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
@@ -92,6 +95,23 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
             };
     }
 
+    public IExperimentMetadataLoader createExperimentMetadataLoader(long experimentId,
+            List<String> dataStoreCodes)
+    {
+        return new ExperimentMetadaLoader(experimentId, getImagingQueries(dataStoreCodes));
+    }
+
+    private List<IImagingReadonlyQueryDAO> getImagingQueries(List<String> dataStoreCodes)
+    {
+        List<IImagingReadonlyQueryDAO> imagingQueries = new ArrayList<IImagingReadonlyQueryDAO>();
+        for (String dataStoreCode : dataStoreCodes)
+        {
+            imagingQueries.add(specificDAOFactory.getImagingQueryDAO(dataStoreCode));
+        }
+        return imagingQueries;
+    }
+
+    
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);

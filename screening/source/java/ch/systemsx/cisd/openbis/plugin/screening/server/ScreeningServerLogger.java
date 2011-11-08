@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -395,6 +396,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             throws IllegalArgumentException
     {
         logAccess(sessionToken, "getPlates", "plates(%s)", plates);
+        return null;
+    }
+
+    public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
+            ExperimentIdentifier experimentIdentifer)
+    {
+        logAccess(sessionToken, "getExperimentImageMetadata", "experimentIdentifer(%s)",
+                experimentIdentifer);
         return null;
     }
 }

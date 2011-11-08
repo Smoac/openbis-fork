@@ -324,4 +324,13 @@ public interface IScreeningQuery extends BaseQuery
     @Select(sql = ANALYSIS_PROCEDURE_SELECT + " and exp.id = ?{1}")
     public List<AnalysisProcedureResult> listAnalysisProceduresForExperiment(long experimentId);
 
+    final static String SELECT_DSS_CODES_FOR_EXPERIMENT = "  select distinct datastore.code "
+            + "      from experiments exp "
+            + "           join data dataset on dataset.expe_id = exp.id "
+            + "           join data_stores datastore on dataset.dast_id = datastore.id "
+            + "      where exp.id = ?{1}";
+
+    @Select(sql = SELECT_DSS_CODES_FOR_EXPERIMENT)
+    public List<String> listDataStoreCodesForExperiment(long experimentId);
+
 }

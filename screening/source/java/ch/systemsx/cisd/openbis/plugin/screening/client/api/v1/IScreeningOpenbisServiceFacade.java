@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -796,5 +797,11 @@ public interface IScreeningOpenbisServiceFacade
      * specified experiment.
      */
     public List<String> listAnalysisProcedures(ExperimentIdentifier experimentIdentifier);
+
+    /**
+     * Returns aggregated metadata for all images/plates within one experiment.
+     */
+    public ExperimentImageMetadata getExperimentImageMetadata(
+            ExperimentIdentifier experimentIdentifier);
 
 }

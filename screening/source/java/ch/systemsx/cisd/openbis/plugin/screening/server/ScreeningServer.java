@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -125,7 +126,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 8;
+    public static final int MINOR_VERSION = 9;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -521,6 +522,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<? extends PlateIdentifier> plateIdentifiers) throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).getPlateMetadata(plateIdentifiers);
+    }
+
+    public ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
+            ExperimentIdentifier experimentIdentifer)
+    {
+        checkSession(sessionToken);
+        return createScreeningApiImpl(sessionToken).getExperimentImageMetadata(experimentIdentifer);
     }
 
 }

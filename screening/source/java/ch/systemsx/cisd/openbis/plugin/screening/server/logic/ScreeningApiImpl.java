@@ -72,9 +72,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PlateGeometry
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
@@ -964,6 +966,24 @@ public class ScreeningApiImpl
         Map<String, String> properties =
                 EntityHelper.convertToStringMap(materialDto.getProperties());
         return new Material(typeIdentifier, materialDto.getCode(), properties);
+    }
+
+    public ExperimentImageMetadata getExperimentImageMetadata(ExperimentIdentifier experimentIdentifer)
+    {
+        long experimentId = getExperimentTechId(experimentIdentifer).getId();
+        List<String> dataStoreCodes =
+                createScreeningQuery().listDataStoreCodesForExperiment(experimentId);
+
+        IExperimentMetadataLoader loader =
+                businessObjectFactory.createExperimentMetadataLoader(experimentId, dataStoreCodes);
+
+        Geometry plateGeometry = loader.tryGetPlateGeometry();
+        Geometry tileGeometry = loader.tryGetTileGeometry();
+        List<ImageChannel> channels = loader.getImageChannels();
+
+        return new ExperimentImageMetadata(experimentIdentifer, plateGeometry, tileGeometry,
+                channels);
+
     }
 
 }
