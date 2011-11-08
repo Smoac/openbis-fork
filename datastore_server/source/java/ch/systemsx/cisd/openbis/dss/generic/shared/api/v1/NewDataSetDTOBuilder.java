@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -161,5 +162,7 @@ public class NewDataSetDTOBuilder
         HashMap<String, String> otherProps =
                 new HashMap<String, String>(otherMetadata.getProperties());
         dataSetMetadata.setProperties(otherProps);
+        dataSetMetadata.setUnmodifiableProperties(new HashSet<String>(otherMetadata
+                .getUnmodifiableProperties()));
     }
 }

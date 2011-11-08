@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -229,6 +230,7 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     {
         if (null == newDataSetInfo)
         {
+            dataSetPanel.setText(EMPTY_FILE_SELECTION);
             samplePanel.setText(EMPTY_FILE_SELECTION);
             experimentPicker.setText(EMPTY_FILE_SELECTION);
             updateFileLabel();
@@ -652,9 +654,26 @@ public class DataSetMetadataPanel extends JPanel implements Observer
     private void validateAndNotifyObserversOfChanges()
     {
         validationErrors.waitCard();
+        extractMetadata();
         clientModel.validateNewDataSetInfoAndNotifyObservers(newDataSetInfo);
         syncErrors();
         validationErrors.showResult();
+    }
+
+    private void extractMetadata()
+    {
+        if (newDataSetInfo.getNewDataSetBuilder() != null
+                && newDataSetInfo.getNewDataSetBuilder().getFile() != null)
+        {
+            Map<String, String> properties =
+                    clientModel.getOpenBISService().extractMetadata(
+                            newDataSetInfo.getNewDataSetBuilder().asNewDataSetDTO(),
+                            newDataSetInfo.getNewDataSetBuilder().getFile());
+            newDataSetInfo.getNewDataSetBuilder().getDataSetMetadata()
+                    .setUnmodifiableProperties(properties);
+        }
+
+        syncGui();
     }
 
     private void setOwnerType(DataSetOwnerType type)

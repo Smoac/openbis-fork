@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -38,6 +41,8 @@ public class NewDataSetMetadataDTO implements Serializable
     private static final long serialVersionUID = 1L;
 
     private final Map<String, String> properties = new HashMap<String, String>();
+
+    private final Set<String> unmodifiableProperties = new HashSet<String>();
 
     private String dataSetTypeOrNull;
 
@@ -85,6 +90,14 @@ public class NewDataSetMetadataDTO implements Serializable
         return properties;
     }
 
+    /**
+     * The unmodifiable property types (as strings).
+     */
+    public Collection<String> getUnmodifiableProperties()
+    {
+        return unmodifiableProperties;
+    }
+
     public void setProperties(Map<String, String> props)
     {
         properties.clear();
@@ -92,6 +105,26 @@ public class NewDataSetMetadataDTO implements Serializable
         {
             properties.putAll(props);
         }
+    }
+
+    public void setUnmodifiableProperties(Set<String> props)
+    {
+        unmodifiableProperties.clear();
+        if (props != null)
+        {
+            unmodifiableProperties.addAll(props);
+        }
+    }
+
+    public void setUnmodifiableProperties(Map<String, String> props)
+    {
+        setProperties(props);
+        setUnmodifiableProperties(props.keySet());
+    }
+
+    public boolean isUnmodifiableProperty(String property)
+    {
+        return unmodifiableProperties.contains(property);
     }
 
     /**

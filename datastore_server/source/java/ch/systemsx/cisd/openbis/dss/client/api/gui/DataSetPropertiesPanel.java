@@ -304,6 +304,7 @@ public class DataSetPropertiesPanel extends JPanel
         {
             String propertyValue = props.get(propertyTypeCode);
             JComponent formField = formFields.get(propertyTypeCode);
+            formField.setEnabled(false == metadata.isUnmodifiableProperty(propertyTypeCode));
             if (formField instanceof JTextField)
             {
                 JTextField textField = (JTextField) formField;
@@ -319,6 +320,10 @@ public class DataSetPropertiesPanel extends JPanel
                         comboBox.setSelectedIndex(i);
                     }
                 }
+            } else if (formField instanceof JCheckBox)
+            {
+                JCheckBox checkBox = (JCheckBox) formField;
+                checkBox.setSelected(Boolean.parseBoolean(propertyValue));
             }
         }
     }

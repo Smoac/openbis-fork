@@ -200,4 +200,11 @@ public class VocabularyTermsComboBoxPanel extends JPanel implements Observer
                         .getSelectedItem()).term.getCode() : code;
         fillComboBoxWithTerms(vocabulary.getTerms(), selectedCode);
     }
+
+    @Override
+    public void setEnabled(boolean enabled)
+    {
+        comboBox.setEnabled(enabled);
+        button.setEnabled(enabled);
+    }
 }

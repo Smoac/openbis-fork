@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
@@ -345,6 +346,12 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             throws IllegalStateException, EnvironmentFailureException
     {
         return dssComponent.validateDataSet(newDataset, dataSetFile);
+    }
+
+    public Map<String, String> extractMetadata(NewDataSetDTO newDataset, File dataSetFile)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        return dssComponent.extractMetadata(newDataset, dataSetFile);
     }
 
     public void checkSession() throws InvalidSessionException
