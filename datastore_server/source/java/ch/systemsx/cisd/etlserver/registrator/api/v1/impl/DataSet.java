@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -111,7 +112,8 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     {
         this.experiment = experiment;
         ExperimentImmutable exp = (ExperimentImmutable) experiment;
-        setExperiment(exp.getExperiment());
+        Experiment experimentToSet = (exp != null) ? exp.getExperiment() : null;
+        setExperiment(experimentToSet);
     }
 
     public ISampleImmutable getSample()
@@ -190,7 +192,9 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     protected void setExperiment(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment exp)
     {
         registrationDetails.getDataSetInformation().setExperiment(exp);
-        ExperimentIdentifier experimentId = ExperimentIdentifierFactory.parse(exp.getIdentifier());
+        ExperimentIdentifier experimentId =
+                (exp != null && exp.getIdentifier() != null) ? ExperimentIdentifierFactory
+                        .parse(exp.getIdentifier()) : null;
         registrationDetails.getDataSetInformation().setExperimentIdentifier(experimentId);
     }
 
