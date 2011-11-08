@@ -57,6 +57,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.Line;
@@ -1151,7 +1152,10 @@ public final class FileUtilities
         {
             return "";
         }
-        rootPath += File.separator;
+        if (rootPath.endsWith(File.separator) == false)
+        {
+            rootPath += File.separator;
+        }
         if (filePath.startsWith(rootPath))
         {
             return filePath.substring(rootPath.length());
@@ -1159,6 +1163,21 @@ public final class FileUtilities
         {
             return null;
         }
+    }
+
+    /**
+     * Does the same as {@link #getRelativeFilePath(File, File)}, but throws exception if root file
+     * does not contain the specified file.
+     */
+    public final static String getRelativeFilePathOrDie(final File root, final File file)
+    {
+        String relativePath = getRelativeFilePath(root, file);
+        if (relativePath == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Directory %s should be a subdirectory of directory %s.", file, root);
+        }
+        return relativePath;
     }
 
     /**
