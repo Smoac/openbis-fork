@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -40,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class DataSet<T extends DataSetInformation> implements IDataSet
 {
-    private final DataSetRegistrationDetails<T> registrationDetails;
+    private final DataSetRegistrationDetails<? extends T> registrationDetails;
 
     // A folder with either one file or one subfolder representing the data set.
     private final File dataSetFolder;
@@ -49,13 +50,13 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
 
     private ISampleImmutable sampleOrNull;
 
-    public DataSet(DataSetRegistrationDetails<T> registrationDetails, File dataSetFolder)
+    public DataSet(DataSetRegistrationDetails<? extends T> registrationDetails, File dataSetFolder)
     {
         this.registrationDetails = registrationDetails;
         this.dataSetFolder = dataSetFolder;
     }
 
-    public DataSetRegistrationDetails<T> getRegistrationDetails()
+    public DataSetRegistrationDetails<? extends T> getRegistrationDetails()
     {
         return registrationDetails;
     }
@@ -196,6 +197,19 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
     public String getPropertyValue(String propertyCode)
     {
         return registrationDetails.getPropertyValue(propertyCode);
+    }
+
+    public List<String> getAllPropertyCodes()
+    {
+        List<NewProperty> properties =
+                registrationDetails.getDataSetInformation().getExtractableData()
+                        .getDataSetProperties();
+        List<String> codes = new ArrayList<String>();
+        for (NewProperty property : properties)
+        {
+            codes.add(property.getPropertyCode());
+        }
+        return codes;
     }
 
     public void setPropertyValue(String propertyCode, String propertyValue)

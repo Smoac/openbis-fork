@@ -173,12 +173,20 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         // Clone this service for the transaction to keep them independent
         DataSetRegistrationTransaction<T> transaction =
-                new DataSetRegistrationTransaction<T>(registrator.getGlobalState()
-                        .getDssInternalTempDir(), workingDirectory, stagingDirectory, this,
-                        detailsFactory);
+                createTransaction(registrator.getGlobalState().getDssInternalTempDir(),
+                        workingDirectory, stagingDirectory, detailsFactory);
 
         transactions.add(transaction);
         return transaction;
+    }
+
+    /** Creates the transaction object. Can be overriden in subclasses. */
+    protected DataSetRegistrationTransaction<T> createTransaction(File rollBackStackParentFolder,
+            File workingDir, File stagingDir,
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+    {
+        return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
+                stagingDir, this, registrationDetailsFactory);
     }
 
     /**
@@ -251,7 +259,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * transactions. Other clients may find it useful as well.
      */
     public DataSetStorageAlgorithm<T> createStorageAlgorithm(File dataSetFile,
-            DataSetRegistrationDetails<T> dataSetDetails)
+            DataSetRegistrationDetails<? extends T> dataSetDetails)
     {
         IDataStoreStrategy strategy =
                 registratorContext.getDataStrategyStore().getDataStoreStrategy(
@@ -266,7 +274,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * useful as well.
      */
     public DataSetStorageAlgorithm<T> createStorageAlgorithmWithIdentifiedStrategy(
-            File dataSetFile, DataSetRegistrationDetails<T> dataSetDetails)
+            File dataSetFile, DataSetRegistrationDetails<? extends T> dataSetDetails)
     {
         IDataStoreStrategy strategy = new IdentifiedDataStrategy();
         return createStorageAlgorithmWithStrategy(dataSetFile, dataSetDetails, strategy);
@@ -276,7 +284,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * Helper method to create a storage algorithm for storing an individual data set.
      */
     protected DataSetStorageAlgorithm<T> createStorageAlgorithmWithStrategy(File dataSetFile,
-            DataSetRegistrationDetails<T> dataSetDetails, IDataStoreStrategy strategy)
+            DataSetRegistrationDetails<? extends T> dataSetDetails, IDataStoreStrategy strategy)
     {
         // If the file is null and the registration details say it is a container, return a
         // different algorithm.

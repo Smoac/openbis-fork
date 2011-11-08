@@ -676,7 +676,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         }
 
         public DataSet<DataSetInformation> createDataSet(
-                DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
+                DataSetRegistrationDetails<? extends DataSetInformation> registrationDetails, File stagingFile)
         {
             return new DataSet<DataSetInformation>(registrationDetails, stagingFile);
         }

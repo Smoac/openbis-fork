@@ -75,7 +75,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     private final File incomingDataSetFile;
 
-    private final DataSetRegistrationDetails<T> registrationDetails;
+    private final DataSetRegistrationDetails<? extends T> registrationDetails;
 
     private final T dataSetInformation;
 
@@ -134,7 +134,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
     }
 
     public DataSetStorageAlgorithm(File incomingDataSetFile,
-            DataSetRegistrationDetails<T> registrationDetails,
+            DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
             IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)
@@ -302,7 +302,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         return dataStoreCode;
     }
 
-    protected DataSetRegistrationDetails<T> getRegistrationDetails()
+    protected DataSetRegistrationDetails<? extends T> getRegistrationDetails()
     {
         return registrationDetails;
     }

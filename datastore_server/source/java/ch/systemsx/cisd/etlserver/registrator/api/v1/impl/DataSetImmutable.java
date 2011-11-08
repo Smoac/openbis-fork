@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -98,6 +99,17 @@ public class DataSetImmutable implements IDataSetImmutable
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(dataSet, propertyCode);
+    }
+
+    public List<String> getAllPropertyCodes()
+    {
+        List<IEntityProperty> properties = dataSet.getProperties();
+        List<String> codes = new ArrayList<String>();
+        for (IEntityProperty property : properties)
+        {
+            codes.add(property.getPropertyType().getCode());
+        }
+        return codes;
     }
 
     public List<String> getParentDatasets()

@@ -55,7 +55,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
      * @param stagingDirectory
      */
     public ContainerDataSetStorageAlgorithm(File incomingDataSetFile,
-            DataSetRegistrationDetails<T> registrationDetails,
+            DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
             IFileOperations fileOperations, IMailClient mailClient, File stagingDirectory)

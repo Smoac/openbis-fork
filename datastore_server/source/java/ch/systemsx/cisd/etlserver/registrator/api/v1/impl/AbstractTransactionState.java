@@ -208,14 +208,14 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return createNewDataSet(registrationDetails, dataSetCode);
         }
 
-        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
+        public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails)
         {
             // Request a code, so we can keep the staging file name and the data set code in sync
             return createNewDataSet(registrationDetails, registrationDetails
                     .getDataSetInformation().getDataSetCode());
         }
 
-        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails,
+        public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails,
                 String specifiedCode)
         {
             final String dataSetCode;
@@ -505,7 +505,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             for (DataSet<T> dataSet : registeredDataSets)
             {
                 File contents = dataSet.tryDataSetContents();
-                DataSetRegistrationDetails<T> details = dataSet.getRegistrationDetails();
+                DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
 
                 // The experiment/sample does not yet exist
                 if (experimentsToBeRegistered.contains(dataSet.getExperiment())
@@ -584,7 +584,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
          * 
          * @return A data set code
          */
-        private String generateDataSetCode(DataSetRegistrationDetails<T> registrationDetails)
+        private String generateDataSetCode(DataSetRegistrationDetails<? extends T> registrationDetails)
         {
             return openBisService.createDataSetCode();
         }

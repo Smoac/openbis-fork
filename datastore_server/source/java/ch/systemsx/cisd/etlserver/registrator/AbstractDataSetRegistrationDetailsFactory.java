@@ -68,7 +68,7 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         return registrationDetails;
     }
 
-    public DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails,
+    public DataSet<T> createDataSet(DataSetRegistrationDetails<? extends T> registrationDetails,
             File stagingFile)
     {
         return new DataSet<T>(registrationDetails, stagingFile);

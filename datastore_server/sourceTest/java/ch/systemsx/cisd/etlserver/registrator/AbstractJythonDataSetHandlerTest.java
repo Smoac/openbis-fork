@@ -499,12 +499,13 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         protected JythonDataSetRegistrationService<DataSetInformation> createJythonDataSetRegistrationService(
                 File aDataSetFile, DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter)
+                ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
+                TopLevelDataSetRegistratorGlobalState globalState)
         {
             JythonDataSetRegistrationService<DataSetInformation> service =
                     new TestDataRegistrationService(this, aDataSetFile,
                             userProvidedDataSetInformationOrNull, cleanAfterwardsAction,
-                            interpreter, shouldRegistrationFail);
+                            interpreter, shouldRegistrationFail, globalState);
             return service;
         }
 
@@ -515,20 +516,17 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
     {
         private final boolean shouldRegistrationFail;
 
-        /**
-         * @param registrator
-         * @param globalCleanAfterwardsAction
-         * @param interpreter
-         */
         public TestDataRegistrationService(
                 JythonTopLevelDataSetHandler<DataSetInformation> registrator, File aDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
-                PythonInterpreter interpreter, boolean shouldRegistrationFail)
+                PythonInterpreter interpreter, boolean shouldRegistrationFail,
+                TopLevelDataSetRegistratorGlobalState globalState)
         {
             super(registrator, aDataSetFile, userProvidedDataSetInformationOrNull,
                     globalCleanAfterwardsAction,
-                    new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter);
+                    new AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate(), interpreter,
+                    globalState);
             this.shouldRegistrationFail = shouldRegistrationFail;
         }
 

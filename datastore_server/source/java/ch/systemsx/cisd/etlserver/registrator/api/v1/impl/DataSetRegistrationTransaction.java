@@ -208,7 +208,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode);
     }
 
-    public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
+    public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails)
     {
         return getStateAsLiveState().createNewDataSet(registrationDetails);
     }

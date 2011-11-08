@@ -84,6 +84,12 @@ public interface IDataSetImmutable
      */
     public String getPropertyValue(String propertyCode);
 
+    /**
+     * Returns codes of all properties of this dataset. Each code can be used when calling
+     * {@link #getPropertyValue(String)}.
+     */
+    public List<String> getAllPropertyCodes();
+
     /** Gets the parents of the dataset. */
     public List<String> getParentDatasets();
 
