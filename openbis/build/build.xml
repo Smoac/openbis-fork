@@ -194,6 +194,7 @@
 				<include name="setup-env" />
 				<include name="shutdown.sh" />
 				<include name="startup.sh" />
+				<include name="status.sh" />
 				<include name="register-master-data.sh" />
 				<include name="export-master-data.sh" />
 				<include name="export-master-data.py" />
@@ -296,6 +297,7 @@
       <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
       <zipfileset file="${original.openbis.server.dist}/startup.sh" filemode="777" prefix="${server.folder.name}" />
       <zipfileset file="${original.openbis.server.dist}/shutdown.sh" filemode="777" prefix="${server.folder.name}" />
+      <zipfileset file="${original.openbis.server.dist}/status.sh" filemode="777" prefix="${server.folder.name}" />
     </zip>
     <delete dir="${server.dist}" />
   </target>
