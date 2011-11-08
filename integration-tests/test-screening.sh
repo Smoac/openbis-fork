@@ -149,14 +149,13 @@ function integration_tests_screening {
 	  
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
-		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-genedata
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
     
     local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
-    assert_equals "Wrong number of registered datasets" 5 $datasets
+    assert_equals "Wrong number of registered datasets" 4 $datasets
     
-    assertSpotSizes "24x16,24x16,24x16" 
+    assertSpotSizes "24x16,24x16" 
     assertFeatureVectorDef HITRATE "Hit Rate"
     assertFeatureVectorDef CELLNUMBER cellNumber
 
