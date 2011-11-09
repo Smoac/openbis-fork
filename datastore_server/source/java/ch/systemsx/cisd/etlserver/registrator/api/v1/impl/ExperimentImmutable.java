@@ -35,7 +35,8 @@ public class ExperimentImmutable implements IExperimentImmutable
 
     public String getExperimentIdentifier()
     {
-        return experiment.getIdentifier();
+        String identifier = experiment.getIdentifier();
+        return identifier == null ? null : identifier.toUpperCase();
     }
 
     public boolean isExistingExperiment()
@@ -71,6 +72,31 @@ public class ExperimentImmutable implements IExperimentImmutable
             return experiment.getExperimentType().getCode();
         }
         return null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getExperimentIdentifier().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass().isAssignableFrom(obj.getClass()) == false)
+            return false;
+        ExperimentImmutable other = (ExperimentImmutable) obj;
+        if (getExperimentIdentifier() == null)
+        {
+            if (other.getExperimentIdentifier() != null)
+                return false;
+        } else if (!getExperimentIdentifier().equals(other.getExperimentIdentifier()))
+            return false;
+        return true;
     }
 
 }

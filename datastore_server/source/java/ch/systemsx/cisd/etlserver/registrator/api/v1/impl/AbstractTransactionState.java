@@ -257,18 +257,28 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 dataSet.setSample(new SampleImmutable(sample));
             }
-            ExperimentIdentifier experimentId =
-                    registrationDetails.getDataSetInformation().getExperimentIdentifier();
-            if (null != experimentId)
+            if (dataSet.getExperiment() != null)
             {
-                IExperimentImmutable exp = parent.getExperiment(experimentId.toString());
-                dataSet.setExperiment(exp);
+                ExperimentIdentifier experimentId =
+                        registrationDetails.getDataSetInformation().getExperimentIdentifier();
+                if (null != experimentId)
+                {
+                    IExperimentImmutable exp = tryFindExperimentToRegister(experimentId);
+                    if (exp == null)
+                    {
+                        exp = parent.getExperiment(experimentId.toString());
+                    }
+                    dataSet.setExperiment(exp);
+                }
             }
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
-                    registrationDetails.getDataSetInformation().tryToGetExperiment();
-            if (null != experiment)
+            if (dataSet.getExperiment() != null)
             {
-                dataSet.setExperiment(new ExperimentImmutable(experiment));
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                        registrationDetails.getDataSetInformation().tryToGetExperiment();
+                if (null != experiment)
+                {
+                    dataSet.setExperiment(new ExperimentImmutable(experiment));
+                }
             }
 
             List<String> parents =
@@ -280,6 +290,37 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             registeredDataSets.add(dataSet);
             return dataSet;
+        }
+
+        private IExperimentImmutable tryFindExperimentToRegister(ExperimentIdentifier experimentId)
+        {
+            for (Experiment expToBeRegistered : experimentsToBeRegistered)
+            {
+                if (isPointingTo(expToBeRegistered, experimentId))
+                {
+                    return expToBeRegistered;
+                }
+            }
+            return null;
+        }
+
+        private static boolean isPointingTo(Experiment experiment, ExperimentIdentifier experimentId)
+        {
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment expDTO =
+                    experiment.getExperiment();
+            if (expDTO.getIdentifier() != null
+                    && expDTO.getIdentifier().equalsIgnoreCase(experimentId.toString()))
+            {
+                return true;
+            }
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project = expDTO.getProject();
+            if (expDTO.getCode() == null || project == null || project.getSpace() == null)
+            {
+                return false;
+            }
+            return expDTO.getCode().equals(experimentId.getExperimentCode())
+                    && project.getCode().equals(experimentId.getProjectCode())
+                    && project.getSpace().getCode().equals(experimentId.getSpaceCode());
         }
 
         private SampleImmutable tryFindSampleToRegister(SampleIdentifier sampleId)
@@ -541,8 +582,10 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                 DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
 
                 // The experiment/sample does not yet exist
-                if (experimentsToBeRegistered.contains(dataSet.getExperiment())
-                        || samplesToBeRegistered.contains(dataSet.getSample()))
+                IExperimentImmutable experiment = dataSet.getExperiment();
+                ISampleImmutable sample = dataSet.getSample();
+                if (experimentsToBeRegistered.contains(experiment)
+                        || samplesToBeRegistered.contains(sample))
                 {
                     algorithms.add(registrationService
                             .createStorageAlgorithmWithIdentifiedStrategy(contents, details));

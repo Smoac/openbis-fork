@@ -54,7 +54,8 @@ public class SampleImmutable implements ISampleImmutable
 
     public String getSampleIdentifier()
     {
-        return sample.getIdentifier();
+        String identifier = sample.getIdentifier();
+        return identifier == null ? null : identifier.toUpperCase();
     }
 
     public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample getSample()
@@ -115,6 +116,36 @@ public class SampleImmutable implements ISampleImmutable
             }
         }
         return result;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result =
+                prime * result
+                        + ((getSampleIdentifier() == null) ? 0 : getSampleIdentifier().hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass().isAssignableFrom(obj.getClass()) == false)
+            return false;
+        SampleImmutable other = (SampleImmutable) obj;
+        if (getSampleIdentifier() == null)
+        {
+            if (other.getSampleIdentifier() != null)
+                return false;
+        } else if (!getSampleIdentifier().equals(other.getSampleIdentifier()))
+            return false;
+        return true;
     }
 
 }
