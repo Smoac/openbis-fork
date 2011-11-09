@@ -17,7 +17,6 @@ var ajaxRequest = function(settings) {
 	settings.dataType = "json";
 	settings.crossDomain = true;
 	settings.data = jsonRequestData(settings.data);
-	settings.headers = { "Access-Control-Allow-Origin" : "*" };
 	$.ajax(settings);
 }
 
