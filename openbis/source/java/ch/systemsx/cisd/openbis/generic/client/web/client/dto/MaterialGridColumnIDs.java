@@ -33,6 +33,8 @@ public class MaterialGridColumnIDs
 
     public static final String MATERIAL_TYPE = "MATERIAL_TYPE";
 
+    public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
+
     public static final String PROPERTIES_GROUP = "property-";
 
 }
