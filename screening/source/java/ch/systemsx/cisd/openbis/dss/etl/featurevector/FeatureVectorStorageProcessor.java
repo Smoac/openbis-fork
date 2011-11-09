@@ -77,7 +77,10 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
      */
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
-        return dataSetInformation instanceof ImageDataSetInformation == false;
+        return dataSetInformation instanceof ImageDataSetInformation == false
+                && (dataSetInformation instanceof FeatureVectorDataSetInformation || dataSetInformation
+                        .getDataSetType().getCode().toUpperCase()
+                        .matches(ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN));
     }
 
     @Override
