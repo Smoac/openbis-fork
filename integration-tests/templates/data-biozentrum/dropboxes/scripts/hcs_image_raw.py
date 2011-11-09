@@ -18,7 +18,7 @@ def rollback_service(service, throwable):
     global datasetMetadataParser
     commonDropbox.createFailureStatus(datasetMetadataParser, throwable, incoming)
 
-def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, spaceCode, plateGeometry):
+def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, spaceCode):
     projectCode = assayParser.get(assayParser.EXPERIMENTER_PROPERTY)
     experiment = assayParser.get(assayParser.ASSAY_ID_PROPERTY)
     experimentDesc = assayParser.get(assayParser.ASSAY_DESC_PROPERTY)   
@@ -41,7 +41,6 @@ def createPlateWithExperimentIfNeeded(transaction, assayParser, plateCode, space
             experiment.setPropertyValue("DESCRIPTION", openbisExpDesc)
 
         plate = transaction.createNewSample(sampleIdentifier, PLATE_TYPE_CODE)
-        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
         plate.setExperiment(experiment)
     return plate
 
@@ -61,20 +60,23 @@ if incoming.isDirectory():
     imageDataset.setUseImageMagicToGenerateThumbnails(False)
     imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/2.0)
     imageDataset.setImageLibrary("BioFormats", "TiffDelegateReader")
+
+    tr = service.transaction(incoming, factory)
+
+    plateCode = datasetMetadataParser.getPlateCode()
+    space = assayParser.get(assayParser.LAB_LEADER_PROPERTY)
+    plate = createPlateWithExperimentIfNeeded(tr, assayParser, plateCode, space)        
+    imageDataset.setPlate(space, plateCode)
     
     imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
     for propertyCode, value in datasetMetadataParser.getDatasetPropertiesIter():
-		imageRegistrationDetails.setPropertyValue(propertyCode, value)
+        imageRegistrationDetails.setPropertyValue(propertyCode, value)
+
+    plateGeometry = plate.getPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE)
+    if plateGeometry is None or len(plateGeometry) == 0:
+        plateGeometry = factory.figureGeometry(imageRegistrationDetails)
+        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
     
-    tr = service.transaction(incoming, factory)
-
-    plate = datasetMetadataParser.getPlateCode()
-    space = assayParser.get(assayParser.LAB_LEADER_PROPERTY)
-    plateGeometry = factory.figureGeometry(imageRegistrationDetails)
-    plate = createPlateWithExperimentIfNeeded(tr, assayParser, plate, space, plateGeometry)	    
-
     dataset = tr.createNewDataSet(imageRegistrationDetails)
-    dataset.setSample(plate)
-    imageDataSetFolder = tr.moveFile(incomingPath, dataset)
     if tr.commit():
         commonDropbox.createSuccessStatus(iBrain2DatasetId, dataset, incomingPath)
