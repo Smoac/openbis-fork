@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -134,17 +135,18 @@ public class DataSet<T extends DataSetInformation> implements IDataSet
         {
             SampleImmutable sample = (SampleImmutable) sampleOrNull;
 
-            dataSetInformation.setSample(sample.getSample());
-            dataSetInformation.setSampleCode(sample.getSample().getCode());
-            Space space = sample.getSample().getSpace();
+            Sample sampleDTO = sample.getSample();
+            dataSetInformation.setSample(sampleDTO);
+            dataSetInformation.setSampleCode(sampleDTO.getCode());
+            Space space = sampleDTO.getSpace();
             if (null != space)
             {
                 dataSetInformation.setSpaceCode(space.getCode());
             }
 
-            if (sample.getSample().getExperiment() != null)
+            if (sampleDTO.getExperiment() != null)
             {
-                setExperiment(sample.getSample().getExperiment());
+                setExperiment(sampleDTO.getExperiment());
             }
         }
     }
