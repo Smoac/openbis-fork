@@ -63,7 +63,9 @@ public final class PlateDatasetViewer extends GenericDataSetViewer
     protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
     {
         List<TabContent> sections = new ArrayList<TabContent>();
-        sections.add(new PlateLayoutDatasetSection(screeningViewContext, datasetId));
+
+        if (dataset.tryGetContainer() == null)
+            sections.add(new PlateLayoutDatasetSection(screeningViewContext, datasetId));
         return sections;
     }
 }
