@@ -119,6 +119,7 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
             });
         MyConfigData configData = new MyConfigData();
         configData.setMicroscopyData(true);
+        configData.setPlate("space", "plate1");
         configData.setImageLibrary("MyLibrary");
         DataSetRegistrationDetails<ImageDataSetInformation> actualDetails =
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(configData, incoming,
