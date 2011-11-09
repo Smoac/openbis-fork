@@ -168,7 +168,8 @@ public class ScreeningUtils
         final List<T> chosenDatasets = new ArrayList<T>();
         for (T dataset : typeMatchingDatasets)
         {
-            if (isContainerMatching(dataset, datasetTypeCodePatterns) == false)
+            if (isContainerMatching(dataset, datasetTypeCodePatterns) == false
+                    && isNotEmpty(dataset))
             {
                 chosenDatasets.add(dataset);
             }
@@ -188,6 +189,17 @@ public class ScreeningUtils
     {
         DataPE container = dataset.getContainer();
         return container != null && isOneOfTypesMatching(container, datasetTypeCodePatterns);
+    }
+
+    private static boolean isNotEmpty(ExternalData dataset)
+    {
+        return dataset.isContainer() == false
+                || dataset.tryGetAsContainerDataSet().getContainedDataSets().size() > 0;
+    }
+
+    private static <T extends DataPE> boolean isNotEmpty(T dataset)
+    {
+        return dataset.isContainer() == false || dataset.getContainedDataSets().size() > 0;
     }
 
     /** chooses datasets of unknown types */
@@ -267,7 +279,8 @@ public class ScreeningUtils
             String typePattern)
     {
         return isOneOfTypesMatching(externalData, typePattern)
-                && isContainerMatching(externalData, typePattern) == false;
+                && isContainerMatching(externalData, typePattern) == false
+                && isNotEmpty(externalData);
     }
 
     public static boolean isRawHcsImageDataset(ExternalData externalData)
