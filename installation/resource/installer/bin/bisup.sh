@@ -46,7 +46,7 @@ fi
 JETTY_HOME=$BASE/../servers/openBIS-server/jetty
 OPENBIS_LOG=$JETTY_HOME/logs/openbis_log.txt
 JETTY_LOG=$JETTY_HOME/logs/jetty.out
-TIMEOUT=15
+TIMEOUT=30
 
 echo Starting openBIS...
 echo $STARTING_MESSAGE >> $OPENBIS_LOG
