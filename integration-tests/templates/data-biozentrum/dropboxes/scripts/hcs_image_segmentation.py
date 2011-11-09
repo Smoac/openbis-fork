@@ -16,9 +16,12 @@ def register(incomingPath):
     global datasetMetadataParser
     datasetMetadataParser = commonDropbox.DerivedDatasetMetadataParser(incomingPath)
     iBrain2DatasetId = datasetMetadataParser.getIBrain2DatasetId()
-    openbisDatasetParentPermId = datasetMetadataParser.getParentDatasetPermId()
-
-    (space, plate) = commonDropbox.tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incomingPath)
+    openbisDatasetParentPermIds = datasetMetadataParser.getParentDatasetPermId()
+    
+    for openbisDatasetParentPermId in openbisDatasetParentPermIds:
+        (space, plate) = commonDropbox.tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incomingPath)
+        if plate != None:
+            break
     if plate == None:
         return
     
@@ -33,13 +36,9 @@ def register(incomingPath):
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setOriginalDataStorageFormat(OriginalDataStorageFormat.HDF5)
     imageDataset.setConvertTransformationCliArguments("-contrast-stretch 0 -edge 1 -threshold 1 -transparent black")
-    # Delete 2 lines below after upgrade to S111
     imageDataset.setUseImageMagicToGenerateThumbnails(False)
-    imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/24.0)
-    # Uncomment 2 lines below after upgrade to S111
-    #imageDataset.setUseImageMagicToGenerateThumbnails(True)
-    #imageDataset.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
-    
+    imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/2.0)
+    imageDataset.setImageLibrary("BioFormats", "TiffDelegateReader")
 
     commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory)
           

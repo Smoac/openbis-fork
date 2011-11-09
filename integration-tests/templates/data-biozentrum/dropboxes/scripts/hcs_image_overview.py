@@ -34,12 +34,9 @@ def register(incomingPath):
     imageDataset.setStoreChannelsOnExperimentLevel(False)
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setMaxThumbnailWidthAndHeight(imageDataset.THUMBANAIL_SIZE)
-    # Delete 2 lines below after upgrade to S111
     imageDataset.setUseImageMagicToGenerateThumbnails(False)
-    imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/24.0)
-    # Uncomment 2 lines below after upgrade to S111
-    #imageDataset.setUseImageMagicToGenerateThumbnails(True)
-    #imageDataset.setThumbnailsGenerationImageMagicParams(["-contrast-stretch", "0"])
+    imageDataset.setAllowedMachineLoadDuringThumbnailsGeneration(1/2.0)
+    imageDataset.setImageLibrary("BioFormats", "TiffDelegateReader")
     
     commonDropbox.setImageDatasetPropertiesAndRegister(imageDataset, datasetMetadataParser, incoming, service, factory, tr)
 
