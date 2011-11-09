@@ -309,9 +309,13 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         return checkAccessability(image);
     }
 
-    private ImgImageDTO checkAccessability(ImgImageDTO image)
+    private ImgImageDTO checkAccessability(ImgImageDTO imageOrNull)
     {
-        return isFileAccessible(image) ? image : null;
+        if (imageOrNull == null)
+        {
+            return null;
+        }
+        return isFileAccessible(imageOrNull) ? imageOrNull : null;
     }
 
     private boolean isFileAccessible(ImgImageDTO image)
