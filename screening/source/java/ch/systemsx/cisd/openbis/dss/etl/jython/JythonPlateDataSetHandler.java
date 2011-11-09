@@ -11,8 +11,11 @@ import java.util.Properties;
 import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -49,9 +52,29 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
 {
+
+    private final String ORIGINAL_DIRNAME_KEY = "image-datasets-original-dir-name";
+
+    private final String originalDirName;
+
     public JythonPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
+        originalDirName = parseOriginalDir(globalState.getThreadParameters().getThreadProperties());
+    }
+
+    private String parseOriginalDir(Properties threadProperties)
+    {
+        String originalDir =
+                PropertyUtils.getProperty(threadProperties, ORIGINAL_DIRNAME_KEY,
+                        ScreeningConstants.ORIGINAL_DATA_DIR);
+        if (false == FileUtilities.isValidFileName(originalDir))
+        {
+            throw ConfigurationFailureException.fromTemplate(
+                    "Invalid folder name specified in '%s': '%s'.", ORIGINAL_DIRNAME_KEY,
+                    originalDir);
+        }
+        return originalDir;
     }
 
     /**
@@ -278,7 +301,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                         IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory)
                 {
                     return new ImagingDataSetRegistrationTransaction(rollBackStackParentFolder,
-                            workingDirectory, stagingDirectory, this, registrationDetailsFactory);
+                            workingDirectory, stagingDirectory, this, registrationDetailsFactory,
+                            originalDirName);
                 }
             };
     }
@@ -292,10 +316,13 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     {
         private final JythonPlateDatasetFactory registrationDetailsFactory;
 
+        private final String originalDirName;
+
         public ImagingDataSetRegistrationTransaction(File rollBackStackParentFolder,
                 File workingDirectory, File stagingDirectory,
                 DataSetRegistrationService<DataSetInformation> registrationService,
-                IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory)
+                IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory,
+                String originalDirName)
         {
             super(rollBackStackParentFolder, workingDirectory, stagingDirectory,
                     registrationService, registrationDetailsFactory);
@@ -305,6 +332,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
 
             this.registrationDetailsFactory =
                     (JythonPlateDatasetFactory) registrationDetailsFactory;
+            this.originalDirName = originalDirName;
         }
 
         public IDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
@@ -343,8 +371,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             // create main dataset (with original images)
             IDataSet mainDataset = super.createNewDataSet(imageRegistrationDetails);
             String originalDatasetPathPrefix =
-                    ScreeningConstants.ORIGINAL_DATA_DIR + File.separator
-                            + incomingDirectory.getName();
+                    originalDirName + File.separator + incomingDirectory.getName();
             moveFile(incomingDirectory.getAbsolutePath(), mainDataset, originalDatasetPathPrefix);
             containedDataSetCodes.add(mainDataset.getDataSetCode());
 

@@ -500,4 +500,14 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertTrue(FileUtilities.isSymbolicLink(linkRelative));
     }
 
+    @Test
+    public void testValidFileName()
+    {
+        assertTrue(FileUtilities.isValidFileName("valid-name1"));
+        assertTrue(FileUtilities.isValidFileName("valid with space and tab\t"));
+        assertTrue(FileUtilities.isValidFileName("valid.dot"));
+        assertFalse(FileUtilities.isValidFileName(""));
+        assertFalse(FileUtilities.isValidFileName("a/b"));
+    }
+
 }

@@ -2014,4 +2014,38 @@ public final class FileUtilities
         }
     }
 
+    private static String getTempDir()
+    {
+        return System.getProperty("java.io.tmpdir");
+    }
+
+    /**
+     * Return true if <code>fileName</code> is a valid filename.
+     * <p>
+     * The methods works by trying to create a file with the specified name. Thus, the method should
+     * not be called where performance matters.
+     */
+    public static boolean isValidFileName(String fileName)
+    {
+        if (StringUtils.isBlank(fileName) || fileName.contains(File.separator))
+        {
+            return false;
+        }
+
+        File tmpFile = new File(getTempDir(), fileName);
+        try
+        {
+            if (tmpFile.createNewFile())
+            {
+                tmpFile.delete();
+                return true;
+            }
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+
+        return tmpFile.exists();
+    }
+
 }
