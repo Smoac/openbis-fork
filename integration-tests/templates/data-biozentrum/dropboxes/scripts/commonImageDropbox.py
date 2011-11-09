@@ -4,7 +4,8 @@ import os
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata   
-     
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ChannelColor
+
 class IBrain2ImageDataSetConfig(SimpleImageDataConfig):
     THUMBANAIL_SIZE = 200
     
@@ -53,6 +54,16 @@ class IBrain2ImageDataSetConfig(SimpleImageDataConfig):
             return self.geom(maxTileNumber / 2, 2) # (2,2), (3,2), (5,2), (7,2)
         else:
             return self.geom(maxTileNumber, 1)
+
+    def getChannelColor(self, channelCode):
+        # codes should be in upper case
+        dict = { "GFP" : ChannelColor.GREEN,
+                 "DAPI" : ChannelColor.BLUE,
+                 "CY5" : ChannelColor.RED }
+        if channelCode in dict:
+            return dict[channelCode]
+        else:
+            return None
            
 class IBrain2SegmentationImageDataSetConfig(IBrain2ImageDataSetConfig):
     def extractChannelCode(self, token_dict, basename):

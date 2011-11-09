@@ -67,16 +67,18 @@ class AbstractMetadataParser(AbstractPropertiesParser):
 
 	def __init__(self, incoming):
 		AbstractPropertiesParser.__init__(self, incoming, self.METADATA_FILE)
+		
+		# 20.09.2011: EP: avoid deleteing the metadata file
 		# remove the metadata file, so that it is not registered as a dataset part
-		os.remove(self._propertiesFilePath)
-		self._propertiesFilePath = None
+#		os.remove(self._propertiesFilePath)
+#		self._propertiesFilePath = None
 		
 	""" Recreates the metadata file, to make it easier to identify the rejected dataset """
 	def recreateMetadataFile(self, incoming):
 		outPath = incoming.getPath() + "/" + self.METADATA_FILE
 		out = open(outPath, 'w')
 		for key, value in self.getPropertiesIter():
-			out.write(key + " = " + value +"\n");
+			out.write(key + " = " + value + "\n");
 		out.close()
 		
 	def getDatasetType(self):
@@ -111,6 +113,9 @@ class DerivedDatasetMetadataParser(AbstractMetadataParser):
 	DATASET_TYPE_PROPERTY = "dataset.type"
 	WORKFLOW_NAME_PROPERTY = "ibrain2.workflow.name"
 	WORKFLOW_AUTHOR_PROPERTY = "ibrain2.workflow.author"
+	# 20.09.2011: EP: allow to set more than one parent. 
+	# That's the character used to separate multiple values in a property
+	MULTIVALUE_SEPARATOR = ","
 		
 	_workflowName = None
 	_workflowAuthor = None
@@ -129,13 +134,16 @@ class DerivedDatasetMetadataParser(AbstractMetadataParser):
 		return self._workflowName + " (" + self._workflowAuthor + ")"
 	
 	def getDatasetPropertiesIter(self):
-		properties = super(DerivedDatasetMetadataParser,self).getDatasetPropertiesIter()
+		properties = super(DerivedDatasetMetadataParser, self).getDatasetPropertiesIter()
 		properties.append((self.WORKFLOW_NAME_PROPERTY, self._workflowName))
 		properties.append((self.WORKFLOW_AUTHOR_PROPERTY, self._workflowAuthor))
 		return properties
 		
 	def getParentDatasetPermId(self):
-		return self.get(self.PARENT_DATASET_PERMID_PRPOPERTY)
+		# 20.09.2011: EP: allow to set more than one parent
+#		return self.get(self.PARENT_DATASET_PERMID_PRPOPERTY)
+		parents = self.get(self.PARENT_DATASET_PERMID_PRPOPERTY)
+		return parents.split(self.MULTIVALUE_SEPARATOR)
 	
 	def getDatasetType(self):
 		return self.get(self.DATASET_TYPE_PROPERTY)
@@ -254,7 +262,7 @@ class RegistrationConfirmationUtils(object):
 
 # --------------
 
-def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory, tr = None):
+def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming, service, factory, tr=None):
 	iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
    	imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
    	for propertyCode, value in metadataParser.getDatasetPropertiesIter():
@@ -263,7 +271,7 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
 	if tr is None: 
 		tr = service.transaction(incoming, factory)
 	dataset = tr.createNewDataSet(imageRegistrationDetails)
-	dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
+	dataset.setParentDatasets(metadataParser.getParentDatasetPermId())
 	imageDataSetFolder = tr.moveFile(incoming.getPath(), dataset)
 	if tr.commit():
 		createSuccessStatus(iBrain2DatasetId, dataset, incoming.getPath())
@@ -272,10 +280,12 @@ def setImageDatasetPropertiesAndRegister(imageDataset, metadataParser, incoming,
 param ensureSingleChild - if true, then it will be ensured that the parent dataset 
           had no children of 'datasetType' and if it is not the case an exception will be thrown.
 """
-def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataParser, datasetType, fileFormatType, ensureSingleChild = False):
+def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataParser, datasetType, fileFormatType, ensureSingleChild=False):
     transaction = service.transaction(incoming, factory)
     if ensureSingleChild:
-    	ensureOrDieNoChildrenOfType(metadataParser.getParentDatasetPermId(), datasetType, incoming.getPath(), transaction)
+		for parentDatasetPermId in metadataParser.getParentDatasetPermId():
+			ensureOrDieNoChildrenOfType(parentDatasetPermId, datasetType, incoming.getPath(), transaction)
+			
     dataset = transaction.createNewDataSet()
     dataset.setDataSetType(datasetType)
     dataset.setFileFormatType(fileFormatType)
@@ -283,17 +293,20 @@ def registerDerivedBlackBoxDataset(state, service, factory, incoming, metadataPa
     
 def registerDerivedDataset(state, transaction, dataset, incoming, metadataParser):
     iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
-    openbisDatasetParentPermId = metadataParser.getParentDatasetPermId()
-
-    (space, plate) = tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incoming.getPath())
-    if plate == None:
-        return
+	# Find a parent which is connected to a plate
+    for openbisDatasetParentPermId in metadataParser.getParentDatasetPermId():
+    	(space, plate) = tryGetConnectedPlate(state, openbisDatasetParentPermId, iBrain2DatasetId, incoming.getPath())
+     	if plate != None:
+     		break
     
+    if plate == None:
+    	return
+       
     dataset.setSample(transaction.getSample('/' + space + '/' + plate))
     dataset.setMeasuredData(False)
     for propertyCode, value in metadataParser.getDatasetPropertiesIter():
         dataset.setPropertyValue(propertyCode, value)
-    dataset.setParentDatasets([metadataParser.getParentDatasetPermId()])
+    dataset.setParentDatasets(metadataParser.getParentDatasetPermId())
 
     transaction.moveFile(incoming.getPath(), dataset)
     if transaction.commit():
@@ -339,12 +352,13 @@ class DuplicatedChildrenDatasetException(Exception):
 		self.incomingPath = incomingPath
 		
 	def __str__(self):
-		return "Dataset "+ self.parentDataSetCode +" has already children of type "+self.datasetTypeCode+" registered."
+		return "Dataset " + self.parentDataSetCode + " has already children of type " + self.datasetTypeCode + " registered."
 
 def createSuccessStatus(iBrain2DatasetId, dataset, incomingPath):
-	#commented by vincent 09-08-2011
-	#datasetCode = dataset.getDataSetCode()
-	#RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
+	# These 2 lines need to be commented if post-registration is used as a maintenance-plugin
+	# uncommented on 27/09/2011 to use share_1 and stop shuffling data to share_2. Vincent. 
+	datasetCode = dataset.getDataSetCode()
+	RegistrationConfirmationUtils().createSuccessStatus(iBrain2DatasetId, datasetCode, incomingPath)
 	pass
 
 def createFailureStatus(datasetMetadataParser, throwable, incoming):
@@ -354,7 +368,8 @@ def createFailureStatus(datasetMetadataParser, throwable, incoming):
 		RegistrationConfirmationUtils().createFailureStatus("unknown", errorMsg, incomingPath)
 		return
 	
-	datasetMetadataParser.recreateMetadataFile(incoming)
+	# 20.09.2011: EP: avoid deleteing the metadata file
+	#datasetMetadataParser.recreateMetadataFile(incoming)
 	
 	iBrain2DatasetId = datasetMetadataParser.getIBrain2DatasetId()
 	msg = throwable.getMessage()
@@ -411,7 +426,7 @@ def defineFeaturesFromCsvMatrix(incomingCsvFile, factory):
             rowLabel = rowTokens[0].strip()
             if len(rowLabel) == 0:
                 break
-            for column in range(1,len(headerTokens)):
+            for column in range(1, len(headerTokens)):
                 value = rowTokens[column].strip()
                 well = rowLabel + str(column)
                 featureValues.addValue(well, value)
@@ -422,7 +437,7 @@ def registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMeta
 
     transaction = service.transaction()
     featuresBuilder = defineFeaturesFromCsvMatrix(incomingCsvFile, factory)
-    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetailsNew(featuresBuilder)
+    analysisRegistrationDetails = factory.createFeatureVectorRegistrationDetails(featuresBuilder, incoming)
     analysisProcedure = datasetMetadataParser.getAnalysisProcedure()
     analysisRegistrationDetails.getDataSetInformation().setAnalysisProcedure(analysisProcedure)
     dataset = transaction.createNewDataSet(analysisRegistrationDetails)
@@ -432,7 +447,6 @@ def registerFeaturesFromCsvMatrix(service, factory, state, incoming, datasetMeta
     
 # -------------- TODO: remove tests
 
-TEST_DIR = "/Users/tpylak/main/src/screening-demo/biozentrum/dropboxes/ibrain2-dropboxes-test"
 
 def testMetadataParsers():
 	print "-- acquired ---------------------------------"
