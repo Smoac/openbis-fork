@@ -215,8 +215,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     .getDataSetInformation().getDataSetCode());
         }
 
-        public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails,
-                String specifiedCode)
+        public IDataSet createNewDataSet(
+                DataSetRegistrationDetails<? extends T> registrationDetails, String specifiedCode)
         {
             final String dataSetCode;
             if (null == specifiedCode)
@@ -244,7 +244,11 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
                     registrationDetails.getDataSetInformation().getSampleIdentifier();
             if (null != sampleId)
             {
-                ISampleImmutable sample = parent.getSample(sampleId.toString());
+                ISampleImmutable sample = tryFindSampleToRegister(sampleId);
+                if (sample == null)
+                {
+                    sample = parent.getSample(sampleId.toString());
+                }
                 dataSet.setSample(sample);
             }
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
@@ -276,6 +280,35 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
             registeredDataSets.add(dataSet);
             return dataSet;
+        }
+
+        private SampleImmutable tryFindSampleToRegister(SampleIdentifier sampleId)
+        {
+            for (Sample sampleToBeRegistered : samplesToBeRegistered)
+            {
+                if (isPointingTo(sampleToBeRegistered, sampleId))
+                {
+                    return sampleToBeRegistered;
+                }
+            }
+            return null;
+        }
+
+        private static boolean isPointingTo(Sample sample, SampleIdentifier sampleIdentifier)
+        {
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleDTO = sample.getSample();
+            if (sampleIdentifier.getSampleCode().equals(sampleDTO.getCode()) == false)
+            {
+                return false;
+            }
+            if (sampleIdentifier.isSpaceLevel())
+            {
+                return sampleIdentifier.getSpaceLevel().getSpaceCode()
+                        .equals(sampleDTO.getSpace().getCode());
+            }
+            {
+                return sampleDTO.getSpace() == null;
+            }
         }
 
         public IDataSetImmutable getDataSet(String dataSetCode)
@@ -584,7 +617,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
          * 
          * @return A data set code
          */
-        private String generateDataSetCode(DataSetRegistrationDetails<? extends T> registrationDetails)
+        private String generateDataSetCode(
+                DataSetRegistrationDetails<? extends T> registrationDetails)
         {
             return openBisService.createDataSetCode();
         }
