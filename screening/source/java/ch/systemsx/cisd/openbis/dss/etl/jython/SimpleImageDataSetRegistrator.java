@@ -530,6 +530,16 @@ public class SimpleImageDataSetRegistrator
         dataset.setFileFormatCode(simpleImageConfig.getFileFormatType());
         dataset.setMeasured(simpleImageConfig.isMeasuredData());
 
+        String helpMsg = "Use setPlate(spaceCode, plateCode) call to do that.";
+        if (simpleImageConfig.getPlateSpace() == null)
+        {
+            throw new UserFailureException("No space of the plate has been specified! " + helpMsg);
+        }
+        if (simpleImageConfig.getPlateCode() == null)
+        {
+            throw new UserFailureException("No plate code has been specified! " + helpMsg);
+        }
+
         dataset.setSample(simpleImageConfig.getPlateSpace(), simpleImageConfig.getPlateCode());
         dataset.setIncomingDirectory(incoming);
 
