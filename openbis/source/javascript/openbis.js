@@ -94,6 +94,15 @@ openbis.prototype.searchForSamples = function(searchCriteria, action) {
 	 });
 }
 
+openbis.prototype.searchForDataSets = function(searchCriteria, action) {
+	 ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "searchForDataSets",
+				"params" : [ this.sessionToken,
+							 searchCriteria ] },
+		success: action
+	 });
+}
 
 openbis.prototype.listQueries = function(action) {
 	 ajaxRequest({

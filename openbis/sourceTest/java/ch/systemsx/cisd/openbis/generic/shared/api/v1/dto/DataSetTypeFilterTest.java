@@ -82,6 +82,11 @@ public class DataSetTypeFilterTest extends AssertJUnit
         assertTrue(isContainedInFilteredTypes("data-set-type-1"));
         assertTrue(isContainedInFilteredTypes("data-set-type-2"));
 
+        applyFilter("data-set-type-[0-9]?", "");
+        assertEquals(2, filteredTypes.size());
+        assertTrue(isContainedInFilteredTypes("data-set-type-1"));
+        assertTrue(isContainedInFilteredTypes("data-set-type-2"));
+
         applyFilter("2-data-set-type", "");
         assertEquals(1, filteredTypes.size());
         assertTrue(isContainedInFilteredTypes("2-data-set-type"));
