@@ -17,7 +17,7 @@ ajaxRequest = function(settings) {
 	
 	function getCacheId(settings) {
 		var methodName = settings.data['method']
-		if (methodName.toLowerCase().indexOf('login') != -1) {
+		if (methodName.toLowerCase().indexOf('authenticate') != -1) {
 			// do not store sensitive parameters information
 			// for login methods (e.g. username/password)
 			return methodName
