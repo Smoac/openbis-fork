@@ -65,16 +65,7 @@ public class DAGTest extends AssertJUnit
 
     private Collection<String> sortTopologically(final Map<String, List<String>> adjacencyMap)
     {
-        DAG<String> dag = new DAG<String>(adjacencyMap.keySet())
-            {
-                @Override
-                public Collection<String> getSuccessors(String node)
-                {
-                    return adjacencyMap.get(node);
-                }
-            };
-
+        DAG<String, List<String>> dag = new DAG<String, List<String>>(adjacencyMap);
         return dag.sortTopologically();
     }
-
 }

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.common.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -29,39 +29,42 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Kaloyan Enimanev
  */
-public abstract class DAG<T>
+public class DAG<T, V extends Collection<T>>
 {
-    protected Collection<T> nodes;
+    private final Map<T, V> graph;
 
     /**
-     * constructs a {@link DAG} for a given set of nodes.
+     * Constructs a {@link DAG} from a map of nodes to dependents of that node.
      * 
-     * @param nodes
+     * @param graph A graph of nodes to dependents.
      */
-    public DAG(Collection<T> nodes)
+    public DAG(Map<T, V> graph)
     {
-        this.nodes = Collections.unmodifiableCollection(nodes);
+        this.graph = graph;
     }
 
     /**
      * Return the graph's nodes.
      */
-    public Collection<T> getNodes()
+    public Map<T, V> getNodes()
     {
-        return nodes;
+        return graph;
     }
 
     /**
      * For a given node returns the list of its successors.
      */
-    public abstract Collection<T> getSuccessors(T node);
+    private Collection<T> getSuccessors(T node)
+    {
+        return graph.get(node);
+    }
 
     /**
      * @return a topological sort of the graph's nodes.
      */
     public List<T> sortTopologically()
     {
-        HashSet<T> nodesCopy = new HashSet<T>(nodes);
+        HashSet<T> nodesCopy = new HashSet<T>(graph.keySet());
         ArrayList<T> sorted = new ArrayList<T>();
         while (nodesCopy.isEmpty() == false)
         {
@@ -79,7 +82,7 @@ public abstract class DAG<T>
     }
 
     /**
-     * helper method for topological sorting.
+     * Helper method for topological sorting.
      */
     private T getNextNodeForTopologicalSort(Collection<T> nodesCollection)
     {
