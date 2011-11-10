@@ -1277,6 +1277,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return SampleTranslator.translate(samplePEsUpdated, session.getBaseIndexURL());
     }
 
+    /**
+     * This method topologically sorts the data sets to be created and creates them in the necessary
+     * order
+     */
     private List<ExternalData> createDataSets(Session session,
             AtomicEntityOperationDetails operationDetails)
     {
@@ -1284,22 +1288,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
 
-        ArrayList<NewContainerDataSet> containerRegistrations =
-                new ArrayList<NewContainerDataSet>();
-        // In the first pass, skip container data sets
-        for (NewExternalData dataSet : dataSetRegistrations)
-        {
-            if (dataSet instanceof NewContainerDataSet)
-            {
-                containerRegistrations.add((NewContainerDataSet) dataSet);
-            } else
-            {
-                registerDatasetInternal(session, dataSetsCreated, dataSet);
-            }
-        }
+        NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
+        List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
 
-        // Now do the containers
-        for (NewContainerDataSet dataSet : containerRegistrations)
+        for (NewExternalData dataSet : orderedRegistrations)
         {
             registerDatasetInternal(session, dataSetsCreated, dataSet);
         }
