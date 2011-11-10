@@ -569,7 +569,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
      */
     public boolean accepts(DataSetInformation dataSetInformation, File incomingDataSet)
     {
-        return dataSetInformation instanceof ImageDataSetInformation;
+        String dataSetTypeCode = dataSetInformation.getDataSetType().getCode().toUpperCase();
+        return dataSetInformation instanceof ImageDataSetInformation
+                || dataSetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN)
+                || dataSetTypeCode
+                        .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private ImageFileExtractionWithConfig extractImages(
