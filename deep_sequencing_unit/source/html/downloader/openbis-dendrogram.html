@@ -14,16 +14,26 @@
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
 
-// N.b. Height and width are swapped.
 var w = 840, h = 2400;
+// N.b. Height and width are swapped in the tree
 var tree = d3.layout.tree().size([h, w - 340]);
 
-var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x] });
-	
+// A helper function for drawing the lines between nodes
+var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x] });	
+
+// The tree visualization
 var vis;
+
+// The node inspectors
 var inspectors;
+
+// The root of the tree
 var root = { code : "DSU", children : [] };
+
+// The inspected elements
 var inspected = [];
+
+// A date formatter for grouping samples by registration year / month
 var yearmonthformat = d3.time.format("%Y-%m");
 
 /**
@@ -104,21 +114,22 @@ function addSequencingSamplesToProject(project, bissamps)
 
 function showProjects()
 {	
+	// Don't show anything yet, just initialize the visualization
 	createVis();
 }
 
 
 function showSequencingSamples()
 {
+	// Now draw the samples
 	updateDiagram(1000);
-}
-
-function logout() {
-	dsu.server.logout(function(data) {})
 }
 
 var didCreateVis = false;
 
+/**
+ * Create the DOM elements to store the visualization (tree + inspectors)
+ */
 function createVis()
 {
 	if (didCreateVis) return;
@@ -140,6 +151,10 @@ function createVis()
 	didCreateVis = true;
 }
 
+
+/**
+ * Draw / update the tree
+ */
 function updateDiagram(duration)
 {	
 	// Update the root and compute the new layout
@@ -268,6 +283,9 @@ function toggle_open(d) {
   updateDiagram(500);
 }
 
+/**
+ * Draw / update node inspectors
+ */
 function updateInspectors(duration)
 {	
 		// Draw / update the inspectors	
