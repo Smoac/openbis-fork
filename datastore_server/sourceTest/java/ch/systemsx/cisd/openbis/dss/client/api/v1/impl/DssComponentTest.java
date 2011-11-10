@@ -123,7 +123,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 //
                 // AbstractAutoProxyCreator
                 //
-                @SuppressWarnings({"rawtypes"})
                 @Override
                 protected final Object[] getAdvicesAndAdvisorsForBean(final Class beanClass,
                         final String beanName, final TargetSource customTargetSource)
@@ -561,8 +560,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param openBISService
          */
         public MockDssServiceRpcV1_0(IEncapsulatedOpenBISService openBISService,
-                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                File file)
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos, File file)
         {
             super(openBISService, null, shareIdManager, null);
             this.fileInfos = fileInfos;
@@ -656,8 +654,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param fileInfos
          */
         public MockDssServiceRpcV1_1(IEncapsulatedOpenBISService openBISService,
-                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                File file)
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos, File file)
         {
             super(openBISService, shareIdManager, fileInfos, file);
         }
@@ -687,8 +684,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
          * @param fileInfos
          */
         public MockDssServiceRpcV1_2(IEncapsulatedOpenBISService openBISService,
-                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos,
-                File file)
+                IShareIdManager shareIdManager, FileInfoDssDTO[] fileInfos, File file)
         {
             super(openBISService, shareIdManager, fileInfos, file);
         }

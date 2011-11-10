@@ -28,7 +28,7 @@ public class DssCommandFactory extends AbstractCommandFactory
 
     private static enum Command
     {
-        LS, GET, HELP, PUT, TESTVALID
+        LS, GET, HELP, PUT, TESTVALID, TESTEXTRACT,
     }
 
     public ICommand tryCommandForName(String name)
@@ -66,6 +66,9 @@ public class DssCommandFactory extends AbstractCommandFactory
             case TESTVALID:
                 result = new CommandTestValid();
                 break;
+            case TESTEXTRACT:
+                result = new CommandTestExtractMetadata();
+                break;
             default:
                 result = null;
                 break;
@@ -82,7 +85,7 @@ public class DssCommandFactory extends AbstractCommandFactory
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "ls", "get", "put", "testvalid" };
+            { "ls", "get", "put", "testvalid", "testextract" };
         return Arrays.asList(commands);
     }
 }
