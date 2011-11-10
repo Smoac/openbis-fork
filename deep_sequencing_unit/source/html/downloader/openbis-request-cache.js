@@ -16,22 +16,22 @@ var original_ajax_request_func = ajaxRequest;
 ajaxRequest = function(settings) {
 	
 	function getCacheId(settings) {
-		methodName = settings.data['method']
+		var methodName = settings.data['method']
 		if (methodName.toLowerCase().indexOf('login') != -1) {
 			// do not store sensitive parameters information
 			// for login methods (e.g. username/password)
 			return methodName
 		} else {
-			params = settings.data['params']
+			var params = settings.data['params']
 			return methodName + '-' + JSON.stringify(params)
 		}
 	}
 	
-	cacheId = getCacheId(settings)
-	cachedResponse = localStorage.getItem(cacheId)
+	var cacheId = getCacheId(settings)
+	var cachedResponse = localStorage.getItem(cacheId)
 	
 	if (cachedResponse == null) {
-		originalCallback = settings.success
+		var originalCallback = settings.success
 		settings.success = function(response) {
 			localStorage.setItem(cacheId, JSON.stringify(response))
 			originalCallback(response)
