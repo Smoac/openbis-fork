@@ -63,23 +63,27 @@ while [ "$bisLogAgeInSeconds" -lt $TIMEOUT ] || [ "$jettyLogAgeInSeconds" -lt $T
 
     echo -n "."
     sleep 2
+
+    # get the message "STARTING_SERVER" + the next matching message (i.e. STARTED or ERROR) 
+    bisLogStatus=`egrep "($STARTING_MESSAGE|$STARTED_MESSAGE|$ERROR_MESSAGE)" $OPENBIS_LOG  | egrep -A 1 "$STARTING_MESSAGE" | tail -1`
+    jettyLogStatus=`egrep "($STARTING_MESSAGE|$STARTED_MESSAGE|$ERROR_MESSAGE)" $JETTY_LOG  | egrep -A 1 "$STARTING_MESSAGE" | tail -1`    
     
-    started=`egrep -R "($STARTING_MESSAGE|$STARTED_MESSAGE)" $OPENBIS_LOG | tail -1 | grep "$STARTED_MESSAGE"`
+    started=`echo $bisLogStatus | grep "$STARTED_MESSAGE"`
     if [ -n "$started" ]; then
-        started=`egrep -R "($STARTING_MESSAGE|$STARTED_MESSAGE)" $JETTY_LOG | tail -1 | grep "$STARTED_MESSAGE"`
+        started=`echo $jettyLogStatus | grep "$STARTED_MESSAGE"`
         if [ -n "$started" ]; then
             echo "Done."
             exit 0;
         fi
     fi
     
-    error=`egrep -R "($STARTING_MESSAGE|$ERROR_MESSAGE)" $OPENBIS_LOG | tail -1 | grep "$ERROR_MESSAGE"`
+    error=`echo $bisLogStatus | grep "$ERROR_MESSAGE"`
     if [ -n "$error" ]; then
         echo "Failed: $error" 
         exit 1;
     fi
     
-    error=`egrep -R "($STARTING_MESSAGE|$ERROR_MESSAGE)" $JETTY_LOG | tail -1 | grep "$ERROR_MESSAGE"`
+    error=`echo $jettyLogStatus | grep "$ERROR_MESSAGE"`
     if [ -n "$error" ]; then
         echo "Failed: $error" 
         exit 1;
