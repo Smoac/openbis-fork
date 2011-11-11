@@ -10,6 +10,7 @@
   <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="openbis.js"></script>
   <script type="text/javascript" src="openbis-dsu.js"></script>
+  <script type="text/javascript" src="openbis-request-cache.js"></script>
   <script>
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
@@ -134,19 +135,21 @@ function createVis()
 {
 	if (didCreateVis) return;
 	
-	vis = d3.select("#main").append("svg:svg")
+	visgroup = d3.select("#main").append("div");
+	visgroup.style("width", "" + (w + 400) + "px")
+	
+	vis = visgroup.append("svg:svg")
 		.attr("width", w)
 		.attr("height", h)
 	.append("svg:g")
 		.attr("transform", "translate(40, 0)");
 		
-	inspectors = d3.select("#main").append("div")
-		.style("height", "800px")
+	inspectors = visgroup.append("span")
 		.style("width", "400px")
-		.style("position", "fixed")
+		.style("position", "relative")
 		.style("overflow", "auto")
-		.style("top", "30px")
-		.style("right", "20px");
+		.style("float", "right")
+		.style("left", "20px");
 		
 	didCreateVis = true;
 }
