@@ -16,7 +16,7 @@
 <!--
           <New class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
 	             <Set name="Port">8443</Set>
-	                 <Set name="maxIdleTime">30000</Set>
+	                 <Set name="maxIdleTime">60000</Set>
                    <Set name="Acceptors">2</Set>
                    <Set name="AcceptQueueSize">100</Set>
 	                 <Set name="Keystore">
@@ -29,7 +29,7 @@
    <!-- Use this connector and remove the one above to switch off SSL -->
           <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
              <Set name="Port">8443</Set>
-             <Set name="maxIdleTime">30000</Set>
+             <Set name="maxIdleTime">60000</Set>
              <Set name="Acceptors">2</Set>
              <Set name="AcceptQueueSize">100</Set>
           </New>

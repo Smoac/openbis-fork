@@ -205,7 +205,7 @@ public class DataStoreServer
     {
         final Connector socketConnector = createSocketConnector(configParams);
         socketConnector.setPort(port);
-        socketConnector.setMaxIdleTime(30000);
+        socketConnector.setMaxIdleTime(60000);
         thisServer.addConnector(socketConnector);
     }
 
@@ -355,10 +355,11 @@ public class DataStoreServer
         context.addServlet(DatasetImageOverviewServlet.class, "/"
                 + DatasetImageOverviewUtilities.SERVLET_NAME + "/*");
     }
-    
+
     private static void registerStreamHandlingServlet(ServletContextHandler context)
     {
-        context.addServlet(IdentifiedStreamHandlingServlet.class, "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
+        context.addServlet(IdentifiedStreamHandlingServlet.class, "/"
+                + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
                 + IdentifiedStreamHandlingServlet.SERVLET_NAME + "/*");
     }
 
