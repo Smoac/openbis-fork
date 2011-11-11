@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.exception;
 
+import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+
 /**
- * This <code>UserFailureException</code> extension signals that a <code>Session</code> has
- * expired.
+ * This <code>UserFailureException</code> extension signals that a <code>Session</code> has expired.
  * 
  * @author Christian Ribeaud
  */
-public final class InvalidSessionException extends UserFailureException
+public final class InvalidSessionException extends UserFailureException implements
+        IOptionalStackTraceLoggingException
 {
     private static final long serialVersionUID = 1L;
 
