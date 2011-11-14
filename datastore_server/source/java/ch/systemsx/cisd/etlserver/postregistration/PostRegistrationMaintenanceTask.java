@@ -33,6 +33,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -200,18 +201,15 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         int numberOfDataSets = dataSets.size();
         if (i < numberOfDataSets - 1)
         {
-            StringBuilder builder = new StringBuilder();
+            List<String> codes = new ArrayList<String>();
             for (int j = i + 1; j < numberOfDataSets; j++)
             {
-                if (builder.length() > 0)
-                {
-                    builder.append(", ");
-                }
-                builder.append(dataSets.get(j).getCode());
+                codes.add(dataSets.get(j).getCode());
             }
+            
             operationLog.error("Because post registration task failed for data set "
                     + dataSets.get(i).getCode() + " post registration tasks are postponed for "
-                    + "the following data sets: " + builder);
+                    + "the following data sets: " + CollectionUtils.abbreviate(codes, 30));
         }
     }
 

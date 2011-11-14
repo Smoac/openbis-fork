@@ -466,7 +466,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                 logRecorder.getLogContent());
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Because post registration task failed for data set ds-2 "
-                + "post registration tasks are postponed for the following data sets: ds-3",
+                + "post registration tasks are postponed for the following data sets: [ds-3]",
                 logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
@@ -540,7 +540,7 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
                 logRecorder.getLogContent());
         AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
                 + "Because post registration task failed for data set ds-2 "
-                + "post registration tasks are postponed for the following data sets: ds-3",
+                + "post registration tasks are postponed for the following data sets: [ds-3]",
                 logRecorder.getLogContent());
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
