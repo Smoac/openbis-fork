@@ -199,16 +199,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private final EntityTypePropertyTypePE getEntityTypePropertyType(
             final EntityTypePE entityTypePE, final PropertyTypePE propertyType)
     {
-        if (entityTypePropertyTypesByPropertyTypes == null)
-        {
-            entityTypePropertyTypesByPropertyTypes =
-                    new TableMap<PropertyTypePE, EntityTypePropertyTypePE>(daoFactory
-                            .getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
-                                    entityTypePE),
-                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE);
-        }
+        populateEntityTypePropertyTypeCache(entityTypePE, propertyType);
+
         final EntityTypePropertyTypePE entityTypePropertyType =
                 entityTypePropertyTypesByPropertyTypes.tryGet(propertyType);
+
         if (entityTypePropertyType == null)
         {
             throw UserFailureException.fromTemplate(
@@ -216,6 +211,35 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     propertyType.getCode(), entityTypePE.getCode());
         }
         return entityTypePropertyType;
+    }
+
+    /**
+     * Only loads the properties for one {@link EntityTypePE} at a time.
+     */
+    protected void populateEntityTypePropertyTypeCache(final EntityTypePE entityTypePE,
+            final PropertyTypePE propertyType)
+    {
+        if (entityTypePropertyTypesByPropertyTypes == null)
+        {
+            entityTypePropertyTypesByPropertyTypes =
+                    new TableMap<PropertyTypePE, EntityTypePropertyTypePE>(daoFactory
+                            .getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
+                                    entityTypePE),
+                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE);
+        } else
+        {
+            EntityTypePropertyTypePE cached =
+                    entityTypePropertyTypesByPropertyTypes.tryGet(propertyType);
+            if (cached == null)
+            {
+                for (EntityTypePropertyTypePE addToCache : daoFactory.getEntityPropertyTypeDAO(
+                        entityKind).listEntityPropertyTypes(entityTypePE))
+                {
+                    entityTypePropertyTypesByPropertyTypes.add(addToCache);
+                }
+            }
+
+        }
     }
 
     private final <T extends EntityPropertyPE> T tryConvertProperty(final PersonPE registrator,
