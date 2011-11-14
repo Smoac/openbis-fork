@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.File;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.dbmigration.migration.SqlMigrationTestAbstract;
-import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseVersionHolder;
 
 /**
- * Test cases for screening database migration.
- * 
- * @author Piotr Kupczyk
+ * @author pkupczyk
  */
-public class ScreeningSqlMigrationTest extends SqlMigrationTestAbstract
+public class SqlMigrationTest extends SqlMigrationTestAbstract
 {
 
     @Test(groups =
         { "slow" })
-    public void test_migration()
-            throws Exception
+    public void test_migration() throws Exception
     {
-        test_migration(new ImagingDatabaseVersionHolder().getDatabaseVersion());
+        test_migration(DatabaseVersionHolder.getDatabaseVersion());
     }
 
     @Override
     protected String getSqlScriptInputDirectory()
     {
-        return "source" + File.separator + "sql" + File.separator + "imaging";
+        return "source" + File.separator + "sql";
     }
 
     @Override

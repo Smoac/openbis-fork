@@ -42,6 +42,8 @@ import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 public abstract class SqlMigrationTestAbstract
 {
 
+    private static final int CHECK_NUMBER_OF_MIGRATIONS = 4;
+
     private File sqlScriptOutputDirectory;
 
     protected abstract String getSqlScriptInputDirectory();
@@ -57,61 +59,53 @@ public abstract class SqlMigrationTestAbstract
     @BeforeTest(alwaysRun = true)
     public void beforeTest() throws Exception
     {
-        File dir = new File(getSqlScriptOutputDirectory());
-        if (!dir.exists())
+        sqlScriptOutputDirectory = new File(getSqlScriptOutputDirectory());
+        if (!sqlScriptOutputDirectory.exists())
         {
-            dir.mkdir();
+            sqlScriptOutputDirectory.mkdir();
         }
     }
 
     @AfterTest(alwaysRun = true)
     public void afterTest() throws Exception
     {
-        File dir = new File(getSqlScriptOutputDirectory());
-        if (dir.exists())
+        if (sqlScriptOutputDirectory != null && sqlScriptOutputDirectory.exists())
         {
-            FileUtils.deleteDirectory(dir);
+            FileUtils.deleteDirectory(sqlScriptOutputDirectory);
         }
     }
 
-    public void test_migration(String firstVersion, String newestVersion) throws Exception
+    public void test_migration(String newestVersionString) throws Exception
     {
-        int firstVersionInt = Integer.valueOf(firstVersion);
-        int newestVersionInt = Integer.valueOf(newestVersion);
+        SqlMigrationVersion newestVersion = new SqlMigrationVersion(newestVersionString);
+        SqlMigrationVersion firstVersion =
+                new SqlMigrationVersion(newestVersion.getVersionInt() - CHECK_NUMBER_OF_MIGRATIONS);
 
         DatabaseConfigurationContext migrationContext = null;
         DatabaseConfigurationContext scratchContext = null;
 
         try
         {
-
+            // create first version of the migration database
             migrationContext = createMigrationDatabaseContext(true);
-            scratchContext = createScratchDatabaseContext();
-
-            // create first version of migration database
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                    firstVersion);
+                    firstVersion.getVersionString());
 
+            // migrate the migration database to the newest version
             migrationContext.setCreateFromScratch(false);
+            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
+                    newestVersion.getVersionString());
+            dumpDatabaseSchema(migrationContext, getMigratedDatabaseSchemaFile());
 
-            for (int version = firstVersionInt + 1; version <= newestVersionInt; version++)
-            {
-                String versionStr = String.format("%03d", version);
+            // create the scratch database with the newest version
+            scratchContext = createScratchDatabaseContext();
+            DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(scratchContext,
+                    newestVersion.getVersionString());
+            dumpDatabaseSchema(scratchContext, getScratchDatabaseSchemaFile());
 
-                // migrate to the next version
-                DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
-                        versionStr);
-                dumpDatabaseSchema(migrationContext, getMigratedDatabaseSchemaFile());
-
-                // create next version from scratch
-                DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(scratchContext,
-                        versionStr);
-                dumpDatabaseSchema(scratchContext, getScratchDatabaseSchemaFile());
-
-                // check whether migrated and scratch version are equal
-                assertDatabaseSchemasEqual(getMigratedDatabaseSchemaFile(),
-                        getScratchDatabaseSchemaFile());
-            }
+            // check migration and scratch databases are equal
+            assertDatabaseSchemasEqual(getMigratedDatabaseSchemaFile(),
+                    getScratchDatabaseSchemaFile());
 
         } finally
         {
