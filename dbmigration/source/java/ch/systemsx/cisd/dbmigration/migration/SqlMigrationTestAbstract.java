@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
@@ -69,7 +70,7 @@ public abstract class SqlMigrationTestAbstract
         File dir = new File(getSqlScriptOutputDirectory());
         if (dir.exists())
         {
-            dir.delete();
+            FileUtils.deleteDirectory(dir);
         }
     }
 
@@ -90,7 +91,7 @@ public abstract class SqlMigrationTestAbstract
             // create first version of migration database
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(migrationContext,
                     firstVersion);
-            
+
             migrationContext.setCreateFromScratch(false);
 
             for (int version = firstVersionInt + 1; version <= newestVersionInt; version++)
