@@ -95,11 +95,7 @@ public class NewExternalDataDAG
                 // This data set is a dependent on each of the contained ones
                 List<String> containedDataSetCodes =
                         ((NewContainerDataSet) dataSet).getContainedDataSetCodes();
-                for (String containedDataSetCode : containedDataSetCodes)
-                {
-                    ArrayList<String> containedDependents = getDependentsList(containedDataSetCode);
-                    containedDependents.add(dataSetCode);
-                }
+                dependents.addAll(containedDataSetCodes);
             }
 
             dependencyGraph.put(dataSet.getCode(), dependents);
