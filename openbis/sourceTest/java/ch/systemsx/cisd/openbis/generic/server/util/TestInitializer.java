@@ -26,6 +26,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 
 /**
  * @author Franz-Josef Elmer
@@ -36,6 +37,10 @@ public class TestInitializer
 
     public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
 
+    public static final String SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
+
+    public static final String SCRIPT_FOLDER_EMPTY_DB = "../openbis/source";
+
     public static void init()
     {
         initWithoutIndex();
@@ -43,24 +48,28 @@ public class TestInitializer
 
     public static void initWithoutIndex()
     {
-        init("NO_INDEX");
+        init(IndexMode.NO_INDEX, SCRIPT_FOLDER_TEST_DB);
     }
 
     public static void initWithIndex()
     {
-        init("SKIP_IF_MARKER_FOUND");
+        init(IndexMode.SKIP_IF_MARKER_FOUND, SCRIPT_FOLDER_TEST_DB);
     }
 
-    private static void init(String hibernateIndexMode)
+    public static void initEmptyDbNoIndex()
+    {
+        init(IndexMode.NO_INDEX, SCRIPT_FOLDER_EMPTY_DB);
+    }
+
+    private static void init(IndexMode hibernateIndexMode, String scriptFolder)
     {
         LogInitializer.init();
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
-        System.setProperty("script-folder", "../openbis/sourceTest");
-        System.setProperty("hibernate.search.index-mode", hibernateIndexMode);
+        System.setProperty("script-folder", scriptFolder);
+        System.setProperty("hibernate.search.index-mode", hibernateIndexMode.name());
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
-        System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
 
         // make sure the search index is up-to-date
         // and in the right place when we run tests

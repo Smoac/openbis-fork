@@ -20,8 +20,10 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -36,8 +38,12 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeSuite;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 
@@ -61,18 +67,35 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected File rootDir;
 
-    SystemTestCase()
+    protected GenericWebApplicationContext applicationContext;
+
+    protected SystemTestCase()
+    {
+        createWorkingDirectory();
+        rootDir = new File(workingDirectory, "dss-root");
+    }
+
+    protected void createWorkingDirectory()
     {
         workingDirectory = new File(UNIT_TEST_ROOT_DIRECTORY, "SystemTests");
+        if (workingDirectory.exists())
+        {
+            try
+            {
+                FileUtils.deleteDirectory(workingDirectory);
+            } catch (IOException ioex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ioex);
+            }
+        }
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
-        rootDir = new File(workingDirectory, "dss-root");
     }
 
     @BeforeSuite
     public void beforeSuite() throws Exception
     {
-        TestInitializer.initWithIndex();
+        setUpDatabaseProperties();
         Server server = new Server();
         Connector connector = new SelectChannelConnector();
         connector.setPort(8888);
@@ -87,11 +110,11 @@ public abstract class SystemTestCase extends AssertJUnit
                     XmlBeanFactory f =
                             new XmlBeanFactory(new FileSystemResource(
                                     "../openbis/resource/server/spring-servlet.xml"));
-                    GenericWebApplicationContext wac = new GenericWebApplicationContext(f);
-                    wac.setParent(new ClassPathXmlApplicationContext(
-                            "classpath:applicationContext.xml"));
-                    wac.refresh();
-                    return wac;
+                    applicationContext = new GenericWebApplicationContext(f);
+                    applicationContext.setParent(new ClassPathXmlApplicationContext(
+                            getApplicationContextLocation()));
+                    applicationContext.refresh();
+                    return applicationContext;
                 }
             };
         ServletContextHandler sch =
@@ -118,6 +141,43 @@ public abstract class SystemTestCase extends AssertJUnit
         }
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
+
+        setUpTestThread();
+
+        DataStoreServer.main(new String[0]);
+        ETLDaemon.runForTesting(new String[0]);
+    }
+
+    /**
+     * sets up the openbis database to be used by the tests.
+     */
+    protected void setUpDatabaseProperties()
+    {
+        TestInitializer.initWithIndex();
+    }
+
+    /**
+     * Return the location of the openBIS application context config.
+     */
+    protected String getApplicationContextLocation()
+    {
+        return "classpath:applicationContext.xml";
+    }
+
+    protected void setUpTestThread()
+    {
+        setUpTestThread(JythonTopLevelDataSetHandler.class, DefaultStorageProcessor.class, 
+                "sourceTest/java/ch/systemsx/cisd/openbis/datastoreserver/systemtests/data-set-handler.py");
+    }
+
+    /**
+     * Set up a DSS dropbox to be used by the test.
+     */
+    @SuppressWarnings("rawtypes")
+    protected void setUpTestThread(
+            Class<? extends JythonTopLevelDataSetHandler> jythonTopLevelDataSetHandlerClass,
+            Class<? extends IStorageProcessorTransactional> storageProcessorClass, String scriptPath)
+    {
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default",
                 "dss-system-test-thread");
 
@@ -125,20 +185,23 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs",
                 "dss-system-test-thread");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.incoming-dir", "${root-dir}/incoming-simple");
+                + "dss-system-test-thread.incoming-dir", getIncomingDirectory().getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + "dss-system-test-thread.incoming-data-completeness-condition", "auto-detection");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
                 + "dss-system-test-thread.top-level-data-set-handler",
-                "ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler");
+                jythonTopLevelDataSetHandlerClass.getName());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.storage-processor",
-                "ch.systemsx.cisd.etlserver.DefaultStorageProcessor");
+                + "dss-system-test-thread.storage-processor", storageProcessorClass.getName());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + "dss-system-test-thread.script-path",
-                "sourceTest/java/ch/systemsx/cisd/openbis/datastoreserver/systemtests/data-set-handler.py");
+                + "dss-system-test-thread.script-path", scriptPath);
+    }
 
-        DataStoreServer.main(new String[0]);
-        ETLDaemon.runForTesting(new String[0]);
+    /**
+     * the path to the default incoming directory
+     */
+    protected File getIncomingDirectory()
+    {
+        return new File(rootDir, "incoming");
     }
 }

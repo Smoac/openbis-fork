@@ -129,7 +129,31 @@
   <!--
         // Task for continuous integration server.
         -->
-  <target name="ci" depends="build-common.ci, dist, check-dependencies" />
+	<target name="run-tests" depends="compile-tests">
+		<delete dir="${output.test}" />
+		
+		<antcall target="_run-testng">
+			<param name="test.suite" value="tests.xml" />
+			<param name="failure.property" value="tests.failed" />
+		</antcall>
+			
+		<antcall target="_run-testng">
+			<param name="test.suite" value="tests_system.xml" />
+			<param name="failure.property" value="system.tests.failed" />
+		</antcall>
+				
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+		
+		<fail if="tests.failed" message="At least one test failed." />
+		<fail if="system.tests.failed" message="At least one system test failed." />
+	</target>
+	
+  <target name="ci" depends="run-tests, check-restrictions, dist, check-dependencies" />
 
   <!--
         // Compiles the javascript using GWT compiler.
