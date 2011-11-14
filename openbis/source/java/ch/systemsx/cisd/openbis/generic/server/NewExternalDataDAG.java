@@ -92,7 +92,7 @@ public class NewExternalDataDAG
 
             if (dataSet instanceof NewContainerDataSet)
             {
-                // This data set is a dependent on each of the contained ones
+                // All contained data sets are the dependents
                 List<String> containedDataSetCodes =
                         ((NewContainerDataSet) dataSet).getContainedDataSetCodes();
                 dependents.addAll(containedDataSetCodes);
