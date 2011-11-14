@@ -207,7 +207,11 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share3, 1 * 1024l);
         final Share share4 = new Share(new File(store, "4"), 0, spaceProvider);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
+        spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
         spaceProvider.addFreeSpaceExpectationFor(share4, 4 * 1024l);
