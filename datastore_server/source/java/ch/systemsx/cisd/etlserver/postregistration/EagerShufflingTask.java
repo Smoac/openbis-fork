@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
@@ -58,6 +59,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
 {
     @Private public static final String SHARE_FINDER_KEY = "share-finder";
     @Private public static final String FREE_SPACE_LIMIT_KEY = "free-space-limit-in-MB-triggering-notification";
+    @Private public static final String STOP_ON_NO_SHARE_FOUND_KEY = "stop-on-no-share-found";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EagerShufflingTask.class);
@@ -101,6 +103,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     
     private long freeSpaceLimitTriggeringNotification;
     
+    private boolean stopOnNoShareFound;
+    
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
@@ -136,6 +140,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         finder = ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
         freeSpaceLimitTriggeringNotification =
                 FileUtils.ONE_MB * PropertyUtils.getInt(properties, FREE_SPACE_LIMIT_KEY, 0);
+        stopOnNoShareFound = PropertyUtils.getBoolean(properties, STOP_ON_NO_SHARE_FOUND_KEY, false);
     }
 
     public boolean requiresDataStoreLock()
@@ -173,8 +178,13 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
             {
-                logger.log(LogLevel.WARN, "No share found for shuffling data set " + dataSetCode
-                        + ".");
+                String message = "No share found for shuffling data set " + dataSetCode + ".";
+                if (stopOnNoShareFound)
+                {
+                    notifyer.log(LogLevel.ERROR, message);
+                    throw new EnvironmentFailureException(message);
+                }
+                logger.log(LogLevel.WARN, message);
                 return new NoCleanupTask();
             }
             return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());

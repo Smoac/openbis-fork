@@ -398,9 +398,8 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         context.assertIsSatisfied();
     }
     
-    
     @Test
-    public void testExecuteWithExceptionThrown()
+    public void testExecuteWithExceptionThrownInExecute()
     {
         Properties properties = createDefaultProperties();
         final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
@@ -472,6 +471,80 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
         assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
         assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
         assertEquals("[D]", cleanupInvocations.toString());
+        assertEmptyCleanupTaskFolder();
+        assertNoUexpectedInvocations();
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExecuteWithExceptionThrownInCreateCleanUp()
+    {
+        Properties properties = createDefaultProperties();
+        final RecordingMatcher<TrackingDataSetCriteria> criteriaMatcher =
+                new RecordingMatcher<TrackingDataSetCriteria>();
+        final Sequence sequence = context.sequence("tasks");
+        context.checking(new Expectations()
+        {
+            {
+                one(task1).requiresDataStoreLock();
+                will(returnValue(false));
+                one(task2).requiresDataStoreLock();
+                will(returnValue(false));
+                
+                one(service).listNewerDataSets(with(criteriaMatcher));
+                DataSetBuilder ds1 = new DataSetBuilder(1).code("ds-1").registrationDate(new Date(4711));
+                DataSetBuilder ds2 = new DataSetBuilder(2).code("ds-2").registrationDate(new Date(4711));
+                DataSetBuilder ds3 = new DataSetBuilder(3).code("ds-3").registrationDate(new Date(4711));
+                will(returnValue(Arrays.asList(ds2.getDataSet(), ds3.getDataSet(), ds1.getDataSet())));
+                
+                one(task1).createExecutor("ds-1", false);
+                will(returnValue(executor1));
+                inSequence(sequence);
+                one(executor1).createCleanupTask();
+                will(returnValue(new MockCleanupTask("A")));
+                inSequence(sequence);
+                one(executor1).execute();
+                inSequence(sequence);
+                one(task2).createExecutor("ds-1", false);
+                will(returnValue(executor2));
+                inSequence(sequence);
+                one(executor2).createCleanupTask();
+                will(returnValue(new MockCleanupTask("B")));
+                inSequence(sequence);
+                one(executor2).execute();
+                inSequence(sequence);
+                
+                one(task1).createExecutor("ds-2", false);
+                will(returnValue(executor1));
+                inSequence(sequence);
+                one(executor1).createCleanupTask();
+                will(returnValue(new MockCleanupTask("C")));
+                inSequence(sequence);
+                one(executor1).execute();
+                inSequence(sequence);
+                one(task2).createExecutor("ds-2", false);
+                will(returnValue(executor2));
+                inSequence(sequence);
+                one(executor2).createCleanupTask();
+                will(returnValue(new Throwable("error")));
+            }
+        });
+        
+        PostRegistrationMaintenanceTask maintenanceTask = new PostRegistrationMaintenanceTask();
+        maintenanceTask.setUp("post-registration", properties);
+        assertEquals(false, maintenanceTask.requiresDataStoreLock());
+        maintenanceTask.execute();
+        
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
+                + "Task '2' for data set ds-2 failed.",
+                logRecorder.getLogContent());
+        AssertionUtil.assertContains("ERROR OPERATION.PostRegistrationMaintenanceTask - "
+                + "Because post registration task failed for data set ds-2 "
+                + "post registration tasks are postponed for the following data sets: ds-3",
+                logRecorder.getLogContent());
+        assertEquals(0, criteriaMatcher.recordedObject().getLastSeenDataSetId());
+        assertEquals("1", FileUtilities.loadExactToString(lastSeenDataSetFile).trim());
+        assertEquals("[]", cleanupInvocations.toString());
         assertEmptyCleanupTaskFolder();
         assertNoUexpectedInvocations();
         context.assertIsSatisfied();

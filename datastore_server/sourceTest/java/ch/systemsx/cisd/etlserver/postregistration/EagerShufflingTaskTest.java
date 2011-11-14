@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -235,27 +236,59 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testStopOnNoShareFound()
+    {
+        prepareConfigProvider();
+        Properties properties = createDefaultProperties();
+        properties.setProperty(EagerShufflingTask.STOP_ON_NO_SHARE_FOUND_KEY, "true");
+        EagerShufflingTask task = createTask(properties);
+        freeSpaceProvider.setFreeSpaceValues(200, 10, 10, 0);
+        prepareListDataSets();
+        final RecordingMatcher<String> notificationRecorder = new RecordingMatcher<String>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(notifyer).log(with(LogLevel.ERROR), with(notificationRecorder));
+                }
+            });
+
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1, false);
+        try
+        {
+            executor.createCleanupTask();
+            fail("EnvironmentFailureException expected.");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("No share found for shuffling data set ds-1.", ex.getMessage());
+        }
+        
+        assertEquals("No share found for shuffling data set ds-1.", notificationRecorder.recordedObject());
+        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.shares.toString());
+        context.assertIsSatisfied();
+    }
+    
     private RecordingMatcher<String> prepareLogging(final LogLevel level)
     {
         final RecordingMatcher<String> logMessageMatcher = new RecordingMatcher<String>();
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(logger).log(with(level), with(logMessageMatcher));
-                }
-            });
+                one(logger).log(with(level), with(logMessageMatcher));
+            }
+        });
         return logMessageMatcher;
     }
-
+    
     private void prepareListDataSets()
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(service).listDataSets();
-                    will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
-                }
-            });
+                one(service).listDataSets();
+                will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
+            }
+        });
     }
 
     private void prepareConfigProvider()
