@@ -119,6 +119,7 @@
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
 		</testng>
+		
 	</target>
 	
 	<target name="run-tests" depends="compile-tests">
@@ -128,15 +129,6 @@
 			<param name="test.suite" value="${test.suite}" />
 			<param name="failure.property" value="tests.failed" />
 		</antcall>
-				
-		<testng classpath="${ecp}"
-		        workingDir="."
-		        outputdir="${output.test}"
-		        failureproperty="tests.failed">
-			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
-			<jvmarg value="-Xmx1024M" />
-			<jvmarg value="-XX:MaxPermSize=512m" />
-		</testng>
 				
 		<junitreport todir="${output.test}">
 			<fileset dir="${output.test}">
