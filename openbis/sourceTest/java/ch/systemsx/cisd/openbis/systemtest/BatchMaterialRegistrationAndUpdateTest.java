@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
@@ -177,21 +178,26 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
     private void deleteTestMaterials()
     {
         MaterialType materialType = getMaterialType(MATERIAL_TYPE);
-        ResultSet<Material> materials =
+        TypedTableResultSet<Material> materials =
                 commonClientService.listMaterials(ListMaterialDisplayCriteria
                         .createForMaterialType(materialType));
-        GridRowModels<Material> list = materials.getList();
-        List<Material> materialsToBeDeleted = new ArrayList<Material>();
-        for (GridRowModel<Material> gridRowModel : list)
+        GridRowModels<TableModelRowWithObject<Material>> list = materials.getResultSet().getList();
+        List<TableModelRowWithObject<Material>> materialsToBeDeleted =
+                new ArrayList<TableModelRowWithObject<Material>>();
+        for (GridRowModel<TableModelRowWithObject<Material>> gridRowModel : list)
         {
-            if (CODES.contains(gridRowModel.getOriginalObject().getCode()))
+            TableModelRowWithObject<Material> row = gridRowModel.getOriginalObject();
+            if (CODES.contains(row.getObjectOrNull().getCode()))
             {
-                materialsToBeDeleted.add(gridRowModel.getOriginalObject());
+                materialsToBeDeleted.add(row);
             }
         }
-        commonClientService.deleteMaterials(DisplayedOrSelectedIdHolderCriteria
-                .<Material> createSelectedItems(materialsToBeDeleted), "?");
-        for (Material deletedMaterial : materialsToBeDeleted)
+        commonClientService
+                .deleteMaterials(
+                        DisplayedOrSelectedIdHolderCriteria
+                                .<TableModelRowWithObject<Material>> createSelectedItems(materialsToBeDeleted),
+                        "?");
+        for (TableModelRowWithObject<Material> deletedMaterial : materialsToBeDeleted)
         {
             assertEquals("Deleted material: " + deletedMaterial, 0,
                     getMaterialPropertiesHistory(deletedMaterial.getId()).size());

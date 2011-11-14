@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Utility methods for columns.
@@ -165,13 +166,14 @@ public class ColumnUtils
                             editor.setAllowBlur(true);
                         }
                     });
-                materialChooser.addChosenEntityListener(new IChosenEntityListener<Material>()
-                    {
-                        public void entityChosen(Material entity)
-                        {
-                            editor.completeEdit();
-                        }
-                    });
+                materialChooser
+                        .addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Material>>()
+                            {
+                                public void entityChosen(TableModelRowWithObject<Material> entity)
+                                {
+                                    editor.completeEdit();
+                                }
+                            });
                 break;
             default:
                 throw new UserFailureException("Edition of properties of type '" + dataType

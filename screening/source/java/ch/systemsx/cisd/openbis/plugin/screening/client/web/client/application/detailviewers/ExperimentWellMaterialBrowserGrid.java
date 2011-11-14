@@ -18,23 +18,19 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
@@ -50,7 +46,7 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
      * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
      * edit material details.
      */
-    public static DisposableEntityChooser<Material> createForExperiment(
+    public static DisposableEntityChooser<TableModelRowWithObject<Material>> createForExperiment(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final IEntityInformationHolderWithIdentifier experiment)
     {
@@ -90,18 +86,20 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     }
 
     @Override
-    protected ICriteriaProvider<ListMaterialDisplayCriteria> getCriteriaProvider()
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Material>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<Material>> callback)
     {
-        return criteriaProvider;
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Material> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Material>> callback)
-    {
-        criteria.copyPagingConfig(resultSetConfig);
-        screeningViewContext.getService().listExperimentMaterials(TechId.create(experiment),
-                criteria, callback);
+        ListMaterialDisplayCriteria criteria = criteriaProvider.tryGetCriteria();
+        if (criteria == null)
+        {
+            satisfyCallbackWithEmptyResultSet(callback);
+        } else
+        {
+            criteria.copyPagingConfig(resultSetConfig);
+            screeningViewContext.getService().listExperimentMaterials(TechId.create(experiment),
+                    criteria, callback);
+        }
     }
 
     @Override
@@ -123,14 +121,5 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
         return ExperimentSearchCriteria.createExperiment(experiment);
     }
 
-    @Override
-    protected BaseEntityModel<Material> createModel(GridRowModel<Material> entity)
-    {
-        BaseEntityModel<Material> basicModel = super.createModel(entity);
-        basicModel.set(ModelDataPropertyNames.link(CommonMaterialColDefKind.CODE.id()),
-                ScreeningLinkExtractor.createMaterialDetailsLink(entity.getOriginalObject(),
-                        createExperimentSearchCriteria()));
-        return basicModel;
-    }
 
 }

@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -268,7 +267,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of materials.
      */
-    public ResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
+    public TypedTableResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -619,7 +618,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for materials.
      */
-    public String prepareExportMaterials(final TableExportCriteria<Material> criteria)
+    public String prepareExportMaterials(
+            final TableExportCriteria<TableModelRowWithObject<Material>> criteria)
             throws UserFailureException;
 
     /** Registers a new material type */
@@ -1034,7 +1034,8 @@ public interface ICommonClientService extends IClientService
     public void updateColumn(IExpressionUpdates updates) throws UserFailureException;
 
     /** Deletes the specified materials. */
-    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,
+    public void deleteMaterials(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Material>> criteria,
             String reason) throws UserFailureException;
 
     /**

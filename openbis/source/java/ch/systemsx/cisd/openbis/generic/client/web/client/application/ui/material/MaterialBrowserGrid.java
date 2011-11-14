@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -29,37 +30,41 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GridUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the materials are displayed.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialBrowserGrid extends
-        AbstractEntityBrowserGrid<Material, BaseEntityModel<Material>, ListMaterialDisplayCriteria>
+public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
 {
     private static final String PREFIX = "material-browser";
 
@@ -73,14 +78,14 @@ public class MaterialBrowserGrid extends
      * 
      * @param initialMaterialTypeOrNull
      */
-    public static DisposableEntityChooser<Material> createWithTypeChooser(
+    public static DisposableEntityChooser<TableModelRowWithObject<Material>> createWithTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             String initialMaterialTypeOrNull)
     {
         return createWithTypeChooser(viewContext, true, initialMaterialTypeOrNull);
     }
 
-    private static DisposableEntityChooser<Material> createWithTypeChooser(
+    private static DisposableEntityChooser<TableModelRowWithObject<Material>> createWithTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable,
             String initialMaterialTypeOrNull)
     {
@@ -99,7 +104,7 @@ public class MaterialBrowserGrid extends
      * refreshes the grid automatically.<br>
      * Does not allow to show or edit the material details.
      */
-    public static DisposableEntityChooser<Material> create(
+    public static DisposableEntityChooser<TableModelRowWithObject<Material>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final MaterialType initValueOrNull)
     {
@@ -112,12 +117,30 @@ public class MaterialBrowserGrid extends
         }
     }
 
-    private static DisposableEntityChooser<Material> createWithoutTypeChooser(
+    private static DisposableEntityChooser<TableModelRowWithObject<Material>> createWithoutTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final MaterialType initValue)
     {
+        final ListMaterialDisplayCriteria criteria =
+                ListMaterialDisplayCriteria.createForMaterialType(initValue);
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider =
-                createUnrefreshableCriteriaProvider(ListMaterialDisplayCriteria
-                        .createForMaterialType(initValue));
+                new ICriteriaProvider<ListMaterialDisplayCriteria>()
+                    {
+                        public ListMaterialDisplayCriteria tryGetCriteria()
+                        {
+                            return criteria;
+                        }
+
+                        public DatabaseModificationKind[] getRelevantModifications()
+                        {
+                            return new DatabaseModificationKind[0];
+                        }
+
+                        public void update(Set<DatabaseModificationKind> observedModifications,
+                                IDataRefreshCallback postRefreshCallback)
+                        {
+                            postRefreshCallback.postRefresh(true);
+                        }
+                    };
         boolean detailsAvailable = false;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
@@ -156,13 +179,14 @@ public class MaterialBrowserGrid extends
         super(viewContext, GRID_ID, refreshAutomatically,
                 DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
+        registerLinkClickListenerFor(MaterialGridColumnIDs.CODE, showEntityViewerLinkClickListener);
         setId(BROWSER_ID);
     }
 
     @Override
-    protected ICriteriaProvider<ListMaterialDisplayCriteria> getCriteriaProvider()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return criteriaProvider;
+        return columnID.toLowerCase();
     }
 
     protected void extendBottomToolbar(boolean detailsAvailable)
@@ -191,10 +215,10 @@ public class MaterialBrowserGrid extends
         final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
             {
                 @Override
-                protected Dialog createDialog(List<Material> materials,
+                protected Dialog createDialog(List<TableModelRowWithObject<Material>> materials,
                         IBrowserGridActionInvoker invoker)
                 {
-                    return new MaterialListDeletionConfirmationDialog(viewContext, materials,
+                    return new MaterialListDeletionConfirmationDialog(viewContext,
                             createRefreshCallback(invoker), getDisplayedAndSelectedItemsAction()
                                     .execute());
                 }
@@ -209,83 +233,93 @@ public class MaterialBrowserGrid extends
         toolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
     }
 
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Material> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Material>> callback)
+    protected final IDelegatedAction createGridRefreshDelegatedAction()
     {
-        criteria.copyPagingConfig(resultSetConfig);
-        viewContext.getService().listMaterials(criteria, callback);
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    if (criteriaProvider.tryGetCriteria() != null)
+                    {
+                        refreshGridWithFilters();
+                    }
+                }
+            };
     }
 
     @Override
-    protected BaseEntityModel<Material> createModel(GridRowModel<Material> entity)
+    public String getGridDisplayTypeID()
     {
-        return getColumnsFactory().createModel(entity,
-                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
+        ListMaterialDisplayCriteria criteria = criteriaProvider.tryGetCriteria();
+        String suffix =
+                createDisplayIdSuffix(EntityKind.MATERIAL, criteria == null ? null : criteria
+                        .getListCriteria().tryGetMaterialType());
+        return createGridDisplayTypeID(suffix);
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Material> createColumnsDefinition()
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Material>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<Material>> callback)
     {
-        ColumnDefsAndConfigs<Material> schema =
-                getColumnsFactory().createColumnsSchema(viewContext,
-                        criteria.getListCriteria().tryGetMaterialType(),
-                        viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
-        schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(),
-                createInternalLinkCellRenderer());
+        ListMaterialDisplayCriteria criteria = criteriaProvider.tryGetCriteria();
+        if (criteria == null)
+        {
+            satisfyCallbackWithEmptyResultSet(callback);
+        } else
+        {
+            criteria.copyPagingConfig(resultSetConfig);
+            viewContext.getService().listMaterials(criteria, callback);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void satisfyCallbackWithEmptyResultSet(
+            AbstractAsyncCallback<TypedTableResultSet<Material>> callback)
+    {
+        ResultSet<TableModelRowWithObject<Material>> resultSet =
+                new ResultSet<TableModelRowWithObject<Material>>();
+        resultSet.setList(new GridRowModels<TableModelRowWithObject<Material>>(Arrays
+                .<GridRowModel<TableModelRowWithObject<Material>>> asList(), Arrays
+                .<TableModelColumnHeader> asList(), Arrays.<GridCustomColumnInfo> asList(), Arrays
+                .<ColumnDistinctValues> asList()));
+        resultSet.setTotalLength(0);
+        callback.onSuccess(new TypedTableResultSet<Material>(resultSet));
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Material>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Material>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(MaterialGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
         return schema;
     }
 
-    private EntityGridModelFactory<Material> getColumnsFactory()
-    {
-        return new EntityGridModelFactory<Material>(viewContext, getStaticColumnsDefinition());
-    }
-
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Material> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Material>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMaterials(exportCriteria, callback);
     }
 
     @Override
-    protected EntityType tryToGetEntityType()
+    public DatabaseModificationKind[] getRelevantModifications()
     {
-        return criteria == null ? null : criteria.getListCriteria().tryGetMaterialType();
+        return GridUtils.getRelevantModifications(ObjectKind.MATERIAL, criteriaProvider);
     }
 
     @Override
-    protected boolean hasColumnsDefinitionChanged(ListMaterialDisplayCriteria newCriteria)
+    protected List<String> getColumnIdsOfFilters()
     {
-        EntityType newEntityType = newCriteria.getListCriteria().tryGetMaterialType();
-        EntityType prevEntityType =
-                (criteria == null ? null : criteria.getListCriteria().tryGetMaterialType());
-        return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
+        return Arrays.asList(MaterialGridColumnIDs.CODE);
     }
 
-    @Override
-    protected Set<DatabaseModificationKind> getGridRelevantModifications()
-    {
-        return getGridRelevantModifications(ObjectKind.MATERIAL);
-    }
-
-    @Override
-    protected List<IColumnDefinition<Material>> getInitialFilters()
-    {
-        return asColumnFilters(new CommonMaterialColDefKind[]
-            { CommonMaterialColDefKind.CODE });
-    }
-
-    @Override
     protected void showEntityViewer(Material material, boolean editMode, boolean inBackground)
     {
         showEntityInformationHolderViewer(material, editMode, inBackground);
-    }
-
-    @Override
-    protected IColumnDefinitionKind<Material>[] getStaticColumnsDefinition()
-    {
-        return CommonMaterialColDefKind.values();
     }
 
     @Override
@@ -294,11 +328,13 @@ public class MaterialBrowserGrid extends
         return EntityKind.MATERIAL;
     }
 
-    public final class DisplayedAndSelectedMaterials extends DisplayedAndSelectedEntities<Material>
+    public final class DisplayedAndSelectedMaterials extends
+            DisplayedAndSelectedEntities<TableModelRowWithObject<Material>>
     {
 
-        public DisplayedAndSelectedMaterials(List<Material> selectedItems,
-                TableExportCriteria<Material> displayedItemsConfig, int displayedItemsCount)
+        public DisplayedAndSelectedMaterials(List<TableModelRowWithObject<Material>> selectedItems,
+                TableExportCriteria<TableModelRowWithObject<Material>> displayedItemsConfig,
+                int displayedItemsCount)
         {
             super(selectedItems, displayedItemsConfig, displayedItemsCount);
         }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A field for selecting a material from a list or by specifying code and type.
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-public class MaterialChooserField extends ChosenEntitySetter<Material>
+public class MaterialChooserField extends ChosenEntitySetter<TableModelRowWithObject<Material>>
 {
     public static MaterialChooserField create(final String labelField, final boolean mandatory,
             final MaterialType materialTypeOrNull, String initialValueOrNull,
@@ -57,13 +58,14 @@ public class MaterialChooserField extends ChosenEntitySetter<Material>
     }
 
     private static void browseMaterials(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Material> chosenMaterialField, MaterialType materialTypeOrNull)
+            final ChosenEntitySetter<TableModelRowWithObject<Material>> chosenMaterialField,
+            MaterialType materialTypeOrNull)
     {
-        DisposableEntityChooser<Material> materialBrowser =
+        DisposableEntityChooser<TableModelRowWithObject<Material>> materialBrowser =
                 MaterialBrowserGrid.create(viewContext, materialTypeOrNull);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_MATERIAL);
-        new EntityChooserDialog<Material>(materialBrowser, chosenMaterialField, title, viewContext)
-                .show();
+        new EntityChooserDialog<TableModelRowWithObject<Material>>(materialBrowser,
+                chosenMaterialField, title, viewContext).show();
     }
 
     // ------------------
@@ -73,9 +75,9 @@ public class MaterialChooserField extends ChosenEntitySetter<Material>
             + "\\)$";
 
     @Override
-    public String renderEntity(Material materialOrNull)
+    public String renderEntity(TableModelRowWithObject<Material> materialOrNull)
     {
-        String identifier = materialOrNull.getIdentifier();
+        String identifier = materialOrNull.getObjectOrNull().getIdentifier();
         return StringEscapeUtils.unescapeHtml(identifier);
     }
 

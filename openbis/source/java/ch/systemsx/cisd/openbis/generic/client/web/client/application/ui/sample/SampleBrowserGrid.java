@@ -351,21 +351,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         return createGridDisplayTypeID(suffix);
     }
 
-    private static String createDisplayIdSuffix(EntityKind entityKindOrNull,
-            EntityType entityTypeOrNull)
-    {
-        String suffix = "";
-        if (entityKindOrNull != null)
-        {
-            suffix += "-" + entityKindOrNull.toString();
-        }
-        if (entityTypeOrNull != null)
-        {
-            suffix += "-" + entityTypeOrNull.getCode();
-        }
-        return suffix;
-    }
-
     private void linkProject()
     {
         registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,

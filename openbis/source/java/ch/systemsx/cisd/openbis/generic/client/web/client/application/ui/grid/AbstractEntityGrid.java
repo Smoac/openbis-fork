@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -107,6 +108,20 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
     {
         return LinkRenderer.createExternalLinkRenderer(viewContext
                 .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
+    }
+
+    protected String createDisplayIdSuffix(EntityKind entityKindOrNull, EntityType entityTypeOrNull)
+    {
+        String suffix = "";
+        if (entityKindOrNull != null)
+        {
+            suffix += "-" + entityKindOrNull.toString();
+        }
+        if (entityTypeOrNull != null)
+        {
+            suffix += "-" + entityTypeOrNull.getCode();
+        }
+        return suffix;
     }
 
 }

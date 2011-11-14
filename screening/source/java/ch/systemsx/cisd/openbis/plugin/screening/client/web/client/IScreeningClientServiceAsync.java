@@ -23,7 +23,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -174,7 +173,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      * @see IScreeningClientService#listExperimentMaterials(TechId, ListMaterialDisplayCriteria)
      */
     public void listExperimentMaterials(TechId experimentId, ListMaterialDisplayCriteria criteria,
-            AsyncCallback<ResultSet<Material>> callback);
+            AsyncCallback<TypedTableResultSet<Material>> callback);
 
     /**
      * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId,

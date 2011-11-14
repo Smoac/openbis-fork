@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,30 +29,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 public final class MaterialListDeletionConfirmationDialog extends
         AbstractDataListPermanentDeletionConfirmationDialog<Material>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     private final DisplayedAndSelectedMaterials selectedAndDisplayedItems;
 
     public MaterialListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<Material> data,
+            IViewContext<ICommonClientServiceAsync> viewContext,
             AbstractAsyncCallback<Void> deletionCallback,
             DisplayedAndSelectedMaterials selectedAndDisplayedItems)
     {
-        super(viewContext, data, deletionCallback);
+        super(viewContext, TableModelRowWithObject.getObjects(selectedAndDisplayedItems
+                .getSelectedItems()), deletionCallback);
         this.withRadio();
-        this.viewContext = viewContext;
         this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }
 
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
-        final DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria =
+        final DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Material>> uploadCriteria =
                 selectedAndDisplayedItems.createCriteria(isOnlySelected());
         viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(),
                 deletionCallback);

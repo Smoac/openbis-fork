@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -152,7 +151,7 @@ public interface IScreeningClientService extends IClientService
     /**
      * Lists {@link Material}s of specified type in experiment with specified id.
      */
-    public ResultSet<Material> listExperimentMaterials(TechId experimentId,
+    public TypedTableResultSet<Material> listExperimentMaterials(TechId experimentId,
             ListMaterialDisplayCriteria criteria) throws UserFailureException;
 
     /**

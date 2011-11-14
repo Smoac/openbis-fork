@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -518,10 +517,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listMaterials(ListMaterialDisplayCriteria)
      */
     public void listMaterials(ListMaterialDisplayCriteria criteria,
-            AsyncCallback<ResultSet<Material>> callback);
+            AsyncCallback<TypedTableResultSet<Material>> callback);
 
     /** @see ICommonClientService#prepareExportMaterials(TableExportCriteria) */
-    public void prepareExportMaterials(TableExportCriteria<Material> exportCriteria,
+    public void prepareExportMaterials(
+            TableExportCriteria<TableModelRowWithObject<Material>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerMaterialType(MaterialType) */
@@ -924,7 +924,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateColumn(IExpressionUpdates updates, AsyncCallback<Void> registrationCallback);
 
     /** @see ICommonClientService#deleteMaterials(DisplayedOrSelectedIdHolderCriteria, String) */
-    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria,
+    public void deleteMaterials(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Material>> uploadCriteria,
             String reason, AsyncCallback<Void> callback);
 
     /**

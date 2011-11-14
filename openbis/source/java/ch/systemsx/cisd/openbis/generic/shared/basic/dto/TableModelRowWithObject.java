@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -28,6 +29,16 @@ public class TableModelRowWithObject<T extends ISerializable> extends TableModel
         IIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    public static <T extends ISerializable> List<T> getObjects(List<TableModelRowWithObject<T>> rows)
+    {
+        ArrayList<T> list = new ArrayList<T>();
+        for (TableModelRowWithObject<T> row : rows)
+        {
+            list.add(row.getObjectOrNull());
+        }
+        return list;
+    }
 
     private T objectOrNull;
 

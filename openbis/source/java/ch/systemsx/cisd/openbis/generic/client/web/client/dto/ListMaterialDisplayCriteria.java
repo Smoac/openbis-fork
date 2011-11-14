@@ -21,14 +21,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing <i>materials</i> and displaying them in the grid.<br>
  * 
  * @author Piotr Buczek
  */
-public class ListMaterialDisplayCriteria extends DefaultResultSetConfig<String, Material> implements
-        IsSerializable
+public class ListMaterialDisplayCriteria extends
+        DefaultResultSetConfig<String, TableModelRowWithObject<Material>> implements IsSerializable
 {
     public static ListMaterialDisplayCriteria createForMaterialType(final MaterialType materialType)
     {

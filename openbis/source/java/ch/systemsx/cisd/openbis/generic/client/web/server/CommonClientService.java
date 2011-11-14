@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractExternalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractMaterialProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AttachmentVersionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AuthorizationGroupProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
@@ -1164,15 +1165,23 @@ public final class CommonClientService extends AbstractClientService implements
         return types;
     }
 
-    public ResultSet<Material> listMaterials(ListMaterialDisplayCriteria criteria)
+    public TypedTableResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        final String sessionToken = getSessionToken();
-        return listEntities(criteria, new ListMaterialOriginalDataProvider(commonServer,
-                sessionToken, criteria));
+        return listEntities(new AbstractMaterialProvider()
+            {
+
+                @Override
+                protected List<Material> getMaterials()
+                {
+                    return commonServer.listMaterials(getSessionToken(),
+                            criteria.getListCriteria(), true);
+                }
+            }, criteria);
     }
 
-    public String prepareExportMaterials(TableExportCriteria<Material> criteria)
+    public String prepareExportMaterials(
+            TableExportCriteria<TableModelRowWithObject<Material>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
@@ -2040,7 +2049,8 @@ public final class CommonClientService extends AbstractClientService implements
         commonServer.updateVocabularyTerms(sessionToken, vocabularyId, extractedTerms);
     }
 
-    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,
+    public void deleteMaterials(
+            DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Material>> criteria,
             String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

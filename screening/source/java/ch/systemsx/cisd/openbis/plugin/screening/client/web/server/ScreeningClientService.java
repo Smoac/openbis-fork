@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractMaterialProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialDisambiguationProvider;
@@ -281,19 +281,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getImageDatasetInfosForSample(sessionToken, sampleId, wellLocationOrNull);
     }
 
-    public ResultSet<Material> listExperimentMaterials(final TechId experimentId,
+    public TypedTableResultSet<Material> listExperimentMaterials(final TechId experimentId,
             final ListMaterialDisplayCriteria displayCriteria)
     {
-        return listEntities(displayCriteria,
-                new AbstractOriginalDataProviderWithoutHeaders<Material>()
-                    {
-                        @Override
-                        public List<Material> getFullOriginalData() throws UserFailureException
-                        {
-                            return server.listExperimentMaterials(getSessionToken(), experimentId,
-                                    displayCriteria.getListCriteria().tryGetMaterialType());
-                        }
-                    });
+        return listEntities(new AbstractMaterialProvider()
+            {
+                @Override
+                protected List<Material> getMaterials()
+                {
+                    return server.listExperimentMaterials(getSessionToken(), experimentId,
+                            displayCriteria.getListCriteria().tryGetMaterialType());
+                }
+            }, displayCriteria);
     }
 
     public TypedTableResultSet<MaterialFeatureVectorSummary> listExperimentFeatureVectorSummary(

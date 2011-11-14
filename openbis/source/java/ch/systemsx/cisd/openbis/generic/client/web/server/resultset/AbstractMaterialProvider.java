@@ -25,7 +25,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGri
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -37,13 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractMaterialProvider extends AbstractCommonTableModelProvider<Material>
+public abstract class AbstractMaterialProvider extends AbstractTableModelProvider<Material>
 {
-
-    public AbstractMaterialProvider(ICommonServer commonServer, String sessionToken)
-    {
-        super(commonServer, sessionToken);
-    }
 
     @Override
     protected TypedTableModel<Material> createTableModel()
@@ -58,7 +52,7 @@ public abstract class AbstractMaterialProvider extends AbstractCommonTableModelP
         for (Material material : materials)
         {
             builder.addRow(material);
-            builder.column(CODE).addString(material.getCode());
+            builder.column(CODE).addEntityLink(material, material.getCode());
             MaterialType materialType = material.getMaterialType();
             builder.column(MATERIAL_TYPE).addString(materialType.getCode());
             builder.column(DATABASE_INSTANCE).addString(material.getDatabaseInstance().getCode());
