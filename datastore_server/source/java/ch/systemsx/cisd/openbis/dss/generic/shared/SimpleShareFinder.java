@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import static org.apache.commons.io.FileUtils.ONE_KB;
+import static org.apache.commons.io.FileUtils.ONE_MB;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -34,14 +37,16 @@ public class SimpleShareFinder extends AbstractShareFinder
 {
     public SimpleShareFinder(Properties properties)
     {
-        
     }
 
     @Override
     protected Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares,
             ISpeedChecker speedChecker)
     {
-        Long dataSetSize = dataSet.getDataSetSize();
+        long dataSetSize = dataSet.getDataSetSize();
+        // 10% but not more than 1 MB are added to the data set size to take into account that
+        // creating directories consume disk space.
+        dataSetSize += Math.max(ONE_KB, Math.min(ONE_MB, dataSet.getDataSetSize() / 10));
         String dataSetShareId = dataSet.getDataSetShareId();
         long dataSetShareFreeSpace = 0;
         boolean dataSetShareIncoming = false;

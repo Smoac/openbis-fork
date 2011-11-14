@@ -18,21 +18,21 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.Sequence;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
@@ -56,6 +56,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses=EagerShufflingTask.class)
 public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 {
+    private static final class MockFreeSpaceProvider implements IFreeSpaceProvider
+    {
+        private final List<String> shares = new ArrayList<String>();
+        private Integer[] freeSpaceValues;
+        private int index;
+        
+        void setFreeSpaceValues(Integer... freeSpaceValues)
+        {
+            this.freeSpaceValues = freeSpaceValues;
+        }
+
+        public long freeSpaceKb(HostAwareFile path) throws IOException
+        {
+            shares.add(path.getFile().getName());
+            return freeSpaceValues[index++ % freeSpaceValues.length];
+        }
+    }
+        
     private static final String SHARDING = "sharding/";
     private static final String DATA_STORE_SERVER_CODE = "DSS";
     private static final String DATA_SET_CODE1 = "ds-1";
@@ -64,11 +82,12 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
     private IEncapsulatedOpenBISService service;
     private IShareIdManager shareIdManager;
-    private IFreeSpaceProvider freeSpaceProvider;
+    private MockFreeSpaceProvider freeSpaceProvider;
     private IDataSetMover dataSetMover;
 
     private IConfigProvider configProvider;
     private ISimpleLogger logger;
+    private ISimpleLogger notifyer;
     private File store;
     private File share1;
     private File share2;
@@ -83,10 +102,11 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
-        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        freeSpaceProvider = new MockFreeSpaceProvider();
         configProvider = context.mock(IConfigProvider.class);
         dataSetMover = context.mock(IDataSetMover.class);
-        logger = context.mock(ISimpleLogger.class);
+        logger = context.mock(ISimpleLogger.class, "logger");
+        notifyer = context.mock(ISimpleLogger.class, "notifyer");
         store = new File(workingDirectory.getAbsolutePath(), "store");
         store.mkdirs();
         share1 = new File(store, "1");
@@ -116,9 +136,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     {
         prepareConfigProvider();
         EagerShufflingTask task = createTask();
-        RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
-                new RecordingMatcher<HostAwareFile>();
-        prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 100, 300, 400);
+        freeSpaceProvider.setFreeSpaceValues(200, 100, 300, 400, 400, 300);
         prepareListDataSets();
         prepareGetShareId();
         RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
@@ -135,7 +153,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         
         assertEquals("Data set ds-1 successfully moved from share 1 to 4.",
                 infoMessageMatcher.recordedObject());
-        assertHostAwareFile(hostAwareFileMatcher, 1);
+        assertEquals("[1, 2, 3, 4, 4, 4]", freeSpaceProvider.shares.toString());
         context.assertIsSatisfied();
     }
 
@@ -144,9 +162,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     {
         prepareConfigProvider();
         EagerShufflingTask task = createTask();
-        RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
-                new RecordingMatcher<HostAwareFile>();
-        prepareFreeSpaceProvider(hostAwareFileMatcher, 100, 200, 10, 0);
+        freeSpaceProvider.setFreeSpaceValues(100, 200, 10, 0);
         prepareListDataSets();
         prepareGetShareId();
         RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
@@ -163,7 +179,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         assertEquals("Data set ds-1 successfully moved from share 1 to 2.",
                 infoMessageMatcher.recordedObject());
-        assertHostAwareFile(hostAwareFileMatcher, 1);
+        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.shares.toString());
         context.assertIsSatisfied();
     }
     
@@ -172,10 +188,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
     {
         prepareConfigProvider();
         EagerShufflingTask task = createTask();
-        RecordingMatcher<HostAwareFile> hostAwareFileMatcher =
-                new RecordingMatcher<HostAwareFile>();
-        prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 10, 10, 0);
-        prepareFreeSpaceProvider(hostAwareFileMatcher, 200, 10, 10, 0);
+        freeSpaceProvider.setFreeSpaceValues(200, 10, 10, 0);
         prepareListDataSets();
 
         RecordingMatcher<String> logMessageMatcher = prepareLogging(LogLevel.WARN);
@@ -186,7 +199,39 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         
         assertEquals("No share found for shuffling data set ds-1.",
                 logMessageMatcher.recordedObject());
-        assertHostAwareFile(hostAwareFileMatcher, 2);
+        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.shares.toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testShufflingWithNotification()
+    {
+        prepareConfigProvider();
+        Properties properties = createDefaultProperties();
+        properties.setProperty(EagerShufflingTask.FREE_SPACE_LIMIT_KEY, "1");
+        EagerShufflingTask task = createTask(properties);
+        freeSpaceProvider.setFreeSpaceValues(200, 1234, 10, 0, 1234, 900);
+        prepareListDataSets();
+        prepareGetShareId();
+        RecordingMatcher<String> infoMessageMatcher = prepareLogging(LogLevel.INFO);
+        final RecordingMatcher<String> notificationRecorder = new RecordingMatcher<String>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSetMover).moveDataSetToAnotherShare(ds1File, share2, logger);
+                    one(notifyer).log(with(LogLevel.WARN), with(notificationRecorder));
+                }
+            });
+
+        IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET_CODE1, false);
+        executor.createCleanupTask();
+        executor.execute();
+
+        assertEquals("Data set ds-1 successfully moved from share 1 to 2.",
+                infoMessageMatcher.recordedObject());
+        assertEquals("After moving data set ds-1 to share 2 that share has only 900.00 KB free space. " +
+        		"It might be necessary to add a new share.", notificationRecorder.recordedObject());
+        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.shares.toString());
         context.assertIsSatisfied();
     }
 
@@ -237,49 +282,6 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         });
     }
     
-    private void prepareFreeSpaceProvider(
-            final RecordingMatcher<HostAwareFile> hostAwareFileMatcher, final long free1,
-            final long free2, final long free3, final long free4)
-    {
-        final Sequence sequence = context.sequence("free");
-        context.checking(new Expectations()
-            {
-                {
-                    try
-                    {
-                        one(freeSpaceProvider).freeSpaceKb(with(hostAwareFileMatcher));
-                        will(returnValue(free1));
-                        inSequence(sequence);
-                        one(freeSpaceProvider).freeSpaceKb(with(hostAwareFileMatcher));
-                        will(returnValue(free2));
-                        inSequence(sequence);
-                        one(freeSpaceProvider).freeSpaceKb(with(hostAwareFileMatcher));
-                        will(returnValue(free3));
-                        inSequence(sequence);
-                        one(freeSpaceProvider).freeSpaceKb(with(hostAwareFileMatcher));
-                        will(returnValue(free4));
-                        inSequence(sequence);
-                    } catch (IOException ex)
-                    {
-                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                    }
-                }
-            });
-    }
-    
-    private void assertHostAwareFile(final RecordingMatcher<HostAwareFile> hostAwareFileMatcher, int loops)
-    {
-        List<HostAwareFile> files = hostAwareFileMatcher.getRecordedObjects();
-        for (int i = 0; i < loops; i++)
-        {
-            assertEquals(share1, files.get(4 * i).getFile());
-            assertEquals(share2, files.get(4 * i + 1).getFile());
-            assertEquals(share3, files.get(4 * i + 2).getFile());
-            assertEquals(share4, files.get(4 * i + 3).getFile());
-        }
-        assertEquals(4 * loops, files.size());
-    }
-
     private SimpleDataSetInformationDTO dataSet(String shareId, String dataSetCode)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
@@ -287,24 +289,29 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         dataSet.setDataSetShareId(shareId);
         dataSet.setDataStoreCode(DATA_STORE_SERVER_CODE);
         dataSet.setDataSetLocation(SHARDING + dataSetCode);
-        dataSet.setDataSetSize(47110L);
+        dataSet.setDataSetSize(47 * FileUtils.ONE_KB);
         dataSet.setSpeedHint(Constants.DEFAULT_SPEED_HINT);
         return dataSet;
     }
 
     private EagerShufflingTask createTask()
     {
+        return createTask(createDefaultProperties());
+    }
+
+    protected Properties createDefaultProperties()
+    {
         Properties properties = new Properties();
         properties.setProperty(EagerShufflingTask.SHARE_FINDER_KEY + ".class",
                 SimpleShareFinder.class.getName());
-        return createTask(properties);
+        return properties;
     }
 
     private EagerShufflingTask createTask(Properties properties)
     {
         return new EagerShufflingTask(properties,
                 new LinkedHashSet<String>(Arrays.asList("1", "2")), service, shareIdManager,
-                freeSpaceProvider, dataSetMover, configProvider, logger);
+                freeSpaceProvider, dataSetMover, configProvider, logger, notifyer);
     }
     
 }

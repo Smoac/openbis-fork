@@ -21,10 +21,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -54,10 +57,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class EagerShufflingTask extends AbstractPostRegistrationTask
 {
     @Private public static final String SHARE_FINDER_KEY = "share-finder";
+    @Private public static final String FREE_SPACE_LIMIT_KEY = "free-space-limit-in-MB-triggering-notification";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EagerShufflingTask.class);
 
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            EagerShufflingTask.class);
+    
     private static SimpleDataSetInformationDTO findDataSet(List<Share> shares, String dataSetCode)
     {
         for (Share share : shares)
@@ -82,6 +89,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
 
     private final ISimpleLogger logger;
 
+    private final ISimpleLogger notifyer;
+    
     private final File storeRoot;
 
     private final String dataStoreCode;
@@ -90,18 +99,20 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
 
     private IShareFinder finder;
     
+    private long freeSpaceLimitTriggeringNotification;
+    
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
                 .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
                 ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
-                new Log4jSimpleLogger(operationLog));
+                new Log4jSimpleLogger(operationLog), new Log4jSimpleLogger(notificationLog));
     }
 
     @Private public EagerShufflingTask(Properties properties, Set<String> incomingShares,
             IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
-            IConfigProvider configProvider, ISimpleLogger logger)
+            IConfigProvider configProvider, ISimpleLogger logger, ISimpleLogger notifyer)
     {
         super(properties, service);
         this.incomingShares = incomingShares;
@@ -109,6 +120,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         this.freeSpaceProvider = freeSpaceProvider;
         this.dataSetMover = dataSetMover;
         this.logger = logger;
+        this.notifyer = notifyer;
 
         dataStoreCode = configProvider.getDataStoreCode();
         storeRoot = configProvider.getStoreRoot();
@@ -122,6 +134,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                 PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
                         false).getProperties();
         finder = ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
+        freeSpaceLimitTriggeringNotification =
+                FileUtils.ONE_MB * PropertyUtils.getInt(properties, FREE_SPACE_LIMIT_KEY, 0);
     }
 
     public boolean requiresDataStoreLock()
@@ -170,13 +184,26 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         {
             if (shareWithMostFreeOrNull != null)
             {
+                long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
                 File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
                 dataSetMover.moveDataSetToAnotherShare(
                         new File(share, dataSet.getDataSetLocation()),
                         shareWithMostFreeOrNull.getShare(), logger);
+                String shareId = shareWithMostFreeOrNull.getShareId();
                 logger.log(LogLevel.INFO, "Data set " + dataSetCode
                         + " successfully moved from share " + dataSet.getDataSetShareId() + " to "
-                        + shareWithMostFreeOrNull.getShareId() + ".");
+                        + shareId + ".");
+                long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
+                if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
+                        && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
+                {
+                    notifyer.log(
+                            LogLevel.WARN,
+                            "After moving data set " + dataSetCode + " to share " + shareId
+                                    + " that share has only "
+                                    + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
+                                    + " free space. It might be necessary to add a new share.");
+                }
             }
         }
     }

@@ -117,6 +117,8 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
 
     private IConfigProvider configProvider;
 
+    private ISimpleLogger notifyer;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -126,7 +128,8 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         shareIdManager = context.mock(IShareIdManager.class);
         configProvider = context.mock(IConfigProvider.class);
         dataSetMover = context.mock(IDataSetMover.class);
-        logger = context.mock(ISimpleLogger.class);
+        logger = context.mock(ISimpleLogger.class, "logger");
+        notifyer = context.mock(ISimpleLogger.class, "notifyer");
         Properties properties = new Properties();
         properties.setProperty(SimpleShuffling.MINIMUM_FREE_SPACE_KEY, "2");
         properties.setProperty(EagerShufflingTask.SHARE_FINDER_KEY + ".class",
@@ -158,7 +161,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         eagerShufflingTask =
                 new EagerShufflingTask(properties, new HashSet<String>(Arrays.asList("1", "2")),
                         service, shareIdManager, spaceProvider, dataSetMover, configProvider,
-                        logger);
+                        logger, notifyer);
         balancer = new SimpleShuffling(properties, eagerShufflingTask);
     }
 

@@ -139,4 +139,18 @@ public class SimpleShareFinderTest extends AbstractIShareFinderTestCase
         
         assertSame(null, share);
     }
+    
+    @Test
+    public void testExtensionDataSetShareHasSlightlyMoreSpaceThanDataSetSize()
+    {
+        SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
+        dataSet.setDataSetSize(kiloBytes(100));
+        dataSet.setDataSetShareId("1");
+        Share s1 = incomingShare("1", kiloBytes(10), 0);
+        Share s2 = extensionShare("2", kiloBytes(109), 0);
+        
+        Share share = shareFinder.tryToFindShare(dataSet, Arrays.asList(s1, s2));
+        
+        assertSame(null, share);
+    }
 }
