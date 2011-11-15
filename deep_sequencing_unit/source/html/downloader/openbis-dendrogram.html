@@ -10,6 +10,7 @@
   <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="openbis.js"></script>
   <script type="text/javascript" src="openbis-dsu.js"></script>
+  <!-- To speed development, cache the requests -->
   <script type="text/javascript" src="openbis-request-cache.js"></script>
   <script>
 
@@ -36,20 +37,6 @@ var inspected = [];
 
 // A date formatter for grouping samples by registration year / month
 var yearmonthformat = d3.time.format("%Y-%m");
-
-/**
- * Return a string that formats the number, prepending trailing 0s if necessary to
- * make it two digits
- */ 
-function twoDigitNumberString(number)
-{
-	var numberString = number.toString();
-	if (numberString.length < 2) {
-		numberString = "0" + numberString;
-	}
-	
-	return numberString;
-}
 
 ///
 /// FUNCTIONS FOR PUTTING DATA INTO THE TREE
@@ -135,15 +122,18 @@ function createVis()
 {
 	if (didCreateVis) return;
 	
+	// Create a div to house the tree visualization and the inspectors
 	visgroup = d3.select("#main").append("div");
 	visgroup.style("width", "" + (w + 400) + "px")
 	
+	// An svg element for the tree visualization
 	vis = visgroup.append("svg:svg")
 		.attr("width", w)
 		.attr("height", h)
 	.append("svg:g")
 		.attr("transform", "translate(40, 0)");
-		
+	
+	// An element for the inspectors.
 	inspectors = visgroup.append("span")
 		.style("width", "400px")
 		.style("position", "relative")
