@@ -28,6 +28,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -68,6 +69,14 @@ public final class MaterialDAOTest extends AbstractDAOTest
         super.setUp();
         MaterialConfigurationProvider.initializeForTesting(false);
         materialDAO = daoFactory.getMaterialDAO();
+    }
+
+    @Override
+    @AfterMethod
+    public void tearDown()
+    {
+        super.tearDown();
+        MaterialConfigurationProvider.initializeForTesting(false);
     }
 
     @Test

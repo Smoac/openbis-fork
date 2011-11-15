@@ -32,7 +32,7 @@ public class SqlMigrationTest extends SqlMigrationTestAbstract
         { "slow" })
     public void test_migration() throws Exception
     {
-        test_migration(DatabaseVersionHolder.getDatabaseVersion());
+        testMigration(DatabaseVersionHolder.getDatabaseVersion());
     }
 
     @Override

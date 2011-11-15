@@ -75,7 +75,7 @@ public abstract class SqlMigrationTestAbstract
         }
     }
 
-    public void test_migration(String newestVersionString) throws Exception
+    public void testMigration(String newestVersionString) throws Exception
     {
         SqlMigrationVersion newestVersion = new SqlMigrationVersion(newestVersionString);
         SqlMigrationVersion firstVersion =

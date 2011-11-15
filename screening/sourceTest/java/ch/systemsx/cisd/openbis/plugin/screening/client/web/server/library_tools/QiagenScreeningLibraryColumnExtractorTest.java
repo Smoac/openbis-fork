@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.library_tools;
 
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
@@ -44,6 +45,12 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
                 new QiagenScreeningLibraryColumnExtractor(HEADER_TOKENS,
                         MaterialConfigurationProvider.getInstance());
     }
+    
+    @AfterMethod
+    public void tearDown()
+    {
+        MaterialConfigurationProvider.initializeForTesting(false);
+    }    
 
     @Test
     public void testWellCode()
