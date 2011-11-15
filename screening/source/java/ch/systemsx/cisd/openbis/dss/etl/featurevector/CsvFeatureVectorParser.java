@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
@@ -250,9 +251,20 @@ public class CsvFeatureVectorParser
             yColumn = xColumn;
         }
 
-        if (xColumn < 0 || yColumn < 0)
+        if (xColumn < 0)
         {
-            throw new IllegalArgumentException("Could not parse data set");
+            throw UserFailureException.fromTemplate(
+                    "Failed to identify well-row column. The specified input file "
+                            + "does not contain header with name '%s'.",
+                    configuration.getWellRowColumn());
+        }
+
+        if (yColumn < 0)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Failed to identify well-col column. The specified input file "
+                            + "does not contain header with name '%s'.",
+                    configuration.getWellColumnColumn());
         }
     }
 
