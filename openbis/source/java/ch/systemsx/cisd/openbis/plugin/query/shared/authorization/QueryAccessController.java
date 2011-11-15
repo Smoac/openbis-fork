@@ -23,13 +23,12 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter.QueryResultFilter;
 
@@ -39,8 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter.
 public class QueryAccessController
 {
 
-    private static final Logger authorizationLog =
-            LogFactory.getLogger(LogCategory.AUTH, AuthorizationAdvisor.class);
+    private static final Logger authorizationLog = LogFactory.getLogger(LogCategory.AUTH,
+            QueryAccessController.class);
 
     private static Map<String, DatabaseDefinition> definitionsByDbKey;
 
@@ -82,7 +81,8 @@ public class QueryAccessController
         }
     }
 
-    static boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole)
+    static boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull,
+            RoleWithHierarchy minimalRole)
     {
         return new AuthorizationChecker().isAuthorized(person, dataSpaceOrNull, minimalRole);
     }
