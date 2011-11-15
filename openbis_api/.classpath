@@ -2,5 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core-asl.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
