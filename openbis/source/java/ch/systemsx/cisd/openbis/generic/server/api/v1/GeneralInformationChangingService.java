@@ -27,10 +27,14 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
@@ -63,6 +67,7 @@ public class GeneralInformationChangingService extends
         return new GeneralInformationChangingServiceLogger(sessionManager, context);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
     {
@@ -71,6 +76,8 @@ public class GeneralInformationChangingService extends
         EntityHelper.updateSampleProperties(server, sessionToken, new TechId(sampleID), properties);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal)
     {
@@ -78,6 +85,8 @@ public class GeneralInformationChangingService extends
                 previousTermOrdinal);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term)
     {

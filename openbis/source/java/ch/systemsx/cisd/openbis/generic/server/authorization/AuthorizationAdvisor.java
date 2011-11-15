@@ -37,8 +37,9 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.util.MethodInvocationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -53,8 +54,8 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
 {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger authorizationLog =
-            LogFactory.getLogger(LogCategory.AUTH, AuthorizationAdvisor.class);
+    private static final Logger authorizationLog = LogFactory.getLogger(LogCategory.AUTH,
+            AuthorizationAdvisor.class);
 
     public AuthorizationAdvisor(final IAuthorizationComponentFactory authorizationComponentFactory)
     {
@@ -120,20 +121,20 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
             }
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings(
+            { "unchecked", "rawtypes" })
         private final static Argument<?> toArgument(final Parameter<AuthorizationGuard> parameter,
                 final Object[] args)
         {
-            return new Argument(parameter.getType(), args[parameter.getIndex()], parameter
-                    .getAnnotation());
+            return new Argument(parameter.getType(), args[parameter.getIndex()],
+                    parameter.getAnnotation());
         }
 
-        private final Argument<?>[] createArguments(final MethodInvocation methodInvocation)
+        private Argument<?>[] createArguments(Method method, final Object[] args)
         {
             final List<Argument<?>> arguments = new ArrayList<Argument<?>>();
-            final Object[] args = methodInvocation.getArguments();
             final List<Parameter<AuthorizationGuard>> authorizationGuards =
-                    getMethodAuthorizationGuards(methodInvocation.getMethod());
+                    getMethodAuthorizationGuards(method);
             for (Parameter<AuthorizationGuard> parameter : authorizationGuards)
             {
                 arguments.add(toArgument(parameter, args));
@@ -148,10 +149,9 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
         public final Object invoke(final MethodInvocation methodInvocation) throws Throwable
         {
             final IAuthSession session = obtainSession(methodInvocation);
-            final Method method = methodInvocation.getMethod();
-            final Status status =
-                    accessController.isAuthorized(session, method,
-                            createArguments(methodInvocation));
+            Method method = MethodInvocationUtils.getMethod(methodInvocation, RolesAllowed.class);
+            Argument<?>[] arguments = createArguments(method, methodInvocation.getArguments());
+            final Status status = accessController.isAuthorized(session, method, arguments);
             if (StatusFlag.OK.equals(status.getFlag()) == false)
             {
                 final String groupCode = session.tryGetHomeGroupCode();
@@ -159,8 +159,8 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                 authorizationLog.info(String.format(
                         "[USER:'%s' SPACE:%s]: Authorization failure while "
                                 + "invoking method '%s': %s", session.getUserName(),
-                        groupCode == null ? "<UNDEFINED>" : "'" + groupCode + "'", MethodUtils
-                                .describeMethod(method), errorMessage));
+                        groupCode == null ? "<UNDEFINED>" : "'" + groupCode + "'",
+                        MethodUtils.describeMethod(method), errorMessage));
                 throw new AuthorizationFailureException(errorMessage);
             }
             return returnValueFilter.applyFilter(session, method, methodInvocation.proceed());

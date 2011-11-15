@@ -35,10 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -88,7 +84,6 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all named role sets. The name is the key of the returned map.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken);
 
     /**
@@ -99,7 +94,6 @@ public interface IGeneralInformationService extends IRpcService
      *            for the home database instance is meant.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
 
@@ -110,7 +104,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.1
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
@@ -119,7 +112,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param samples The samples for which we return attached data sets.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
 
     /**
@@ -133,9 +125,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.2
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
+    public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType);
 
     /**
@@ -149,10 +139,8 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.15
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
-            String experimentType);
+            List<Project> projects, String experimentType);
 
     /**
      * Return all experiments of the given type that belong to the supplied projects and have
@@ -165,10 +153,8 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.15
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectPredicate.class) List<Project> projects,
-            String experimentType);
+            List<Project> projects, String experimentType);
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
@@ -181,7 +167,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.3
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded);
 
@@ -192,7 +177,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.4
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
     /**
@@ -202,8 +186,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.4
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
 
     /**
@@ -213,7 +195,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.5
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
@@ -227,7 +208,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.6
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @Deprecated
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
             String sessionToken);
@@ -238,7 +218,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.13
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
             String sessionToken);
 
@@ -250,7 +229,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.7
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connectionsToGet);
 
@@ -262,7 +240,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.14
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet);
 
@@ -275,7 +252,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.12
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes);
 
     /**
@@ -285,7 +261,6 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.8
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
     /**
@@ -296,13 +271,11 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.9
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
 
     /**
      * Returns all available projects.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Project> listProjects(String sessionToken);
 }

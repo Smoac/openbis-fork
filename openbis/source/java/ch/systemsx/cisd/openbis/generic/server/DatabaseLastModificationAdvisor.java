@@ -35,11 +35,12 @@ import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.util.MethodInvocationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
  * @author Tomasz Pylak
@@ -48,8 +49,8 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
 {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger modificationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DatabaseLastModificationAdvisor.class);
+    private static final Logger modificationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DatabaseLastModificationAdvisor.class);
 
     public DatabaseLastModificationAdvisor(LastModificationState state)
     {
@@ -89,9 +90,9 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
         public final Object invoke(final MethodInvocation methodInvocation) throws Throwable
         {
             long currentTimestamp = new Date().getTime();
-            final Method method = methodInvocation.getMethod();
             Object result = methodInvocation.proceed();
-            registerModification(method, currentTimestamp);
+            registerModification(MethodInvocationUtils.getMethod(methodInvocation,
+                    DatabaseUpdateModification.class), currentTimestamp);
             return result;
         }
 
@@ -100,8 +101,9 @@ public final class DatabaseLastModificationAdvisor extends DefaultPointcutAdviso
             Set<DatabaseModificationKind> modificationKinds = getCachedModificationKinds(method);
             for (DatabaseModificationKind modification : modificationKinds)
             {
-                modificationLog.debug(String.format("Method '%s' registered at %s: %s", MethodUtils
-                        .describeMethod(method), new Date(currentTimestamp), modification));
+                modificationLog.debug(String.format("Method '%s' registered at %s: %s",
+                        MethodUtils.describeMethod(method), new Date(currentTimestamp),
+                        modification));
                 state.registerModification(modification, currentTimestamp);
             }
         }

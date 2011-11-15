@@ -52,6 +52,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -113,6 +116,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return tryGetSession(sessionToken) != null;
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
     {
         checkSession(sessionToken);
@@ -132,6 +136,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return namedRoleSets;
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull)
     {
@@ -234,6 +239,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         checkSession(sessionToken);
@@ -263,24 +269,31 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateSamples(privateSamples);
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
     }
 
-    public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
-            String experimentTypeString)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPredicate.class)
+            List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, false, false);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPredicate.class)
             List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, false, true);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectPredicate.class)
             List<Project> projects, String experimentTypeString)
     {
         return listExperiments(sessionToken, projects, experimentTypeString, true, false);
@@ -353,6 +366,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return null;
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded)
     {
@@ -363,11 +377,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(externalData, EnumSet.noneOf(Connections.class));
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
         return commonServer.getDefaultPutDataStoreBaseURL(sessionToken);
     }
 
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         checkSession(sessionToken);
@@ -382,6 +399,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return data.getDataStore().getDownloadUrl();
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType> privateDataSetTypes =
@@ -398,6 +416,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return dataSetTypes;
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
             String sessionToken)
     {
@@ -413,6 +432,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return vocabTerms;
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Vocabulary> listVocabularies(String sessionToken)
     {
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary> privateVocabularies =
@@ -425,6 +445,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connections)
     {
@@ -441,6 +462,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(dataSets, connectionsToGet);
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connections)
     {
@@ -457,6 +479,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(dataSets, connectionsToGet);
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
         Session session = getSession(sessionToken);
@@ -479,6 +502,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         checkSession(sessionToken);
@@ -493,6 +517,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translate(privateDataSets, EnumSet.noneOf(Connections.class));
     }
 
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
     {
         checkSession(sessionToken);
@@ -506,6 +531,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateExperiments(experiments);
     }
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Project> listProjects(String sessionToken)
     {
         checkSession(sessionToken);

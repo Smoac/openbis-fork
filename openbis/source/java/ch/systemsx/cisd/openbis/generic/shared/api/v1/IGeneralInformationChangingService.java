@@ -21,12 +21,8 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * Service for changing general informations.
@@ -51,7 +47,6 @@ public interface IGeneralInformationChangingService extends IRpcService
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties);
 
@@ -62,8 +57,6 @@ public interface IGeneralInformationChangingService extends IRpcService
      * @deprecated Because the parameters refer to an internal openBIS class (TechID).
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     @Deprecated
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal);
@@ -72,8 +65,6 @@ public interface IGeneralInformationChangingService extends IRpcService
      * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term);
 
