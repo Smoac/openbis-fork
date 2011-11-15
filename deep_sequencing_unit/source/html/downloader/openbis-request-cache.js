@@ -45,3 +45,5 @@ ajaxRequest = function(settings) {
 		
 	}
 }
+
+alert("This app includes development code. For production, do not forget to remove the reference to openbis-request-cache.js")
