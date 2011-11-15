@@ -89,6 +89,11 @@ public class DssPropertyParametersUtil
         return PropertyUtils.getMandatoryProperty(serviceProperties, SERVER_URL_KEY);
     }
 
+    public static String getDownloadUrl(Properties serviceProperties)
+    {
+        return PropertyUtils.getMandatoryProperty(serviceProperties, DOWNLOAD_URL_KEY);
+    }
+
     public static File getDssInternalTempDir(final Properties properties)
     {
         String defaultTempDirPath =

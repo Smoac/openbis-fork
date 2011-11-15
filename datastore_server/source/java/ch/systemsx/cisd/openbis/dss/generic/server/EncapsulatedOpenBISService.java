@@ -605,4 +605,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.updateDataSet(session.getToken(), dataSetUpdates);
     }
 
+    public List<String> getTrustedCrossOriginDomains()
+    {
+        return service.getTrustedCrossOriginDomains(session.getToken());
+    }
+
 }

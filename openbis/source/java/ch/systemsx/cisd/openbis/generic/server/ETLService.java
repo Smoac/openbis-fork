@@ -171,21 +171,27 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final IDataStoreServiceFactory dssFactory;
 
+    private final TrustedCrossOriginDomainsProvider trustedOriginDomainProvider;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
+            ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
+            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider)
     {
-        this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory);
+        this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
+                trustedOriginDomainProvider);
     }
 
     ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
-            IDataStoreServiceFactory dssFactory)
+            IDataStoreServiceFactory dssFactory,
+            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
+        this.trustedOriginDomainProvider = trustedOriginDomainProvider;
     }
 
     public IETLLIMSService createLogger(IInvocationLoggerContext context)
@@ -1481,6 +1487,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final Session session = getSession(sessionToken);
         final IDataBO dataSetBO = businessObjectFactory.createDataBO(session);
         dataSetBO.update(dataSetUpdates);
+    }
+
+    public List<String> getTrustedCrossOriginDomains(String sessionToken)
+    {
+        return trustedOriginDomainProvider.getTrustedDomains();
     }
 
 }

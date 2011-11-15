@@ -521,4 +521,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     {
         logAccess(sessionToken, "updateDataSet", "DATA_SET_UPDATES(%s)", dataSetUpdates);
     }
+
+    public List<String> getTrustedCrossOriginDomains(String sessionToken)
+    {
+        logAccess(sessionToken, "getTrustedCrossOriginDomains");
+        return null;
+    }
 }

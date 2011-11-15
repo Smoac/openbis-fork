@@ -63,7 +63,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.servlet.CrossOriginFilter;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IInitializable;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
@@ -74,6 +73,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.ID
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssCrossOriginFilter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
@@ -287,7 +287,7 @@ public class DataStoreServer
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
                 jsonRpcV1Path)), jsonRpcV1Path);
-        context.addFilter(CrossOriginFilter.class, "/*", FilterMapping.ALL);
+        context.addFilter(DssCrossOriginFilter.class, "/*", FilterMapping.ALL);
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();

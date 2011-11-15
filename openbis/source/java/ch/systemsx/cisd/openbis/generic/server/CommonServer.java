@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -227,6 +228,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTran
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -2533,5 +2535,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ICorePluginTable pluginTable =
                 businessObjectFactory.createCorePluginTable(session, scriptRunner);
         pluginTable.registerPlugin(plugin, resourceLoader);
+    }
+
+    public List<DataStore> listDataStores()
+    {
+        IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
+        List<DataStorePE> dataStorePEs = dataStoreDAO.listDataStores();
+        return DataStoreTranslator.translate(dataStorePEs);
     }
 }

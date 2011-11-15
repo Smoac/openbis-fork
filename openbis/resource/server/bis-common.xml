@@ -25,7 +25,7 @@
 
     <filter>
         <filter-name>CrossOriginFilter</filter-name>
-        <filter-class>ch.systemsx.cisd.common.servlet.CrossOriginFilter</filter-class>
+        <filter-class>ch.systemsx.cisd.openbis.generic.server.OpenbisCrossOriginFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CrossOriginFilter</filter-name>

@@ -482,4 +482,10 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public void updateDataSet(DataSetUpdatesDTO dataSetUpdates);
+
+    /**
+     * {@link IETLLIMSService#getTrustedCrossOriginDomains(String)}
+     */
+    @ManagedAuthentication
+    public List<String> getTrustedCrossOriginDomains();
 }

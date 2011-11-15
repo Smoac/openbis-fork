@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
@@ -35,6 +38,16 @@ public class DataStoreTranslator
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(dataStorePE.getCode());
         return dataStore;
+    }
+
+    public static List<DataStore> translate(List<DataStorePE> dataStorePEs)
+    {
+        List<DataStore> result = new ArrayList<DataStore>();
+        for (DataStorePE dataStorePE : dataStorePEs)
+        {
+            result.add(translate(dataStorePE));
+        }
+        return result;
     }
 
     public static String translateDownloadUrl(String downloadUrl)

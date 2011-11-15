@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -38,5 +41,12 @@ public interface ICommonServerForInternalUse extends ICommonServer
     @Transactional(readOnly = false)
     public void registerPlugin(String sessionToken, CorePlugin plugin,
             ICorePluginResourceLoader pluginLoader);
+
+    /**
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
+     * could be offline at the time of the listing.
+     */
+    @Transactional
+    public List<DataStore> listDataStores();
 
 }

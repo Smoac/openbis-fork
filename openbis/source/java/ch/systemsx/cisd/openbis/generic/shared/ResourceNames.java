@@ -67,6 +67,8 @@ public final class ResourceNames
     public final static String WEB_CLIENT_CONFIGURATION_PROVIDER =
             "web-client-configuration-provider";
 
+    public final static String TRUSTED_ORIGIN_DOMAIN_PROVIDER = "trusted-origin-domain-provider";
+
     public final static String CREATABLE_DATA_SET_TYPES_WHITELIST =
             "creatable-data-set-types-whitelist";
 

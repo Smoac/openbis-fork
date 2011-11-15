@@ -737,4 +737,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void updateDataSet(
             String sessionToken,
             @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO dataSetUpdates);
+
+    /**
+     * Returns a list of configured trusted domains which can host external shared web resources.
+     * Typically these are lightweight webapps that integrate with openBIS via JSON-RPC services.
+     * <p>
+     * Can return empty list.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<String> getTrustedCrossOriginDomains(String sessionToken);
+
 }
