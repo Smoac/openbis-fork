@@ -313,8 +313,8 @@ function updateInspectors(duration)
 		.on("click", toggle_inspected)
 		.text("x");
 		
-	var table = box.append("table");
-	table.selectAll("tr").data(function(d) { return props_to_pairs(d.bis.properties) })
+	var propsTable = box.append("table").attr("class", "properties");
+	propsTable.selectAll("tr").data(function(d) { return props_to_pairs(d.bis.properties) })
 		.enter()
 			.append("tr")
 			.selectAll("td").data(function(d) { return d }).enter()
@@ -325,13 +325,22 @@ function updateInspectors(duration)
 			.transition()
 				.style("opacity", "1");
 				
-	var downloadTable = 
-		box.append("table")
-			.attr("width", "100%")
-			.attr("class", "downloads")
-			.style("color", "steelblue");
-		downloadTable.append("caption").text("Files");
-	var downloadTableRow = downloadTable.append("tr");
+	var downloadTable = box.append("table");
+	downloadTable
+		.attr("width", "100%")
+		.attr("class", "downloads")
+		.style("color", "steelblue");
+			
+	// Add a caption, but make sure there is just one (this does not work with select())
+	downloadTable.selectAll("caption")
+			.data(downloadTableCaption)
+		.enter()
+			.append("caption").text(function(d) { return d; });
+	var downloadTableRow = 
+		downloadTable.selectAll("tr")
+			.data(function(d) { return (d.flowlanes) ? d.flowlanes : [] })
+		.enter()
+			.append("tr");
 	downloadTableRow
 		.append("td")
 			.style("text-align", "left")
@@ -387,6 +396,11 @@ function props_to_pairs(d)
 		return (a[0] < b[0]) ? -1 : 1;
 	});
 	return pairs;
+}
+
+function downloadTableCaption(d)
+{	
+	return (d.flowlanes && d.flowlanes.length > 0) ? ["Files"] : ["Not Yet Sequenced"];
 }
 
 function enterApp()
