@@ -213,6 +213,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(registrationDetails);
     }
 
+    public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<? extends T> factory,
+            String dataSetType)
+    {
+        return getStateAsLiveState().createNewDataSet(factory, dataSetType, null);
+    }
+
     public IDataSetImmutable getDataSet(String dataSetCode)
     {
         return getStateAsLiveState().getDataSet(dataSetCode);

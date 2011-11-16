@@ -181,31 +181,17 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public IDataSet createNewDataSet()
         {
-            // Create registration details for the new data set
-            DataSetRegistrationDetails<T> registrationDetails =
-                    registrationDetailsFactory.createDataSetRegistrationDetails();
-
-            return createNewDataSet(registrationDetails);
+            return createNewDataSet(registrationDetailsFactory, null, null);
         }
 
         public IDataSet createNewDataSet(String dataSetType)
         {
-            // Create registration details for the new data set
-            DataSetRegistrationDetails<T> registrationDetails =
-                    registrationDetailsFactory.createDataSetRegistrationDetails();
-            registrationDetails.setDataSetType(dataSetType);
-
-            return createNewDataSet(registrationDetails);
+            return createNewDataSet(registrationDetailsFactory, dataSetType, null);
         }
 
         public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
         {
-            // Create registration details for the new data set
-            DataSetRegistrationDetails<T> registrationDetails =
-                    registrationDetailsFactory.createDataSetRegistrationDetails();
-            registrationDetails.setDataSetType(dataSetType);
-
-            return createNewDataSet(registrationDetails, dataSetCode);
+            return createNewDataSet(registrationDetailsFactory, dataSetType, dataSetCode);
         }
 
         public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails)
@@ -216,16 +202,37 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         public IDataSet createNewDataSet(
-                DataSetRegistrationDetails<? extends T> registrationDetails, String specifiedCode)
+                DataSetRegistrationDetails<? extends T> registrationDetails,
+                String specifiedCodeOrNull)
         {
+            return createNewDataSet(registrationDetails, null, specifiedCodeOrNull);
+        }
+
+        public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<? extends T> factory,
+                String dataSetTypeOrNull, String dataSetCodeOrNull)
+        {
+            // Create registration details for the new data set
+            DataSetRegistrationDetails<? extends T> registrationDetails =
+                    factory.createDataSetRegistrationDetails();
+            return createNewDataSet(registrationDetails, dataSetTypeOrNull, dataSetCodeOrNull);
+        }
+
+        private IDataSet createNewDataSet(
+                DataSetRegistrationDetails<? extends T> registrationDetails,
+                String dataSetTypeOrNull, String specifiedCodeOrNull)
+        {
+            if (null != dataSetTypeOrNull)
+            {
+                registrationDetails.setDataSetType(dataSetTypeOrNull);
+            }
             final String dataSetCode;
-            if (null == specifiedCode)
+            if (null == specifiedCodeOrNull)
             {
                 dataSetCode = generateDataSetCode(registrationDetails);
                 registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
             } else
             {
-                dataSetCode = specifiedCode.toUpperCase();
+                dataSetCode = specifiedCodeOrNull.toUpperCase();
             }
             registrationDetails.getDataSetInformation().setDataSetCode(dataSetCode);
 
