@@ -25,7 +25,6 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.servlet.AbstractCrossOriginFilter;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -85,12 +84,16 @@ public class OpenbisCrossOriginFilter extends AbstractCrossOriginFilter
         List<DataStore> dataStores = commonServer.listDataStores();
         for (DataStore dataStore : dataStores)
         {
-            dataStoreServerUrls.add(extractDomainFromDownloadUrl(dataStore));
+            final String dssDomainOrNull = tryExtractDomainFromDownloadUrl(dataStore);
+            if (dssDomainOrNull != null)
+            {
+                dataStoreServerUrls.add(dssDomainOrNull);
+            }
         }
         return dataStoreServerUrls;
     }
 
-    protected String extractDomainFromDownloadUrl(DataStore dataStore)
+    protected String tryExtractDomainFromDownloadUrl(DataStore dataStore)
     {
         try
         {
@@ -98,7 +101,7 @@ public class OpenbisCrossOriginFilter extends AbstractCrossOriginFilter
             return url.getProtocol() + "://" + url.getAuthority();
         } catch (MalformedURLException ex)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            return null;
         }
     }
 
