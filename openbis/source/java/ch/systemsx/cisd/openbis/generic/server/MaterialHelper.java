@@ -252,6 +252,10 @@ public class MaterialHelper
         EntityTypePE entityTypePE =
                 daoFactory.getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
                         materialTypeCode);
+        if (entityTypePE == null)
+        {
+            throw new UserFailureException("Material type does not exist: " + materialTypeCode);
+        }
         MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
 
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
