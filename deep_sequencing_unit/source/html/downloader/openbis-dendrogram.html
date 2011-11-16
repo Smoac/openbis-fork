@@ -97,6 +97,19 @@ function addSequencingSamplesToProject(project, bissamps)
 
 	if (samples.length > 0)
 		project.children = groupedSamples;
+		
+	// Get the flow lanes for each sequencing sample
+	var deferrer = 
+		new actionDeferrer(
+				function() { updateDiagram(500) }, 
+				samples.map(function(samp) { return samp.bis.code; }));
+				
+	samples.forEach(function(sample) { 
+		dsu.retrieveFlowLanesForSequencingSample(sample, function(data) {
+			if (data.result) sample.flowlanes = data.result.map(function(flowlane) { return { bis : flowlane }});
+			deferrer.dependencyCompleted(sample.bis.code);
+		}) 
+	});
 }
 
 
@@ -221,13 +234,16 @@ function updateDiagram(duration)
 		
 	node.exit().transition()
 		.duration(duration)
-		.attr("transform", translateDst)
+		.attr("transform", translateSrc)
 		.remove();
 }
 
 function classForNode(d) { 
+	// Use whether the node has open children or not to compute the class
 	var cssClass = hasChildren(d) ? "node withchildren" : "node leaf";
 	if (d.inspected) cssClass = cssClass + " inspected";
+	if (d.flowlanes && d.flowlanes.length > 0) cssClass = cssClass + " sequenced";
+
 	return cssClass;
 }
 
@@ -257,6 +273,11 @@ function translateDst(d)
 function hasChildren(d)
 {
 	return d.children != null || d._children != null;
+}
+
+function hasOpenChildren(d)
+{
+	return d.children != null;
 }
 
 // Toggle children on click.
@@ -303,6 +324,23 @@ function updateInspectors(duration)
 				.text(function(d) { return d })
 			.transition()
 				.style("opacity", "1");
+				
+	var downloadTable = 
+		box.append("table")
+			.attr("width", "100%")
+			.attr("class", "downloads")
+			.style("color", "steelblue");
+		downloadTable.append("caption").text("Files");
+	var downloadTableRow = downloadTable.append("tr");
+	downloadTableRow
+		.append("td")
+			.style("text-align", "left")
+			.text("metadata.tsv");
+	downloadTableRow
+		.append("td")
+			.style("border-right", "0px")
+			.style("text-align", "right")
+			.text("fastq.gz");
 		
 	inspector.exit().transition()
 		.duration(duration)
@@ -316,13 +354,21 @@ function toggle_inspected(d) {
 		var index = inspected.indexOf(d) 
 		if (index > -1)	inspected.splice(index, 1);
 		d.inspected = false;
-		d3.select(d.svgNode).attr("class", "node leaf")
+		d3.select(d.svgNode).attr("class", classForNode(d))
 	} else {
 		d.inspected = true;
 		inspected.push(d);
-		d3.select(d.svgNode).attr("class", "node leaf inspected")
+		d3.select(d.svgNode).attr("class", classForNode(d))
+		retrieveFilesForSequencingSample(d);
 	}
   updateInspectors(500);
+}
+
+function retrieveFilesForSequencingSample(sequencing)
+{
+	// dsu.retrieveFastqGzDataSetsForFlowLane(sequencing, function(data) { 
+	// 		sequencing.files = data.result;
+	// });
 }
 
 /**

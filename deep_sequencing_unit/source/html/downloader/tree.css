@@ -1,26 +1,37 @@
 .node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
+	 fill: #fff;
+	 stroke: steelblue;
+	 stroke-width: 1.5px;
 }
 
 .node {
-  font: 12px "Verdana", sans-serif;
+	font: 12px "Verdana", sans-serif;
+	z-index: 1;
+	cursor: pointer;
 }
 
 .link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
+	 fill: none;
+	 stroke: #ccc;
+	 stroke-width: 1.5px;
+	 z-index: -1;
 }
 
 g.withchildren:hover {
 	opacity: 0.5;
-	color: #AAA;
+	font-weight: bold;
+}
+
+.leaf text { 
+	fill: #999;
+}
+
+.sequenced text{
+	fill: black;
 }
 
 g.leaf:hover {
-	font-weight: bold
+	font-weight: bold;
 }
 
 .inspected {
@@ -28,10 +39,6 @@ g.leaf:hover {
 }
 
 /* Inspector */
-.inspector {
-  font-family: "Trebuchet MS", sans-serif;
-	font-size: 12px;
-}
 
 div.inspector {
 	font: 12px "Verdana", sans-serif;
@@ -52,4 +59,33 @@ div.inspector {
 .close:hover {
 	opacity: 0.5;
 	color: #AAA;
+	cursor: pointer;
+}
+
+.downloads {
+	color: steelblue;
+	background-color: #E3E3E3;
+}
+
+table.downloads {
+  font-family: "Trebuchet MS", sans-serif;
+	font-size: 18px;
+	font-variant: small-caps;	
+	table-layout: fixed;
+}
+
+/*
+.downloads caption {
+	text-align: left;
+}
+*/
+
+.downloads td {
+	width: 50%;
+	border-right: 2px solid #FFFFFF;
+}
+
+.downloads td:hover {
+	cursor: pointer;
+	font-weight: bold;
 }

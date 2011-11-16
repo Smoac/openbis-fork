@@ -106,6 +106,19 @@ openbis_dsu.prototype.retrieveSequencingSamplesForExperiment = function(experime
  */
 openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, action)
 {
+	var experimentCriteria = 
+	{
+		targetEntityKind : "EXPERIMENT",
+		criteria : { 
+			matchClauses : 
+			[ {"@type":"AttributeMatchClause",
+				"attribute":"PROJECT",
+				"fieldType":"ATTRIBUTE",
+				"desiredValue": sample.project.bis.code
+			} ]
+		}
+	};
+	
 	var parentCriteria = 
 	{
 		targetEntityKind : "SAMPLE_PARENT",
@@ -121,7 +134,7 @@ openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, ac
 	
 	var sampleCriteria = 
 	{
-		subCriterias : [ parentCriteria ],
+		subCriterias : [ experimentCriteria, parentCriteria ],
 		matchClauses : 
 			[ {"@type":"AttributeMatchClause",
 				attribute : "TYPE",
@@ -137,24 +150,36 @@ openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, ac
 /**
  * Request the replicas for the grid
  */
-openbis_dsu.prototype.retrieveDataSetsForFlowLane = function(flowlane, action)
+openbis_dsu.prototype.retrieveFastqGzDataSetsForFlowLane = function(flowlane, action)
 {
 	var flowLaneCriteria = 
 	{
 		targetEntityKind : "SAMPLE",
 		criteria : { 
-			matchClauses : 
-			[ {"@type":"AttributeMatchClause",
-				"attribute":"CODE",
-				"fieldType":"ATTRIBUTE",
-				"desiredValue": flowlane.code 
-			} ]
+			matchClauses : [ 
+				{"@type":"AttributeMatchClause",
+					"attribute":"CODE",
+					"fieldType":"ATTRIBUTE",
+					"desiredValue": flowlane.bis.code 
+				}, {"@type":"AttributeMatchClause",
+					"attribute":"SPACE",
+					"fieldType":"ATTRIBUTE",
+					"desiredValue": flowlane.project.bis.spaceCode
+				}
+			]
 		}
 	};
 	
 	var dataSetCriteria = 
 	{
 		subCriterias : [ flowLaneCriteria ],
+		matchClauses : [ 
+			{"@type":"AttributeMatchClause",
+				attribute : "TYPE",
+				fieldType : "ATTRIBUTE",
+				desiredValue : "FASTQ_GZ" 
+			}
+		],
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
