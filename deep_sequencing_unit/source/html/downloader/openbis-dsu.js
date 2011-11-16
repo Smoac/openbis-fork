@@ -102,7 +102,7 @@ openbis_dsu.prototype.retrieveSequencingSamplesForExperiment = function(experime
 }
 
 /**
- * Request the replicas for the grid
+ * Get the flow lanes for a sequencing sample.
  */
 openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, action)
 {
@@ -148,40 +148,9 @@ openbis_dsu.prototype.retrieveFlowLanesForSequencingSample = function(sample, ac
 }
 
 /**
- * Request the replicas for the grid
+ * Get all data sets connected to a sequencing sample
  */
-openbis_dsu.prototype.retrieveFastqGzDataSetsForFlowLane = function(flowlane, action)
+openbis_dsu.prototype.retrieveDataSetsForSequencingSample = function(sequencing, action)
 {
-	var flowLaneCriteria = 
-	{
-		targetEntityKind : "SAMPLE",
-		criteria : { 
-			matchClauses : [ 
-				{"@type":"AttributeMatchClause",
-					"attribute":"CODE",
-					"fieldType":"ATTRIBUTE",
-					"desiredValue": flowlane.bis.code 
-				}, {"@type":"AttributeMatchClause",
-					"attribute":"SPACE",
-					"fieldType":"ATTRIBUTE",
-					"desiredValue": flowlane.project.bis.spaceCode
-				}
-			]
-		}
-	};
-	
-	var dataSetCriteria = 
-	{
-		subCriterias : [ flowLaneCriteria ],
-		matchClauses : [ 
-			{"@type":"AttributeMatchClause",
-				attribute : "TYPE",
-				fieldType : "ATTRIBUTE",
-				desiredValue : "FASTQ_GZ" 
-			}
-		],
-		operator : "MATCH_ALL_CLAUSES"
-	};
-
-	this.server.searchForDataSets(dataSetCriteria, action);
+	this.server.listDataSetsForSample(sequencing.bis, false, action);
 }

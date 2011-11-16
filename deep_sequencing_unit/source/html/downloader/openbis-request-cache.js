@@ -9,6 +9,8 @@
  * Be careful not to distribute it to your customers.
  *  
  * <script type="text/javascript" src="openbis-request-cache.js"></script>
+ * 
+ * To clear the cache, you can call "localStorage.clear()" in a browser console. 
  */
 
 var original_ajax_request_func = ajaxRequest;

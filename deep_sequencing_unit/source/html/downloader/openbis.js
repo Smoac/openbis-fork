@@ -63,7 +63,7 @@ openbis.prototype.login = function(username, password, action) {
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "tryToAuthenticateForAllServices",
 				"params" : [ username, password ] 
-			  },
+				},
 		success: 
 			function(data) {
 				openbisObj.sessionToken = data.result;
@@ -71,7 +71,7 @@ openbis.prototype.login = function(username, password, action) {
 				action(data)
 			},
 		error: function() {
-		  alert("Login failed")
+			alert("Login failed")
 		}
 	 });
 }
@@ -90,7 +90,7 @@ openbis.prototype.isSessionActive = function(action) {
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "isSessionActive",
 				"params" : [ this.sessionToken ] 
-			  },
+				},
 		success: action
 	 });
 }
@@ -105,7 +105,7 @@ openbis.prototype.logout = function(action) {
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "logout",
 				"params" : [ this.sessionToken ] 
-			  },
+				},
 		success: action
 	 });
 }
@@ -115,7 +115,7 @@ openbis.prototype.listProjects = function(action) {
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "listProjects",
 				"params" : [ this.sessionToken ] 
-			  },
+				},
 		success: action
 	 });
 }
@@ -125,7 +125,7 @@ openbis.prototype.listExperiments = function(projects, experimentType, action) {
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "listExperiments",
 				"params" : [ this.sessionToken, projects, experimentType ] 
-			  },
+				},
 		success: action
 	 });
 }
@@ -160,24 +160,34 @@ openbis.prototype.searchForDataSets = function(searchCriteria, action) {
 	 });
 }
 
- openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
-     ajaxRequest({
-        url: this.dssUrl,
-        data: { "method" : "listFilesForDataSet",
-                "params" : [ this.sessionToken, dataSetCode, path, recursive ]
-               },
-        success: action
-     });
+openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyConnected, action) {
+	 ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "listDataSetsForSample",
+				"params" : [ this.sessionToken, sample, restrictToDirectlyConnected ] 
+		},
+		success: action
+	 });
+}
+
+openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
+	 ajaxRequest({
+			url: this.dssUrl,
+			data: { "method" : "listFilesForDataSet",
+							"params" : [ this.sessionToken, dataSetCode, path, recursive ]
+						 },
+			success: action
+	});
 }
 
 openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
-    ajaxRequest({
-        url: openbis.dssUrl,
-        data: { "method" : "getDownloadUrlForFileForDataSet",
-                "params" : [ this.sessionToken, dataSetCode, filePath ]
-               },
-        success: action
-    });
+	ajaxRequest({
+			url: openbis.dssUrl,
+			data: { "method" : "getDownloadUrlForFileForDataSet",
+							"params" : [ this.sessionToken, dataSetCode, filePath ]
+						 },
+			success: action
+	});
 }
 
 openbis.prototype.listQueries = function(action) {

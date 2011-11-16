@@ -336,20 +336,16 @@ function updateInspectors(duration)
 			.data(downloadTableCaption)
 		.enter()
 			.append("caption").text(function(d) { return d; });
+			
+	// We just want to see non-directories here
 	var downloadTableRow = 
 		downloadTable.selectAll("tr")
-			.data(function(d) { return (d.flowlanes) ? d.flowlanes : [] })
+			.data(function(d) { return (d.files) ? d.files.filter(function(file) { return !file.isDirectory }) : [] })
 		.enter()
-			.append("tr");
-	downloadTableRow
-		.append("td")
-			.style("text-align", "left")
-			.text("metadata.tsv");
-	downloadTableRow
-		.append("td")
-			.style("border-right", "0px")
-			.style("text-align", "right")
-			.text("fastq.gz");
+			.append("tr")
+				.append("td")
+				.style("text-align", "left")
+				.text(function (d) { return d.pathInListing });
 		
 	inspector.exit().transition()
 		.duration(duration)
@@ -375,9 +371,33 @@ function toggle_inspected(d) {
 
 function retrieveFilesForSequencingSample(sequencing)
 {
-	// dsu.retrieveFastqGzDataSetsForFlowLane(sequencing, function(data) { 
-	// 		sequencing.files = data.result;
-	// });
+	// No point getting files for a sample that hasn't been sequenced
+	if (!hasSampleBeenSequenced(sequencing)) return;
+	
+	dsu.retrieveDataSetsForSequencingSample(sequencing, function(data) {
+			if (!data.result) return;
+
+			sequencing.datasets = data.result.map(function(bisds) { return {bis : bisds} });
+			sequencing.files = [];
+						
+			// Get all the files and update the inspectors once all the data is avilable
+			var deferrer = 
+				new actionDeferrer(
+					function() { updateInspectors(500) }, 
+					sequencing.datasets.map(function(ds) { return ds.bis.code; }));
+				
+			sequencing.datasets.forEach(function(ds) { 
+				dsu.server.listFilesForDataSet(ds.bis.code, "/", true, function(data) {					
+					if (!data.result) { 
+						deferrer.dependencyCompleted(ds.bis.code);
+						return;
+					}
+					
+					sequencing.files = sequencing.files.concat(data.result);
+					deferrer.dependencyCompleted(ds.bis.code);
+				})
+			});
+	});
 }
 
 /**
@@ -398,9 +418,15 @@ function props_to_pairs(d)
 	return pairs;
 }
 
+
+function hasSampleBeenSequenced(d)
+{	
+	return (d.flowlanes && d.flowlanes.length > 0);
+}
+
 function downloadTableCaption(d)
 {	
-	return (d.flowlanes && d.flowlanes.length > 0) ? ["Files"] : ["Not Yet Sequenced"];
+	return hasSampleBeenSequenced(d) ? ["Files"] : ["Not Yet Sequenced"];
 }
 
 function enterApp()
