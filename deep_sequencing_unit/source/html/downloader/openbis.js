@@ -182,7 +182,7 @@ openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, a
 
 openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
 	ajaxRequest({
-			url: openbis.dssUrl,
+			url: this.dssUrl,
 			data: { "method" : "getDownloadUrlForFileForDataSet",
 							"params" : [ this.sessionToken, dataSetCode, filePath ]
 						 },

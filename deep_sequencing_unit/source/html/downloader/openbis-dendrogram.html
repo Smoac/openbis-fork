@@ -11,7 +11,7 @@
   <script type="text/javascript" src="openbis.js"></script>
   <script type="text/javascript" src="openbis-dsu.js"></script>
   <!-- To speed development, cache the requests -->
-  <script type="text/javascript" src="openbis-request-cache.js"></script>
+  <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
   <script>
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
@@ -325,11 +325,14 @@ function updateInspectors(duration)
 			.transition()
 				.style("opacity", "1");
 				
-	var downloadTable = box.append("table");
+	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
+	
 	downloadTable
-		.attr("width", "100%")
-		.attr("class", "downloads")
-		.style("color", "steelblue");
+		.enter()
+			.append("table")
+				.attr("width", "100%")
+				.attr("class", "downloads")
+				.style("color", "steelblue");
 			
 	// Add a caption, but make sure there is just one (this does not work with select())
 	downloadTable.selectAll("caption")
@@ -345,7 +348,8 @@ function updateInspectors(duration)
 			.append("tr")
 				.append("td")
 				.style("text-align", "left")
-				.text(function (d) { return d.pathInListing });
+				.on("click", downloadTableFile)
+				.text(function(d) { return d.pathInListing });
 		
 	inspector.exit().transition()
 		.duration(duration)
@@ -379,11 +383,12 @@ function retrieveFilesForSequencingSample(sequencing)
 
 			sequencing.datasets = data.result.map(function(bisds) { return {bis : bisds} });
 			sequencing.files = [];
+			sequencing.loadingFiles = true;
 						
 			// Get all the files and update the inspectors once all the data is avilable
 			var deferrer = 
 				new actionDeferrer(
-					function() { updateInspectors(500) }, 
+					function() { sequencing.loadingFiles = false; updateInspectors(500) }, 
 					sequencing.datasets.map(function(ds) { return ds.bis.code; }));
 				
 			sequencing.datasets.forEach(function(ds) { 
@@ -392,7 +397,7 @@ function retrieveFilesForSequencingSample(sequencing)
 						deferrer.dependencyCompleted(ds.bis.code);
 						return;
 					}
-					
+					data.result.forEach(function (file) { file.dataset = ds });
 					sequencing.files = sequencing.files.concat(data.result);
 					deferrer.dependencyCompleted(ds.bis.code);
 				})
@@ -427,6 +432,15 @@ function hasSampleBeenSequenced(d)
 function downloadTableCaption(d)
 {	
 	return hasSampleBeenSequenced(d) ? ["Files"] : ["Not Yet Sequenced"];
+}
+
+function downloadTableFile(d)
+{
+	// If there is no dataset, this is just a marker for loading
+	if (!d.dataset) return;
+	
+	var action = function(data) { document.location.href = data.result };
+	dsu.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
 }
 
 function enterApp()

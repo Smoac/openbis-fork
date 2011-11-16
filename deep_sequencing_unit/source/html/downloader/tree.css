@@ -71,6 +71,8 @@ table.downloads {
   font-family: "Trebuchet MS", sans-serif;
 	font-size: 14px;
 	table-layout: fixed;
+	border-collapse: collapse;
+	margin: 0px;
 	padding: 0px;
 }
 
@@ -81,12 +83,12 @@ table.downloads {
 */
 
 .downloads tr {
-	border-bottom: 2px solid #FFFFFF;
+	padding: 0px;
 }
 
 .downloads td {
-	width: 50%;
-	border-bottom: 2px solid #FFFFFF;
+	border: 2px solid #FFFFFF;	
+	padding: 2px;
 }
 
 .downloads td:hover {
