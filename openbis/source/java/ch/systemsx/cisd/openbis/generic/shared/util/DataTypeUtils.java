@@ -22,7 +22,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -38,7 +37,7 @@ public class DataTypeUtils
 {
     private static final Map<DataTypeCode, Converter> map = new HashMap<DataTypeCode, Converter>();
 
-    private enum Converter implements ISerializable
+    private enum Converter implements Serializable
     {
 
         INTEGER(DataTypeCode.INTEGER)

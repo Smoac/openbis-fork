@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Reference to an entity with minimal information to uniquely identify it in the database and to
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Tomasz Pylak
  */
-public class EntityReference implements ISerializable, IEntityInformationHolderWithPermId
+public class EntityReference implements Serializable, IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

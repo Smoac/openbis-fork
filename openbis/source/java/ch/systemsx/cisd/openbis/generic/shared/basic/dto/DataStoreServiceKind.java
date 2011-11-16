@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Tomasz Pylak
  */
-public enum DataStoreServiceKind implements ISerializable
+public enum DataStoreServiceKind implements Serializable
 {
     // Do not refactor names - they are stored in database.
     PROCESSING("Processing"), QUERIES("Query");

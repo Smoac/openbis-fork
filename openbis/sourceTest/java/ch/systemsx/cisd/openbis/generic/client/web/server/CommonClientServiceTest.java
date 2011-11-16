@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -320,7 +320,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             });
     }
 
-    private final <T extends ISerializable> void prepareListEntities2(List<T> entities,
+    private final <T extends Serializable> void prepareListEntities2(List<T> entities,
             final DefaultResultSetConfig<String, TableModelRowWithObject<T>> criteria)
     {
         final String resultSetKey = "131";
@@ -370,7 +370,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
-    private <T extends ISerializable> void assertEqualEntities2(List<T> entities,
+    private <T extends Serializable> void assertEqualEntities2(List<T> entities,
             final TypedTableResultSet<T> resultSet)
     {
         GridRowModels<TableModelRowWithObject<T>> resultSetList =

@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class AbundanceColumnDefinition implements ISerializable,
+public class AbundanceColumnDefinition implements Serializable,
         Comparable<AbundanceColumnDefinition>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

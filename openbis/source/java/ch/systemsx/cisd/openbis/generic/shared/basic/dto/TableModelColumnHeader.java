@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Column header for {@link TableModel}.
  * 
  * @author Tomasz Pylak
  */
-public class TableModelColumnHeader implements ISerializable
+public class TableModelColumnHeader implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

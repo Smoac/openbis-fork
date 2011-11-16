@@ -1,8 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 
@@ -12,7 +12,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
  * 
  * @author Tomasz Pylak
  */
-public class MaterialBiologicalReplicateFeatureVector implements ISerializable
+public class MaterialBiologicalReplicateFeatureVector implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

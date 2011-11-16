@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Different kinds of reporting plug-ins that are supported. Also keeps track of which
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public enum ReportingPluginType implements ISerializable
+public enum ReportingPluginType implements Serializable
 {
 
     TABLE_MODEL(ImplementedPluginMethods.CREATE_REPORT),

@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTa
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -25,14 +25,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Kaloyan Enimanev
  */
-public class TypedTableAssertions<T extends ISerializable> extends AssertJUnit
+public class TypedTableAssertions<T extends Serializable> extends AssertJUnit
 {
 
     /**
      * a convenience method, that can be used as a static import to achieve a fluent-API like
      * programming style.
      */
-    public static <S extends ISerializable> TypedTableAssertions<S> assertTable(
+    public static <S extends Serializable> TypedTableAssertions<S> assertTable(
             TypedTableResultSet<S> tableResultSet)
     {
         return new TypedTableAssertions<S>(tableResultSet);
@@ -42,13 +42,11 @@ public class TypedTableAssertions<T extends ISerializable> extends AssertJUnit
      * a convenience method, that can be used as a static import to achieve a fluent-API like
      * programming style.
      */
-    public static <S extends ISerializable> TypedTableAssertions<S>.ColumnAssertions assertColumn(
-            TypedTableResultSet<S> tableResultSet,
-            String columnName)
+    public static <S extends Serializable> TypedTableAssertions<S>.ColumnAssertions assertColumn(
+            TypedTableResultSet<S> tableResultSet, String columnName)
     {
         return new TypedTableAssertions<S>(tableResultSet).hasColumn(columnName);
     }
-
 
     private TypedTableResultSet<T> tableResultSet;
 
@@ -92,7 +90,7 @@ public class TypedTableAssertions<T extends ISerializable> extends AssertJUnit
         {
             hasColumn(columnName);
         }
-        
+
         boolean rowFound = false;
         GridRowModels<TableModelRowWithObject<T>> list = tableResultSet.getResultSet().getList();
         for (GridRowModel<TableModelRowWithObject<T>> rowModel : list)
@@ -114,7 +112,6 @@ public class TypedTableAssertions<T extends ISerializable> extends AssertJUnit
 
         return this;
     }
-
 
     public ColumnAssertions hasColumn(String columnId)
     {

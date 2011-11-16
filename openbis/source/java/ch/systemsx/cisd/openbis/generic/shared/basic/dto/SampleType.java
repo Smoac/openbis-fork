@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,14 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * A {@link EntityType} extension for <i>Sample Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleType extends EntityType implements ISerializable
+public final class SampleType extends EntityType implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

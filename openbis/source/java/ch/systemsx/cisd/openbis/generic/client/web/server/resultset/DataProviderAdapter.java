@@ -16,25 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
  * Adapter which turns a {@link ITableModelProvider} into a {@link IOriginalDataProvider}.
- *  
+ * 
  * @author Franz-Josef Elmer
  */
-public final class DataProviderAdapter<T extends ISerializable> implements
+public final class DataProviderAdapter<T extends Serializable> implements
         IOriginalDataProvider<TableModelRowWithObject<T>>
 {
     private final ITableModelProvider<T> provider;
-    
+
     private TypedTableModel<T> tableModel;
 
     public DataProviderAdapter(ITableModelProvider<T> provider)

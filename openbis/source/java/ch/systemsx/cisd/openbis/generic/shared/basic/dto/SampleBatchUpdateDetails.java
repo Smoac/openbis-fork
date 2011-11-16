@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Holds information about which sample attributes should be updated.
  * 
  * @author Piotr Buczek
  */
-public class SampleBatchUpdateDetails implements ISerializable
+public class SampleBatchUpdateDetails implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

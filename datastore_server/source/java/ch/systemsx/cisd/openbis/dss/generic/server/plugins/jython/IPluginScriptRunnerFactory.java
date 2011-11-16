@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Piotr Buczek
  */
-public interface IPluginScriptRunnerFactory extends ISerializable
+public interface IPluginScriptRunnerFactory extends Serializable
 {
     String getScriptPath();
 

@@ -18,19 +18,16 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
  * Class storing personalised display settings for a table column. This class implements
  * {@link Serializable} not only for transferring it's content remotely but also to store it in the
  * database. Thus, CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS.
- * <p>
- * Note: This class has to be Java serializable and GWT serializable.
  * 
  * @author Franz-Josef Elmer
  */
-public class ColumnSetting implements ISerializable
+public class ColumnSetting implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Batch registration is based on file input. This class returns to the client a small message after
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public class BatchRegistrationResult implements ISerializable
+public class BatchRegistrationResult implements Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

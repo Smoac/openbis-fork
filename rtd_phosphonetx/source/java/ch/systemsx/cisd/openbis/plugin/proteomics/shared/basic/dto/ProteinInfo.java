@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteinInfo implements ISerializable, IBasicProteinInfo
+public class ProteinInfo implements Serializable, IBasicProteinInfo
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

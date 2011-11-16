@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a list of
@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class TypedTableModel<T extends ISerializable>
+public class TypedTableModel<T extends Serializable>
 {
     private final List<TableModelColumnHeader> header;
 

@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class PropertyTypeWithVocabulary implements ISerializable
+public class PropertyTypeWithVocabulary implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

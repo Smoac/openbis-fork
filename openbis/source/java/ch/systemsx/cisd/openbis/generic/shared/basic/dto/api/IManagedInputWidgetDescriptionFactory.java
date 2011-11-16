@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Factory for creation of instances of {@link IManagedInputWidgetDescription}.
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Managed Properties API.
-public interface IManagedInputWidgetDescriptionFactory extends ISerializable
+public interface IManagedInputWidgetDescriptionFactory extends Serializable
 {
 
     /**

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Configuration parameters of a portlet.
@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class PortletConfiguration implements ISerializable
+public class PortletConfiguration implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String name;
 
     // Needed by GWT for deserialization
@@ -39,7 +39,7 @@ public class PortletConfiguration implements ISerializable
     }
 
     /**
-     * Creates a new instance for specified unique portlet name. 
+     * Creates a new instance for specified unique portlet name.
      */
     public PortletConfiguration(String name)
     {

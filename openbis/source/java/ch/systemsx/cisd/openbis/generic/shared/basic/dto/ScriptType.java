@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Piotr Buczek
  */
-public enum ScriptType implements ISerializable
+public enum ScriptType implements Serializable
 {
     DYNAMIC_PROPERTY("Dynamic Property Evaluator"), MANAGED_PROPERTY("Managed Property Handler");
 

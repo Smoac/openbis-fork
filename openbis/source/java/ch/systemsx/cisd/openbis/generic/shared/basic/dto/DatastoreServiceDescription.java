@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Description of one datastore server plugin task: key, label, dataset type codes.
  * 
  * @author Tomasz Pylak
  */
-public class DatastoreServiceDescription implements IReportInformationProvider, ISerializable,
+public class DatastoreServiceDescription implements IReportInformationProvider, Serializable,
         Comparable<DatastoreServiceDescription>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Full specification of the field connected with an entity which can be used in detailed text
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class DetailedSearchField implements ISerializable
+public class DetailedSearchField implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -68,7 +67,7 @@ public class DetailedSearchField implements ISerializable
     {
         return new DetailedSearchField(DetailedSearchFieldKind.REGISTRATOR, null);
     }
-    
+
     private static DetailedSearchField createAttributeField(String code)
     {
         assert code != null : "code not set";

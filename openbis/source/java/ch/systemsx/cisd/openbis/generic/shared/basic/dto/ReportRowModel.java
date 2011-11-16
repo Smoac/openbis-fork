@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Model of a report row.
  * 
  * @author Piotr Buczek
  */
-public class ReportRowModel implements ISerializable
+public class ReportRowModel implements Serializable
 {
 
     private static final long serialVersionUID = 1L;

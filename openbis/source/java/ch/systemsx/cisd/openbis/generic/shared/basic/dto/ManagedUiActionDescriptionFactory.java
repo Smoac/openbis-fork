@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescriptionFactory;
 
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidget
  * @author Piotr Buczek
  */
 public class ManagedUiActionDescriptionFactory implements IManagedInputWidgetDescriptionFactory,
-        ISerializable
+        Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

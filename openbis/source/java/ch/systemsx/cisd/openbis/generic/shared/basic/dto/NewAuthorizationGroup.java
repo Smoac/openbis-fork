@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Details of new authorization group.
  * 
  * @author Izabela Adamczyk
  */
-public class NewAuthorizationGroup implements ISerializable
+public class NewAuthorizationGroup implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Parameters for formating real numbers in grids. It is part of {@link DisplaySettings}.
  * 
  * @author Franz-Josef Elmer
  */
-public class RealNumberFormatingParameters implements ISerializable
+public class RealNumberFormatingParameters implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

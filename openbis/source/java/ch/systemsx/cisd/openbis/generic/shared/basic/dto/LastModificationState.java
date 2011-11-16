@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 
 /**
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
  * @author Tomasz Pylak
  */
 @DoNotEscape
-public class LastModificationState implements ISerializable
+public class LastModificationState implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

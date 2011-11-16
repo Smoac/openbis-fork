@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-
 /**
  * Class storing personalized display settings. This class implements {@link Serializable} not only
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
@@ -36,15 +34,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class DisplaySettings implements ISerializable
+public class DisplaySettings implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private Map<String, List<ColumnSetting>> columnSettings =
             new HashMap<String, List<ColumnSetting>>();
 
-    private Map<String, ISerializable> technologySpecificSettings =
-            new HashMap<String, ISerializable>();
+    private Map<String, Serializable> technologySpecificSettings =
+            new HashMap<String, Serializable>();
 
     private Map<String, String> tabSettings = new HashMap<String, String>();
 
@@ -69,18 +67,18 @@ public class DisplaySettings implements ISerializable
     private Map<String, Boolean> panelCollapsedSettings = new HashMap<String, Boolean>();
 
     private Map<String, Integer> panelSizeSettings = new HashMap<String, Integer>();
-    
+
     private List<EntityVisit> visits;
-    
+
     private Map<String, PortletConfiguration> portletConfigurations;
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
-    public Map<String, ISerializable> getTechnologySpecificSettings()
+    public Map<String, Serializable> getTechnologySpecificSettings()
     {
         if (technologySpecificSettings == null)
         {
-            technologySpecificSettings = new HashMap<String, ISerializable>();
+            technologySpecificSettings = new HashMap<String, Serializable>();
         }
         return technologySpecificSettings;
     }
@@ -161,7 +159,7 @@ public class DisplaySettings implements ISerializable
     // for serialization
 
     @SuppressWarnings("unused")
-    private void setTechnologySpecificSettings(Map<String, ISerializable> technologySpecificSettings)
+    private void setTechnologySpecificSettings(Map<String, Serializable> technologySpecificSettings)
     {
         this.technologySpecificSettings = technologySpecificSettings;
     }
@@ -259,14 +257,14 @@ public class DisplaySettings implements ISerializable
     {
         this.ignoreLastHistoryToken = ignoreLastHistoryToken;
     }
-    
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public void addEntityVisit(EntityVisit entityVisit)
     {
         getVisits().add(entityVisit);
     }
-    
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public List<EntityVisit> getVisits()
@@ -277,14 +275,14 @@ public class DisplaySettings implements ISerializable
         }
         return visits;
     }
-    
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public void addPortlet(PortletConfiguration portletConfiguration)
     {
         addPortlet(getPortletConfigurations(), portletConfiguration);
     }
-    
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public Map<String, PortletConfiguration> getPortletConfigurations()
@@ -293,12 +291,14 @@ public class DisplaySettings implements ISerializable
         {
             portletConfigurations = new HashMap<String, PortletConfiguration>();
             // Default portlets
-            addPortlet(portletConfigurations, new PortletConfiguration(StandardPortletNames.WELCOME));
-            addPortlet(portletConfigurations, new PortletConfiguration(StandardPortletNames.HISTORY));
+            addPortlet(portletConfigurations,
+                    new PortletConfiguration(StandardPortletNames.WELCOME));
+            addPortlet(portletConfigurations,
+                    new PortletConfiguration(StandardPortletNames.HISTORY));
         }
         return portletConfigurations;
     }
-    
+
     private void addPortlet(Map<String, PortletConfiguration> configurations,
             PortletConfiguration portletConfiguration)
     {

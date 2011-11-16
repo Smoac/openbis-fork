@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Criteria for listing <i>materials</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListMaterialCriteria implements ISerializable
+public final class ListMaterialCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

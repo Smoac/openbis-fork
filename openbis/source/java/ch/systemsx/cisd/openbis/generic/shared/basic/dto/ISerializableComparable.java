@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Interface for objects which are comparable, java.io.Serializable and GWT serializable.
@@ -24,6 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public interface ISerializableComparable extends ISerializable, Comparable<ISerializableComparable>
+public interface ISerializableComparable extends Serializable, Comparable<ISerializableComparable>
 {
 }

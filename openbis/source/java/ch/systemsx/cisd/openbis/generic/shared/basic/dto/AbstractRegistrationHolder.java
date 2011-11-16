@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Super class of <i>DTO</i>s which hold registration data.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractRegistrationHolder implements ISerializable, IRegistratorHolder
+public abstract class AbstractRegistrationHolder implements Serializable, IRegistratorHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

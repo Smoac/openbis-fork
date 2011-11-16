@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Arrays;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Aggregate functions.
  * 
  * @author Franz-Josef Elmer
  */
-public enum AggregateFunction implements ISerializable
+public enum AggregateFunction implements Serializable
 {
     MEAN("mean")
     {

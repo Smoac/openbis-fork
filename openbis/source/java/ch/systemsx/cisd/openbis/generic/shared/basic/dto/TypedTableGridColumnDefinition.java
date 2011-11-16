@@ -1,17 +1,17 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleImageHtmlRenderer;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class TypedTableGridColumnDefinition<T extends ISerializable> implements
+public class TypedTableGridColumnDefinition<T extends Serializable> implements
         IColumnDefinition<TableModelRowWithObject<T>>
 {
     protected TableModelColumnHeader header;
@@ -46,7 +46,7 @@ public class TypedTableGridColumnDefinition<T extends ISerializable> implements
     {
         return header.getId();
     }
-    
+
     public DataTypeCode tryToGetDataType()
     {
         return header.getDataType();

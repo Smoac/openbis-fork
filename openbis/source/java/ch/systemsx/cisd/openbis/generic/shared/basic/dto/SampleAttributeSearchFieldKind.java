@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Kinds of fields connected with Sample attributes that can be used in detailed text queries.
  * 
  * @author Piotr Buczek
  */
-public enum SampleAttributeSearchFieldKind implements ISerializable, IAttributeSearchFieldKind
+public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSearchFieldKind
 {
     CODE("Code"),
 

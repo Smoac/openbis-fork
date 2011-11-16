@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Tomasz Pylak
  */
-public class BasicExperimentUpdates implements ISerializable
+public class BasicExperimentUpdates implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

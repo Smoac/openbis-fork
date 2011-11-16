@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
+import java.io.Serializable;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Description of action that a user can perform on the client side.
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Managed Properties API.
-public interface IManagedUiAction extends ISerializable
+public interface IManagedUiAction extends Serializable
 {
     /** Returns string identifier of the action. */
     public String getName();

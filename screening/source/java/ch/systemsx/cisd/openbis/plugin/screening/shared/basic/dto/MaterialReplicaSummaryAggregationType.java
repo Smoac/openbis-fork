@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Type of the aggregation method for material replicas.
  * 
  * @author Tomasz Pylak
  */
-public enum MaterialReplicaSummaryAggregationType implements ISerializable
+public enum MaterialReplicaSummaryAggregationType implements Serializable
 {
     MEDIAN,
 

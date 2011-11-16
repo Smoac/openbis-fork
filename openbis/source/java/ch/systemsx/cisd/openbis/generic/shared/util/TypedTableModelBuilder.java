@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableCellUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell
  * 
  * @author Franz-Josef Elmer
  */
-public class TypedTableModelBuilder<T extends ISerializable>
+public class TypedTableModelBuilder<T extends Serializable>
 {
     private static final StringTableCell EMPTY_CELL = new StringTableCell("");
 

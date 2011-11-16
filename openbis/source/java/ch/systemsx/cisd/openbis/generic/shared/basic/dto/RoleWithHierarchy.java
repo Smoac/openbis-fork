@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Hierarchical role. Combines {@link RoleCode} with {@link RoleLevel} and a set of
@@ -48,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Izabela Adamczyk
  */
-public enum RoleWithHierarchy implements ISerializable
+public enum RoleWithHierarchy implements Serializable
 {
     //
     // NOTE: Each role should match the following naming convention: <RoleLevel>_<RoleCode>,

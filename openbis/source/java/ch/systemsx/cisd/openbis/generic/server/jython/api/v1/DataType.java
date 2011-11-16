@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Available types for {@link IPropertyType}.
  * 
  * @author Kaloyan Enimanev
  */
-public enum DataType implements ISerializable
+public enum DataType implements Serializable
 {
     INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,
     HYPERLINK, XML;

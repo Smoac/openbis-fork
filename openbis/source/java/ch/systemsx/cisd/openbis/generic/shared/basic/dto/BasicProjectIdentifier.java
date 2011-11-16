@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * The <i>GWT</i> counterpart to
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public class BasicProjectIdentifier implements ISerializable
+public class BasicProjectIdentifier implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

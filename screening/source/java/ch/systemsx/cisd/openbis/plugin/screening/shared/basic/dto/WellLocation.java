@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
  * 
  * @author Tomasz Pylak
  */
-public class WellLocation implements ISerializable
+public class WellLocation implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

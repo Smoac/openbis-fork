@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Piotr Buczek
  */
-public class ParameterValue implements Comparable<ParameterValue>, ISerializable
+public class ParameterValue implements Comparable<ParameterValue>, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,20 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
-
 /**
  * Stores the kind of database object that was modified and the kind of modification.
  * 
  * @author Tomasz Pylak
  */
-public class DatabaseModificationKind implements ISerializable
+public class DatabaseModificationKind implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

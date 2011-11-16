@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * A class that represents a data type.
  * 
  * @author Izabela Adamczyk
  */
-public final class DataType implements ISerializable
+public final class DataType implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

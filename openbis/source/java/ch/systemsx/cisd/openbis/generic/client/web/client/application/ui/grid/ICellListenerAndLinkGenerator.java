@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Franz-Josef Elmer
  */
-public interface ICellListenerAndLinkGenerator<T extends ISerializable> extends ILinkGenerator<T>,
+public interface ICellListenerAndLinkGenerator<T extends Serializable> extends ILinkGenerator<T>,
         ICellListener<TableModelRowWithObject<T>>
 {
 }

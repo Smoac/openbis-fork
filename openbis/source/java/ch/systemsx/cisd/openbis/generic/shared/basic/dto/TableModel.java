@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 
 /**
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
  * 
  * @author Tomasz Pylak
  */
-public class TableModel implements ISerializable, ITableModel
+public class TableModel implements Serializable, ITableModel
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

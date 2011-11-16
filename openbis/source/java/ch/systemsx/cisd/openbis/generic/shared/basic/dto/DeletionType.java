@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Types of deletion operations.
  * 
  * @author Piotr Buczek
  */
-public enum DeletionType implements ISerializable
+public enum DeletionType implements Serializable
 {
     PERMANENT, TRASH
 }

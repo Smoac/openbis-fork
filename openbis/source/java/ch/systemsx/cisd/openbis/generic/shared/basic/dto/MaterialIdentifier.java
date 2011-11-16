@@ -16,16 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Identifier for searching material through <i>Web Service</i> lookup methods in the database.
  * 
  * @author Christian Ribeaud
  */
-public final class MaterialIdentifier implements ISerializable
+public final class MaterialIdentifier implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

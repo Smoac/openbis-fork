@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Criteria for tracking <i>data sets</i> with technical id bigger than the specified one. Optional,
@@ -27,34 +27,35 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public class TrackingDataSetCriteria implements ISerializable
+public class TrackingDataSetCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private final String connectedSampleTypeCode;
 
     private final long lastSeenDataSetId;
-    
+
     private final boolean enrichResult;
 
     public TrackingDataSetCriteria(long lastSeenDataSetId)
     {
         this(null, lastSeenDataSetId, false);
     }
-    
+
     public TrackingDataSetCriteria(String connectedSampleTypeCodeOrNull, long lastSeenDataSetId)
     {
         this(connectedSampleTypeCodeOrNull, lastSeenDataSetId, true);
         assert connectedSampleTypeCodeOrNull != null;
     }
 
-    private TrackingDataSetCriteria(String connectedSampleTypeCodeOrNull, long lastSeenDataSetId, boolean enrichResult)
+    private TrackingDataSetCriteria(String connectedSampleTypeCodeOrNull, long lastSeenDataSetId,
+            boolean enrichResult)
     {
         this.enrichResult = enrichResult;
         this.lastSeenDataSetId = lastSeenDataSetId;
         this.connectedSampleTypeCode = connectedSampleTypeCodeOrNull;
     }
-    
+
     public String getConnectedSampleTypeCode()
     {
         return connectedSampleTypeCode;

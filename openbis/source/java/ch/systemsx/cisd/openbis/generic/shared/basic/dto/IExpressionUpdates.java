@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Description of the updates which should be performed on a stored expression (e.g. grid custom
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public interface IExpressionUpdates extends IIdHolder, ISerializable
+public interface IExpressionUpdates extends IIdHolder, Serializable
 {
     String getDescription();
 

@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Describes detailed search criteria specific to an entity.
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class DetailedSearchCriteria implements ISerializable
+public class DetailedSearchCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

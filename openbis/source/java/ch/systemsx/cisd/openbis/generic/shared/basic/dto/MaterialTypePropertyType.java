@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Izabela Adamczyk
  */
 public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
-        ISerializable
+        Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
@@ -26,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements ISerializable, IEntityInformationHolderWithPermId, IRegistratorHolder
+public final class MatchingEntity implements Serializable, IEntityInformationHolderWithPermId,
+        IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -156,6 +158,7 @@ public final class MatchingEntity implements ISerializable, IEntityInformationHo
         return new IEntityInformationHolderWithPermId()
             {
                 private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
                 public Long getId()
                 {
                     return entity.getId();

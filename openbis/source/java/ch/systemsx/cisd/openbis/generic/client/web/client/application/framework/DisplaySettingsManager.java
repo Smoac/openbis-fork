@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +34,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -443,14 +443,14 @@ public class DisplaySettingsManager
 
     /** @deprecated Should be used only by specific display settings manager */
     @Deprecated
-    public final ISerializable tryGetTechnologySpecificSettings(String technologyName)
+    public final Serializable tryGetTechnologySpecificSettings(String technologyName)
     {
         return displaySettings.getTechnologySpecificSettings().get(technologyName);
     }
 
     /** @deprecated Should be used only by specific display settings manager */
     @Deprecated
-    public final void setTechnologySpecificSettings(String technologyName, ISerializable newSettings)
+    public final void setTechnologySpecificSettings(String technologyName, Serializable newSettings)
     {
         displaySettings.getTechnologySpecificSettings().put(technologyName, newSettings);
     }

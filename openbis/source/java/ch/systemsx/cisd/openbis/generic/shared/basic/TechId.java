@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,13 +28,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class TechId implements IIdHolder, ISerializable
+public class TechId implements IIdHolder, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Long id;
 
-    protected TechId()
+    public TechId()
     {
         // for serialization
     }

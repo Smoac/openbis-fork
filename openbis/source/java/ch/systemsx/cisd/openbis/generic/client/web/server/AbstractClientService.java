@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -65,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransf
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -641,7 +641,7 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
-    protected <T extends ISerializable> TypedTableResultSet<T> listEntities(
+    protected <T extends Serializable> TypedTableResultSet<T> listEntities(
             ITableModelProvider<T> provider,
             IResultSetConfig<String, TableModelRowWithObject<T>> criteria)
     {

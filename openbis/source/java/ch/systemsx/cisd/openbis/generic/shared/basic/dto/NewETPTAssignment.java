@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Stores data needed to create new entity type-property type assignment.
  * 
  * @author Izabela Adamczyk
  */
-public class NewETPTAssignment implements ISerializable
+public class NewETPTAssignment implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

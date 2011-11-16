@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class EntityPropertyUpdatesResult implements ISerializable
+public class EntityPropertyUpdatesResult implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

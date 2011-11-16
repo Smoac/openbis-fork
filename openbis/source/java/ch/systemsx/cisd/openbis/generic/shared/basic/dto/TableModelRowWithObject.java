@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class TableModelRowWithObject<T extends ISerializable> extends TableModelRow implements
+public class TableModelRowWithObject<T extends Serializable> extends TableModelRow implements
         IIdHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    public static <T extends ISerializable> List<T> getObjects(List<TableModelRowWithObject<T>> rows)
+    public static <T extends Serializable> List<T> getObjects(List<TableModelRowWithObject<T>> rows)
     {
         ArrayList<T> list = new ArrayList<T>();
         for (TableModelRowWithObject<T> row : rows)

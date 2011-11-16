@@ -16,15 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Encapsulates location and code of a data set in a store.
  * 
  * @author Piotr Buczek
  */
-public class DatasetLocation implements IDatasetLocation, ISerializable, ICodeHolder
+public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHolder
 {
     private static final long serialVersionUID = 1L;
 

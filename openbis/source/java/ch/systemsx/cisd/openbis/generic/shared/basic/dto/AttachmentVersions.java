@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Encapsulation of all versions of an {@link Attachment} file.
  * 
  * @author Piotr Buczek
  */
-public class AttachmentVersions implements Comparable<AttachmentVersions>, ISerializable
+public class AttachmentVersions implements Comparable<AttachmentVersions>, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

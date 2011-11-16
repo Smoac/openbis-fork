@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Superclass of {@link ITableModelProvider} which creates the table model lazily by using
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractCommonTableModelProvider<T extends ISerializable> extends
+public abstract class AbstractCommonTableModelProvider<T extends Serializable> extends
         AbstractTableModelProvider<T>
 {
     protected final ICommonServer commonServer;

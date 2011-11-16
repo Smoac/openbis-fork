@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Aggregates sort field and sort direction.
  * 
  * @author Christian Ribeaud
  */
-public final class SortInfo implements ISerializable
+public final class SortInfo implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

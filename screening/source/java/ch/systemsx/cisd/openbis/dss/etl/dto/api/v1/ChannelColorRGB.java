@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -24,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class ChannelColorRGB implements ISerializable
+public class ChannelColorRGB implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * A <code>SampleParentWithDerived</code> encapsulates a <code>Sample</code> (the parent) and its
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SampleParentWithDerived implements ISerializable
+public final class SampleParentWithDerived implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

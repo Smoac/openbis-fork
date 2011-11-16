@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * An interface for entity properties.
  * 
  * @author Bernd Rinn
  */
-public interface IEntityProperty extends ISerializable, Comparable<IEntityProperty>
+public interface IEntityProperty extends Serializable, Comparable<IEntityProperty>
 {
     public static final IEntityProperty[] EMPTY_ARRAY = new IEntityProperty[0];
 
@@ -56,7 +56,7 @@ public interface IEntityProperty extends ISerializable, Comparable<IEntityProper
     Long getOrdinal();
 
     boolean isManaged();
-    
+
     boolean isScriptable();
 
 }

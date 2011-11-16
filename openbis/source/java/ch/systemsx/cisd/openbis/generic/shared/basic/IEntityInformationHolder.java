@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -25,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  * 
  * @author Piotr Buczek
  */
-public interface IEntityInformationHolder extends ISerializable, IIdAndCodeHolder
+public interface IEntityInformationHolder extends Serializable, IIdAndCodeHolder
 {
     /**
      * Returns the entity type of this matching entity.

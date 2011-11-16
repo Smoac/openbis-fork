@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Interface of DTOs having a registrator attribute.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public interface IRegistratorHolder extends ISerializable
+public interface IRegistratorHolder extends Serializable
 {
     public Person getRegistrator();
 

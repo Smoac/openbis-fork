@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Interface implemented by objects describing an output UI element (table, label).
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Managed Properties API.
-public interface IManagedOutputWidgetDescription extends ISerializable
+public interface IManagedOutputWidgetDescription extends Serializable
 {
     /**
      * @return type of this output field

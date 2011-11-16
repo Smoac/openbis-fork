@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Entity kind and identifier.
  * 
  * @author Izabela Adamczyk
  */
-public class BasicEntityDescription implements ISerializable
+public class BasicEntityDescription implements Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

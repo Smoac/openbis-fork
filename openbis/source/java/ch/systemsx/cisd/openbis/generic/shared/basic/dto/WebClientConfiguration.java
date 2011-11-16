@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
  * 
  * @author Izabela Adamczyk
  */
-public class WebClientConfiguration implements ISerializable
+public class WebClientConfiguration implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

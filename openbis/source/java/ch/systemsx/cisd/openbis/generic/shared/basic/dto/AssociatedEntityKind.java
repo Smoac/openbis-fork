@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The <i>GWT</i> counterpart to
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Piotr Buczek
  */
-public enum AssociatedEntityKind implements ISerializable
+public enum AssociatedEntityKind implements Serializable
 {
     SAMPLE("Sample", EntityKind.SAMPLE, EnumSet.of(EntityKind.DATA_SET)),
 

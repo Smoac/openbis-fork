@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
  * 
  * @author Piotr Buczek
  */
-public class ManagedUiDescription implements IManagedUiDescription, ISerializable
+public class ManagedUiDescription implements IManagedUiDescription, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

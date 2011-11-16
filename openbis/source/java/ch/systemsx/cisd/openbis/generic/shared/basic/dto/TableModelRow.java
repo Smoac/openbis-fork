@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The content of one row, without the header specification.
  * 
  * @author Tomasz Pylak
  */
-public class TableModelRow implements ISerializable
+public class TableModelRow implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

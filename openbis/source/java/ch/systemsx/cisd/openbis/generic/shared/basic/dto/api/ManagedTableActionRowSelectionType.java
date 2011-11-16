@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Selection modes of table actions.
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Piotr Buczek
  */
 // NOTE: This enumeration is part of the Managed Properties API.
-public enum ManagedTableActionRowSelectionType implements ISerializable
+public enum ManagedTableActionRowSelectionType implements Serializable
 {
     /** e.g. create/add action */
     NOT_REQUIRED,

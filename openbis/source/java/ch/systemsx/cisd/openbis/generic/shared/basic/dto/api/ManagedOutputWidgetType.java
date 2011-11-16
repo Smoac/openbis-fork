@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Piotr Buczek
  */
 // NOTE: This enumeration is part of the Managed Properties API.
-public enum ManagedOutputWidgetType implements ISerializable
+public enum ManagedOutputWidgetType implements Serializable
 {
     TABLE, HTML;
 }

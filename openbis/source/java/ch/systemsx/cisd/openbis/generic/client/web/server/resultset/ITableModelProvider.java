@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
@@ -24,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
  * 
  * @author Franz-Josef Elmer
  */
-public interface ITableModelProvider<T extends ISerializable>
+public interface ITableModelProvider<T extends Serializable>
 {
     /**
      * Returns the table model limited as specified. For {@link Integer#MAX_VALUE} the full table

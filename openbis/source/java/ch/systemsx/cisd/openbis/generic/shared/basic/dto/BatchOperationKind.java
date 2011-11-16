@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Enumeration for batch operation kinds.
  * 
  * @author Piotr Buczek
  */
-public enum BatchOperationKind implements ISerializable
+public enum BatchOperationKind implements Serializable
 {
     REGISTRATION("Registration"), UPDATE("Update");
 

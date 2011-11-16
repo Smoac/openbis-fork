@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractTableModelProvider<T extends ISerializable> implements
+public abstract class AbstractTableModelProvider<T extends Serializable> implements
         ITableModelProvider<T>
 {
     private TypedTableModel<T> tableModel = null;

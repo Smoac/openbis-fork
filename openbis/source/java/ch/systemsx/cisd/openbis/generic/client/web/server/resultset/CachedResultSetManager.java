@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataP
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -773,8 +772,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             @SuppressWarnings("unchecked")
             IColumnDefinition<T> definition =
-                    (IColumnDefinition<T>) new TypedTableGridColumnDefinition<ISerializable>(
-                            header, null, "", null);
+                    (IColumnDefinition<T>) new TypedTableGridColumnDefinition<Serializable>(header,
+                            null, "", null);
             newAvailableColumns.add(definition);
             String id = header.getId();
             if (header.isHidden() == false || idsOfPresentedColumns.contains(id))

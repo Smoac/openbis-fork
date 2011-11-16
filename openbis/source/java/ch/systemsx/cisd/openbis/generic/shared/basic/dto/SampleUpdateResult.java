@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Stores result of sample update.
  * 
  * @author Piotr Buczek
  */
-public class SampleUpdateResult implements ISerializable
+public class SampleUpdateResult implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

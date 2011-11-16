@@ -24,14 +24,13 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * A code.
  * 
  * @author Christian Ribeaud
  */
-public class Code<T extends Code<T>> implements ISerializable, ICodeHolder, Comparable<T>
+public class Code<T extends Code<T>> implements Serializable, ICodeHolder, Comparable<T>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

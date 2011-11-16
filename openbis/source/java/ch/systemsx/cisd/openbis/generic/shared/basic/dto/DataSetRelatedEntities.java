@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Encapsulates entities related to data sets.
  * 
  * @author Piotr Buczek
  */
-public class DataSetRelatedEntities implements ISerializable
+public class DataSetRelatedEntities implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -26,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Franz-Josef Elmer
  */
 @DoNotEscape
-public class TypedTableResultSet<T extends ISerializable> implements IsSerializable, IResultSetHolder<TableModelRowWithObject<T>>
+public class TypedTableResultSet<T extends Serializable> implements IsSerializable,
+        IResultSetHolder<TableModelRowWithObject<T>>
 {
     private ResultSet<TableModelRowWithObject<T>> resultSet;
 

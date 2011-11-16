@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Izabela Adamczyk
  */
-public class ListDataSetByPropertyCriteria implements ISerializable
+public class ListDataSetByPropertyCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

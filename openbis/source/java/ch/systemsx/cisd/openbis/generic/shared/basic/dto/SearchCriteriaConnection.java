@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Izabela Adamczyk
  */
-public enum SearchCriteriaConnection implements ISerializable
+public enum SearchCriteriaConnection implements Serializable
 {
     MATCH_ALL("AND"), MATCH_ANY("OR");
 

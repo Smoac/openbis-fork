@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Representation of a user, e.g. one who modifies a property.
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Managed Properties API.
-public interface IPerson extends ISerializable
+public interface IPerson extends Serializable
 {
     /** @return id of the user */
     String getUserId();

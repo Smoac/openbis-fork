@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -24,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Izabela Adamczyk
  */
-public class LibraryRegistrationInfo implements ISerializable
+public class LibraryRegistrationInfo implements Serializable
 {
 
-    public enum RegistrationScope implements ISerializable
+    public enum RegistrationScope implements Serializable
     {
         PLATES, SIRNAS_PLATES, GENES_SIRNAS_PLATES;
 

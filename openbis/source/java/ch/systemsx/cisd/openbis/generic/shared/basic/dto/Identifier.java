@@ -21,14 +21,13 @@ import java.util.Comparator;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An identifier.
  * 
  * @author Christian Ribeaud
  */
-public class Identifier<T extends Identifier<T>> implements ISerializable, Comparable<T>,
+public class Identifier<T extends Identifier<T>> implements Serializable, Comparable<T>,
         IIdentifierHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -39,7 +38,7 @@ public class Identifier<T extends Identifier<T>> implements ISerializable, Compa
             new IdentifierHolderComparator();
 
     private String identifier;
-    
+
     private String permID;
 
     public void setPermID(String permID)

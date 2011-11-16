@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
+import java.io.Serializable;
 import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The interface exposed to the Managed Property script.
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * @author Chandrasekhar Ramakrishnan
  */
 // NOTE: All methods of this interface are part of the Managed Properties API.
-public interface IManagedUiDescription extends ISerializable
+public interface IManagedUiDescription extends Serializable
 {
     /**
      * Sets the given table model to define an output that will be shown in detail view of the

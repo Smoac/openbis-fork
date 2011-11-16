@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Available entity kinds.
  * 
  * @author Kaloyan Enimanev
  */
-public enum EntityKind implements ISerializable
+public enum EntityKind implements Serializable
 {
     EXPERIMENT, SAMPLE, DATA_SET, MATERIAL;
 

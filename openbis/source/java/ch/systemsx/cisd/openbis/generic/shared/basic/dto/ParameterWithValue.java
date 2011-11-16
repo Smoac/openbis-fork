@@ -1,13 +1,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Stores parameter name and the value.
  * 
  * @author Izabela Adamczyk
  */
-public class ParameterWithValue implements ISerializable
+public class ParameterWithValue implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

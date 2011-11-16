@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Role grantee.
  * 
  * @author Izabela Adamczyk
  */
-public class Grantee implements ISerializable
+public class Grantee implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

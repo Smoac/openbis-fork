@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class CommonGridIDs implements ISerializable
+public class CommonGridIDs implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

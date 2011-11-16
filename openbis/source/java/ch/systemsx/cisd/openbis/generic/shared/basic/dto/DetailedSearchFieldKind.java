@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * General kinds of fields that can be used in detailed text query for an entity.
  * 
  * @author Piotr Buczek
  */
-public enum DetailedSearchFieldKind implements ISerializable
+public enum DetailedSearchFieldKind implements Serializable
 {
     ANY_FIELD("Any Field"),
 
@@ -32,7 +32,7 @@ public enum DetailedSearchFieldKind implements ISerializable
     PROPERTY("Property"),
 
     ATTRIBUTE(""),
-    
+
     REGISTRATOR("Registrator");
 
     private final String description;

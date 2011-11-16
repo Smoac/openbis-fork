@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 // NOTE: This enumeration is part of the Managed Properties API.
-public enum ManagedInputFieldType implements ISerializable
+public enum ManagedInputFieldType implements Serializable
 {
     TEXT, MULTILINE_TEXT, COMBO_BOX
 }

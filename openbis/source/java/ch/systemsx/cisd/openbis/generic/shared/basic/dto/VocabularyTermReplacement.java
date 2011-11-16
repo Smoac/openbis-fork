@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Wrapper of a {@link VocabularyTerm} and its replacement.
  * 
  * @author Franz-Josef Elmer
  */
-public class VocabularyTermReplacement implements ISerializable
+public class VocabularyTermReplacement implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -23,7 +23,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -34,12 +33,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Tomasz Pylak
  */
-public class WellSearchCriteria implements ISerializable
+public class WellSearchCriteria implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /** points to one experiment */
-    public static final class SingleExperimentSearchCriteria implements ISerializable
+    public static final class SingleExperimentSearchCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -305,7 +304,7 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class MaterialSearchCodesCriteria implements ISerializable
+    public static final class MaterialSearchCodesCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -358,7 +357,7 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class MaterialSearchCriteria implements ISerializable
+    public static final class MaterialSearchCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -432,7 +431,7 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static class AbstractMaterialFeaturesCriteria implements ISerializable
+    public static class AbstractMaterialFeaturesCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -464,7 +463,7 @@ public class WellSearchCriteria implements ISerializable
     }
 
     public static final class MaterialFeaturesOneExpCriteria extends
-            AbstractMaterialFeaturesCriteria implements ISerializable
+            AbstractMaterialFeaturesCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -490,7 +489,7 @@ public class WellSearchCriteria implements ISerializable
     }
 
     public static final class MaterialFeaturesManyExpCriteria extends
-            AbstractMaterialFeaturesCriteria implements ISerializable
+            AbstractMaterialFeaturesCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -516,11 +515,11 @@ public class WellSearchCriteria implements ISerializable
         }
     }
 
-    public static final class AnalysisProcedureCriteria implements ISerializable
+    public static final class AnalysisProcedureCriteria implements Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        public static enum MatchType implements ISerializable
+        public static enum MatchType implements Serializable
         {
             /** match data sets for explicitly specified analysis procedure code. */
             BY_CODE,

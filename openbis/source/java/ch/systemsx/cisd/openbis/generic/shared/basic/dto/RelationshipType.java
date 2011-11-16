@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * The <i>GWT</i> version of RelationshipTypePE.
  * 
  * @author Piotr Buczek
  */
-public class RelationshipType extends Code<PropertyType> implements ISerializable
+public class RelationshipType extends Code<PropertyType> implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

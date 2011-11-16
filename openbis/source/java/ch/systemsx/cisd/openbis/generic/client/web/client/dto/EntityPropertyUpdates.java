@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class EntityPropertyUpdates implements ISerializable
+public class EntityPropertyUpdates implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

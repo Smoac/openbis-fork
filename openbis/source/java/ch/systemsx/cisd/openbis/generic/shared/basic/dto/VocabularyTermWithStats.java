@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Vocabulary term and its usage statistics.
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermWithStats implements ISerializable
+public class VocabularyTermWithStats implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

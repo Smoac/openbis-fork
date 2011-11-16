@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Piotr Buczek
  */
-public class QueryDatabase implements ISerializable, Comparable<QueryDatabase>
+public class QueryDatabase implements Serializable, Comparable<QueryDatabase>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

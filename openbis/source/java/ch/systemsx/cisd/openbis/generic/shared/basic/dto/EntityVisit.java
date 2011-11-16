@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Visit of an entity. Objects of this class are created when the detail view of an entity is opened
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class EntityVisit implements ISerializable
+public class EntityVisit implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

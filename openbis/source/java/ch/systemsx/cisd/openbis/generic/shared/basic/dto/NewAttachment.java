@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * An attachment to register.
  * 
  * @author Piotr Buczek
  */
-public class NewAttachment implements ISerializable
+public class NewAttachment implements Serializable
 {
 
     private static final long serialVersionUID = 1L;

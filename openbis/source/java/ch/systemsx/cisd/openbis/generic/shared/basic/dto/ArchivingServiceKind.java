@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * @author Piotr Buczek
  */
-public enum ArchivingServiceKind implements ISerializable
+public enum ArchivingServiceKind implements Serializable
 {
     ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"), LOCK("Disable Archiving"), UNLOCK(
             "Enable Archiving");

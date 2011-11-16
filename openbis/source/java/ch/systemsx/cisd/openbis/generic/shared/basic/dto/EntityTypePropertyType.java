@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * An <i>abstract</i> entity type property type.
  * 
  * @author Christian Ribeaud
  */
-public abstract class EntityTypePropertyType<T extends EntityType> implements ISerializable,
+public abstract class EntityTypePropertyType<T extends EntityType> implements Serializable,
         Comparable<EntityTypePropertyType<T>>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -121,12 +121,12 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements IS
      * always use false for dynamically computed properties. Only dynamically managed properties
      * take this value into account.
      * 
-     * @param showInEditView Pass in true if this property should be shown in edit and
-     *            update views.
+     * @param showInEditView Pass in true if this property should be shown in edit and update views.
      */
     public final void setShownInEditView(final boolean showInEditView)
     {
-        // Just set the value, the semantics of how this is applicable to dynamic / simple properties
+        // Just set the value, the semantics of how this is applicable to dynamic / simple
+        // properties
         // is implemented in the getter.
         this.showInEditView = showInEditView;
     }

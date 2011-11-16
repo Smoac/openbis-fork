@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * Serializable null object.
  * 
  * @author Franz-Josef Elmer
  */
-public class Null implements ISerializable
+public class Null implements Serializable
 {
 
     private static final long serialVersionUID = 1L;

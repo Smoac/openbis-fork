@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinRelatedSample implements ISerializable, IEntityInformationHolderWithProperties
+public class ProteinRelatedSample implements Serializable, IEntityInformationHolderWithProperties
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     

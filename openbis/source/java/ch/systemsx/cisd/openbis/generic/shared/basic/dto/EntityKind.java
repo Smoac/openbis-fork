@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import java.io.Serializable;
 
 /**
  * The <i>GWT</i> counterpart to
@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public enum EntityKind implements ISerializable
+public enum EntityKind implements Serializable
 {
     MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set");
 
