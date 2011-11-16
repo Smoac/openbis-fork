@@ -324,4 +324,34 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         criteria.add(Restrictions.in(ID, ids));
         return cast(getHibernateTemplate().findByCriteria(criteria));
     }
+
+    public List<TechId> listDeletedEntitiesForType(EntityKind entityKind, TechId entityTypeId)
+    {
+        String typeId = null;
+        switch (entityKind)
+        {
+            case EXPERIMENT:
+                typeId = "experimentType.id";
+                break;
+
+            case SAMPLE:
+                typeId = "sampleType.id";
+                break;
+
+            case DATA_SET:
+                typeId = "dataSetType.id";
+                break;
+
+            default:
+                // entities of these types cannot be in the trash can
+                return Collections.emptyList();
+        }
+
+        DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getDeletedEntityClass());
+        criteria.setProjection(Projections.id());
+        criteria.add(Restrictions.eq(typeId, entityTypeId.getId()));
+
+        List<Long> result = cast(getHibernateTemplate().findByCriteria(criteria));
+        return TechId.createList(result);
+    }
 }

@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
- * Persistence Entity representing deleted experiment.
+ * Persistence Entity representing deleted sample.
  * 
  * @author Piotr Buczek
  */

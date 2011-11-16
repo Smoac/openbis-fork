@@ -77,5 +77,14 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     /** Returns list of deletions with given ids */
     List<DeletionPE> findAllById(List<Long> ids);
 
+    /**
+     * Returns a list of all deleted entites by their IDs.
+     */
     List<? extends IDeletablePE> listDeletedEntities(EntityKind entityKind, List<TechId> entityIds);
+
+    /**
+     * Returns a list of all deleted entities for a given type id.
+     */
+    List<TechId> listDeletedEntitiesForType(EntityKind entityKind, TechId entityTypeId);
+
 }

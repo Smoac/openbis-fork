@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
@@ -28,13 +29,16 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Piotr Buczek
@@ -123,6 +127,34 @@ public class DeletionDAOTest extends AbstractDAOTest
                 dateBeforeRegistration.getTime() < lastDeletion.getRegistrationDate().getTime());
         assertTrue(lastDeletion.getRegistrationDate() + " > " + dateAfterRegistration, lastDeletion
                 .getRegistrationDate().getTime() < dateAfterRegistration.getTime());
+    }
+
+    @Test
+    public void testFindDeletedEntities()
+    {
+        assertExistsDeletedEntity(EntityKind.EXPERIMENT, "SIRNA_HCS");
+        assertExistsDeletedEntity(EntityKind.SAMPLE, "WELL");
+        assertExistsDeletedEntity(EntityKind.DATA_SET, "HCS_IMAGE");
+    }
+
+    private void assertExistsDeletedEntity(EntityKind entityKind, String entityTypeCode)
+    {
+        IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
+
+        IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(entityKind);
+        EntityTypePE entityType = entityTypeDAO.tryToFindEntityTypeByCode(entityTypeCode);
+
+        assertNotNull(
+                String.format("%s '%s' does not exist", entityKind.getLabel(), entityTypeCode),
+                entityType);
+
+        final List<TechId> deletedEntities =
+                deletionDAO.listDeletedEntitiesForType(entityKind, new TechId(entityType.getId()));
+
+        assertTrue(String.format("At least one deleted %s of type '%s'"
+                + " must exist in the test database", entityKind.getLabel(), entityTypeCode),
+                deletedEntities.size() > 0);
+
     }
 
     @Test

@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -131,6 +134,16 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         assert entityTypePE != null : "Type not loaded";
         try
         {
+            List<TechId> entitiesInTrash =
+                    getDeletionDAO().listDeletedEntitiesForType(entityKind,
+                            new TechId(entityTypePE.getId()));
+            if (false == entitiesInTrash.isEmpty())
+            {
+                throw UserFailureException.fromTemplate(
+                        "'%s' is referred from entities in the trash can. "
+                                + "Please empty the trash can and try deleting it again.",
+                        entityTypePE.getCode());
+            }
             getEntityTypeDAO(entityKind).deleteEntityType(entityTypePE);
         } catch (final DataAccessException e)
         {

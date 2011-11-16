@@ -85,6 +85,19 @@ public class TechId implements IIdHolder, Serializable
     }
 
     /**
+     * Convenience method for getting a list of technical ids from collection of longs.
+     */
+    public static List<TechId> createList(List<Long> ids)
+    {
+        List<TechId> result = new ArrayList<TechId>();
+        for (Long id : ids)
+        {
+            result.add(new TechId(id));
+        }
+        return result;
+    }
+
+    /**
      * Convenience method for getting a list of technical ids from given list of objects with
      * identifiers.
      * 
