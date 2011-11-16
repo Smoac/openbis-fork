@@ -341,16 +341,21 @@ function updateInspectors(duration)
 			.append("caption").text(function(d) { return d; });
 			
 	// We just want to see non-directories here
-	var downloadTableRow = 
-		downloadTable.selectAll("tr")
-			.data(function(d) { return (d.files) ? d.files.filter(function(file) { return !file.isDirectory }) : [] })
+	var downloadTableRow = downloadTable.selectAll("tr").data(filesForSequencingSample, function(d) { return d.pathInDataSet });
+	downloadTableRow
 		.enter()
 			.append("tr")
 				.append("td")
 				.style("text-align", "left")
 				.on("click", downloadTableFile)
 				.text(function(d) { return d.pathInListing });
-		
+	downloadTableRow
+		.exit()
+			.transition()
+				.duration(duration)
+				.style("opacity", "0")
+				.remove();
+	
 	inspector.exit().transition()
 		.duration(duration)
 		.style("opacity", "0")
@@ -378,12 +383,13 @@ function retrieveFilesForSequencingSample(sequencing)
 	// No point getting files for a sample that hasn't been sequenced
 	if (!hasSampleBeenSequenced(sequencing)) return;
 	
+	sequencing.loadingFiles = true;
+	
 	dsu.retrieveDataSetsForSequencingSample(sequencing, function(data) {
 			if (!data.result) return;
 
 			sequencing.datasets = data.result.map(function(bisds) { return {bis : bisds} });
 			sequencing.files = [];
-			sequencing.loadingFiles = true;
 						
 			// Get all the files and update the inspectors once all the data is avilable
 			var deferrer = 
@@ -441,6 +447,12 @@ function downloadTableFile(d)
 	
 	var action = function(data) { document.location.href = data.result };
 	dsu.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
+}
+
+function filesForSequencingSample(d)
+{
+	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
+	return (d.files) ? d.files.filter(function(file) { return !file.isDirectory }) : [];
 }
 
 function enterApp()
