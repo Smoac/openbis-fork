@@ -445,7 +445,13 @@ function downloadTableFile(d)
 	// If there is no dataset, this is just a marker for loading
 	if (!d.dataset) return;
 	
-	var action = function(data) { document.location.href = data.result };
+	var action = function(data) { 
+		try {
+			document.location.href = data.result
+		} catch (err) {
+			// just ignore errors		
+		} 
+	};
 	dsu.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
 }
 
