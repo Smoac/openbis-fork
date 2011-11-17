@@ -149,8 +149,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         if (featureGroups.isEmpty() == false && featureGroups.get(0).existsIn(id))
         {
             final long numberOfObjectsOnDisk =
-                    reader.getDataSetInformation(featureGroups.get(0).getObjectPath(id))
-                            .getNumberOfElements();
+                    reader.getNumberOfElements(featureGroups.get(0).getObjectPath(id));
             if (numberOfObjectsOnDisk != numberOfObjectsToWrite)
             {
                 throw new IllegalArgumentException(
