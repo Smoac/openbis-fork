@@ -153,7 +153,7 @@ public class ImageChannelsUtils
                 utils.fetchImageContents(imagesReference, mergeAllChannels, true);
         ImageTransformationParams transformationInfo =
                 new ImageTransformationParams(true, mergeAllChannels, null);
-        return calculateSingleImagesForDisplay(imageContents, transformationInfo);
+        return calculateSingleImagesForDisplay(imageContents, transformationInfo, 0.0f);
     }
 
     private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
@@ -432,15 +432,19 @@ public class ImageChannelsUtils
     }
 
     /**
+     * @param threshold
      * @param useMergedChannelsTransformation sometimes we can have a single image which contain all
      *            channels merged. In this case a different transformation will be applied to it.
      */
     private static BufferedImage calculateAndTransformSingleImageForDisplay(
-            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
+            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
+            Float threshold)
     {
         BufferedImage image = calculateSingleImage(imageReference);
         image = transform(image, imageReference, transformationInfo);
-        image = ImageUtil.convertForDisplayIfNecessary(image);
+        image =
+                threshold == null ? ImageUtil.convertForDisplayIfNecessary(image) : ImageUtil
+                        .convertForDisplayIfNecessary(image, threshold);
         return image;
     }
 
@@ -497,7 +501,7 @@ public class ImageChannelsUtils
         if (imageReferences.size() == 1)
         {
             return calculateAndTransformSingleImageForDisplay(singleImageReference,
-                    transformationInfo);
+                    transformationInfo, null);
         } else
         {
             IImageTransformerFactory mergedChannelTransformationOrNull =
@@ -512,7 +516,8 @@ public class ImageChannelsUtils
             IImageTransformerFactory mergedChannelTransformationOrNull)
     {
         // We do not transform single images here.
-        List<ImageWithReference> images = calculateSingleImagesForDisplay(imageReferences, null);
+        List<ImageWithReference> images =
+                calculateSingleImagesForDisplay(imageReferences, null, null);
         BufferedImage mergedImage = mergeImages(images);
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
@@ -589,7 +594,7 @@ public class ImageChannelsUtils
      */
     private static List<ImageWithReference> calculateSingleImagesForDisplay(
             List<AbsoluteImageReference> imageReferences,
-            ImageTransformationParams transformationInfoOrNull)
+            ImageTransformationParams transformationInfoOrNull, Float threshold)
     {
         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
         for (AbsoluteImageReference imageRef : imageReferences)
@@ -599,12 +604,14 @@ public class ImageChannelsUtils
             {
                 image =
                         calculateAndTransformSingleImageForDisplay(imageRef,
-                                transformationInfoOrNull);
+                                transformationInfoOrNull, threshold);
             } else
             {
                 // NOTE: here we skip image level transformations as well
                 image = calculateSingleImage(imageRef);
-                image = ImageUtil.convertForDisplayIfNecessary(image);
+                image =
+                        threshold == null ? ImageUtil.convertForDisplayIfNecessary(image)
+                                : ImageUtil.convertForDisplayIfNecessary(image, threshold);
             }
             images.add(new ImageWithReference(image, imageRef));
         }

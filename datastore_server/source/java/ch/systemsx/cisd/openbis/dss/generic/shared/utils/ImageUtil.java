@@ -511,7 +511,11 @@ public class ImageUtil
         return convertForDisplayIfNecessary(image, DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
     }
 
-    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, float threshold)
+    /**
+     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
+     * bits grayscale is done. Otherwise the original image is returned.
+     */
+    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image, float threshold)
     {
         if (isGrayscale(image))
         {
