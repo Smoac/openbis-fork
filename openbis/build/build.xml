@@ -668,16 +668,16 @@
       <lib dir="${lib}/mail">
         <include name="mail.jar" />
       </lib>
-      <fileset dir="${gwt.lib}">
+      <lib dir="${gwt.lib}">
         <include name="gwt-servlet.jar" />
         <include name="validation-api-1.0.0.GA.jar" />
-      </fileset>
-      <fileset dir="${lib}/gwt-debug-panel">
+      </lib>
+      <lib dir="${lib}/gwt-debug-panel">
         <include name="gwt-debug-panel.jar" />
-      </fileset>
-      <fileset dir="${lib}/gxt2.2.5">
+      </lib>
+      <lib dir="${lib}/gxt2.2.5">
         <include name="gxt.jar" />
-      </fileset>
+      </lib>
       <lib dir="${lib}/commons-fileupload">
         <include name="*.jar" />
       </lib>
