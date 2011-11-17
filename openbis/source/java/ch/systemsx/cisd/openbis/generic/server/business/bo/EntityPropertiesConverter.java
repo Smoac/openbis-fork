@@ -31,6 +31,7 @@ import org.hibernate.Session;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -225,7 +226,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     new TableMap<PropertyTypePE, EntityTypePropertyTypePE>(daoFactory
                             .getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
                                     entityTypePE),
-                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE);
+                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE,
+                            UniqueKeyViolationStrategy.KEEP_FIRST);
         } else
         {
             EntityTypePropertyTypePE cached =
