@@ -56,6 +56,15 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             PlasmidStorageProcessor.class);
 
+    private final static String HTML_FILE_TEMPLATE =
+            "<html><head>\n"
+                    + "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>PlasMapper - Graphic Map</title></head>\n"
+                    + "<body>\n"
+                    + "<embed src=\"%%FILE_NAME%%\" type=\"image/svg+xml\" pluginspage=\"http://www.adobe.com/svg/viewer/install/\" id=\"Panel\" height=\"1010\" width=\"1010\">\n"
+                    + "<br>\n"
+                    + "<a href=\"%%FILE_NAME%%\" target=\"_blank\">Download Link</a>"
+                    + "</body></html>";
+
     private final static String PLASMAPPER_BASE_URL_KEY = "plasmapper-base-url";
 
     private final static String PLASMAPPER_ROOT_DIR_KEY = "plasmapper-root-dir";
@@ -118,6 +127,15 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
             operationLog.info("Renaming and copying file '" + outputFile.getName() + "' from '"
                     + outputFile + "' to " + destinationFile);
             FileUtilities.copyFileTo(outputFile, destinationFile, false);
+
+            if (destinationFile.getName().endsWith("svg"))
+            {
+                String htmlFileName = destinationFile.getName().replaceAll(".svg", ".html");
+                File htmlFile = new File(destinationFile.getParentFile(), htmlFileName);
+                operationLog.info("Generating html file '" + htmlFile + "'");
+                FileUtilities.writeToFile(htmlFile,
+                        HTML_FILE_TEMPLATE.replaceAll("%%FILE_NAME%%", destinationFile.getName()));
+            }
         } else
         {
             throw new EnvironmentFailureException("'" + outputFile

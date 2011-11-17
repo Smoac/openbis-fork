@@ -92,7 +92,7 @@ public class PlasMapperUploader
         result.setProperty("mapTitle", "");
         result.setProperty("comment", "Created using PlasMapper");
         result.setProperty("imageFormat", "SVG");
-        result.setProperty("imageSize", "800 x 800");
+        result.setProperty("imageSize", "1000 x 1000");
         result.setProperty("backbone", "medium");
         result.setProperty("arc", "medium");
         // special: result of request == relative path to the SVG/GB file
