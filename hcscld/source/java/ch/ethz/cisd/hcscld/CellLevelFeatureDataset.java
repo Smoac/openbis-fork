@@ -95,7 +95,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
         String getObjectPath(ImageId id)
         {
-            return CellLevelFeatureDataset.this.getObjectPath(id) + "/" + name;
+            return CellLevelFeatureDataset.this.getObjectPath(id) + "_" + name;
         }
 
         HDF5CompoundType<Object[]> getType()
