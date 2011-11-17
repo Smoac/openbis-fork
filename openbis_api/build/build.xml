@@ -2,7 +2,7 @@
 	<import file="../../datastore_server/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
-	<property name="original.dist" value="dist" />
+  <property name="mainfolder" value="openbis_api" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 
