@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
 import java.util.Map;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -46,7 +44,6 @@ public interface IGeneralInformationChangingService extends IRpcService
      */
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
-    @Transactional
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties);
 
@@ -56,7 +53,6 @@ public interface IGeneralInformationChangingService extends IRpcService
      * 
      * @deprecated Because the parameters refer to an internal openBIS class (TechID).
      */
-    @Transactional
     @Deprecated
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
             String label, String description, Long previousTermOrdinal);
@@ -64,7 +60,6 @@ public interface IGeneralInformationChangingService extends IRpcService
     /**
      * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
      */
-    @Transactional
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term);
 

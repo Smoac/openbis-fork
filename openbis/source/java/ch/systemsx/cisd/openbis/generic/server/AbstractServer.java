@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -332,6 +333,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return 1;
     }
 
+    @Transactional(readOnly = true)
     public final void logout(final String sessionToken) throws UserFailureException
     {
         try

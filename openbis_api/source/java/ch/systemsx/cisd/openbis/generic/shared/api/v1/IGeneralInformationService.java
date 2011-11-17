@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -61,14 +59,11 @@ public interface IGeneralInformationService extends IRpcService
      * succeeded otherwise <code>null</code> is returned. The returned session token can be used for
      * all methods and interfaces of the same openBIS server.
      */
-    @Transactional
-    // this is not a readOnly transaction - it can create new users
     public String tryToAuthenticateForAllServices(String userID, String userPassword);
 
     /**
      * Logout the session with the specified session token.
      */
-    @Transactional(readOnly = true)
     public void logout(String sessionToken);
 
     /**
@@ -77,13 +72,11 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @since 1.4
      */
-    @Transactional(readOnly = true)
     public boolean isSessionActive(String sessionToken);
 
     /**
      * Returns all named role sets. The name is the key of the returned map.
      */
-    @Transactional(readOnly = true)
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken);
 
     /**
@@ -93,7 +86,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param databaseInstanceCodeOrNull Code of an imported database instance or <code>null</code>
      *            for the home database instance is meant.
      */
-    @Transactional(readOnly = true)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
 
@@ -103,7 +95,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param searchCriteria The sample metadata values to be matched against.
      * @since 1.1
      */
-    @Transactional(readOnly = true)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
@@ -111,7 +102,6 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @param samples The samples for which we return attached data sets.
      */
-    @Transactional(readOnly = true)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
 
     /**
@@ -124,7 +114,6 @@ public interface IGeneralInformationService extends IRpcService
      *            experiments for the specified projects being returned.
      * @since 1.2
      */
-    @Transactional(readOnly = true)
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType);
 
@@ -138,7 +127,6 @@ public interface IGeneralInformationService extends IRpcService
      *            being returned.
      * @since 1.15
      */
-    @Transactional(readOnly = true)
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
             List<Project> projects, String experimentType);
 
@@ -152,7 +140,6 @@ public interface IGeneralInformationService extends IRpcService
      *            being returned.
      * @since 1.15
      */
-    @Transactional(readOnly = true)
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             List<Project> projects, String experimentType);
 
@@ -166,7 +153,6 @@ public interface IGeneralInformationService extends IRpcService
      *            well.
      * @since 1.3
      */
-    @Transactional(readOnly = true)
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded);
 
@@ -176,7 +162,6 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @since 1.4
      */
-    @Transactional(readOnly = true)
     public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
     /**
@@ -185,7 +170,6 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @since 1.4
      */
-    @Transactional(readOnly = true)
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
 
     /**
@@ -194,7 +178,6 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @since 1.5
      */
-    @Transactional(readOnly = true)
     public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
@@ -207,7 +190,6 @@ public interface IGeneralInformationService extends IRpcService
      * @deprecated Please use {@link #listVocabularies(String)} instead.
      * @since 1.6
      */
-    @Transactional(readOnly = true)
     @Deprecated
     public HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> getVocabularyTermsMap(
             String sessionToken);
@@ -217,7 +199,6 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @since 1.13
      */
-    @Transactional(readOnly = true)
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
             String sessionToken);
 
@@ -228,7 +209,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param samples The samples for which we return attached data sets.
      * @since 1.7
      */
-    @Transactional(readOnly = true)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connectionsToGet);
 
@@ -239,7 +219,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param experiments The experiments for which we return attached data sets.
      * @since 1.14
      */
-    @Transactional(readOnly = true)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet);
 
@@ -251,7 +230,6 @@ public interface IGeneralInformationService extends IRpcService
      * @return result in the same order as the list of data set codes.
      * @since 1.12
      */
-    @Transactional(readOnly = true)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes);
 
     /**
@@ -260,7 +238,6 @@ public interface IGeneralInformationService extends IRpcService
      * @param searchCriteria the criteria used for searching.
      * @since 1.8
      */
-    @Transactional(readOnly = true)
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
     /**
@@ -270,12 +247,10 @@ public interface IGeneralInformationService extends IRpcService
      * @param experimentIdentifiers the identifiers of the experiments to be returned.
      * @since 1.9
      */
-    @Transactional(readOnly = true)
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
 
     /**
      * Returns all available projects.
      */
-    @Transactional(readOnly = true)
     public List<Project> listProjects(String sessionToken);
 }

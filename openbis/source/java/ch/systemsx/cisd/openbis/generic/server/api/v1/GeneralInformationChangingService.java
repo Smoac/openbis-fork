@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -67,6 +68,7 @@ public class GeneralInformationChangingService extends
         return new GeneralInformationChangingServiceLogger(sessionManager, context);
     }
 
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void updateSampleProperties(String sessionToken, long sampleID,
             Map<String, String> properties)
@@ -76,6 +78,7 @@ public class GeneralInformationChangingService extends
         EntityHelper.updateSampleProperties(server, sessionToken, new TechId(sampleID), properties);
     }
 
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, TechId vocabularyId, String code,
@@ -85,6 +88,7 @@ public class GeneralInformationChangingService extends
                 previousTermOrdinal);
     }
 
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,

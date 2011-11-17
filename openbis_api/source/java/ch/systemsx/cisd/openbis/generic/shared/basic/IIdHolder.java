@@ -23,7 +23,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  */
 public interface IIdHolder
 {
-
     /**
      * Returns the technical ID of this instance.
      * 

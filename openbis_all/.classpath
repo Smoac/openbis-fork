@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/eu_basynthec"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/installation"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis_knime"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis_api"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

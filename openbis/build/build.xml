@@ -9,6 +9,7 @@
   <property name="gwt.lib" value="${lib}/gwt2.4" />
   <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
   <property name="gwt.debugpanel.lib" value="${lib}/gwt-debug-panel/gwt-debug-panel.jar" />
+  <property name="gwt.sources" value="${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:${gwt.debugpanel.lib}:../common/${sources}:../openbis_api/${sources}:../openbis/${sources}:${sources}" />
 
   <property name="original.server.dist" value="${original.dist}/server" />
   <property name="original.openbis.server.dist" value="../openbis/dist/server" />
@@ -332,7 +333,7 @@
     <delete includeEmptyDirs="true">
     	<fileset dir="${webapp.dist}" excludes="*.jar"/>
   	</delete>
-    <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:${gwt.debugpanel.lib}:../common/${sources}:../openbis/${sources}:${sources}" 
+    <java classpath="${ecp}:${gwt.sources}" 
     	classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx1024M" />
       <arg value="-war" />
@@ -827,7 +828,7 @@
   -->
   <target name="compile-module-test" description="Compile the module test mode">
     <delete dir="${targets.www}/${module-test.path}" />
-    <java classpath="${ecp}:${ecp.gwt}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:${gwt.debugpanel.lib}:../common/${sources}:../openbis/${sources}:${sources}"
+    <java classpath="${ecp}:${ecp.gwt}:${gwt.sources}"
       classname="com.google.gwt.dev.Compiler" fork="true">
       <jvmarg value="-Xmx512M" />
       <arg value="-war" />
@@ -836,6 +837,8 @@
     	<arg value="-draftCompile" />
 			<arg value="-style" />
       <arg value="PRETTY" />
+      <arg value="-logLevel" />
+      <arg value="ERROR" />
       <!-- <arg value="-compileReport" /> --> 
     </java>
     <move todir="${targets.www}/${module-test.path}">
