@@ -1,10 +1,10 @@
 <project name="openbis_api" default="ci" basedir="..">
-	<import file="../../datastore_server/build/build.xml" />
+  <import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
   <property name="mainfolder" value="openbis_api" />
 
-	<target name="compile" depends="build-common.compile, clean" />
+	<target name="compile" depends="build-common.compile" />
 
 	<target name="run-tests">
 		<antcall target="build-common.run-tests">
