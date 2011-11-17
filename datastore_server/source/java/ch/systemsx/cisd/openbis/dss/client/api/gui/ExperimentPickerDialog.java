@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         table = createTable(prepareData(experiments));
         filterField = createFilterField(table);
         optionPane = createOptionPane(filterField, table, this);
+        createTableListener(table, optionPane);
 
         this.setContentPane(optionPane);
     }
@@ -136,6 +139,24 @@ public class ExperimentPickerDialog extends AbstractEntityPickerDialog
         header.setDefaultRenderer(new SortButtonRenderer());
 
         return table;
+    }
+
+    private static void createTableListener(final JTable table, final JOptionPane optionPane)
+    {
+        table.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    if (e.getClickCount() == 2)
+                    {
+                        if (table.getSelectedRow() != -1)
+                        {
+                            optionPane.setValue(JOptionPane.OK_OPTION);
+                        }
+                    }
+                }
+            });
     }
 
     private static JTextField createFilterField(final JTable table)
