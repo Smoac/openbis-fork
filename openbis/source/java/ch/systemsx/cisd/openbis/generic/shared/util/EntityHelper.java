@@ -115,6 +115,19 @@ public class EntityHelper
         return null;
     }
 
+    public static boolean removeProperty(List<NewProperty> properties, String propertyCode)
+    {
+        NewProperty property = tryFindProperty(properties, propertyCode);
+        if (property != null)
+        {
+            properties.remove(property);
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
     public static NewProperty tryFindProperty(List<NewProperty> properties, String propertyCode)
     {
         for (final NewProperty property : properties)

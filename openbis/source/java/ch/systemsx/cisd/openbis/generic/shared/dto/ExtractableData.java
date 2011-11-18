@@ -22,6 +22,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * A basic {@link NewExternalData} object.
@@ -106,5 +107,11 @@ public class ExtractableData extends Code<ExtractableData>
     public List<NewProperty> getDataSetProperties()
     {
         return dataSetProperties;
+    }
+
+    /** @return true if property has been removed. */
+    public boolean removeDataSetProperty(String propertyCode)
+    {
+        return EntityHelper.removeProperty(dataSetProperties, propertyCode);
     }
 }
