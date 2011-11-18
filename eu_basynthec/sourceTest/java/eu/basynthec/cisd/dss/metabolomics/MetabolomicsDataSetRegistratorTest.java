@@ -34,7 +34,7 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
  */
 public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("PROTEIN_QUANTIFICATIONS");
+    private static final DataSetType DATA_SET_TYPE = new DataSetType("METABOLITE_INTENSITIES");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -42,7 +42,7 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadProperties();
         createHandler(properties, false, true);
-        createData("Proteomics-Example.xlsx");
+        createData("Metabolomics-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
                 setUpDataSetRegistrationExpectations(DATA_SET_TYPE, TSV_DATA_SET_TYPE);
@@ -52,9 +52,9 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
         assertEquals(3, atomicOperationDetails.recordedObject().getDataSetRegistrations().size());
 
         checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
-                .get(1), "PROTEIN_QUANTIFICATIONS");
+                .get(1), "METABOLITE_INTENSITIES");
         checkDataTypeProperty(atomicOperationDetails.recordedObject().getDataSetRegistrations()
-                .get(2), "PROTEIN_QUANTIFICATIONS");
+                .get(2), "METABOLITE_INTENSITIES");
 
         NewExternalData dataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(0);
@@ -68,13 +68,13 @@ public class MetabolomicsDataSetRegistratorTest extends AbstractBaSynthecDataSet
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("JJS-MGP90", strainProperty.getValue());
+        assertEquals("CHASSIS 1", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 
     @Override
     protected String getRegistrationScriptsFolderPath()
     {
-        return "dist/etc/proteomics/";
+        return "dist/etc/metabolomics/";
     }
 }
