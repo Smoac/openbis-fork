@@ -61,7 +61,8 @@ class TimeSeriesDataExcel:
       value = line[1];
       if "BLANK" == value:
         value = None
-      metadataMap[line[0].upper()] = value
+      if line[0] is not None:
+        metadataMap[line[0].upper()] = value
     return metadataMap
     
 def create_time_series_excel(fileName):
@@ -123,14 +124,8 @@ class ValidationHelper:
       
   def validateControlledVocabularyProperty(self, property, displayName, allowedValues, allowedValuesDisplay):
     """Validate that the property is specified and in the list of allowed values"""
-    if not self.checkIsSpecified(property, displayName):
-      return
-    value = self.metadataMap.get(property).upper()
-    if value not in allowedValues:
-      if len(allowedValues) > 1:
-        self.errors.append(createFileValidationError("The " + displayName + " must be one of " + allowedValuesDisplay + " (not " + value + ")."))
-      else:
-        self.errors.append(createFileValidationError("The " + displayName + " must be " + allowedValuesDisplay + " (not " + value + ")."))
+    value = self.metadataMap.get(property)
+    isControlledVocabularyPropertyValid(value, displayName, allowedValues, allowedValuesDisplay, self.errors)
         
   def validateStartDataRowCol(self):
     if self.checkIsSpecified("START DATA ROW", "Start Data Row"):
@@ -147,6 +142,7 @@ class ValidationHelper:
 strainIdRegex = re.compile("^JJS-MGP[0-9]{1,3}|^JJS-DIN[0-9]{1,3}|^MS|CHASSIS\s*[1-3]|WT 168 TRP\+")
 def isStrainIdValid(strainId):
   """Return true if the strain id passes validation (has the form sepecified in the regex)"""
+  strainId = strainId.strip().upper()
   match = strainIdRegex.match(strainId)
   if match is None:
     return False
@@ -155,6 +151,21 @@ def isStrainIdValid(strainId):
 def strainValidationErrorMessageFragment(strain):
     """Return a sentence fragment describing the strain validation error."""
     return "must be either JJS-MGP[0-999], JJS-DIN[0-999], MS, CHASSIS [1-3], or WT 168 TRP+ (instead of " + strain + ")."
+
+def isControlledVocabularyPropertyValid(value, displayName, allowedValues, allowedValuesDisplay, errors):
+    """Validate that the property is specified and in the list of allowed values"""
+    if value is None:
+      errors.append(ValidationError.createFileValidationError("A " + displayName + " must be specified."))
+      return False
+    value = value.upper()
+    if value not in allowedValues:
+      if len(allowedValues) > 1:
+        errors.append(createFileValidationError("The " + displayName + " must be one of " + allowedValuesDisplay + " (not " + value + ")."))
+        return False
+      else:
+        errors.append(createFileValidationError("The " + displayName + " must be " + allowedValuesDisplay + " (not " + value + ")."))
+        return False
+    return True
   
 def getInitialDataRowAndCol(metadata):
   """Extract the initial row and column as specified in the metadata. Returns an array with [row, col]."""
@@ -166,12 +177,18 @@ def getInitialDataRowAndCol(metadata):
   if first_data_row is None:
     first_data_row = 0
   else:
-    first_data_row = int(float(first_data_row)) - 1
+    try:
+      first_data_row = int(float(first_data_row)) - 1
+    except:
+      first_data_row = 0
 
   # convert the column spreadsheet value to an int
   if first_data_col is None:
     first_data_col = 0
   else:
     # columns start at A
-    first_data_col = ord(first_data_col) - ord('A')
+    try:
+      first_data_col = ord(first_data_col) - ord('A')
+    except:
+      first_data_cal = 0
   return [first_data_row, first_data_col]
