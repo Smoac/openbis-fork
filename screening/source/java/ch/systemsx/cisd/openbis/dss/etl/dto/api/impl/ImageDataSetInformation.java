@@ -104,7 +104,7 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     public String toString()
     {
         final StringBuilder buffer = new StringBuilder(super.toString());
-        appendNameAndObject(buffer, "images structure", imageDataSetStructure.toString());
+        appendNameAndObject(buffer, "images structure", imageDataSetStructure);
         appendNameAndObject(buffer, "container dataset", containerDatasetPermId);
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
         if (this.tryGetThumbnailFilePaths() != null)
