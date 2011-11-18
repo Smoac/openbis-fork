@@ -131,7 +131,8 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory;
 
-        private final List<DataSet<T>> registeredDataSets = new ArrayList<DataSet<T>>();
+        private final List<DataSet<? extends T>> registeredDataSets =
+                new ArrayList<DataSet<? extends T>>();
 
         private final List<DataSetUpdatable> dataSetsToBeUpdated =
                 new ArrayList<DataSetUpdatable>();
@@ -194,33 +195,36 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             return createNewDataSet(registrationDetailsFactory, dataSetType, dataSetCode);
         }
 
-        public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails)
+        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
         {
             // Request a code, so we can keep the staging file name and the data set code in sync
             return createNewDataSet(registrationDetails, registrationDetails
                     .getDataSetInformation().getDataSetCode());
         }
 
-        public IDataSet createNewDataSet(
-                DataSetRegistrationDetails<? extends T> registrationDetails,
+        public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails,
                 String specifiedCodeOrNull)
         {
-            return createNewDataSet(registrationDetails, null, specifiedCodeOrNull);
+            return createNewDataSet(registrationDetailsFactory, registrationDetails, null,
+                    specifiedCodeOrNull);
         }
 
-        public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<? extends T> factory,
+        public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
                 String dataSetTypeOrNull, String dataSetCodeOrNull)
         {
-            // Create registration details for the new data set
-            DataSetRegistrationDetails<? extends T> registrationDetails =
-                    factory.createDataSetRegistrationDetails();
-            return createNewDataSet(registrationDetails, dataSetTypeOrNull, dataSetCodeOrNull);
+            return createNewDataSet(factory, null, dataSetTypeOrNull, dataSetCodeOrNull);
         }
 
-        private IDataSet createNewDataSet(
-                DataSetRegistrationDetails<? extends T> registrationDetails,
-                String dataSetTypeOrNull, String specifiedCodeOrNull)
+        private IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
+                DataSetRegistrationDetails<T> registrationDetailsOrNull, String dataSetTypeOrNull,
+                String specifiedCodeOrNull)
         {
+            DataSetRegistrationDetails<T> registrationDetails = registrationDetailsOrNull;
+            if (null == registrationDetails)
+            {
+                // Create registration details for the new data set
+                registrationDetails = factory.createDataSetRegistrationDetails();
+            }
             if (null != dataSetTypeOrNull)
             {
                 registrationDetails.setDataSetType(dataSetTypeOrNull);
@@ -241,8 +245,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
             MkdirsCommand cmd = new MkdirsCommand(stagingFolder.getAbsolutePath());
             executeCommand(cmd);
 
-            DataSet<T> dataSet =
-                    registrationDetailsFactory.createDataSet(registrationDetails, stagingFolder);
+            DataSet<T> dataSet = factory.createDataSet(registrationDetails, stagingFolder);
 
             // If the registration details already contains a sample or experiment, set it on the
             // new data set.
@@ -583,7 +586,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             ArrayList<DataSetStorageAlgorithm<T>> algorithms =
                     new ArrayList<DataSetStorageAlgorithm<T>>(registeredDataSets.size());
-            for (DataSet<T> dataSet : registeredDataSets)
+            for (DataSet<? extends T> dataSet : registeredDataSets)
             {
                 File contents = dataSet.tryDataSetContents();
                 DataSetRegistrationDetails<? extends T> details = dataSet.getRegistrationDetails();
@@ -837,7 +840,7 @@ abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private void deleteStagingFolders()
         {
-            for (DataSet<T> dataSet : liveState.registeredDataSets)
+            for (DataSet<? extends T> dataSet : liveState.registeredDataSets)
             {
                 dataSet.getDataSetStagingFolder().delete();
             }

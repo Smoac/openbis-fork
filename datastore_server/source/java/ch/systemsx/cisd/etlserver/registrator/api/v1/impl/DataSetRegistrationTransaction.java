@@ -208,12 +208,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewDataSet(dataSetType, dataSetCode);
     }
 
-    public IDataSet createNewDataSet(DataSetRegistrationDetails<? extends T> registrationDetails)
+    public IDataSet createNewDataSet(DataSetRegistrationDetails<T> registrationDetails)
     {
         return getStateAsLiveState().createNewDataSet(registrationDetails);
     }
 
-    public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<? extends T> factory,
+    public IDataSet createNewDataSet(IDataSetRegistrationDetailsFactory<T> factory,
             String dataSetType)
     {
         return getStateAsLiveState().createNewDataSet(factory, dataSetType, null);

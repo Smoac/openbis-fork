@@ -30,5 +30,5 @@ public interface IDataSetRegistrationDetailsFactory<T extends DataSetInformation
 {
     DataSetRegistrationDetails<T> createDataSetRegistrationDetails();
 
-    DataSet<T> createDataSet(DataSetRegistrationDetails<? extends T> registrationDetails, File stagingFile);
+    DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails, File stagingFile);
 }
