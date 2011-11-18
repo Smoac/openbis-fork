@@ -240,7 +240,9 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
         final File scriptFile = new File(dumpFolder, prefix + "-" + version + SQL_FILE_TYPE);
         if (scriptFile.canRead() == false)
         {
-            final String message = "No " + prefix + " script found for version " + version;
+            final String message =
+                    "No " + prefix + " script found for version " + version + " in a file "
+                            + scriptFile;
             operationLog.error(message);
             throw new ConfigurationFailureException(message);
         }
