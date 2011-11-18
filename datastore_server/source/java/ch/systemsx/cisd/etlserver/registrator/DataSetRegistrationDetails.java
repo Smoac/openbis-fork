@@ -141,14 +141,20 @@ public class DataSetRegistrationDetails<T extends DataSetInformation> implements
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         ExtractableData datasetExtractableData = dataSetInformation.getExtractableData();
-        List<NewProperty> properties = datasetExtractableData.getDataSetProperties();
-        NewProperty property = EntityHelper.tryFindProperty(properties, propertyCode);
-        if (property != null)
+        if (propertyValue == null)
         {
-            property.setValue(propertyValue);
+            datasetExtractableData.removeDataSetProperty(propertyCode);
         } else
         {
-            properties.add(new NewProperty(propertyCode, propertyValue));
+            List<NewProperty> properties = datasetExtractableData.getDataSetProperties();
+            NewProperty property = EntityHelper.tryFindProperty(properties, propertyCode);
+            if (property != null)
+            {
+                property.setValue(propertyValue);
+            } else
+            {
+                properties.add(new NewProperty(propertyCode, propertyValue));
+            }
         }
     }
 
