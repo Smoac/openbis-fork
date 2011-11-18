@@ -34,7 +34,7 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
     /**
      * Returns the name of the object type that was segmented for.
      */
-    public String getSegmentedObjectTypeName();
+    public String getSegmentedObjectType();
 
     /**
      * Returns the segmented object with given <var>objectId</var> in the given <var>wellId</var>.

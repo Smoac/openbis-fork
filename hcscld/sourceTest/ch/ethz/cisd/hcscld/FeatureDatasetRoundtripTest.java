@@ -62,10 +62,12 @@ public class FeatureDatasetRoundtripTest
     }
 
     private ICellLevelFeatureWritableDataset createDefaultFeatureGroupDataset(
-            ICellLevelDataWriter writer, String dsCode, ImageQuantityStructure structure)
+            ICellLevelDataWriter writer, String dsCode, String objectType,
+            ImageQuantityStructure structure)
     {
         ICellLevelFeatureWritableDataset wds = writer.addFeatureDataset(dsCode, structure);
-        wds.createFeaturesDefinition().addInt32Feature("one").addFloat32Feature("two")
+        wds.createFeaturesDefinition().objectTypeName(objectType).addInt32Feature("one")
+                .addFloat32Feature("two")
                 .addEnumFeature("three", "State", Arrays.asList("A", "B", "C")).create();
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -179,8 +181,8 @@ public class FeatureDatasetRoundtripTest
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset dsw =
-                createDefaultFeatureGroupDataset(writer, dsCode,
-                        new ImageQuantityStructure(2, 3, 4));
+                createDefaultFeatureGroupDataset(writer, dsCode, null, new ImageQuantityStructure(
+                        2, 3, 4));
         dsw.setPlateBarcode("plate_abc");
         dsw.setParentDatasetCode("ds_xyz");
         final String now = new Date().toString();
@@ -193,6 +195,7 @@ public class FeatureDatasetRoundtripTest
             assertEquals("default", clf.getFeatureGroup().getName());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
+            assertNull(clf.getFeatureGroup().tryGetObjectType());
             assertEquals(10, clf.getValues().length);
             for (int i = 0; i < clf.getValues().length; ++i)
             {
@@ -220,8 +223,8 @@ public class FeatureDatasetRoundtripTest
         f.deleteOnExit();
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset dsw =
-                createDefaultFeatureGroupDataset(writer, dsCode, new ImageQuantityStructure(3,
-                        SequenceType.TIMESERIES, true));
+                createDefaultFeatureGroupDataset(writer, dsCode, "cell",
+                        new ImageQuantityStructure(3, SequenceType.TIMESERIES, true));
         try
         {
             dsw.setDepthScanSequenceAnnotation(new DepthScanAnnotation("mm", new double[]
@@ -256,6 +259,7 @@ public class FeatureDatasetRoundtripTest
         for (CellLevelFeatures clf : ds.getValues())
         {
             assertEquals("default", clf.getFeatureGroup().getName());
+            assertEquals("cell", clf.getFeatureGroup().tryGetObjectType());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
             assertEquals(10, clf.getValues().length);

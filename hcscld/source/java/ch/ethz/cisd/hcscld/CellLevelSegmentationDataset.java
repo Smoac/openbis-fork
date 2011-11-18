@@ -42,7 +42,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
 
     private final ImageGeometry imageGeometry;
 
-    String segmentedObjectTypeName;
+    String segmentedObjectType;
 
     private final HDF5CompoundType<SegmentedObjectBox> indexType;
 
@@ -76,13 +76,13 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return imageGeometry;
     }
 
-    public String getSegmentedObjectTypeName()
+    public String getSegmentedObjectType()
     {
-        if (segmentedObjectTypeName == null)
+        if (segmentedObjectType == null)
         {
-            segmentedObjectTypeName = reader.readString(getSegmentedObjectTypeFileName());
+            segmentedObjectType = reader.readString(getSegmentedObjectTypeFileName());
         }
-        return segmentedObjectTypeName;
+        return segmentedObjectType;
     }
 
     public ICellLevelClassificationDataset toClassificationDataset()

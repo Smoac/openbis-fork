@@ -31,6 +31,11 @@ public interface IFeaturesDefinition
 {
 
     /**
+     * Sets the name of the objects that the features of this group have been computed from.
+     */
+    public IFeaturesDefinition objectTypeName(String objectTypeName);
+    
+    /**
      * Adds a 8-bit integer feature (corresponding to the Java type <code>byte</code>).
      * 
      * @param name The name of the feature.

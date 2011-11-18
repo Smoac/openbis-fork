@@ -37,6 +37,8 @@ import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
+    
+    private String objectTypeNameOrNull;
 
     private final List<HDF5CompoundMemberMapping> members;
 
@@ -105,6 +107,12 @@ class FeaturesDefinition implements IFeaturesDefinition
     {
         return HDF5CompoundMemberMapping.addHints(members.toArray(
                 new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
+    }
+
+    public IFeaturesDefinition objectTypeName(String objectTypeName)
+    {
+        this.objectTypeNameOrNull = objectTypeName;
+        return this;
     }
 
     public FeaturesDefinition addInt8Feature(String name)
@@ -206,6 +214,11 @@ class FeaturesDefinition implements IFeaturesDefinition
     public List<Feature> getFeatures()
     {
         return Collections.unmodifiableList(memberDefinitions);
+    }
+
+    String tryGetObjectTypeName()
+    {
+        return objectTypeNameOrNull;
     }
 
     private void checkDataset()

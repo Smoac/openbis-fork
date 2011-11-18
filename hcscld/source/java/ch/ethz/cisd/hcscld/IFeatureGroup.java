@@ -45,4 +45,10 @@ public interface IFeatureGroup extends Iterable<ImageId>
      */
     public List<Feature> getFeatures();
 
+    /**
+     * Returns the name of the types of objects that have been used to compute the features of this
+     * feature group, or <code>null</code>, if not set.
+     */
+    public String tryGetObjectType();
+
 }

@@ -37,7 +37,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     private final boolean storeEdgeMasks;
 
     CellLevelSegmentationWritableDataset(final IHDF5Writer writer, final String datasetCode,
-            final String segmentedObjectTypeName, final ImageQuantityStructure quantityStructure,
+            final String segmentedObjectType, final ImageQuantityStructure quantityStructure,
             final ImageGeometry imageGeometry, final HDF5EnumerationType hdf5KindEnum,
             final boolean storeEdgeMasks)
     {
@@ -49,8 +49,8 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         CURRENT_FORMAT_VERSION_NUMBER);
         this.storeEdgeMasks = storeEdgeMasks;
         writer.writeCompound(getImageGeometryObjectPath(), imageGeometry);
-        this.segmentedObjectTypeName = segmentedObjectTypeName;
-        writer.writeString(getSegmentedObjectTypeFileName(), segmentedObjectTypeName);
+        this.segmentedObjectType = segmentedObjectType;
+        writer.writeString(getSegmentedObjectTypeFileName(), segmentedObjectType);
     }
 
     @Override

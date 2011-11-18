@@ -34,15 +34,19 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 {
     private final CellLevelBaseWritableDataset base;
 
+    private final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType;
+
     CellLevelFeatureWritableDataset(final IHDF5Writer writer, final String datasetCode,
             final ImageQuantityStructure geometry, final HDF5CompoundMappingHints hintsOrNull,
             final HDF5EnumerationType hdf5KindEnum)
     {
-        super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
+        super(writer, datasetCode, geometry, hintsOrNull, FORMAT_TYPE,
+                CURRENT_FORMAT_VERSION_NUMBER);
         this.base =
                 new CellLevelBaseWritableDataset(writer, datasetCode, geometry, hdf5KindEnum,
                         CellLevelDatasetType.FEATURES, FORMAT_TYPE, CURRENT_FORMAT_VERSION_NUMBER);
-        writer.createStringArray(getFeatureGroupsFilename(), 100, 0, 1);
+        this.featureGroupCompoundType = writer.getInferredCompoundType(FeatureGroupDescriptor.class);
+        writer.createCompoundArray(getFeatureGroupsFilename(), featureGroupCompoundType, 0, 1);
     }
 
     @Override
@@ -123,10 +127,13 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final HDF5CompoundType<Object[]> type =
                 base.writer.getCompoundType(getDataTypeName(name), Object[].class,
                         features.getMembers(hintsOrNull));
-        final FeatureGroup featureGroup = new FeatureGroup(name, type);
+        final FeatureGroup featureGroup =
+                new FeatureGroup(name, features.tryGetObjectTypeName(), type);
         final String featureGroupsFile = getFeatureGroupsFilename();
-        base.writer.writeStringArrayBlock(featureGroupsFile, new String[]
-            { name }, base.writer.getNumberOfElements(featureGroupsFile));
+        base.writer.writeCompoundArrayBlock(featureGroupsFile, featureGroupCompoundType,
+                new FeatureGroupDescriptor[]
+                    { new FeatureGroupDescriptor(name, features.tryGetObjectTypeName()) },
+                base.writer.getNumberOfElements(featureGroupsFile));
         addFeatureGroupToInternalList(featureGroup);
         return featureGroup;
     }
@@ -146,10 +153,10 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     private void checkNumberOfElements(ImageId id, int numberOfObjectsToWrite)
             throws IllegalArgumentException
     {
-        if (featureGroups.isEmpty() == false && featureGroups.get(0).existsIn(id))
+        if (featureGroups.isEmpty() == false && getFirstFeatureGroup().existsIn(id))
         {
             final long numberOfObjectsOnDisk =
-                    reader.getNumberOfElements(featureGroups.get(0).getObjectPath(id));
+                    reader.getNumberOfElements(getFirstFeatureGroup().getObjectPath(id));
             if (numberOfObjectsOnDisk != numberOfObjectsToWrite)
             {
                 throw new IllegalArgumentException(
@@ -163,7 +170,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
-        final FeatureGroup fg = featureGroups.get(0);
+        final FeatureGroup fg = getFirstFeatureGroup();
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
                 fg.getType(),

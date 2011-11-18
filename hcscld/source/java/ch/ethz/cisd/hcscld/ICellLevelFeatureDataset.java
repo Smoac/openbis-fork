@@ -26,7 +26,7 @@ import java.util.List;
 public interface ICellLevelFeatureDataset extends ICellLevelDataset
 {
     /**
-     * Returns all available feature groups.
+     * Returns all available feature groups. This list is read-only.
      */
     public List<IFeatureGroup> getFeatureGroups();
 

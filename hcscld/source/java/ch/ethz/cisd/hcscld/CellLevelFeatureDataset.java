@@ -18,11 +18,15 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ch.ethz.cisd.hcscld.ImageRunner.IExistChecker;
+import ch.systemsx.cisd.hdf5.CompoundElement;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
@@ -36,23 +40,57 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
 class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeatureDataset
 {
     static final String FORMAT_TYPE = "CompoundArray";
-    
+
     static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
-    
+
     static final String DEFAULT_FEATURE_GROUP_NAME = "default";
 
     static final String ALL_FEATURE_GROUP_NAME = "all";
 
     /**
+     * The storage representation of a feature group.
+     */
+    final static class FeatureGroupDescriptor
+    {
+        @CompoundElement(dimensions =
+            { 100 })
+        String name;
+
+        @CompoundElement(dimensions =
+            { 100 }, memberName = "objectType")
+        String objectType;
+
+        FeatureGroupDescriptor()
+        {
+        }
+
+        FeatureGroupDescriptor(String name, String objectTypeOrNull)
+        {
+            this.name = name;
+            this.objectType = (objectTypeOrNull == null) ? "" : objectTypeOrNull;
+        }
+
+        String getName()
+        {
+            return name;
+        }
+
+        String getObjectType()
+        {
+            return objectType;
+        }
+    }
+
+    /**
      * A feature group implementation.
-     * 
-     * @author Bernd Rinn
      */
     final class FeatureGroup implements IFeatureGroup
     {
         private final HDF5CompoundType<Object[]> type;
 
         private final String name;
+
+        private final String objectTypeOrNull;
 
         private final List<Feature> features;
 
@@ -62,18 +100,21 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         {
             this.name = name;
             this.type = null;
+            this.objectTypeOrNull = null;
             this.featureNames = new ArrayList<String>(totalNumberOfFeatures);
             this.features = new ArrayList<Feature>(totalNumberOfFeatures);
-            for (FeatureGroup fg : featureGroups)
+            for (FeatureGroup fg : featureGroups.values())
             {
                 featureNames.addAll(fg.getFeatureNames());
                 features.addAll(fg.getFeatures());
             }
         }
 
-        FeatureGroup(String name, HDF5CompoundType<Object[]> type)
+        FeatureGroup(String name, String objectType, HDF5CompoundType<Object[]> type)
         {
             this.name = name;
+            this.objectTypeOrNull =
+                    (objectType != null && objectType.length() == 0) ? null : objectType;
             this.type = type;
             final List<HDF5CompoundMemberInformation> members =
                     Arrays.asList(type.getCompoundMemberInformation());
@@ -113,6 +154,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return features;
         }
 
+        public String tryGetObjectType()
+        {
+            return objectTypeOrNull;
+        }
+
         public int getNumberOfFeatures()
         {
             return featureNames.size();
@@ -141,21 +187,22 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
-    final List<FeatureGroup> featureGroups;
+    final Map<String, FeatureGroup> featureGroups;
 
     final int totalNumberOfFeatures;
 
     final HDF5CompoundMappingHints hintsOrNull;
 
-    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode, ImageQuantityStructure geometry,
-            HDF5CompoundMappingHints hintsOrNull, String formatType, int formatVersionNumber)
+    CellLevelFeatureDataset(IHDF5Reader reader, String datasetCode,
+            ImageQuantityStructure geometry, HDF5CompoundMappingHints hintsOrNull,
+            String formatType, int formatVersionNumber)
     {
         super(reader, datasetCode, geometry, formatVersionNumber);
         checkFormat(FORMAT_TYPE, formatType);
         this.hintsOrNull = hintsOrNull;
         this.featureGroups = readFeatureGroups();
         int numberOfFeatures = 0;
-        for (FeatureGroup fg : featureGroups)
+        for (FeatureGroup fg : featureGroups.values())
         {
             numberOfFeatures += fg.getNumberOfFeatures();
         }
@@ -164,22 +211,25 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     void addFeatureGroupToInternalList(FeatureGroup newFeatureGroup)
     {
-        featureGroups.add(newFeatureGroup);
+        featureGroups.put(newFeatureGroup.getName(), newFeatureGroup);
     }
 
-    private List<FeatureGroup> readFeatureGroups()
+    private Map<String, FeatureGroup> readFeatureGroups()
     {
         if (reader.exists(getFeatureGroupsFilename()) == false)
         {
-            return new ArrayList<CellLevelFeatureDataset.FeatureGroup>(3);
+            return new LinkedHashMap<String, FeatureGroup>(3);
         }
-        final String[] featureGroupNames = reader.readStringArray(getFeatureGroupsFilename());
-        final List<FeatureGroup> result = new ArrayList<FeatureGroup>(featureGroupNames.length);
-        for (String name : featureGroupNames)
+        final FeatureGroupDescriptor[] featureGroupCpds =
+                reader.readCompoundArray(getFeatureGroupsFilename(), FeatureGroupDescriptor.class);
+        final Map<String, FeatureGroup> result =
+                new LinkedHashMap<String, FeatureGroup>(featureGroupCpds.length);
+        for (FeatureGroupDescriptor fg : featureGroupCpds)
         {
             final HDF5CompoundType<Object[]> type =
-                    reader.getNamedCompoundType(getDataTypeName(name), Object[].class, hintsOrNull);
-            result.add(new FeatureGroup(name, type));
+                    reader.getNamedCompoundType(getDataTypeName(fg.getName()), Object[].class,
+                            hintsOrNull);
+            result.put(fg.getName(), new FeatureGroup(fg.getName(), fg.getObjectType(), type));
         }
         return result;
     }
@@ -277,7 +327,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         final Object[] result = new Object[totalNumberOfFeatures];
         int offset = 0;
-        for (FeatureGroup fg : featureGroups)
+        for (FeatureGroup fg : featureGroups.values())
         {
             final Object[] groupValues = getValues(id, fg, cellId);
             final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
@@ -291,7 +341,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         Object[][] result = null;
         int offset = 0;
-        for (FeatureGroup fg : featureGroups)
+        for (FeatureGroup fg : featureGroups.values())
         {
             final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
             if (fg.hasWellFieldValues(id) == false)
@@ -320,8 +370,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     public Iterable<CellLevelFeatures> getValues()
     {
         final FeatureGroup all =
-                new FeatureGroup(usesDefaultFeatureGroup() ? DEFAULT_FEATURE_GROUP_NAME
-                        : ALL_FEATURE_GROUP_NAME);
+                usesDefaultFeatureGroup() ? getFirstFeatureGroup() : new FeatureGroup(
+                        ALL_FEATURE_GROUP_NAME);
         return new Iterable<CellLevelFeatures>()
             {
                 public Iterator<CellLevelFeatures> iterator()
@@ -371,23 +421,14 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             };
     }
 
-    @SuppressWarnings("unchecked")
     public List<IFeatureGroup> getFeatureGroups()
     {
-        return getFeatureGroupsUntyped();
-    }
-
-    @SuppressWarnings("rawtypes")
-    private List getFeatureGroupsUntyped()
-    {
-        return featureGroups;
+        return Collections.unmodifiableList(new ArrayList<IFeatureGroup>(featureGroups.values()));
     }
 
     public IFeatureGroup getFeatureGroup(String name)
     {
-        final HDF5CompoundType<Object[]> type =
-                reader.getNamedCompoundType(getDataTypeName(name), Object[].class, hintsOrNull);
-        return new FeatureGroup(name, type);
+        return featureGroups.get(name);
     }
 
     String getFeatureGroupsFilename()
@@ -395,10 +436,15 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return getDatasetCode() + "/featureGroups";
     }
 
+    FeatureGroup getFirstFeatureGroup()
+    {
+        return featureGroups.values().iterator().next();
+    }
+
     boolean usesDefaultFeatureGroup() throws IllegalStateException
     {
-        return (featureGroups.size() == 1 && DEFAULT_FEATURE_GROUP_NAME.equals(featureGroups.get(0)
-                .getName()));
+        return (featureGroups.size() == 1 && DEFAULT_FEATURE_GROUP_NAME
+                .equals(getFirstFeatureGroup().getName()));
     }
 
 }

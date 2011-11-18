@@ -63,7 +63,7 @@ public class CellLevelSegmentationDemo
                 reader.getDataSet("789").toSegmentationDataset();
         ImageGeometry imageGeometry = ds.getImageGeometry();
         System.out.println("Image Geometry: " + imageGeometry);
-        String segmentedObjectTypeName = ds.getSegmentedObjectTypeName();
+        String segmentedObjectTypeName = ds.getSegmentedObjectType();
         System.out.println("Segmented Object Type: " + segmentedObjectTypeName);
         SegmentedObject[] objects = ds.getObjects(new ImageId(15, 23, 8), true);
         reader.close();
