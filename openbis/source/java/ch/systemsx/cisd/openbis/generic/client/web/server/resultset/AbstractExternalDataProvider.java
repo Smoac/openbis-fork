@@ -142,7 +142,7 @@ public abstract class AbstractExternalDataProvider extends
                 Boolean complete = realDataSet.getComplete();
                 builder.column(IS_COMPLETE).addString(
                         complete == null ? "?" : SimpleYesNoRenderer.render(complete));
-                builder.column(LOCATION).addString(realDataSet.getLocation());
+                builder.column(LOCATION).addString(realDataSet.getFullLocation());
                 builder.column(ARCHIVING_STATUS)
                         .addString(realDataSet.getStatus().getDescription());
                 FileFormatType fileFormatType = realDataSet.getFileFormatType();

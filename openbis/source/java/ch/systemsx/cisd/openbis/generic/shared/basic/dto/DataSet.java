@@ -74,6 +74,11 @@ public class DataSet extends ExternalData implements IDatasetLocation
         return location;
     }
 
+    public String getFullLocation()
+    {
+        return shareId + "/" + location;
+    }
+
     @Override
     public void setLocation(String location)
     {

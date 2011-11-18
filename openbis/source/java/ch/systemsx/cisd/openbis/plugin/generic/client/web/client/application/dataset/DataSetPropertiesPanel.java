@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -107,8 +107,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         DataSet concreteDataSet = dataset.tryGetAsDataSet();
         if (concreteDataSet != null)
         {
-            properties
-                    .put(messageProvider.getMessage(Dict.LOCATION), concreteDataSet.getLocation());
+            properties.put(messageProvider.getMessage(Dict.LOCATION),
+                    concreteDataSet.getFullLocation());
             if (viewContext.getModel().getApplicationInfo().isArchivingConfigured())
             {
                 properties.put(messageProvider.getMessage(Dict.ARCHIVING_STATUS), concreteDataSet
