@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +19,13 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
@@ -31,10 +34,12 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImagingDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImagingDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
@@ -88,7 +93,33 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 userProvidedDataSetInformationOrNull);
     }
 
-    private static class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation>
+    public static class JythonImageDataSetRegistrationFactory extends
+            AbstractDataSetRegistrationDetailsFactory<ImageDataSetInformation>
+    {
+
+        public JythonImageDataSetRegistrationFactory(
+                ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
+                DataSetInformation userProvidedDataSetInformationOrNull)
+        {
+            super(registratorState, userProvidedDataSetInformationOrNull);
+        }
+
+        @Override
+        protected ImageDataSetInformation createDataSetInformation()
+        {
+            return new ImageDataSetInformation();
+        }
+
+        @Override
+        public ImageDataSet createDataSet(
+                DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
+                File stagingFile)
+        {
+            return new ImageDataSet(registrationDetails, stagingFile);
+        }
+    }
+
+    public static class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation>
             implements IImagingDatasetFactory
     {
         private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
@@ -101,15 +132,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         {
             super(registratorState, userProvidedDataSetInformationOrNull);
             this.imageDatasetFactory =
-                    new JythonObjectFactory<ImageDataSetInformation>(this.registratorState,
-                            this.userProvidedDataSetInformationOrNull)
-                        {
-                            @Override
-                            protected ImageDataSetInformation createDataSetInformation()
-                            {
-                                return new ImageDataSetInformation();
-                            }
-                        };
+                    new JythonImageDataSetRegistrationFactory(this.registratorState,
+                            this.userProvidedDataSetInformationOrNull);
             this.featureVectorDatasetFactory =
                     new JythonObjectFactory<FeatureVectorDataSetInformation>(this.registratorState,
                             this.userProvidedDataSetInformationOrNull)
@@ -261,7 +285,6 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
          * 
          * @deprecated use {@link #createFeatureVectorDatasetDetails(IFeaturesBuilder)} instead.
          */
-        @SuppressWarnings("unused")
         @Deprecated
         public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
                 IFeaturesBuilder featureBuilder, Object incomingDatasetFolder)
@@ -273,7 +296,6 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
          * @deprecated Changed to {@link #createFeatureVectorDatasetDetails(String, Properties)} due
          *             to naming convention change.
          */
-        @SuppressWarnings("unused")
         @Deprecated
         public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
                 String csvFilePath, Properties properties) throws IOException
@@ -293,6 +315,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
                 new PythonInterpreter(), getGlobalState())
             {
+                @SuppressWarnings("unchecked")
                 @Override
                 protected DataSetRegistrationTransaction<DataSetInformation> createTransaction(
                         File rollBackStackParentFolder,
@@ -308,16 +331,21 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     }
 
     /**
-     * Imaging-specific transactions.
+     * Imaging-specific transaction. Handles image datasets in a special way, other datasets are
+     * registered using a standard procedure.
+     * <p>
+     * Note that this transaction is not parametrized by a concrete {@link DataSetInformation}
+     * subclass. It has to deal with {@link ImageDataSetInformation},
+     * {@link FeatureVectorDataSetInformation} and {@link DataSetInformation} at the same time.
      */
     private static class ImagingDataSetRegistrationTransaction extends
-            DataSetRegistrationTransaction<DataSetInformation> implements
-            IImagingDataSetRegistrationTransaction
+            DataSetRegistrationTransaction implements IImagingDataSetRegistrationTransaction
     {
-        private final JythonPlateDatasetFactory registrationDetailsFactory;
+        private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
         private final String originalDirName;
 
+        @SuppressWarnings("unchecked")
         public ImagingDataSetRegistrationTransaction(File rollBackStackParentFolder,
                 File workingDirectory, File stagingDirectory,
                 DataSetRegistrationService<DataSetInformation> registrationService,
@@ -330,8 +358,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             assert registrationDetailsFactory instanceof JythonPlateDatasetFactory : "JythonPlateDatasetFactory expected, but got: "
                     + registrationDetailsFactory.getClass().getCanonicalName();
 
-            this.registrationDetailsFactory =
-                    (JythonPlateDatasetFactory) registrationDetailsFactory;
+            this.imageDatasetFactory =
+                    ((JythonPlateDatasetFactory) registrationDetailsFactory).imageDatasetFactory;
             this.originalDirName = originalDirName;
         }
 
@@ -340,12 +368,21 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         {
             DataSetRegistrationDetails<ImageDataSetInformation> details =
                     SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
-                            incomingFolderWithImages,
-                            registrationDetailsFactory.imageDatasetFactory);
+                            incomingFolderWithImages, imageDatasetFactory);
             return createNewImageDataSet(details);
         }
 
-        public IDataSet createNewImageDataSet(
+        /**
+         * Creates container dataset which contains dataset with original images (created on the
+         * fly). If thumbnails are required they are generated and moved to a thumbnail dataset
+         * which becomes a part of the container as well.
+         * <p>
+         * The original images dataset is special - it contains description of what should be saved
+         * in imaging database by the storage processor.
+         * 
+         * @return container dataset.
+         */
+        public IImageDataSet createNewImageDataSet(
                 DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
         {
             ImageDataSetInformation imageDataSetInformation =
@@ -369,10 +406,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
             }
             // create main dataset (with original images)
-            IDataSet mainDataset = super.createNewDataSet(imageRegistrationDetails);
-            String originalDatasetPathPrefix =
-                    originalDirName + File.separator + incomingDirectory.getName();
-            moveFile(incomingDirectory.getAbsolutePath(), mainDataset, originalDatasetPathPrefix);
+            @SuppressWarnings("unchecked")
+            DataSet<ImageDataSetInformation> mainDataset =
+                    (DataSet<ImageDataSetInformation>) super
+                            .createNewDataSet(imageRegistrationDetails);
             containedDataSetCodes.add(mainDataset.getDataSetCode());
 
             if (thumbnailDataset != null)
@@ -380,14 +417,22 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 setSameDatasetOwner(mainDataset, thumbnailDataset);
             }
 
-            IDataSet containerDataset =
+            ImageDataSet containerDataset =
                     createImageContainerDataset(mainDataset, imageDataSetInformation,
                             containedDataSetCodes);
+            containerDataset.setOriginalDataset(mainDataset);
+            containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDataset));
             imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
-            imageDataSetInformation.setDatasetRelativeImagesFolderPath(new File(
-                    originalDatasetPathPrefix));
+            imageDataSetInformation
+                    .setDatasetRelativeImagesFolderPath(prependOriginalDirectory(incomingDirectory
+                            .getName()));
 
             return containerDataset;
+        }
+
+        private File prependOriginalDirectory(String directoryPath)
+        {
+            return new File(originalDirName + File.separator + directoryPath);
         }
 
         private ThumbnailFilePaths generateThumbnails(ImageDataSetStructure imageDataSetStructure,
@@ -425,11 +470,13 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return thumbnailDataset;
         }
 
-        private IDataSet createImageContainerDataset(IDataSet mainDataset,
+        private ImageDataSet createImageContainerDataset(IDataSet mainDataset,
                 ImageDataSetInformation imageDataSetInformation, List<String> containedDataSetCodes)
         {
             String containerDatasetTypeCode = findContainerDatasetTypeCode(imageDataSetInformation);
-            IDataSet containerDataset = createNewDataSet(containerDatasetTypeCode);
+            @SuppressWarnings("unchecked")
+            ImageDataSet containerDataset =
+                    (ImageDataSet) createNewDataSet(imageDatasetFactory, containerDatasetTypeCode);
             setSameDatasetOwner(mainDataset, containerDataset);
             moveDatasetRelations(mainDataset, containerDataset);
 
@@ -484,19 +531,70 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
 
         }
 
+        @SuppressWarnings(
+            { "cast", "unchecked" })
         @Override
-        public IDataSet createNewDataSet(
-                DataSetRegistrationDetails<? extends DataSetInformation> registrationDetails)
+        public IDataSet createNewDataSet(DataSetRegistrationDetails registrationDetails)
         {
             if (registrationDetails.getDataSetInformation() instanceof ImageDataSetInformation)
             {
-                @SuppressWarnings("unchecked")
                 DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails =
                         (DataSetRegistrationDetails<ImageDataSetInformation>) registrationDetails;
                 return createNewImageDataSet(imageRegistrationDetails);
             } else
             {
                 return super.createNewDataSet(registrationDetails);
+            }
+        }
+
+        /**
+         * If we are dealing with the image dataset container then the move operation is delegated
+         * to the original dataset. Otherwise a default implementation is used.
+         */
+        @Override
+        public String moveFile(String src, IDataSet dst)
+        {
+            return moveFile(src, dst, new File(src).getName());
+        }
+
+        /**
+         * If we are dealing with the image dataset container then the move operation is delegated
+         * to the original dataset. Otherwise a default implementation is used.
+         */
+        @Override
+        public String moveFile(String src, IDataSet dst, String dstInDataset)
+        {
+            ImageDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
+            if (imageContainerDataset != null)
+            {
+                String destination = dstInDataset;
+                if (destination.startsWith(originalDirName) == false)
+                {
+                    destination = prependOriginalDirectory(destination).getPath();
+                    // imageContainerDataset.getRegistrationDetails().getDataSetInformation().setDatasetRelativeImagesFolderPath(destinationFile);
+                }
+                DataSet<ImageDataSetInformation> originalDataset =
+                        imageContainerDataset.getOriginalDataset();
+                if (originalDataset == null)
+                {
+                    throw new UserFailureException(
+                            "Cannot move the files because the original dataset is missing: " + src);
+                }
+                return moveFile(src, originalDataset, destination);
+            } else
+            {
+                return super.moveFile(src, dst, dstInDataset);
+            }
+        }
+
+        private static ImageDataSet tryAsImageContainerDataset(IDataSet dataset)
+        {
+            if (dataset instanceof ImageDataSet)
+            {
+                return (ImageDataSet) dataset;
+            } else
+            {
+                return null;
             }
         }
 
