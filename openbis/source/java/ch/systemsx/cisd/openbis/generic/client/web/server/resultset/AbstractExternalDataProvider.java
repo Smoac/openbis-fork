@@ -32,6 +32,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRESENT_IN_ARCHIVE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRODUCTION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PROPERTIES_PREFIX;
@@ -145,6 +146,8 @@ public abstract class AbstractExternalDataProvider extends
                 builder.column(LOCATION).addString(realDataSet.getFullLocation());
                 builder.column(ARCHIVING_STATUS)
                         .addString(realDataSet.getStatus().getDescription());
+                builder.column(PRESENT_IN_ARCHIVE).addString(
+                        SimpleYesNoRenderer.render(realDataSet.isPresentInArchive()));
                 FileFormatType fileFormatType = realDataSet.getFileFormatType();
                 builder.column(FILE_FORMAT_TYPE).addString(
                         fileFormatType == null ? "" : fileFormatType.getCode());

@@ -255,6 +255,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
+    PRESENT_IN_ARCHIVE(new AbstractDataSetColumnDefinitionKind(Dict.PRESENT_IN_ARCHIVE, true)
+        {
+            @Override
+            public String tryGetValue(DataSet entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isPresentInArchive());
+            }
+        }),
+
     FILE_FORMAT_TYPE(new AbstractDataSetColumnDefinitionKind(Dict.FILE_FORMAT_TYPE, true)
         {
             @Override

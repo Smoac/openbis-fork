@@ -113,6 +113,8 @@ public class DataSetPropertiesPanel extends ContentPanel
             {
                 properties.put(messageProvider.getMessage(Dict.ARCHIVING_STATUS), concreteDataSet
                         .getStatus().getDescription());
+                properties.put(messageProvider.getMessage(Dict.PRESENT_IN_ARCHIVE),
+                        concreteDataSet.isPresentInArchive());
             }
             properties.put(messageProvider.getMessage(Dict.DATA_STORE),
                     concreteDataSet.getDataStore());

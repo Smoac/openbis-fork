@@ -58,6 +58,8 @@ public class ExternalDataGridColumnIDs
 
     public static final String ARCHIVING_STATUS = "ARCHIVING_STATUS";
 
+    public static final String PRESENT_IN_ARCHIVE = "PRESENT_IN_ARCHIVE";
+
     public static final String FILE_FORMAT_TYPE = "FILE_FORMAT_TYPE";
 
     public static final String PRODUCTION_DATE = "PRODUCTION_DATE";

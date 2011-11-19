@@ -28,6 +28,8 @@ public class DataSet extends ExternalData implements IDatasetLocation
 
     private Boolean complete;
 
+    private boolean presentInArchive;
+
     private String shareId;
 
     private String location;
@@ -99,6 +101,16 @@ public class DataSet extends ExternalData implements IDatasetLocation
     public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
+    }
+
+    public boolean isPresentInArchive()
+    {
+        return presentInArchive;
+    }
+
+    public void setPresentInArchive(boolean presentInArchive)
+    {
+        this.presentInArchive = presentInArchive;
     }
 
     @Override

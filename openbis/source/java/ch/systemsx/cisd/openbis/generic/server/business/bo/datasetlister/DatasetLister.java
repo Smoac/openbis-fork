@@ -691,6 +691,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setComplete(resolve(record.is_complete));
         dataSet.setStatus(record.status == null ? null : DataSetArchivingStatus
                 .valueOf(record.status));
+        dataSet.setPresentInArchive(record.present_in_archive == null ? false
+                : record.present_in_archive);
         dataSet.setSpeedHint(record.speed_hint == null ? Constants.DEFAULT_SPEED_HINT
                 : record.speed_hint);
         dataSet.setShareId(record.share_id);

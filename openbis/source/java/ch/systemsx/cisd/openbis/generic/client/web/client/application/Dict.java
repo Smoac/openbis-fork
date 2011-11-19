@@ -618,6 +618,8 @@ public abstract class Dict
 
     public static final String ARCHIVING_STATUS = "archiving_status";
 
+    public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
+
     public static final String PRODUCTION_DATE = "production_date";
 
     public static final String DATA_PRODUCER_CODE = "data_producer_code";

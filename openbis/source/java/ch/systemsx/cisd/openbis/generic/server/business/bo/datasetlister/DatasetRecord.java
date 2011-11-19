@@ -60,5 +60,7 @@ public class DatasetRecord extends CodeRecord
 
     public String status;
 
+    public Boolean present_in_archive;
+
     public Integer speed_hint;
 }
