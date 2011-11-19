@@ -76,7 +76,11 @@ public class DataSet extends ExternalData implements IDatasetLocation
 
     public String getFullLocation()
     {
-        return shareId + "/" + location;
+        if (shareId != null && status.isAvailable())
+        {
+            return shareId + "/" + location;
+        } else
+            return "-";
     }
 
     @Override

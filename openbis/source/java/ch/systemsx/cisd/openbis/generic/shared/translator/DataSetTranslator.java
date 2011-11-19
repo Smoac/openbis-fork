@@ -209,6 +209,7 @@ public class DataSetTranslator
         dataSet.setSpeedHint(externalDataPE.getSpeedHint());
         dataSet.setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         dataSet.setLocation(externalDataPE.getLocation());
+        dataSet.setShareId(externalDataPE.getShareId());
         dataSet.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         return dataSet;
     }
