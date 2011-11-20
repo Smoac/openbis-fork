@@ -313,11 +313,20 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         // moves the incoming folder to the store
         private File plainMoveToStore()
         {
-            File destinationDir =
+            File destDir = rootDirectory;
+            if (processor.imageFileExtractorOrNull != null)
+            {
+                // Wrap the data in the original foder.
+                // It is a backward compatible mode for non-jython dropboxes, where the transaction
+                // code moves to original dir.
+                destDir = getOriginalFolder(destDir);
+                destDir.mkdirs();
+            }
+            File newLocationDir =
                     AbstractImageStorageProcessor.moveFileToDirectory(incomingDataSetDirectory,
-                            rootDirectory);
+                            destDir);
             this.storedDataDirectory = rootDirectory;
-            return destinationDir;
+            return newLocationDir;
         }
 
         @Override
