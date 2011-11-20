@@ -104,13 +104,11 @@ function submit_correct_datasets_and_wait {
 	fi
 	
 	echo Submit all derived datasets
-	submitDerivedDataset HCS_IMAGE_OVERVIEW ibrain2_dataset_id_48 $RAW_IMAGE_DATASET_CODE 
 	submitDerivedDataset HCS_IMAGE_SEGMENTATION ibrain2_dataset_id_99 $RAW_IMAGE_DATASET_CODE 
 	submitDerivedDataset HCS_ANALYSIS_WELL_QUALITY_SUMMARY ibrain2_dataset_id_47 $RAW_IMAGE_DATASET_CODE
 	submitDerivedDataset HCS_ANALYSIS_WELL_RESULTS_SUMMARIES ibrain2_dataset_id_77 $RAW_IMAGE_DATASET_CODE
 	submitDerivedDataset HCS_ANALYSIS_CELL_FEATURES_CC_MAT ibrain2_dataset_id_58 $RAW_IMAGE_DATASET_CODE
 	
-	wait_for_confirmation_file $CONFIRMATION_DIR/ibrain2_dataset_id_48.properties
 	wait_for_confirmation_file $CONFIRMATION_DIR/ibrain2_dataset_id_99.properties
 	wait_for_confirmation_file $CONFIRMATION_DIR/ibrain2_dataset_id_47.properties
 	wait_for_confirmation_file $CONFIRMATION_DIR/ibrain2_dataset_id_77.properties
@@ -118,7 +116,7 @@ function submit_correct_datasets_and_wait {
 }
 
 function getDropboxNamesList {
-	echo "HCS_IMAGE_RAW HCS_IMAGE_OVERVIEW HCS_IMAGE_SEGMENTATION HCS_ANALYSIS_WELL_QUALITY_SUMMARY HCS_ANALYSIS_WELL_RESULTS_SUMMARIES HCS_ANALYSIS_CELL_FEATURES_CC_MAT"
+	echo "HCS_IMAGE_RAW HCS_IMAGE_SEGMENTATION HCS_ANALYSIS_WELL_QUALITY_SUMMARY HCS_ANALYSIS_WELL_RESULTS_SUMMARIES HCS_ANALYSIS_CELL_FEATURES_CC_MAT"
 }
 
 function createEmptyDropoxes {
@@ -146,6 +144,9 @@ function integration_tests_screening_biozentrum {
 		fi
 		createEmptyDropoxes
     if [ "$DEBUG" == "false" ]; then 
+    	# Uncomment next line and comment the second one if you want to launch DSS from Eclipse.
+    	# Ensure that DSS config is the same.
+    	#echo "switch on DSS manually. Now!"; sleep 30; echo 30; sleep 30; echo Started filling dropboxes...
     	switch_dss "on" $DSS_DIR_NAME
 		fi
 		submit_correct_datasets_and_wait
@@ -154,7 +155,7 @@ function integration_tests_screening_biozentrum {
 					assert_dir_empty $INCOMING_ROOT_DIR/$name
 		done
 	  
-    assert_datasets_in_store_number 6
+    assert_datasets_in_store_number 5
 
 		# results_summaries dataset    
     assertFeatureVectorDef INTERPHASEINVASOMEINFECTION_INDEX InterphaseInvasomeInfection_Index
