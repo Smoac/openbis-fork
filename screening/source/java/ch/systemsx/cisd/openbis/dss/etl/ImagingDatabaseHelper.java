@@ -58,7 +58,10 @@ public class ImagingDatabaseHelper
             List<Channel> channels)
     {
         ChannelOwner channelOwner = ChannelOwner.createDataset(datasetId);
-        return new ImagingChannelsCreator(dao).getOrCreateChannelsMap(channelOwner, channels);
+        synchronized (IImagingQueryDAO.class)
+        {
+            return new ImagingChannelsCreator(dao).getOrCreateChannelsMap(channelOwner, channels);
+        }
     }
 
     /** @return container id */
