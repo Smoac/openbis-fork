@@ -78,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistrationTask
 {
-    private static final String DATA_SET_TYPES = "data-set-types";
+    public static final String DATA_SET_TYPES = "data-set-types";
 
     private static final String HDF5_COMPRESSION_CLEANUP_MARKERS_DIRNAME = "hdf5-cleanup-markers";
 
@@ -133,17 +133,28 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             }
             
             IHierarchicalContent hierarchicalContent =
-                ServiceProvider.getHierarchicalContentProvider().asContent(externalData);
+                    ServiceProvider.getHierarchicalContentProvider().asContent(externalData);
             try
             {
                 if (false == hasFoldersForCompressing(hierarchicalContent)) {
-                    operationLog.info(String.format(
-                            " Data set '%s' meets the criterion for HDF5 compression "
-                                    + "in post registration, but it contains no folder named "
-                                    + "'*.h5'. HDF5 compression will be skipped...", dataSetCode));
+                    if (false == hasCompressedFiles(hierarchicalContent))
+                    {
+                        operationLog.info(String.format(
+                                " Data set '%s' meets the criterion for HDF5 compression "
+                                        + "in post registration, but it contains no folder named "
+                                        + "'*.h5'. HDF5 compression will be skipped...",
+                                dataSetCode));
+                    } else
+                    {
+                        // ignore: this is one of the data sets created by the task itself
+                    }
                     return;
                 }
                 String hdf5DataSetCode = service.createDataSetCode();
+                operationLog.info(String.format(
+                        "The contents of data set '%s' will be hdf5-compressed "
+                                + "into a new data set '%s'.", dataSetCode, hdf5DataSetCode));
+
                 DataSet dataSet = (DataSet) externalData;
                 File hdf5DataSetDir =
                         createNewDataSetDirectory(hierarchicalContent, hdf5DataSetCode);
@@ -152,6 +163,10 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                 registerTwinDataset(hdf5DataSetCode, dataSet);
                 removeOldDataSet(dataSetCode, "Replaced by '" + hdf5DataSetCode + "'");
                 cleanupMarker.delete();
+
+                operationLog.info(String.format(
+                        "Data set '%s' is now replaced by its hdf5-compressed "
+                                + "counterpart '%s'.", dataSetCode, hdf5DataSetCode));
             } finally
             {
                 hierarchicalContent.close();
@@ -250,6 +265,19 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return false;
         }
 
+        private boolean hasCompressedFiles(IHierarchicalContent hierarchicalContent)
+        {
+            IHierarchicalContentNode root = hierarchicalContent.getRootNode();
+            for (IHierarchicalContentNode child : root.getChildNodes())
+            {
+                if (FileUtilities.isHDF5ContainerFile(child.getFile()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private boolean shouldCompressToHdf5(ExternalData dataSet)
         {
             if (dataSet == null)
@@ -337,7 +365,6 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             externalData.setExperimentIdentifierOrNull(extractExperimentIdentifier(protoDataSet));
             externalData.setMeasured(protoDataSet.isDerived() == false);
             externalData.setParentDataSetCodes(Code.extractCodes(protoDataSet.getParents()));
-            // TODO KE: no API way to set children data sets
             externalData.setProductionDate(protoDataSet.getProductionDate());
             externalData.setRegistrationDate(protoDataSet.getRegistrationDate());
             externalData.setSampleIdentifierOrNull(extractSampleIdentifier(protoDataSet));
