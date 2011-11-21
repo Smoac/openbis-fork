@@ -58,10 +58,7 @@ public class ImagingDatabaseHelper
             List<Channel> channels)
     {
         ChannelOwner channelOwner = ChannelOwner.createDataset(datasetId);
-        synchronized (IImagingQueryDAO.class)
-        {
-            return new ImagingChannelsCreator(dao).getOrCreateChannelsMap(channelOwner, channels);
-        }
+        return new ImagingChannelsCreator(dao).getOrCreateChannelsMap(channelOwner, channels);
     }
 
     /** @return container id */
@@ -113,12 +110,9 @@ public class ImagingDatabaseHelper
             CreatedOrFetchedEntity cont = getOrCreateContainer(dao, info, expId);
             ImagingChannelsMap channelsMap =
                     helper.getOrCreateChannels(ChannelOwner.createExperiment(expId), channels);
-            if (exp.hasAlreadyExisted() == false || cont.hasAlreadyExisted() == false)
-            {
-                // without this commit other threads will not see the new experiment/sample when the
-                // synchronized block ends
-                dao.commit();
-            }
+            // without this commit other threads will not see the new experiment/sample/channels
+            // when the synchronized block ends.
+            dao.commit();
             return new ExperimentWithChannelsAndContainer(expId, cont.getId(), channelsMap);
         }
     }
