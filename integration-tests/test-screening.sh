@@ -30,17 +30,14 @@ API_HCS=$WORK/screening_api
 # Prepare template incoming data and some destination data structures
 function prepare_data_first_phase {
 		rm -fr $DSS_INCOMING_PARENT_DIR/incoming*
-		mkdir $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
-		mkdir $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
-		mkdir $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
-		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-analysis-genedata/* incoming-images*channels/*
-		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
+		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
+		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
+		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR -x incoming-images*channels/*
 		mkdir -p $DSS_INCOMING_PARENT_DIR/incoming-analysis
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
 function prepare_data_second_phase {
-		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-analysis-genedata/*
 		unzip -q $DATA_TEMPLATE -d $DSS_INCOMING_PARENT_DIR incoming-images*channels/*
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
@@ -118,12 +115,13 @@ function test_screening_api {
 	assert_pattern_present api-client-log.txt 1 "Plates: \[/DEMO/PLATE1 \[20100624113752213-5\]"
 	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-[0-9]* (plate: /DEMO/PLATE3"
 	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-8 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
-	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, FRET, HITRATE, RFU645, RFU730, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
-	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 2"
+	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, HITRATE, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
+	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 1"
 	assert_pattern_present api-client-log.txt 1 "features labels: \[cellNumber, featrue1, featrue10, featrue11, featrue12, featrue13, featrue14, featrue15, featrue16, featrue2, featrue3, featrue4, featrue5, featrue6, featrue7, featrue8, featrue9, Hit Rate, std1, std10, std11, std12, std13, std14, std15, std16, std2, std3, std4, std5, std6, std7, std8, std9\]"
 	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: [0-9]*-8"
 	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[48.0, 0.0051865"
 	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-[0-9]* (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Image resolution: 720x468"
+	
 	for imgFile in `find . -name *.png`; do
 	  assert_pattern_present $imgFile 1 PNG
 	done
@@ -140,20 +138,19 @@ function integration_tests_screening {
 
     prepare_data_first_phase
     # let openBIS AS start before starting DSS
-    sleep 120
+    sleep 90
     switch_dss "on" datastore_server_screening
     sleep 30
-    assertSpotSizes "24x16,24x16" 
+    assertSpotSizes "24x16" 
     prepare_data_second_phase
   	sleep 15
 	  
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis
-		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis-genedata
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-split-channels
     
     local datasets=`find $DSS_INCOMING_PARENT_DIR/store -name "original" | wc -l | tr -d " "`; 
-    assert_equals "Wrong number of registered datasets" 4 $datasets
+    assert_equals "Wrong number of registered datasets" 3 $datasets
     
     assertSpotSizes "24x16,24x16" 
     assertFeatureVectorDef HITRATE "Hit Rate"
