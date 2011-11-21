@@ -36,6 +36,8 @@ public class MoveFileCommand extends AbstractTransactionalCommand
 
     private final String srcFileName;
 
+    private final boolean srcIsFile;
+
     private final String dstParentDirAbsolutePath;
 
     private final String dstFileName;
@@ -45,14 +47,15 @@ public class MoveFileCommand extends AbstractTransactionalCommand
     {
         this.srcParentDirAbsolutePath = srcParentDirAbsolutePath;
         this.srcFileName = srcFileName;
+        this.srcIsFile = getSrc().isFile();
         this.dstParentDirAbsolutePath = dstParentDirAbsolutePath;
         this.dstFileName = dstFileName;
     }
 
     public void execute()
     {
-        File src = new File(srcParentDirAbsolutePath, srcFileName);
-        File dst = new File(dstParentDirAbsolutePath, dstFileName);
+        File src = getSrc();
+        File dst = getDst();
 
         if (false == src.exists())
         {
@@ -63,12 +66,23 @@ public class MoveFileCommand extends AbstractTransactionalCommand
         moveFile(src, dst);
     }
 
+    private File getDst()
+    {
+        return new File(dstParentDirAbsolutePath, dstFileName);
+    }
+
+    private File getSrc()
+    {
+        return new File(srcParentDirAbsolutePath, srcFileName);
+    }
+
     public void rollback()
     {
         // The src is the original location, dst is the location we moved it to. We want to undo the
         // move (mv dst src).
-        File src = new File(srcParentDirAbsolutePath, srcFileName);
-        File dst = new File(dstParentDirAbsolutePath, dstFileName);
+        File src = getSrc();
+        File dst = getDst();
+
         if (false == dst.exists())
         {
             if (true == src.exists())
@@ -82,7 +96,14 @@ public class MoveFileCommand extends AbstractTransactionalCommand
             return;
         }
 
-        moveFile(dst, src);
+        if (srcIsFile && dst.isDirectory())
+        {
+            File movedFile = new File(dst, src.getName());
+            moveFile(movedFile, new File(srcParentDirAbsolutePath));
+        } else
+        {
+            moveFile(dst, src);
+        }
     }
 
     private void moveFile(File from, File to)
