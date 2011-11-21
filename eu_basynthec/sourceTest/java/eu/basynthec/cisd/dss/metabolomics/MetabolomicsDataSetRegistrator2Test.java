@@ -34,7 +34,8 @@ import eu.basynthec.cisd.dss.AbstractBaSynthecDataSetRegistratorTest;
  */
 public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSetRegistratorTest
 {
-    private static final DataSetType DATA_SET_TYPE = new DataSetType("METABOLITE_INTENSITIES");
+    private static final DataSetType DATA_SET_TYPE = new DataSetType(
+            "METABOLITE_INTENSITIES_GROUPED");
 
     @Test
     public void testSimpleTransaction() throws IOException
@@ -42,7 +43,7 @@ public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSe
         setUpHomeDataBaseExpectations();
         Properties properties = createThreadProperties();
         createHandler(properties, false, true);
-        createData("Metabolomics-Example.xlsx");
+        createData("Metabolomics2-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
                 setUpDataSetRegistrationExpectations(DATA_SET_TYPE, TSV_DATA_SET_TYPE);
@@ -68,13 +69,13 @@ public class MetabolomicsDataSetRegistrator2Test extends AbstractBaSynthecDataSe
 
         assertNotNull(strainProperty);
         assert null != strainProperty;
-        assertEquals("CHASSIS 1", strainProperty.getValue());
+        assertEquals("CHASSIS 1,JJS-MGP192", strainProperty.getValue());
         context.assertIsSatisfied();
     }
 
     @Override
     protected String getRegistrationScriptsFolderPath()
     {
-        return "dist/etc/metabolomics/";
+        return "dist/etc/metabolomics2/";
     }
 }

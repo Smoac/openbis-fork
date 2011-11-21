@@ -133,6 +133,11 @@ public class TimeSeriesDataExcel
         for (int i = 1; i < metadataLines.size(); ++i)
         {
             String[] line = metadataLines.get(i);
+            String key = line[0];
+            if (key == null)
+            {
+                continue;
+            }
             String value = line[1];
             if ("BLANK".equals(value))
             {
