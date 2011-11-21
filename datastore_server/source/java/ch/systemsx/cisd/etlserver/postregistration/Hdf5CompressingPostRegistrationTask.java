@@ -114,13 +114,24 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         return new Executor(dataSetCode);
     }
 
-    private final class Executor implements IPostRegistrationTaskExecutor
+    protected class Executor implements IPostRegistrationTaskExecutor
     {
-        private final String dataSetCode;
+        protected final String dataSetCode;
 
-        Executor(String dataSetCode)
+        protected Executor(String dataSetCode)
         {
             this.dataSetCode = dataSetCode;
+        }
+
+        /**
+         * Callback executed right after hdf5-compressed twin data set has been created and before
+         * the existing dataset set has been deleted.
+         * <p>
+         * Can be overriden by extending classes..
+         */
+        protected void notifyTwinDataSetCreated(String hdf5DataSetCode)
+        {
+            // empty by design
         }
 
         public void execute()
@@ -161,6 +172,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                 File cleanupMarker = createCleanupMarker(dataSet.getShareId(), hdf5DataSetDir);
                 createCompressedDuplicate(hdf5DataSetDir, hierarchicalContent);
                 registerTwinDataset(hdf5DataSetCode, dataSet);
+                notifyTwinDataSetCreated(hdf5DataSetCode);
                 removeOldDataSet(dataSetCode, "Replaced by '" + hdf5DataSetCode + "'");
                 cleanupMarker.delete();
 
