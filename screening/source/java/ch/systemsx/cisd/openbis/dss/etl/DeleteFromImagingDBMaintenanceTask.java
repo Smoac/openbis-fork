@@ -104,13 +104,15 @@ public class DeleteFromImagingDBMaintenanceTask extends DeleteFromExternalDBMain
     private static void clearAcquiredImages(Connection c, Set<TechId> ids, boolean isThumbnail)
             throws SQLException
     {
-        c.createStatement()
-                .execute(
-                        String.format(
-                                "UPDATE ACQUIRED_IMAGES SET "
-                                        + (isThumbnail ? "THUMBNAIL_ID" : "IMG_ID")
-                                        + " = NULL WHERE CHANNEL_STACK_ID IN (SELECT ID FROM CHANNEL_STACKS WHERE DS_ID IN (%s)) OR CHANNEL_ID IN (SELECT ID FROM CHANNELS WHERE DS_ID IN (%s))",
-                                joinIds(ids), joinIds(ids)));
+        final String joinedIds = joinIds(ids);
+
+        final String statement = String.format(
+                        "UPDATE ACQUIRED_IMAGES SET %s = NULL "
+                                + "  WHERE CHANNEL_STACK_ID IN (SELECT ID FROM CHANNEL_STACKS WHERE DS_ID IN (%s)) "
+                                + "    OR CHANNEL_ID IN (SELECT ID FROM CHANNELS WHERE DS_ID IN (%s))",
+                        (isThumbnail ? "THUMBNAIL_ID" : "IMG_ID"), joinedIds, joinedIds);
+
+        c.createStatement().execute(statement);
     }
 
     @Override
