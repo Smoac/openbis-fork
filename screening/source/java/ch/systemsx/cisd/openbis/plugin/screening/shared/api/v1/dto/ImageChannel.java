@@ -26,7 +26,7 @@ import java.util.List;
  * @since 1.9
  * @author Bernd Rinn
  */
-public class ImageChannel implements Serializable
+public class ImageChannel implements Serializable, Comparable<ImageChannel>
 {
     private static final long serialVersionUID = 1L;
 
@@ -143,6 +143,11 @@ public class ImageChannel implements Serializable
     {
         return "ImageChannel [code=" + code + ", label=" + label + ", description=" + description
                 + ", wavelength=" + wavelength + ", transformations=" + transformations + "]";
+    }
+
+    public int compareTo(ImageChannel imageChannel)
+    {
+        return code.compareTo(imageChannel.code);
     }
 
 }

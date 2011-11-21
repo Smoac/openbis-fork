@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class ImageDatasetMetadata implements Serializable
     private final List<String> channelCodes;
 
     private final List<String> channelLabels;
-    
+
     private List<ImageChannel> channels;
 
     private final int tilesNumber;
@@ -42,10 +43,11 @@ public class ImageDatasetMetadata implements Serializable
     private final int thumbnailHeight;
 
     public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<ImageChannel> channels,
-            int tilesRows, int tilesCols, int width, int height,
-            int thumbnailWidth, int thumbnailHeight)
+            int tilesRows, int tilesCols, int width, int height, int thumbnailWidth,
+            int thumbnailHeight)
     {
         this.imageDataset = dataset;
+        Collections.sort(channels);
         this.channels = channels;
         this.channelsNumber = channels.size();
         this.channelNames = new ArrayList<String>(channelsNumber);
@@ -216,9 +218,9 @@ public class ImageDatasetMetadata implements Serializable
                 + tilesNumber + " tiles. Image resolution: " + width + "x" + height
                 + thumbnailsDesc;
     }
-    
+
     // Java de-serialization
-    
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
@@ -233,5 +235,5 @@ public class ImageDatasetMetadata implements Serializable
             }
         }
     }
-    
+
 }
