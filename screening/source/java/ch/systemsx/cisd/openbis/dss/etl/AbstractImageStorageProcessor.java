@@ -368,30 +368,32 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
         public final File tryGetProprietaryData()
         {
-            assert storedDataDirectory != null : "Unspecified stored data directory. Please call storeData(...)";
+            return tryGetSingleChild(storedDataDirectory);
+        }
 
-            File originalFolder = getOriginalFolder(storedDataDirectory);
-            File[] content = originalFolder.listFiles();
+        private static final File tryGetSingleChild(File parentDirectory)
+        {
+            assert parentDirectory != null : "Unspecified parentDirectory";
+
+            File[] content = parentDirectory.listFiles();
             if (content == null || content.length == 0)
             {
                 return null;
             }
             if (content.length > 1)
             {
-                operationLog
-                        .error("There should be exactly one original folder inside '"
-                                + originalFolder + "', but " + originalFolder.length()
-                                + " has been found.");
+                operationLog.error("There should be exactly one folder inside '" + parentDirectory
+                        + "', but " + parentDirectory.length() + " has been found.");
                 return null;
             }
-            File originalDataFile = content[0];
-            if (originalDataFile.exists() == false)
+            File childFile = content[0];
+            if (childFile.exists() == false)
             {
-                operationLog.error("Original data set file '" + originalDataFile.getAbsolutePath()
+                operationLog.error("The child file '" + childFile.getAbsolutePath()
                         + "' does not exist.");
                 return null;
             }
-            return originalDataFile;
+            return childFile;
         }
 
         private final void moveFilesBackFromStore()
@@ -402,7 +404,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
-            final File originalDataFile = tryGetProprietaryData();
+            final File originalDataFile = tryGetSingleChild(storedDataDirectory);
             if (originalDataFile == null)
             {
                 // nothing has been stored in the file system yet,
@@ -423,9 +425,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 }
             } catch (final EnvironmentFailureException ex)
             {
-                notificationLog.error(String.format(
-                        "Could not move '%s' to incoming directory '%s'.", originalDataFile,
-                        incomingDirectory.getAbsolutePath()), ex);
+                notificationLog.error(String.format("Could not move '%s' to the directory '%s'.",
+                        originalDataFile, incomingDirectory.getAbsolutePath()), ex);
                 return;
             }
             // Remove the dataset directory from the store
