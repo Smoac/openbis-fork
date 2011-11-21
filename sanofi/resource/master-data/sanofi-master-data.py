@@ -64,7 +64,7 @@ tr.assignPropertyType(samp_type_COMPOUND_WELL, prop_type_CONCENTRATION_M)
 #
 # Data Sets
 #
-data_set_type_HCS_IMAGE_RAW = tr.getDataSetType('HCS_IMAGE_RAW')
+data_set_type_HCS_IMAGE_RAW = tr.getDataSetType('HCS_IMAGE_CONTAINER_RAW')
 
 prop_type_ACQUISITION_BATCH = tr.createNewPropertyType('ACQUISITION_BATCH', DataType.VARCHAR)
 prop_type_ACQUISITION_BATCH.setLabel('Acquisition Batch')
