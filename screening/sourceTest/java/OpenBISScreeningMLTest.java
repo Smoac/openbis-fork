@@ -926,11 +926,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
                     exactly(2).of(openbis).listImageMetadata(imageRefs);
                     List<ImageChannel> channels =
-                            Arrays.asList(new ImageChannel("R", "red"), new ImageChannel("G",
-                                    "green"));
+                            Arrays.asList(new ImageChannel("G", "green"), new ImageChannel("R",
+                                    "red"));
                     ImageDatasetMetadata metaData1 =
-                            new ImageDatasetMetadata(ds1Ref, channels, 1, 2,
-                                    100, 60, 10, 6);
+                            new ImageDatasetMetadata(ds1Ref, channels, 1, 2, 100, 60, 10, 6);
                     will(returnValue(Arrays.asList(metaData1)));
 
                     try
@@ -1042,39 +1041,41 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             assertEquals(1, plateImageReference.getWellPosition().getWellRow());
             assertEquals(2, plateImageReference.getWellPosition().getWellColumn());
         }
-        assertEquals("R", imgRefs2.get(0).getChannel());
+        assertEquals("G", imgRefs2.get(0).getChannel());
         assertEquals(0, imgRefs2.get(0).getTile());
         assertEquals("R", imgRefs2.get(1).getChannel());
-        assertEquals(1, imgRefs2.get(1).getTile());
-        assertEquals("G", imgRefs2.get(2).getChannel());
-        assertEquals(0, imgRefs2.get(2).getTile());
+        assertEquals(0, imgRefs2.get(1).getTile());
+        assertEquals("R", imgRefs2.get(2).getChannel());
+        assertEquals(1, imgRefs2.get(2).getTile());
         assertEquals(3, imgRefs2.size());
 
         assertEquals(2, result2.length);
-        assertEquals("/images/img_PLATE-1_ds1_row1_col2_R_tile0.tiff", getImagePath(result2, 0));
-        assertEquals("Image for [dataset ds1, well [1, 2], channel R, tile 0] (2)", FileUtilities
-                .loadToString(new File(result2[0][0][0].toString())).trim());
-        assertEquals("/images/img_PLATE-1_ds1_row1_col2_R_tile1.tiff", getImagePath(result2, 1));
-        assertEquals("Image for [dataset ds1, well [1, 2], channel R, tile 1] (2)", FileUtilities
-                .loadToString(new File(result2[0][1][0].toString())).trim());
-        assertEquals("/images/img_PLATE-1_ds1_row1_col2_G_tile0.tiff", getImagePath(result2, 2));
+        assertEquals("/images/img_PLATE-1_ds1_row1_col2_G_tile0.tiff", getImagePath(result2, 0));
         assertEquals("Image for [dataset ds1, well [1, 2], channel G, tile 0] (2)", FileUtilities
-                .loadToString(new File(result2[0][2][0].toString())).trim());
-        assertEquals("/images/img_PLATE-1_ds1_row1_col2_G_tile1.tiff", getImagePath(result2, 3));
+                .loadToString(new File(result2[0][0][0].toString())).trim());
+        assertEquals("/images/img_PLATE-1_ds1_row1_col2_G_tile1.tiff", getImagePath(result2, 1));
         assertEquals("Image for [dataset ds1, well [1, 2], channel G, tile 1] (1)", FileUtilities
+                .loadToString(new File(result2[0][1][0].toString())).trim());
+
+        assertEquals("/images/img_PLATE-1_ds1_row1_col2_R_tile0.tiff", getImagePath(result2, 2));
+        assertEquals("Image for [dataset ds1, well [1, 2], channel R, tile 0] (2)", FileUtilities
+                .loadToString(new File(result2[0][2][0].toString())).trim());
+        assertEquals("/images/img_PLATE-1_ds1_row1_col2_R_tile1.tiff", getImagePath(result2, 3));
+        assertEquals("Image for [dataset ds1, well [1, 2], channel R, tile 1] (2)", FileUtilities
                 .loadToString(new File(result2[0][3][0].toString())).trim());
+
         assertEquals(4, result2[0].length);
         assertEquals(
-                "[R, 0, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
+                "[G, 0, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
                 Arrays.asList(result2[1][0]).toString());
         assertEquals(
-                "[R, 1, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
+                "[G, 1, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
                 Arrays.asList(result2[1][1]).toString());
         assertEquals(
-                "[G, 0, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
+                "[R, 0, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
                 Arrays.asList(result2[1][2]).toString());
         assertEquals(
-                "[G, 1, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
+                "[R, 1, PLATE-1:A2, /S/PLATE-1, s-1, S, PLATE-1, 1, 2, /S/P/E1, e-1, S, P, E1, ds1]",
                 Arrays.asList(result2[1][3]).toString());
         assertEquals(4, result2[1].length);
         context.assertIsSatisfied();
