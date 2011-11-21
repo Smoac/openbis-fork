@@ -321,7 +321,7 @@ CREATE OR REPLACE FUNCTION DELETE_UNUSED_NULLED_IMAGES() RETURNS trigger AS $$
 BEGIN
 	if NEW.img_id IS NULL then
 		if OLD.img_id IS NOT NULL then
-		  delete from images where id = OLD.img.id;
+		  delete from images where id = OLD.img_id;
 		end if;
 	end if;
 	if NEW.thumbnail_id IS NULL then
