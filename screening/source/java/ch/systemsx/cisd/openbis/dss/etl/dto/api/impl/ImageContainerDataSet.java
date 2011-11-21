@@ -26,20 +26,21 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Represents an image data set for the registration API.
  * 
  * @author Tomasz Pylak
  */
-public class ImageDataSet extends DataSet<ImageDataSetInformation> implements IImageDataSet
+public class ImageContainerDataSet extends DataSet<DataSetInformation> implements IImageDataSet
 {
     private DataSet<ImageDataSetInformation> originalDataset;
 
     private List<IDataSet> thumbnailDatasets = Collections.emptyList();
 
-    public ImageDataSet(
-            DataSetRegistrationDetails<? extends ImageDataSetInformation> registrationDetails,
+    public ImageContainerDataSet(
+            DataSetRegistrationDetails<? extends DataSetInformation> registrationDetails,
             File dataSetFolder)
     {
         super(registrationDetails, dataSetFolder);

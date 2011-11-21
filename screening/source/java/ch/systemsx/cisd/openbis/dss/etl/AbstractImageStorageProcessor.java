@@ -277,10 +277,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             ImageStorageConfiguraton imageStorageConfiguraton =
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
+            plainMoveToStore();
             File datasetRelativeImagesFolderPath =
                     extractionResultWithConfig.getExtractionResult()
                             .getDatasetRelativeImagesFolderPath();
-            plainMoveToStore();
             processImages(rootDirectory, plateImages, datasetRelativeImagesFolderPath,
                     imageStorageConfiguraton);
 

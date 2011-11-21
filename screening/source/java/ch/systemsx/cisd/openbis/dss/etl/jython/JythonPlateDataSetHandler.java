@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageContainerDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailFilePaths;
@@ -109,13 +109,30 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         {
             return new ImageDataSetInformation();
         }
+    }
+
+    public static class JythonImageContainerDataSetRegistrationFactory extends
+            AbstractDataSetRegistrationDetailsFactory<DataSetInformation>
+    {
+
+        public JythonImageContainerDataSetRegistrationFactory(
+                ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
+                DataSetInformation userProvidedDataSetInformationOrNull)
+        {
+            super(registratorState, userProvidedDataSetInformationOrNull);
+        }
 
         @Override
-        public ImageDataSet createDataSet(
-                DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
-                File stagingFile)
+        public ImageContainerDataSet createDataSet(
+                DataSetRegistrationDetails<DataSetInformation> registrationDetails, File stagingFile)
         {
-            return new ImageDataSet(registrationDetails, stagingFile);
+            return new ImageContainerDataSet(registrationDetails, stagingFile);
+        }
+
+        @Override
+        protected DataSetInformation createDataSetInformation()
+        {
+            return new DataSetInformation();
         }
     }
 
@@ -124,6 +141,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     {
         private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
+        private final IDataSetRegistrationDetailsFactory<DataSetInformation> imageContainerDatasetFactory;
+
         private final IDataSetRegistrationDetailsFactory<FeatureVectorDataSetInformation> featureVectorDatasetFactory;
 
         public JythonPlateDatasetFactory(
@@ -131,6 +150,9 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 DataSetInformation userProvidedDataSetInformationOrNull)
         {
             super(registratorState, userProvidedDataSetInformationOrNull);
+            this.imageContainerDatasetFactory =
+                    new JythonImageContainerDataSetRegistrationFactory(this.registratorState,
+                            this.userProvidedDataSetInformationOrNull);
             this.imageDatasetFactory =
                     new JythonImageDataSetRegistrationFactory(this.registratorState,
                             this.userProvidedDataSetInformationOrNull);
@@ -343,6 +365,8 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     {
         private final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
+        private final IDataSetRegistrationDetailsFactory<DataSetInformation> imageContainerDatasetFactory;
+
         private final String originalDirName;
 
         @SuppressWarnings("unchecked")
@@ -358,8 +382,10 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             assert registrationDetailsFactory instanceof JythonPlateDatasetFactory : "JythonPlateDatasetFactory expected, but got: "
                     + registrationDetailsFactory.getClass().getCanonicalName();
 
-            this.imageDatasetFactory =
-                    ((JythonPlateDatasetFactory) registrationDetailsFactory).imageDatasetFactory;
+            JythonPlateDatasetFactory factory =
+                    (JythonPlateDatasetFactory) registrationDetailsFactory;
+            this.imageDatasetFactory = factory.imageDatasetFactory;
+            this.imageContainerDatasetFactory = factory.imageContainerDatasetFactory;
             this.originalDirName = originalDirName;
         }
 
@@ -417,15 +443,12 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 setSameDatasetOwner(mainDataset, thumbnailDataset);
             }
 
-            ImageDataSet containerDataset =
+            ImageContainerDataSet containerDataset =
                     createImageContainerDataset(mainDataset, imageDataSetInformation,
                             containedDataSetCodes);
             containerDataset.setOriginalDataset(mainDataset);
             containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDataset));
             imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
-            imageDataSetInformation
-                    .setDatasetRelativeImagesFolderPath(prependOriginalDirectory(incomingDirectory
-                            .getName()));
 
             return containerDataset;
         }
@@ -470,13 +493,14 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             return thumbnailDataset;
         }
 
-        private ImageDataSet createImageContainerDataset(IDataSet mainDataset,
+        private ImageContainerDataSet createImageContainerDataset(IDataSet mainDataset,
                 ImageDataSetInformation imageDataSetInformation, List<String> containedDataSetCodes)
         {
             String containerDatasetTypeCode = findContainerDatasetTypeCode(imageDataSetInformation);
             @SuppressWarnings("unchecked")
-            ImageDataSet containerDataset =
-                    (ImageDataSet) createNewDataSet(imageDatasetFactory, containerDatasetTypeCode);
+            ImageContainerDataSet containerDataset =
+                    (ImageContainerDataSet) createNewDataSet(imageContainerDatasetFactory,
+                            containerDatasetTypeCode);
             setSameDatasetOwner(mainDataset, containerDataset);
             moveDatasetRelations(mainDataset, containerDataset);
 
@@ -564,14 +588,13 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
         @Override
         public String moveFile(String src, IDataSet dst, String dstInDataset)
         {
-            ImageDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
+            ImageContainerDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
             if (imageContainerDataset != null)
             {
                 String destination = dstInDataset;
                 if (destination.startsWith(originalDirName) == false)
                 {
                     destination = prependOriginalDirectory(destination).getPath();
-                    // imageContainerDataset.getRegistrationDetails().getDataSetInformation().setDatasetRelativeImagesFolderPath(destinationFile);
                 }
                 DataSet<ImageDataSetInformation> originalDataset =
                         imageContainerDataset.getOriginalDataset();
@@ -580,18 +603,21 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                     throw new UserFailureException(
                             "Cannot move the files because the original dataset is missing: " + src);
                 }
-                return moveFile(src, originalDataset, destination);
+                originalDataset.getRegistrationDetails().getDataSetInformation()
+                        .setDatasetRelativeImagesFolderPath(new File(destination));
+
+                return super.moveFile(src, originalDataset, destination);
             } else
             {
                 return super.moveFile(src, dst, dstInDataset);
             }
         }
 
-        private static ImageDataSet tryAsImageContainerDataset(IDataSet dataset)
+        private static ImageContainerDataSet tryAsImageContainerDataset(IDataSet dataset)
         {
-            if (dataset instanceof ImageDataSet)
+            if (dataset instanceof ImageContainerDataSet)
             {
-                return (ImageDataSet) dataset;
+                return (ImageContainerDataSet) dataset;
             } else
             {
                 return null;
