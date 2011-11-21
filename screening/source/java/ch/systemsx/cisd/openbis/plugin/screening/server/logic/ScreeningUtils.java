@@ -336,20 +336,24 @@ public class ScreeningUtils
     }
 
     /** Loads dataset metadata from the imaging database */
-    public static ImageDatasetParameters loadImageParameters(ExternalData dataset,
+    public static ImageDatasetParameters tryLoadImageParameters(ExternalData dataset,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
-        IImageDatasetLoader loader = createHCSDatasetLoader(dataset, businessObjectFactory);
+        IImageDatasetLoader loader = tryCreateHCSDatasetLoader(dataset, businessObjectFactory);
+        if (loader == null)
+        {
+            return null;
+        }
         ImageDatasetParameters params = loader.getImageParameters();
         return params;
     }
 
-    private static IImageDatasetLoader createHCSDatasetLoader(ExternalData dataSet,
+    private static IImageDatasetLoader tryCreateHCSDatasetLoader(ExternalData dataSet,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
         String datastoreCode = dataSet.getDataStore().getCode();
         String datasetCode = dataSet.getCode();
-        return businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
+        return businessObjectFactory.tryCreateImageDatasetLoader(datasetCode, datastoreCode);
     }
 
     public static String asJavaRegExpr(String[] substrings)

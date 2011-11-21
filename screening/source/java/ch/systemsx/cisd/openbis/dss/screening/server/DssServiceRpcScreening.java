@@ -714,8 +714,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         String datasetCode = dataSetIdentifier.getDatasetCode();
         @SuppressWarnings("deprecation")
         File rootDir = getRootDirectory(datasetCode);
-        IImagingDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
-        return imageAccessor;
+        return createImageLoader(datasetCode, rootDir);
     }
 
     public void saveImageTransformerFactory(String sessionToken,
@@ -1137,8 +1136,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     IImagingDatasetLoader createImageLoader(String dataSetCode, File datasetRoot)
     {
-        return HCSImageDatasetLoaderFactory
-                .create(getHierarchicalContent(dataSetCode), dataSetCode);
+        IImagingDatasetLoader loader =
+                HCSImageDatasetLoaderFactory.tryCreate(getHierarchicalContent(dataSetCode),
+                        dataSetCode);
+        if (loader == null)
+        {
+            throw new IllegalStateException(String.format(
+                    "Dataset '%s' not found in the imaging database.", dataSetCode));
+        }
+        return loader;
     }
 
     private ExternalData tryFindImageDataset(String sessionToken, String datasetCode)

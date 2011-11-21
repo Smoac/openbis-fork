@@ -198,7 +198,6 @@ public class ImageChannelsUtils
     {
         ImageChannelsUtils imageChannelsUtils =
                 createImageChannelsUtils(imageChannels, contentProvider, imageSizeLimit);
-
         boolean useMergedChannelsTransformation =
                 imageChannelsUtils.isMergeAllChannels(imageChannels);
         ImageTransformationParams transformationInfo =
@@ -281,7 +280,7 @@ public class ImageChannelsUtils
     {
         String datasetCode = imagesReference.getDatasetCode();
         IHierarchicalContent dataSetRoot = contentProvider.asContent(datasetCode);
-        return HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
+        return createDatasetLoader(dataSetRoot, datasetCode);
     }
 
     /**
@@ -291,8 +290,7 @@ public class ImageChannelsUtils
             IHierarchicalContent dataSetRoot, String datasetCode, Location wellLocationOrNull,
             Size imageSizeLimitOrNull)
     {
-        IImagingDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
+        IImagingDatasetLoader imageAccessor = createDatasetLoader(dataSetRoot, datasetCode);
         List<AbsoluteImageReference> imageReferences =
                 new ImageChannelsUtils(
                         ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
@@ -302,6 +300,19 @@ public class ImageChannelsUtils
                         null));
         String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
         return createResponseContentStream(image, name);
+    }
+
+    private static IImagingDatasetLoader createDatasetLoader(IHierarchicalContent dataSetRoot,
+            String datasetCode)
+    {
+        IImagingDatasetLoader loader =
+                HCSImageDatasetLoaderFactory.tryCreate(dataSetRoot, datasetCode);
+        if (loader == null)
+        {
+            throw new IllegalStateException(String.format(
+                    "Dataset '%s' not found in the imaging database.", datasetCode));
+        }
+        return loader;
     }
 
     private static String createFileName(String datasetCode, Location wellLocationOrNull,

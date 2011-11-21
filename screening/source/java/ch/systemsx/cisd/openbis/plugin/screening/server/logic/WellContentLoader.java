@@ -718,7 +718,12 @@ public class WellContentLoader extends AbstractContentLoader
         List<ImageDatasetParameters> imageParameters = new ArrayList<ImageDatasetParameters>();
         for (ExternalData dataSet : imageDatasets)
         {
-            imageParameters.add(ScreeningUtils.loadImageParameters(dataSet, businessObjectFactory));
+            ImageDatasetParameters imageParams =
+                    ScreeningUtils.tryLoadImageParameters(dataSet, businessObjectFactory);
+            if (imageParams != null)
+            {
+                imageParameters.add(imageParams);
+            }
         }
         return asDatasetToParamsMap(imageParameters);
     }

@@ -69,15 +69,27 @@ public class HCSDatasetLoader implements IImageDatasetLoader
 
     private final String mergedChannelTransformerFactorySignatureOrNull;
 
-    public HCSDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId)
+    /**
+     * @return null if the dataset is not found in the imaging database
+     */
+    public static HCSDatasetLoader tryCreate(IImagingReadonlyQueryDAO query, String datasetPermId)
     {
-        this.query = query;
-
-        this.dataset = query.tryGetImageDatasetByPermId(datasetPermId);
+        ImgImageDatasetDTO dataset = query.tryGetImageDatasetByPermId(datasetPermId);
         if (dataset == null)
         {
-            throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
+            operationLog.warn(String.format(
+                    "No dataset with code '%s' found in the imaging database.", datasetPermId));
+            return null;
+        } else
+        {
+            return new HCSDatasetLoader(query, dataset);
         }
+    }
+
+    protected HCSDatasetLoader(IImagingReadonlyQueryDAO query, ImgImageDatasetDTO dataset)
+    {
+        this.query = query;
+        this.dataset = dataset;
 
         Long containerId = dataset.getContainerId();
         if (containerId != null)

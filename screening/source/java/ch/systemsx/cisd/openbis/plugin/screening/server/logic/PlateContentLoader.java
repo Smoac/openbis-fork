@@ -144,7 +144,12 @@ public class PlateContentLoader
         }
         List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
         DatasetImagesReference datasetImagesReference =
-                imageLoader.loadImageDatasetReference(dataSet);
+                imageLoader.tryLoadImageDatasetReference(dataSet);
+        if (datasetImagesReference == null)
+        {
+            throw UserFailureException.fromTemplate("Dataset '%s' is not an image dataset.",
+                    dataSet.getCode());
+        }
         Geometry plateGeometry = getPlateGeometry(plate);
         PlateMetadata plateMetadata =
                 new PlateMetadata(translate(plate), wells, plateGeometry.getNumberOfRows(),
@@ -414,9 +419,12 @@ public class PlateContentLoader
         for (DataPE imageDataset : imageDatasets)
         {
             LogicalImageInfo logicalImage =
-                    imageLoader.loadLogicalImageInfo(imageDataset.getCode(), imageDataset
+                    imageLoader.tryLoadLogicalImageInfo(imageDataset.getCode(), imageDataset
                             .getDataStore().getCode(), wellLocationOrNull);
-            logicalImages.add(logicalImage);
+            if (logicalImage != null)
+            {
+                logicalImages.add(logicalImage);
+            }
         }
 
         List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);

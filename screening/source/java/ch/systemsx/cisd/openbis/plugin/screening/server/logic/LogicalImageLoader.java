@@ -51,8 +51,15 @@ public class LogicalImageLoader
             IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
-        return new LogicalImageLoader(session, businessObjectFactory).loadLogicalImageInfo(
-                datasetCode, datastoreCode, wellLocationOrNull);
+        LogicalImageInfo logicalImageInfo =
+                new LogicalImageLoader(session, businessObjectFactory).tryLoadLogicalImageInfo(
+                        datasetCode, datastoreCode, wellLocationOrNull);
+        if (logicalImageInfo == null)
+        {
+            throw new IllegalStateException(String.format("Dataset '%s' is not an image dataset.",
+                    datasetCode));
+        }
+        return logicalImageInfo;
     }
 
     public static ImageDatasetEnrichedReference getImageDatasetReference(Session session,
@@ -77,15 +84,24 @@ public class LogicalImageLoader
             String datastoreCode)
     {
         IImageDatasetLoader datasetLoader =
-                businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
+                businessObjectFactory.tryCreateImageDatasetLoader(datasetCode, datastoreCode);
+        if (datasetLoader == null)
+        {
+            throw new IllegalStateException(String.format("Dataset '%s' not an image dataset.",
+                    datasetCode));
+        }
         return getImageDataset(datasetCode, datasetLoader);
     }
 
-    LogicalImageInfo loadLogicalImageInfo(String datasetCode, String datastoreCode,
+    LogicalImageInfo tryLoadLogicalImageInfo(String datasetCode, String datastoreCode,
             WellLocation wellLocationOrNull)
     {
         IImageDatasetLoader datasetLoader =
-                businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
+                businessObjectFactory.tryCreateImageDatasetLoader(datasetCode, datastoreCode);
+        if (datasetLoader == null)
+        {
+            return null;
+        }
         List<ImageChannelStack> stacks = datasetLoader.listImageChannelStacks(wellLocationOrNull);
         ImageDatasetEnrichedReference imageDataset = getImageDataset(datasetCode, datasetLoader);
         return new LogicalImageInfo(imageDataset, stacks);
@@ -109,11 +125,14 @@ public class LogicalImageLoader
         List<DataPE> imageDatasets = ScreeningUtils.filterImageDatasets(datasets);
         for (DataPE imageDataset : imageDatasets)
         {
-            DatasetImagesReference ref = loadImageDatasetReference(imageDataset);
-            List<DatasetOverlayImagesReference> overlays = extractImageOverlays(imageDataset);
-            ImageDatasetEnrichedReference enrichedRef =
-                    new ImageDatasetEnrichedReference(ref, overlays);
-            refs.add(enrichedRef);
+            DatasetImagesReference ref = tryLoadImageDatasetReference(imageDataset);
+            if (ref != null)
+            {
+                List<DatasetOverlayImagesReference> overlays = extractImageOverlays(imageDataset);
+                ImageDatasetEnrichedReference enrichedRef =
+                        new ImageDatasetEnrichedReference(ref, overlays);
+                refs.add(enrichedRef);
+            }
         }
         return refs;
     }
@@ -126,7 +145,11 @@ public class LogicalImageLoader
                 new ArrayList<DatasetOverlayImagesReference>();
         for (ExternalData overlay : overlayDatasets)
         {
-            overlays.add(loadOverlayDatasetReference(overlay));
+            DatasetOverlayImagesReference ref = tryLoadOverlayDatasetReference(overlay);
+            if (ref != null)
+            {
+                overlays.add(ref);
+            }
         }
         return overlays;
     }
@@ -139,9 +162,13 @@ public class LogicalImageLoader
         return businessObjectFactory.createDatasetLister(session).listByDatasetIds(datasetIds);
     }
 
-    private DatasetOverlayImagesReference loadOverlayDatasetReference(ExternalData overlay)
+    private DatasetOverlayImagesReference tryLoadOverlayDatasetReference(ExternalData overlay)
     {
-        DatasetImagesReference imageDatasetReference = loadImageDatasetReference(overlay);
+        DatasetImagesReference imageDatasetReference = tryLoadImageDatasetReference(overlay);
+        if (imageDatasetReference == null)
+        {
+            return null;
+        }
         String analysisProcedure = tryGetAnalysisProcedure(overlay);
         return DatasetOverlayImagesReference.create(imageDatasetReference.getDatasetReference(),
                 imageDatasetReference.getImageParameters(), analysisProcedure);
@@ -152,10 +179,14 @@ public class LogicalImageLoader
         return EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
     }
 
-    private DatasetImagesReference loadImageDatasetReference(ExternalData dataset)
+    private DatasetImagesReference tryLoadImageDatasetReference(ExternalData dataset)
     {
         ImageDatasetParameters imageParameters =
-                ScreeningUtils.loadImageParameters(dataset, businessObjectFactory);
+                ScreeningUtils.tryLoadImageParameters(dataset, businessObjectFactory);
+        if (imageParameters == null)
+        {
+            return null;
+        }
         return createDatasetImagesReference(dataset, imageParameters);
     }
 
@@ -166,9 +197,9 @@ public class LogicalImageLoader
                 imageParameters);
     }
 
-    DatasetImagesReference loadImageDatasetReference(DataPE imageDataset)
+    DatasetImagesReference tryLoadImageDatasetReference(DataPE imageDataset)
     {
-        return loadImageDatasetReference(translate(imageDataset));
+        return tryLoadImageDatasetReference(translate(imageDataset));
     }
 
     private DataPE loadDatasetWithChildren(String datasetPermId)

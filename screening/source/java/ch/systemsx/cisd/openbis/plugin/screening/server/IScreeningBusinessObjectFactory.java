@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
  */
 public interface IScreeningBusinessObjectFactory
 {
-    public IImageDatasetLoader createImageDatasetLoader(String datasetCode, String datastoreCode);
+    public IImageDatasetLoader tryCreateImageDatasetLoader(String datasetCode, String datastoreCode);
 
     /**
      * Note that the loader should be used only for the datasets from the specified data store

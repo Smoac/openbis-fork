@@ -64,9 +64,12 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
     }
 
-    public IImageDatasetLoader createImageDatasetLoader(String datasetCode, String datastoreCode)
+    /**
+     * @return null if the dataset is not found in the imaging database
+     */
+    public IImageDatasetLoader tryCreateImageDatasetLoader(String datasetCode, String datastoreCode)
     {
-        return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(datastoreCode),
+        return HCSDatasetLoader.tryCreate(specificDAOFactory.getImagingQueryDAO(datastoreCode),
                 datasetCode);
     }
 
@@ -111,7 +114,6 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         return imagingQueries;
     }
 
-    
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);
@@ -151,5 +153,4 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
         return getCommonBusinessObjectFactory().createDatasetLister(session);
     }
-
 }

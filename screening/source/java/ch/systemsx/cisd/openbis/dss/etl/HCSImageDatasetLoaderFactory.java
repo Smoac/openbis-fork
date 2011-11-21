@@ -25,10 +25,14 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
  */
 public class HCSImageDatasetLoaderFactory
 {
-    /** the loader has to be closed when it is not used any more to free database resources! */
-    public static final IImagingDatasetLoader create(IHierarchicalContent content,
+    /**
+     * the loader has to be closed when it is not used any more to free database resources!
+     * 
+     * @return null if the dataset is not found in the imaging database
+     */
+    public static final IImagingDatasetLoader tryCreate(IHierarchicalContent content,
             String datasetCode)
     {
-        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, content);
+        return ImagingDatasetLoader.tryCreate(DssScreeningUtils.getQuery(), datasetCode, content);
     }
 }

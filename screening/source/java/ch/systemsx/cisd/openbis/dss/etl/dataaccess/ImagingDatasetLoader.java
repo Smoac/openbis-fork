@@ -58,10 +58,28 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
 {
     private final IHierarchicalContent content;
 
-    public ImagingDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId,
+    /**
+     * @return null if the dataset is not found in the imaging database
+     */
+    public static ImagingDatasetLoader tryCreate(IImagingReadonlyQueryDAO query,
+            String datasetPermId, IHierarchicalContent content)
+    {
+        ImgImageDatasetDTO dataset = query.tryGetImageDatasetByPermId(datasetPermId);
+        if (dataset == null)
+        {
+            operationLog.warn(String.format(
+                    "No dataset with code '%s' found in the imaging database.", datasetPermId));
+            return null;
+        } else
+        {
+            return new ImagingDatasetLoader(query, dataset, content);
+        }
+    }
+
+    protected ImagingDatasetLoader(IImagingReadonlyQueryDAO query, ImgImageDatasetDTO dataset,
             IHierarchicalContent content)
     {
-        super(query, datasetPermId);
+        super(query, dataset);
         this.content = content;
     }
 
@@ -101,6 +119,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
             if (imageDTO == null && imageSize.isThumbnailRequired() == false)
             {
                 imageDTO = tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
+                thumbnailFetched = (imageDTO != null);
             }
         }
         if (imageDTO == null)
@@ -109,7 +128,8 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
         AbsoluteImageReference imgRef =
                 createAbsoluteImageReference(imageDTO, channel, imageSize, thumbnailFetched);
-        if (thumbnailFetched && isThumbnailsTooSmall(imageSize, imgRef.getUnchangedImage()))
+        if (thumbnailFetched && imageSize.isThumbnailRequired()
+                && isThumbnailsTooSmall(imageSize, imgRef.getUnchangedImage()))
         {
             imageDTO = tryGetOriginalImage(channel.getId(), channelStackReference, datasetId);
             if (imageDTO != null)
