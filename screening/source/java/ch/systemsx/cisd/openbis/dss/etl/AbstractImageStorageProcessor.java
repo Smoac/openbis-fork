@@ -306,10 +306,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             if (originalDataStorageFormat.isHdf5())
             {
                 File hdf5OriginalContainer = getHdf5OriginalContainer(rootDirectory);
-                this.generatedFiles.add(hdf5OriginalContainer);
                 relativeImagesDirectory =
                         compressToHdf5(rootDirectory, datasetRelativeImagesFolderPath,
                                 originalDataStorageFormat, hdf5OriginalContainer);
+                this.generatedFiles.add(hdf5OriginalContainer);
             } else
             {
                 relativeImagesDirectory = datasetRelativeImagesFolderPath.getPath() + "/";
@@ -552,6 +552,15 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             OriginalDataStorageFormat originalDataStorageFormat, File hdf5OriginalContainer)
     {
         File absolutePath = new File(rootDirectory, imagesInStoreFolder.getPath());
+        if (hdf5OriginalContainer.isDirectory())
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate(
+                            "Cannot compress the dataset to HDF5 format during registration, "
+                                    + "probably the compression has been configured to be done in a separate step"
+                                    + " ('%s' is an existing directory). Check and switch on only one of them!",
+                            hdf5OriginalContainer);
+        }
         boolean isDataCompressed =
                 originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
         String pathInHdf5Container = "/" + absolutePath.getName() + "/";
