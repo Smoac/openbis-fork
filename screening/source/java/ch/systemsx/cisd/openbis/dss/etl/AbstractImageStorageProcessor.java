@@ -237,6 +237,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         // used when HDF5 is used to store original data
         private transient boolean shouldDeleteOriginalDataOnCommit;
 
+        private transient List<File> generatedFiles;
+
         public AbstractImageStorageProcessorTransaction(
                 StorageProcessorTransactionParameters parameters,
                 AbstractImageStorageProcessor processor)
@@ -244,6 +246,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             super(parameters);
             this.processor = processor;
             this.unstoreAction = processor.getDefaultUnstoreDataAction(null);
+            this.generatedFiles = new ArrayList<File>();
         }
 
         @Override
@@ -281,8 +284,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             File datasetRelativeImagesFolderPath =
                     extractionResultWithConfig.getExtractionResult()
                             .getDatasetRelativeImagesFolderPath();
-            processImages(rootDirectory, plateImages, datasetRelativeImagesFolderPath,
-                    imageStorageConfiguraton);
+            processImages(plateImages, datasetRelativeImagesFolderPath, imageStorageConfiguraton);
 
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
@@ -292,6 +294,28 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     extractionResultWithConfig.getImageDatasetOwner(), extractionResult);
 
             return rootDirectory;
+        }
+
+        private void processImages(List<AcquiredSingleImage> images,
+                File datasetRelativeImagesFolderPath,
+                ImageStorageConfiguraton imageStorageConfiguraton)
+        {
+            String relativeImagesDirectory;
+            OriginalDataStorageFormat originalDataStorageFormat =
+                    imageStorageConfiguraton.getOriginalDataStorageFormat();
+            if (originalDataStorageFormat.isHdf5())
+            {
+                File hdf5OriginalContainer = getHdf5OriginalContainer(rootDirectory);
+                this.generatedFiles.add(hdf5OriginalContainer);
+                relativeImagesDirectory =
+                        compressToHdf5(rootDirectory, datasetRelativeImagesFolderPath,
+                                originalDataStorageFormat, hdf5OriginalContainer);
+            } else
+            {
+                relativeImagesDirectory = datasetRelativeImagesFolderPath.getPath() + "/";
+            }
+            // add a prefix before each image path to create a path relative to the dataset folder
+            updateImagesRelativePath(relativeImagesDirectory, images);
         }
 
         private void validateImages(final IMailClient mailClient,
@@ -404,6 +428,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             }
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
+            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
+            for (File generatedFile : this.generatedFiles)
+            {
+                deleteRecursively(fileOps, generatedFile);
+            }
             final File originalDataFile = tryGetSingleChild(storedDataDirectory);
             if (originalDataFile == null)
             {
@@ -430,19 +459,22 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 return;
             }
             // Remove the dataset directory from the store
-            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
             if (fileOps.exists(incomingDataSetDirectory))
             {
-                if (fileOps.removeRecursivelyQueueing(storedDataDirectory) == false)
-                {
-                    operationLog.error("Cannot delete '" + storedDataDirectory.getAbsolutePath()
-                            + "'.");
-                }
+                deleteRecursively(fileOps, storedDataDirectory);
             } else
             {
                 notificationLog.error(String.format("Incoming data set directory '%s' does not "
                         + "exist, keeping store directory '%s'.", incomingDataSetDirectory,
                         storedDataDirectory));
+            }
+        }
+
+        private static void deleteRecursively(final IFileOperations fileOps, File file)
+        {
+            if (fileOps.removeRecursivelyQueueing(file) == false)
+            {
+                operationLog.error("Cannot delete '" + file.getAbsolutePath() + "'.");
             }
         }
 
@@ -516,37 +548,16 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return output;
     }
 
-    private static void processImages(final File rootDirectory, List<AcquiredSingleImage> images,
-            File datasetRelativeImagesFolderPath, ImageStorageConfiguraton imageStorageConfiguraton)
+    private static String compressToHdf5(final File rootDirectory, File imagesInStoreFolder,
+            OriginalDataStorageFormat originalDataStorageFormat, File hdf5OriginalContainer)
     {
-        String relativeImagesDirectory =
-                packageImagesIfNecessary(rootDirectory, images, datasetRelativeImagesFolderPath,
-                        imageStorageConfiguraton);
-        updateImagesRelativePath(relativeImagesDirectory, images);
-    }
-
-    // returns the prefix which should be added before each image path to create a path relative to
-    // the dataset folder
-    private static String packageImagesIfNecessary(final File rootDirectory,
-            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
-            ImageStorageConfiguraton imageStorageConfiguraton)
-    {
-        OriginalDataStorageFormat originalDataStorageFormat =
-                imageStorageConfiguraton.getOriginalDataStorageFormat();
         File absolutePath = new File(rootDirectory, imagesInStoreFolder.getPath());
-        if (originalDataStorageFormat.isHdf5())
-        {
-            File hdf5OriginalContainer = getHdf5OriginalContainer(rootDirectory);
-            boolean isDataCompressed =
-                    originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
-            String pathInHdf5Container = "/" + absolutePath.getName() + "/";
-            saveInHdf5(absolutePath, pathInHdf5Container, hdf5OriginalContainer, isDataCompressed);
-            String hdf5ArchivePathPrefix = hdf5OriginalContainer.getName() + ARCHIVE_DELIMITER;
-            return hdf5ArchivePathPrefix + pathInHdf5Container;
-        } else
-        {
-            return imagesInStoreFolder.getPath() + "/";
-        }
+        boolean isDataCompressed =
+                originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
+        String pathInHdf5Container = "/" + absolutePath.getName() + "/";
+        saveInHdf5(absolutePath, pathInHdf5Container, hdf5OriginalContainer, isDataCompressed);
+        String hdf5ArchivePathPrefix = hdf5OriginalContainer.getName() + ARCHIVE_DELIMITER;
+        return hdf5ArchivePathPrefix + pathInHdf5Container;
     }
 
     private static File getHdf5OriginalContainer(final File rootDirectory)
