@@ -84,6 +84,14 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return 0;
     }
 
+    public List<Sample> listSamplesForExperiment(String sessionToken,
+            String experimentIdentifierString)
+    {
+        logAccess(sessionToken, "list-samples-for-experiment", "EXPERIMENT_IDENTIFIER(%s)",
+                experimentIdentifierString);
+        return null;
+    }
+
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s)", searchCriteria);

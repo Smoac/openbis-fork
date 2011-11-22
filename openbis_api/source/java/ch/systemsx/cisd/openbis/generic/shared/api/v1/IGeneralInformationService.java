@@ -98,6 +98,16 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
+     * Return all samples that belong to the supplied experiment. Available since minor version 1.
+     * 
+     * @param experimentIdentifierString The identifier of the experiment samples will be listed
+     *            for.
+     * @since 1.1
+     */
+    public List<Sample> listSamplesForExperiment(String sessionToken,
+            String experimentIdentifierString);
+
+    /**
      * Return all data sets attached to the given samples. Available since minor version 1.
      * 
      * @param samples The samples for which we return attached data sets.

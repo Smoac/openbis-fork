@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<title>OpenBIS Sample Explorer</title>
+		<script type="text/javascript" src="../../js/jquery.js"></script>
+		<script type="text/javascript" src="../../js/openbis.js"></script>
+    <script type="text/javascript" src="sampleExplorer.js"></script>
+		<link rel="stylesheet" type="text/css" href="../../css/openbisReset.css" />
+    <link rel="stylesheet" type="text/css" href="sampleExplorer.css" />
+	</head>
+	<body>
+	
+		<script type="text/javascript">
+			$(document).ready(function(){
+        var openbisHost = window.location.protocol + "//" + window.location.host;
+        var openbisContext = 'openbis';
+				
+				$("body").append(
+						new sampleExplorer(new openbis(openbisHost, openbisContext)).render()
+				);
+			});
+		</script>
+	
+	</body>
+</html>

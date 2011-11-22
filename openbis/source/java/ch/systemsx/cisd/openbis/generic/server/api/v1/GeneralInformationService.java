@@ -259,6 +259,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateSamples(privateSamples);
     }
 
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Sample> listSamplesForExperiment(String sessionToken,
             String experimentIdentifierString)
     {
