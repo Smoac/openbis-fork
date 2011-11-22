@@ -13,7 +13,9 @@ $.extend(sampleExplorer.prototype, {
 	},
 	render: function(){
 		var $this = this;
+
 		var widget = $("<div></div>").addClass("sampleExplorer");
+		widget.append(this.renderHome());
 		
 		this.openbis.getSessionToken(function(getSessionTokenResponse){
 			$this.openbis.sessionToken = getSessionTokenResponse.result;
@@ -21,6 +23,9 @@ $.extend(sampleExplorer.prototype, {
 			widget.append($this.renderView());
 		});
 		return widget;
+	},
+	renderHome: function(){
+		return $("<a href='" + this.openbis.openbisHost + "/" + this.openbis.openbisContext + "/" + "'>Home</a>").addClass("sampleExplorerHome");
 	},
 	renderTree: function(){
 		return this.tree.render();
@@ -113,7 +118,7 @@ $.extend(sampleExplorerTreeNodeAbstract.prototype, {
 			
 			var link = this.widgetShowHideLink;
 			if(!link){
-				link = $("<a href='#'></a>").click(function(){
+				link = $("<a></a>").click(function(){
 					$this.toggleChildren();
 				});
 				widget.append(link);

@@ -5,6 +5,13 @@
 	white-space: nowrap;
 }
 
+.sampleExplorerHome{
+	display: block;
+	padding: 10px;
+	font-size: 12px;
+	font-weight: bold;
+}
+
 .sampleExplorerTree {
 	float: left;
 	width: 30%;
