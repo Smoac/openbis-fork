@@ -17,8 +17,12 @@
 
 package ch.systemsx.cisd.sanofi.dss.test;
 
+
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_SEGMENTATION_IMAGE_CONTAINER_DATASET_TYPE;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,6 +118,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     private static final String COMPOUND_WELL_BATCH_PROPNAME = "COMPOUND_BATCH";
 
     private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
+
+    private static final String ANALYSIS_DATA_SET_FILE_NAME = "analysis";
 
     private static final String IMAGE_DATA_SET_CODE = "data-set-code";
 
@@ -334,8 +340,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("B1"));
         queryResult.add(createQueryResult("B2"));
 
-        setDataSetExpectations();
+        setUpDataSetExpectations();
         setUpListAdministratorExpectations();
+
 
         context.checking(new Expectations()
             {
@@ -353,8 +360,15 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(1).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
+
+                    allowing(openBisService)
+                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    will(returnValue(new IEntityProperty[0]));
+
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
+                    will(returnValue(new AtomicEntityOperationResult()));
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
@@ -385,24 +399,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertCompoundWell(registeredSamples, "B2", "0.002");
         assertNegativeControl(registeredSamples, "B3");
 
-        List<? extends NewExternalData> dataSetsRegistered =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
-        assertEquals(3, dataSetsRegistered.size());
-
-        NewExternalData imageDataSet = dataSetsRegistered.get(0);
-        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
-        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
-        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
-        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
-        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
-        assertEquals("MatlabGeneral_v1.1_NRF2ProdAnalysis_v1.1",
-                extractAnalysisProcedureCode(analysisDataSet));
-
-        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+        assertDataSetsCreatedCorrectly();
 
         AssertionUtil
                 .assertContains(
@@ -418,6 +415,17 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 EntityHelper.tryFindProperty(analysisDataSet.getDataSetProperties(),
                         ScreeningConstants.ANALYSIS_PROCEDURE);
         return (property != null) ? property.getValue() : null;
+    }
+
+    private NewExternalData find(List<? extends NewExternalData> dataSets, String typeCode) {
+        for (NewExternalData dataSet : dataSets) {
+            if (dataSet.getDataSetType().getCode().equals(typeCode)) {
+                return dataSet;
+            }
+        }
+        fail(String.format("Cannot find data set of type '%s' in '%s'", typeCode, dataSets));
+        // not reachable
+        return null;
     }
 
     @Test
@@ -476,7 +484,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         createDataSetHandler(false, false);
 
-        setDataSetExpectations();
+        setUpDataSetExpectations();
         setUpListAdministratorExpectations();
 
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
@@ -499,11 +507,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
-                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
-                            sampleIdentifier);
+                    allowing(openBisService)
+                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
@@ -532,22 +540,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertPositiveControl(registeredSamples, "A2");
         assertNegativeControl(registeredSamples, "B2");
 
-        List<? extends NewExternalData> dataSetsRegistered =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
-        assertEquals(3, dataSetsRegistered.size());
-
-        NewExternalData imageDataSet = dataSetsRegistered.get(0);
-        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
-        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
-        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
-        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
-        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
-
-        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+        assertDataSetsCreatedCorrectly();
 
         AssertionUtil
                 .assertContains(
@@ -568,7 +561,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("A1", BATCH_MATERIAL_SUFFIX, "compound_material"));
         queryResult.add(createQueryResult("B1", BATCH_MATERIAL_SUFFIX, "compound_material"));
 
-        setDataSetExpectations();
+        setUpDataSetExpectations();
         setUpListAdministratorExpectations();
 
         context.checking(new Expectations()
@@ -587,11 +580,11 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(4).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
-                    exactly(3).of(openBisService).getPropertiesOfTopSampleRegisteredFor(
-                            sampleIdentifier);
+                    allowing(openBisService)
+                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).performEntityOperations(with(atomicatOperationDetails));
@@ -622,22 +615,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         assertCompoundWell(registeredSamples, "B1", "54.12", BATCH_MATERIAL_SUFFIX,
                 "compound_material");
 
-        List<? extends NewExternalData> dataSetsRegistered =
-                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
-        assertEquals(3, dataSetsRegistered.size());
-
-        NewExternalData imageDataSet = dataSetsRegistered.get(0);
-        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
-        assertEquals(IMAGE_DATA_SET_TYPE, imageDataSet.getDataSetType());
-        assertHasProperty(imageDataSet, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
-
-        NewExternalData analysisDataSet = dataSetsRegistered.get(1);
-        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
-        assertEquals(ANALYSIS_DATA_SET_TYPE, analysisDataSet.getDataSetType());
-
-        NewExternalData overlayDataSet = dataSetsRegistered.get(2);
-        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
-        assertEquals(OVERLAY_DATA_SET_TYPE, overlayDataSet.getDataSetType());
+        assertDataSetsCreatedCorrectly();
 
         Map<String, List<NewMaterial>> materialsRegistered =
                 atomicatOperationDetails.recordedObject().getMaterialRegistrations();
@@ -719,6 +697,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
 
     }
 
+
     private void assertNegativeControl(List<NewSample> newSamples, String wellCode)
     {
         NewSample newSample = findByWellCode(newSamples, wellCode);
@@ -765,6 +744,29 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                 batchMaterialIdentifier.print(), batchMaterialProp.tryGetAsString());
     }
 
+    protected void assertDataSetsCreatedCorrectly()
+    {
+        List<? extends NewExternalData> dataSetsRegistered =
+                atomicatOperationDetails.recordedObject().getDataSetRegistrations();
+        assertEquals(7, dataSetsRegistered.size());
+
+        NewExternalData imageDataSet = find(dataSetsRegistered, IMAGE_DATA_SET_TYPE.getCode());
+        assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
+
+        NewExternalData imageContainer =
+                find(dataSetsRegistered, DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE);
+        assertHasProperty(imageContainer, IMAGE_DATA_SET_BATCH_PROP, "batchNr");
+
+        NewExternalData analysisDataSet =
+                find(dataSetsRegistered, ANALYSIS_DATA_SET_TYPE.getCode());
+        assertEquals(ANALYSIS_DATA_SET_CODE, analysisDataSet.getCode());
+        assertEquals("MatlabGeneral_v1.1_NRF2ProdAnalysis_v1.1",
+                extractAnalysisProcedureCode(analysisDataSet));
+
+        NewExternalData overlayDataSet = find(dataSetsRegistered, OVERLAY_DATA_SET_TYPE.getCode());
+        assertEquals(OVERLAY_DATA_SET_CODE, overlayDataSet.getCode());
+    }
+
     public Sample plateWithLibTemplateAndGeometry(String libraryTemplate, String plateGeometry)
             throws IOException
     {
@@ -784,19 +786,64 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         createData();
     }
 
-    private void setDataSetExpectations()
+    private void setUpDataSetExpectations()
     {
         context.checking(new Expectations()
             {
                 {
                     one(openBisService).createDataSetCode();
+                    will(returnValue("image-raw-thumnails"));
+
+                    one(openBisService).createDataSetCode();
                     will(returnValue(IMAGE_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("image-raw-container"));
 
                     one(openBisService).createDataSetCode();
                     will(returnValue(ANALYSIS_DATA_SET_CODE));
 
                     one(openBisService).createDataSetCode();
+                    will(returnValue("overlay-thumnails"));
+
+                    one(openBisService).createDataSetCode();
                     will(returnValue(OVERLAY_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("overlay-container"));
+
+                    final DataSetType thumnailsDataSetType = new DataSetType(DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            thumnailsDataSetType,
+                            new File(new File(stagingDirectory, "image-raw-thumnails"),
+                                    "thumbnails.h5"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            IMAGE_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE), "original"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType(DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE), null);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            thumnailsDataSetType,
+                            new File(new File(stagingDirectory, "overlay-thumnails"),
+                                    "thumbnails.h5"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            OVERLAY_DATA_SET_TYPE,
+                                    new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
+                                            "original"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType(DEFAULT_SEGMENTATION_IMAGE_CONTAINER_DATASET_TYPE),
+                            null);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            ANALYSIS_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
+                                    ANALYSIS_DATA_SET_FILE_NAME));
                 }
             });
     }

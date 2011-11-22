@@ -18,11 +18,15 @@
 package ch.systemsx.cisd.sanofi.dss.test;
 
 import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_SEGMENTATION_IMAGE_CONTAINER_DATASET_TYPE;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
-import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -54,6 +57,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -93,9 +99,29 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
 
     private static final String IMAGE_DATA_SET_DIR_NAME = "batchNr_plateCode.variant_2011.07.05";
 
+    private static final String ANALYSIS_DATA_SET_FILE_NAME = "analysis";
+
+    private static final String IMAGE_DATA_SET_CODE = "data-set-code";
+
+    private static final DataSetType IMAGE_DATA_SET_TYPE = new DataSetType("HCS_IMAGE_RAW");
+
+    private static final String OVERLAY_DATA_SET_CODE = "overlay-data-set-code";
+
+    private static final DataSetType OVERLAY_DATA_SET_TYPE = new DataSetType(
+            "HCS_IMAGE_SEGMENTATION");
+
+    private static final String ANALYSIS_DATA_SET_CODE = "analysis-data-set-code";
+
+    private static final DataSetType ANALYSIS_DATA_SET_TYPE = new DataSetType(
+            "HCS_ANALYSIS_WELL_FEATURES");
+
     private static final String EXPERIMENT_IDENTIFIER = "/SANOFI/PROJECT/EXP";
 
     private static final String PLATE_IDENTIFIER = "/SANOFI/TEST-PLATE";
+
+    private RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicatOperationDetails;
+
+    private RecordingMatcher<ListMaterialCriteria> materialCriteria;
 
     private RecordingMatcher<String> email;
 
@@ -106,6 +132,10 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         super.setUp();
 
         extendJythonLibPath(getRegistrationScriptsFolderPath());
+
+        atomicatOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        materialCriteria = new RecordingMatcher<ListMaterialCriteria>();
         email = new RecordingMatcher<String>();
     }
 
@@ -119,16 +149,33 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         queryResult.add(createQueryResult("A1", "material-1"));
         queryResult.add(createQueryResult("B1", "material-1"));
 
+        setUpDataSetExpectations();
         setUpListAdministratorExpectations();
 
         context.checking(new Expectations()
             {
                 {
+                    one(dataSourceQueryService).select(with(any(String.class)),
+                            with(any(String.class)), with(anything()));
+                    will(returnValue(queryResult));
+
+                    exactly(2).of(openBisService).listMaterials(with(materialCriteria),
+                            with(equal(true)));
+                    will(returnValue(Collections.emptyList()));
+
+                    exactly(4).of(openBisService).createPermId();
+                    will(returnValue("well-permId"));
+
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(plate.getIdentifier());
-                    exactly(1).of(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
+                    allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
+                    allowing(openBisService)
+                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    will(returnValue(new IEntityProperty[0]));
+
+                    one(openBisService).performEntityOperations(with(atomicatOperationDetails));
                     CustomAction makeFileSystemUnavailable = new CustomAction("foo")
                         {
                             public Object invoke(Invocation invocation) throws Throwable
@@ -137,8 +184,8 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                                 return null;
                             }
                         };
-                    will(doAll(makeFileSystemUnavailable, throwException(new IOExceptionUnchecked(
-                            "Fail"))));
+                    will(doAll(makeFileSystemUnavailable,
+                            throwException(new AssertionError("Fail"))));
 
                     one(mailClient).sendMessage(with(any(String.class)), with(email),
                             with(aNull(String.class)), with(any(From.class)),
@@ -154,9 +201,8 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         {
             handler.handle(markerFile);
             fail("No IOException thrown");
-        } catch (PyException ep)
+        } catch (IOExceptionUnchecked e)
         {
-            assertTrue(ep.getCause() instanceof IOExceptionUnchecked);
             // Make the file system available again and rollback
             makeFileSystemAvailable(workingDirectory);
             DataSetRegistrationTransaction.rollbackDeadTransactions(workingDirectory);
@@ -191,6 +237,69 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                 createThreadPropertiesRelativeToScriptsFolder("dropbox-all-in-one-with-library.py");
         createHandler(properties, shouldRegistrationFail, rethrowExceptions);
         createData();
+    }
+
+    private void setUpDataSetExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("image-raw-thumnails"));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(IMAGE_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("image-raw-container"));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(ANALYSIS_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("overlay-thumnails"));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(OVERLAY_DATA_SET_CODE));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue("overlay-container"));
+
+                    final DataSetType thumnailsDataSetType =
+                            new DataSetType(DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            thumnailsDataSetType,
+                            new File(new File(stagingDirectory, "image-raw-thumnails"),
+                                    "thumbnails.h5"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            IMAGE_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, IMAGE_DATA_SET_CODE), "original"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType(DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE), null);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            thumnailsDataSetType,
+                            new File(new File(stagingDirectory, "overlay-thumnails"),
+                                    "thumbnails.h5"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            OVERLAY_DATA_SET_TYPE,
+                                    new File(new File(stagingDirectory, OVERLAY_DATA_SET_CODE),
+                                            "original"));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType(DEFAULT_SEGMENTATION_IMAGE_CONTAINER_DATASET_TYPE),
+                            null);
+
+                    one(dataSetValidator).assertValidDataSet(
+                            ANALYSIS_DATA_SET_TYPE,
+                            new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
+                                    ANALYSIS_DATA_SET_FILE_NAME));
+                }
+            });
     }
 
     private void setUpPlateSearchExpectations(final Sample plate)
