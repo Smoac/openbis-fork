@@ -170,6 +170,7 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
 
     private static void createNodes(FilterableMutableTreeNode top, List<Experiment> experiments)
     {
+        UploadClientSortingUtils.sortExperimentsByIdentifier(experiments);
         for (Experiment experiment : experiments)
         {
             DefaultMutableTreeNode category =
@@ -248,9 +249,7 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
             return;
         }
 
-        List<Sample> samples =
-                openbisService.listSamplesForExperiments(Collections.singletonList(event.getPath()
-                        .getLastPathComponent().toString()));
+        List<Sample> samples = listSortedSamples(event);
 
         final DefaultMutableTreeNode node =
                 (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
@@ -272,6 +271,15 @@ public class SamplePickerDialog extends AbstractEntityPickerDialogWithServerConn
                     }
                 }, 1500l);
         }
+    }
+
+    protected List<Sample> listSortedSamples(TreeExpansionEvent event)
+    {
+        List<Sample> samples =
+                openbisService.listSamplesForExperiments(Collections.singletonList(event.getPath()
+                        .getLastPathComponent().toString()));
+        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+        return samples;
     }
 
     public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException

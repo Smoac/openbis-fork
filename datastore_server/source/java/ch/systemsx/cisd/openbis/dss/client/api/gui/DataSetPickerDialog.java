@@ -147,6 +147,7 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
 
     private static void createNodes(FilterableMutableTreeNode top, List<Experiment> experiments)
     {
+        UploadClientSortingUtils.sortExperimentsByIdentifier(experiments);
         for (Experiment experiment : experiments)
         {
             DefaultMutableTreeNode category =
@@ -238,10 +239,7 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
 
         if (node.getPath().length == 3) // get datasets for samples
         {
-            List<DataSet> dataSets =
-                    openbisService.listDataSetsForSamples(Collections.singletonList(event.getPath()
-                            .getLastPathComponent().toString()));
-
+            List<DataSet> dataSets = listSampleDataSets(event);
             for (DataSet dataSet : dataSets)
             {
                 node.add(new DefaultMutableTreeNode(dataSet.getCode()));
@@ -255,13 +253,9 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
                 return;
             }
 
-            List<Sample> samples =
-                    openbisService.listSamplesForExperiments(Collections.singletonList(event
-                            .getPath().getLastPathComponent().toString()));
+            List<Sample> samples = listExperimentSamples(event);
 
-            List<DataSet> dataSets =
-                    openbisService.listDataSetsForExperiments(Collections.singletonList(event
-                            .getPath().getLastPathComponent().toString()));
+            List<DataSet> dataSets = listExperimentDataSets(event);
 
             if (dataSets.size() > 0)
             {
@@ -292,6 +286,33 @@ public class DataSetPickerDialog extends AbstractEntityPickerDialogWithServerCon
                     }
                 }, 1500l);
         }
+    }
+
+    protected List<DataSet> listExperimentDataSets(TreeExpansionEvent event)
+    {
+        List<DataSet> dataSets =
+                openbisService.listDataSetsForExperiments(Collections.singletonList(event
+                        .getPath().getLastPathComponent().toString()));
+        UploadClientSortingUtils.sortDataSetsByCode(dataSets);
+        return dataSets;
+    }
+
+    protected List<Sample> listExperimentSamples(TreeExpansionEvent event)
+    {
+        List<Sample> samples =
+                openbisService.listSamplesForExperiments(Collections.singletonList(event
+                        .getPath().getLastPathComponent().toString()));
+        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+        return samples;
+    }
+
+    protected List<DataSet> listSampleDataSets(TreeExpansionEvent event)
+    {
+        List<DataSet> dataSets =
+                openbisService.listDataSetsForSamples(Collections.singletonList(event.getPath()
+                        .getLastPathComponent().toString()));
+        UploadClientSortingUtils.sortDataSetsByCode(dataSets);
+        return dataSets;
     }
 
     public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException
