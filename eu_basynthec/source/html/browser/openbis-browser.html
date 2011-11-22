@@ -87,7 +87,7 @@ function createStrainGroups(strains) {
       return false == STRAIN_GROUP_PREFIXES.some(function(prefix) { return strain.indexOf(prefix) >=0; } );
 	});
 	otherStrains = otherStrains.map(function(strain) { return {name:strain, label:strain}});
-	groups.push({groupName : "Other", strains : otherStrains});
+	groups.push({groupName : "Other strains", strains : otherStrains});
 	
 	var sortFunction = sortByProp("name")
 	groups.forEach(function(group) { group.strains.sort(sortFunction); });
@@ -138,7 +138,7 @@ function updateDiagram(duration)
 		.append("h2")
 		.text(function(d) { return d.groupName })
 	.append("table")
-		.selectAll("tr").data(function(d) { var lineSize = ("Other" == d.groupName) ? 3 : 10; return d.strains.reduce(groupBy(lineSize), []) })
+		.selectAll("tr").data(function(d) { var lineSize = (d.groupName.indexOf("Other") == 0) ? 3 : 10; return d.strains.reduce(groupBy(lineSize), []) })
 			.enter()
 		.append("tr")
 		.selectAll("td").data(function(d) { return d })
