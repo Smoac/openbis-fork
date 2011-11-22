@@ -28,7 +28,7 @@ public interface ICorePluginResourceLoader
 {
 
     /**
-     * Locate a path within a given plugin and attempts to read its contents as string. If the path
+     * Locate a path within a given plugin and attempt to read its contents as string. If the path
      * does not exist <code>NULL</code> is returned.
      */
     String tryLoadToString(CorePlugin plugin, String path);
