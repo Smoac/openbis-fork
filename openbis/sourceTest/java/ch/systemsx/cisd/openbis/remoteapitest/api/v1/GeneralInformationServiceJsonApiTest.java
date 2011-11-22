@@ -615,6 +615,18 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("VocabularyTerm[RAT,RAT]", organism.getTerms().get(0).toString());
     }
 
+    @Test
+    public void testDataSetVocabularyProperties()
+    {
+        List<DataSet> dataSets =
+                generalInformationService.getDataSetMetaData(sessionToken,
+                        Collections.singletonList("20081105092159111-1"));
+
+        assertEquals(1, dataSets.size());
+        assertEquals("FEMALE", dataSets.get(0).getProperties().get("GENDER"));
+
+    }
+
     private Vocabulary findVocabulary(List<Vocabulary> vocabularies, String vocabularyCode)
     {
         for (Vocabulary vocabulary : vocabularies)

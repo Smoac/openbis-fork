@@ -324,7 +324,7 @@ public class Translator
         List<IEntityProperty> properties = externalDatum.getProperties();
         for (IEntityProperty prop : properties)
         {
-            initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
+            initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
 
         initializer.setRetrievedConnections(connectionsToGet);
