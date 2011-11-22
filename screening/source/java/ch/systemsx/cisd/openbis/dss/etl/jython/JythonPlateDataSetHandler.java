@@ -419,17 +419,17 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
             List<String> containedDataSetCodes = new ArrayList<String>();
 
             // create thumbnails dataset if needed
-            IDataSet thumbnailDataset = null;
+            IDataSet thumbnailDatasetOrNull = null;
             boolean generateThumbnails = imageDataSetStructure.areThumbnailsGenerated();
             if (generateThumbnails)
             {
-                thumbnailDataset = createThumbnailDataset();
+                thumbnailDatasetOrNull = createThumbnailDataset();
 
                 ThumbnailFilePaths thumbnailPaths =
                         generateThumbnails(imageDataSetStructure, incomingDirectory,
-                                thumbnailDataset);
+                                thumbnailDatasetOrNull);
                 imageDataSetInformation.setThumbnailFilePaths(thumbnailPaths);
-                containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
+                containedDataSetCodes.add(thumbnailDatasetOrNull.getDataSetCode());
             }
             // create main dataset (with original images)
             @SuppressWarnings("unchecked")
@@ -438,16 +438,19 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                             .createNewDataSet(imageRegistrationDetails);
             containedDataSetCodes.add(mainDataset.getDataSetCode());
 
-            if (thumbnailDataset != null)
+            if (thumbnailDatasetOrNull != null)
             {
-                setSameDatasetOwner(mainDataset, thumbnailDataset);
+                setSameDatasetOwner(mainDataset, thumbnailDatasetOrNull);
             }
 
             ImageContainerDataSet containerDataset =
                     createImageContainerDataset(mainDataset, imageDataSetInformation,
                             containedDataSetCodes);
             containerDataset.setOriginalDataset(mainDataset);
-            containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDataset));
+            if (thumbnailDatasetOrNull != null)
+            {
+                containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDatasetOrNull));
+            }
             imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
 
             return containerDataset;
