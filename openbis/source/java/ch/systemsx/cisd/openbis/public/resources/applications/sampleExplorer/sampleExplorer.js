@@ -451,9 +451,9 @@ $.extend(sampleExplorerTreeNodeEntityPanelWithDetails.prototype, {
 			$this.node.toggleChildren();
 		});
 		widget.hover(function(){
-			details.show();
+			details.css('display', 'inline');
 		}, function(){
-			details.hide();
+			details.css('display', 'none');
 		});
 		
 		widget.append(code);
