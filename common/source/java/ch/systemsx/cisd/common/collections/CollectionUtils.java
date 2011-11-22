@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -342,5 +343,24 @@ public final class CollectionUtils
     public static <E> Collection<E> nullSafe(Collection<E> list)
     {
         return (list != null) ? list : Collections.<E> emptyList();
+    }
+    
+    /**
+     * Sorts a collection of objects with a key extractor providing sort criteria.
+     * <p>
+     * The method is useful when we would like to sort a list of non-Comparable objects.
+     */
+    public static <E, C extends Comparable<C>> void sort(List<E> list,
+            final IKeyExtractor<C, E> sortCriteriaKeyExtractor)
+    {
+        Collections.sort(list, new Comparator<E>()
+            {
+                public int compare(E o1, E o2)
+                {
+                    C key1 = sortCriteriaKeyExtractor.getKey(o1);
+                    C key2 = sortCriteriaKeyExtractor.getKey(o2);
+                    return key1.compareTo(key2);
+                }
+            });
     }
 }

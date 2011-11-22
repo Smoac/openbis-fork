@@ -19,7 +19,9 @@ package ch.systemsx.cisd.common.collections;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
@@ -115,5 +117,24 @@ public final class CollectionUtilsTest
             exceptionThrown = true;
         }
         assertTrue("IToStringConverter can not be null.", exceptionThrown);
+    }
+
+    @Test
+    public void testSort()
+    {
+        IKeyExtractor<Integer, String> lengthExtractor = new IKeyExtractor<Integer, String>()
+            {
+
+                public Integer getKey(String e)
+                {
+                    return e.length();
+                }
+            };
+
+        List<String> strings = Arrays.asList("bbbb", "z", "ccc", "aa");
+        List<String> sortedByLength = Arrays.asList("z", "aa", "ccc", "bbbb");
+
+        CollectionUtils.sort(strings, lengthExtractor);
+        assertEquals(sortedByLength, strings);
     }
 }
