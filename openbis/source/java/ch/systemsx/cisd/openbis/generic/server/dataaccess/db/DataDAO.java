@@ -248,6 +248,34 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         assert dataSetCodes != null : "Unspecified collection";
 
+        // PostgreSQL has a limit of 2^15 values in an IN clause, so we need to split the data set
+        // codes into chunks to avoid a
+        // java.io.IOException: Tried to send an out-of-range integer as a 2-byte value: nn
+        final int len = dataSetCodes.size();
+        if (len > Short.MAX_VALUE)
+        {
+            final List<DataPE> result = new ArrayList<DataPE>(dataSetCodes.size());
+            final List<String> dataSetCodesList = new ArrayList<String>(dataSetCodes);
+            int startIndex = 0;
+            int endIndex = Short.MAX_VALUE;
+            while (endIndex > startIndex)
+            {
+                result.addAll(primFindFullDataSetsByCode(
+                        dataSetCodesList.subList(startIndex, endIndex), withPropertyTypes,
+                        lockForUpdate));
+                startIndex = endIndex;
+                endIndex = Math.min(endIndex + Short.MAX_VALUE, len);
+            }
+            return result;
+        } else
+        {
+            return primFindFullDataSetsByCode(dataSetCodes, withPropertyTypes, lockForUpdate);
+        }
+    }
+
+    private List<DataPE> primFindFullDataSetsByCode(Collection<String> dataSetCodes,
+            boolean withPropertyTypes, boolean lockForUpdate)
+    {
         if (dataSetCodes.size() == 0)
         {
             return Collections.emptyList();
