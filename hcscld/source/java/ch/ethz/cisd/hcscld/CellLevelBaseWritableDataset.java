@@ -16,10 +16,14 @@
 
 package ch.ethz.cisd.hcscld;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.ethz.cisd.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValueArray;
 import ch.systemsx.cisd.hdf5.HDF5GenericStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
@@ -33,6 +37,8 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 {
     final IHDF5Writer writer;
 
+    private boolean objectTypesPersisted;
+
     private final CellLevelDatasetTypeDescriptor datasetTypeDescriptor;
 
     CellLevelBaseWritableDataset(final IHDF5Writer writer, final String datasetCode,
@@ -42,6 +48,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         super(writer, datasetCode, quantityStructure, formatVersionNumber);
         this.writer = writer;
+        addObjectType("MIXED");
         this.datasetTypeDescriptor =
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
@@ -128,6 +135,62 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         throw new UnsupportedOperationException();
     }
 
+    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    {
+        final String objectTypeIdUpper = objectTypeId.toUpperCase();
+        if (objectTypesPersisted)
+        {
+            throw new ObjectTypesSealedException(objectTypeIdUpper, getDatasetCode());
+        }
+        if (allObjectTypes.containsKey(objectTypeIdUpper))
+        {
+            throw new UniqueObjectTypeViolationException(objectTypeIdUpper);
+        }
+        final ObjectType result =
+                new ObjectType(objectTypeIdUpper, writer.getFile(), getDatasetCode(), companions);
+        allObjectTypes.put(objectTypeIdUpper, result);
+        return result;
+    }
+
+    /**
+     * Persist object types to the HDF5 file. May be called multiple times, but will only be
+     * executed when being called for the first time.
+     */
+    void persistObjectTypes()
+    {
+        if (objectTypesPersisted == false)
+        {
+            final Set<Set<ObjectType>> companionGroups = new LinkedHashSet<Set<ObjectType>>();
+            for (ObjectType ot : allObjectTypes.values())
+            {
+                companionGroups.add(ot.getCompanions());
+            }
+            final HDF5EnumerationType objectTypesType =
+                    writer.getEnumType(getObjectTypesObjectPath(),
+                            toString(allObjectTypes.values()));
+            int idx = 0;
+            for (Set<ObjectType> cgroup : companionGroups)
+            {
+                writer.writeEnumArray(
+                        getObjectTypesCompanionGroupsObjectPath(idx),
+                        new HDF5EnumerationValueArray(objectTypesType, toString(cgroup)));
+                idx++;
+            }
+            this.objectTypesPersisted = true;
+        }
+    }
+
+    private String[] toString(Collection<ObjectType> objectTypes)
+    {
+        final String[] options = new String[objectTypes.size()];
+        int idx = 0;
+        for (ObjectType ot : objectTypes)
+        {
+            options[idx++] = ot.getId();
+        }
+        return options;
+    }
+
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         checkSequenceLength(timeValues.getLength());
@@ -208,4 +271,5 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     {
         writer.writeStringVariableLength(getDatasetAnnotationObjectPath(annotationKey), annotation);
     }
+
 }

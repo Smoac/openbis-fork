@@ -71,6 +71,11 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
     }
 
+    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    {
+        return base.addObjectType(objectTypeId, companions);
+    }
+
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
@@ -103,6 +108,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
 
     public void writeImageSegmentation(ImageId id, List<SegmentedObject> objects)
     {
+        base.persistObjectTypes();
         int offset = 0;
         for (SegmentedObject o : objects)
         {
@@ -147,6 +153,18 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                     BitSetConversionUtils.fromStorageForm(allEdgeMasksArray),
                     HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         }
+    }
+
+    @Override
+    public ObjectType tryGetObjectType(String objectTypeId)
+    {
+        return base.tryGetObjectType(objectTypeId);
+    }
+
+    @Override
+    public ObjectType[] getObjectTypes()
+    {
+        return base.getObjectTypes();
     }
 
 }

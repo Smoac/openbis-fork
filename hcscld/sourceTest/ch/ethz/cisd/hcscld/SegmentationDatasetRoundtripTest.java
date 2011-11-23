@@ -16,10 +16,13 @@
 
 package ch.ethz.cisd.hcscld;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.BeforeSuite;
@@ -62,12 +65,23 @@ public class SegmentationDatasetRoundtripTest
                         new SegmentedObject((short) 200, (short) 220, (short) 220, (short) 240));
         cells.get(0).setMaskPoint(70, 80);
         cells.get(1).setMaskPoint(220, 240);
+        wds.addObjectType("cell");
         wds.writeImageSegmentation(new ImageId(1, 2, 3), cells);
         writer.close();
 
         ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         ICellLevelSegmentationDataset rds = reader.getDataSet("789").toSegmentationDataset();
         assertEquals("789", rds.getDatasetCode());
+        final ObjectType[] objectTypes = rds.getObjectTypes();
+        assertEquals(2, objectTypes.length);
+        assertEquals("MIXED", objectTypes[0].getId());
+        assertEquals("789", objectTypes[0].getDatasetCode());
+        assertEquals("segmentation.cld", objectTypes[0].getFile().getName());
+        assertEquals(Collections.singleton(objectTypes[0]), objectTypes[0].getCompanions());
+        assertEquals("CELL", objectTypes[1].getId());
+        assertEquals("789", objectTypes[1].getDatasetCode());
+        assertEquals("segmentation.cld", objectTypes[1].getFile().getName());
+        assertEquals(Collections.singleton(objectTypes[1]), objectTypes[1].getCompanions());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
         assertEquals(new ImageGeometry(1024, 1024), rds.getImageGeometry());
         SegmentedObject[] objects = rds.getObjects(new ImageId(1, 2, 3), true);

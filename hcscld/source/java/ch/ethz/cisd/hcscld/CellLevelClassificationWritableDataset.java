@@ -81,6 +81,11 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return this;
     }
 
+    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    {
+        return base.addObjectType(objectTypeId, companions);
+    }
+
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
@@ -123,6 +128,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, Enum<?>[] classifications)
     {
+        base.persistObjectTypes();
         final int[] ordinals = new int[classifications.length];
         for (int i = 0; i < classifications.length; ++i)
         {
@@ -135,6 +141,7 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, String[] classifications)
     {
+        base.persistObjectTypes();
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classifications), HDF5IntStorageFeatures
                 .createFromGeneric(CellLevelBaseWritableDataset
@@ -143,10 +150,23 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
 
     public void writeClassification(ImageId id, int[] classificationOrdinals)
     {
+        base.persistObjectTypes();
         base.writer.writeEnumArray(getObjectPath(id), new HDF5EnumerationValueArray(hdf5EnumType,
                 classificationOrdinals), HDF5IntStorageFeatures
                 .createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classificationOrdinals.length)));
+    }
+
+    @Override
+    public ObjectType tryGetObjectType(String objectTypeId)
+    {
+        return base.tryGetObjectType(objectTypeId);
+    }
+
+    @Override
+    public ObjectType[] getObjectTypes()
+    {
+        return base.getObjectTypes();
     }
 
 }

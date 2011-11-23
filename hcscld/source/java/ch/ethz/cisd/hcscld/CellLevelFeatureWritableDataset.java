@@ -67,6 +67,11 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return (ICellLevelSegmentationWritableDataset) super.toSegmentationDataset();
     }
 
+    public ObjectType addObjectType(String objectTypeId, ObjectType... companions)
+    {
+        return base.addObjectType(objectTypeId, companions);
+    }
+
     HDF5EnumerationType addEnum(String name, List<String> values)
     {
         return base.addEnum(name, values);
@@ -109,6 +114,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 
     public IFeaturesDefinition createFeaturesDefinition()
     {
+        base.persistObjectTypes();
         return new FeaturesDefinition(this);
     }
 
@@ -140,6 +146,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
+        base.persistObjectTypes();
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         checkNumberOfElements(id, featureValues.length);
         base.writer.writeCompoundArray(
@@ -170,6 +177,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
+        base.persistObjectTypes();
         final FeatureGroup fg = getFirstFeatureGroup();
         base.writer.writeCompoundArray(
                 fg.getObjectPath(id),
@@ -187,6 +195,18 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                     "Cannot use 'writeFeatures(WellFieldId, FeaturesDefinition, Object[][])'"
                             + " on a dataset with non-default feature groups defined.");
         }
+    }
+
+    @Override
+    public ObjectType tryGetObjectType(String objectTypeId)
+    {
+        return base.tryGetObjectType(objectTypeId);
+    }
+
+    @Override
+    public ObjectType[] getObjectTypes()
+    {
+        return base.getObjectTypes();
     }
 
 }

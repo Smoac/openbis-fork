@@ -71,6 +71,17 @@ public interface ICellLevelDataset
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
 
     /**
+     * Returns the object type with the given <var>objectTypeId</var>, or <code>null</code>, if this
+     * dataset doesn't have an object type with this id.
+     */
+    public ObjectType tryGetObjectType(String objectTypeId);
+
+    /**
+     * Returns all object ypes defined for this dataset.
+     */
+    public ObjectType[] getObjectTypes();
+
+    /**
      * Returns annotation for a time series image sequence.
      * 
      * @return The annotation for a time series sequence, or <code>null</code>, if this dataset has

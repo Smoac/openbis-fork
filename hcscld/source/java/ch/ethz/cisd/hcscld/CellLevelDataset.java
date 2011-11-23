@@ -17,8 +17,12 @@
 package ch.ethz.cisd.hcscld;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
@@ -29,6 +33,8 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 abstract class CellLevelDataset implements ICellLevelDataset
 {
+    static final String OBJECT_TYPE_DIR = "objectTypes";
+
     final IHDF5Reader reader;
 
     final String datasetCode;
@@ -36,7 +42,9 @@ abstract class CellLevelDataset implements ICellLevelDataset
     final ImageQuantityStructure quantityStructure;
 
     final int formatVersionNumber;
-    
+
+    final Map<String, ObjectType> allObjectTypes;
+
     CellLevelDataset(IHDF5Reader reader, String datasetCode,
             ImageQuantityStructure quantityStructure, int formatVersionNumber)
     {
@@ -44,6 +52,48 @@ abstract class CellLevelDataset implements ICellLevelDataset
         this.datasetCode = datasetCode;
         this.quantityStructure = quantityStructure;
         this.formatVersionNumber = formatVersionNumber;
+        this.allObjectTypes = readObjectTypes();
+    }
+
+    /**
+     * Reads the object types from the HDF5 file.
+     */
+    private Map<String, ObjectType> readObjectTypes()
+    {
+        final Map<String, ObjectType> result = new LinkedHashMap<String, ObjectType>();
+        if (reader.isDataType(getObjectTypesObjectPath()) == false)
+        {
+            return result;
+        }
+        final HDF5EnumerationType objectTypesType = reader.getEnumType(getObjectTypesObjectPath());
+        for (String id : objectTypesType.getValues())
+        {
+            result.put(id, new ObjectType(id, reader.getFile(), getDatasetCode()));
+        }
+        final Set<Set<ObjectType>> companionGroups = new LinkedHashSet<Set<ObjectType>>();
+        int idx = 0;
+        while (true)
+        {
+            final String cgObjectPath = getObjectTypesCompanionGroupsObjectPath(idx++); 
+            if (reader.isDataSet(cgObjectPath) == false)
+            {
+                break;
+            }
+            final Set<ObjectType> companionGroup = new HashSet<ObjectType>();
+            for (String id : reader.readEnumArray(cgObjectPath).getValues())
+            {
+                companionGroup.add(result.get(id));
+            }
+            companionGroups.add(companionGroup);
+        }
+        for (Set<ObjectType> cg : companionGroups)
+        {
+            for (ObjectType ot : cg)
+            {
+                ot.addCompanions(cg);
+            }
+        }
+        return result;
     }
 
     public String getDatasetCode()
@@ -97,6 +147,26 @@ abstract class CellLevelDataset implements ICellLevelDataset
                 .getStringAttribute(objectPath, parentDatasetAttributeName) : null;
     }
 
+    public ObjectType tryGetObjectType(String objectTypeId)
+    {
+        return allObjectTypes.get(objectTypeId.toUpperCase());
+    }
+
+    public ObjectType[] getObjectTypes()
+    {
+        return allObjectTypes.values().toArray(new ObjectType[allObjectTypes.size()]);
+    }
+
+    String getObjectTypesCompanionGroupsObjectPath(int idx)
+    {
+        return getObjectPath(OBJECT_TYPE_DIR, String.format("CompanionGroup_%d", idx));
+    }
+
+    String getObjectTypesObjectPath()
+    {
+        return getObjectPath(OBJECT_TYPE_DIR, "Enum_ObjectTypes");
+    }
+
     public Set<String> getDatasetAnnotationKeys()
     {
         return new HashSet<String>(reader.getGroupMembers(getDatasetAnnotationObjectPath()));
@@ -120,9 +190,9 @@ abstract class CellLevelDataset implements ICellLevelDataset
         {
             throw new WrongDatasetFormatException(datasetCode, expectedFormatType, foundFormatType);
         }
-        
+
     }
-    
+
     static String getDatasetTypeAttributeName()
     {
         return "datasetType";
@@ -201,7 +271,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     static String getDatasetPath(String datasetCode)
     {
-        return "DataSet_" + datasetCode;
+        return "/DataSet_" + datasetCode;
     }
 
     static String getImageQuantityStructureObjectPath(String datasetCode)
