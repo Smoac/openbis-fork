@@ -429,9 +429,12 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             checkParameters(incomingDataSetDirectory, storedDataDirectory);
 
             final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
-            for (File generatedFile : this.generatedFiles)
+            if (generatedFiles != null)
             {
-                deleteRecursively(fileOps, generatedFile);
+                for (File generatedFile : this.generatedFiles)
+                {
+                    deleteRecursively(fileOps, generatedFile);
+                }
             }
             final File originalDataFile = tryGetSingleChild(storedDataDirectory);
             if (originalDataFile == null)
