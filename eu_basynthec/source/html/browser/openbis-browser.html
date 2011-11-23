@@ -51,6 +51,17 @@ function showDataSets(bisDataSets)
 		return IGNORED_DATASET_TYPES.indexOf(dataSet.dataSetTypeCode) == -1;
   });
 	
+	// sort data sets
+	var sortByTypeAndRegistration = function(a, b) {
+		if (a.dataSetTypeCode == b.dataSetTypeCode) {
+			return a.registrationDetails.registrationDate - b.registrationDetails.registrationDate;
+		}
+		return (a.dataSetTypeCode < b.dataSetTypeCode) ? -1 : 1;
+	};
+	
+	basynthec.dataSetList.sort(sortByTypeAndRegistration);
+	
+	// group dataSets
 	dataSetsByStrain = basynthec.dataSetList.reduce(
 			function(result, dataSet) { 
 				
@@ -65,6 +76,7 @@ function showDataSets(bisDataSets)
 	      });
 				return result
 	}, {});
+
 	
 	refreshStrainTables();
 }
@@ -155,37 +167,28 @@ function updateDiagram(duration)
 function updateInspectors(duration)
 {	
 	var inspector = inspectors.selectAll("div.inspector").data(inspected, function (d) { return d.name });
+	
 	var box = inspector.enter().append("div")
 		.attr("class", "inspector")
 		.text(function(d) { return d.name });
-		
+
 	box.append("span")
 		.attr("class", "close")
 		.on("click", toggle_inspected)
 		.text("x");
 	
-	var typeGroups = inspector.selectAll("div.typeGroup").data(function(d) { return d.typeGroups; });
-	
-	var typeBox = typeGroups.enter()
-	    .append("div")
-	      .attr('class', 'typeGroup');
-	
-	typeBox.append("h3").text(function(d) { return d.type });
-	
-	var dataSetList = typeGroups.selectAll("ul.dataSets").data(function (d) { return [d] });
+	var dataSetList = inspector.selectAll("ul").data(function (d) { return [d] });
 	dataSetList.enter()
 	  .append("ul")
 	  .attr('class', 'dataSets');
 	
-	var dataSetElt = dataSetList.selectAll("li").data(function(d) { return d.data; });
 	
+	var dataSetElt = dataSetList.selectAll("li").data(function (d) { return d.dataSets });
 	dataSetElt.enter()
-	      .append("li").text(function(d) { return d.bis.code; })
-//	      .append("li").text(function(d) { return timeformat(new Date(d.bis.registrationDetails.registrationDate)); })
-//	      .on("click", toggle_dataset);
+	  .append("li")
+	  .text(function(d) { return dataSetLabel(d) });
 	
 	var dataSetDetailsElt = dataSetElt.selectAll("div.dataSetDetails").data(function(d) { return [d]; });
-	
 	dataSetDetailsElt
 	  .enter()
 	    .append("div")
@@ -256,6 +259,10 @@ function downloadTableFile(d)
 	basynthec.server.getDownloadUrlForFileForDataSet(d.dataset.bis.code, d.pathInDataSet, action);
 }
 
+function dataSetLabel(d) {
+	return d.bis.dataSetTypeCode + " registered on " + timeformat(new Date(d.bis.registrationDetails.registrationDate)); 
+}
+
 function classForNode(d) { 
 	return  (d.inspected) ? "inspected" : "";
 }
@@ -269,9 +276,9 @@ function toggle_inspected(d) {
 		d.inspected = true;
 		d.strainNode = this;
 		inspected.push(d);
-		if (!d.typeGroups) {
-			d.typeGroups = groupByType(dataSetsByStrain[d.name]); 
-			retrieveFilesForDataSets(d.typeGroups);
+		if (!d.dataSets) {
+			d.dataSets = dataSetsByStrain[d.name].map(function(ds){ return {bis : ds} }); 
+			retrieveFilesForDataSets(d.dataSets);
 		}
 	}
 	
@@ -298,13 +305,11 @@ function filesForDataSet(d)
 	return (d.files) ? d.files.filter(fileFilter) : [];
 }
 
-function retrieveFilesForDataSets(dsGroups)
+function retrieveFilesForDataSets(dataSets)
 {
-	dsGroups.forEach(function(group) {
-	   group.data.forEach(function(ds) {
+	dataSets.forEach(function(ds) {
 		   retrieveFilesForDataSet(ds);
-	   });	
-	});
+	});	
 }
 
 function retrieveFilesForDataSet(ds)
@@ -400,31 +405,6 @@ function groupBy(numElts)
 	}
 	return groupBy;
 }
-
-function groupByType(dataSets)
-{
-	dataSets.sort(sortByProp["dataSetTypeCode"])
-
-	return dataSets.reduce(function (groups, ds) {
-		
-		var dsType = ds.dataSetTypeCode;
-		var elt = {bis : ds, expanded: false};
-		
-		if (groups.length < 1) {
-			groups.push({type : dsType, data : [elt]});
-			return groups;
-		}
-		
-		var lastGrp = groups[groups.length - 1];
-		if (lastGrp.type == dsType) {
-			lastGrp.data.push(elt);
-		} else {
-			groups.push({type : dsType, data : [elt]});
-		}
-		return groups;
-		
-	}, []);
-}	
 
 
 $(document).ready(function() {
