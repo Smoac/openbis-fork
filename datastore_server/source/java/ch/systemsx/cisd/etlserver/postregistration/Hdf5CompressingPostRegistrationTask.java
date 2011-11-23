@@ -143,8 +143,12 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                 return;
             }
             
-            IHierarchicalContent hierarchicalContent =
-                    ServiceProvider.getHierarchicalContentProvider().asContent(externalData);
+            IHierarchicalContent hierarchicalContent = tryGetHierarchicalContent(externalData);
+            if (hierarchicalContent == null)
+            {
+                return;
+            }
+
             try
             {
                 if (false == hasFoldersForCompressing(hierarchicalContent)) {
@@ -183,6 +187,20 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             {
                 hierarchicalContent.close();
             }
+        }
+
+        private IHierarchicalContent tryGetHierarchicalContent(ExternalData externalData)
+        {
+            try
+            {
+                return ServiceProvider.getHierarchicalContentProvider().asContent(externalData);
+            } catch (IllegalArgumentException iae)
+            {
+                operationLog.error("Cannot get hierarchical content for external data "
+                        + externalData, iae);
+                return null;
+            }
+
         }
 
         private File createCleanupMarker(String shareId, File hdf5DataSetDir)
